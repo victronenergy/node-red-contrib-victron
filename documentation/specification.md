@@ -9,9 +9,7 @@ An example use case is shown below. A custom flow triggers a heater relay on, wh
 
 ### Example on Node Definition
 
-All the custom nodes will have an edit dialog showing available node-specific options for the user.  Here's an example of an edit dialog for a tank node. Relevant information will be only shown when necessary.
-
-The editable options are defined in plain text ...
+All the custom nodes will have an edit dialog showing available node-specific options for the user.  Here's an example of an edit dialog for a tank node and how it relates to the plain text initial description in this document.
 
 
 ```
