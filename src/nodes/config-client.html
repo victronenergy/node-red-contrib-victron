@@ -1,0 +1,41 @@
+<script type="text/x-red" data-template-name="victron-client">
+</script>
+
+<script type="text/x-red" data-help-name="victron-client">
+    <p>
+        The Victron Energy Configuration Node is a common
+        node providing access to the system dbus for all
+        other nodes.
+
+        The Configuration Node is always automatically (re-)created.
+    </p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('victron-client', {
+        category: 'config',
+        color: '#a6bbcf',
+        defaults: {},
+        label: function() {
+            return "victron-client";
+        },
+        hasUsers: false,
+        onpaletteremove: function() {
+            RED.nodes.eachConfig((n) => {
+                if (n.id === 'victron-client') RED.nodes.remove(n.id);
+            });
+            RED.nodes.dirty(true);
+        },
+        onpaletteadd: function() {
+            victronClientNode = {
+                id: "victron-client-id",
+                _def: RED.nodes.getType("victron-client"),
+                type: "victron-client",
+                users: []
+            }
+
+            RED.nodes.add(victronClientNode);
+            RED.nodes.dirty(true);
+        }
+    });
+</script>

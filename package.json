@@ -1,0 +1,24 @@
+{
+    "name": "node-red-contrib-victron",
+    "description": "Custom Node-RED Nodes for Victron Energy",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "dbus-native": "^0.4.0",
+        "debug": "^4.1.0",
+        "lodash": "^4.17.11",
+        "promise-retry": "^1.1.1"
+    },
+    "node-red": {
+        "nodes": {
+            "victron-client": "./src/nodes/config-client.js",
+            "victron-battery": "./src/nodes/input-battery.js",
+            "victron-relay": "./src/nodes/output-relay.js"
+        }
+    },
+    "devDependencies": {
+        "babel-eslint": "^10.0.1",
+        "eslint": "^5.10.0",
+        "eslint-config-google": "^0.11.0"
+    }
+}

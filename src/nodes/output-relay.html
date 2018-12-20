@@ -1,0 +1,94 @@
+
+<script type="text/x-red" data-template-name="victron-relay">
+
+    <div class="form-tips hidden" id="statusmessage">
+        No services found. Please check that the device is properly connected.
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-service"> Select </label>
+        <select id="node-input-service"></select>
+    </div>
+
+    <div class="form-row">
+        <label> State </label>
+        <input type="radio" name="value" value="on">On</input>
+        <input type="radio" name="value" value="off">Off</input>
+        <input type="radio" name="value" value="toggle">Toggle</input>
+        <div class="hidden" id="node-input-state"></div>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('victron-relay', {
+        category: 'output',
+        defaults: {
+            service: {value: ""},
+            state: {value: ""}
+        },
+        color: '#4790d0',
+        inputs: 1,
+        outputs: 0,
+
+        icon: "bridge.png",
+        label: function() {
+            let service = JSON.parse(this.service);
+
+            let label = service
+            ? `${service.label} - ${this.state}`
+            : ''
+
+            return this.name || label;
+        },
+        oneditprepare: function() {
+            let _this = this;
+            // Fill available relays
+            $.getJSON('victron/services/relay', function(data) {
+                if (Object.keys(data).length !== 0) {
+                    let selectElem = $('#node-input-service');
+                    selectElem.val();
+                    $.each(data, (serviceId, service) => {
+                        let serviceStr = JSON.stringify({serviceId, ...service});
+                        selectElem.append(
+                            $('<option/>', {value: serviceStr, text : service.label})
+                        );
+                    });
+                    selectElem.val(_this.service);
+                }
+                else {
+                    $('#statusmessage').show();
+                    $('.form-row').hide();
+                }
+            });
+
+            // Set the radio button, if one has been already chosen
+            $(`input[name='value'][value='${this.state}']`).attr('checked', true);
+
+            // Node-RED doesn't quite support radio buttons as-is, so
+            // we will save the state changes to a hidden container
+            // #node-input-state, where the Node-RED frontend can catch-up
+            $("input[name='value']").change(function() {
+                $("#node-input-state").val(this.value);
+            });
+
+        }
+    });
+
+</script>
+
+<style>
+    .form-row input[type="radio"] {
+        width: auto;
+        clear: none;
+        margin: -4px 4px 0px 12px;
+    }
+    .hidden {
+        display: hidden;
+    }
+</style>

@@ -1,0 +1,71 @@
+
+<script type="text/x-red" data-template-name="victron-battery">
+
+    <div class="form-tips hidden" id="statusmessage">
+        No services found. Please check that the device is properly connected.
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-service"> Measurement</label>
+        <select id="node-input-service"></select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('victron-battery', {
+        category: 'input',
+        defaults: {
+            service: {value: ""}
+        },
+        color: '#4790d0',
+        inputs: 0,
+        outputs: 1,
+
+        icon: "bridge.png",
+        label: function() {
+            let label = this.service
+            ? ' - ' + JSON.parse(this.service).label
+            : '';
+
+            return this.name || `Battery${label}`;
+        },
+        oneditprepare: function() {
+            let _this = this;
+            $.getJSON('victron/services/battery', function(data) {
+                if (Object.keys(data).length !== 0) {
+                    let selectElem = $('#node-input-service');
+                    selectElem.val();
+
+                    let theBattery = data[Object.keys(data)[0]];
+
+                    $.each(theBattery, (serviceId, service) => {
+                        let serviceStr = JSON.stringify({serviceId, ...service});
+                        selectElem.append(
+                            $('<option/>', { value: serviceStr, text : service.label })
+                        );
+                    });
+
+                    selectElem.val(_this.service);
+                }
+                else {
+                    $('#statusmessage').show();
+                    $('.form-row').hide();
+                }
+            });
+
+        }
+    });
+
+</script>
+
+<style>
+    .hidden {
+        display: none
+    }
+</style>
