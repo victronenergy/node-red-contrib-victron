@@ -63,5 +63,7 @@ In order to use the plugin, it needs to be locally installed:
 ```
 5. environment variable `NODE_RED_DBUS_ADDRESS` needs to be set before running node-red in order to connect to the dbus instance. If it is not set, it defaults to localhost. For example `NODE_RED_DBUS_ADDRESS=192.168.1.1 node-red`. 
 
-Further information on [nodered.org](https://nodered.org/docs/creating-nodes/first-node) and [github](https://github.com/sbender9/signalk-venus-plugin#plugin-installation--configuration).
 6. you can optionally run the plugin with a DEBUG environment variable set, to see additional debug information printed on the shell.
+
+Further information on [nodered.org](https://nodered.org/docs/creating-nodes/first-node) and [github](https://github.com/sbender9/signalk-venus-plugin#plugin-installation--configuration).
+
