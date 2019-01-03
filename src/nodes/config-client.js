@@ -4,6 +4,12 @@ module.exports = function(RED) {
 
     var VictronClient = require('../services/victronclient.js');
 
+    function serialize(key, value) {
+        if (typeof value === 'object' && value instanceof Set)
+            return [...value];
+        return value;
+    }
+
     function VictronClientNode(config) {
         RED.nodes.createNode(this, config);
         var node = this;
@@ -19,7 +25,9 @@ module.exports = function(RED) {
         // An endpoint for nodes to request services from - returns either a single service, or all available services
         // depending whether the requester gives the service parameter
         RED.httpAdmin.get("/victron/services/:service?", RED.auth.needsPermission('victron-client.read'), function(req, res) {
-            return res.json(node.client.system.listAvailableServices(req.params.service))
+            let serialized = JSON.stringify(node.client.system.listAvailableServices(req.params.service), serialize)
+            res.setHeader('Content-Type', 'application/json');
+            return res.send(serialized)
         });
 
     }
