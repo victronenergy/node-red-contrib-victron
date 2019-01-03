@@ -6,8 +6,13 @@
     </div>
 
     <div class="form-row">
-        <label for="node-input-service"> Measurement</label>
+        <label for="node-input-service"> Battery</label>
         <select id="node-input-service"></select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-path"> Measurement</label>
+        <select id="node-input-path"></select>
     </div>
 
     <div class="form-row">
@@ -21,7 +26,8 @@
     RED.nodes.registerType('victron-battery', {
         category: 'input',
         defaults: {
-            service: {value: ""}
+            service: {value: ""},
+            path: {value: ""}
         },
         color: '#4790d0',
         inputs: 0,
@@ -30,28 +36,40 @@
         icon: "bridge.png",
         label: function() {
             let label = this.service
-            ? ' - ' + JSON.parse(this.service).label
-            : '';
+            // TODO
+            //? ' - ' + JSON.parse(this.service).label
+            //: '';
 
-            return this.name || `Battery${label}`;
+            return this.name || `Battery ${label}`;
         },
         oneditprepare: function() {
             let _this = this;
             $.getJSON('victron/services/battery', function(data) {
-                if (Object.keys(data).length !== 0) {
-                    let selectElem = $('#node-input-service');
-                    selectElem.val();
+                if (data.length !== 0) {
+                    let serviceElem = $('#node-input-service');
+                    let pathElem = $('#node-input-path');
+                    serviceElem.val();
+                    pathElem.val();
 
-                    let theBattery = data[Object.keys(data)[0]];
-
-                    $.each(theBattery, (serviceId, service) => {
-                        let serviceStr = JSON.stringify({serviceId, ...service});
-                        selectElem.append(
-                            $('<option/>', { value: serviceStr, text : service.label })
+                    let availableServices = data.map(b => b.service);
+                    // TODO: in the future, use a ProductName here
+                    availableServices.forEach(service => {
+                        serviceElem.append(
+                            $('<option/>', {value: service, text: service})
                         );
                     });
 
-                    selectElem.val(_this.service);
+
+                    let availablePaths = data[0]['paths'];
+                    // TODO: use an onChangeHandler for the battery, the available paths may vary per service
+                    availablePaths.forEach(path => {
+                        pathElem.append(
+                            $('<option/>', {value: path.path, text: path.label})
+                        );
+                    });
+
+                    serviceElem.val(_this.service);
+                    pathElem.val(_this.path);
                 }
                 else {
                     $('#statusmessage').show();

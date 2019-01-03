@@ -5,7 +5,7 @@ module.exports = function(RED) {
     function OutputRelay(config) {
         RED.nodes.createNode(this, config);
 
-        this.service = JSON.parse(config.service);
+        this.service = config.service //TODO: remove JSON.parse(config.service);
         this.state = config.state;
         this.config = RED.nodes.getNode("victron-client-id");
         this.client = this.config.client;
@@ -26,8 +26,9 @@ module.exports = function(RED) {
         };
         
         this.on("input", function(msg) {
-            let serviceId = this.service.serviceId;
-            this.client.publishService(serviceId, stateToMessage(this.state));
+            // TODO: add interface selection via UI
+            // this.service => this.path
+            this.client.publish("com.victronenergy.system", this.service, stateToMessage(this.state));
         });
 
     }

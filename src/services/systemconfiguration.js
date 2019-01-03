@@ -1,5 +1,7 @@
 'use strict';
 
+const svc = require('./servicemapping');
+
 /**
  * SystemConfiguration contains information on the given Venus system.
  * It acts as a cache for available services based on what messages
@@ -10,11 +12,6 @@ class SystemConfiguration {
         // keeps a dynamically filled list of discovered dbus services
         // currently, the system does not detect a disappearing service
         this.devices = {};
-
-        this.services = {
-            ...BATTERY_SERVICES,
-            ...RELAY_SERVICES // TODO: find a better way for this
-        };
     }
 
     /**
@@ -47,18 +44,21 @@ class SystemConfiguration {
     }
 
     getBatteryServices() {
-            // parses all the dbus interfaces for batteries: com.victronenergy.battery.<id>
-            const re = /\bcom\.victronenergy\.battery\.(.*)/g;
-            let dbusInterfaces = [...Object.keys(this.devices)];
+        // parses all the dbus interfaces for batteries: com.victronenergy.battery.<id>
+        const re = /\b(com\.victronenergy\.battery\..*)/g;
+        
+        let dbusInterfaces = [...Object.keys(this.devices)];
+        let batteries = this.matchAndCapture(re, dbusInterfaces);
+        
+        let services = [];
+        batteries.forEach(batteryService => {
+            services.push({
+                ...svc.BATTERY,
+                "service": batteryService
+            })
+        });
 
-            let batteries = this.matchAndCapture(re, dbusInterfaces);
-            
-            let services = {};
-            batteries.forEach(b => {
-                services[`battery-${b}`] = BATTERY_SERVICES
-            });
-
-            return services;
+        return services;
     }
 
     getRelayServices() {
@@ -68,18 +68,30 @@ class SystemConfiguration {
         let systemPaths = this.devices["com.victronenergy.system"] || [];
         let relays = this.matchAndCapture(re, [...systemPaths]);
 
-        let services = {};
+        // TODO: remove
+        // cheat a bit, hardcoded relay discover for now
+        relays = ['0', '1', '2']
+
+        let services = [];
         relays.forEach(r => {
-            services[`relay-${r}`] = {
-                "label": `Relay ${r}`,
-                "service": "com.victronenergy.system",
+            // TODO: could we just use a template engine here?
+            let relayService = {...svc.RELAY}
+            
+            relayService.name = `Relay ${r}`
+            relayService.paths = [{
+                "label": "State (on/off)",
                 "path": `/Relay/${r}/State`
-            }
+            }]
+
+            //relayService.paths[0].path = `/Relay/${r}/State`; // why doesn't this work?
+
+            services.push(relayService)
+
         });
 
         return services;
     }
-    
+
     /**
      * Lists all currently available services. This list is used to populate the nodes' edit dialog.
      * E.g. if a battery monitor is available, all the given battery monitor services are listed
@@ -90,52 +102,34 @@ class SystemConfiguration {
     listAvailableServices(device=null) {
         let services = {
             "battery": this.getBatteryServices(),
-            "relay": this.getRelayServices()
+            "relay": this.getRelayServices(),
+            "all": this.devices
         };
 
         return device !== null
             ? services[device]
             : services;
     }
+
 }
 
-const BATTERY_SERVICES = {
-    "battery-voltage": {
+// // fill in the service name dynamically
+// // s => `com.victronenergy.battery.${s}`
+// TODO: remove
+const BATTERY_SERVICES = [
+    {
         "label": "Voltage (V)",
-        "service": "com.victronenergy.system",
-        "path": "/Dc/Battery/Voltage"
+        "path": "/Dc/0/Voltage"
     },
-    "battery-current": {
+    {
         "label": "Current (A)",
-        "service": "com.victronenergy.system",
-        "path": "/Dc/Battery/Current"
+        "path": "/Dc/0/Current"
     },
-    "battery-temperature": {
-        "label": "Temperature (°C)",
-        "service": "com.victronenergy.system",
-        "path": "/Dc/Battery/Temperature"
-    },
-    "battery-consumed": {
-        "label": "Consumed Charge (Ah)",
-        "service": "com.victronenergy.system",
-        "path": "/Dc/Battery/ConsumedAmphours"
-    },
-    "battery-soc": {
-        "label": "State of Charge (%)",
-        "service": "com.victronenergy.system",
-        "path": "/Dc/Battery/Soc"
-    },
-    "battery-ttg": {
-        "label": "Time to Go (s)",
-        "service": "com.victronenergy.system",
-        "path": "/Dc/Battery/TimeToGo"
-    },
-    "battery-relay": { 
-        "label": "Relay State (on/off)",
-        "service": "com.victronenergy.system",
-        "path": "/Relay/0/State"
+    {
+        "label": "Power (W)",
+        "path": "/Dc/0/Power"
     }
-};
+];
 
 const RELAY_SERVICES =  {
     "relay-0": {

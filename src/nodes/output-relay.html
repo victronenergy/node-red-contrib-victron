@@ -38,11 +38,14 @@
 
         icon: "bridge.png",
         label: function() {
-            let service = JSON.parse(this.service);
+            /*let service = JSON.parse(this.service);
 
             let label = service
             ? `${service.label} - ${this.state}`
-            : ''
+            : ''*/
+
+            // TODO
+            let label = "Relay"
 
             return this.name || label;
         },
@@ -50,15 +53,17 @@
             let _this = this;
             // Fill available relays
             $.getJSON('victron/services/relay', function(data) {
-                if (Object.keys(data).length !== 0) {
+                if (data.length !== 0) {
                     let selectElem = $('#node-input-service');
                     selectElem.val();
-                    $.each(data, (serviceId, service) => {
-                        let serviceStr = JSON.stringify({serviceId, ...service});
+
+                    data.forEach(service => {
+                        let path = service.paths[0].path
                         selectElem.append(
-                            $('<option/>', {value: serviceStr, text : service.label})
+                            $('<option/>', {value: path, text: service.name})
                         );
                     });
+
                     selectElem.val(_this.service);
                 }
                 else {
