@@ -48,7 +48,7 @@ class VictronClient {
                     setProviderError: msg => debug(`[PROVIDER ERROR] ${msg}`)
                 },
                 messageHandler,
-                `tcp:host=${_this.dbusAddress},port=78`,
+                `tcp:host=${_this.dbusAddress},port=3000`, // TODO: set the port in env, too - default 78
                 {
                     onError: msg => debug(`[ERROR] ${msg}`)
                 },
@@ -81,32 +81,15 @@ class VictronClient {
 
         let newSubscription =  {callback, dbusInterface, path, subscriptionId}
 
-        let msgKey = dbusInterface + path // something like this com.victronenergy.system/Dc/Battery/Temperature
+        let msgKey = dbusInterface + path
         if (msgKey in this.subscriptions)
             this.subscriptions[msgKey].push(newSubscription)
         else
             this.subscriptions[msgKey] = [newSubscription]
 
-            debug(`[SUBSCRIBE] [${dbusInterface} | ${path}] ID: ${subscriptionId}`)
+        debug(`[SUBSCRIBE] [${dbusInterface} | ${path}] ID: ${subscriptionId}`)
 
         return subscriptionId;
-    }
-
-    /**
-     * A Helper function for nodes to subscribe to a service specified in SystemConfiguration.services, e.g. battery-voltage
-     * 
-     * @param {string} serviceId a shorthand id for a specific service, as defined in SystemConfiguration.services 
-     * @param {function} callback  a callback which is invoked when a received dbus message matches the subscription
-     */
-    subscribeService(serviceId, callback) {
-        let {service, path} = this.system.services[serviceId]
-
-        if (!(serviceId in this.system.services)) {
-            debug(`Could not subscribe to ${serviceId}`)
-            return false
-        }
-
-        return this.subscribe(service, path, callback);
     }
 
     /**
@@ -131,24 +114,6 @@ class VictronClient {
         this.write(dbusInterface, path, value)
     }
 
-    /**
-     * A helper function for nodes to publish to a service specified in SystemConfiguration.services, e.g. battery-current
-     * 
-     * @param {string} serviceId a shorthand id for a specific service, as defined in SystemConfiguration.services 
-     * @param {string} value a value to write to the given dbus service, e.g. 1
-     */
-    publishService(serviceId, value) {
-        if (!this.connected) {
-            debug("Publish attempted before connecting! Message lost!")
-            return
-        }
-
-        let {service, path} = this.system.services[serviceId]
-
-        debug(`[PUBLISH] [${service} | ${path}] -> ${value}`)
-        
-        this.write(service, path, value)
-    }
 }
 
 
