@@ -31,17 +31,8 @@ const BATTERY =  {
             "path": "/TimeToGo"
         },
         {
-            "label": "Battery Low Threshold (V)",
-            "path": "/Info/BatteryLowVoltage"
-        },
-        {
             "label": "Relay State (on/off)",
             "path": "/Relay/0/State"
-        },
-        ,
-        {
-            "label": "Ext. Relay State - Lynx (on/off)",
-            "path": "/Io/ExternalRelay"
         }
     ]
 }

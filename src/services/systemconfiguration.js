@@ -45,16 +45,17 @@ class SystemConfiguration {
 
     getBatteryServices() {
         // parses all the dbus interfaces for batteries: com.victronenergy.battery.<id>
-        const re = /\b(com\.victronenergy\.battery\..*)/g;
+        const re = /\bcom\.victronenergy\.battery\.(.*)/g;
         
         let dbusInterfaces = [...Object.keys(this.devices)];
         let batteries = this.matchAndCapture(re, dbusInterfaces);
         
         let services = [];
-        batteries.forEach(batteryService => {
+        batteries.forEach(battery => {
             services.push({
                 ...svc.BATTERY,
-                "service": batteryService
+                "service": `com.victronenergy.battery.${battery}`,
+                "name": battery
             })
         });
 
@@ -68,13 +69,8 @@ class SystemConfiguration {
         let systemPaths = this.devices["com.victronenergy.system"] || [];
         let relays = this.matchAndCapture(re, [...systemPaths]);
 
-        // TODO: remove
-        // cheat a bit, hardcoded relay discover for now
-        relays = ['0', '1', '2']
-
         let services = [];
         relays.forEach(r => {
-            // TODO: could we just use a template engine here?
             let relayService = {...svc.RELAY}
             
             relayService.name = `Relay ${r}`
@@ -83,7 +79,7 @@ class SystemConfiguration {
                 "path": `/Relay/${r}/State`
             }]
 
-            //relayService.paths[0].path = `/Relay/${r}/State`; // why doesn't this work?
+            //relayService.paths[0].path = `/Relay/${r}/State`; // TODO: why doesn't this work?
 
             services.push(relayService)
 
@@ -103,7 +99,7 @@ class SystemConfiguration {
         let services = {
             "battery": this.getBatteryServices(),
             "relay": this.getRelayServices(),
-            "all": this.devices
+            //"all": this.devices
         };
 
         return device !== null
@@ -111,37 +107,6 @@ class SystemConfiguration {
             : services;
     }
 
-}
-
-// // fill in the service name dynamically
-// // s => `com.victronenergy.battery.${s}`
-// TODO: remove
-const BATTERY_SERVICES = [
-    {
-        "label": "Voltage (V)",
-        "path": "/Dc/0/Voltage"
-    },
-    {
-        "label": "Current (A)",
-        "path": "/Dc/0/Current"
-    },
-    {
-        "label": "Power (W)",
-        "path": "/Dc/0/Power"
-    }
-];
-
-const RELAY_SERVICES =  {
-    "relay-0": {
-        "label": "Relay 0",
-        "service": "com.victronenergy.system",
-        "path": "/Relay/0/State"
-    },
-    "relay-1": {
-        "label": "Relay 1",
-        "service": "com.victronenergy.system",
-        "path": "/Relay/1/State"
-    }
 }
 
 module.exports = SystemConfiguration;

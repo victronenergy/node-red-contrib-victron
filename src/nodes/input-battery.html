@@ -35,12 +35,10 @@
 
         icon: "bridge.png",
         label: function() {
-            let label = this.service
-            // TODO
-            //? ' - ' + JSON.parse(this.service).label
-            //: '';
+            let svc = JSON.parse(this.service).name
+            let path = JSON.parse(this.path).label
 
-            return this.name || `Battery ${label}`;
+            return this.name || `Battery - ${svc} - ${path}`;
         },
         oneditprepare: function() {
             let _this = this;
@@ -50,21 +48,18 @@
                     let pathElem = $('#node-input-path');
                     serviceElem.val();
                     pathElem.val();
-
-                    let availableServices = data.map(b => b.service);
-                    // TODO: in the future, use a ProductName here
-                    availableServices.forEach(service => {
+            
+                    data.forEach(monitor => {
                         serviceElem.append(
-                            $('<option/>', {value: service, text: service})
+                            $('<option/>', {value: JSON.stringify(monitor), text: monitor.name})
                         );
                     });
 
-
                     let availablePaths = data[0]['paths'];
-                    // TODO: use an onChangeHandler for the battery, the available paths may vary per service
+
                     availablePaths.forEach(path => {
                         pathElem.append(
-                            $('<option/>', {value: path.path, text: path.label})
+                            $('<option/>', {value: JSON.stringify(path), text: path.label})
                         );
                     });
 
