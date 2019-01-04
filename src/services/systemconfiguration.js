@@ -1,6 +1,7 @@
 'use strict';
 
-const svc = require('./servicemapping');
+const mapping = require('./servicemapping');
+const _ = require('lodash')
 
 /**
  * SystemConfiguration contains information on the given Venus system.
@@ -43,6 +44,11 @@ class SystemConfiguration {
         return matches;
     }
 
+    captureOne(regex, str) {
+        while (match = regex.exec(str)) {}
+        return match[1]
+    }
+
     getBatteryServices() {
         // parses all the dbus interfaces for batteries: com.victronenergy.battery.<id>
         const re = /\bcom\.victronenergy\.battery\.(.*)/g;
@@ -52,38 +58,38 @@ class SystemConfiguration {
         
         let services = [];
         batteries.forEach(battery => {
-            services.push({
-                ...svc.BATTERY,
-                "service": `com.victronenergy.battery.${battery}`,
-                "name": battery
-            })
+            services.push(
+                mapping.BATTERY(`com.victronenergy.battery.${battery}`, battery)
+            )
         });
 
         return services;
     }
 
     getRelayServices() {
-        // parses all /Relay/<id>/State paths
-        const re = /\/Relay\/(\d)+\/State/g;
+        // Iterate over previously found devices and look for /Relay/X paths
+        let services = []
+        Object.keys(this.devices).forEach(svc => {
+            this.devices[svc].forEach(path => {
+                if (_.startsWith(path, '/Relay')) {
 
-        let systemPaths = this.devices["com.victronenergy.system"] || [];
-        let relays = this.matchAndCapture(re, [...systemPaths]);
+                    // Node label is based on the given service
+                    let name = ''
+                    if (_.startsWith(svc, 'com.victronenergy.battery')) {
+                        let batteryRe = /\bbattery\.(.*)/
+                        let batterySvc = batteryRe.exec(svc)
+                        name = batterySvc !== null ? `Battery (${batterySvc[1]})` : ''
+                    }
+                    else if (_.startsWith(svc, 'com.victronenergy.system')) {
+                        let relayPathRe = /\/Relay\/(\d)+\/State/
+                        let systemRelayIdx = relayPathRe.exec(path)
+                        name = systemRelayIdx !== null ? `System (${systemRelayIdx[1]})` : ''
+                    }
 
-        let services = [];
-        relays.forEach(r => {
-            let relayService = {...svc.RELAY}
-            
-            relayService.name = `Relay ${r}`
-            relayService.paths = [{
-                "label": "State (on/off)",
-                "path": `/Relay/${r}/State`
-            }]
-
-            //relayService.paths[0].path = `/Relay/${r}/State`; // TODO: why doesn't this work?
-
-            services.push(relayService)
-
-        });
+                    services.push(mapping.RELAY(svc, path, name))
+                }
+            })
+        })
 
         return services;
     }
@@ -98,8 +104,7 @@ class SystemConfiguration {
     listAvailableServices(device=null) {
         let services = {
             "battery": this.getBatteryServices(),
-            "relay": this.getRelayServices(),
-            //"all": this.devices
+            "relay": this.getRelayServices()
         };
 
         return device !== null
