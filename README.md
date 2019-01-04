@@ -61,9 +61,9 @@ In order to use the plugin, it needs to be locally installed:
   <auth>ANONYMOUS</auth>
   <allow_anonymous/>
 ```
-5. environment variable `NODE_RED_DBUS_ADDRESS` needs to be set before running node-red in order to connect to the dbus instance. If it is not set, it defaults to localhost. For example `NODE_RED_DBUS_ADDRESS=192.168.1.1 node-red`. 
+5. environment variable `NODE_RED_DBUS_ADDRESS` needs to be set before running node-red in order to connect to the dbus instance. If it is not set, it defaults to localhost. For example `NODE_RED_DBUS_ADDRESS=192.168.1.1:78 node-red`. You can also export it once `export NODE_RED_DBUS_ADDRESS=192.168.1.1:78`.
 
-6. you can optionally run the plugin with a DEBUG environment variable set, to see additional debug information printed on the shell.
+6. you can optionally run the plugin with a DEBUG=* environment variable set, to see additional debug information printed on the shell. E.g. `export DEBUG=node-red-contrib-victron*`
 
 Further information on [nodered.org](https://nodered.org/docs/creating-nodes/first-node) and [github](https://github.com/sbender9/signalk-venus-plugin#plugin-installation--configuration).
 
