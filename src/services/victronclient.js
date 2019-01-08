@@ -8,10 +8,14 @@ const debug = require('debug')('node-red-contrib-victron:victronclient')
 /**
  * VictronClient class encapsulates all the necessary functions to
  * both subscribe to dbus value updates as well as write values to dbus.
+ * 
+ * @param {string} address IP address for dbus over TCP
+ * @param {string} port dbus over TCP port
  */
 class VictronClient {
-    constructor(dbusAddress, dbusPort) {
-        this.dbusAddress = dbusAddress || '127.0.0.1:78'
+    constructor(address, port) {
+        this.dbusAddress = address || '127.0.0.1'
+        this.dbusPort = port || '78'
         this.subscriptions = {} // an array of subscription objects [{ "topic": topic, "handler": function }, ...]
         this.write
         this.system = new SystemConfiguration()
@@ -41,8 +45,6 @@ class VictronClient {
         }
 
         promiseRetry(retry => {
-            let address = _this.dbusAddress.split(':')
-
             // createDbusListener(app, messageCallback, address, plugin, pollInterval)
             return createDbusListener(
                 {
@@ -50,7 +52,7 @@ class VictronClient {
                     setProviderError: msg => debug(`[PROVIDER ERROR] ${msg}`)
                 },
                 messageHandler,
-                `tcp:host=${address[0]},port=${address[1]}`,
+                `tcp:host=${_this.dbusAddress},port=${_this.dbusPort}`,
                 {
                     onError: msg => debug(`[ERROR] ${msg}`)
                 },
