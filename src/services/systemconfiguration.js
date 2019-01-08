@@ -9,7 +9,7 @@ const _ = require('lodash')
  * it receives from the dbus-listener
  */
 class SystemConfiguration {
-    constructor() {       
+    constructor() {
         // keeps a dynamically filled list of discovered dbus services
         // currently, the system does not detect a disappearing service
         this.devices = {};
@@ -44,23 +44,15 @@ class SystemConfiguration {
         return matches;
     }
 
-    captureOne(regex, str) {
-        while (match = regex.exec(str)) {}
-        return match[1]
-    }
-
     getBatteryServices() {
         // parses all the dbus interfaces for batteries: com.victronenergy.battery.<id>
         const re = /\bcom\.victronenergy\.battery\.(.*)/g;
-        
+
         let dbusInterfaces = [...Object.keys(this.devices)];
         let batteries = this.matchAndCapture(re, dbusInterfaces);
-        
-        let services = [];
-        batteries.forEach(battery => {
-            services.push(
-                mapping.BATTERY(`com.victronenergy.battery.${battery}`, battery)
-            )
+
+        let services = batteries.map(battery => {
+            return mapping.BATTERY(`com.victronenergy.battery.${battery}`, battery)
         });
 
         return services;
