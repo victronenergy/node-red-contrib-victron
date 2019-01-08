@@ -35,12 +35,27 @@
 
         icon: "bridge.png",
         label: function() {
-            let svc = JSON.parse(this.service).name
-            let path = JSON.parse(this.path).label
+            let altName = 'Battery';
 
-            return this.name || `Battery - ${svc} - ${path}`;
+            if (this.service && this.path) {
+                let svc = JSON.parse(this.service).name;
+                let path = JSON.parse(this.path).label;
+                altName = `Battery - ${svc} - ${path}`;
+            }
+
+            return this.name || altName
         },
         oneditprepare: function() {
+
+            const setSelectValues = (selector, services) => {
+                selector[0].options.length = 0;
+                services.forEach(path => {
+                    selector.append(
+                        $('<option/>', {value: JSON.stringify(path), text: path.label})
+                    );
+                });
+            }
+
             let _this = this;
             $.getJSON('victron/services/battery', function(data) {
                 if (data.length !== 0) {
@@ -48,19 +63,24 @@
                     let pathElem = $('#node-input-path');
                     serviceElem.val();
                     pathElem.val();
-            
+
                     data.forEach(monitor => {
                         serviceElem.append(
                             $('<option/>', {value: JSON.stringify(monitor), text: monitor.name})
                         );
                     });
 
-                    let availablePaths = data[0]['paths'];
+                    // set the initial selection paths
+                    if (_this.service) {
+                        let paths = JSON.parse(_this.service).paths
+                        setSelectValues(pathElem, paths)
+                    }
 
-                    availablePaths.forEach(path => {
-                        pathElem.append(
-                            $('<option/>', {value: JSON.stringify(path), text: path.label})
-                        );
+                    serviceElem.change(() => {
+                        // on battery interface change,
+                        // set the available services for the battery monitor
+                        let currentInterface = JSON.parse(serviceElem.val());
+                        setSelectValues(pathElem, currentInterface.paths)
                     });
 
                     serviceElem.val(_this.service);
