@@ -38,8 +38,12 @@
 
         icon: "bridge.png",
         label: function() {
-            let service = JSON.parse(this.service);
-            return this.name || `Relay - ${service.name} - ${this.state}`;
+            let altName = 'Relay';
+            if (this.service) {
+                let svc = JSON.parse(this.service);
+                altName = `Relay - ${svc.name} - ${this.state}`
+            }
+            return this.name || altName;
         },
         oneditprepare: function() {
             let _this = this;
