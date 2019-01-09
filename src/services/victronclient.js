@@ -16,8 +16,12 @@ class VictronClient {
     constructor(address, port) {
         this.dbusAddress = address || '127.0.0.1'
         this.dbusPort = port || '78'
+
         this.subscriptions = {} // an array of subscription objects [{ "topic": topic, "handler": function }, ...]
+
         this.write
+        this.request
+
         this.system = new SystemConfiguration()
 
         this.connected = false;
@@ -37,7 +41,8 @@ class VictronClient {
         // and matches them with the registered subscriptions invoking their callback
         const messageHandler = messages => {
             messages.forEach(msg => {
-                _this.system.serviceDiscoveryCallback(msg)
+                _this.saveToCache(msg)
+
                 let msgKey = `${msg.senderName}${msg.path}`
                 if (msgKey in _this.subscriptions)
                     _this.subscriptions[msgKey].forEach(sub => sub.callback(msg))
@@ -65,11 +70,41 @@ class VictronClient {
             forever: true
         }
         )
-        .then(dbusCallbacks => {
-            // on connection, set the status to 'connected' and store the dbus write function
-            _this.write = dbusCallbacks.setValue
+        .then(dbusHandlers => {
+            // on connection, set the status to 'connected' and store the returned handlers
+            _this.write = dbusHandlers.setValue
+            _this.request = dbusHandlers.getValue
             _this.connected = true // We should probably use the setProviderStatus for various dbus states
         })
+    }
+
+    /**
+     * a callback that should be called on each received dbus message
+     * in order to maintain a list of available devices on the dbus.
+     * 
+     * @param {object} msg a message object received from the dbus-listener
+     */
+    saveToCache(msg) {
+        //let dbusInterface = this.cache[msg.senderName] || {}
+        let dbusInterface = {}
+        if (this.system.cache[msg.senderName]) {
+            dbusInterface = this.system.cache[msg.senderName]
+        } else {
+            // Upon first discovery, request the customname and productname
+            // of the battery. The returned message gets saved to the cache.
+            if (msg.senderName.startsWith('com.victronenergy.battery')) {
+                this.request(msg.senderName, '/CustomName')
+                this.request(msg.senderName, '/ProductName')
+            }
+        }
+
+        // some dbus messages are empty arrays []
+        if (msg.value.length == 0 ) {
+            msg.value = undefined
+        }
+
+        dbusInterface[msg.path] = msg.value
+        this.system.cache[msg.senderName] = dbusInterface
     }
 
     /**

@@ -2,6 +2,7 @@
 
 const mapping = require('./servicemapping');
 const _ = require('lodash')
+const debug = require('debug')('node-red-contrib-victron:systemconfiguration')
 
 /**
  * SystemConfiguration contains information on the given Venus system.
@@ -12,57 +13,29 @@ class SystemConfiguration {
     constructor() {
         // keeps a dynamically filled list of discovered dbus services
         // currently, the system does not detect a disappearing service
-        this.devices = {};
-    }
 
-    /**
-     * a callback that should be called on each received dbus message
-     * in order to maintain a list of available devices on the dbus.
-     * 
-     * @param {object} msg a message object received from the dbus-listener
-     */
-    serviceDiscoveryCallback(msg) {
-        let dbusInterface = this.devices[msg.senderName] || new Set();
-        this.devices[msg.senderName] = dbusInterface.add(msg.path);
-    }
-
-    /**
-     * A helper method to capture services from a dbus listing.
-     * 
-     * @param {string} regex a regular expression with a capture group
-     * @param {array} devices an array of strings
-     */
-    matchAndCapture(regex, devices) {
-        // combine to a single string to execute regex only once
-        let match;
-        let matches = [];
-
-        while (match = regex.exec(devices.join('\n'))) {
-            matches.push(match[1])
-        }
-
-        return matches;
+        this.cache = {}
     }
 
     getBatteryServices() {
         // parses all the dbus interfaces for batteries: com.victronenergy.battery.<id>
-        const re = /\bcom\.victronenergy\.battery\.(.*)/g;
 
-        let dbusInterfaces = [...Object.keys(this.devices)];
-        let batteries = this.matchAndCapture(re, dbusInterfaces);
+        // filter cache for battery services
+        let batteries = _.pickBy(this.cache, (val, key) => key.startsWith('com.victronenergy.battery'))
 
-        let services = batteries.map(battery => {
-            return mapping.BATTERY(`com.victronenergy.battery.${battery}`, battery)
+        return Object.keys(batteries).map(dbusInterface => {
+            let batteryPaths = batteries[dbusInterface]
+            let name = batteryPaths['/CustomName'] || batteryPaths['/ProductName'] || dbusInterface
+            return mapping.BATTERY(dbusInterface, name)
         });
 
-        return services;
     }
 
     getRelayServices() {
         // Iterate over previously found devices and look for /Relay/X paths
-        let services = []
-        Object.keys(this.devices).forEach(svc => {
-            this.devices[svc].forEach(path => {
+        let services = [];
+        Object.keys(this.cache).forEach(svc => {
+            Object.keys(this.cache[svc]).forEach(path => {
                 if (_.startsWith(path, '/Relay')) {
 
                     // Node label is based on the given service
@@ -70,7 +43,8 @@ class SystemConfiguration {
                     if (_.startsWith(svc, 'com.victronenergy.battery')) {
                         let batteryRe = /\bbattery\.(.*)/
                         let batterySvc = batteryRe.exec(svc)
-                        name = batterySvc !== null ? `Battery (${batterySvc[1]})` : ''
+
+                        name = this.cache[svc]['/CustomName'] || this.cache[svc]['/ProductName'] || batterySvc[1]
                     }
                     else if (_.startsWith(svc, 'com.victronenergy.system')) {
                         let relayPathRe = /\/Relay\/(\d)+\/State/
@@ -96,7 +70,8 @@ class SystemConfiguration {
     listAvailableServices(device=null) {
         let services = {
             "battery": this.getBatteryServices(),
-            "relay": this.getRelayServices()
+            "relay": this.getRelayServices(),
+            "all": this.cache,
         };
 
         return device !== null
