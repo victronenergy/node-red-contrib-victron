@@ -93,7 +93,7 @@ module.exports = function (app, messageCallback, address, plugin, pollInterval) 
     }
 
     function requestRoot (service) {
-      // debug(`getValue / ${service.name}`)
+      debug(`getValue / ${service.name}`)
       bus.invoke(
         {
           path: '/',
@@ -210,6 +210,31 @@ module.exports = function (app, messageCallback, address, plugin, pollInterval) 
       messageCallback([m])
     }
 
+    // used to send a read request
+    function getValue (destination, path) {
+      debug(`getValue: ${destination} ${path}`)
+      bus.invoke(
+        {
+          path: path,
+          destination: destination,
+          interface: 'com.victronenergy.BusItem',
+          member: 'GetValue'
+        },
+        function (err, res) {
+          if (err) {
+            debug(`Could not get value from ${destination} - ${path}: ${err}`)
+          } else {
+            let message = {
+              path: path,
+              senderName: destination,
+              value: res[1][0]
+            }
+            messageCallback([message])
+          }
+        }
+      )
+    }
+
     function setValue (destination, path, value) {
       debug(`setValue: ${destination} ${path} = ${value}`)
       bus.invoke(
@@ -238,6 +263,7 @@ module.exports = function (app, messageCallback, address, plugin, pollInterval) 
         const pollingTimer = setInterval(pollDbus, pollInterval*1000)
         resolve({
           setValue,
+          getValue,
           onStop: () => {
             clearInterval(pollingTimer)
           }
