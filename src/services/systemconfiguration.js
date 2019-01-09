@@ -75,7 +75,7 @@ class SystemConfiguration {
                     else if (_.startsWith(svc, 'com.victronenergy.system')) {
                         let relayPathRe = /\/Relay\/(\d)+\/State/
                         let systemRelayIdx = relayPathRe.exec(path)
-                        name = systemRelayIdx !== null ? `System (${systemRelayIdx[1]})` : ''
+                        name = systemRelayIdx !== null ? `Venus device (${systemRelayIdx[1]})` : ''
                     }
 
                     services.push(mapping.RELAY(svc, path, name))
