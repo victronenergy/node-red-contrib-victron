@@ -12,25 +12,37 @@ const debug = require('debug')('node-red-contrib-victron:systemconfiguration')
 class SystemConfiguration {
     constructor() {
         // keeps a dynamically filled list of discovered dbus services
-        // currently, the system does not detect a disappearing service
-
+        // The system does not detect a disappearing service
         this.cache = {}
     }
 
+    /**
+     * Builds the edit form layout for the battery node.
+     * Filters the dbus cache for available battery services.
+     */
     getBatteryServices() {
-        // parses all the dbus interfaces for batteries: com.victronenergy.battery.<id>
-
-        // filter cache for battery services
+        // filter the dbus cache for battery services
         let batteries = _.pickBy(this.cache, (val, key) => key.startsWith('com.victronenergy.battery'))
 
+        // construct an object that is used to render the edit form for the node
         return Object.keys(batteries).map(dbusInterface => {
             let batteryPaths = batteries[dbusInterface]
             let name = batteryPaths['/CustomName'] || batteryPaths['/ProductName'] || dbusInterface
-            return mapping.BATTERY(dbusInterface, name)
+
+            // the cache is filtered against the desired paths
+            // to only show available options per service on the node's edit form.
+            let paths = mapping.BATTERY_PATHS.filter(p => {
+                return p.path in batteryPaths
+            })
+
+            return mapping.BATTERY(dbusInterface, name, paths)
         });
 
     }
-
+    /**
+     * Builds the edit form for the relay node.
+     * Filters the cache for system and battery relays.
+     */
     getRelayServices() {
         // Iterate over previously found devices and look for /Relay/X paths
         let services = [];
@@ -70,8 +82,7 @@ class SystemConfiguration {
     listAvailableServices(device=null) {
         let services = {
             "battery": this.getBatteryServices(),
-            "relay": this.getRelayServices(),
-            "all": this.cache,
+            "relay": this.getRelayServices()
         };
 
         return device !== null
