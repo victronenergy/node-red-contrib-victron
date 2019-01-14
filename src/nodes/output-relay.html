@@ -47,23 +47,35 @@
         },
         oneditprepare: function() {
             let _this = this;
-            // Fill available relays
+
+            let selectElem = $('#node-input-service');
+
+            const populateSelect = (selector, services) => {
+                selector[0].options.length = 0;
+                services.forEach(path => {
+                    selector.append(
+                        $('<option/>', {value: JSON.stringify(path), text: path.name})
+                    );
+                });
+            }
+
+            // Upon receiving data, populate the edit form
             $.getJSON('victron/services/relay', function(data) {
                 if (data.length !== 0) {
-                    let selectElem = $('#node-input-service');
-                    selectElem.val();
-
-                    data.forEach(service => {
-                        selectElem.append(
-                            $('<option/>', {value: JSON.stringify(service), text: service.name})
-                        );
-                    });
-
-                    selectElem.val(_this.service);
+                    populateSelect(selectElem, data)
                 }
                 else {
                     $('#statusmessage').show();
-                    $('.form-row').hide();
+                    if (!_this.service) $('.form-row').hide();
+                }
+
+                if (_this.service) {
+                    let svc = JSON.parse(_this.service)
+                    if (data.filter(o => o.service === svc.service).length == 0) {
+                        $('<option/>', {value: _this.service, text: (svc.name + ' [disconnected]')})
+                            .appendTo(selectElem);
+                    }
+                    selectElem.val(_this.service);
                 }
             });
 
@@ -72,11 +84,9 @@
 
             // Node-RED doesn't quite support radio buttons as-is, so
             // we will save the state changes to a hidden container
-            // #node-input-state, where the Node-RED frontend can catch-up
             $("input[name='value']").change(function() {
                 $("#node-input-state").val(this.value);
             });
-
         }
     });
 
@@ -90,5 +100,8 @@
     }
     .hidden {
         display: hidden;
+    }
+    #statusmessage {
+        margin-bottom: 12px;
     }
 </style>

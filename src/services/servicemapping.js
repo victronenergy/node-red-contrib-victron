@@ -18,35 +18,35 @@ const BATTERY = (service, name, paths) => {
  */
 const BATTERY_PATHS = [
     {
-        "label": "Voltage 1 (V)",
+        "name": "Voltage 1 (V)",
         "path": "/Dc/0/Voltage"
     },
     {
-        "label": "Voltage 2 (V)",
+        "name": "Voltage 2 (V)",
         "path": "/Dc/1/Voltage"
     },
     {
-        "label": "Current (A)",
+        "name": "Current (A)",
         "path": "/Dc/0/Current"
     },
     {
-        "label": "Temperature (°C)",
+        "name": "Temperature (°C)",
         "path": "/Dc/0/Temperature"
     },
     {
-        "label": "Consumed Charge (Ah)",
+        "name": "Consumed Charge (Ah)",
         "path": "/ConsumedAmphours"
     },
     {
-        "label": "State of Charge (%)",
+        "name": "State of Charge (%)",
         "path": "/Soc"
     },
     {
-        "label": "Time to Go (s)",
+        "name": "Time to Go (s)",
         "path": "/TimeToGo"
     },
     {
-        "label": "Relay State (on/off)",
+        "name": "Relay State (on/off)",
         "path": "/Relay/0/State"
     }
 ]
@@ -61,7 +61,7 @@ const RELAY = (service, path, name) => {
             "name": `${name}`,
             "paths": [ 
                 {
-                    "label": "State (on/off)",
+                    "name": "State (on/off)",
                     "path": `${path}`
                 }
             ]
