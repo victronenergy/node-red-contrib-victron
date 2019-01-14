@@ -20,7 +20,7 @@ class VictronClient {
         this.subscriptions = {} // an array of subscription objects [{ "topic": topic, "handler": function }, ...]
 
         this.write
-        this.request
+        this.read
 
         this.system = new SystemConfiguration()
 
@@ -59,7 +59,13 @@ class VictronClient {
                 messageHandler,
                 `tcp:host=${_this.dbusAddress},port=${_this.dbusPort}`,
                 {
-                    onError: msg => debug(`[ERROR] ${msg}`)
+                    onError: msg => debug(`[ERROR] ${msg}`),
+                    onServiceChange: (changeType, serviceName) => {
+                        debug(`[SERVICE ${changeType}] ${serviceName}`)
+                        if (changeType === 'DELETE' && serviceName !== null) {
+                            delete this.system.cache[serviceName]
+                        }
+                    }
                 },
                 5
             )
@@ -73,7 +79,8 @@ class VictronClient {
         .then(dbusHandlers => {
             // on connection, set the status to 'connected' and store the returned handlers
             _this.write = dbusHandlers.setValue
-            _this.request = dbusHandlers.getValue
+            _this.read = dbusHandlers.getValue
+
             _this.connected = true // We should probably use the setProviderStatus for various dbus states
         })
     }
@@ -85,16 +92,16 @@ class VictronClient {
      * @param {object} msg a message object received from the dbus-listener
      */
     saveToCache(msg) {
-        //let dbusInterface = this.cache[msg.senderName] || {}
-        let dbusInterface = {}
+        //let dbusPaths = this.cache[msg.senderName] || {}
+        let dbusPaths = {}
         if (this.system.cache[msg.senderName]) {
-            dbusInterface = this.system.cache[msg.senderName]
+            dbusPaths = this.system.cache[msg.senderName]
         } else {
             // Upon first discovery, request the customname and productname
             // of the battery. The returned message gets saved to the cache.
             if (msg.senderName.startsWith('com.victronenergy.battery')) {
-                this.request(msg.senderName, '/CustomName')
-                this.request(msg.senderName, '/ProductName')
+                this.read(msg.senderName, '/CustomName')
+                this.read(msg.senderName, '/ProductName')
             }
         }
 
@@ -103,8 +110,8 @@ class VictronClient {
             msg.value = undefined
         }
 
-        dbusInterface[msg.path] = msg.value
-        this.system.cache[msg.senderName] = dbusInterface
+        dbusPaths[msg.path] = msg.value
+        this.system.cache[msg.senderName] = dbusPaths
     }
 
     /**

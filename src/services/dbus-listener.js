@@ -159,8 +159,11 @@ module.exports = function (app, messageCallback, address, plugin, pollInterval) 
 
       if (name.startsWith('com.victronenergy')) {
         initService(new_owner, name)
+        plugin.onServiceChange("INITIALIZE", name)
       } else {
+        let svcName = services[old_owner] ? services[old_owner].name : null
         delete services[old_owner]
+        plugin.onServiceChange("DELETE", svcName)
       }
     }
 
