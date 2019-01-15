@@ -157,7 +157,13 @@ class VictronClient {
      * @param {string} value value to write to the given dbus service, e.g. 1
      */
     publish(dbusInterface, path, value) {
-        this.write(dbusInterface, path, value)
+        if (this.connected) {
+            debug(`[PUBLISH] ${dbusInterface} - ${path} | ${value}`)
+            this.write(dbusInterface, path, value)
+        }
+        else {
+            throw Error('Not connected to dbus. Publish was unsuccessful.')
+        }
     }
 
 }
