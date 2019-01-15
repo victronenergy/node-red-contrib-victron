@@ -3,34 +3,35 @@ module.exports = function(RED) {
     "use strict";
 
     function OutputRelay(config) {
-        RED.nodes.createNode(this, config);
+        RED.nodes.createNode(this, config)
 
-        this.service = JSON.parse(config.service);
-        this.state = config.state;
-        this.config = RED.nodes.getNode("victron-client-id");
-        this.client = this.config.client;
+        this.service = JSON.parse(config.service)
+        this.state = config.state
+        this.config = RED.nodes.getNode("victron-client-id")
+        this.client = this.config.client
 
-        let toggleState = 0;
+        let toggleState = 0
 
         let stateToMessage = state => {
             switch(state) {
                 case 'on':
-                    return 1;
+                    return 1
                 case 'off':
-                    return 0;
+                    return 0
                 case 'toggle':
                     // Ideally the initial state would be fetched from the relay itself
-                    toggleState = 1 - toggleState;
-                    return toggleState;
+                    toggleState = 1 - toggleState
+                    return toggleState
             }
         };
-        
+
         this.on("input", function(msg) {
             let path = this.service.paths[0].path
-            this.client.publish("com.victronenergy.system", path, stateToMessage(this.state));
+            let service = this.service.service
+            this.client.publish(service, path, stateToMessage(this.state))
         });
 
     }
 
-    RED.nodes.registerType("victron-relay", OutputRelay);
+    RED.nodes.registerType("victron-relay", OutputRelay)
 }
