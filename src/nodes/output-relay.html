@@ -10,7 +10,9 @@
         <select id="node-input-service"></select>
     </div>
 
-    <div class="form-row">
+    <div class="form-warning hidden" id="warningmessage"></div>
+
+    <div class="form-row" id="relay-state">
         <label> State </label>
         <input type="radio" name="value" value="on">On</input>
         <input type="radio" name="value" value="off">Off</input>
@@ -41,7 +43,9 @@
             let altName = 'Relay';
             if (this.service) {
                 let svc = JSON.parse(this.service);
-                altName = `Relay - ${svc.name} - ${this.state}`
+                altName = svc.disabled
+                    ? `Relay - ${svc.name} - disabled`
+                    : `Relay - ${svc.name} - ${this.state}`
             }
             return this.name || altName;
         },
@@ -87,6 +91,21 @@
             $("input[name='value']").change(function() {
                 $("#node-input-state").val(this.value);
             });
+
+            selectElem.change((e) => {
+                let selected = $(e.target).val() || _this.service;
+                // Ensure, that the selected relay isn't disabled
+                if (selected) {
+                    let serviceObj = JSON.parse(selected);
+                    if (serviceObj.disabled) {
+                        $('#warningmessage').text(serviceObj.warning).show()
+                        $("input[name='value']").attr('disabled', true);
+                    } else {
+                        $('#warningmessage').hide();
+                        $("input[name='value']").attr('disabled', false);
+                    }
+                }
+            });
         }
     });
 
@@ -98,10 +117,15 @@
         clear: none;
         margin: -4px 4px 0px 12px;
     }
+    .form-warning {
+        color: red;
+        font-size: 0.9em;
+        max-width: 30em;
+    }
     .hidden {
         display: hidden;
     }
-    #statusmessage {
+    .form-tips, .form-warning {
         margin-bottom: 12px;
     }
 </style>
