@@ -14,14 +14,9 @@ module.exports = function(RED) {
         RED.nodes.createNode(this, config);
         var node = this;
 
-        // ip defaults to localhost if empty
-        let [dbusAddress, dbusPort] = process.env.NODE_RED_DBUS_ADDRESS.split(':')
-        this.client = new VictronClient(dbusAddress, dbusPort);
-        this.connected = false;
+        this.client = new VictronClient(process.env.NODE_RED_DBUS_ADDRESS);
 
-        this.client.connect().then(() => {
-            this.connected = true;
-        });
+        this.client.connect()
 
         // An endpoint for nodes to request services from - returns either a single service, or all available services
         // depending whether the requester gives the service parameter

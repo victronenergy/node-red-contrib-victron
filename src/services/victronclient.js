@@ -9,22 +9,18 @@ const debug = require('debug')('node-red-contrib-victron:victronclient')
  * VictronClient class encapsulates all the necessary functions to
  * both subscribe to dbus value updates as well as write values to dbus.
  * 
- * @param {string} address IP address for dbus over TCP
- * @param {string} port dbus over TCP port
+ * @param {string} address IP address for dbus over TCP, both address and port. E.g. 127.0.0.1:78
  */
 class VictronClient {
-    constructor(address, port) {
-        this.dbusAddress = address || '127.0.0.1'
-        this.dbusPort = port || '78'
-
-        this.subscriptions = {} // an array of subscription objects [{ "topic": topic, "handler": function }, ...]
+    constructor(address) {
+        this.dbusAddress = address
 
         this.write
         this.read
+        this.connected = false;
 
         this.system = new SystemConfiguration()
-
-        this.connected = false;
+        this.subscriptions = {} // an array of subscription objects [{ "topic": topic, "handler": function }, ...]
     }
 
     /**
@@ -49,6 +45,16 @@ class VictronClient {
             });
         }
 
+        // Use dbus over TCP if an address is given,
+        // otherwise, default to systembus
+        let dbusConnectionString = null
+        if (this.dbusAddress) {
+            const address = this.dbusAddress.split(':')
+            if (address.length === 2) {
+                dbusConnectionString = `tcp:host=${address[0]},port=${address[1]}`
+            }
+        }
+
         promiseRetry(retry => {
             // createDbusListener(app, messageCallback, address, plugin, pollInterval)
             return createDbusListener(
@@ -57,7 +63,7 @@ class VictronClient {
                     setProviderError: msg => debug(`[PROVIDER ERROR] ${msg}`)
                 },
                 messageHandler,
-                `tcp:host=${_this.dbusAddress},port=${_this.dbusPort}`,
+                dbusConnectionString,
                 {
                     onError: msg => debug(`[ERROR] ${msg}`),
                     onServiceChange: (changeType, serviceName) => {
