@@ -2,6 +2,8 @@
 module.exports = function(RED) {
     "use strict";
 
+    const mapping = require('../services/servicemapping');
+
     function OutputRelay(config) {
         RED.nodes.createNode(this, config)
 
@@ -19,7 +21,6 @@ module.exports = function(RED) {
                 case 'off':
                     return 0
                 case 'toggle':
-                    // Ideally the initial state would be fetched from the relay itself
                     toggleState = 1 - toggleState
                     return toggleState
             }
@@ -28,7 +29,11 @@ module.exports = function(RED) {
         this.on("input", function(msg) {
             let path = this.service.paths[0].path
             let service = this.service.service
-            this.client.publish(service, path, stateToMessage(this.state))
+
+            if (!this.service.disabled)
+                this.client.publish(service, path, stateToMessage(this.state))
+            else
+                this.warn(mapping.RELAY_MODE_WARNING('another'))
         });
 
     }

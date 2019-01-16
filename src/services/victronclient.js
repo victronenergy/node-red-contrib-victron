@@ -67,7 +67,6 @@ class VictronClient {
                 {
                     onError: msg => debug(`[ERROR] ${msg}`),
                     onServiceChange: (changeType, serviceName) => {
-                        debug(`[SERVICE ${changeType}] ${serviceName}`)
                         if (changeType === 'DELETE' && serviceName !== null) {
                             delete this.system.cache[serviceName]
                         }

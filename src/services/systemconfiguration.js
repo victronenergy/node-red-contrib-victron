@@ -2,7 +2,7 @@
 
 const mapping = require('./servicemapping');
 const _ = require('lodash')
-const debug = require('debug')('node-red-contrib-victron:systemconfiguration')
+const debug = require('debug')('node-red-contrib-victron:systemconfiguartion')
 
 /**
  * SystemConfiguration contains information on the given Venus system.
@@ -17,8 +17,8 @@ class SystemConfiguration {
     }
 
     /**
-     * Builds the edit form layout for the battery node.
-     * Filters the dbus cache for available battery services.
+     * Build the edit form layout for the battery node.
+     * Filter the dbus cache for available battery services.
      */
     getBatteryServices() {
         // filter the dbus cache for battery services
@@ -40,40 +40,54 @@ class SystemConfiguration {
 
     }
     /**
-     * Builds the edit form for the relay node.
-     * Filters the cache for system and battery relays.
+     * Build the edit form for the relay node.
+     * Filter the cache for system and battery relays.
      */
     getRelayServices() {
-        // Iterate over previously found devices and look for /Relay/X paths
-        let services = [];
-        Object.keys(this.cache).forEach(svc => {
-            Object.keys(this.cache[svc]).forEach(path => {
-                if (_.startsWith(path, '/Relay')) {
 
-                    // Node label is based on the given service
-                    let name = ''
-                    if (_.startsWith(svc, 'com.victronenergy.battery')) {
-                        let batteryRe = /\bbattery\.(.*)/
-                        let batterySvc = batteryRe.exec(svc)
+        // Build a relay object representing the relay node settings in node-red UI
+        const buildRelayObject = (service, path) => {
+            if (service.startsWith('com.victronenergy.system')) {
+                const relayIndex = path.split('/')[2] || ''
+                const name = `Venus device (${relayIndex})`
 
-                        name = this.cache[svc]['/CustomName'] || this.cache[svc]['/ProductName'] || batterySvc[1]
+                let relayObject = mapping.RELAY(service, path, name)
+
+                // Special case for system relay 0 - only allow usage if relay function is set to manual
+                if (relayIndex === '0') {
+                    const systemRelayFunction = this.cache['com.victronenergy.settings']['/Settings/Relay/Function']
+                    if (systemRelayFunction !== 2) { // manual
+                        relayObject["disabled"] = true
+                        relayObject["warning"] = mapping.RELAY_MODE_WARNING(mapping.RELAY_FUNCTIONS[systemRelayFunction])
                     }
-                    else if (_.startsWith(svc, 'com.victronenergy.system')) {
-                        let relayPathRe = /\/Relay\/(\d)+\/State/
-                        let systemRelayIdx = relayPathRe.exec(path)
-                        name = systemRelayIdx !== null ? `Venus device (${systemRelayIdx[1]})` : ''
-                    }
-
-                    services.push(mapping.RELAY(svc, path, name))
                 }
-            })
-        })
 
-        return services;
+                return relayObject
+            }
+            if (service.startsWith('com.victronenergy.battery')) {
+                const name = this.cache[service]['/CustomName']
+                    || this.cache[service]['/ProductName']
+                    || service.split('.').pop()
+
+                return mapping.RELAY(service, path, name)
+            }
+        }
+
+        // Filter all paths that begin with '/Relay'.
+        // Construct and return an array of relay nodes representing their settings.
+        return Object.entries(this.cache)
+            .reduce((acc, [service, pathObj]) => {
+                Object.keys(pathObj)
+                    .filter(path => path.startsWith('/Relay'))
+                    .map(relayPath => acc.push(
+                        buildRelayObject(service, relayPath))
+                    )
+                return acc
+            }, []);
     }
 
     /**
-     * Lists all currently available services. This list is used to populate the nodes' edit dialog.
+     * List all currently available services. This list is used to populate the nodes' edit dialog.
      * E.g. if a battery monitor is available, all the given battery monitor services are listed
      * in the input-battery node.
      * 
@@ -82,7 +96,8 @@ class SystemConfiguration {
     listAvailableServices(device=null) {
         let services = {
             "battery": this.getBatteryServices(),
-            "relay": this.getRelayServices()
+            "relay": this.getRelayServices(),
+            "cache": this.cache
         };
 
         return device !== null

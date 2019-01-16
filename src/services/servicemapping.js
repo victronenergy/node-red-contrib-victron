@@ -68,8 +68,20 @@ const RELAY = (service, path, name) => {
         }
 }
 
+const RELAY_FUNCTIONS = {
+    0: 'alarm',
+    1: 'generator',
+    2: 'manual',
+    3: 'tank pump'
+}
+
+const RELAY_MODE_WARNING = (func) =>
+    `This relay is reserved for ${func} function. Please navigate to Settings > Relay and change it to manual.`
+
 module.exports = {
     BATTERY,
     BATTERY_PATHS,
-    RELAY
+    RELAY,
+    RELAY_FUNCTIONS,
+    RELAY_MODE_WARNING
 }
