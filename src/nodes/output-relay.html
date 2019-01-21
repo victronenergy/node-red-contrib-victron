@@ -30,22 +30,24 @@
 <script type="text/javascript">
     RED.nodes.registerType('victron-relay', {
         category: 'Victron Energy',
+        paletteLabel: 'relay',
         defaults: {
             serviceId: {value: ""},
             state: {value: ""},
-            service: {value: undefined}
+            service: {value: undefined},
+            name: {value: ""}
         },
         color: '#4790d0',
         inputs: 1,
         outputs: 0,
-
+        align: 'right',
         icon: "victronenergy.svg",
         label: function() {
-            let altName = 'Relay';
+            let altName = 'relay';
             if (this.service) {
                 altName = this.service.disabled
-                    ? `Relay - ${this.service.name} - disabled`
-                    : `Relay - ${this.service.name} - ${this.state}`
+                    ? `relay | ${this.service.name} | disabled`
+                    : `relay | ${this.service.name} | ${this.state}`
             }
             return this.name || altName;
         },

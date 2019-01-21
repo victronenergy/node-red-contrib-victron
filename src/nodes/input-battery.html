@@ -25,22 +25,23 @@
 <script type="text/javascript">
     RED.nodes.registerType('victron-battery', {
         category: 'Victron Energy',
+        paletteLabel: 'battery',
         defaults: {
             serviceId: {value: ""},
             service: {value: undefined},
-            path: {value: ""}
+            path: {value: ""},
+            name: {value: ""}
         },
         color: '#4790d0',
         inputs: 0,
         outputs: 1,
-
         icon: "victronenergy.svg",
         label: function() {
-            let altName = 'Battery';
+            let altName = 'battery';
             if (this.service && this.path) {
                 let svc = this.service.name;
                 let path = this.service.paths.find(p => p.path === this.path).name;
-                altName = `Battery - ${svc} - ${path}`;
+                altName = `battery | ${svc} | ${path}`;
             }
 
             return this.name || altName
