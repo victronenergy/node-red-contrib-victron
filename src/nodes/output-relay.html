@@ -6,8 +6,8 @@
     </div>
 
     <div class="form-row">
-        <label for="node-input-service"> Relay </label>
-        <select id="node-input-service"></select>
+        <label for="node-input-serviceId"> Relay </label>
+        <select id="node-input-serviceId"></select>
     </div>
 
     <div class="form-warning hidden" id="warningmessage"></div>
@@ -31,8 +31,9 @@
     RED.nodes.registerType('victron-relay', {
         category: 'Victron Energy',
         defaults: {
-            service: {value: ""},
-            state: {value: ""}
+            serviceId: {value: ""},
+            state: {value: ""},
+            service: {value: undefined}
         },
         color: '#4790d0',
         inputs: 1,
@@ -42,46 +43,64 @@
         label: function() {
             let altName = 'Relay';
             if (this.service) {
-                let svc = JSON.parse(this.service);
-                altName = svc.disabled
-                    ? `Relay - ${svc.name} - disabled`
-                    : `Relay - ${svc.name} - ${this.state}`
+                altName = this.service.disabled
+                    ? `Relay - ${this.service.name} - disabled`
+                    : `Relay - ${this.service.name} - ${this.state}`
             }
             return this.name || altName;
         },
         oneditprepare: function() {
             let _this = this;
+            let serviceElem = $('#node-input-serviceId');
 
-            let selectElem = $('#node-input-service');
+            const buildOption = service => $('<option/>').val(service.id).text(service.name).data(service);
 
             const populateSelect = (selector, services) => {
-                selector[0].options.length = 0;
-                services.forEach(path => {
-                    selector.append(
-                        $('<option/>', {value: JSON.stringify(path), text: path.name})
-                    );
+                selector[0].options.length = 0; // clear options
+                services.forEach(service => {
+                    selector.append(buildOption(service));
                 });
+            }
+
+            const updateWarning = () => {
+                const data = serviceElem.find(':selected').data();
+                if (data && data.disabled && data.warning) {
+                    $('#warningmessage').text(data.warning).show()
+                    $("input[name='value']").attr('disabled', true);
+                } else {
+                    $('#warningmessage').hide();
+                    $("input[name='value']").attr('disabled', false);
+                }
             }
 
             // Upon receiving data, populate the edit form
             $.getJSON('victron/services/relay', function(data) {
+                // 1. Populate edit options based on new data
                 if (data.length !== 0) {
-                    populateSelect(selectElem, data)
+                    populateSelect(serviceElem, data)
                 }
                 else {
                     $('#statusmessage').show();
-                    if (!_this.service) $('.form-row').hide();
+                    if (!_this.serviceId) $('.form-row').hide();
                 }
 
+                // 2. If the node was previously deployed,
+                // update the edit based on the old data
                 if (_this.service) {
-                    let svc = JSON.parse(_this.service)
-                    if (data.filter(o => o.service === svc.service).length == 0) {
-                        $('<option/>', {value: _this.service, text: (svc.name + ' [disconnected]')})
-                            .appendTo(selectElem);
+                    // if it is not present anymore, still add it to the select list
+                    if (!data.find(s => s.id === _this.service.id)) {
+                        buildOption(_this.service)
+                            .text(_this.service.name + " [disconnected]")
+                            .appendTo(serviceElem);
                     }
-                    selectElem.val(_this.service);
+                    serviceElem.val(_this.service.id);
                 }
+
+                updateWarning();
+                serviceElem.change(updateWarning);
             });
+
+            // 3. Additional logic and state updates
 
             // Set the radio button, if one has been already chosen
             $(`input[name='value'][value='${this.state}']`).attr('checked', true);
@@ -91,21 +110,10 @@
             $("input[name='value']").change(function() {
                 $("#node-input-state").val(this.value);
             });
-
-            selectElem.change((e) => {
-                let selected = $(e.target).val() || _this.service;
-                // Ensure, that the selected relay isn't disabled
-                if (selected) {
-                    let serviceObj = JSON.parse(selected);
-                    if (serviceObj.disabled) {
-                        $('#warningmessage').text(serviceObj.warning).show()
-                        $("input[name='value']").attr('disabled', true);
-                    } else {
-                        $('#warningmessage').hide();
-                        $("input[name='value']").attr('disabled', false);
-                    }
-                }
-            });
+        },
+        oneditsave: function() {
+            // save the current service to a variable
+            this.service = $('#node-input-serviceId').find(':selected').data()
         }
     });
 

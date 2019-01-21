@@ -6,15 +6,15 @@ module.exports = function(RED) {
         RED.nodes.createNode(this, config);
         var node = this;
 
-        this.service = JSON.parse(config.service);
-        this.path = JSON.parse(config.path);
+        this.service = config.service
+        this.path = config.path
 
         this.subscription = null;
         this.config = RED.nodes.getNode("victron-client-id");
         this.client = this.config.client;
 
         if (this.service && this.path) {
-            this.subscription = this.client.subscribe(this.service.service, this.path.path, (msg) => {
+            this.subscription = this.client.subscribe(this.service.service, this.path, (msg) => {
                 node.send({
                     payload: msg.value,
                     topic: `${this.service.service} - ${this.path.path}`

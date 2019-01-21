@@ -7,8 +7,9 @@ module.exports = function(RED) {
     function OutputRelay(config) {
         RED.nodes.createNode(this, config)
 
-        this.service = JSON.parse(config.service)
+        this.service = config.service
         this.state = config.state
+
         this.config = RED.nodes.getNode("victron-client-id")
         this.client = this.config.client
 

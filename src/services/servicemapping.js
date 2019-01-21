@@ -1,5 +1,20 @@
 
 /**
+ * Generates a unique hash from the given string.
+ * This is used to identify services from each other.
+ * 
+ * @param {string} str a string the hash is generated from
+ */
+function getHash(str){
+    return str
+        .split('')
+        .reduce((a, b) => {
+            a = (( a << 5 ) - a) + b.charCodeAt(0)
+            return a & a
+        }, 0)
+}
+
+/**
  * Constructs a battery object that is returned by
  * configuration node's /victron/services REST endpoint.
  * This is used to build battery node's edit options.
@@ -8,6 +23,7 @@ const BATTERY = (service, name, paths) => {
     return {
         "service": `${service}`,
         "name": `${name}`,
+        "id": getHash(service),
         "paths": paths
     }
 }
@@ -59,7 +75,8 @@ const RELAY = (service, path, name) => {
         return {
             "service": `${service}`,
             "name": `${name}`,
-            "paths": [ 
+            "id": getHash(service + path),
+            "paths": [
                 {
                     "name": "State (on/off)",
                     "path": `${path}`
