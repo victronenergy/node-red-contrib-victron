@@ -1,8 +1,13 @@
+/**
+ * This file contains the node specific dbus service mappings
+ * and related helper functions.
+ */
+
 
 /**
  * Generates a unique hash from the given string.
  * This is used to identify services from each other.
- * 
+ *
  * @param {string} str a string the hash is generated from
  */
 function getHash(str){

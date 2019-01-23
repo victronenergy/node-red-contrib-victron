@@ -1,8 +1,8 @@
-'use strict';
+'use strict'
 
-const mapping = require('./servicemapping');
+const mapping = require('./victron-services')
 const _ = require('lodash')
-const debug = require('debug')('node-red-contrib-victron:systemconfiguartion')
+const debug = require('debug')('node-red-contrib-victron:system-configuration')
 
 /**
  * SystemConfiguration contains information on the given Venus system.
@@ -36,7 +36,7 @@ class SystemConfiguration {
             })
 
             return mapping.BATTERY(dbusInterface, name, paths)
-        });
+        })
 
     }
     /**
@@ -83,14 +83,14 @@ class SystemConfiguration {
                         buildRelayObject(service, relayPath))
                     )
                 return acc
-            }, []);
+            }, [])
     }
 
     /**
      * List all currently available services. This list is used to populate the nodes' edit dialog.
      * E.g. if a battery monitor is available, all the given battery monitor services are listed
      * in the input-battery node.
-     * 
+     *
      * @param {string} service an optional parameter to filter available services based on the given device
      */
     listAvailableServices(device=null) {
@@ -98,13 +98,13 @@ class SystemConfiguration {
             "battery": this.getBatteryServices(),
             "relay": this.getRelayServices(),
             "cache": this.cache
-        };
+        }
 
         return device !== null
             ? services[device]
-            : services;
+            : services
     }
 
 }
 
-module.exports = SystemConfiguration;
+module.exports = SystemConfiguration
