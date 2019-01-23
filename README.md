@@ -59,14 +59,18 @@ In order to use the plugin, it needs to be locally installed:
 1. install node-red on your system
 2. cd to the node-red user directory, typically `~/.node-red`
 3. install node-red-contrib-victron locally, `npm install /path/to/this/repository`
-4. enable d-bus over tcp in your Venus device. Edit `/etc/dbus-1/system.conf` and add the following directly above `<policy context="default">`:
+4. enable d-bus over tcp in your Venus device **if you want to use dbus over TCP**, otherwise skip this step. Edit `/etc/dbus-1/system.conf` and add the following directly above `<policy context="default">`:
 
 ```
   <listen>tcp:host=0.0.0.0,port=78</listen>
   <auth>ANONYMOUS</auth>
   <allow_anonymous/>
 ```
-5. environment variable `NODE_RED_DBUS_ADDRESS` needs to be set before running node-red in order to connect to the dbus instance. If it is not set, it defaults to localhost. For example `NODE_RED_DBUS_ADDRESS=192.168.1.1:78 node-red`. You can also export it once `export NODE_RED_DBUS_ADDRESS=192.168.1.1:78`.
+
+5. the client can connect to dbus either using tcp or directly via system socket.
+  - the client defaults to a socket connection systembus, with a socket 'unix:path=/var/run/dbus/system_bus_socket'. This should directly work with a Venus device.
+  - (You can  `DBUS_SYSTEM_BUS_ADDRESS` to change the systembus socket path or alternatively set `DBUS_SESSION_BUS_ADDRESS` to use sessionbus via socket)
+  - set the environment variable `NODE_RED_DBUS_ADDRESS` to connect via TCP. The variable should be a string with an ip and port separated by a colon, e.g. `export NODE_RED_DBUS_ADDRESS=192.168.1.1:78`
 
 6. you can optionally run the plugin with a DEBUG=* environment variable set, to see additional debug information printed on the shell. E.g. `export DEBUG=node-red-contrib-victron*`
 
