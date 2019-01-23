@@ -1,9 +1,9 @@
-/*
-  Directly from https://github.com/sbender9/signalk-venus-plugin/blob/master/dbus-listener.js
-*/
+/**
+ * Original taken from https://github.com/sbender9/signalk-venus-plugin/blob/master/dbus-listener.js
+ */
 
 const dbus = require('dbus-native')
-const debug = require('debug')('signalk-venus-plugin:dbus')
+const debug = require('debug')('node-red-contrib-victron:dbus')
 const _ = require('lodash')
 
 module.exports = function (app, messageCallback, address, plugin, pollInterval) {
@@ -254,7 +254,7 @@ module.exports = function (app, messageCallback, address, plugin, pollInterval) 
         },
         function (err, res) {
           if (err) {
-            console.error(err)
+            debug('Error: ' + err)
           }
         }
       )
@@ -281,14 +281,12 @@ module.exports = function (app, messageCallback, address, plugin, pollInterval) 
 
     bus.connection.on('error', error => {
       setProviderError(error.message)
-      console.error(`ERROR: signalk-venus-plugin: ${error.message}`)
       reject(error)
       plugin.onError()
     })
 
     bus.connection.on('end', () => {
       setProviderError('lost connection to D-Bus')
-      console.error(`ERROR: lost connection to D-Bus`)
       // here we could (should?) also clear the polling timer. But decided not to do that;
       // to be looked at when properly fixing the dbus-connection lost issue.
     })

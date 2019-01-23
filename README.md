@@ -23,7 +23,6 @@ The following graph demonstrates the architecture of this plugin.
 ![Architecture](documentation/images/architecture.png)
 
 ### Directory Structure
-
 ```
 .
 ├── README.md
@@ -33,18 +32,24 @@ The following graph demonstrates the architecture of this plugin.
 │   │   ├── example-tank-edit.png
 │   │   └── example-use-case.png
 │   └── specification.md
+├── package-lock.json
+├── package.json
 └── src
     ├── nodes
     │   ├── config-client.html
-    │   ├── config-client.js        <-- global configuration node
+    │   ├── config-client.js
+    │   ├── icons
+    │   │   └── victronenergy.svg
     │   ├── input-battery.html
-    │   ├── input-battery.js        <-- battery node
+    │   ├── input-battery.js
     │   ├── output-relay.html
-    │   └── output-relay.js         <-- relay node
+    │   └── output-relay.js
     └── services
-        ├── dbus-listener.js        <-- github.com/sbender9/signalk-venus-plugin
-        ├── systemconfiguration.js  <-- SystemConfiguration cache
-        └── victronclient.js        <-- Victron Energy D-Bus Client
+        ├── dbus-listener.js
+        ├── utils.js
+        ├── victron-client.js       <-- Victron Energy D-Bus client
+        ├── victron-services.js     <-- Node-to-D-Bus service mapping
+        └── victron-system.js       <-- D-Bus service cache
 ```
 
 ## Installation and Usage
