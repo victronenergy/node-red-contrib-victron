@@ -3,8 +3,8 @@
  * and enums.
  */
 
-const CONNECTED = {fill: "green", shape: "dot", text: "service connected"}
-const DISCONNECTED = {fill: "red", shape: "ring", text: "service disconnected"}
+const CONNECTED = {fill: "green", shape: "dot", text: "connected"}
+const DISCONNECTED = {fill: "red", shape: "ring", text: "disconnected"}
 
 const STATUS = {
     SERVICE_ADD: 1,
