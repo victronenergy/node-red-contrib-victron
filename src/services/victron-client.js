@@ -1,6 +1,6 @@
 'use strict'
 
-const createDbusListener = require('./dbus-listener')
+const VictronDbusListener = require('./dbus-listener')
 const SystemConfiguration = require('./victron-system')
 const promiseRetry = require('promise-retry')
 const _ = require('lodash')
@@ -16,10 +16,7 @@ const utils = require('./utils.js')
 class VictronClient {
     constructor(address) {
         this.dbusAddress = address
-
-        this.write
-        this.read
-        this.connected = false
+        this.client
 
         // Overwrite the onStatusUpdate to catch relevant VictronClient status updates
         this.onStatusUpdate = (message, statusType) => debug(`[${statusType}] ${message}`)
@@ -50,48 +47,39 @@ class VictronClient {
             })
         }
 
-        // Use dbus over TCP if an address is given,
-        // otherwise, default to systembus
-        let dbusConnectionString = null
-        if (this.dbusAddress) {
-            const address = this.dbusAddress.split(':')
-            if (address.length === 2) {
-                dbusConnectionString = `tcp:host=${address[0]},port=${address[1]}`
+        const eventHandler = (changeType, serviceName) => {
+            if (changeType === 'DELETE' && serviceName !== null) {
+                delete this.system.cache[serviceName]
+                this.onStatusUpdate({"service": serviceName}, utils.STATUS.SERVICE_REMOVE)
             }
         }
 
+        // Use dbus over TCP if an address is given,
+        // otherwise, default to systembus
+        let tcpAddress = null
+        if (this.dbusAddress) {
+            const address = this.dbusAddress.split(':')
+            if (address.length === 2) {
+                tcpAddress = `tcp:host=${address[0]},port=${address[1]}`
+            }
+        }
+
+        this.client = new VictronDbusListener(
+            tcpAddress,
+            {eventHandler, messageHandler}
+        )
+
         promiseRetry(retry => {
-            // createDbusListener(app, messageCallback, address, plugin, pollInterval)
-            return createDbusListener(
-                {
-                    setProviderStatus: (msg) => this.onStatusUpdate(msg, utils.STATUS.PROVIDER_STATUS),
-                    setProviderError: (msg) => this.onStatusUpdate(msg, utils.STATUS.PROVIDER_ERROR),
-                },
-                messageHandler,
-                dbusConnectionString,
-                {
-                    onError: (msg) => this.onStatusUpdate(msg, utils.STATUS.PLUGIN_ERROR),
-                    onServiceChange: (changeType, serviceName) => {
-                        if (changeType === 'DELETE' && serviceName !== null) {
-                            delete this.system.cache[serviceName]
-                            this.onStatusUpdate({"service": serviceName}, utils.STATUS.SERVICE_REMOVE)
-                        }
-                    }
-                },
-                5
-            )
-            .catch(retry)
+            return this.client
+                .connect()
+                .catch(retry)
         },
         {
-            maxTimeout: 30 * 1000,
+            factor: 1,
             forever: true
-        }
-        )
-        .then(dbusHandlers => {
-            _this.write = dbusHandlers.setValue
-            _this.read = dbusHandlers.getValue
-            _this.connected = true
         })
+        .catch(() => console.error('Unable to connect to dbus.'))
+
     }
 
     /**
@@ -113,8 +101,8 @@ class VictronClient {
             // Upon first discovery, request the customname and productname
             // of the battery. The returned message gets saved to the cache.
             if (msg.senderName.startsWith('com.victronenergy.battery')) {
-                this.read(msg.senderName, '/CustomName')
-                this.read(msg.senderName, '/ProductName')
+                this.client.getValue(msg.senderName, '/CustomName')
+                this.client.getValue(msg.senderName, '/ProductName')
             }
         }
 
@@ -125,7 +113,8 @@ class VictronClient {
 
         // We need to update the nodes on new paths
         // e.g. in the case of system relays, which might or might not be there
-        if (!(msg.path in dbusPaths)) this.onStatusUpdate({'service': msg.senderName, 'path': msg.path, }, utils.STATUS.PATH_ADD)
+        if (!(msg.path in dbusPaths))
+            this.onStatusUpdate({'service': msg.senderName, 'path': msg.path, }, utils.STATUS.PATH_ADD)
 
         dbusPaths[msg.path] = msg.value
         this.system.cache[msg.senderName] = dbusPaths
@@ -149,7 +138,7 @@ class VictronClient {
         else
             this.subscriptions[msgKey] = [newSubscription]
 
-        debug(`[SUBSCRIBE] [${dbusInterface} | ${path}] ID: ${subscriptionId}`)
+        debug(`[SUBSCRIBE] ${subscriptionId} | ${dbusInterface} ${path}`)
 
         return subscriptionId
     }
@@ -160,10 +149,19 @@ class VictronClient {
      * @param {string} subscriptionId a semi-unique string identifying a single node-specific message listener
      */
     unsubscribe(subscriptionId) {
-        _.forOwn(this.subscriptions, (topicSubscriptions) => {
-            _.remove(topicSubscriptions, {subscriptionId: subscriptionId});
+        Object.keys(this.subscriptions).forEach(topic => {
+            const topicSubscription = this.subscriptions[topic]
+            const removed = _.remove(topicSubscription, {subscriptionId: subscriptionId})
+
+            if (removed.length > 0) { // successfully unsubscribed
+                debug(`[UNSUBSCRIBE] ${subscriptionId} | ${removed[0].dbusInterface} ${removed[0].path}`)
+
+                // if the removed item was the only one in the array,
+                // delete the property to keep the subscriptions object clean
+                if (topicSubscription.length === 0)
+                    delete this.subscriptions[topic]
+            }
         })
-        debug(`[UNSUBSCRIBE] ${subscriptionId}`)
     }
 
     /**
@@ -174,12 +172,12 @@ class VictronClient {
      * @param {string} value value to write to the given dbus service, e.g. 1
      */
     publish(dbusInterface, path, value) {
-        if (this.connected) {
-            debug(`[PUBLISH] ${dbusInterface} - ${path} | ${value}`)
-            this.write(dbusInterface, path, value)
+        if (this.client && this.client.connected) {
+            debug(`[PUBLISH] ${dbusInterface} ${path} | ${value}`)
+            this.client.setValue(dbusInterface, path, value)
         }
         else {
-            throw Error('Not connected to dbus. Publish was unsuccessful.')
+            console.error('Not connected to dbus. Publish was unsuccessful.')
         }
     }
 
