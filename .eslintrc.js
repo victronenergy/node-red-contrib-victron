@@ -4,6 +4,10 @@ module.exports = {
     "env": {
         "browser": true,
         "amd": true,
-        "node": true
-    }
+        "node": true,
+        "es6": true
+    },
+    "rules": {
+        'no-console': 'off'
+    },
 };
