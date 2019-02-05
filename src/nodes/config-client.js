@@ -1,42 +1,47 @@
-
-
-var VictronClient = require('../services/victron-client.js')
-
-function setReplacer(key, value) {
-    if (typeof value === 'object' && value instanceof Set)
-        return [...value]
-    return value
-}
-
-/**
- * VictronClient should be initialized as a global singleton.
- * This way, deploying the flows doesn't reset the connection
- * and cache.
- */
-const globalClient = new VictronClient(process.env.NODE_RED_DBUS_ADDRESS)
-globalClient.connect()
-
-
-/**
- * Victron Energy Configuration Node.
- *
- * This global configuration node is used by
- * all the other Victron Energy nodes to access the dbus.
- *
- * It keeps track of incoming status messages and updates
- * listening nodes' status in the UI accordingly.
- */
 module.exports = function(RED) {
     "use strict"
 
     const utils = require('../services/utils.js')
-
-    const debug = require('debug')('node-red-contrib-victron:config-client')
     const _ = require('lodash')
 
+    var VictronClient = require('../services/victron-client.js')
+
+    /**
+     * VictronClient should be initialized as a global singleton.
+     * This way, deploying the flows doesn't reset the connection
+     * and cache.
+     */
+    const globalClient = new VictronClient(process.env.NODE_RED_DBUS_ADDRESS)
+    globalClient.connect()
+
+    // Serializes Set
+    function setReplacer(key, value) {
+        if (typeof value === 'object' && value instanceof Set)
+            return [...value]
+        return value
+    }
+
+    /**
+     * An endpoint for nodes to request services from - returns either a single service, or
+     * all available services depending whether the requester gives the service parameter
+     */
+    RED.httpAdmin.get("/victron/services/:service?", RED.auth.needsPermission('victron-client.read'), function(req, res) {
+        let serialized = JSON.stringify(globalClient.system.listAvailableServices(req.params.service), setReplacer)
+        res.setHeader('Content-Type', 'application/json')
+        return res.send(serialized)
+    })
+
+    /**
+     * Victron Energy Configuration Node.
+     *
+     * This global configuration node is used by
+     * all the other Victron Energy nodes to access the dbus.
+     *
+     * It keeps track of incoming status messages and updates
+     * listening nodes' status in the UI accordingly.
+     */
     function VictronClientNode(config) {
         RED.nodes.createNode(this, config)
-        let _this = this
 
         this.client = globalClient
         let statusListeners = []
@@ -51,16 +56,15 @@ module.exports = function(RED) {
          * system relay doesn't get registered).
          */
         this.client.onStatusUpdate = (msg, status) => {
-            statusListeners
-                .forEach(obj => {
-                    if (obj.service === msg.service) {
-                        if (status === utils.STATUS.SERVICE_REMOVE)
-                            obj.node.status(utils.DISCONNECTED)
-                        else if (status === utils.STATUS.PATH_ADD && obj.path === msg.path) {
-                            obj.node.status(utils.CONNECTED)
-                        }
+            statusListeners.forEach(obj => {
+                if (obj.service === msg.service) {
+                    if (status === utils.STATUS.SERVICE_REMOVE)
+                        obj.node.status(utils.DISCONNECTED)
+                    else if (status === utils.STATUS.PATH_ADD && obj.path === msg.path) {
+                        obj.node.status(utils.CONNECTED)
                     }
-                })
+                }
+            })
         }
 
         // isConnected function is called to check the node
@@ -87,15 +91,6 @@ module.exports = function(RED) {
         }
 
         this.removeStatusListener = id => statusListeners = statusListeners.filter(o => o.id === id)
-
-        // An endpoint for nodes to request services from - returns either a single service, or all available services
-        // depending whether the requester gives the service parameter
-        RED.httpAdmin.get("/victron/services/:service?", RED.auth.needsPermission('victron-client.read'), function(req, res) {
-            let serialized = JSON.stringify(_this.client.system.listAvailableServices(req.params.service), setReplacer)
-            res.setHeader('Content-Type', 'application/json')
-            return res.send(serialized)
-        })
-
     }
 
     RED.nodes.registerType("victron-client", VictronClientNode)
