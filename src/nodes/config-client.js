@@ -57,7 +57,7 @@ module.exports = function(RED) {
          */
         this.client.onStatusUpdate = (msg, status) => {
             statusListeners.forEach(obj => {
-                if (obj.service === msg.service) {
+                if (obj.service && obj.service === msg.service) {
                     if (status === utils.STATUS.SERVICE_REMOVE)
                         obj.node.status(utils.DISCONNECTED)
                     else if (status === utils.STATUS.PATH_ADD && obj.path === msg.path) {
