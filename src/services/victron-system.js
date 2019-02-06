@@ -2,7 +2,7 @@
 
 const mapping = require('./victron-services')
 const _ = require('lodash')
-const debug = require('debug')('node-red-contrib-victron:system-configuration')
+const packagejson = require('../../package.json');
 
 /**
  * SystemConfiguration contains information on the given Venus system.
@@ -94,10 +94,12 @@ class SystemConfiguration {
      * @param {string} service an optional parameter to filter available services based on the given device
      */
     listAvailableServices(device=null) {
+
         let services = {
             "battery": this.getBatteryServices(),
             "relay": this.getRelayServices(),
-            "cache": this.cache
+            "cache": this.cache,
+            "version": _.get(packagejson, 'version')
         }
 
         return device !== null
