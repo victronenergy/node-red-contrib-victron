@@ -40,7 +40,7 @@ module.exports = function(RED) {
      * It keeps track of incoming status messages and updates
      * listening nodes' status in the UI accordingly.
      */
-    function VictronClientNode(config) {
+    function ConfigVictronClient(config) {
         RED.nodes.createNode(this, config)
 
         this.client = globalClient
@@ -93,5 +93,5 @@ module.exports = function(RED) {
         this.removeStatusListener = id => statusListeners = statusListeners.filter(o => o.id === id)
     }
 
-    RED.nodes.registerType("victron-client", VictronClientNode)
+    RED.nodes.registerType("victron-client", ConfigVictronClient)
 }
