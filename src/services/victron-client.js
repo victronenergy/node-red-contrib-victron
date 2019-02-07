@@ -19,7 +19,7 @@ class VictronClient {
         this.client
 
         // Overwrite the onStatusUpdate to catch relevant VictronClient status updates
-        this.onStatusUpdate = (message, statusType) => debug(`[${statusType}] ${message}`)
+        this.onStatusUpdate = () => {}
 
         this.system = new SystemConfiguration()
         this.subscriptions = {} // an array of subscription objects [{ "topic": topic, "handler": function }, ...]
