@@ -75,16 +75,19 @@
                 }
             }
 
+            const showStatusMessage = (msg) => {
+                if (msg) $('#statusmessage').text(msg);
+                $('#statusmessage').show();
+                if (!_this.serviceId) $('.form-row').hide();
+            }
+
             // Upon receiving data, populate the edit form
             $.getJSON('victron/services/relay', function(data) {
                 // 1. Populate edit options based on new data
-                if (data.length !== 0) {
-                    populateSelect(serviceElem, data)
-                }
-                else {
-                    $('#statusmessage').show();
-                    if (!_this.serviceId) $('.form-row').hide();
-                }
+                if (data.length !== 0) 
+                    populateSelect(serviceElem, data);
+                else
+                    showStatusMessage();
 
                 // 2. If the node was previously deployed,
                 // update the edit based on the old data
@@ -100,7 +103,8 @@
 
                 updateWarning();
                 serviceElem.change(updateWarning);
-            });
+            })
+            .fail(() => showStatusMessage("Unable to access the service endpoint."));
 
             // 3. Additional logic and state updates
 
