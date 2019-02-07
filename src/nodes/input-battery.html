@@ -71,16 +71,19 @@
                     populateSelect(pathElem, data.paths);
             }
 
+            const showStatusMessage = (msg) => {
+                if (msg) $('#statusmessage').text(msg);
+                $('#statusmessage').show();
+                if (!_this.service) $('.form-row').hide();
+            }
+
             // Upon receiving data, populate the edit form
             $.getJSON('victron/services/battery', function(data) {
                 // 1. Populate edit options based on new data
-                if (data.length !== 0) {
-                    populateSelect(serviceElem, data)
-                }
-                else {
-                    $('#statusmessage').show();
-                    if (!_this.service) $('.form-row').hide();
-                }
+                if (data.length !== 0)
+                    populateSelect(serviceElem, data);
+                else
+                    showStatusMessage();
 
                 // 2. If the node was previously deployed,
                 // update the edit based on the old data
@@ -99,7 +102,8 @@
 
                 if (_this.path)
                     pathElem.val(_this.path);
-            });
+            })
+            .fail(() => showStatusMessage("Unable to access the service endpoint."));
 
         },
         oneditsave: function() {
