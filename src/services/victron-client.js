@@ -91,25 +91,12 @@ class VictronClient {
     saveToCache(msg) {
         let dbusPaths = {}
 
-        if (this.system.cache[msg.senderName]) {
+        if (this.system.cache[msg.senderName])
             dbusPaths = this.system.cache[msg.senderName]
-        } else {
-            // this is currently not used anywhere
-            // it causes some overhead in node statuslisteners if enabled
-            // this.onStatusUpdate({"service": msg.senderName}, 'SERVICE_ADD')
-
-            // Upon first discovery, request the customname and productname
-            // of the battery. The returned message gets saved to the cache.
-            if (msg.senderName.startsWith('com.victronenergy.battery')) {
-                this.client.getValue(msg.senderName, '/CustomName')
-                this.client.getValue(msg.senderName, '/ProductName')
-            }
-        }
 
         // some dbus messages are empty arrays []
-        if (msg.value.length == 0 ) {
+        if (msg.value.length == 0 )
             msg.value = null
-        }
 
         // We need to update the nodes on new paths
         // e.g. in the case of system relays, which might or might not be there
