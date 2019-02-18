@@ -31,9 +31,9 @@ class SystemConfiguration {
 
             // the cache is filtered against the desired paths
             // to only show available options per service on the node's edit form.
-            let paths = mapping.BATTERY_PATHS.filter(p => {
-                return p.path in batteryPaths
-            })
+
+            let paths = _.get(mapping.SERVICES, ['Battery Monitor', 'paths'], [])
+                .filter(p => p && (p.path in batteryPaths))
 
             return mapping.BATTERY(dbusInterface, name, paths)
         })
