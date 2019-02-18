@@ -3,6 +3,7 @@
  * and related helper functions.
  */
 
+const SERVICES = require("./services.json")
 
 /**
  * Generates a unique hash from the given string.
@@ -34,45 +35,6 @@ const BATTERY = (service, name, paths) => {
 }
 
 /**
- * All available battery node measurements.
- * This array is filtered against the systemconfiguration cache.
- */
-const BATTERY_PATHS = [
-    {
-        "name": "Voltage 1 (V)",
-        "path": "/Dc/0/Voltage"
-    },
-    {
-        "name": "Voltage 2 (V)",
-        "path": "/Dc/1/Voltage"
-    },
-    {
-        "name": "Current (A)",
-        "path": "/Dc/0/Current"
-    },
-    {
-        "name": "Temperature (°C)",
-        "path": "/Dc/0/Temperature"
-    },
-    {
-        "name": "Consumed Charge (Ah)",
-        "path": "/ConsumedAmphours"
-    },
-    {
-        "name": "State of Charge (%)",
-        "path": "/Soc"
-    },
-    {
-        "name": "Time to Go (s)",
-        "path": "/TimeToGo"
-    },
-    {
-        "name": "Relay State (on/off)",
-        "path": "/Relay/0/State"
-    }
-]
-
-/**
  * Constructs a relay object, that is
  * used to build the relay node's edit options.
  */
@@ -102,8 +64,8 @@ const RELAY_MODE_WARNING = (func) =>
 
 module.exports = {
     BATTERY,
-    BATTERY_PATHS,
     RELAY,
     RELAY_FUNCTIONS,
-    RELAY_MODE_WARNING
+    RELAY_MODE_WARNING,
+    SERVICES
 }

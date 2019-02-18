@@ -1,0 +1,1072 @@
+{
+    "Battery Monitor": {
+        "device": "Battery Monitor",
+        "paths": [
+            {
+                "path": "/Dc/0/Voltage",
+                "type": "float",
+                "name": "Battery voltage (V)"
+            },
+            {
+                "path": "/Dc/1/Voltage",
+                "type": "float",
+                "name": "Starter battery voltage (V)"
+            },
+            {
+                "path": "/Dc/0/Current",
+                "type": "float",
+                "name": "Current (A)"
+            },
+            {
+                "path": "/ConsumedAmphours",
+                "type": "float",
+                "name": "Consumed Amphours (Ah)"
+            },
+            {
+                "path": "/Soc",
+                "type": "float",
+                "name": "State of charge (%)"
+            },
+            {
+                "path": "/TimeToGo",
+                "type": "float",
+                "name": "Time to go (h)"
+            },
+            {
+                "path": "/Relay/0/State",
+                "type": "enum",
+                "name": "Relay status",
+                "enum": {
+                    "0": "Open",
+                    "1": "Closed"
+                }
+            },
+            {
+                "path": "/Dc/0/Temperature",
+                "type": "float",
+                "name": "Battery temperature (C)"
+            },
+            {
+                "path": "/Dc/0/MidVoltage",
+                "type": "float",
+                "name": "Mid-point voltage of the battery bank (V)"
+            },
+            {
+                "path": "/Dc/0/MidVoltageDeviation",
+                "type": "float",
+                "name": "Mid-point deviation of the battery bank (%)"
+            },
+            {
+                "path": "/Alarms/LowVoltage",
+                "type": "enum",
+                "name": "Low voltage alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/HighVoltage",
+                "type": "enum",
+                "name": "High voltage alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/LowStarterVoltage",
+                "type": "enum",
+                "name": "Low starter-voltage alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/HighStarterVoltage",
+                "type": "enum",
+                "name": "High starter-voltage alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/LowSoc",
+                "type": "enum",
+                "name": "Low state-of-charge alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/LowTemperature",
+                "type": "enum",
+                "name": "Low battery temperature alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/HighTemperature",
+                "type": "enum",
+                "name": "High battery temperature alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/MidVoltage",
+                "type": "enum",
+                "name": "Mid-voltage alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/FuseBlown",
+                "type": "enum",
+                "name": "Fuse blown alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/HighInternalTemperature",
+                "type": "enum",
+                "name": "High internal-temperature alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/State",
+                "type": "enum",
+                "name": "State",
+                "enum": {
+                    "0": "Initializing (Wait start)",
+                    "1": "Initializing (before boot)",
+                    "2": "Initializing (Before boot delay)",
+                    "3": "Initializing (Wait boot)",
+                    "4": "Initializing",
+                    "5": "Initializing (Measure battery voltage)",
+                    "6": "Initializing (Calculate battery voltage)",
+                    "7": "Initializing (Wait bus voltage)",
+                    "8": "Initializing (Wait for lynx shunt)",
+                    "9": "Running",
+                    "10": "Error (10)",
+                    "11": "Error (11)"
+                }
+            },
+            {
+                "path": "/ErrorCode",
+                "type": "enum",
+                "name": "Error",
+                "enum": {
+                    "0": "No error",
+                    "1": "Battery initialization error",
+                    "2": "No batteries connected",
+                    "3": "Unknown battery",
+                    "4": "Different battery type",
+                    "5": "Number of batteries incorrect",
+                    "6": "Lynx Shunt not found",
+                    "7": "Battery measure error",
+                    "8": "Internal calculation error",
+                    "9": "Batteries in series not ok",
+                    "10": "Number of batteries incorrect",
+                    "11": "Hardware error",
+                    "12": "Watchdog error",
+                    "13": "Over voltage",
+                    "14": "Under voltage",
+                    "15": "Over temperature",
+                    "16": "Under temperature",
+                    "22": "ADC error",
+                    "23": "Slave error",
+                    "24": "Slave warning",
+                    "25": "Pre-charge error",
+                    "26": "Contactor error",
+                    "27": "Over current"
+                }
+            },
+            {
+                "path": "/Soh",
+                "type": "float",
+                "name": "State of health (%)"
+            },
+            {
+                "path": "/Info/MaxChargeVoltage",
+                "type": "float",
+                "name": "CVL - Charge Voltage Limit (V)"
+            },
+            {
+                "path": "/Info/MaxDischargeVoltage",
+                "type": "float",
+                "name": "DVL - Discharge Voltage Limit (V)"
+            },
+            {
+                "path": "/Info/MaxChargeCurrent",
+                "type": "float",
+                "name": "CCL - Charge Current Limit (A)"
+            },
+            {
+                "path": "/Info/MaxDischargeCurrent",
+                "type": "float",
+                "name": "DCL - Discharge Current Limit (A)"
+            },
+            {
+                "path": "/Alarms/CellImbalance",
+                "type": "enum",
+                "name": "Cell Imbalance alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/HighChargeCurrent",
+                "type": "enum",
+                "name": "High charge current alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/HighDischargeCurrent",
+                "type": "enum",
+                "name": "High discharge current alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/InternalFailure",
+                "type": "enum",
+                "name": "Internal error alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/HighChargeTemperature",
+                "type": "enum",
+                "name": "High charge temperature alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/LowChargeTemperature",
+                "type": "enum",
+                "name": "Low charge temperature alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            null
+        ]
+    },
+    "Solar Charger": {
+        "device": "Solar Charger",
+        "paths": [
+            {
+                "path": "/Dc/0/Voltage",
+                "type": "float",
+                "name": "Battery voltage (V)"
+            },
+            {
+                "path": "/Dc/0/Current",
+                "type": "float",
+                "name": "Battery current (A)"
+            },
+            {
+                "path": "/Dc/0/Temperature",
+                "type": "float",
+                "name": "Battery temperature (C)"
+            },
+            {
+                "path": "/Mode",
+                "type": "enum",
+                "name": "Charger on/off",
+                "enum": {
+                    "0": "Off (deprecated)",
+                    "1": "On",
+                    "4": "Off"
+                }
+            },
+            {
+                "path": "/State",
+                "type": "enum",
+                "name": "Charge state",
+                "enum": {
+                    "0": "Off",
+                    "2": "Fault",
+                    "3": "Bulk",
+                    "4": "Absorption",
+                    "5": "Float",
+                    "6": "Storage",
+                    "7": "Equalize",
+                    "252": "ESS"
+                }
+            },
+            {
+                "path": "/Pv/V",
+                "type": "float",
+                "name": "PV voltage"
+            },
+            {
+                "path": "/Pv/I",
+                "type": "float",
+                "name": "PV current"
+            },
+            {
+                "path": "/Relay/0/State",
+                "type": "enum",
+                "name": "Relay on the charger",
+                "enum": {
+                    "0": "Open",
+                    "1": "Closed"
+                }
+            },
+            {
+                "path": "/Alarms/LowVoltage",
+                "type": "enum",
+                "name": "Low batt. voltage alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "1": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/HighVoltage",
+                "type": "enum",
+                "name": "High batt. voltage alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "1": "Alarm"
+                }
+            },
+            {
+                "path": "/ErrorCode",
+                "type": "enum",
+                "name": "Error code",
+                "enum": {
+                    "0": "No error",
+                    "1": "#1 - Battery temperature too high",
+                    "2": "#2 - Battery voltage too high",
+                    "3": "#3 - Battery temperature sensor miswired (+)",
+                    "4": "#4 - Battery temperature sensor miswired (-)",
+                    "5": "#5 - Battery temperature sensor disconnected",
+                    "6": "#6 - Battery voltage sense miswired (+)",
+                    "7": "#7 - Battery voltage sense miswired (-)",
+                    "8": "#8 - Battery voltage sense disconnected",
+                    "9": "#9 - Battery voltage wire losses too high",
+                    "17": "#17 - Charger temperature too high",
+                    "18": "#18 - Charger over-current",
+                    "19": "#19 - Charger current polarity reversed",
+                    "20": "#20 - Max Bulk-time exceeded",
+                    "22": "#22 - Current sensor issue",
+                    "23": "#23 - Charger temperature sensor disconnected",
+                    "34": "#24 - PV over current",
+                    "38": "#38 - Input shutdown due to battery over-voltage",
+                    "39": "#39 - Input shutdown due to battery over-voltage",
+                    "67": "#67 - No BMS",
+                    "114": "#114 - CPU temperature to high",
+                    "116": "#116 - Calibration data lost",
+                    "119": "#119 - Settings data lost"
+                }
+            },
+            {
+                "path": "/Load/State",
+                "type": "enum",
+                "name": "Load state",
+                "enum": {
+                    "0": "Off",
+                    "1": "On"
+                }
+            },
+            {
+                "path": "/Load/I",
+                "type": "float",
+                "name": "Load current (A)"
+            },
+            {
+                "path": "/Yield/User",
+                "type": "float",
+                "name": "User yield (kWh)"
+            },
+            null,
+            null,
+            null
+        ]
+    },
+    "VE.Bus System": {
+        "device": "VE.Bus System",
+        "paths": [
+            {
+                "path": "/Ac/ActiveIn/L1/V",
+                "type": "float",
+                "name": "Input voltage phase 1 (VAC)"
+            },
+            {
+                "path": "/Ac/ActiveIn/L2/V",
+                "type": "float",
+                "name": "Input voltage phase 2 (VAC)"
+            },
+            {
+                "path": "/Ac/ActiveIn/L3/V",
+                "type": "float",
+                "name": "Input voltage phase 3 (VAC)"
+            },
+            {
+                "path": "/Ac/ActiveIn/L1/I",
+                "type": "float",
+                "name": "Input current phase 1 (A)"
+            },
+            {
+                "path": "/Ac/ActiveIn/L2/I",
+                "type": "float",
+                "name": "Input current phase 2 (A)"
+            },
+            {
+                "path": "/Ac/ActiveIn/L3/I",
+                "type": "float",
+                "name": "Input current phase 3 (A)"
+            },
+            {
+                "path": "/Ac/ActiveIn/L1/F",
+                "type": "float",
+                "name": "Input frequency 1 (Hz)"
+            },
+            {
+                "path": "/Ac/ActiveIn/L2/F",
+                "type": "float",
+                "name": "Input frequency 2 (Hz)"
+            },
+            {
+                "path": "/Ac/ActiveIn/L3/F",
+                "type": "float",
+                "name": "Input frequency 3 (Hz)"
+            },
+            {
+                "path": "/Ac/ActiveIn/L1/P",
+                "type": "float",
+                "name": "Input power 1 (W)"
+            },
+            {
+                "path": "/Ac/ActiveIn/L2/P",
+                "type": "float",
+                "name": "Input power 2 (W)"
+            },
+            {
+                "path": "/Ac/ActiveIn/L3/P",
+                "type": "float",
+                "name": "Input power 3 (W)"
+            },
+            null,
+            null,
+            null,
+            null,
+            {
+                "path": "/Ac/Out/L1/V",
+                "type": "float",
+                "name": "Output voltage phase 1 (VAC)"
+            },
+            {
+                "path": "/Ac/Out/L2/V",
+                "type": "float",
+                "name": "Output voltage phase 2 (VAC)"
+            },
+            {
+                "path": "/Ac/Out/L3/V",
+                "type": "float",
+                "name": "Output voltage phase 3 (VAC)"
+            },
+            {
+                "path": "/Ac/Out/L1/I",
+                "type": "float",
+                "name": "Output current phase 1 (A)"
+            },
+            {
+                "path": "/Ac/Out/L2/I",
+                "type": "float",
+                "name": "Output current phase 2 (A)"
+            },
+            {
+                "path": "/Ac/Out/L3/I",
+                "type": "float",
+                "name": "Output current phase 3 (A)"
+            },
+            {
+                "path": "/Ac/Out/L1/F",
+                "type": "float",
+                "name": "Output frequency (Hz)"
+            },
+            {
+                "path": "/Ac/Out/L1/P",
+                "type": "float",
+                "name": "Output power 1 (W)"
+            },
+            {
+                "path": "/Ac/Out/L2/P",
+                "type": "float",
+                "name": "Output power 2 (W)"
+            },
+            {
+                "path": "/Ac/Out/L3/P",
+                "type": "float",
+                "name": "Output power 3 (W)"
+            },
+            {
+                "path": "/Dc/0/Voltage",
+                "type": "float",
+                "name": "Battery voltage (V)"
+            },
+            {
+                "path": "/Dc/0/Current",
+                "type": "float",
+                "name": "Battery current (A)"
+            },
+            {
+                "path": "/Ac/NumberOfPhases",
+                "type": "float",
+                "name": "Phase count"
+            },
+            {
+                "path": "/Ac/ActiveIn/ActiveInput",
+                "type": "enum",
+                "name": "Active input",
+                "enum": {
+                    "0": "AC Input 1",
+                    "1": "AC Input 2",
+                    "240": "Disconnected"
+                }
+            },
+            {
+                "path": "/Soc",
+                "type": "float",
+                "name": "VE.Bus state of charge (%)"
+            },
+            {
+                "path": "/State",
+                "type": "enum",
+                "name": "VE.Bus state",
+                "enum": {
+                    "0": "Off",
+                    "1": "Low Power",
+                    "2": "Fault",
+                    "3": "Bulk",
+                    "4": "Absorption",
+                    "5": "Float",
+                    "6": "Storage",
+                    "7": "Equalize",
+                    "8": "Passthru",
+                    "9": "Inverting",
+                    "10": "Power assist",
+                    "11": "Power supply",
+                    "252": "Bulk protect"
+                }
+            },
+            {
+                "path": "/VebusError",
+                "type": "enum",
+                "name": "VE.Bus Error",
+                "enum": {
+                    "0": "No error",
+                    "1": "VE.Bus Error 1: Device is switched off because one of the other phases in the system has switched off",
+                    "2": "VE.Bus Error 2: New and old types MK2 are mixed in the system",
+                    "3": "VE.Bus Error 3: Not all, or more than, the expected devices were found in the system",
+                    "4": "VE.Bus Error 4: No other device whatsoever detected",
+                    "5": "VE.Bus Error 5: Overvoltage on AC-out",
+                    "6": "VE.Bus Error 6: Error in DDC Program",
+                    "7": "VE.Bus BMS connected, which requires an Assistant, but no assistant found",
+                    "10": "VE.Bus Error 10: System time synchronisation problem occurred",
+                    "11": "VE.Bus Error 11",
+                    "14": "VE.Bus Error 14: Device cannot transmit data",
+                    "16": "VE.Bus Error 16: Dongle missing",
+                    "17": "VE.Bus Error 17: One of the devices assumed master status because the original master failed",
+                    "18": "VE.Bus Error 18: AC Overvoltage on the output of a slave has occurred while already switched off",
+                    "22": "VE.Bus Error 22: This device cannot function as slave",
+                    "24": "VE.Bus Error 24: Switch-over system protection initiated",
+                    "25": "VE.Bus Error 25: Firmware incompatibility. The firmware of one of the connected device is not sufficiently up to date to operate in conjunction with this device",
+                    "26": "VE.Bus Error 26: Internal error"
+                }
+            },
+            {
+                "path": "/Alarms/HighTemperature",
+                "type": "enum",
+                "name": "Temperature",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/LowBattery",
+                "type": "enum",
+                "name": "Low battery",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/Overload",
+                "type": "enum",
+                "name": "Overload",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Mode",
+                "type": "enum",
+                "name": "Switch Position",
+                "enum": {
+                    "1": "Charger Only",
+                    "2": "Inverter Only",
+                    "3": "On",
+                    "4": "Off"
+                }
+            },
+            null,
+            {
+                "path": "/Energy/AcIn1ToInverter",
+                "type": "float",
+                "name": "Energy AcIn1 to Inverter (kWh)"
+            },
+            {
+                "path": "/Energy/AcIn2ToInverter",
+                "type": "float",
+                "name": "Energy ACIn2 to Inverter (kWh)"
+            },
+            {
+                "path": "/Energy/AcIn1ToAcOut",
+                "type": "float",
+                "name": "Energy ACIn1 to AcOut (kWh)"
+            },
+            {
+                "path": "/Energy/AcIn2ToAcOut",
+                "type": "float",
+                "name": "Energy ACIn2 to AcOut (kWh)"
+            },
+            {
+                "path": "/Energy/InverterToAcIn1",
+                "type": "float",
+                "name": "Energy Inverter to AcIn1 (kWh)"
+            },
+            {
+                "path": "/Energy/InverterToAcIn2",
+                "type": "float",
+                "name": "Energy Inverter to AcIn2 (kWh)"
+            },
+            {
+                "path": "/Energy/AcOutToAcIn1",
+                "type": "float",
+                "name": "Energy AcOut to AcIn1 (kWh)"
+            },
+            {
+                "path": "/Energy/AcOutToAcIn2",
+                "type": "float",
+                "name": "Energy AcOut to AcIn2 (kWh)"
+            },
+            {
+                "path": "/Energy/InverterToAcOut",
+                "type": "float",
+                "name": "Inverter To AcOut (kWh)"
+            },
+            {
+                "path": "/Energy/OutToInverter",
+                "type": "float",
+                "name": "AcOut to Inverter (kWh)"
+            }
+        ]
+    },
+    "Tank": {
+        "device": "Tank",
+        "paths": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ]
+    },
+    "PV Inverter": {
+        "device": "PV Inverter",
+        "paths": [
+            {
+                "path": "/Ac/L1/Voltage",
+                "type": "float",
+                "name": "L1 Voltage (V)"
+            },
+            {
+                "path": "/Ac/L1/Current",
+                "type": "float",
+                "name": "L1 Current (A)"
+            },
+            {
+                "path": "/Ac/L1/Power",
+                "type": "float",
+                "name": "L1 Power (W)"
+            },
+            {
+                "path": "/Ac/L1/Energy/Forward",
+                "type": "float",
+                "name": "L1 Energy (kWh)"
+            },
+            {
+                "path": "/Ac/L2/Voltage",
+                "type": "float",
+                "name": "L2 Voltage (V)"
+            },
+            {
+                "path": "/Ac/L2/Current",
+                "type": "float",
+                "name": "L2 Current (A)"
+            },
+            {
+                "path": "/Ac/L2/Power",
+                "type": "float",
+                "name": "L2 Power (W)"
+            },
+            {
+                "path": "/Ac/L2/Energy/Forward",
+                "type": "float",
+                "name": "L2 Energy (kWh)"
+            },
+            {
+                "path": "/Ac/L3/Voltage",
+                "type": "float",
+                "name": "L3 Voltage (V)"
+            },
+            {
+                "path": "/Ac/L3/Current",
+                "type": "float",
+                "name": "L3 Current (A)"
+            },
+            {
+                "path": "/Ac/L3/Power",
+                "type": "float",
+                "name": "L3 Power (W)"
+            },
+            {
+                "path": "/Ac/L3/Energy/Forward",
+                "type": "float",
+                "name": "L3 Energy (kWh)"
+            },
+            {
+                "path": "/StatusCode",
+                "type": "enum",
+                "name": "Status",
+                "enum": {
+                    "0": "Startup 0",
+                    "1": "Startup 1",
+                    "2": "Startup 2",
+                    "3": "Startup 3",
+                    "4": "Startup 4",
+                    "5": "Startup 5",
+                    "6": "Startup 6",
+                    "7": "Running",
+                    "8": "Standby",
+                    "9": "Boot loading",
+                    "10": "Error",
+                    "11": "Running (MPPT)"
+                }
+            },
+            {
+                "path": "/ErrorCode",
+                "type": "enum",
+                "name": "Error",
+                "enum": {
+                    "0": "No Error"
+                }
+            },
+            null,
+            null
+        ]
+    },
+    "Charger": {
+        "device": "Charger",
+        "paths": [
+            {
+                "path": "/Dc/0/Voltage",
+                "type": "float",
+                "name": "Output 1 - voltage (V)"
+            },
+            {
+                "path": "/Dc/0/Current",
+                "type": "float",
+                "name": "Output 1 - current (A)"
+            },
+            {
+                "path": "/Dc/0/Temperature",
+                "type": "float",
+                "name": "Output 1 - temperature (C)"
+            },
+            {
+                "path": "/Dc/1/Voltage",
+                "type": "float",
+                "name": "Output 2 - voltage (V)"
+            },
+            {
+                "path": "/Dc/1/Current",
+                "type": "float",
+                "name": "Output 2 - current (A)"
+            },
+            null,
+            {
+                "path": "/Dc/2/Voltage",
+                "type": "float",
+                "name": "Output 3 - voltage (V)"
+            },
+            {
+                "path": "/Dc/2/Current",
+                "type": "float",
+                "name": "Output 3 - current (A)"
+            },
+            null,
+            {
+                "path": "/Ac/In/L1/I",
+                "type": "float",
+                "name": "AC Current (A)"
+            },
+            {
+                "path": "/Ac/In/L1/P",
+                "type": "float",
+                "name": "AC Power (W)"
+            },
+            {
+                "path": "/Ac/In/CurrentLimit",
+                "type": "float",
+                "name": "AC Current limit (A)"
+            },
+            {
+                "path": "/Mode",
+                "type": "enum",
+                "name": "Charger on/off",
+                "enum": {
+                    "0": "Off",
+                    "1": "On",
+                    "2": "Error",
+                    "3": "Unavailable, Unknown"
+                }
+            },
+            {
+                "path": "/State",
+                "type": "enum",
+                "name": "Charge state",
+                "enum": {
+                    "0": "Off",
+                    "1": "Low Power Mode",
+                    "2": "Fault",
+                    "3": "Bulk",
+                    "4": "Absorption",
+                    "5": "Float",
+                    "6": "Storage",
+                    "7": "Equalize",
+                    "8": "Passthru",
+                    "9": "Inverting",
+                    "10": "Power assist",
+                    "11": "Power supply mode",
+                    "252": "Bulk protection"
+                }
+            },
+            {
+                "path": "/ErrorCode",
+                "type": "enum",
+                "name": "Error",
+                "enum": {
+                    "0": "No error",
+                    "1": "Err 1: Battery temperature too high",
+                    "2": "Err 2: Battery voltage too high",
+                    "3": "Err 3: Battery temperature sensor miswired (+)",
+                    "4": "Err 3: Battery temperature sensor miswired (-)",
+                    "5": "Err 5: Battery temperature sensor disconnected",
+                    "6": "Err 6: Battery voltage sense miswired (+)",
+                    "7": "Err 7: Battery voltage sense miswired (-)",
+                    "8": "Err 8: Battery voltage sense disconnected",
+                    "9": "Err 9: Battery voltage wire losses too high",
+                    "17": "Err 17: Charger temperature too high",
+                    "18": "Err 18: Charger over-current",
+                    "19": "Err 19: Charger current polarity reversed",
+                    "20": "Err 20: Bulk time limit reached",
+                    "22": "Err 22: Charger temperature sensor miswired",
+                    "23": "Err 23: Charger temperature sensor disconnected",
+                    "34": "Err 34: Input current too high",
+                    "67": "Err 67: No BMS"
+                }
+            },
+            {
+                "path": "/Relay/0/State",
+                "type": "enum",
+                "name": "Relay on the charger",
+                "enum": {
+                    "0": "Open",
+                    "1": "Closed"
+                }
+            },
+            {
+                "path": "/Alarms/LowVoltage",
+                "type": "enum",
+                "name": "Low voltage alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/HighVoltage",
+                "type": "enum",
+                "name": "High voltage alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "2": "Alarm"
+                }
+            },
+            null
+        ]
+    },
+    "Grid meter": {
+        "device": "Grid meter",
+        "paths": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        ]
+    },
+    "Inverter": {
+        "device": "Inverter",
+        "paths": [
+            null,
+            null,
+            null,
+            null,
+            null
+        ]
+    },
+    "Pulse meter": {
+        "device": "Pulse meter",
+        "paths": [
+            {
+                "path": "/Aggregate",
+                "type": "float",
+                "name": "Pulse meter aggregate"
+            },
+            {
+                "path": "/Count",
+                "type": "float",
+                "name": "Pulse meter count"
+            }
+        ]
+    },
+    "Digital input": {
+        "device": "Digital input",
+        "paths": [
+            {
+                "path": "/ProductId",
+                "type": "string",
+                "name": "Digital input product id"
+            },
+            {
+                "path": "/Alarm",
+                "type": "enum",
+                "name": "Digital input alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/State",
+                "type": "enum",
+                "name": "Digital input state",
+                "enum": {
+                    "0": "low",
+                    "1": "high",
+                    "2": "off",
+                    "3": "on",
+                    "4": "no",
+                    "5": "yes",
+                    "6": "open",
+                    "7": "closed",
+                    "8": "ok",
+                    "9": "alarm",
+                    "10": "running",
+                    "11": "stopped"
+                }
+            },
+            {
+                "path": "/Count",
+                "type": "float",
+                "name": "Digital input count"
+            },
+            {
+                "path": "/Type",
+                "type": "enum",
+                "name": "Digital input type",
+                "enum": {
+                    "0": "Disabled",
+                    "1": "Pulse meter",
+                    "2": "Door sensor",
+                    "3": "Bilge pump",
+                    "4": "Bilge alarm",
+                    "5": "Burglar alarm",
+                    "6": "Smoke alarm",
+                    "7": "Fire alarm",
+                    "8": "CO2 alarm"
+                }
+            }
+        ]
+    },
+    "Temperature sensor": {
+        "device": "Temperature sensor",
+        "paths": [
+            null,
+            null,
+            null
+        ]
+    }
+}
