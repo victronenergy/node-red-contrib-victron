@@ -63,7 +63,9 @@ class SystemConfiguration {
 
                 return relayObject
             }
-            if (service.startsWith('com.victronenergy.battery')) {
+            else {
+                // any relay path under a dbus service
+                // e.g. battery, inverter ...
                 const name = this.cache[service]['/CustomName']
                     || this.cache[service]['/ProductName']
                     || service.split('.').pop()
