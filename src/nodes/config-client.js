@@ -14,19 +14,18 @@ module.exports = function(RED) {
     const globalClient = new VictronClient(process.env.NODE_RED_DBUS_ADDRESS)
     globalClient.connect()
 
-    // Serializes Set
-    function setReplacer(key, value) {
-        if (typeof value === 'object' && value instanceof Set)
-            return [...value]
-        return value
-    }
-
     /**
      * An endpoint for nodes to request services from - returns either a single service, or
      * all available services depending whether the requester gives the service parameter
      */
-    RED.httpAdmin.get("/victron/services/:service?", RED.auth.needsPermission('victron-client.read'), function(req, res) {
-        let serialized = JSON.stringify(globalClient.system.listAvailableServices(req.params.service), setReplacer)
+    RED.httpAdmin.get("/victron/services/:service?", RED.auth.needsPermission('victron-client.read'), (req, res) => {
+        let serialized = JSON.stringify(globalClient.system.listAvailableServices(req.params.service))
+        res.setHeader('Content-Type', 'application/json')
+        return res.send(serialized)
+    })
+
+    RED.httpAdmin.get("/victron/cache", RED.auth.needsPermission('victron-client.read'), (req, res) => {
+        let serialized = JSON.stringify(globalClient.system.cache)
         res.setHeader('Content-Type', 'application/json')
         return res.send(serialized)
     })
