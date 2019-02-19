@@ -12,7 +12,7 @@
     "node-red": {
         "nodes": {
             "victron-client": "./src/nodes/config-client.js",
-            "victron-battery": "./src/nodes/input-battery.js",
+            "victron-inputs": "./src/nodes/input-nodes.js",
             "victron-relay": "./src/nodes/output-relay.js"
         }
     },

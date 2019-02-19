@@ -1,0 +1,203 @@
+
+<script type="text/template" id="input-edit-template">
+    <div class="form-tips hidden" id="statusmessage">
+        No devices found. Please check that the device is properly connected.
+    </div>
+    <div class="form-row" id="service-row">
+        <label for="node-input-serviceId"> Device</label>
+        <select id="node-input-serviceId"></select>
+    </div>
+    <div class="form-row" id="path-row">
+        <label for="node-input-path"> Measurement</label>
+        <select id="node-input-path"></select>
+    </div>
+    <div class="form-tips hidden" id="enuminfo">
+        <b>Output Legend</b>
+        <p id="enuminfo-text"></p>
+    </div>
+    <div class="form-row" id="name-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/javascript">
+
+    /* Common functions */
+    const serviceRoot = '/victron/services/';
+
+    function buildEditPanel(node, serviceUrl) {
+        let serviceElem = $('#node-input-serviceId');
+        let pathElem = $('#node-input-path');
+
+        const buildOption = service => {
+            return $('<option/>')
+                .val(service.id || service.path)
+                .text(service.name)
+                .data(service);
+            }
+
+        const populateSelect = (selector, services) => {
+            selector[0].options.length = 0;
+            services.forEach(service => {
+                selector.append(buildOption(service));
+            });
+            selector.trigger('change')
+        }
+
+        const updatePaths = () => {
+            const data = serviceElem.find(':selected').data();
+            if (data && data.paths)
+                populateSelect(pathElem, data.paths);
+        }
+
+        const updateEnums = () => {
+            const selectedPath = pathElem.val();
+            const data = serviceElem.find(':selected').data();
+            const selectedPathElem = data.paths.filter(o => o.path === selectedPath)[0]
+
+            if (selectedPathElem && selectedPathElem.enum && selectedPathElem.type === 'enum') {
+                showEnumInfo(selectedPathElem.enum)
+            } else {
+                hideEnumInfo()
+            }
+        }
+
+        const showStatusMessage = (msg) => {
+            if (msg) $('#statusmessage').text(msg);
+            $('#statusmessage').show();
+            if (!node.service) $('.form-row').hide();
+        }
+
+        const showEnumInfo = (enumObj) => {
+            const msg = Object.entries(enumObj).map((item, key) => {
+                return `${item[0]} - ${item[1]}`
+            }).join('<br/>')
+            $('#enuminfo-text').html(msg);
+            $('#enuminfo').show();
+        }
+
+        const hideEnumInfo = () => {
+            $('#enuminfo').hide();
+        }
+
+        // Upon receiving data, populate the edit form
+        $.getJSON(serviceRoot + serviceUrl, function(data) {
+            // 1. Populate edit options based on new data
+            if (data.length !== 0)
+                populateSelect(serviceElem, data);
+            else
+                showStatusMessage();
+
+            // 2. If the node was previously deployed,
+            // update the edit based on the old data
+            if (node.service) {
+                // if it is not present anymore, still add it to the select list
+                if (!data.find(s => s.id === node.service.id)) {
+                    buildOption(node.service)
+                        .text(node.service.name + " [disconnected]")
+                        .appendTo(serviceElem);
+                }
+                serviceElem.val(node.service.id);
+            }
+
+            updatePaths();
+            serviceElem.change(updatePaths);
+
+            if (node.path)
+                pathElem.val(node.path);
+
+            updateEnums();
+            pathElem.change(updateEnums);
+        })
+        .fail(() => showStatusMessage("Unable to access the service endpoint."));
+    }
+
+    function saveEditPanel(node) {
+        // save the current service to a variable
+        node.service = $('#node-input-serviceId').find(':selected').data()
+    }
+
+    function buildNodeLabel(node, nodeName) {
+        let altName = nodeName;
+        if (node.service && node.path) {
+            let svc = node.service.name;
+            let path = node.service.paths.find(p => p.path === node.path).name;
+            altName = `${nodeName} | ${svc} | ${path}`;
+        }
+        return node.name || altName
+    }
+
+    // Builds the edit panel form dynamically for each input node
+    function buildEditForm(nodeType, serviceName) {
+
+        // Clone the edit form template
+        let editForm = $("#input-edit-template").clone().html()
+
+        let scriptTag = $("<script>")
+            .attr("type", "text/x-red")
+            .attr("data-template-name", nodeType)
+            .append(editForm)
+
+        // Edit template data
+        scriptTag.find('#service-row > label').text(serviceName)
+
+        // Append to the document body
+        $('body').append(scriptTag.prop('outerHTML'))
+    }
+
+    /* Node definitions */
+
+    // Creates an input-node config and registers it with
+    // the Node-RED Node API
+    function registerNode(nodeType, nodeLabel, serviceType) {
+        // Copy the edit form template to the html body
+        buildEditForm(nodeType, nodeLabel)
+
+        // Register a new node
+        RED.nodes.registerType(nodeType, {
+            category: 'Victron Energy',
+            paletteLabel: nodeLabel,
+            defaults: {
+                serviceId: {value: ""},
+                service: {value: undefined},
+                path: {value: ""},
+                name: {value: ""}
+            },
+            color: '#4790d0',
+            inputs: 0,
+            outputs: 1,
+            icon: "victronenergy.svg",
+            label: function() {
+                return buildNodeLabel(this, nodeLabel)
+            },
+            oneditprepare: function() {
+                buildEditPanel(this, serviceType)
+            },
+            oneditsave: function() {
+                saveEditPanel(this)
+            }
+        });
+    }
+
+    registerNode('victron-digital-input', 'Digital Input', 'digital-input')
+    registerNode('victron-tank', 'Tank', 'tank')
+    registerNode('victron-temperature', 'Temperature', 'temperature')
+    registerNode('victron-inverter', 'Inverter', 'inverter')
+    registerNode('victron-pvinverter', 'PV Inverter', 'pvinverter')
+    registerNode('victron-ac-charger', 'AC Charger', 'ac-charger')
+    registerNode('victron-solar-charger', 'Solar Charger', 'solar-charger')
+    registerNode('victron-battery', 'Battery Monitor', 'battery')
+    registerNode('victron-grid-meter', 'Grid Meter', 'grid-meter')
+    registerNode('victron-vebus', 'VE.Bus Systems', 'vebus')
+
+</script>
+
+<style>
+    .hidden {
+        display: none
+    }
+    .form-tips {
+        margin-bottom: 12px;
+    }
+</style>

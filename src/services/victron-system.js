@@ -1,6 +1,6 @@
 'use strict'
 
-const mapping = require('./victron-services')
+const services = require('./victron-services')
 const _ = require('lodash')
 const packagejson = require('../../package.json');
 
@@ -17,28 +17,29 @@ class SystemConfiguration {
     }
 
     /**
-     * Build the edit form layout for the battery node.
-     * Filter the dbus cache for available battery services.
+     * Build the edit form layout for a generic input node.
+     * Filter the dbus cache for available device services.
      */
-    getBatteryServices() {
+    getInputServices(dbusService, device) {
+
         // filter the dbus cache for battery services
-        let batteries = _.pickBy(this.cache, (val, key) => key.startsWith('com.victronenergy.battery'))
+        let devices = _.pickBy(this.cache, (val, key) => key.startsWith(`com.victronenergy.${dbusService}`))
 
         // construct an object that is used to render the edit form for the node
-        return Object.keys(batteries).map(dbusInterface => {
-            let batteryPaths = batteries[dbusInterface]
+        return Object.keys(devices).map(dbusInterface => {
+            let batteryPaths = devices[dbusInterface]
             let name = batteryPaths['/CustomName'] || batteryPaths['/ProductName'] || dbusInterface
 
             // the cache is filtered against the desired paths
             // to only show available options per service on the node's edit form.
-
-            let paths = _.get(mapping.SERVICES, ['Battery Monitor', 'paths'], [])
+            let paths = _.get(services.SERVICES, [device, 'paths'], [])
                 .filter(p => p && (p.path in batteryPaths))
 
-            return mapping.BATTERY(dbusInterface, name, paths)
+            return services.INPUT(dbusInterface, name, paths)
         })
-
+ 
     }
+
     /**
      * Build the edit form for the relay node.
      * Filter the cache for system and battery relays.
@@ -50,14 +51,14 @@ class SystemConfiguration {
                 const relayIndex = path.split('/')[2] || ''
                 const name = `Venus device (${relayIndex})`
 
-                let relayObject = mapping.RELAY(service, path, name)
+                let relayObject = services.RELAY(service, path, name)
 
                 // Special case for system relay 0 - only allow usage if relay function is set to manual
                 if (relayIndex === '0') {
                     const systemRelayFunction = this.cache['com.victronenergy.settings']['/Settings/Relay/Function']
                     if (systemRelayFunction !== 2) { // manual
                         relayObject["disabled"] = true
-                        relayObject["warning"] = mapping.RELAY_MODE_WARNING(mapping.RELAY_FUNCTIONS[systemRelayFunction])
+                        relayObject["warning"] = services.RELAY_MODE_WARNING(services.RELAY_FUNCTIONS[systemRelayFunction])
                     }
                 }
 
@@ -70,7 +71,7 @@ class SystemConfiguration {
                     || this.cache[service]['/ProductName']
                     || service.split('.').pop()
 
-                return mapping.RELAY(service, path, name)
+                return services.RELAY(service, path, name)
             }
         }
 
@@ -95,18 +96,32 @@ class SystemConfiguration {
      * @param {string} service an optional parameter to filter available services based on the given device
      */
     listAvailableServices(device=null) {
-
         let services = {
-            "battery": this.getBatteryServices(),
+            // input node services
+            "digital-input": [
+                ...this.getInputServices('pulsemeter', 'Pulse meter'),
+                ...this.getInputServices('digitalinput', 'Digital input')
+            ],
+            "tank": this.getInputServices('tank', 'Tank'),
+            "temperature": this.getInputServices('temperature', 'Temperature sensor'),
+            "inverter": this.getInputServices('inverter', 'Inverter'),
+            "pvinverter": this.getInputServices('pvinverter', 'PV Inverter'),
+            "ac-charger": this.getInputServices('charger', 'Charger'),
+            "solar-charger": this.getInputServices('solarcharger', 'Solar Charger'),
+            "battery": this.getInputServices('battery', 'Battery Monitor'),
+            "grid-meter":this.getInputServices('grid', 'Grid Meter'),
+            "vebus": this.getInputServices('vebus', 'VE.Bus System'),
+
+            // output services
             "relay": this.getRelayServices(),
+
+            // meta
             "version": _.get(packagejson, 'version')
         }
-
         return device !== null
             ? services[device]
             : services
     }
-
 }
 
 module.exports = SystemConfiguration
