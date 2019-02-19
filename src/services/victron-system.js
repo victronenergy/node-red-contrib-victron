@@ -44,7 +44,6 @@ class SystemConfiguration {
      * Filter the cache for system and battery relays.
      */
     getRelayServices() {
-
         // Build a relay object representing the relay node settings in node-red UI
         const buildRelayObject = (service, path) => {
             if (service.startsWith('com.victronenergy.system')) {
@@ -98,7 +97,6 @@ class SystemConfiguration {
         let services = {
             "battery": this.getBatteryServices(),
             "relay": this.getRelayServices(),
-            "cache": this.cache,
             "version": _.get(packagejson, 'version')
         }
 
