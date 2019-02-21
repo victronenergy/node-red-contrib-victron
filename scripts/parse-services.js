@@ -101,15 +101,10 @@ let deviceTypes = parse(readCsv(DEVICE_CSV), {
         return acc
     }, {})
 
-// For relay nodes, we have custom logic in the frontend
-// TODO: also add dbus paths in this stage (?)
-
 /**
  * Construct a services.json file based on service-whitelist.js file.
  */
-
 const data = {}
-
 if (process.argv[2]) {
     const _ = require('lodash')
     const additionalData = require(process.argv[2])
@@ -178,7 +173,7 @@ if (process.env.DEBUG) {
             pathObjs[path] = {
                 description: `Name for ${path}`,
                 dbusPath: path,
-                dataType: 'string',
+                dataType: 'float',
                 unit: '',
                 enum: {}
             }

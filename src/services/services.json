@@ -280,7 +280,11 @@
                     "2": "Alarm"
                 }
             },
-            null
+            {
+                "path": "/Dc/0/Power",
+                "type": "float",
+                "name": "Battery power (W)"
+            }
         ]
     },
     "Solar Charger": {
@@ -409,12 +413,29 @@
             },
             {
                 "path": "/Yield/User",
-                "type": "float",
-                "name": "User yield (kWh)"
+                "type": "string",
+                "name": "Yield since reset (kWh)"
             },
-            null,
-            null,
-            null
+            {
+                "path": "/Yield/Power",
+                "type": "float",
+                "name": "Total yield (kWh)"
+            },
+            {
+                "path": "/Yield/System",
+                "type": "string",
+                "name": "Yield since last update (kWh)"
+            },
+            {
+                "path": "/MPPOperationMode",
+                "type": "enum",
+                "name": "MPP operation mode",
+                "enum": {
+                    "0": "Off",
+                    "1": "Voltage or current limited",
+                    "2": "MPPT Tracker active"
+                }
+            }
         ]
     },
     "VE.Bus System": {
@@ -480,10 +501,34 @@
                 "type": "float",
                 "name": "Input power 3 (W)"
             },
-            null,
-            null,
-            null,
-            null,
+            {
+                "path": "/Ac/In/1/CurrentLimit",
+                "type": "float",
+                "name": "Input 1 current limit (A)"
+            },
+            {
+                "path": "/Ac/In/1/CurrentLimitIsAdjustable",
+                "type": "enum",
+                "name": "Input 1 current limit is adjustable",
+                "enum": {
+                    "0": "No",
+                    "1": "Yes"
+                }
+            },
+            {
+                "path": "/Ac/In/2/CurrentLimit",
+                "type": "float",
+                "name": "Input 2 current limit (A)"
+            },
+            {
+                "path": "/Ac/In/2/CurrentLimitIsAdjustable",
+                "type": "enum",
+                "name": "Input 2 current limit is adjustable",
+                "enum": {
+                    "0": "No",
+                    "1": "Yes"
+                }
+            },
             {
                 "path": "/Ac/Out/L1/V",
                 "type": "float",
@@ -650,7 +695,15 @@
                     "4": "Off"
                 }
             },
-            null,
+            {
+                "path": "/ModeIsAdjustable",
+                "type": "enum",
+                "name": "Mode is adjustable",
+                "enum": {
+                    "0": "No",
+                    "1": "Yes"
+                }
+            },
             {
                 "path": "/Energy/AcIn1ToInverter",
                 "type": "float",
@@ -706,12 +759,54 @@
     "Tank": {
         "device": "Tank",
         "paths": [
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
+            {
+                "path": "/Capacity",
+                "type": "float",
+                "name": "Tank capacity (m3)"
+            },
+            {
+                "path": "/Remaining",
+                "type": "float",
+                "name": "Fluid remaining (m3)"
+            },
+            {
+                "path": "/Level",
+                "type": "float",
+                "name": "Tank level (%)"
+            },
+            {
+                "path": "/Status",
+                "type": "enum",
+                "name": "Tank sensor status",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Disconnected",
+                    "2": "Short circuited",
+                    "3": "Unknown"
+                }
+            },
+            {
+                "path": "/Fluid Type",
+                "type": "enum",
+                "name": "Fluid type",
+                "enum": {
+                    "0": "Fuel",
+                    "1": "Fresh water",
+                    "2": "Waste water",
+                    "3": "Live well",
+                    "4": "Oil",
+                    "5": "Black water (sewage)"
+                }
+            },
+            {
+                "path": "/Standard",
+                "type": "enum",
+                "name": "Standard",
+                "enum": {
+                    "0": "European",
+                    "1": "USA"
+                }
+            }
         ]
     },
     "PV Inverter": {
@@ -804,8 +899,16 @@
                     "0": "No Error"
                 }
             },
-            null,
-            null
+            {
+                "path": "/Ac/Energy/Forward",
+                "type": "float",
+                "name": "Total energy (kWh)"
+            },
+            {
+                "path": "/Ac/Power",
+                "type": "float",
+                "name": "Total Power (W)"
+            }
         ]
     },
     "Charger": {
@@ -836,7 +939,11 @@
                 "type": "float",
                 "name": "Output 2 - current (A)"
             },
-            null,
+            {
+                "path": "/Dc/1/Temperature",
+                "type": "float",
+                "name": "Battery 1 temperature (C)"
+            },
             {
                 "path": "/Dc/2/Voltage",
                 "type": "float",
@@ -847,7 +954,11 @@
                 "type": "float",
                 "name": "Output 3 - current (A)"
             },
-            null,
+            {
+                "path": "/Dc/2/Temperature",
+                "type": "float",
+                "name": "Battery 2 temperature (C)"
+            },
             {
                 "path": "/Ac/In/L1/I",
                 "type": "float",
@@ -946,44 +1057,170 @@
                     "2": "Alarm"
                 }
             },
-            null
+            {
+                "path": "/NrOfOutputs",
+                "type": "float",
+                "name": "Number of charger outputs"
+            }
         ]
     },
     "Grid meter": {
         "device": "Grid meter",
         "paths": [
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
+            {
+                "path": "/Ac/Energy/Forward",
+                "type": "float",
+                "name": "Total Forward Energy (bought) (kWh)"
+            },
+            {
+                "path": "/Ac/Energy/Reverse",
+                "type": "float",
+                "name": "Total Reverse Energy (sold) (kWh)"
+            },
+            {
+                "path": "/Ac/Power",
+                "type": "float",
+                "name": "Power (W)"
+            },
+            {
+                "path": "/Ac/Current",
+                "type": "float",
+                "name": "Current (deprecated) (A)"
+            },
+            {
+                "path": "/Ac/Voltage",
+                "type": "float",
+                "name": "Voltage (deprecated) (V)"
+            },
+            {
+                "path": "/Ac/L1/Current",
+                "type": "float",
+                "name": "L1 Current (A)"
+            },
+            {
+                "path": "/Ac/L1/Energy/Forward",
+                "type": "float",
+                "name": "L1 Forward energy (bought) (kWh)",
+                "enum": {}
+            },
+            {
+                "path": "/Ac/L1/Energy/Reverse",
+                "type": "float",
+                "name": "L1 Reverse energy (sold) (kWh)"
+            },
+            {
+                "path": "/Ac/L1/Power",
+                "type": "float",
+                "name": "L1 Power (W)"
+            },
+            {
+                "path": "/Ac/L1/Voltage",
+                "type": "float",
+                "name": "L1 Voltage (V)"
+            },
+            {
+                "path": "/Ac/L2/Current",
+                "type": "float",
+                "name": "L2 Current (A)"
+            },
+            {
+                "path": "/Ac/L2/Energy/Forward",
+                "type": "float",
+                "name": "L2 Forward energy (bought) (kWh)"
+            },
+            {
+                "path": "/Ac/L2/Energy/Reverse",
+                "type": "float",
+                "name": "L2 Reverse energy (sold) (kWh)"
+            },
+            {
+                "path": "/Ac/L2/Power",
+                "type": "float",
+                "name": "L2 Power (W)"
+            },
+            {
+                "path": "/Ac/L2/Voltage",
+                "type": "float",
+                "name": "L2 Voltage (V)"
+            },
+            {
+                "path": "/Ac/L3/Current",
+                "type": "float",
+                "name": "L2 Current (A)"
+            },
+            {
+                "path": "/Ac/L3/Energy/Forward",
+                "type": "float",
+                "name": "L3 Forward energy (bought) (kWh)"
+            },
+            {
+                "path": "/Ac/L3/Energy/Reverse",
+                "type": "float",
+                "name": "L3 Reverse energy (sold) (kWh)"
+            },
+            {
+                "path": "/Ac/L3/Power",
+                "type": "float",
+                "name": "L3 Power (W)"
+            },
+            {
+                "path": "/Ac/L3/Voltage",
+                "type": "float",
+                "name": "L3 Voltage (V)"
+            },
+            {
+                "path": "/DeviceType",
+                "type": "enum",
+                "name": "Device type",
+                "enum": {}
+            },
+            {
+                "path": "/ErrorCode",
+                "type": "enum",
+                "name": "Error code",
+                "enum": {}
+            }
         ]
     },
     "Inverter": {
         "device": "Inverter",
         "paths": [
-            null,
-            null,
-            null,
-            null,
-            null
+            {
+                "path": "/Dc/0/Voltage",
+                "type": "float",
+                "name": "Input voltage (V)"
+            },
+            {
+                "path": "/Ac/Out/L1/V",
+                "type": "float",
+                "name": "Output voltage (V)"
+            },
+            {
+                "path": "/Ac/Out/L1/I",
+                "type": "float",
+                "name": "Output current (A)"
+            },
+            {
+                "path": "/Mode",
+                "type": "enum",
+                "name": "Mode",
+                "enum": {
+                    "2": "Inverter on",
+                    "4": "Off",
+                    "5": "Low Power/ECO"
+                }
+            },
+            {
+                "path": "/State",
+                "type": "enum",
+                "name": "State",
+                "enum": {
+                    "0": "Off",
+                    "1": "Low Power",
+                    "2": "Fault",
+                    "9": "Inverting"
+                }
+            }
         ]
     },
     "Pulse meter": {
@@ -1064,9 +1301,33 @@
     "Temperature sensor": {
         "device": "Temperature sensor",
         "paths": [
-            null,
-            null,
-            null
+            {
+                "path": "/Temperature",
+                "type": "float",
+                "name": "Temperature (C)"
+            },
+            {
+                "path": "/Status",
+                "type": "enum",
+                "name": "Sensor status",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Disconnected",
+                    "2": "Short circuited",
+                    "3": "Reverse polarity",
+                    "4": "Unknown"
+                }
+            },
+            {
+                "path": "/TemperatureType",
+                "type": "enum",
+                "name": "Sensor type",
+                "enum": {
+                    "0": "battery",
+                    "1": "fridge",
+                    "2": "generic"
+                }
+            }
         ]
     }
 }
