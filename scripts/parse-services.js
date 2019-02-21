@@ -11,6 +11,27 @@
  * The script parses the CSV files and generates a service.json
  * file which is used to generate the services for the
  * /victron/services REST API.
+ *
+ * If the DEBUG environment variable is set,
+ * the script generates the following debug files:
+ *  - missingpaths.json - a json file showing the paths that can
+ *    be found on the service-whitelist.js, but not on parsed CSVs.
+ *  - missingpaths.template.json - a json file template, that can be
+ *    filled in order to provide additional service + path definitions
+ *    to the parser
+ *  - allpaths.json - all parsed CSV data is saved in allpaths.json
+ *
+ * Usage:
+ * // basic services.json generation
+ * node parse-services.js
+ *
+ * // generate services.json and debug files
+ * env DEBUG=True node parse-services.js
+ *
+ * // generate services.json and debug files,
+ * // additionally, provide a filled template file of missing paths
+ * // this file overrides the fields parsed from CSV
+ * env DEBUG=True node parse-services.js ./additionalpaths.json
  */
 
 const parse = require('csv-parse/lib/sync')
@@ -19,13 +40,18 @@ const serviceWhitelist = require('./service-whitelist')
 
 
 const OUTPUT_JSON = '../src/services/services.json'
-const ENUM_CSV = 'csv/dataAttributeEnums.csv'
-const PATH_CSV = 'csv/dataAttributes.csv'
-const DEVICE_CSV = 'csv/deviceTypes.csv'
+const ENUM_CSV = './csv/dataAttributeEnums.csv'
+const PATH_CSV = './csv/dataAttributes.csv'
+const DEVICE_CSV = './csv/deviceTypes.csv'
 
 // Debug
 let devicePaths = {}
 let missingPaths = {}
+
+if (!(fs.existsSync(ENUM_CSV) && fs.existsSync(PATH_CSV) && fs.existsSync(DEVICE_CSV))) {
+    console.error(`Please make sure, that the files ${ENUM_CSV}, ${PATH_CSV} and ${DEVICE_CSV} exist.`)
+    process.exit()
+}
 
 const readCsv = filename => fs.readFileSync(`${filename}`, 'UTF-8')
 
@@ -66,7 +92,7 @@ const dataAttributes = parse(readCsv(PATH_CSV), {
  * Parse all available devices and assign previously parsed
  * dbus paths for each device.
  */
-const deviceTypes = parse(readCsv(DEVICE_CSV), {
+let deviceTypes = parse(readCsv(DEVICE_CSV), {
     columns: true
     }).reduce((acc, item) => {
         acc[item.Device] = item
@@ -81,7 +107,15 @@ const deviceTypes = parse(readCsv(DEVICE_CSV), {
 /**
  * Construct a services.json file based on service-whitelist.js file.
  */
+
 const data = {}
+
+if (process.argv[2]) {
+    const _ = require('lodash')
+    const additionalData = require(process.argv[2])
+    deviceTypes = _.merge(deviceTypes, additionalData)
+}
+
 Object.keys(serviceWhitelist).forEach(deviceType => {
     const deviceData = deviceTypes[deviceType] || {dataAttributes: {}}
 
@@ -132,6 +166,30 @@ if (process.env.DEBUG) {
     });
 
     fs.writeFile('./missingpaths.json', missingPathsJSON, 'utf8', () => {
+        console.log('All missing paths are saved to ./missingpaths.json.')
+    });
+
+    // create a missingPaths template
+    // to easily fill in missing data
+    const missingPathsTemplate = {}
+    Object.keys(missingPaths).forEach(key => {
+        let pathObjs = {}
+        missingPaths[key].map(path => {
+            pathObjs[path] = {
+                description: `Name for ${path}`,
+                dbusPath: path,
+                dataType: 'string',
+                unit: '',
+                enum: {}
+            }
+        })
+        missingPathsTemplate[key] = {
+            dataAttributes: pathObjs
+        }
+    })
+
+    const missingPathsTemplateJSON = JSON.stringify(missingPathsTemplate, null, 4)
+    fs.writeFile('./missingpaths.template.json', missingPathsTemplateJSON, 'utf8', () => {
         console.log('All missing paths are saved to ./missingpaths.json.')
     });
 
