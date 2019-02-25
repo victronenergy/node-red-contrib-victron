@@ -36,7 +36,8 @@
 
 const parse = require('csv-parse/lib/sync')
 const fs = require('fs')
-const serviceWhitelist = require('./service-whitelist')
+const _ = require('lodash')
+const whitelist = require('./service-whitelist')
 
 
 const OUTPUT_JSON = '../src/services/services.json'
@@ -111,15 +112,16 @@ if (process.argv[2]) {
     deviceTypes = _.merge(deviceTypes, additionalData)
 }
 
-Object.keys(serviceWhitelist).forEach(deviceType => {
+Object.keys(whitelist.INPUT_PATHS).forEach(deviceType => {
     const deviceData = deviceTypes[deviceType] || {dataAttributes: {}}
 
     data[deviceType] = {
         'device': deviceType,
-        paths: serviceWhitelist[deviceType].map(dbusPath => {
+        paths: whitelist.INPUT_PATHS[deviceType].map(dbusPath => {
             const attribute = deviceData.dataAttributes[dbusPath]
 
-            if (attribute === undefined) { // skip undefined paths, print them if DEBUG env is enabled
+            // skip undefined paths, print them if DEBUG env is enabled
+            if (attribute === undefined) {
                 if (missingPaths[deviceType] === undefined)
                     missingPaths[deviceType] = [dbusPath]
                 else
@@ -133,13 +135,17 @@ Object.keys(serviceWhitelist).forEach(deviceType => {
 
             const pathObj = {
                 path: dbusPath,
-                //service: attribute.dbusServiceType,
+                //service: attribute.dbusServiceType, // TODO: -> maybe construct services.json based on dbus service, not device
                 type: attribute.dataType,
                 //unit: attribute.unit,
                 //name: attribute.description,
                 name: label,
                 enum: attribute.enum
             }
+
+            // add "writable": true for whitelisted output nodes
+            let isOutputPath = _.get(whitelist.OUTPUT_PATHS, deviceType, []).includes(dbusPath)
+            if (isOutputPath) pathObj.writable = true
 
             return pathObj
         })

@@ -313,7 +313,8 @@
                     "0": "Off (deprecated)",
                     "1": "On",
                     "4": "Off"
-                }
+                },
+                "writable": true
             },
             {
                 "path": "/State",
@@ -434,7 +435,8 @@
                     "0": "Off",
                     "1": "Voltage or current limited",
                     "2": "MPPT Tracker active"
-                }
+                },
+                "writable": true
             }
         ]
     },
@@ -504,7 +506,8 @@
             {
                 "path": "/Ac/In/1/CurrentLimit",
                 "type": "float",
-                "name": "Input 1 current limit (A)"
+                "name": "Input 1 current limit (A)",
+                "writable": true
             },
             {
                 "path": "/Ac/In/1/CurrentLimitIsAdjustable",
@@ -518,7 +521,8 @@
             {
                 "path": "/Ac/In/2/CurrentLimit",
                 "type": "float",
-                "name": "Input 2 current limit (A)"
+                "name": "Input 2 current limit (A)",
+                "writable": true
             },
             {
                 "path": "/Ac/In/2/CurrentLimitIsAdjustable",
@@ -693,7 +697,8 @@
                     "2": "Inverter Only",
                     "3": "On",
                     "4": "Off"
-                }
+                },
+                "writable": true
             },
             {
                 "path": "/ModeIsAdjustable",
@@ -972,7 +977,8 @@
             {
                 "path": "/Ac/In/CurrentLimit",
                 "type": "float",
-                "name": "AC Current limit (A)"
+                "name": "AC Current limit (A)",
+                "writable": true
             },
             {
                 "path": "/Mode",
@@ -983,7 +989,8 @@
                     "1": "On",
                     "2": "Error",
                     "3": "Unavailable, Unknown"
-                }
+                },
+                "writable": true
             },
             {
                 "path": "/State",
@@ -1037,7 +1044,8 @@
                 "enum": {
                     "0": "Open",
                     "1": "Closed"
-                }
+                },
+                "writable": true
             },
             {
                 "path": "/Alarms/LowVoltage",
@@ -1208,7 +1216,8 @@
                     "2": "Inverter on",
                     "4": "Off",
                     "5": "Low Power/ECO"
-                }
+                },
+                "writable": true
             },
             {
                 "path": "/State",
