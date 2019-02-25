@@ -5,7 +5,7 @@
  * The whitelist is used in the generation of services.json.
  */
 
-module.exports = {
+const INPUT_PATHS = {
     'Battery Monitor': [
         // "/ProductId",
         // "/FirmwareVersion",
@@ -34,8 +34,8 @@ module.exports = {
         // "/History/MaximumStarterVoltage",
         // "/Serial",
         "/Dc/0/Temperature",
-        "/Dc/0/MidVoltage", // relevant ?
-        "/Dc/0/MidVoltageDeviation", // relevant ?
+        "/Dc/0/MidVoltage",
+        "/Dc/0/MidVoltageDeviation",
         "/Alarms/LowVoltage",
         "/Alarms/HighVoltage",
         "/Alarms/LowStarterVoltage",
@@ -81,7 +81,6 @@ module.exports = {
         "/Alarms/LowChargeTemperature",
         '/Dc/0/Power' // Missing
     ],
-
     'Solar Charger': [
         // "/FirmwareVersion",
         "/Dc/0/Voltage",
@@ -106,9 +105,9 @@ module.exports = {
         "/Load/State",
         "/Load/I",
         "/Yield/User",
-        "/Yield/Power", // Total Yield | Missing
-        "/Yield/System", // Lifetime Yield | Missing
-        "/MPPOperationMode" // Missing
+        "/Yield/Power",
+        "/Yield/System",
+        "/MPPOperationMode"
     ],
     'VE.Bus System': [
         '/Ac/ActiveIn/L1/V',
@@ -123,9 +122,9 @@ module.exports = {
         '/Ac/ActiveIn/L1/P',
         '/Ac/ActiveIn/L2/P',
         '/Ac/ActiveIn/L3/P',
-        '/Ac/In/1/CurrentLimit', // Missing
+        '/Ac/In/1/CurrentLimit',
         '/Ac/In/1/CurrentLimitIsAdjustable',
-        '/Ac/In/2/CurrentLimit', // Missing
+        '/Ac/In/2/CurrentLimit',
         '/Ac/In/2/CurrentLimitIsAdjustable',
         '/Ac/Out/L1/V',
         '/Ac/Out/L2/V',
@@ -149,7 +148,7 @@ module.exports = {
         '/Alarms/LowBattery',
         '/Alarms/Overload',
         '/Mode',
-        '/ModeIsAdjustable', // Missing
+        '/ModeIsAdjustable',
         // '/FirmwareVersion',
         //'/ProductId',
         //'/ShortIds',
@@ -172,12 +171,12 @@ module.exports = {
     ],
     //'IO Extender': [],
     'Tank': [
-        '/Capacity', // Missing
-        '/Remaining', // Missing
-        '/Level', // Missing
-        '/Status', // Missing
-        '/Fluid Type', // Missing
-        '/Standard' // Missing
+        '/Capacity',
+        '/Remaining',
+        '/Level',
+        '/Status',
+        '/Fluid Type',
+        '/Standard'
     ],
     // 'System overview': [
     //     '/Ac/PvOnOutput/L1/Power',
@@ -229,8 +228,8 @@ module.exports = {
         '/ErrorCode',
         // '/Serial',
         // '/FroniusDeviceType',
-        '/Ac/Energy/Forward', // Missing
-        '/Ac/Power', // Missing,
+        '/Ac/Energy/Forward',
+        '/Ac/Power',
     ],
     // 'BMS': [
     //     '/ProductId',
@@ -253,10 +252,10 @@ module.exports = {
         '/Dc/0/Temperature',
         '/Dc/1/Voltage',
         '/Dc/1/Current',
-        '/Dc/1/Temperature', // Missing
+        '/Dc/1/Temperature',
         '/Dc/2/Voltage',
         '/Dc/2/Current',
-        '/Dc/2/Temperature', // Missing
+        '/Dc/2/Temperature',
         '/Ac/In/L1/I',
         '/Ac/In/L1/P',
         '/Ac/In/CurrentLimit',
@@ -266,7 +265,7 @@ module.exports = {
         '/Relay/0/State',
         '/Alarms/LowVoltage',
         '/Alarms/HighVoltage',
-        '/NrOfOutputs' // Missing
+        '/NrOfOutputs'
     ],
     // 'ZBM Node': [
     //     '/Alarms/AirTemperatureSensor',
@@ -289,37 +288,37 @@ module.exports = {
     // 'Heating': [],
     'Grid meter': [
         // '/ProductId',
-        "/Ac/Energy/Forward", // Missing
-        "/Ac/Energy/Reverse", // Missing
-        "/Ac/Power", // Missing
+        "/Ac/Energy/Forward",
+        "/Ac/Energy/Reverse",
+        "/Ac/Power",
         "/Ac/Current",
         "/Ac/Voltage",
-        "/Ac/L1/Current", // Missing
-        "/Ac/L1/Energy/Forward", // Missing
-        "/Ac/L1/Energy/Reverse", // Missing
-        "/Ac/L1/Power", // Missing
-        "/Ac/L1/Voltage", // Missing
-        "/Ac/L2/Current", // Missing
-        "/Ac/L2/Energy/Forward", // Missing
-        "/Ac/L2/Energy/Reverse", // Missing
-        "/Ac/L2/Power", // Missing
-        "/Ac/L2/Voltage", // Missing
-        "/Ac/L3/Current", // Missing
-        "/Ac/L3/Energy/Forward", // Missing
-        "/Ac/L3/Energy/Reverse", // Missing
-        "/Ac/L3/Power", // Missing
-        "/Ac/L3/Voltage", // Missing
-        "/DeviceType", // Missing
-        "/ErrorCode" // Missing
+        "/Ac/L1/Current",
+        "/Ac/L1/Energy/Forward",
+        "/Ac/L1/Energy/Reverse",
+        "/Ac/L1/Power",
+        "/Ac/L1/Voltage",
+        "/Ac/L2/Current",
+        "/Ac/L2/Energy/Forward",
+        "/Ac/L2/Energy/Reverse",
+        "/Ac/L2/Power",
+        "/Ac/L2/Voltage",
+        "/Ac/L3/Current",
+        "/Ac/L3/Energy/Forward",
+        "/Ac/L3/Energy/Reverse",
+        "/Ac/L3/Power",
+        "/Ac/L3/Voltage",
+        "/DeviceType",
+        "/ErrorCode"
     ],
     'Inverter': [ // VE.Direct Inverter Node
         // '/ProductId',
         // '/Serial',
-        '/Dc/0/Voltage', // Missing
-        '/Ac/Out/L1/V', // Missing
-        '/Ac/Out/L1/I', // Missing
-        '/Mode', // Missing
-        '/State' // Missing
+        '/Dc/0/Voltage',
+        '/Ac/Out/L1/V',
+        '/Ac/Out/L1/I',
+        '/Mode',
+        '/State'
     ],
     // 'Generator': [
     //     '/ProductId',
@@ -330,7 +329,7 @@ module.exports = {
         // '/ProductId',
         '/Aggregate',
         '/Count',
-        // '/Connected' // Missing
+        // '/Connected'
     ],
     'Digital input': [ // Digital Input Node
         '/ProductId',
@@ -338,11 +337,39 @@ module.exports = {
         '/State',
         '/Count',
         '/Type',
-        // '/Connected' //Missing
+        // '/Connected'
     ],
     'Temperature sensor': [
-        '/Temperature', // Missing
-        '/Status', // Missing
-        '/TemperatureType', // Missing
+        '/Temperature',
+        '/Status',
+        '/TemperatureType',
     ],
+}
+
+const OUTPUT_PATHS  = {
+    'VE.Bus System': [
+        '/Mode', // requires logic /ModeIsAdjustable first
+        '/Ac/In/1/CurrentLimit', // requires logic  /Ac/In/1/CurrentLimitIsAdjustable
+        '/Ac/In/2/CurrentLimit', // requires logic /Ac/In/2/CurrentLimitIsAdjustable
+    ],
+    'Inverter': [
+        '/Mode'
+    ],
+    'Charger': [
+        '/Ac/In/CurrentLimit',
+        '/Mode',
+        '/Relay/0/State'
+    ],
+    // 'Generator': [
+    //  '/Mode',
+    // ],
+    'Solar Charger': [
+        "/Mode",
+        "/MPPOperationMode"
+    ]
+}
+
+module.exports = {
+    INPUT_PATHS,
+    OUTPUT_PATHS
 }
