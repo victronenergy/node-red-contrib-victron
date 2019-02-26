@@ -120,7 +120,6 @@ class SystemConfiguration {
             "input-vebus": this.getServices('vebus', 'VE.Bus System'),
 
             // output services
-            "relay": this.getRelayServices(), // TODO: remove
             "output-relay": this.getRelayServices(),
             "output-vebus": this.getServices('vebus', 'VE.Bus System', true), // TODO: requires some custom logic
             "output-inverter": this.getServices('inverter', 'Inverter', true),

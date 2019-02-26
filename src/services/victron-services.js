@@ -45,8 +45,12 @@ const RELAY = (service, path, name) => {
             "id": getHash(service + path),
             "paths": [
                 {
-                    "name": "State (on/off)",
-                    "path": `${path}`
+                    "name": "State",
+                    "path": `${path}`,
+                    "enum": {
+                        "0": "OFF",
+                        "1": "ON"
+                    }
                 }
             ]
         }
