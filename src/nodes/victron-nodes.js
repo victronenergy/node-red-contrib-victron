@@ -62,7 +62,6 @@ module.exports = function(RED) {
     }
 
     // Input nodes
-    // TODO: rename all nodes to victron-input-*
     RED.nodes.registerType('victron-input-digitalinput', BaseInputNode);
     RED.nodes.registerType('victron-input-tank', BaseInputNode);
     RED.nodes.registerType('victron-input-temperature', BaseInputNode);

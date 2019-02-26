@@ -12,8 +12,7 @@
     "node-red": {
         "nodes": {
             "victron-client": "./src/nodes/config-client.js",
-            "victron-nodes": "./src/nodes/victron-nodes.js",
-            "victron-relay": "./src/nodes/output-relay.js"
+            "victron-nodes": "./src/nodes/victron-nodes.js"
         }
     },
     "devDependencies": {

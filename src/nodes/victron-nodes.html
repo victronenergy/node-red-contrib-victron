@@ -115,7 +115,7 @@
             updateEnums();
             pathElem.change(updateEnums);
 
-            if (isOutputNode) // TODO: maybe move to buildEditForm (?)
+            if (isOutputNode)
                 $('#outputinfo').show();
 
         })
@@ -209,7 +209,7 @@
     registerInputNode('victron-input-vebus', 'VE.Bus Systems', 'input-vebus')
 
     // output nodes
-    registerOutputNode('victron-output-relay', 'Relay (New)', 'output-relay')
+    registerOutputNode('victron-output-relay', 'Relay Control', 'output-relay')
     registerOutputNode('victron-output-vebus', 'VE.Bus Device Control', 'output-vebus')
     registerOutputNode('victron-output-inverter', 'Inverter Control', 'output-inverter')
     registerOutputNode('victron-output-accharger', 'AC Charger Control', 'output-accharger')
