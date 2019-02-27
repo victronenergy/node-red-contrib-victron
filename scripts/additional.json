@@ -1,4 +1,22 @@
 {
+    "system": {
+        "/Relay/0/State": {
+            "description": "Venus relay 1 state",
+            "dataType": "enum",
+            "enum": {
+                "0": "Open",
+                "1": "Closed"
+            }
+        },
+        "/Relay/1/State": {
+            "description": "Venus relay 2 state",
+            "dataType": "enum",
+            "enum": {
+                "0": "Open",
+                "1": "Closed"
+            }
+        }
+    },
     "battery": {
         "/Dc/0/Power": {
             "description": "Battery power",

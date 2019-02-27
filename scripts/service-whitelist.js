@@ -6,6 +6,10 @@
  */
 
 const INPUT_PATHS = {
+    'system': [
+        "/Relay/0/State",
+        "/Relay/1/State"
+    ],
     'battery': [
         // "/ProductId",
         // "/FirmwareVersion",
@@ -347,6 +351,10 @@ const INPUT_PATHS = {
 }
 
 const OUTPUT_PATHS  = {
+    'system': [
+        "/Relay/0/State",
+        "/Relay/1/State"
+    ],
     'vebus': [
         '/Mode', // requires logic /ModeIsAdjustable first
         '/Ac/In/1/CurrentLimit', // requires logic  /Ac/In/1/CurrentLimitIsAdjustable

@@ -21,11 +21,10 @@ function getHash(str){
 }
 
 /**
- * Constructs a battery object that is returned by
- * configuration node's /victron/services REST endpoint.
- * This is used to build battery node's edit options.
+ * Constructs a node config object that is
+ * used to render node-specific editable options in UI.
  */
-const INPUT = (service, name, paths) => {
+const TEMPLATE = (service, name, paths) => {
     return {
         "service": `${service}`,
         "name": `${name}`,
@@ -34,27 +33,6 @@ const INPUT = (service, name, paths) => {
     }
 }
 
-/**
- * Constructs a relay object, that is
- * used to build the relay node's edit options.
- */
-const RELAY = (service, path, name) => {
-        return {
-            "service": `${service}`,
-            "name": `${name}`,
-            "id": getHash(service + path),
-            "paths": [
-                {
-                    "name": "State",
-                    "path": `${path}`,
-                    "enum": {
-                        "0": "OFF",
-                        "1": "ON"
-                    }
-                }
-            ]
-        }
-}
 
 const RELAY_FUNCTIONS = {
     0: 'alarm',
@@ -67,8 +45,7 @@ const RELAY_MODE_WARNING = (func) =>
     `This relay is reserved for ${func} function. Please navigate to Settings > Relay and change it to manual.`
 
 module.exports = {
-    INPUT,
-    RELAY,
+    TEMPLATE,
     RELAY_FUNCTIONS,
     RELAY_MODE_WARNING,
     SERVICES
