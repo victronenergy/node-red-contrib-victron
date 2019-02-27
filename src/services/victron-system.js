@@ -20,7 +20,7 @@ class SystemConfiguration {
      * Build the edit form layout for a generic input/output node.
      * Filter the dbus cache for available device services.
      */
-    getServices(dbusService, isOutput=false) {
+    getServices(dbusService, isOutput = false) {
         // filter the dbus cache for battery services
         let cachedDevices = _.pickBy(this.cache, (val, key) => key.startsWith(`com.victronenergy.${dbusService}`))
 
@@ -36,7 +36,7 @@ class SystemConfiguration {
                     _.has(cachedPaths, service.path)
                     && (!isOutput || service.writable)) // output paths need a 'writable' property
 
-            return services.INPUT(dbusInterface, name, paths)
+            return services.TEMPLATE(dbusInterface, name, paths)
         })
     }
 
@@ -46,15 +46,13 @@ class SystemConfiguration {
      */
     getRelayServices() {
         // Build a relay object representing the relay node settings in node-red UI
-        const buildRelayObject = (service, path) => {
-            if (service.startsWith('com.victronenergy.system')) {
-                const relayIndex = path.split('/')[2] || ''
-                const name = `Venus device (${relayIndex})`
+        const buildRelayService = (service, paths) => {
+            let pathObjects = paths.map(p => {
+                const svc = service.split('.')[2] // com.victronenergy.system => system
+                let relayObject = _.find(_.get(services.SERVICES, [svc, 'paths']), {path: p});
 
-                let relayObject = services.RELAY(service, path, name)
-
-                // Special case for system relay 0 - only allow usage if relay function is set to manual
-                if (relayIndex === '0') {
+                // special case for system relay
+                if (service.startsWith('com.victronenergy.system') && p.startsWith('/Relay/0')) {
                     const systemRelayFunction = this.cache['com.victronenergy.settings']['/Settings/Relay/Function']
                     if (systemRelayFunction !== 2) { // manual
                         relayObject["disabled"] = true
@@ -63,27 +61,25 @@ class SystemConfiguration {
                 }
 
                 return relayObject
-            }
-            else {
-                // any relay path under a dbus service
-                // e.g. battery, inverter ...
-                const name = this.cache[service]['/CustomName']
-                    || this.cache[service]['/ProductName']
-                    || service.split('.').pop()
+            })
 
-                return services.RELAY(service, path, name)
-            }
+            let name = service.startsWith('com.victronenergy.system')
+                ? 'Venus device'
+                : this.cache[service]['/CustomName']
+                || this.cache[service]['/ProductName']
+                || service.split('.').pop()
+
+            return services.TEMPLATE(service, name, pathObjects)
+
         }
 
         // Filter all paths that begin with '/Relay'.
         // Construct and return an array of relay nodes representing their settings.
         return Object.entries(this.cache)
             .reduce((acc, [service, pathObj]) => {
-                Object.keys(pathObj)
-                    .filter(path => path.startsWith('/Relay'))
-                    .map(relayPath => acc.push(
-                        buildRelayObject(service, relayPath))
-                    )
+                let relayPaths = Object.keys(pathObj).filter(path => path.startsWith('/Relay'))
+                if (relayPaths.length)
+                    acc.push(buildRelayService(service, relayPaths))
                 return acc
             }, [])
     }
@@ -95,7 +91,7 @@ class SystemConfiguration {
      *
      * @param {string} service an optional parameter to filter available services based on the given device
      */
-    listAvailableServices(device=null) {
+    listAvailableServices(device = null) {
         let services = {
             // input node services
             "input-digitalinput": [
@@ -109,7 +105,7 @@ class SystemConfiguration {
             "input-accharger": this.getServices('charger'),
             "input-solarcharger": this.getServices('solarcharger'),
             "input-battery": this.getServices('battery'),
-            "input-gridmeter":this.getServices('grid'),
+            "input-gridmeter": this.getServices('grid'),
             "input-vebus": this.getServices('vebus'),
 
             // output services

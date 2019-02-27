@@ -1,4 +1,29 @@
 {
+    "system": {
+        "service": "system",
+        "paths": [
+            {
+                "path": "/Relay/0/State",
+                "type": "enum",
+                "name": "Venus relay 1 state",
+                "enum": {
+                    "0": "Open",
+                    "1": "Closed"
+                },
+                "writable": true
+            },
+            {
+                "path": "/Relay/1/State",
+                "type": "enum",
+                "name": "Venus relay 2 state",
+                "enum": {
+                    "0": "Open",
+                    "1": "Closed"
+                },
+                "writable": true
+            }
+        ]
+    },
     "battery": {
         "service": "battery",
         "paths": [
