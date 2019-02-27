@@ -41,28 +41,35 @@ module.exports = function(RED) {
 
             this.node = this
 
-            this.service = _.get(nodeDefinition.service, 'service')
-            this.path = nodeDefinition.path
+            this.serviceObj = nodeDefinition.service
+            this.dbusService = _.get(nodeDefinition.service, 'service')
+
+            this.pathObj = nodeDefinition.pathObj
+            this.dbusPath = nodeDefinition.path
+
             this.initialValue = nodeDefinition.initial
 
             this.configNode = RED.nodes.getNode("victron-client-id")
             this.client = this.configNode.client
 
-            let handlerId = this.configNode.addStatusListener(this, this.service, this.path)
+            let handlerId = this.configNode.addStatusListener(this, this.dbusService, this.dbusPath)
 
-            if (this.initialValue && this.service && this.path) {
-                this.client.publish(this.service, this.path, parseInt(this.initialValue))
+            const setValue = (value) => {
+                if (!this.pathObj.disabled && this.dbusService && this.dbusPath)
+                    this.client.publish(this.dbusService, this.dbusPath, value)
             }
 
+            if (this.initialValue)
+                setValue(parseInt(this.initialValue))
+
             this.on("input", function(msg) {
-                this.client.publish(this.service, this.path, msg.payload)
+                setValue(msg.payload)
             });
 
             this.on('close', function(done) {
                 this.node.configNode.removeStatusListener(handlerId)
                 done()
             })
-
         }
     }
 

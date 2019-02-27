@@ -11,6 +11,8 @@
         <label for="node-input-path"> Measurement</label>
         <select id="node-input-path"></select>
     </div>
+    <div class="form-tips form-warning hidden" id="warningmessage">
+    </div>
     <div class="form-tips hidden" id="enuminfo">
         <b>Value types</b>
         <p id="enuminfo-text"></p>
@@ -63,6 +65,13 @@
             const selectedPath = pathElem.val();
             const data = serviceElem.find(':selected').data();
             const selectedPathElem = data.paths.filter(o => o.path === selectedPath)[0]
+
+            if (selectedPathElem && selectedPathElem.disabled) {
+                if (selectedPathElem.warning)
+                $('#warningmessage').text(selectedPathElem.warning).show()
+            } else {
+                $('#warningmessage').hide();
+            }
 
             if (selectedPathElem && selectedPathElem.enum && selectedPathElem.type === 'enum') {
                 const valueTypes = selectedPathElem.enum
@@ -151,6 +160,7 @@
     function saveEditPanel(node) {
         // save the current service to a variable
         node.service = $('#node-input-serviceId').find(':selected').data()
+        node.pathObj = $('#node-input-path').find(':selected').data()
     }
 
     function buildNodeLabel(node, nodeName) {
@@ -194,8 +204,9 @@
             paletteLabel: nodeLabel,
             defaults: {
                 serviceId: {value: ""},
-                service: {value: undefined},
-                path: {value: ""},
+                path: {value: ""}, // should this be pathId ?
+                service: {value: undefined}, // should this be serviceObj ?
+                pathObj: {value: undefined},
                 initial: {value: undefined}, // only for some output nodes
                 name: {value: ""}
             },
@@ -252,9 +263,7 @@
         margin-bottom: 12px;
     }
     .form-warning {
-        color: red;
-        font-size: 0.9em;
-        max-width: 30em;
+        background-color: red;
     }
     .form-row label {
         min-width: 11em;
