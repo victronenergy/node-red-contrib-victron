@@ -3,7 +3,6 @@
 const services = require('./victron-services')
 const _ = require('lodash')
 const packagejson = require('../../package.json');
-const debug = require('debug')('node-red-contrib-victron:victron-system')
 
 /**
  * SystemConfiguration contains information on the given Venus system.
@@ -18,30 +17,24 @@ class SystemConfiguration {
     }
 
     /**
-     * Build the edit form layout for a generic input node.
+     * Build the edit form layout for a generic input/output node.
      * Filter the dbus cache for available device services.
      */
-    getServices(dbusService, device, isOutput=false) {
+    getServices(dbusService, isOutput=false) {
         // filter the dbus cache for battery services
-        let devices = _.pickBy(this.cache, (val, key) => key.startsWith(`com.victronenergy.${dbusService}`))
+        let cachedDevices = _.pickBy(this.cache, (val, key) => key.startsWith(`com.victronenergy.${dbusService}`))
 
         // construct an object that is used to render the edit form for the node
-        return Object.keys(devices).map(dbusInterface => {
-            let devicePaths = devices[dbusInterface]
-            let name = devicePaths['/CustomName'] || devicePaths['/ProductName'] || dbusInterface
+        return Object.keys(cachedDevices).map(dbusInterface => {
+            let cachedPaths = cachedDevices[dbusInterface]
+            let name = cachedPaths['/CustomName'] || cachedPaths['/ProductName'] || dbusInterface
 
-            // the cache is filtered against the desired paths
+            // the cache is filtered against the desired paths in services.json
             // to only show available options per service on the node's edit form.
-
-            let paths = _.get(services.SERVICES, [device, 'paths'], [])
-                .filter(service => {
-                    if (service && (service.path in devicePaths)) {
-                        if (isOutput && !service.writable)
-                            return false
-                        return true
-                    }
-                    return false
-                })
+            let paths = _.get(services.SERVICES, [dbusService, 'paths'], [])
+                .filter(service =>
+                    _.has(cachedPaths, service.path)
+                    && (!isOutput || service.writable)) // output paths need a 'writable' property
 
             return services.INPUT(dbusInterface, name, paths)
         })
@@ -106,25 +99,25 @@ class SystemConfiguration {
         let services = {
             // input node services
             "input-digitalinput": [
-                ...this.getServices('pulsemeter', 'Pulse meter'),
-                ...this.getServices('digitalinput', 'Digital input')
+                ...this.getServices('pulsemeter'),
+                ...this.getServices('digitalinput')
             ],
-            "input-tank": this.getServices('tank', 'Tank'),
-            "input-temperature": this.getServices('temperature', 'Temperature sensor'),
-            "input-inverter": this.getServices('inverter', 'Inverter'),
-            "input-pvinverter": this.getServices('pvinverter', 'PV Inverter'),
-            "input-accharger": this.getServices('charger', 'Charger'),
-            "input-solarcharger": this.getServices('solarcharger', 'Solar Charger'),
-            "input-battery": this.getServices('battery', 'Battery Monitor'),
-            "input-gridmeter":this.getServices('grid', 'Grid Meter'),
-            "input-vebus": this.getServices('vebus', 'VE.Bus System'),
+            "input-tank": this.getServices('tank'),
+            "input-temperature": this.getServices('temperature'),
+            "input-inverter": this.getServices('inverter'),
+            "input-pvinverter": this.getServices('pvinverter'),
+            "input-accharger": this.getServices('charger'),
+            "input-solarcharger": this.getServices('solarcharger'),
+            "input-battery": this.getServices('battery'),
+            "input-gridmeter":this.getServices('grid'),
+            "input-vebus": this.getServices('vebus'),
 
             // output services
             "output-relay": this.getRelayServices(),
-            "output-vebus": this.getServices('vebus', 'VE.Bus System', true), // TODO: requires some custom logic
-            "output-inverter": this.getServices('inverter', 'Inverter', true),
-            "output-accharger": this.getServices('charger', 'Charger', true),
-            "output-solarcharger": this.getServices('solarcharger', 'Solar Charger', true),
+            "output-vebus": this.getServices('vebus', true),
+            "output-inverter": this.getServices('inverter', true),
+            "output-accharger": this.getServices('charger', true),
+            "output-solarcharger": this.getServices('solarcharger', true),
 
             // meta
             "version": _.get(packagejson, 'version')
