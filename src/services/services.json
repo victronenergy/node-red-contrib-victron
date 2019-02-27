@@ -1,6 +1,6 @@
 {
-    "Battery Monitor": {
-        "device": "Battery Monitor",
+    "battery": {
+        "service": "battery",
         "paths": [
             {
                 "path": "/Dc/0/Voltage",
@@ -147,55 +147,6 @@
                 }
             },
             {
-                "path": "/State",
-                "type": "enum",
-                "name": "State",
-                "enum": {
-                    "0": "Initializing (Wait start)",
-                    "1": "Initializing (before boot)",
-                    "2": "Initializing (Before boot delay)",
-                    "3": "Initializing (Wait boot)",
-                    "4": "Initializing",
-                    "5": "Initializing (Measure battery voltage)",
-                    "6": "Initializing (Calculate battery voltage)",
-                    "7": "Initializing (Wait bus voltage)",
-                    "8": "Initializing (Wait for lynx shunt)",
-                    "9": "Running",
-                    "10": "Error (10)",
-                    "11": "Error (11)"
-                }
-            },
-            {
-                "path": "/ErrorCode",
-                "type": "enum",
-                "name": "Error",
-                "enum": {
-                    "0": "No error",
-                    "1": "Battery initialization error",
-                    "2": "No batteries connected",
-                    "3": "Unknown battery",
-                    "4": "Different battery type",
-                    "5": "Number of batteries incorrect",
-                    "6": "Lynx Shunt not found",
-                    "7": "Battery measure error",
-                    "8": "Internal calculation error",
-                    "9": "Batteries in series not ok",
-                    "10": "Number of batteries incorrect",
-                    "11": "Hardware error",
-                    "12": "Watchdog error",
-                    "13": "Over voltage",
-                    "14": "Under voltage",
-                    "15": "Over temperature",
-                    "16": "Under temperature",
-                    "22": "ADC error",
-                    "23": "Slave error",
-                    "24": "Slave warning",
-                    "25": "Pre-charge error",
-                    "26": "Contactor error",
-                    "27": "Over current"
-                }
-            },
-            {
                 "path": "/Soh",
                 "type": "float",
                 "name": "State of health (%)"
@@ -287,8 +238,8 @@
             }
         ]
     },
-    "Solar Charger": {
-        "device": "Solar Charger",
+    "solarcharger": {
+        "service": "solarcharger",
         "paths": [
             {
                 "path": "/Dc/0/Voltage",
@@ -440,8 +391,8 @@
             }
         ]
     },
-    "VE.Bus System": {
-        "device": "VE.Bus System",
+    "vebus": {
+        "service": "vebus",
         "paths": [
             {
                 "path": "/Ac/ActiveIn/L1/V",
@@ -761,8 +712,8 @@
             }
         ]
     },
-    "Tank": {
-        "device": "Tank",
+    "tank": {
+        "service": "tank",
         "paths": [
             {
                 "path": "/Capacity",
@@ -814,8 +765,8 @@
             }
         ]
     },
-    "PV Inverter": {
-        "device": "PV Inverter",
+    "pvinverter": {
+        "service": "pvinverter",
         "paths": [
             {
                 "path": "/Ac/L1/Voltage",
@@ -916,8 +867,8 @@
             }
         ]
     },
-    "Charger": {
-        "device": "Charger",
+    "charger": {
+        "service": "charger",
         "paths": [
             {
                 "path": "/Dc/0/Voltage",
@@ -1072,8 +1023,8 @@
             }
         ]
     },
-    "Grid meter": {
-        "device": "Grid meter",
+    "grid": {
+        "service": "grid",
         "paths": [
             {
                 "path": "/Ac/Energy/Forward",
@@ -1190,8 +1141,8 @@
             }
         ]
     },
-    "Inverter": {
-        "device": "Inverter",
+    "inverter": {
+        "service": "inverter",
         "paths": [
             {
                 "path": "/Dc/0/Voltage",
@@ -1232,8 +1183,8 @@
             }
         ]
     },
-    "Pulse meter": {
-        "device": "Pulse meter",
+    "pulsemeter": {
+        "service": "pulsemeter",
         "paths": [
             {
                 "path": "/Aggregate",
@@ -1247,8 +1198,8 @@
             }
         ]
     },
-    "Digital input": {
-        "device": "Digital input",
+    "digitalinput": {
+        "service": "digitalinput",
         "paths": [
             {
                 "path": "/ProductId",
@@ -1307,8 +1258,8 @@
             }
         ]
     },
-    "Temperature sensor": {
-        "device": "Temperature sensor",
+    "temperature": {
+        "service": "temperature",
         "paths": [
             {
                 "path": "/Temperature",

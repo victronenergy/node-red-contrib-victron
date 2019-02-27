@@ -12,26 +12,18 @@
  * file which is used to generate the services for the
  * /victron/services REST API.
  *
- * If the DEBUG environment variable is set,
- * the script generates the following debug files:
- *  - missingpaths.json - a json file showing the paths that can
- *    be found on the service-whitelist.js, but not on parsed CSVs.
- *  - missingpaths.template.json - a json file template, that can be
- *    filled in order to provide additional service + path definitions
- *    to the parser
- *  - allpaths.json - all parsed CSV data is saved in allpaths.json
+ * In case some of the whitelisted paths are missing from the CSVs,
+ * the script generates a missingpaths.template.json template file that
+ * can be used to manually populate with additional service and path
+ * definitions.
  *
  * Usage:
  * // basic services.json generation
  * node parse-services.js
  *
- * // generate services.json and debug files
- * env DEBUG=True node parse-services.js
- *
- * // generate services.json and debug files,
- * // additionally, provide a filled template file of missing paths
- * // this file overrides the fields parsed from CSV
- * env DEBUG=True node parse-services.js ./additionalpaths.json
+ * // generate services.json and provide a filled template file
+ * // of missing paths this file overrides the fields parsed from CSV:
+ * env node parse-services.js ./additionalpaths.json
  */
 
 const parse = require('csv-parse/lib/sync')
@@ -39,18 +31,15 @@ const fs = require('fs')
 const _ = require('lodash')
 const whitelist = require('./service-whitelist')
 
-
 const OUTPUT_JSON = '../src/services/services.json'
 const ENUM_CSV = './csv/dataAttributeEnums.csv'
 const PATH_CSV = './csv/dataAttributes.csv'
-const DEVICE_CSV = './csv/deviceTypes.csv'
 
 // Debug
-let devicePaths = {}
 let missingPaths = {}
 
-if (!(fs.existsSync(ENUM_CSV) && fs.existsSync(PATH_CSV) && fs.existsSync(DEVICE_CSV))) {
-    console.error(`Please make sure, that the files ${ENUM_CSV}, ${PATH_CSV} and ${DEVICE_CSV} exist.`)
+if (!(fs.existsSync(ENUM_CSV) && fs.existsSync(PATH_CSV))) {
+    console.error(`Please make sure, that the files ${ENUM_CSV} and ${PATH_CSV} exist.`)
     process.exit()
 }
 
@@ -71,10 +60,10 @@ const dataAttributeEnums = parse(readCsv(ENUM_CSV), {
 /**
  * Parse all dbus paths.
  */
-const dataAttributes = parse(readCsv(PATH_CSV), {
+let dataAttributes = parse(readCsv(PATH_CSV), {
     columns: true
     }).reduce((acc, item) => {
-        acc[item.idDeviceType] = acc[item.idDeviceType] || {}
+        acc[item.dbusServiceType] = acc[item.dbusServiceType] || {}
 
         // Add enums
         const attrEnums = dataAttributeEnums[item.idDataAttribute]
@@ -85,20 +74,7 @@ const dataAttributes = parse(readCsv(PATH_CSV), {
             }, {})
         }
 
-        acc[item.idDeviceType][item.dbusPath] = item
-        return acc
-    }, {})
-
-/**
- * Parse all available devices and assign previously parsed
- * dbus paths for each device.
- */
-let deviceTypes = parse(readCsv(DEVICE_CSV), {
-    columns: true
-    }).reduce((acc, item) => {
-        acc[item.Device] = item
-        item.dataAttributes = dataAttributes[item.idDeviceType]
-        devicePaths[item.Device] = Object.keys(item.dataAttributes).map(path => path) // debug
+        acc[item.dbusServiceType][item.dbusPath] = item
         return acc
     }, {})
 
@@ -106,26 +82,25 @@ let deviceTypes = parse(readCsv(DEVICE_CSV), {
  * Construct a services.json file based on service-whitelist.js file.
  */
 const data = {}
+
 if (process.argv[2]) {
     const _ = require('lodash')
     const additionalData = require(process.argv[2])
-    deviceTypes = _.merge(deviceTypes, additionalData)
+    dataAttributes = _.merge(dataAttributes, additionalData)
 }
 
-Object.keys(whitelist.INPUT_PATHS).forEach(deviceType => {
-    const deviceData = deviceTypes[deviceType] || {dataAttributes: {}}
-
-    data[deviceType] = {
-        'device': deviceType,
-        paths: whitelist.INPUT_PATHS[deviceType].map(dbusPath => {
-            const attribute = deviceData.dataAttributes[dbusPath]
+Object.keys(whitelist.INPUT_PATHS).forEach(dbusService => {
+    data[dbusService] = {
+        'service': dbusService,
+        paths: whitelist.INPUT_PATHS[dbusService].map(dbusPath => {
+            const attribute = _.get(dataAttributes, [dbusService, dbusPath])
 
             // skip undefined paths, print them if DEBUG env is enabled
             if (attribute === undefined) {
-                if (missingPaths[deviceType] === undefined)
-                    missingPaths[deviceType] = [dbusPath]
+                if (missingPaths[dbusService] === undefined)
+                    missingPaths[dbusService] = [dbusPath]
                 else
-                    missingPaths[deviceType].push(dbusPath)
+                    missingPaths[dbusService].push(dbusPath)
                 return
             }
 
@@ -135,7 +110,6 @@ Object.keys(whitelist.INPUT_PATHS).forEach(deviceType => {
 
             const pathObj = {
                 path: dbusPath,
-                //service: attribute.dbusServiceType, // TODO: -> maybe construct services.json based on dbus service, not device
                 type: attribute.dataType,
                 //unit: attribute.unit,
                 //name: attribute.description,
@@ -144,7 +118,7 @@ Object.keys(whitelist.INPUT_PATHS).forEach(deviceType => {
             }
 
             // add "writable": true for whitelisted output nodes
-            let isOutputPath = _.get(whitelist.OUTPUT_PATHS, deviceType, []).includes(dbusPath)
+            let isOutputPath = _.get(whitelist.OUTPUT_PATHS, dbusService, []).includes(dbusPath)
             if (isOutputPath) pathObj.writable = true
 
             return pathObj
@@ -158,20 +132,10 @@ fs.writeFile(OUTPUT_JSON, jsonData, 'utf8', () => {
     console.log(`Parsing successful. Please see ${OUTPUT_JSON} for results.`)
 });
 
-if (process.env.DEBUG) {
-    const devicePathsJSON = JSON.stringify(devicePaths, null, 4)
-    const missingPathsJSON = JSON.stringify(missingPaths, null, 4)
+// In case some paths are missing from the CSVs, generate a template file
+// to manually fill in the missing paths
+if (Object.keys(missingPaths).length) {
 
-    fs.writeFile('./allpaths.json', devicePathsJSON, 'utf8', () => {
-        console.log('All parsed paths are saved to ./allpaths.json.')
-    });
-
-    fs.writeFile('./missingpaths.json', missingPathsJSON, 'utf8', () => {
-        console.log('All missing paths are saved to ./missingpaths.json.')
-    });
-
-    // create a missingPaths template
-    // to easily fill in missing data
     const missingPathsTemplate = {}
     Object.keys(missingPaths).forEach(key => {
         let pathObjs = {}
@@ -184,15 +148,11 @@ if (process.env.DEBUG) {
                 enum: {}
             }
         })
-        missingPathsTemplate[key] = {
-            dataAttributes: pathObjs
-        }
+        missingPathsTemplate[key] = pathObjs
     })
 
     const missingPathsTemplateJSON = JSON.stringify(missingPathsTemplate, null, 4)
-    fs.writeFile('./missingpaths.template.json', missingPathsTemplateJSON, 'utf8', () => {
-        console.log('All missing paths are saved to ./missingpaths.json.')
-    });
+    fs.writeFile('./missingpaths.template.json', missingPathsTemplateJSON, 'utf8', () => {});
 
     console.log('The following paths are missing from the CSV:')
     console.log(missingPaths)

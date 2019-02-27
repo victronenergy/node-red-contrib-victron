@@ -6,7 +6,7 @@
  */
 
 const INPUT_PATHS = {
-    'Battery Monitor': [
+    'battery': [
         // "/ProductId",
         // "/FirmwareVersion",
         "/Dc/0/Voltage",
@@ -46,8 +46,8 @@ const INPUT_PATHS = {
         "/Alarms/MidVoltage",
         "/Alarms/FuseBlown",
         "/Alarms/HighInternalTemperature",
-        "/State",
-        "/ErrorCode",
+        // "/State", // Lynx BMS
+        // "/ErrorCode", // Lynx BMS
         // "/SystemSwitch",
         // "/Balancing",
         // "/System/NrOfBatteries",
@@ -81,7 +81,7 @@ const INPUT_PATHS = {
         "/Alarms/LowChargeTemperature",
         '/Dc/0/Power' // Missing
     ],
-    'Solar Charger': [
+    'solarcharger': [
         // "/FirmwareVersion",
         "/Dc/0/Voltage",
         "/Dc/0/Current",
@@ -109,7 +109,7 @@ const INPUT_PATHS = {
         "/Yield/System",
         "/MPPOperationMode"
     ],
-    'VE.Bus System': [
+    'vebus': [
         '/Ac/ActiveIn/L1/V',
         '/Ac/ActiveIn/L2/V',
         '/Ac/ActiveIn/L3/V',
@@ -170,7 +170,7 @@ const INPUT_PATHS = {
         '/Energy/OutToInverter',
     ],
     //'IO Extender': [],
-    'Tank': [
+    'tank': [
         '/Capacity',
         '/Remaining',
         '/Level',
@@ -208,7 +208,7 @@ const INPUT_PATHS = {
     //     '/Dc/Battery/Alarms/CircuitBreakerTripped',
     //     '/Ac/ActiveIn/Source',
     // ],
-    'PV Inverter': [
+    'pvinverter': [
         // '/ProductId',
         // '/FirmwareVersion',
         // '/Position',
@@ -243,7 +243,7 @@ const INPUT_PATHS = {
     //     '/Dc/0/Power',
     //     '/Controller/Temperature',
     // ],
-    'Charger': [ // AC Charger Node
+    'charger': [ // AC Charger Node
         // '/ProductId',
         // '/FirmwareVersion',
         // '/Serial',
@@ -286,7 +286,7 @@ const INPUT_PATHS = {
     //     '/FirmwareVersion',
     // ],
     // 'Heating': [],
-    'Grid meter': [
+    'grid': [
         // '/ProductId',
         "/Ac/Energy/Forward",
         "/Ac/Energy/Reverse",
@@ -311,7 +311,7 @@ const INPUT_PATHS = {
         "/DeviceType",
         "/ErrorCode"
     ],
-    'Inverter': [ // VE.Direct Inverter Node
+    'inverter': [ // VE.Direct Inverter Node
         // '/ProductId',
         // '/Serial',
         '/Dc/0/Voltage',
@@ -325,13 +325,13 @@ const INPUT_PATHS = {
     // ],
     // 'Generator start/stop': [],
     // 'Gas meter': [],
-    'Pulse meter': [ // Digital Input Node
+    'pulsemeter': [ // Digital Input Node
         // '/ProductId',
         '/Aggregate',
         '/Count',
         // '/Connected'
     ],
-    'Digital input': [ // Digital Input Node
+    'digitalinput': [ // Digital Input Node
         '/ProductId',
         '/Alarm',
         '/State',
@@ -339,7 +339,7 @@ const INPUT_PATHS = {
         '/Type',
         // '/Connected'
     ],
-    'Temperature sensor': [
+    'temperature': [
         '/Temperature',
         '/Status',
         '/TemperatureType',
@@ -347,23 +347,23 @@ const INPUT_PATHS = {
 }
 
 const OUTPUT_PATHS  = {
-    'VE.Bus System': [
+    'vebus': [
         '/Mode', // requires logic /ModeIsAdjustable first
         '/Ac/In/1/CurrentLimit', // requires logic  /Ac/In/1/CurrentLimitIsAdjustable
         '/Ac/In/2/CurrentLimit', // requires logic /Ac/In/2/CurrentLimitIsAdjustable
     ],
-    'Inverter': [
+    'inverter': [
         '/Mode'
     ],
-    'Charger': [
+    'charger': [
         '/Ac/In/CurrentLimit',
         '/Mode',
         '/Relay/0/State'
     ],
-    // 'Generator': [
+    // 'genset': [
     //  '/Mode',
     // ],
-    'Solar Charger': [
+    'solarcharger': [
         "/Mode",
         "/MPPOperationMode"
     ]

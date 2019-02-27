@@ -1,391 +1,373 @@
 {
-    "Battery Monitor": {
-        "dataAttributes": {
-            "/Dc/0/Power": {
-                "description": "Battery power",
-                "dbusPath": "/Dc/0/Power",
-                "dataType": "float",
-                "unit": "W"
+    "battery": {
+        "/Dc/0/Power": {
+            "description": "Battery power",
+            "dbusPath": "/Dc/0/Power",
+            "dataType": "float",
+            "unit": "W"
+        }
+    },
+    "solarcharger": {
+        "/Yield/Power": {
+            "description": "Total yield",
+            "dbusPath": "/Yield/Power",
+            "dataType": "float",
+            "unit": "kWh"
+        },
+        "/Yield/System": {
+            "description": "Yield since last update",
+            "dbusPath": "/Yield/System",
+            "dataType": "string",
+            "unit": "kWh"
+        },
+        "/Yield/User": {
+            "description": "Yield since reset",
+            "dbusPath": "/Yield/User",
+            "dataType": "string",
+            "unit": "kWh"
+        },
+        "/MPPOperationMode": {
+            "description": "MPP operation mode",
+            "dbusPath": "/MPPOperationMode",
+            "dataType": "enum",
+            "unit": "",
+            "enum": {
+                "0": "Off",
+                "1": "Voltage or current limited",
+                "2": "MPPT Tracker active"
             }
         }
     },
-    "Solar Charger": {
-        "dataAttributes": {
-            "/Yield/Power": {
-                "description": "Total yield",
-                "dbusPath": "/Yield/Power",
-                "dataType": "float",
-                "unit": "kWh"
-            },
-            "/Yield/System": {
-                "description": "Yield since last update",
-                "dbusPath": "/Yield/System",
-                "dataType": "string",
-                "unit": "kWh"
-            },
-            "/Yield/User": {
-                "description": "Yield since reset",
-                "dbusPath": "/Yield/User",
-                "dataType": "string",
-                "unit": "kWh"
-            },
-            "/MPPOperationMode": {
-                "description": "MPP operation mode",
-                "dbusPath": "/MPPOperationMode",
-                "dataType": "enum",
-                "unit": "",
-                "enum": {
-                    "0": "Off",
-                    "1": "Voltage or current limited",
-                    "2": "MPPT Tracker active"
-                }
+    "vebus": {
+        "/Ac/In/1/CurrentLimit": {
+            "description": "Input 1 current limit",
+            "dbusPath": "/Ac/In/1/CurrentLimit",
+            "dataType": "float",
+            "unit": "A"
+        },
+        "/Ac/In/1/CurrentLimitIsAdjustable": {
+            "description": "Input 1 current limit is adjustable",
+            "dbusPath": "/Ac/In/1/CurrentLimitIsAdjustable",
+            "dataType": "enum",
+            "enum": {
+                "0": "No",
+                "1": "Yes"
+            }
+        },
+        "/Ac/In/2/CurrentLimit": {
+            "description": "Input 2 current limit",
+            "dbusPath": "/Ac/In/2/CurrentLimit",
+            "dataType": "float",
+            "unit": "A"
+        },
+        "/Ac/In/2/CurrentLimitIsAdjustable": {
+            "description": "Input 2 current limit is adjustable",
+            "dbusPath": "/Ac/In/2/CurrentLimitIsAdjustable",
+            "dataType": "enum",
+            "enum": {
+                "0": "No",
+                "1": "Yes"
+            }
+        },
+        "/ModeIsAdjustable": {
+            "description": "Mode is adjustable",
+            "dbusPath": "/ModeIsAdjustable",
+            "dataType": "enum",
+            "enum": {
+                "0": "No",
+                "1": "Yes"
             }
         }
     },
-    "VE.Bus System": {
-        "dataAttributes": {
-            "/Ac/In/1/CurrentLimit": {
-                "description": "Input 1 current limit",
-                "dbusPath": "/Ac/In/1/CurrentLimit",
-                "dataType": "float",
-                "unit": "A"
-            },
-            "/Ac/In/1/CurrentLimitIsAdjustable": {
-                "description": "Input 1 current limit is adjustable",
-                "dbusPath": "/Ac/In/1/CurrentLimitIsAdjustable",
-                "dataType": "enum",
-                "enum": {
-                    "0": "No",
-                    "1": "Yes"
-                }
-            },
-            "/Ac/In/2/CurrentLimit": {
-                "description": "Input 2 current limit",
-                "dbusPath": "/Ac/In/2/CurrentLimit",
-                "dataType": "float",
-                "unit": "A"
-            },
-            "/Ac/In/2/CurrentLimitIsAdjustable": {
-                "description": "Input 2 current limit is adjustable",
-                "dbusPath": "/Ac/In/2/CurrentLimitIsAdjustable",
-                "dataType": "enum",
-                "enum": {
-                    "0": "No",
-                    "1": "Yes"
-                }
-            },
-            "/ModeIsAdjustable": {
-                "description": "Mode is adjustable",
-                "dbusPath": "/ModeIsAdjustable",
-                "dataType": "enum",
-                "enum": {
-                    "0": "No",
-                    "1": "Yes"
-                }
+    "tank": {
+        "/Capacity": {
+            "description": "Tank capacity",
+            "dbusPath": "/Capacity",
+            "dataType": "float",
+            "unit": "m3"
+        },
+        "/Remaining": {
+            "description": "Fluid remaining",
+            "dbusPath": "/Remaining",
+            "dataType": "float",
+            "unit": "m3"
+        },
+        "/Level": {
+            "description": "Tank level",
+            "dbusPath": "/Level",
+            "dataType": "float",
+            "unit": "%"
+        },
+        "/Status": {
+            "description": "Tank sensor status",
+            "dbusPath": "/Status",
+            "dataType": "enum",
+            "enum": {
+                "0": "Ok",
+                "1": "Disconnected",
+                "2": "Short circuited",
+                "3": "Unknown"
+            }
+        },
+        "/Fluid Type": {
+            "description": "Fluid type",
+            "dbusPath": "/Fluid Type",
+            "dataType": "enum",
+            "enum": {
+                "0": "Fuel",
+                "1": "Fresh water",
+                "2": "Waste water",
+                "3": "Live well",
+                "4": "Oil",
+                "5": "Black water (sewage)"
+            }
+        },
+        "/Standard": {
+            "description": "Standard",
+            "dbusPath": "/Standard",
+            "dataType": "enum",
+            "enum": {
+                "0": "European",
+                "1": "USA"
             }
         }
     },
-    "Tank": {
-        "dataAttributes": {
-            "/Capacity": {
-                "description": "Tank capacity",
-                "dbusPath": "/Capacity",
-                "dataType": "float",
-                "unit": "m3"
-            },
-            "/Remaining": {
-                "description": "Fluid remaining",
-                "dbusPath": "/Remaining",
-                "dataType": "float",
-                "unit": "m3"
-            },
-            "/Level": {
-                "description": "Tank level",
-                "dbusPath": "/Level",
-                "dataType": "float",
-                "unit": "%"
-            },
-            "/Status": {
-                "description": "Tank sensor status",
-                "dbusPath": "/Status",
-                "dataType": "enum",
-                "enum": {
-                    "0": "Ok",
-                    "1": "Disconnected",
-                    "2": "Short circuited",
-                    "3": "Unknown"
-                }
-            },
-            "/Fluid Type": {
-                "description": "Fluid type",
-                "dbusPath": "/Fluid Type",
-                "dataType": "enum",
-                "enum": {
-                    "0": "Fuel",
-                    "1": "Fresh water",
-                    "2": "Waste water",
-                    "3": "Live well",
-                    "4": "Oil",
-                    "5": "Black water (sewage)"
-                }
-            },
-            "/Standard": {
-                "description": "Standard",
-                "dbusPath": "/Standard",
-                "dataType": "enum",
-                "enum": {
-                    "0": "European",
-                    "1": "USA"
-                }
+    "pvinverter": {
+        "/Ac/Energy/Forward": {
+            "description": "Total energy",
+            "dbusPath": "/Ac/Energy/Forward",
+            "dataType": "float",
+            "unit": "kWh"
+        },
+        "/Ac/Power": {
+            "description": "Total Power",
+            "dbusPath": "/Ac/Power",
+            "dataType": "float",
+            "unit": "W"
+        }
+    },
+    "charger": {
+        "/Dc/1/Temperature": {
+            "description": "Battery 1 temperature",
+            "dbusPath": "/Dc/1/Temperature",
+            "dataType": "float",
+            "unit": "C"
+        },
+        "/Dc/2/Temperature": {
+            "description": "Battery 2 temperature",
+            "dbusPath": "/Dc/2/Temperature",
+            "dataType": "float",
+            "unit": "C"
+        },
+        "/NrOfOutputs": {
+            "description": "Number of charger outputs",
+            "dbusPath": "/NrOfOutputs",
+            "dataType": "float"
+        }
+    },
+    "grid": {
+        "/Ac/Energy/Forward": {
+            "description": "Total Forward Energy (bought)",
+            "dbusPath": "/Ac/Energy/Forward",
+            "dataType": "float",
+            "unit": "kWh"
+        },
+        "/Ac/Energy/Reverse": {
+            "description": "Total Reverse Energy (sold)",
+            "dbusPath": "/Ac/Energy/Reverse",
+            "dataType": "float",
+            "unit": "kWh"
+        },
+        "/Ac/Power": {
+            "description": "Power",
+            "dbusPath": "/Ac/Power",
+            "dataType": "float",
+            "unit": "W"
+        },
+        "/Ac/Current": {
+            "description": "Current (deprecated)",
+            "dbusPath": "/Ac/Current",
+            "dataType": "float",
+            "unit": "A"
+        },
+        "/Ac/Voltage": {
+            "description": "Voltage (deprecated)",
+            "dbusPath": "/Ac/Voltage",
+            "dataType": "float",
+            "unit": "V"
+        },
+        "/Ac/L1/Current": {
+            "description": "L1 Current",
+            "dbusPath": "/Ac/L1/Current",
+            "dataType": "float",
+            "unit": "A"
+        },
+        "/Ac/L1/Energy/Forward": {
+            "description": "L1 Forward energy (bought)",
+            "dbusPath": "/Ac/L1/Energy/Forward",
+            "dataType": "float",
+            "unit": "kWh",
+            "enum": {}
+        },
+        "/Ac/L1/Energy/Reverse": {
+            "description": "L1 Reverse energy (sold)",
+            "dbusPath": "/Ac/L1/Energy/Reverse",
+            "dataType": "float",
+            "unit": "kWh"
+        },
+        "/Ac/L1/Power": {
+            "description": "L1 Power",
+            "dbusPath": "/Ac/L1/Power",
+            "dataType": "float",
+            "unit": "W"
+        },
+        "/Ac/L1/Voltage": {
+            "description": "L1 Voltage",
+            "dbusPath": "/Ac/L1/Voltage",
+            "dataType": "float",
+            "unit": "V"
+        },
+        "/Ac/L2/Current": {
+            "description": "L2 Current",
+            "dbusPath": "/Ac/L2/Current",
+            "dataType": "float",
+            "unit": "A"
+        },
+        "/Ac/L2/Energy/Forward": {
+            "description": "L2 Forward energy (bought)",
+            "dbusPath": "/Ac/L2/Energy/Forward",
+            "dataType": "float",
+            "unit": "kWh"
+        },
+        "/Ac/L2/Energy/Reverse": {
+            "description": "L2 Reverse energy (sold)",
+            "dbusPath": "/Ac/L2/Energy/Reverse",
+            "dataType": "float",
+            "unit": "kWh"
+        },
+        "/Ac/L2/Power": {
+            "description": "L2 Power",
+            "dbusPath": "/Ac/L2/Power",
+            "dataType": "float",
+            "unit": "W"
+        },
+        "/Ac/L2/Voltage": {
+            "description": "L2 Voltage",
+            "dbusPath": "/Ac/L2/Voltage",
+            "dataType": "float",
+            "unit": "V"
+        },
+        "/Ac/L3/Current": {
+            "description": "L2 Current",
+            "dbusPath": "/Ac/L3/Current",
+            "dataType": "float",
+            "unit": "A"
+        },
+        "/Ac/L3/Energy/Forward": {
+            "description": "L3 Forward energy (bought)",
+            "dbusPath": "/Ac/L3/Energy/Forward",
+            "dataType": "float",
+            "unit": "kWh"
+        },
+        "/Ac/L3/Energy/Reverse": {
+            "description": "L3 Reverse energy (sold)",
+            "dbusPath": "/Ac/L3/Energy/Reverse",
+            "dataType": "float",
+            "unit": "kWh"
+        },
+        "/Ac/L3/Power": {
+            "description": "L3 Power",
+            "dbusPath": "/Ac/L3/Power",
+            "dataType": "float",
+            "unit": "W"
+        },
+        "/Ac/L3/Voltage": {
+            "description": "L3 Voltage",
+            "dbusPath": "/Ac/L3/Voltage",
+            "dataType": "float",
+            "unit": "V"
+        },
+        "/DeviceType": {
+            "description": "Device type",
+            "dbusPath": "/DeviceType",
+            "dataType": "enum",
+            "enum": {}
+        },
+        "/ErrorCode": {
+            "description": "Error code",
+            "dbusPath": "/ErrorCode",
+            "dataType": "enum",
+            "enum": {}
+        }
+    },
+    "inverter": {
+        "/Dc/0/Voltage": {
+            "description": "Input voltage",
+            "dbusPath": "/Dc/0/Voltage",
+            "dataType": "float",
+            "unit": "V"
+        },
+        "/Ac/Out/L1/V": {
+            "description": "Output voltage",
+            "dbusPath": "/Ac/Out/L1/V",
+            "dataType": "float",
+            "unit": "V"
+        },
+        "/Ac/Out/L1/I": {
+            "description": "Output current",
+            "dbusPath": "/Ac/Out/L1/I",
+            "dataType": "float",
+            "unit": "A"
+        },
+        "/Mode": {
+            "description": "Mode",
+            "dbusPath": "/Mode",
+            "dataType": "enum",
+            "enum": {
+                "2": "Inverter on",
+                "4": "Off",
+                "5": "Low Power/ECO"
+            }
+        },
+        "/State": {
+            "description": "State",
+            "dbusPath": "/State",
+            "dataType": "enum",
+            "enum": {
+                "0": "Off",
+                "1": "Low Power",
+                "2": "Fault",
+                "9": "Inverting"
             }
         }
     },
-    "PV Inverter": {
-        "dataAttributes": {
-            "/Ac/Energy/Forward": {
-                "description": "Total energy",
-                "dbusPath": "/Ac/Energy/Forward",
-                "dataType": "float",
-                "unit": "kWh"
-            },
-            "/Ac/Power": {
-                "description": "Total Power",
-                "dbusPath": "/Ac/Power",
-                "dataType": "float",
-                "unit": "W"
+    "temperature": {
+        "/Temperature": {
+            "description": "Temperature",
+            "dbusPath": "/Temperature",
+            "dataType": "float",
+            "unit": "C"
+        },
+        "/Status": {
+            "description": "Sensor status",
+            "dbusPath": "/Status",
+            "dataType": "enum",
+            "enum": {
+                "0": "Ok",
+                "1": "Disconnected",
+                "2": "Short circuited",
+                "3": "Reverse polarity",
+                "4": "Unknown"
             }
-        }
-    },
-    "Charger": {
-        "dataAttributes": {
-            "/Dc/1/Temperature": {
-                "description": "Battery 1 temperature",
-                "dbusPath": "/Dc/1/Temperature",
-                "dataType": "float",
-                "unit": "C"
-            },
-            "/Dc/2/Temperature": {
-                "description": "Battery 2 temperature",
-                "dbusPath": "/Dc/2/Temperature",
-                "dataType": "float",
-                "unit": "C"
-            },
-            "/NrOfOutputs": {
-                "description": "Number of charger outputs",
-                "dbusPath": "/NrOfOutputs",
-                "dataType": "float"
-            }
-        }
-    },
-    "Grid meter": {
-        "dataAttributes": {
-            "/Ac/Energy/Forward": {
-                "description": "Total Forward Energy (bought)",
-                "dbusPath": "/Ac/Energy/Forward",
-                "dataType": "float",
-                "unit": "kWh"
-            },
-            "/Ac/Energy/Reverse": {
-                "description": "Total Reverse Energy (sold)",
-                "dbusPath": "/Ac/Energy/Reverse",
-                "dataType": "float",
-                "unit": "kWh"
-            },
-            "/Ac/Power": {
-                "description": "Power",
-                "dbusPath": "/Ac/Power",
-                "dataType": "float",
-                "unit": "W"
-            },
-            "/Ac/Current": {
-                "description": "Current (deprecated)",
-                "dbusPath": "/Ac/Current",
-                "dataType": "float",
-                "unit": "A"
-            },
-            "/Ac/Voltage": {
-                "description": "Voltage (deprecated)",
-                "dbusPath": "/Ac/Voltage",
-                "dataType": "float",
-                "unit": "V"
-            },
-            "/Ac/L1/Current": {
-                "description": "L1 Current",
-                "dbusPath": "/Ac/L1/Current",
-                "dataType": "float",
-                "unit": "A"
-            },
-            "/Ac/L1/Energy/Forward": {
-                "description": "L1 Forward energy (bought)",
-                "dbusPath": "/Ac/L1/Energy/Forward",
-                "dataType": "float",
-                "unit": "kWh",
-                "enum": {}
-            },
-            "/Ac/L1/Energy/Reverse": {
-                "description": "L1 Reverse energy (sold)",
-                "dbusPath": "/Ac/L1/Energy/Reverse",
-                "dataType": "float",
-                "unit": "kWh"
-            },
-            "/Ac/L1/Power": {
-                "description": "L1 Power",
-                "dbusPath": "/Ac/L1/Power",
-                "dataType": "float",
-                "unit": "W"
-            },
-            "/Ac/L1/Voltage": {
-                "description": "L1 Voltage",
-                "dbusPath": "/Ac/L1/Voltage",
-                "dataType": "float",
-                "unit": "V"
-            },
-            "/Ac/L2/Current": {
-                "description": "L2 Current",
-                "dbusPath": "/Ac/L2/Current",
-                "dataType": "float",
-                "unit": "A"
-            },
-            "/Ac/L2/Energy/Forward": {
-                "description": "L2 Forward energy (bought)",
-                "dbusPath": "/Ac/L2/Energy/Forward",
-                "dataType": "float",
-                "unit": "kWh"
-            },
-            "/Ac/L2/Energy/Reverse": {
-                "description": "L2 Reverse energy (sold)",
-                "dbusPath": "/Ac/L2/Energy/Reverse",
-                "dataType": "float",
-                "unit": "kWh"
-            },
-            "/Ac/L2/Power": {
-                "description": "L2 Power",
-                "dbusPath": "/Ac/L2/Power",
-                "dataType": "float",
-                "unit": "W"
-            },
-            "/Ac/L2/Voltage": {
-                "description": "L2 Voltage",
-                "dbusPath": "/Ac/L2/Voltage",
-                "dataType": "float",
-                "unit": "V"
-            },
-            "/Ac/L3/Current": {
-                "description": "L2 Current",
-                "dbusPath": "/Ac/L3/Current",
-                "dataType": "float",
-                "unit": "A"
-            },
-            "/Ac/L3/Energy/Forward": {
-                "description": "L3 Forward energy (bought)",
-                "dbusPath": "/Ac/L3/Energy/Forward",
-                "dataType": "float",
-                "unit": "kWh"
-            },
-            "/Ac/L3/Energy/Reverse": {
-                "description": "L3 Reverse energy (sold)",
-                "dbusPath": "/Ac/L3/Energy/Reverse",
-                "dataType": "float",
-                "unit": "kWh"
-            },
-            "/Ac/L3/Power": {
-                "description": "L3 Power",
-                "dbusPath": "/Ac/L3/Power",
-                "dataType": "float",
-                "unit": "W"
-            },
-            "/Ac/L3/Voltage": {
-                "description": "L3 Voltage",
-                "dbusPath": "/Ac/L3/Voltage",
-                "dataType": "float",
-                "unit": "V"
-            },
-            "/DeviceType": {
-                "description": "Device type",
-                "dbusPath": "/DeviceType",
-                "dataType": "enum",
-                "enum": {}
-            },
-            "/ErrorCode": {
-                "description": "Error code",
-                "dbusPath": "/ErrorCode",
-                "dataType": "enum",
-                "enum": {}
-            }
-        }
-    },
-    "Inverter": {
-        "dataAttributes": {
-            "/Dc/0/Voltage": {
-                "description": "Input voltage",
-                "dbusPath": "/Dc/0/Voltage",
-                "dataType": "float",
-                "unit": "V"
-            },
-            "/Ac/Out/L1/V": {
-                "description": "Output voltage",
-                "dbusPath": "/Ac/Out/L1/V",
-                "dataType": "float",
-                "unit": "V"
-            },
-            "/Ac/Out/L1/I": {
-                "description": "Output current",
-                "dbusPath": "/Ac/Out/L1/I",
-                "dataType": "float",
-                "unit": "A"
-            },
-            "/Mode": {
-                "description": "Mode",
-                "dbusPath": "/Mode",
-                "dataType": "enum",
-                "enum": {
-                    "2": "Inverter on",
-                    "4": "Off",
-                    "5": "Low Power/ECO"
-                }
-            },
-            "/State": {
-                "description": "State",
-                "dbusPath": "/State",
-                "dataType": "enum",
-                "enum": {
-                    "0": "Off",
-                    "1": "Low Power",
-                    "2": "Fault",
-                    "9": "Inverting"
-                }
-            }
-        }
-    },
-    "Temperature sensor": {
-        "dataAttributes": {
-            "/Temperature": {
-                "description": "Temperature",
-                "dbusPath": "/Temperature",
-                "dataType": "float",
-                "unit": "C"
-            },
-            "/Status": {
-                "description": "Sensor status",
-                "dbusPath": "/Status",
-                "dataType": "enum",
-                "enum": {
-                    "0": "Ok",
-                    "1": "Disconnected",
-                    "2": "Short circuited",
-                    "3": "Reverse polarity",
-                    "4": "Unknown"
-                }
-            },
-            "/TemperatureType": {
-                "description": "Sensor type",
-                "dbusPath": "/TemperatureType",
-                "dataType": "enum",
-                "enum": {
-                    "0": "battery",
-                    "1": "fridge",
-                    "2": "generic"
-                }
+        },
+        "/TemperatureType": {
+            "description": "Sensor type",
+            "dbusPath": "/TemperatureType",
+            "dataType": "enum",
+            "enum": {
+                "0": "battery",
+                "1": "fridge",
+                "2": "generic"
             }
         }
     }
