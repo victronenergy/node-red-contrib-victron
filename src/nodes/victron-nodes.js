@@ -43,11 +43,16 @@ module.exports = function(RED) {
 
             this.service = _.get(nodeDefinition.service, 'service')
             this.path = nodeDefinition.path
+            this.initialValue = nodeDefinition.initial
 
             this.configNode = RED.nodes.getNode("victron-client-id")
             this.client = this.configNode.client
 
             let handlerId = this.configNode.addStatusListener(this, this.service, this.path)
+
+            if (this.initialValue && this.service && this.path) {
+                this.client.publish(this.service, this.path, parseInt(this.initialValue))
+            }
 
             this.on("input", function(msg) {
                 this.client.publish(this.service, this.path, msg.payload)
