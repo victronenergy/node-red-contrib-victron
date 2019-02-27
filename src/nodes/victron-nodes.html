@@ -15,25 +15,28 @@
         <b>Value types</b>
         <p id="enuminfo-text"></p>
     </div>
-    <div class="form-row" id="name-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Node name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
+    <div class="form-row hidden" id="initial-row">
+        <label for="node-input-initial"> Initial value</label>
+        <p><i>You can set an initial value for the node at deploy time</i></p>
+        <select id="node-input-initial"></select>
     </div>
     <div class="form-tips hidden" id="outputinfo">
         <p id="outputinfo-text">Please set the output value in <code>msg.payload</code>.</p>
     </div>
+    <div class="form-row" id="name-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Node name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
 </script>
 
 <script type="text/javascript">
-
     /* Common functions */
     const serviceRoot = '/victron/services/';
 
     function buildEditPanel(node, serviceUrl, isOutputNode) {
         let serviceElem = $('#node-input-serviceId');
         let pathElem = $('#node-input-path');
-
-        console.log(node, serviceUrl, isOutputNode)
+        let initialValueElem = $('#node-input-initial')
 
         const buildOption = service => {
             return $('<option/>')
@@ -62,9 +65,33 @@
             const selectedPathElem = data.paths.filter(o => o.path === selectedPath)[0]
 
             if (selectedPathElem && selectedPathElem.enum && selectedPathElem.type === 'enum') {
-                showEnumInfo(selectedPathElem.enum)
+                const valueTypes = selectedPathElem.enum
+                showEnumInfo(valueTypes)
+
+                // populate initialValue select
+                initialValueElem[0].options.length = 0;
+                initialValueElem.append(buildOption({id: null, name: "Don't set initial value"}));
+
+                Object.keys(valueTypes).forEach(val => {
+                    initialValueElem.append(buildOption({
+                        id: val,
+                        name: `${val} - ${valueTypes[val]}`
+                    }));
+                });
+
+                if (node.initial)
+                    initialValueElem.val(node.initial)
+
+                // show initialValue option only for
+                // measurements that are of type 'enum'
+                if (isOutputNode)
+                    $('#initial-row').show();
+
             } else {
                 hideEnumInfo()
+                // unset and hide initialValue
+                $('#initial-row').hide();
+                initialValueElem.val(null)
             }
         }
 
@@ -115,8 +142,7 @@
             updateEnums();
             pathElem.change(updateEnums);
 
-            if (isOutputNode)
-                $('#outputinfo').show();
+            if (isOutputNode) $('#outputinfo').show();
 
         })
         .fail(() => showStatusMessage("Unable to access the service endpoint."));
@@ -170,6 +196,7 @@
                 serviceId: {value: ""},
                 service: {value: undefined},
                 path: {value: ""},
+                initial: {value: undefined}, // only for some output nodes
                 name: {value: ""}
             },
             color: '#4790d0',
@@ -228,5 +255,8 @@
         color: red;
         font-size: 0.9em;
         max-width: 30em;
+    }
+    .form-row label {
+        min-width: 11em;
     }
 </style>
