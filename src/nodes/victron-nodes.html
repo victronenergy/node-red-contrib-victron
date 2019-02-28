@@ -4,8 +4,8 @@
         No devices found. Please check that the device is properly connected.
     </div>
     <div class="form-row" id="service-row">
-        <label for="node-input-serviceId"> Device</label>
-        <select id="node-input-serviceId"></select>
+        <label for="node-input-service"> Device</label>
+        <select id="node-input-service"></select>
     </div>
     <div class="form-row" id="path-row">
         <label for="node-input-path"> Measurement</label>
@@ -36,13 +36,13 @@
     const serviceRoot = '/victron/services/';
 
     function buildEditPanel(node, serviceUrl, isOutputNode) {
-        let serviceElem = $('#node-input-serviceId');
+        let serviceElem = $('#node-input-service');
         let pathElem = $('#node-input-path');
         let initialValueElem = $('#node-input-initial')
 
         const buildOption = service => {
             return $('<option/>')
-                .val(service.id || service.path)
+                .val(service.service || service.path)
                 .text(service.name)
                 .data(service);
             }
@@ -56,43 +56,32 @@
         }
 
         const updatePaths = () => {
-            const data = serviceElem.find(':selected').data();
-            if (data && data.paths)
-                populateSelect(pathElem, data.paths);
+            const serviceData = serviceElem.find(':selected').data();
+            if (serviceData && serviceData.paths)
+                populateSelect(pathElem, serviceData.paths);
         }
 
         const updateEnums = () => {
-            const selectedPath = pathElem.val();
-            const data = serviceElem.find(':selected').data();
-            const selectedPathElem = data.paths.filter(o => o.path === selectedPath)[0]
+            const pathData = pathElem.find(':selected').data()
 
-            if (selectedPathElem && selectedPathElem.disabled) {
-                if (selectedPathElem.warning)
-                $('#warningmessage').text(selectedPathElem.warning).show()
-            } else {
-                $('#warningmessage').hide();
-            }
+            pathData && pathData.warning
+                ? $('#warningmessage').text(pathData.warning).show()
+                : $('#warningmessage').hide();
 
-            if (selectedPathElem && selectedPathElem.enum && selectedPathElem.type === 'enum') {
-                const valueTypes = selectedPathElem.enum
-                showEnumInfo(valueTypes)
+            if (pathData && pathData.type === 'enum') {
+                const valueTypesEnum = pathData.enum
+                showEnumInfo(valueTypesEnum)
 
-                // populate initialValue select
-                initialValueElem[0].options.length = 0;
-                initialValueElem.append(buildOption({id: null, name: "Don't set initial value"}));
-
-                Object.keys(valueTypes).forEach(val => {
-                    initialValueElem.append(buildOption({
-                        id: val,
-                        name: `${val} - ${valueTypes[val]}`
-                    }));
-                });
+                const selectOptions = Object.keys(valueTypesEnum).map(key => ({
+                    service: key,
+                    name: `${key} - ${valueTypesEnum[key]}`
+                }))
+                selectOptions.unshift({service: null, name: "Don't set initial value"})
+                populateSelect(initialValueElem, selectOptions)
 
                 if (node.initial)
                     initialValueElem.val(node.initial)
 
-                // show initialValue option only for
-                // measurements that are of type 'enum'
                 if (isOutputNode)
                     $('#initial-row').show();
 
@@ -107,7 +96,7 @@
         const showStatusMessage = (msg) => {
             if (msg) $('#statusmessage').text(msg);
             $('#statusmessage').show();
-            if (!node.service) $('.form-row').hide();
+            if (!node.serviceObj) $('.form-row').hide();
         }
 
         const showEnumInfo = (enumObj) => {
@@ -132,14 +121,14 @@
 
             // 2. If the node was previously deployed,
             // update the edit based on the old data
-            if (node.service) {
+            if (node.service) { // TODO: fix
                 // if it is not present anymore, still add it to the select list
-                if (!data.find(s => s.id === node.service.id)) {
-                    buildOption(node.service)
-                        .text(node.service.name + " [disconnected]")
+                if (!data.find(s => s.service === node.service)) {
+                    buildOption(node.serviceObj)
+                        .text(node.serviceObj.name + " [disconnected]")
                         .appendTo(serviceElem);
                 }
-                serviceElem.val(node.service.id);
+                serviceElem.val(node.service);
             }
 
             updatePaths();
@@ -151,23 +140,24 @@
             updateEnums();
             pathElem.change(updateEnums);
 
-            if (isOutputNode) $('#outputinfo').show();
+            if (isOutputNode)
+                $('#outputinfo').show();
 
         })
         .fail(() => showStatusMessage("Unable to access the service endpoint."));
     }
 
     function saveEditPanel(node) {
-        // save the current service to a variable
-        node.service = $('#node-input-serviceId').find(':selected').data()
+        // save the current service and path objects
+        node.serviceObj = $('#node-input-service').find(':selected').data()
         node.pathObj = $('#node-input-path').find(':selected').data()
     }
 
     function buildNodeLabel(node, nodeName) {
         let altName = nodeName;
-        if (node.service && node.path) {
-            let svc = node.service.name;
-            let path = node.service.paths.find(p => p.path === node.path).name;
+        if (node.serviceObj && node.path) {
+            let svc = node.serviceObj.name;
+            let path = node.serviceObj.paths.find(p => p.path === node.path).name;
             altName = `${nodeName} | ${svc} | ${path}`;
         }
         return node.name || altName
@@ -196,18 +186,20 @@
     // the Node-RED Node API
     function registerNode(nodeType, nodeLabel, serviceType, isOutputNode) {
         // Copy the edit form template to the html body
+
         buildEditForm(nodeType, nodeLabel)
+        nodeLabel = isOutputNode ? nodeLabel + ' Control' : nodeLabel
 
         // Register a new node
         RED.nodes.registerType(nodeType, {
             category: 'Victron Energy',
             paletteLabel: nodeLabel,
             defaults: {
-                serviceId: {value: ""},
-                path: {value: ""}, // should this be pathId ?
-                service: {value: undefined}, // should this be serviceObj ?
+                service: {value: ""},
+                path: {value: ""},
+                serviceObj: {value: undefined},
                 pathObj: {value: undefined},
-                initial: {value: undefined}, // only for some output nodes
+                initial: {value: undefined}, // only used for some output nodes
                 name: {value: ""}
             },
             color: '#4790d0',
@@ -236,22 +228,22 @@
 
     // input nodes
     registerInputNode('victron-input-digitalinput', 'Digital Input', 'input-digitalinput')
-    registerInputNode('victron-input-tank', 'Tank', 'input-tank')
-    registerInputNode('victron-input-temperature', 'Temperature', 'input-temperature')
+    registerInputNode('victron-input-tank', 'Tank Sensor', 'input-tank')
+    registerInputNode('victron-input-temperature', 'Temperature Sensor', 'input-temperature')
     registerInputNode('victron-input-inverter', 'Inverter', 'input-inverter')
     registerInputNode('victron-input-pvinverter', 'PV Inverter', 'input-pvinverter')
     registerInputNode('victron-input-accharger', 'AC Charger', 'input-accharger')
     registerInputNode('victron-input-solarcharger', 'Solar Charger', 'input-solarcharger')
     registerInputNode('victron-input-battery', 'Battery Monitor', 'input-battery')
     registerInputNode('victron-input-gridmeter', 'Grid Meter', 'input-gridmeter')
-    registerInputNode('victron-input-vebus', 'VE.Bus Systems', 'input-vebus')
+    registerInputNode('victron-input-vebus', 'VE.Bus System', 'input-vebus')
 
     // output nodes
-    registerOutputNode('victron-output-relay', 'Relay Control', 'output-relay')
-    registerOutputNode('victron-output-vebus', 'VE.Bus Device Control', 'output-vebus')
-    registerOutputNode('victron-output-inverter', 'Inverter Control', 'output-inverter')
-    registerOutputNode('victron-output-accharger', 'AC Charger Control', 'output-accharger')
-    registerOutputNode('victron-output-solarcharger', 'Solar Charger Control', 'output-solarcharger')
+    registerOutputNode('victron-output-relay', 'Relay', 'output-relay')
+    registerOutputNode('victron-output-vebus', 'VE.Bus System', 'output-vebus')
+    registerOutputNode('victron-output-inverter', 'Inverter', 'output-inverter')
+    registerOutputNode('victron-output-accharger', 'AC Charger', 'output-accharger')
+    registerOutputNode('victron-output-solarcharger', 'Solar Charger', 'output-solarcharger')
 
 </script>
 

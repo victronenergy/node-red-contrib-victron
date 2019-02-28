@@ -8,8 +8,12 @@ module.exports = function(RED) {
 
             this.node = this
 
-            this.service = _.get(nodeDefinition.service, 'service')
+            // this.serviceObj = nodeDefinition.serviceObj
+            // this.pathObj = nodeDefinition.pathObj
+            this.service = nodeDefinition.service
             this.path = nodeDefinition.path
+            // this.initialValue = nodeDefinition.initial
+
 
             this.configNode = RED.nodes.getNode("victron-client-id")
             this.client = this.configNode.client
@@ -41,22 +45,20 @@ module.exports = function(RED) {
 
             this.node = this
 
-            this.serviceObj = nodeDefinition.service
-            this.dbusService = _.get(nodeDefinition.service, 'service')
-
+            // this.serviceObj = nodeDefinition.serviceObj
             this.pathObj = nodeDefinition.pathObj
-            this.dbusPath = nodeDefinition.path
-
+            this.service = nodeDefinition.service
+            this.path = nodeDefinition.path
             this.initialValue = nodeDefinition.initial
 
             this.configNode = RED.nodes.getNode("victron-client-id")
             this.client = this.configNode.client
 
-            let handlerId = this.configNode.addStatusListener(this, this.dbusService, this.dbusPath)
+            let handlerId = this.configNode.addStatusListener(this, this.service, this.path)
 
             const setValue = (value) => {
-                if (!this.pathObj.disabled && this.dbusService && this.dbusPath)
-                    this.client.publish(this.dbusService, this.dbusPath, value)
+                if (!this.pathObj.disabled && this.service && this.path)
+                    this.client.publish(this.service, this.path, value)
             }
 
             if (this.initialValue)
