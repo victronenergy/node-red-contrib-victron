@@ -5,30 +5,40 @@
             No devices found. Please check that the device is properly connected.
         </div>
         <div class="form-row" id="service-row">
-            <label for="node-input-service"> Device</label>
+            <label for="node-input-service">Device</label>
             <select id="node-input-service"></select>
         </div>
         <div class="form-row" id="path-row">
-            <label for="node-input-path"> Measurement</label>
+            <label for="node-input-path">Measurement</label>
             <select id="node-input-path"></select>
         </div>
-        <div class="form-tips form-warning hidden" id="warningmessage">
-        </div>
+        <div class="form-warning hidden" id="warningmessage"></div>
         <div class="form-tips hidden" id="enuminfo">
-            <b>Value types</b>
+            <p class="enuminfo--header">Value types</p>
             <p id="enuminfo-text"></p>
         </div>
         <div class="form-row hidden" id="initial-row">
-            <label for="node-input-initial"> Initial value</label>
-            <p><i>You can set an initial value for the node at deploy time</i></p>
+            <hr />
+            <label for="node-input-initial">Initial value</label>
             <select id="node-input-initial"></select>
-        </div>
-        <div class="form-tips hidden" id="outputinfo">
-            <p id="outputinfo-text">Please set the output value in <code>msg.payload</code>.</p>
+            <div class="info-text">
+                The initial value is sent to the device whenever the node is deployed.
+            </div>
         </div>
         <div class="form-row" id="name-row">
-            <label for="node-input-name"><i class="fa fa-tag"></i> Node name</label>
-            <input type="text" id="node-input-name" placeholder="Name">
+            <hr />
+            <label for="node-input-name">Node label</label>
+            <input type="text" id="node-input-name">
+            <div class="info-text">
+                <i>The node can be given an arbitrary label that is shown instead of device name and service.</i>
+            </div>
+        </div>
+        <div class="hidden" id="outputinfo">
+            <hr />
+            <div class="info-text">
+                The value for the controlled output should be set in incoming message's <code>msg.payload</code> property.
+                Please refer to 'Value Types' box above for adjustable settings.</i>
+            </div>
         </div>
     </div>
 </script>
@@ -160,7 +170,7 @@
         if (node.serviceObj && node.path) {
             let svc = node.serviceObj.name;
             let path = node.serviceObj.paths.find(p => p.path === node.path).name;
-            altName = `${nodeName} | ${svc} | ${path}`;
+            altName = `${svc} | ${path}`;
         }
         return node.name || altName
     }
@@ -250,16 +260,37 @@
 </script>
 
 <style>
+    .victron-form div {
+        width: 450px;
+    }
+    .victron-form label, .enuminfo--header {
+        font-weight: 500;
+    }
+    .victron-form input, select {
+        width: 300px;
+    }
     .victron-form .hidden {
-        display: none
+        display: none;
     }
     .victron-form .form-tips {
         margin-bottom: 12px;
+        width: 425px;
     }
     .victron-form .form-warning {
-        background-color: red;
+        color: #F3492E;
+        padding-bottom: 8px;
+        max-width: 450px;
     }
     .victron-form .form-row label {
-        min-width: 11em;
+        min-width: 140px;
     }
+    .victron-form .info-text {
+        padding: 8px 0px;
+        font-style: italic;
+    }
+    .victron-form .hr {
+        margin: 8px 0;
+    }
+
+
 </style>
