@@ -96,7 +96,7 @@ class VictronClient {
             dbusPaths = this.system.cache[msg.senderName]
 
         // some dbus messages are empty arrays []
-        if (msg.value.length == 0 )
+        if (msg.value && msg.value.length == 0 )
             msg.value = null
 
         // We need to update the nodes on new paths
