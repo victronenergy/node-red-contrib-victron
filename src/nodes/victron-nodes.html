@@ -1,33 +1,35 @@
 
 <script type="text/template" id="input-edit-template">
-    <div class="form-tips hidden" id="statusmessage">
-        No devices found. Please check that the device is properly connected.
-    </div>
-    <div class="form-row" id="service-row">
-        <label for="node-input-service"> Device</label>
-        <select id="node-input-service"></select>
-    </div>
-    <div class="form-row" id="path-row">
-        <label for="node-input-path"> Measurement</label>
-        <select id="node-input-path"></select>
-    </div>
-    <div class="form-tips form-warning hidden" id="warningmessage">
-    </div>
-    <div class="form-tips hidden" id="enuminfo">
-        <b>Value types</b>
-        <p id="enuminfo-text"></p>
-    </div>
-    <div class="form-row hidden" id="initial-row">
-        <label for="node-input-initial"> Initial value</label>
-        <p><i>You can set an initial value for the node at deploy time</i></p>
-        <select id="node-input-initial"></select>
-    </div>
-    <div class="form-tips hidden" id="outputinfo">
-        <p id="outputinfo-text">Please set the output value in <code>msg.payload</code>.</p>
-    </div>
-    <div class="form-row" id="name-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Node name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
+    <div class="victron-form">
+        <div class="form-tips hidden" id="statusmessage">
+            No devices found. Please check that the device is properly connected.
+        </div>
+        <div class="form-row" id="service-row">
+            <label for="node-input-service"> Device</label>
+            <select id="node-input-service"></select>
+        </div>
+        <div class="form-row" id="path-row">
+            <label for="node-input-path"> Measurement</label>
+            <select id="node-input-path"></select>
+        </div>
+        <div class="form-tips form-warning hidden" id="warningmessage">
+        </div>
+        <div class="form-tips hidden" id="enuminfo">
+            <b>Value types</b>
+            <p id="enuminfo-text"></p>
+        </div>
+        <div class="form-row hidden" id="initial-row">
+            <label for="node-input-initial"> Initial value</label>
+            <p><i>You can set an initial value for the node at deploy time</i></p>
+            <select id="node-input-initial"></select>
+        </div>
+        <div class="form-tips hidden" id="outputinfo">
+            <p id="outputinfo-text">Please set the output value in <code>msg.payload</code>.</p>
+        </div>
+        <div class="form-row" id="name-row">
+            <label for="node-input-name"><i class="fa fa-tag"></i> Node name</label>
+            <input type="text" id="node-input-name" placeholder="Name">
+        </div>
     </div>
 </script>
 
@@ -248,16 +250,16 @@
 </script>
 
 <style>
-    .hidden {
+    .victron-form .hidden {
         display: none
     }
-    .form-tips {
+    .victron-form .form-tips {
         margin-bottom: 12px;
     }
-    .form-warning {
+    .victron-form .form-warning {
         background-color: red;
     }
-    .form-row label {
+    .victron-form .form-row label {
         min-width: 11em;
     }
 </style>
