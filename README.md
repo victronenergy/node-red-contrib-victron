@@ -1,9 +1,52 @@
-# Custom Victron Energy nodes for Node-Red
+# Custom Victron Energy nodes for Node-RED
 
-This module aims on providing custom node-red nodes for some of the most commonly used Victron Energy products. This makes it easier for end users to create complex automations without actually having to touch the devices' internals.
+This library provides custom Node-RED nodes for some of the most commonly used Victron Energy products. The aim is to make it easier and faster for users to create automations without actually having to touch any of the devices' internals.
 
-See [the initial node specification](documentation/specification.md) for custom victron-supported nodes.
-The tracking issue can be found on [venus repository](https://github.com/victronenergy/venus/issues/378).
+The original issue tracking the progress can be found on [Venus repository](https://github.com/victronenergy/venus/issues/378). A more frequently updated progress of development can be found on the repository [project board](https://github.com/victronenergy/node-red-contrib-victron/projects/1).
+
+Here's an example on a functional flow with the Victron Nodes. More in-depth examples and use cases in [wiki/Example-Flows](https://github.com/victronenergy/node-red-contrib-victron/wiki/Example-Flows).
+
+![Architecture](documentation/images/example-nighttime-rates.png)
+
+## Usage and Examples
+
+This library offers a wide range of measurement (input) and control (output) nodes for Victron Energy's devices. When the Node-RED is started, a Victron Energy configuration node is automatically created, connecting to the dbus in the Venus device.
+
+![Architecture](documentation/images/node-palette.png)
+
+### Measurement Nodes (input)
+
+The measurement nodes have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on what sort data is actually available on the Venus device dbus.
+
+```
+Device Select       - lists all available devices
+Measurement Select  - lists all available device-specific measurements
+Node label Input    - sets a custom label for the node
+```
+
+The measurement unit type is shown in the measurement label in brackets, e.g. Battery voltage (V).
+In case the data type is enumerated, an approppriate enum legend is shown below the selected option.
+
+![Architecture](documentation/images/edit-vebus-input.png)
+
+### Control Nodes (output)
+
+Control Nodes have the same inputs available, but the 'measurement' select only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.
+
+All control nodes should have the control value set in its incoming message's `msg.payload` property.
+
+```
+Device Select       - lists all available devices
+Measurement Select  - lists all available device-specific measurements
+Initial value Input - initializes the device when the flow is deployed
+Node label Input    - sets a custom label for the node
+```
+
+![Architecture](documentation/images/edit-relay-output.png)
+
+### Example Flows
+
+Please head to [wiki/Example-Flows](https://github.com/victronenergy/node-red-contrib-victron/wiki/Example-Flows) for example flows implemented with the Victron Energy nodes.
 
 ## Architecture
 
@@ -25,36 +68,48 @@ The following graph demonstrates the architecture of this plugin.
 ### Directory Structure
 ```
 .
-├── README.md
 ├── documentation
-│   ├── images
-│   │   ├── architecture.png
-│   │   ├── example-tank-edit.png
-│   │   └── example-use-case.png
-│   └── specification.md
-├── package-lock.json
-├── package.json
+├── scripts
+│   ├── csv                         | input CSV files for the parser script
+│   ├── parse-services.js           | parses the services.json used by nodes
+│   └── service-whitelist.js        | dbus service/path whitelist for the parser
 └── src
     ├── nodes
-    │   ├── config-client.html
-    │   ├── config-client.js
     │   ├── icons
     │   │   └── victronenergy.svg
-    │   ├── input-battery.html
-    │   ├── input-battery.js
-    │   ├── output-relay.html
-    │   └── output-relay.js
+    │   ├── config-client.html
+    │   ├── config-client.js
+    │   ├── victron-nodes.html
+    │   └── victron-nodes.js
     └── services
-        ├── dbus-listener.js
+        ├── services.json           | used for node config generation
         ├── utils.js
-        ├── victron-client.js       <-- Victron Energy D-Bus client
-        ├── victron-services.js     <-- Node-to-D-Bus service mapping
-        └── victron-system.js       <-- D-Bus service cache
+        ├── dbus-listener.js
+        ├── victron-client.js       | Victron Energy dbus-client
+        ├── victron-services.js
+        └── victron-system.js       | DBus service cache
 ```
+
+## Generating the node specification file
+
+All the node configurations (dbus service-path mappings and lables) are generated from a [services.json](/src/services/services.json) file. Please note, that this file is not a full representation of the available dbus paths.
+
+This `services.json` file is generated using the `parse-services.js` script in `./scripts` directory. The script uses two CSV files, `dataAttributes.csv` and `dataAttributeEnums.csv`, as its primary source to generate an up-to-date listing of available dbus services and dbus paths for Victron Energy's devices. The parsed services and paths are filtered against a whitelist (`service-whitelist.js`) before saving the file in order to get rid of undesired or deprecated dbus paths.
+
+![Parser Script Architecture](documentation/images/parser-script-architecture.png)
+
+1. Before running the script, please ensure that you have valid data csv's (`dataAttributes.csv`, `dataAttributeEnums.csv`) in the `./scrip/csv` directory. Edit the `service-whitelist.js` to control all the available fields to the nodes.
+2. Run the script `node run parse-services.js`
+3. If some of the whitelisted services or paths are not found on the CSV files, the script will print out all the missing dbus paths. The script will also generate a `missingpaths.template.json` file, which can be manually populated and added as an extra input to the script.
+4. Copy, rename and populate the `missingpaths.template.json` and run the script again, this time with an extra argument: `node parse-services.js ./missingpaths.json`. This extra input file can also be used to overwrite parsed CSV rows, for example.
+5. You are done! The new fields in services.json can be verified using a your favorite diff tool (`git diff`, for example).
+
 
 ## Installation and Usage
 
-In order to use the plugin, it needs to be locally installed:
+The end goal is to have Node-RED running on a Venus device itself (this library included), but it is also possible to connect to the Venus device via TCP from an external Node-RED instance. If you would already like to test it out now, please dive into the instructions below to see how it can be done.
+
+In order to use the plugin remotely, Node-RED and the plugin needs to be locally installed:
 
 1. install node-red on your system
 2. cd to the node-red user directory, typically `~/.node-red`
@@ -75,4 +130,3 @@ In order to use the plugin, it needs to be locally installed:
 6. you can optionally run the plugin with a DEBUG=* environment variable set, to see additional debug information printed on the shell. E.g. `export DEBUG=node-red-contrib-victron*`
 
 Further information on [nodered.org](https://nodered.org/docs/creating-nodes/first-node) and [github](https://github.com/sbender9/signalk-venus-plugin#plugin-installation--configuration).
-
