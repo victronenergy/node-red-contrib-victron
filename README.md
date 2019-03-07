@@ -4,19 +4,20 @@ This library provides custom Node-RED nodes for some of the most commonly used V
 
 The original issue tracking the progress can be found on [Venus repository](https://github.com/victronenergy/venus/issues/378). A more frequently updated progress of development can be found on the repository [project board](https://github.com/victronenergy/node-red-contrib-victron/projects/1).
 
-Here's an example on a functional flow with the Victron Nodes. More in-depth examples and use cases in [wiki/Example-Flows](https://github.com/victronenergy/node-red-contrib-victron/wiki/Example-Flows).
+Here's an example on a functional flow with the Victron Nodes. More in-depth examples and use cases can be found in [wiki/Example-Flows](https://github.com/victronenergy/node-red-contrib-victron/wiki/Example-Flows).
 
 ![Architecture](documentation/images/example-nighttime-rates.png)
 
 ## Usage and Examples
 
-This library offers a wide range of measurement (input) and control (output) nodes for Victron Energy's devices. When the Node-RED is started, a Victron Energy configuration node is automatically created, connecting to the dbus in the Venus device.
+When the Node-RED is started, a Victron Energy configuration node is automatically created, connecting to the dbus in the Venus device. All the mnode services and measurements can be found on [services.json](/src/services/services.json) -- however only those services and measurements that are available in the system are shown in the node edit panel.
 
 ![Architecture](documentation/images/node-palette.png)
+*Node-palette - Input nodes on the left, output nodes on the right*
 
-### Measurement Nodes (input)
+### Input Nodes
 
-The measurement nodes have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on what sort data is actually available on the Venus device dbus.
+The input nodes have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on what sort data is actually available on the Venus device dbus.
 
 ```
 Device Select       - lists all available devices
@@ -29,11 +30,12 @@ In case the data type is enumerated, an approppriate enum legend is shown below 
 
 ![Architecture](documentation/images/edit-vebus-input.png)
 
-### Control Nodes (output)
+### Output Nodes
 
-Control Nodes have the same inputs available, but the 'measurement' select only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.
+Input Nodes have the same options available, but the selectable 'measurement' only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.
 
-All control nodes should have the control value set in its incoming message's `msg.payload` property.
+
+All output nodes should have the control value set in its incoming message's `msg.payload` property.
 
 ```
 Device Select       - lists all available devices
@@ -58,7 +60,7 @@ The following graph demonstrates the architecture of this plugin.
 
 1. Upon initialization, the Victron Config Node initializes a VictronClient and SystemConfiguration instances. VictronClient connects to the Venus D-Bus and starts maintaining a cache of available services.
 
-2. When a user modifies a node (e.g. battery node), the node fetches the available services (measurements) from the SystemConfiguration cache and renders relevant inputs to the edit view.
+2. When a user modifies a node (e.g. battery node), the node fetches the available dbus services from the local SystemConfiguration cache and renders relevant inputs to the edit view.
 
 3. When a node is deployed, they either subscribe a message handler to the VictronClient or start publishing data to a desired D-Bus path.
 
