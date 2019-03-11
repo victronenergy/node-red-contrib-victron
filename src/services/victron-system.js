@@ -34,7 +34,15 @@ class SystemConfiguration {
             let paths = _.get(services.SERVICES, [dbusService, 'paths'], [])
                 .filter(service =>
                     _.has(cachedPaths, service.path)
-                    && (!isOutput || service.writable)) // output paths need a 'writable' property
+                    && (!isOutput || (service.writable // output nodes need a writable property
+                            // if the path has corresponding /*isAdjustable path for the service, check their value
+                            // If no /*isAdjustable path is present, default to showing the path
+                            && (service.path !== '/Mode' || _.get(cachedPaths, '/ModeIsAdjustable', 1)) // vebus
+                            && (service.path !== '/Ac/In/1/CurrentLimit' || _.get(cachedPaths, '/Ac/In/1/CurrentLimitIsAdjustable', 1)) // vebus
+                            && (service.path !== '/Ac/In/2/CurrentLimit' || _.get(cachedPaths, '/Ac/In/2/CurrentLimitIsAdjustable', 1)) // vebus
+                        )
+                    )
+                )
 
             return services.TEMPLATE(dbusInterface, name, paths)
         })
@@ -49,7 +57,7 @@ class SystemConfiguration {
         const buildRelayService = (service, paths) => {
             let pathObjects = paths.map(p => {
                 const svc = service.split('.')[2] // com.victronenergy.system => system
-                let relayObject = _.find(_.get(services.SERVICES, [svc, 'paths']), {path: p});
+                let relayObject = _.find(_.get(services.SERVICES, [svc, 'paths']), { path: p });
 
                 // special case for system relay
                 if (service.startsWith('com.victronenergy.system') && p.startsWith('/Relay/0')) {
