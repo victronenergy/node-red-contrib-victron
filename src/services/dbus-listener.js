@@ -103,13 +103,13 @@ class VictronDbusListener {
             //Timeout the connection after 5 seconds if not connected
             setTimeout(reject, 10 * 1000)
 
-            this.bus.addMatch("type='signal',interface='com.victronenergy.BusItem',member='PropertiesChanged'", () => {})
-            this.bus.addMatch("type='signal',member='NameOwnerChanged'", () => {})
+            this.bus.addMatch("type='signal',interface='com.victronenergy.BusItem',member='PropertiesChanged'", () => { })
+            this.bus.addMatch("type='signal',member='NameOwnerChanged'", () => { })
         })
     }
 
     _initService(owner, name) {
-        let service = {name}
+        let service = { name }
         this.services[owner] = service
 
         this.bus.invoke({
@@ -118,10 +118,10 @@ class VictronDbusListener {
             interface: 'com.victronenergy.BusItem',
             member: 'GetValue'
         },
-        (err, res) => {
-            if (res)
-                this.services[owner].deviceInstance = res[1][0]
-        })
+            (err, res) => {
+                if (res)
+                    this.services[owner].deviceInstance = res[1][0]
+            })
         this._requestRoot(service)
     }
 
@@ -132,33 +132,33 @@ class VictronDbusListener {
             interface: 'com.victronenergy.BusItem',
             member: 'GetValue'
         },
-        (err, res) => {
-            if (!err) {
-                let data = {}
+            (err, res) => {
+                if (!err) {
+                    let data = {}
 
-                res[1][0].forEach(kp => {
-                    data[kp[0]] = kp[1][1][0]
-                })
+                    res[1][0].forEach(kp => {
+                        data[kp[0]] = kp[1][1][0]
+                    })
 
-                service.deviceInstance = data.DeviceInstance
+                    service.deviceInstance = data.DeviceInstance
 
-                if (!_.isUndefined(data.FluidType)) {
-                    service.fluidType = data.FluidType
-                }
-
-                const messages = _.keys(data).map(path => {
-                    return {
-                        path: '/' + path,
-                        senderName: service.name,
-                        value: data[path],
-                        instanceName: service.deviceInstance,
-                        fluidType: service.fluidType
+                    if (!_.isUndefined(data.FluidType)) {
+                        service.fluidType = data.FluidType
                     }
-                })
 
-                this.messageHandler(messages)
-            }
-        })
+                    const messages = _.keys(data).map(path => {
+                        return {
+                            path: '/' + path,
+                            senderName: service.name,
+                            value: data[path],
+                            instanceName: service.deviceInstance,
+                            fluidType: service.fluidType
+                        }
+                    })
+
+                    this.messageHandler(messages)
+                }
+            })
     }
 
     _signalRecieve(msg) {
@@ -210,11 +210,11 @@ class VictronDbusListener {
 
     getValue(destination, path) {
         this.bus.invoke({
-                path: path,
-                destination: destination,
-                interface: 'com.victronenergy.BusItem',
-                member: 'GetValue'
-            },
+            path: path,
+            destination: destination,
+            interface: 'com.victronenergy.BusItem',
+            member: 'GetValue'
+        },
             (err, res) => {
                 if (!err) {
                     this.messageHandler([{
@@ -228,17 +228,18 @@ class VictronDbusListener {
 
     setValue(destination, path, value) {
         this.bus.invoke({
-                path: path,
-                destination: destination,
-                interface: 'com.victronenergy.BusItem',
-                member: 'SetValue',
-                body: [['n', value]],
-                signature: 'v'
-            },
+            path: path,
+            destination: destination,
+            interface: 'com.victronenergy.BusItem',
+            member: 'SetValue',
+            body: [['n', value]],
+            signature: 'v'
+        },
             err => {
                 if (err) console.error('Error: ' + err)
             }
-        )}
+        )
+    }
 }
 
 module.exports = VictronDbusListener

@@ -1,4 +1,4 @@
-module.exports = function(RED) {
+module.exports = function (RED) {
 
     const _ = require('lodash')
 
@@ -31,7 +31,7 @@ module.exports = function(RED) {
                 })
             }
 
-            this.on('close', function(done) {
+            this.on('close', function (done) {
                 this.node.client.unsubscribe(this.node.subscription)
                 this.node.configNode.removeStatusListener(handlerId)
                 done()
@@ -64,11 +64,11 @@ module.exports = function(RED) {
             if (this.initialValue)
                 setValue(parseInt(this.initialValue))
 
-            this.on("input", function(msg) {
+            this.on("input", function (msg) {
                 setValue(msg.payload)
             });
 
-            this.on('close', function(done) {
+            this.on('close', function (done) {
                 this.node.configNode.removeStatusListener(handlerId)
                 done()
             })

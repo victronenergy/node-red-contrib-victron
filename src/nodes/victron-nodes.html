@@ -133,7 +133,7 @@
 
             // 2. If the node was previously deployed,
             // update the edit based on the old data
-            if (node.service) { // TODO: fix
+            if (node.service) {
                 // if it is not present anymore, still add it to the select list
                 if (!data.find(s => s.service === node.service)) {
                     buildOption(node.serviceObj)

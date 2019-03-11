@@ -88,7 +88,6 @@ The following graph demonstrates the architecture of this plugin.
         ├── utils.js
         ├── dbus-listener.js
         ├── victron-client.js       | Victron Energy dbus-client
-        ├── victron-services.js
         └── victron-system.js       | DBus service cache
 ```
 

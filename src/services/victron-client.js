@@ -19,7 +19,7 @@ class VictronClient {
         this.client
 
         // Overwrite the onStatusUpdate to catch relevant VictronClient status updates
-        this.onStatusUpdate = () => {}
+        this.onStatusUpdate = () => { }
 
         this.system = new SystemConfiguration()
         this.subscriptions = {} // an array of subscription objects [{ "topic": topic, "handler": function }, ...]
@@ -50,7 +50,7 @@ class VictronClient {
         const eventHandler = (changeType, serviceName) => {
             if (changeType === 'DELETE' && serviceName !== null) {
                 delete this.system.cache[serviceName]
-                this.onStatusUpdate({"service": serviceName}, utils.STATUS.SERVICE_REMOVE)
+                this.onStatusUpdate({ "service": serviceName }, utils.STATUS.SERVICE_REMOVE)
             }
         }
 
@@ -66,7 +66,7 @@ class VictronClient {
 
         this.client = new VictronDbusListener(
             tcpAddress,
-            {eventHandler, messageHandler}
+            { eventHandler, messageHandler }
         )
 
         promiseRetry(retry => {
@@ -74,12 +74,12 @@ class VictronClient {
                 .connect()
                 .catch(retry)
         },
-        {
-            factor: 1,
-            forever: true,
-            minTimeout: 5 * 1000
-        })
-        .catch(() => console.error('Unable to connect to dbus.'))
+            {
+                factor: 1,
+                forever: true,
+                minTimeout: 5 * 1000
+            })
+            .catch(() => console.error('Unable to connect to dbus.'))
 
     }
 
@@ -96,13 +96,13 @@ class VictronClient {
             dbusPaths = this.system.cache[msg.senderName]
 
         // some dbus messages are empty arrays []
-        if (msg.value && msg.value.length == 0 )
+        if (msg.value && msg.value.length == 0)
             msg.value = null
 
         // We need to update the nodes on new paths
         // e.g. in the case of system relays, which might or might not be there
         if (!(msg.path in dbusPaths))
-            this.onStatusUpdate({'service': msg.senderName, 'path': msg.path, }, utils.STATUS.PATH_ADD)
+            this.onStatusUpdate({ 'service': msg.senderName, 'path': msg.path, }, utils.STATUS.PATH_ADD)
 
         dbusPaths[msg.path] = msg.value
         this.system.cache[msg.senderName] = dbusPaths
@@ -118,7 +118,7 @@ class VictronClient {
      */
     subscribe(dbusInterface, path, callback) {
         const subscriptionId = utils.UUID()
-        const newSubscription =  {callback, dbusInterface, path, subscriptionId}
+        const newSubscription = { callback, dbusInterface, path, subscriptionId }
 
         const msgKey = dbusInterface + path
         if (msgKey in this.subscriptions)
@@ -139,7 +139,7 @@ class VictronClient {
     unsubscribe(subscriptionId) {
         Object.keys(this.subscriptions).forEach(topic => {
             const topicSubscription = this.subscriptions[topic]
-            const removed = _.remove(topicSubscription, {subscriptionId: subscriptionId})
+            const removed = _.remove(topicSubscription, { subscriptionId: subscriptionId })
 
             if (removed.length > 0) { // successfully unsubscribed
                 debug(`[UNSUBSCRIBE] ${subscriptionId} | ${removed[0].dbusInterface} ${removed[0].path}`)
