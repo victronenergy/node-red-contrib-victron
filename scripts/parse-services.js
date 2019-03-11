@@ -50,33 +50,33 @@ const readCsv = filename => fs.readFileSync(`${filename}`, 'UTF-8')
  */
 const dataAttributeEnums = parse(readCsv(ENUM_CSV), {
     columns: true
-    }).reduce((acc, item) => {
-        !(item.idDataAttribute in acc)
-            ? acc[item.idDataAttribute] = [item]
-            : acc[item.idDataAttribute].push(item)
-        return acc
-    }, {})
+}).reduce((acc, item) => {
+    !(item.idDataAttribute in acc)
+        ? acc[item.idDataAttribute] = [item]
+        : acc[item.idDataAttribute].push(item)
+    return acc
+}, {})
 
 /**
  * Parse all dbus paths.
  */
 let dataAttributes = parse(readCsv(PATH_CSV), {
     columns: true
-    }).reduce((acc, item) => {
-        acc[item.dbusServiceType] = acc[item.dbusServiceType] || {}
+}).reduce((acc, item) => {
+    acc[item.dbusServiceType] = acc[item.dbusServiceType] || {}
 
-        // Add enums
-        const attrEnums = dataAttributeEnums[item.idDataAttribute]
-        if (attrEnums !== undefined) {
-            item.enum = attrEnums.reduce((acc, e) => {
-                acc[e.valueEnum] = e.nameEnum
-                return acc
-            }, {})
-        }
+    // Add enums
+    const attrEnums = dataAttributeEnums[item.idDataAttribute]
+    if (attrEnums !== undefined) {
+        item.enum = attrEnums.reduce((acc, e) => {
+            acc[e.valueEnum] = e.nameEnum
+            return acc
+        }, {})
+    }
 
-        acc[item.dbusServiceType][item.dbusPath] = item
-        return acc
-    }, {})
+    acc[item.dbusServiceType][item.dbusPath] = item
+    return acc
+}, {})
 
 /**
  * Construct a services.json file based on service-whitelist.js file.
@@ -152,7 +152,7 @@ if (Object.keys(missingPaths).length) {
     })
 
     const missingPathsTemplateJSON = JSON.stringify(missingPathsTemplate, null, 4)
-    fs.writeFile('./missingpaths.template.json', missingPathsTemplateJSON, 'utf8', () => {});
+    fs.writeFile('./missingpaths.template.json', missingPathsTemplateJSON, 'utf8', () => { });
 
     console.log('The following paths are missing from the CSV:')
     console.log(missingPaths)

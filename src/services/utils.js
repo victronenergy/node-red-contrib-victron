@@ -3,9 +3,52 @@
  * and enums.
  */
 
-const CONNECTED = {fill: "green", shape: "dot", text: "connected"}
-const DISCONNECTED = {fill: "red", shape: "ring", text: "disconnected"}
+ /**
+ * Calculates a 'semi-random' identifier which is used in e.g. tracking node connection statuses.
+ */
+function UUID() {
+    return Math.floor((1 + Math.random()) * 0x10000000).toString(16)
+}
 
+const SERVICES = require("./services.json")
+
+/**
+ * Node status codes.
+ */
+const CONNECTED = { fill: "green", shape: "dot", text: "connected" }
+const DISCONNECTED = { fill: "red", shape: "ring", text: "disconnected" }
+
+/**
+ * Constructs a node config object that is
+ * used to render node-specific editable options in UI.
+ */
+const TEMPLATE = (service, name, paths) => {
+    return {
+        "service": `${service}`,
+        "name": `${name}`,
+        "paths": paths
+    }
+}
+
+/**
+ * Shown in the UI if the system relay mode is set to any other than 'manual'
+ */
+const RELAY_MODE_WARNING = (func) =>
+    `This relay is reserved for ${func} function. Please navigate to Settings > Relay and change it to manual.`
+
+/**
+ * All possible system relay functions
+ */
+const RELAY_FUNCTIONS = {
+    0: 'alarm',
+    1: 'generator',
+    2: 'manual',
+    3: 'tank pump'
+}
+
+/**
+ * Internal dbus-listener status codes
+ */
 const STATUS = {
     SERVICE_ADD: 1,
     SERVICE_REMOVE: 2,
@@ -16,13 +59,14 @@ const STATUS = {
     PLUGIN_ERROR: 7
 }
 
-function UUID() {
-    return Math.floor((1 + Math.random()) * 0x10000000).toString(16)
-}
 
 module.exports = {
     CONNECTED,
     DISCONNECTED,
+    RELAY_FUNCTIONS,
+    RELAY_MODE_WARNING,
+    SERVICES,
     STATUS,
+    TEMPLATE,
     UUID
 }

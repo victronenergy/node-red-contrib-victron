@@ -1,6 +1,6 @@
 'use strict'
 
-const services = require('./victron-services')
+const utils = require('./utils.js')
 const _ = require('lodash')
 const packagejson = require('../../package.json');
 
@@ -12,7 +12,6 @@ const packagejson = require('../../package.json');
 class SystemConfiguration {
     constructor() {
         // keeps a dynamically filled list of discovered dbus services
-        // The system does not detect a disappearing service
         this.cache = {}
     }
 
@@ -31,7 +30,7 @@ class SystemConfiguration {
 
             // the cache is filtered against the desired paths in services.json
             // to only show available options per service on the node's edit form.
-            let paths = _.get(services.SERVICES, [dbusService, 'paths'], [])
+            let paths = _.get(utils.SERVICES, [dbusService, 'paths'], [])
                 .filter(service =>
                     _.has(cachedPaths, service.path)
                     && (!isOutput || (service.writable // output nodes need a writable property
@@ -44,7 +43,7 @@ class SystemConfiguration {
                     )
                 )
 
-            return services.TEMPLATE(dbusInterface, name, paths)
+            return utils.TEMPLATE(dbusInterface, name, paths)
         })
     }
 
@@ -57,14 +56,14 @@ class SystemConfiguration {
         const buildRelayService = (service, paths) => {
             let pathObjects = paths.map(p => {
                 const svc = service.split('.')[2] // com.victronenergy.system => system
-                let relayObject = _.find(_.get(services.SERVICES, [svc, 'paths']), { path: p });
+                let relayObject = _.find(_.get(utils.SERVICES, [svc, 'paths']), { path: p })
 
                 // special case for system relay
                 if (service.startsWith('com.victronenergy.system') && p.startsWith('/Relay/0')) {
                     const systemRelayFunction = this.cache['com.victronenergy.settings']['/Settings/Relay/Function']
                     if (systemRelayFunction !== 2) { // manual
                         relayObject["disabled"] = true
-                        relayObject["warning"] = services.RELAY_MODE_WARNING(services.RELAY_FUNCTIONS[systemRelayFunction])
+                        relayObject["warning"] = utils.RELAY_MODE_WARNING(utils.RELAY_FUNCTIONS[systemRelayFunction])
                     }
                 }
 
@@ -77,7 +76,7 @@ class SystemConfiguration {
                 || this.cache[service]['/ProductName']
                 || service.split('.').pop()
 
-            return services.TEMPLATE(service, name, pathObjects)
+            return utils.TEMPLATE(service, name, pathObjects)
 
         }
 
