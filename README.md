@@ -131,3 +131,16 @@ In order to use the plugin remotely, Node-RED and the plugin needs to be locally
 6. you can optionally run the plugin with a DEBUG=* environment variable set, to see additional debug information printed on the shell. E.g. `export DEBUG=node-red-contrib-victron*`
 
 Further information on [nodered.org](https://nodered.org/docs/creating-nodes/first-node) and [github](https://github.com/sbender9/signalk-venus-plugin#plugin-installation--configuration).
+
+
+## Releasing a new version (Dev)
+
+For a new (internal) release, the following steps are adviced;
+
+1. Bump up the package version in package.json
+2. Add the version commit to git `git add package.json && git commit -m 'Version 1.x.x'`
+3. Add a new version tag for a release in this format: `git tag 1.x.x`.
+4. push changes, including the newly created tag `git push --tags`.
+5. go to [Releases](https://github.com/victronenergy/node-red-contrib-victron/releases) Page and Draft a new release.
+
+This package is not publicly available in the npm repository.
