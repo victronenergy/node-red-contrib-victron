@@ -1,9 +1,6 @@
 
 <script type="text/template" id="input-edit-template">
     <div class="victron-form">
-        <div class="form-tips hidden" id="statusmessage">
-            No devices found. Please check that the device is properly connected.
-        </div>
         <div class="form-row" id="service-row">
             <label for="node-input-service">Device</label>
             <select id="node-input-service"></select>
@@ -13,6 +10,7 @@
             <select id="node-input-path"></select>
         </div>
         <div class="form-warning hidden" id="warningmessage"></div>
+        <div class="form-warning hidden" id="statusmessage"></div>
         <div class="form-tips hidden" id="enuminfo">
             <p class="enuminfo--header">Value types</p>
             <p id="enuminfo-text"></p>
@@ -47,10 +45,10 @@
     /* Common functions */
     const serviceRoot = '/victron/services/';
 
-    function buildEditPanel(node, serviceUrl, isOutputNode) {
+    function buildEditPanel(node, serviceUrl, isOutputNode, nodeLabel) {
         let serviceElem = $('#node-input-service');
         let pathElem = $('#node-input-path');
-        let initialValueElem = $('#node-input-initial')
+        let initialValueElem = $('#node-input-initial');
 
         const buildOption = service => {
             return $('<option/>')
@@ -76,9 +74,11 @@
         const updateEnums = () => {
             const pathData = pathElem.find(':selected').data()
 
-            pathData && pathData.warning
-                ? $('#warningmessage').text(pathData.warning).show()
-                : $('#warningmessage').hide();
+            if (pathData) {
+                pathData.warning
+                    ? $('#warningmessage').text(pathData.warning).show()
+                    : $('#warningmessage').hide();
+            }
 
             if (pathData && pathData.type === 'enum') {
                 const valueTypesEnum = pathData.enum
@@ -106,9 +106,9 @@
         }
 
         const showStatusMessage = (msg) => {
-            if (msg) $('#statusmessage').text(msg);
-            $('#statusmessage').show();
-            if (!node.serviceObj) $('.form-row').hide();
+            serviceElem.attr('disabled', 'disabled');
+            pathElem.attr('disabled', 'disabled');
+            $('#statusmessage').text(msg).show();
         }
 
         const showEnumInfo = (enumObj) => {
@@ -125,13 +125,7 @@
 
         // Upon receiving data, populate the edit form
         $.getJSON(serviceRoot + serviceUrl, function(data) {
-            // 1. Populate edit options based on new data
-            if (data.length !== 0)
-                populateSelect(serviceElem, data);
-            else
-                showStatusMessage();
-
-            // 2. If the node was previously deployed,
+            // 1. If the node was previously deployed,
             // update the edit based on the old data
             if (node.service) {
                 // if it is not present anymore, still add it to the select list
@@ -141,6 +135,18 @@
                         .appendTo(serviceElem);
                 }
                 serviceElem.val(node.service);
+            }
+
+            // 2. Populate edit options based on new data
+            if (data.length !== 0) {
+                populateSelect(serviceElem, data);
+            }
+            else {
+                const device = nodeLabel.toLowerCase();
+                if (node.serviceObj)
+                    showStatusMessage(`There are no ${device}s available. Please check that the selected ${node.serviceObj.name} is properly connected.`);
+                else
+                    showStatusMessage(`There are no ${device}s available. Please check that a ${device} is connected or try a different node.`);
             }
 
             updatePaths();
@@ -199,13 +205,13 @@
     function registerNode(nodeType, nodeLabel, serviceType, isOutputNode) {
         // Copy the edit form template to the html body
 
-        buildEditForm(nodeType, nodeLabel)
-        nodeLabel = isOutputNode ? nodeLabel + ' Control' : nodeLabel
+        buildEditForm(nodeType, nodeLabel);
+        const nodePaletteLabel = isOutputNode ? nodeLabel + ' Control' : nodeLabel;
 
         // Register a new node
         RED.nodes.registerType(nodeType, {
             category: 'Victron Energy',
-            paletteLabel: nodeLabel,
+            paletteLabel: nodePaletteLabel,
             defaults: {
                 service: {value: ""},
                 path: {value: ""},
@@ -219,10 +225,10 @@
             outputs: (isOutputNode ? 0: 1),
             icon: "victronenergy.svg",
             label: function() {
-                return buildNodeLabel(this, nodeLabel)
+                return buildNodeLabel(this, nodePaletteLabel)
             },
             oneditprepare: function() {
-                buildEditPanel(this, serviceType, isOutputNode)
+                buildEditPanel(this, serviceType, isOutputNode, nodeLabel)
             },
             oneditsave: function() {
                 saveEditPanel(this)
