@@ -322,6 +322,7 @@ const INPUT_PATHS = {
         '/Ac/Out/L1/V',
         '/Ac/Out/L1/I',
         '/Mode',
+        '/Relay/0/State',
         '/State'
     ],
     // 'Generator': [

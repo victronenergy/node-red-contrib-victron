@@ -347,6 +347,15 @@
                 "5": "Low Power/ECO"
             }
         },
+        "/Relay/0/State": {
+            "description": "Relay state",
+            "dbusPath": "/Relay/0/State",
+            "dataType": "enum",
+            "enum": {
+                "0": "Open",
+                "1": "Closed"
+            }
+        },
         "/State": {
             "description": "State",
             "dbusPath": "/State",

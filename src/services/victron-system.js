@@ -58,6 +58,9 @@ class SystemConfiguration {
                 const svc = service.split('.')[2] // com.victronenergy.system => system
                 let relayObject = _.find(_.get(utils.SERVICES, [svc, 'paths']), { path: p })
 
+                if (!relayObject)
+                    console.error(`A relay path specification '${p}' is missing in services.json for service ${svc}.`)
+
                 // special case for system relay
                 if (service.startsWith('com.victronenergy.system') && p.startsWith('/Relay/0')) {
                     const systemRelayFunction = this.cache['com.victronenergy.settings']['/Settings/Relay/Function']
@@ -66,7 +69,6 @@ class SystemConfiguration {
                         relayObject["warning"] = utils.RELAY_MODE_WARNING(utils.RELAY_FUNCTIONS[systemRelayFunction])
                     }
                 }
-
                 return relayObject
             })
 
@@ -85,8 +87,12 @@ class SystemConfiguration {
         return Object.entries(this.cache)
             .reduce((acc, [service, pathObj]) => {
                 let relayPaths = Object.keys(pathObj).filter(path => path.startsWith('/Relay'))
-                if (relayPaths.length)
-                    acc.push(buildRelayService(service, relayPaths))
+                if (relayPaths.length) {
+                    const relaySvc = buildRelayService(service, relayPaths)
+                    // add the relay service if svc.paths has actually non-nullible values
+                    // (e.g. paths: [null, null] is not acceptable)
+                    if (relaySvc.paths.filter(p => p).length > 0) acc.push(relaySvc)
+                }
                 return acc
             }, [])
     }

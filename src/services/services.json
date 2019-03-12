@@ -1196,6 +1196,15 @@
                 "writable": true
             },
             {
+                "path": "/Relay/0/State",
+                "type": "enum",
+                "name": "Relay state",
+                "enum": {
+                    "0": "Open",
+                    "1": "Closed"
+                }
+            },
+            {
                 "path": "/State",
                 "type": "enum",
                 "name": "State",
