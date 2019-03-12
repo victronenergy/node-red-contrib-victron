@@ -5,6 +5,7 @@
             <label for="node-input-service">Device</label>
             <select id="node-input-service"></select>
         </div>
+        <div class="form-info hidden" id="duplicatesinfo"></div>
         <div class="form-row" id="path-row">
             <label for="node-input-path">Measurement</label>
             <select id="node-input-path"></select>
@@ -44,11 +45,14 @@
 <script type="text/javascript">
     /* Common functions */
     const serviceRoot = '/victron/services/';
+    let availableServices = null;
 
     function buildEditPanel(node, serviceUrl, isOutputNode, nodeLabel) {
         let serviceElem = $('#node-input-service');
         let pathElem = $('#node-input-path');
         let initialValueElem = $('#node-input-initial');
+
+        const nodeLabelLower = nodeLabel.toLowerCase();
 
         const buildOption = service => {
             return $('<option/>')
@@ -75,8 +79,8 @@
             const pathData = pathElem.find(':selected').data()
 
             if (pathData) {
-                pathData.warning
-                    ? $('#warningmessage').text(pathData.warning).show()
+                pathData.warning && availableServices.length
+                    ? changeStatusText($('#warningmessage'), 'fa-exclamation-circle', pathData.warning)
                     : $('#warningmessage').hide();
             }
 
@@ -88,6 +92,7 @@
                     service: key,
                     name: `${key} - ${valueTypesEnum[key]}`
                 }))
+
                 selectOptions.unshift({service: null, name: "Don't set initial value"})
                 populateSelect(initialValueElem, selectOptions)
 
@@ -108,7 +113,14 @@
         const showStatusMessage = (msg) => {
             serviceElem.attr('disabled', 'disabled');
             pathElem.attr('disabled', 'disabled');
-            $('#statusmessage').text(msg).show();
+            initialValueElem.attr('disabled', 'disabled');
+            changeStatusText($('#statusmessage'), 'fa-exclamation-circle', msg);
+
+        }
+
+        const changeStatusText = (selector, iconClass, message) => {
+            // fa-info-circle fa-exclamation-circle
+            selector.html(`<i class="fa ${iconClass} fa-2x"></i><i>${message}</i>`).show();
         }
 
         const showEnumInfo = (enumObj) => {
@@ -125,11 +137,14 @@
 
         // Upon receiving data, populate the edit form
         $.getJSON(serviceRoot + serviceUrl, function(data) {
+
+            availableServices = data;
+
             // 1. If the node was previously deployed,
             // update the edit based on the old data
             if (node.service) {
                 // if it is not present anymore, still add it to the select list
-                if (!data.find(s => s.service === node.service)) {
+                if (!availableServices.find(s => s.service === node.service)) {
                     buildOption(node.serviceObj)
                         .text(node.serviceObj.name + " [disconnected]")
                         .appendTo(serviceElem);
@@ -138,15 +153,22 @@
             }
 
             // 2. Populate edit options based on new data
-            if (data.length !== 0) {
-                populateSelect(serviceElem, data);
+            if (availableServices.length !== 0) {
+                populateSelect(serviceElem, availableServices);
+
+                // check for duplicate options in order to show an info message on setting a custom name
+                const hasDuplicateNames = (new Set(availableServices.map(s => s.name))).size !== availableServices.length;
+                if (hasDuplicateNames) {
+                    const msg = `Multiple ${nodeLabelLower}s were found with the same name. You can set a custom name for the device in Venus settings.`
+                    changeStatusText($('#duplicatesinfo'), 'fa-info-circle', msg);
+                }
+
             }
             else {
-                const device = nodeLabel.toLowerCase();
                 if (node.serviceObj)
-                    showStatusMessage(`There are no ${device}s available. Please check that the selected ${node.serviceObj.name} is properly connected.`);
+                    showStatusMessage(`There are no ${nodeLabelLower}s available. Please check that the selected ${node.serviceObj.name} is properly connected.`);
                 else
-                    showStatusMessage(`There are no ${device}s available. Please check that a ${device} is connected or try a different node.`);
+                    showStatusMessage(`There are no ${nodeLabelLower}s available. Please check that a ${nodeLabelLower} is connected or try a different node.`);
             }
 
             updatePaths();
@@ -279,13 +301,28 @@
         display: none;
     }
     .victron-form .form-tips {
+        padding: 16px;
         margin-bottom: 12px;
-        width: 425px;
+        width: 410px;
     }
-    .victron-form .form-warning {
-        color: #F3492E;
+    .victron-form .form-warning, .form-info {
         padding-bottom: 8px;
         max-width: 450px;
+    }
+    .victron-form .form-info {
+        font-style: italic;
+        padding-bottom: 8px;
+        max-width: 450px;
+    }
+    .victron-form .fa {
+        float: left;
+        margin: 5px 10px 0px 0px;
+    }
+    .victron-form .form-info .fa {
+        color: #00BCFF;
+    }
+    .victron-form .form-warning .fa {
+        color: #d6615f;
     }
     .victron-form .form-row label {
         min-width: 140px;
@@ -297,6 +334,4 @@
     .victron-form .hr {
         margin: 8px 0;
     }
-
-
 </style>
