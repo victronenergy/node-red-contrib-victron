@@ -45,12 +45,13 @@
 <script type="text/javascript">
     /* Common functions */
     const serviceRoot = '/victron/services/';
-    let availableServices = null;
 
     function buildEditPanel(node, serviceUrl, isOutputNode, nodeLabel) {
         let serviceElem = $('#node-input-service');
         let pathElem = $('#node-input-path');
         let initialValueElem = $('#node-input-initial');
+
+        let serviceDataAvailable = null;
 
         const nodeLabelLower = nodeLabel.toLowerCase();
 
@@ -79,7 +80,7 @@
             const pathData = pathElem.find(':selected').data()
 
             if (pathData) {
-                pathData.warning && availableServices.length
+                pathData.warning && serviceDataAvailable
                     ? changeStatusText($('#warningmessage'), 'fa-exclamation-circle', pathData.warning)
                     : $('#warningmessage').hide();
             }
@@ -135,51 +136,57 @@
             $('#enuminfo').hide();
         }
 
-        // Upon receiving data, populate the edit form
-        $.getJSON(serviceRoot + serviceUrl, function(data) {
-
-            availableServices = data;
-
-            // 1. If the node was previously deployed,
-            // update the edit based on the old data
+        /*  If a node was previously deployed, update the edit based on the old data */
+        const appendSavedService = (data) => {
             if (node.service) {
-                // if it is not present anymore, still add it to the select list
-                if (!availableServices.find(s => s.service === node.service)) {
+                // if the service not present anymore, still add it to the select list
+                if (!data.find(s => s.service === node.service)) {
                     buildOption(node.serviceObj)
                         .text(node.serviceObj.name + " [disconnected]")
                         .appendTo(serviceElem);
                 }
                 serviceElem.val(node.service);
             }
+        }
 
-            // 2. Populate edit options based on new data
-            if (availableServices.length !== 0) {
-                populateSelect(serviceElem, availableServices);
+        // Upon receiving data, populate the edit form
+        $.getJSON(serviceRoot + serviceUrl, function(data) {
+            serviceDataAvailable = data.length;
+
+            // in case any services are available, populate the service and path dropdowns
+            if (data.length !== 0) {
+                populateSelect(serviceElem, data);
 
                 // check for duplicate options in order to show an info message on setting a custom name
-                const hasDuplicateNames = (new Set(availableServices.map(s => s.name))).size !== availableServices.length;
+                const hasDuplicateNames = (new Set(data.map(s => s.name))).size !== data.length;
                 if (hasDuplicateNames) {
                     const msg = `Multiple ${nodeLabelLower}s were found with the same name. You can set a custom name for the device in Venus settings.`
                     changeStatusText($('#duplicatesinfo'), 'fa-info-circle', msg);
                 }
-
             }
-            else {
-                if (node.serviceObj)
-                    showStatusMessage(`There are no ${nodeLabelLower}s available. Please check that the selected ${node.serviceObj.name} is properly connected.`);
-                else
-                    showStatusMessage(`There are no ${nodeLabelLower}s available. Please check that a ${nodeLabelLower} is connected or try a different node.`);
+            else { // otherwise, disable inputs and show a pretty statusmessage
+                node.serviceObj
+                    ? showStatusMessage(`There are no ${nodeLabelLower}s available. Please check that the selected ${node.serviceObj.name} is properly connected.`)
+                    : showStatusMessage(`There are no ${nodeLabelLower}s available. Please check that a ${nodeLabelLower} is connected or try a different node.`);
             }
 
+            // append old service data, if we have a service and path saved to the node
+            appendSavedService(data);
+
+            // a change on serviceElem dropdown triggers updatePaths()
+            // which renders new options for the selected service
             updatePaths();
             serviceElem.change(updatePaths);
 
             if (node.path)
                 pathElem.val(node.path);
 
+            // a change on pathElem dropdown triggers updateEnums()
+            // which renders the enum value info box on demand
             updateEnums();
             pathElem.change(updateEnums);
 
+            // show the information text on using 'msg.payload' to trigger settings for output nodes
             if (isOutputNode)
                 $('#outputinfo').show();
 
