@@ -44,7 +44,8 @@
 
 <script type="text/javascript">
     /* Common functions */
-    const serviceRoot = '/victron/services/';
+
+    const serviceRoot = (RED.settings.httpNodeRoot || RED.settings.httpAdminRoot || "").replace(/\/$/,"") + '/victron/services/';
 
     function buildEditPanel(node, serviceUrl, isOutputNode, nodeLabel) {
         let serviceElem = $('#node-input-service');
