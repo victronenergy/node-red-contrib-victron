@@ -43,132 +43,169 @@
 </script>
 
 <script type="text/javascript">
-    /* Common functions */
+    // Polyfills. Mainly for IE.
 
-    const serviceRoot = (RED.settings.httpNodeRoot || RED.settings.httpAdminRoot || "").replace(/\/$/,"") + '/victron/services/';
+    if (!Array.prototype.find) {
+        Array.prototype.find = function(predicate) {
+            if (this == null) {
+                throw new TypeError('Array.prototype.find called on null or undefined');
+            }
+            if (typeof predicate !== 'function') {
+                throw new TypeError('predicate must be a function');
+            }
+            var list = Object(this);
+            var length = list.length >>> 0;
+            var thisArg = arguments[1];
+            var value;
+
+            for (var i = 0; i < length; i++) {
+                value = list[i];
+                if (predicate.call(thisArg, value, i, list)) {
+                    return value;
+                }
+            }
+            return undefined;
+        };
+    }
+
+    if (!Object.entries) {
+        Object.entries = function (obj) {
+            var ownProps = Object.keys(obj),
+                i = ownProps.length,
+                resArray = new Array(i);
+            while (i--)
+                resArray[i] = [ownProps[i], obj[ownProps[i]]];
+
+            return resArray;
+    };
+}
+
+</script>
+
+<script type="text/javascript">
+    "use strict";
+
+    var serviceRoot = (RED.settings.httpNodeRoot || RED.settings.httpAdminRoot || "").replace(/\/$/, "") + '/victron/services/';
 
     function buildEditPanel(node, serviceUrl, isOutputNode, nodeLabel) {
-        let serviceElem = $('#node-input-service');
-        let pathElem = $('#node-input-path');
-        let initialValueElem = $('#node-input-initial');
+        var serviceElem = $('#node-input-service');
+        var pathElem = $('#node-input-path');
+        var initialValueElem = $('#node-input-initial');
+        var serviceDataAvailable = null;
+        var nodeLabelLower = nodeLabel.toLowerCase();
 
-        let serviceDataAvailable = null;
+        var buildOption = function buildOption(service) {
+            return $('<option/>').val(service.service || service.path).text(service.name).data(service);
+        };
 
-        const nodeLabelLower = nodeLabel.toLowerCase();
-
-        const buildOption = service => {
-            return $('<option/>')
-                .val(service.service || service.path)
-                .text(service.name)
-                .data(service);
-            }
-
-        const populateSelect = (selector, services) => {
+        var populateSelect = function populateSelect(selector, services) {
             selector[0].options.length = 0;
-            services.forEach(service => {
+            services.forEach(function (service) {
                 selector.append(buildOption(service));
             });
-            selector.trigger('change')
-        }
+            selector.trigger('change');
+        };
 
-        const updatePaths = () => {
-            const serviceData = serviceElem.find(':selected').data();
-            if (serviceData && serviceData.paths)
-                populateSelect(pathElem, serviceData.paths);
-        }
+        var updatePaths = function updatePaths() {
+            var serviceData = serviceElem.find(':selected').data();
+            if (serviceData && serviceData.paths) populateSelect(pathElem, serviceData.paths);
+        };
 
-        const updateEnums = () => {
-            const pathData = pathElem.find(':selected').data()
+        var updateEnums = function updateEnums() {
+            var pathData = pathElem.find(':selected').data();
 
             if (pathData) {
-                pathData.warning && serviceDataAvailable
-                    ? changeStatusText($('#warningmessage'), 'fa-exclamation-circle', pathData.warning)
-                    : $('#warningmessage').hide();
+                pathData.warning && serviceDataAvailable ? changeStatusText($('#warningmessage'), 'fa-exclamation-circle', pathData.warning) : $('#warningmessage').hide();
             }
 
             if (pathData && pathData.type === 'enum') {
-                const valueTypesEnum = pathData.enum
-                showEnumInfo(valueTypesEnum)
-
-                const selectOptions = Object.keys(valueTypesEnum).map(key => ({
-                    service: key,
-                    name: `${key} - ${valueTypesEnum[key]}`
-                }))
-
-                selectOptions.unshift({service: null, name: "Don't set initial value"})
-                populateSelect(initialValueElem, selectOptions)
-
-                if (node.initial)
-                    initialValueElem.val(node.initial)
-
-                if (isOutputNode)
-                    $('#initial-row').show();
-
+                var valueTypesEnum = pathData.enum;
+                showEnumInfo(valueTypesEnum);
+                var selectOptions = Object.keys(valueTypesEnum).map(function (key) {
+                    return {
+                        service: key,
+                        name: "".concat(key, " - ").concat(valueTypesEnum[key])
+                    };
+                });
+                selectOptions.unshift({
+                    service: null,
+                    name: "Don't set initial value"
+                });
+                populateSelect(initialValueElem, selectOptions);
+                if (node.initial) initialValueElem.val(node.initial);
+                if (isOutputNode) $('#initial-row').show();
             } else {
-                hideEnumInfo()
+                hideEnumInfo();
+
                 // unset and hide initialValue
                 $('#initial-row').hide();
-                initialValueElem.val(null)
+                initialValueElem.val(null);
             }
-        }
+        };
 
-        const showStatusMessage = (msg) => {
+        var showStatusMessage = function showStatusMessage(msg) {
             serviceElem.attr('disabled', 'disabled');
             pathElem.attr('disabled', 'disabled');
             initialValueElem.attr('disabled', 'disabled');
             changeStatusText($('#statusmessage'), 'fa-exclamation-circle', msg);
+        };
 
-        }
-
-        const changeStatusText = (selector, iconClass, message) => {
+        var changeStatusText = function changeStatusText(selector, iconClass, message) {
             // fa-info-circle fa-exclamation-circle
-            selector.html(`<i class="fa ${iconClass} fa-2x"></i><i>${message}</i>`).show();
-        }
+            selector.html("<i class=\"fa ".concat(iconClass, " fa-2x\"></i><i>").concat(message, "</i>")).show();
+        };
 
-        const showEnumInfo = (enumObj) => {
-            const msg = Object.entries(enumObj).map((item, key) => {
-                return `${item[0]} - ${item[1]}`
-            }).join('<br/>')
+        var showEnumInfo = function showEnumInfo(enumObj) {
+            var msg = Object.entries(enumObj).map(function (item, key) {
+                return "".concat(item[0], " - ").concat(item[1]);
+            }).join('<br/>');
             $('#enuminfo-text').html(msg);
             $('#enuminfo').show();
-        }
+        };
 
-        const hideEnumInfo = () => {
+        var hideEnumInfo = function hideEnumInfo() {
             $('#enuminfo').hide();
-        }
+        };
 
         /*  If a node was previously deployed, update the edit based on the old data */
-        const appendSavedService = (data) => {
+        var appendSavedService = function appendSavedService(data) {
             if (node.service) {
                 // if the service not present anymore, still add it to the select list
-                if (!data.find(s => s.service === node.service)) {
-                    buildOption(node.serviceObj)
-                        .text(node.serviceObj.name + " [disconnected]")
-                        .appendTo(serviceElem);
+                if (!data.find(function (s) {
+                    return s.service === node.service;
+                })) {
+                    buildOption(node.serviceObj).text(node.serviceObj.name + " [disconnected]").appendTo(serviceElem);
                 }
+
                 serviceElem.val(node.service);
             }
-        }
+        };
 
         // Upon receiving data, populate the edit form
-        $.getJSON(serviceRoot + serviceUrl, function(data) {
+        $.getJSON(serviceRoot + serviceUrl, function (data) {
             serviceDataAvailable = data.length;
 
             // in case any services are available, populate the service and path dropdowns
             if (data.length !== 0) {
                 populateSelect(serviceElem, data);
 
+                function containsDuplicates(array) {
+                    return array.sort().some(function (item, i, items) {
+                        return item === items[i + 1];
+                    });
+                }
+
                 // check for duplicate options in order to show an info message on setting a custom name
-                const hasDuplicateNames = (new Set(data.map(s => s.name))).size !== data.length;
+                var hasDuplicateNames = containsDuplicates(data.map(function (s) {
+                    return s.name;
+                }));
+
                 if (hasDuplicateNames) {
-                    const msg = `Multiple ${nodeLabelLower}s were found with the same name. You can set a custom name for the device in Venus settings.`
+                    var msg = "Multiple ".concat(nodeLabelLower, "s were found with the same name. You can set a custom name for the device in Venus settings.");
                     changeStatusText($('#duplicatesinfo'), 'fa-info-circle', msg);
                 }
-            }
-            else { // otherwise, disable inputs and show a pretty statusmessage
-                node.serviceObj
-                    ? showStatusMessage(`There are no ${nodeLabelLower}s available. Please check that the selected ${node.serviceObj.name} is properly connected.`)
-                    : showStatusMessage(`There are no ${nodeLabelLower}s available. Please check that a ${nodeLabelLower} is connected or try a different node.`);
+            } else { // otherwise, disable inputs and show a pretty statusmessage
+                node.serviceObj ? showStatusMessage("There are no ".concat(nodeLabelLower, "s available. Please check that the selected ").concat(node.serviceObj.name, " is properly connected.")) : showStatusMessage("There are no ".concat(nodeLabelLower, "s available. Please check that a ").concat(nodeLabelLower, " is connected or try a different node."));
             }
 
             // append old service data, if we have a service and path saved to the node
@@ -178,120 +215,108 @@
             // which renders new options for the selected service
             updatePaths();
             serviceElem.change(updatePaths);
-
-            if (node.path)
-                pathElem.val(node.path);
+            if (node.path) pathElem.val(node.path);
 
             // a change on pathElem dropdown triggers updateEnums()
             // which renders the enum value info box on demand
             updateEnums();
-            pathElem.change(updateEnums);
+            pathElem.change(updateEnums); // show the information text on using 'msg.payload' to trigger settings for output nodes
 
-            // show the information text on using 'msg.payload' to trigger settings for output nodes
-            if (isOutputNode)
-                $('#outputinfo').show();
-
-        })
-        .fail(() => showStatusMessage("Unable to access the service endpoint."));
+            if (isOutputNode) $('#outputinfo').show();
+        }).fail(function () {
+            return showStatusMessage("Unable to access the service endpoint.");
+        });
     }
 
     function saveEditPanel(node) {
         // save the current service and path objects
-        node.serviceObj = $('#node-input-service').find(':selected').data()
-        node.pathObj = $('#node-input-path').find(':selected').data()
+        node.serviceObj = $('#node-input-service').find(':selected').data();
+        node.pathObj = $('#node-input-path').find(':selected').data();
     }
 
     function buildNodeLabel(node, nodeName) {
-        let altName = nodeName;
+        var altName = nodeName;
+
         if (node.serviceObj && node.path) {
-            let svc = node.serviceObj.name;
-            let path = node.serviceObj.paths.find(p => p.path === node.path).name;
-            altName = `${svc} | ${path}`;
+            var svc = node.serviceObj.name;
+            var path = node.serviceObj.paths.find(function (p) {
+                return p.path === node.path;
+            }).name;
+            altName = "".concat(svc, " | ").concat(path);
         }
-        return node.name || altName
+
+        return node.name || altName;
     }
 
     // Builds the edit panel form dynamically for each input node
     function buildEditForm(nodeType, serviceName) {
         // Clone the edit form template
-        let editForm = $("#input-edit-template").clone().html()
+        var editForm = $("#input-edit-template").clone().html();
+        var scriptTag = $("<script>").attr("type", "text/x-red").attr("data-template-name", nodeType).append(editForm); // Edit template data
 
-        let scriptTag = $("<script>")
-            .attr("type", "text/x-red")
-            .attr("data-template-name", nodeType)
-            .append(editForm)
+        scriptTag.find('#service-row > label').text(serviceName); // Append to the document body
 
-        // Edit template data
-        scriptTag.find('#service-row > label').text(serviceName)
-
-        // Append to the document body
-        $('body').append(scriptTag.prop('outerHTML'))
+        $('body').append(scriptTag.prop('outerHTML'));
     }
-
-    /* Node definitions */
 
     // Creates an input-node config and registers it with
     // the Node-RED Node API
     function registerNode(nodeType, nodeLabel, serviceType, isOutputNode) {
         // Copy the edit form template to the html body
-
         buildEditForm(nodeType, nodeLabel);
-        const nodePaletteLabel = isOutputNode ? nodeLabel + ' Control' : nodeLabel;
+        var nodePaletteLabel = isOutputNode ? nodeLabel + ' Control' : nodeLabel;
 
-        // Register a new node
         RED.nodes.registerType(nodeType, {
             category: 'Victron Energy',
             paletteLabel: nodePaletteLabel,
             defaults: {
-                service: {value: ""},
-                path: {value: ""},
-                serviceObj: {value: undefined},
-                pathObj: {value: undefined},
-                initial: {value: undefined}, // only used for some output nodes
-                name: {value: ""}
+                service: { value: "" },
+                path: { value: "" },
+                serviceObj: { value: undefined },
+                pathObj: { value: undefined },
+                initial: { value: undefined },
+                name: { value: "" }
             },
             color: '#4790d0',
-            inputs: (isOutputNode ? 1: 0),
-            outputs: (isOutputNode ? 0: 1),
+            inputs: isOutputNode ? 1 : 0,
+            outputs: isOutputNode ? 0 : 1,
             icon: "victronenergy.svg",
-            label: function() {
-                return buildNodeLabel(this, nodePaletteLabel)
+            label: function label() {
+                return buildNodeLabel(this, nodePaletteLabel);
             },
-            oneditprepare: function() {
-                buildEditPanel(this, serviceType, isOutputNode, nodeLabel)
+            oneditprepare: function oneditprepare() {
+                buildEditPanel(this, serviceType, isOutputNode, nodeLabel);
             },
-            oneditsave: function() {
-                saveEditPanel(this)
+            oneditsave: function oneditsave() {
+                saveEditPanel(this);
             }
         });
     }
 
     function registerInputNode(nodeType, nodeLabel, serviceType) {
-        registerNode(nodeType, nodeLabel, serviceType, false)
+        registerNode(nodeType, nodeLabel, serviceType, false);
     }
 
     function registerOutputNode(nodeType, nodeLabel, serviceType) {
-        registerNode(nodeType, nodeLabel, serviceType, true)
+        registerNode(nodeType, nodeLabel, serviceType, true);
     }
 
-    // input nodes
-    registerInputNode('victron-input-digitalinput', 'Digital Input', 'input-digitalinput')
-    registerInputNode('victron-input-tank', 'Tank Sensor', 'input-tank')
-    registerInputNode('victron-input-temperature', 'Temperature Sensor', 'input-temperature')
-    registerInputNode('victron-input-inverter', 'Inverter', 'input-inverter')
-    registerInputNode('victron-input-pvinverter', 'PV Inverter', 'input-pvinverter')
-    registerInputNode('victron-input-accharger', 'AC Charger', 'input-accharger')
-    registerInputNode('victron-input-solarcharger', 'Solar Charger', 'input-solarcharger')
-    registerInputNode('victron-input-battery', 'Battery Monitor', 'input-battery')
-    registerInputNode('victron-input-gridmeter', 'Grid Meter', 'input-gridmeter')
-    registerInputNode('victron-input-vebus', 'VE.Bus System', 'input-vebus')
+    registerInputNode('victron-input-digitalinput', 'Digital Input', 'input-digitalinput');
+    registerInputNode('victron-input-tank', 'Tank Sensor', 'input-tank');
+    registerInputNode('victron-input-temperature', 'Temperature Sensor', 'input-temperature');
+    registerInputNode('victron-input-inverter', 'Inverter', 'input-inverter');
+    registerInputNode('victron-input-pvinverter', 'PV Inverter', 'input-pvinverter');
+    registerInputNode('victron-input-accharger', 'AC Charger', 'input-accharger');
+    registerInputNode('victron-input-solarcharger', 'Solar Charger', 'input-solarcharger');
+    registerInputNode('victron-input-battery', 'Battery Monitor', 'input-battery');
+    registerInputNode('victron-input-gridmeter', 'Grid Meter', 'input-gridmeter');
+    registerInputNode('victron-input-vebus', 'VE.Bus System', 'input-vebus');
 
-    // output nodes
-    registerOutputNode('victron-output-relay', 'Relay', 'output-relay')
-    registerOutputNode('victron-output-vebus', 'VE.Bus System', 'output-vebus')
-    registerOutputNode('victron-output-inverter', 'Inverter', 'output-inverter')
-    registerOutputNode('victron-output-accharger', 'AC Charger', 'output-accharger')
-    registerOutputNode('victron-output-solarcharger', 'Solar Charger', 'output-solarcharger')
+    registerOutputNode('victron-output-relay', 'Relay', 'output-relay');
+    registerOutputNode('victron-output-vebus', 'VE.Bus System', 'output-vebus');
+    registerOutputNode('victron-output-inverter', 'Inverter', 'output-inverter');
+    registerOutputNode('victron-output-accharger', 'AC Charger', 'output-accharger');
+    registerOutputNode('victron-output-solarcharger', 'Solar Charger', 'output-solarcharger');
 
 </script>
 

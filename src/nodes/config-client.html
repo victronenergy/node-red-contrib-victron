@@ -12,28 +12,29 @@
 </script>
 
 <script type="text/javascript">
+    "use strict";
+
     RED.nodes.registerType('victron-client', {
         category: 'config',
         color: '#a6bbcf',
         defaults: {},
-        label: function() {
+        label: function label() {
             return "Victron Energy Client";
         },
         hasUsers: false,
-        onpaletteremove: function() {
-            RED.nodes.eachConfig((n) => {
+        onpaletteremove: function onpaletteremove() {
+            RED.nodes.eachConfig(function (n) {
                 if (n.id === 'victron-client') RED.nodes.remove(n.id);
             });
             RED.nodes.dirty(true);
         },
-        onpaletteadd: function() {
-            victronClientNode = {
+        onpaletteadd: function onpaletteadd() {
+            var victronClientNode = {
                 id: "victron-client-id",
                 _def: RED.nodes.getType("victron-client"),
                 type: "victron-client",
                 users: []
-            }
-
+            };
             RED.nodes.add(victronClientNode);
             RED.nodes.dirty(true);
         }
