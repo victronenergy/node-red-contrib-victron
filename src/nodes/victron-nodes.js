@@ -86,6 +86,7 @@ module.exports = function (RED) {
     RED.nodes.registerType('victron-input-battery', BaseInputNode);
     RED.nodes.registerType('victron-input-gridmeter', BaseInputNode);
     RED.nodes.registerType('victron-input-vebus', BaseInputNode);
+    RED.nodes.registerType('victron-input-gps', BaseInputNode);
 
     // Output nodes
     RED.nodes.registerType('victron-output-vebus', BaseOutputNode);

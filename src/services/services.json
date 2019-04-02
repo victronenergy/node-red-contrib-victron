@@ -1323,5 +1323,50 @@
                 }
             }
         ]
+    },
+    "gps": {
+        "service": "gps",
+        "paths": [
+            {
+                "path": "/Altitude",
+                "type": "float",
+                "name": "Altitude (m)"
+            },
+            {
+                "path": "/Course",
+                "type": "float",
+                "name": "Course (Deg)"
+            },
+            {
+                "path": "/Fix",
+                "type": "integer",
+                "name": "Fix"
+            },
+            {
+                "path": "/NrOfSatellites",
+                "type": "integer",
+                "name": "Number of satellites"
+            },
+            {
+                "path": "/Position/Latitude",
+                "type": "float",
+                "name": "Latitude (LAT)"
+            },
+            {
+                "path": "/Position/Longitude",
+                "type": "float",
+                "name": "Longitude (LNG)"
+            },
+            {
+                "path": "/Speed",
+                "type": "float",
+                "name": "Speed (m/s)"
+            },
+            {
+                "path": "/UtcTimestamp",
+                "type": "integer",
+                "name": "UTC Timestamp"
+            }
+        ]
     }
 }

@@ -205,7 +205,7 @@
                     changeStatusText($('#duplicatesinfo'), 'fa-info-circle', msg);
                 }
             } else { // otherwise, disable inputs and show a pretty statusmessage
-                node.serviceObj ? showStatusMessage("There are no ".concat(nodeLabelLower, "s available. Please check that the selected ").concat(node.serviceObj.name, " is properly connected.")) : showStatusMessage("There are no ".concat(nodeLabelLower, "s available. Please check that a ").concat(nodeLabelLower, " is connected or try a different node."));
+                node.serviceObj ? showStatusMessage("There are no ".concat(nodeLabelLower, " services available. Please check that the selected ").concat(node.serviceObj.name, " is properly connected.")) : showStatusMessage("There are no ".concat(nodeLabelLower, " services available. Please check that a ").concat(nodeLabelLower, " is connected or try a different node."));
             }
 
             // append old service data, if we have a service and path saved to the node
@@ -311,6 +311,7 @@
     registerInputNode('victron-input-battery', 'Battery Monitor', 'input-battery');
     registerInputNode('victron-input-gridmeter', 'Grid Meter', 'input-gridmeter');
     registerInputNode('victron-input-vebus', 'VE.Bus System', 'input-vebus');
+    registerInputNode('victron-input-gps', 'GPS', 'input-gps');
 
     registerOutputNode('victron-output-relay', 'Relay', 'output-relay');
     registerOutputNode('victron-output-vebus', 'VE.Bus System', 'output-vebus');

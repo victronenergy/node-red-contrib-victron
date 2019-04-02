@@ -397,5 +397,34 @@
                 "2": "generic"
             }
         }
+    },
+    "gps": {
+        "/Altitude": {
+            "description": "Altitude",
+            "dbusPath": "/Altitude",
+            "dataType": "float",
+            "unit": "m"
+        },
+        "/Fix": {
+            "description": "Fix",
+            "dbusPath": "/Fix",
+            "dataType": "integer"
+        },
+        "/MagneticVariation": {
+            "description": "Magnetic variation",
+            "dbusPath": "/MagneticVariation",
+            "dataType": "",
+            "unit": ""
+        },
+        "/NrOfSatellites": {
+            "description": "Number of satellites",
+            "dbusPath": "/NrOfSatellites",
+            "dataType": "integer"
+        },
+        "/UtcTimestamp": {
+            "description": "UTC Timestamp",
+            "dbusPath": "/UtcTimestamp",
+            "dataType": "integer"
+        }
     }
 }
