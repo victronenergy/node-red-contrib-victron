@@ -349,6 +349,18 @@ const INPUT_PATHS = {
         '/Status',
         '/TemperatureType',
     ],
+    'gps': [
+        '/Altitude',
+        // '/Connected',
+        '/Course',
+        '/Fix',
+        // '/MagneticVariation',
+        '/NrOfSatellites',
+        '/Position/Latitude',
+        '/Position/Longitude',
+        '/Speed',
+        '/UtcTimestamp'
+    ]
 }
 
 const OUTPUT_PATHS  = {

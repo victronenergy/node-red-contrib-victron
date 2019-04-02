@@ -120,6 +120,7 @@ class SystemConfiguration {
             "input-battery": this.getServices('battery'),
             "input-gridmeter": this.getServices('grid'),
             "input-vebus": this.getServices('vebus'),
+            "input-gps": this.getServices('gps'),
 
             // output services
             "output-relay": this.getRelayServices(),
