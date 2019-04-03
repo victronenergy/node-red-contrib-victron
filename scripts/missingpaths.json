@@ -127,7 +127,7 @@
                 "3": "Unknown"
             }
         },
-        "/Fluid Type": {
+        "/FluidType": {
             "description": "Fluid type",
             "dbusPath": "/Fluid Type",
             "dataType": "enum",
