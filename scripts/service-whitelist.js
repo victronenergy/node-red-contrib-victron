@@ -309,7 +309,9 @@ module.exports = {
         "vebus": [
             "/Hub4/DisableFeedIn",
             "/Hub4/DisableCharge",
-            "/Hub4/Lx/AcPowerSetpoint"
+            "/Hub4/L1/AcPowerSetpoint",
+            "/Hub4/L2/AcPowerSetpoint",
+            "/Hub4/L3/AcPowerSetpoint"
         ],
         "settings": [
             "/Settings/CGwacs/Hub4Mode", // Read only for now
@@ -370,7 +372,9 @@ module.exports = {
         "vebus": [
             "/Hub4/DisableFeedIn",
             "/Hub4/DisableCharge",
-            "/Hub4/Lx/AcPowerSetpoint"
+            "/Hub4/L1/AcPowerSetpoint",
+            "/Hub4/L2/AcPowerSetpoint",
+            "/Hub4/L3/AcPowerSetpoint"
         ],
         "settings": [
             "/Settings/CGwacs/AcPowerSetPoint",
