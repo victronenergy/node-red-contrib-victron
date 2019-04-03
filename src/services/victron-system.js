@@ -23,36 +23,40 @@ class SystemConfiguration {
         const servicesWhitelist = _.get(utils.SERVICES, [nodeName])
         const isOutput = nodeName.startsWith('output')
 
-        return _.flatten(Object.entries(servicesWhitelist).map(([dbusService, servicePaths]) => {
-            // get the already cached dbus paths
-            let cachedService = _.pickBy(this.cache, (val, key) => key.startsWith(`com.victronenergy.${dbusService}`))
+        return Object.entries(servicesWhitelist)
+            .reduce((acc, [dbusService, servicePaths]) => {
+                // get the already cached dbus paths
+                let cachedService = _.pickBy(this.cache, (val, key) => key.startsWith(`com.victronenergy.${dbusService}`))
 
-            // construct an object that is used to render the edit form for the node
-            return Object.keys(cachedService).map(dbusInterface => {
-                let cachedPaths = cachedService[dbusInterface]
-                let name = cachedPaths['/CustomName']
-                    || cachedPaths['/ProductName']
-                    || _.get(utils.DEFAULT_SERVICE_NAMES, [nodeName, dbusService], dbusInterface)
+                // construct an object that is used to render the edit form for the node
+                Object.keys(cachedService).forEach((dbusInterface) => {
+                    let cachedPaths = cachedService[dbusInterface]
+                    let name = cachedPaths['/CustomName']
+                        || cachedPaths['/ProductName']
+                        || _.get(utils.DEFAULT_SERVICE_NAMES, [nodeName, dbusService], dbusInterface)
 
-                // the cache is filtered against the desired paths in services.json
-                // to only show available options per service on the node's edit form.
+                    // the cache is filtered against the desired paths in services.json
+                    // to only show available options per service on the node's edit form.
 
-                let paths = servicePaths.filter(pathObj =>
-                    pathObj
-                    && _.has(cachedPaths, pathObj.path)
-                    && (!isOutput || (pathObj.writable // output nodes need a writable property
-                        // if the path has corresponding /*isAdjustable path for the service, check their value
-                        // If no /*isAdjustable path is present, default to showing the path
-                        && (pathObj.path !== '/Mode' || _.get(cachedPaths, '/ModeIsAdjustable', 1)) // vebus
-                        && (pathObj.path !== '/Ac/In/1/CurrentLimit' || _.get(cachedPaths, '/Ac/In/1/CurrentLimitIsAdjustable', 1)) // vebus
-                        && (pathObj.path !== '/Ac/In/2/CurrentLimit' || _.get(cachedPaths, '/Ac/In/2/CurrentLimitIsAdjustable', 1)) // vebus
+                    let paths = servicePaths.filter(pathObj =>
+                        pathObj
+                        && _.has(cachedPaths, pathObj.path)
+                        && (!isOutput || (pathObj.writable // output nodes need a writable property
+                            // if the path has corresponding /*isAdjustable path for the service, check their value
+                            // If no /*isAdjustable path is present, default to showing the path
+                            && (pathObj.path !== '/Mode' || _.get(cachedPaths, '/ModeIsAdjustable', 1)) // vebus
+                            && (pathObj.path !== '/Ac/In/1/CurrentLimit' || _.get(cachedPaths, '/Ac/In/1/CurrentLimitIsAdjustable', 1)) // vebus
+                            && (pathObj.path !== '/Ac/In/2/CurrentLimit' || _.get(cachedPaths, '/Ac/In/2/CurrentLimitIsAdjustable', 1)) // vebus
+                        )
+                        )
                     )
-                    )
-                )
 
-                return utils.TEMPLATE(dbusInterface, name, paths)
-            })
-        }))
+                    // Only show the service if it actually has paths available
+                    if (paths.length)
+                        acc.push(utils.TEMPLATE(dbusInterface, name, paths))
+                })
+                return acc
+            }, [])
     }
 
     /**
