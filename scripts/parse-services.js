@@ -81,7 +81,6 @@ let dataAttributes = parse(readCsv(PATH_CSV), {
 /**
  * Construct a services.json file based on service-whitelist.js file.
  */
-const data = {}
 
 if (process.argv[2]) {
     const _ = require('lodash')
@@ -89,18 +88,20 @@ if (process.argv[2]) {
     dataAttributes = _.merge(dataAttributes, additionalData)
 }
 
-Object.keys(whitelist.INPUT_PATHS).forEach(dbusService => {
-    data[dbusService] = {
-        'service': dbusService,
-        paths: whitelist.INPUT_PATHS[dbusService].map(dbusPath => {
+
+let data = Object.assign({}, whitelist) // clone whitelist
+
+Object.entries(data).forEach(([nodeName, nodeServices]) => {
+    Object.entries(nodeServices).forEach(([dbusService, servicePaths]) => {
+        data[nodeName][dbusService] = servicePaths.map(dbusPath => {
             const attribute = _.get(dataAttributes, [dbusService, dbusPath])
 
             // skip undefined paths, print them if DEBUG env is enabled
             if (attribute === undefined) {
                 if (missingPaths[dbusService] === undefined)
-                    missingPaths[dbusService] = [dbusPath]
+                    missingPaths[dbusService] = new Set([dbusPath])
                 else
-                    missingPaths[dbusService].push(dbusPath)
+                    missingPaths[dbusService].add(dbusPath)
                 return
             }
 
@@ -118,12 +119,13 @@ Object.keys(whitelist.INPUT_PATHS).forEach(dbusService => {
             }
 
             // add "writable": true for whitelisted output nodes
-            let isOutputPath = _.get(whitelist.OUTPUT_PATHS, dbusService, []).includes(dbusPath)
-            if (isOutputPath) pathObj.writable = true
+            if (nodeName.startsWith('output')) pathObj.writable = true
 
             return pathObj
         })
-    }
+
+    })
+
 })
 
 const jsonData = JSON.stringify(data, null, 4)
@@ -139,7 +141,8 @@ if (Object.keys(missingPaths).length) {
     const missingPathsTemplate = {}
     Object.keys(missingPaths).forEach(key => {
         let pathObjs = {}
-        missingPaths[key].map(path => {
+        let missingPathsArray = [...missingPaths[key]]
+        missingPathsArray.map(path => {
             pathObjs[path] = {
                 description: `Name for ${path}`,
                 dbusPath: path,
