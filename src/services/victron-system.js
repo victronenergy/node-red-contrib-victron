@@ -130,13 +130,15 @@ class SystemConfiguration {
             "input-gridmeter": this.getNodeServices("input-gridmeter"),
             "input-vebus": this.getNodeServices("input-vebus"),
             "input-gps": this.getNodeServices("input-gps"),
+            "input-ess": this.getNodeServices("input-ess"),
 
             // output services
             "output-relay": this.getRelayServices(),
-            "output-vebus": this.getNodeServices("output-vebus", true),
-            "output-inverter": this.getNodeServices("output-inverter", true),
-            "output-accharger": this.getNodeServices("output-accharger", true),
-            "output-solarcharger": this.getNodeServices("output-solarcharger", true),
+            "output-vebus": this.getNodeServices("output-vebus"),
+            "output-inverter": this.getNodeServices("output-inverter"),
+            "output-accharger": this.getNodeServices("output-accharger"),
+            "output-solarcharger": this.getNodeServices("output-solarcharger"),
+            "output-ess": this.getNodeServices("output-ess"),
         }
 
         return device !== null
