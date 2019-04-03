@@ -30,7 +30,9 @@ class SystemConfiguration {
             // construct an object that is used to render the edit form for the node
             return Object.keys(cachedService).map(dbusInterface => {
                 let cachedPaths = cachedService[dbusInterface]
-                let name = cachedPaths['/CustomName'] || cachedPaths['/ProductName'] || dbusInterface
+                let name = cachedPaths['/CustomName']
+                    || cachedPaths['/ProductName']
+                    || _.get(utils.DEFAULT_SERVICE_NAMES, [nodeName, dbusService], dbusInterface)
 
                 // the cache is filtered against the desired paths in services.json
                 // to only show available options per service on the node's edit form.
@@ -113,6 +115,9 @@ class SystemConfiguration {
      */
     listAvailableServices(device = null) {
         let services = {
+            // meta
+            "version": _.get(packagejson, 'version'),
+
             // input node services
             "input-digitalinput": this.getNodeServices("input-digitalinput"),
             "input-tank": this.getNodeServices("input-tank"),
@@ -132,9 +137,6 @@ class SystemConfiguration {
             "output-inverter": this.getNodeServices("output-inverter", true),
             "output-accharger": this.getNodeServices("output-accharger", true),
             "output-solarcharger": this.getNodeServices("output-solarcharger", true),
-
-            // meta
-            "version": _.get(packagejson, 'version')
         }
 
         return device !== null

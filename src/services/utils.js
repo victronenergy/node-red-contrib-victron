@@ -10,6 +10,21 @@ function UUID() {
     return Math.floor((1 + Math.random()) * 0x10000000).toString(16)
 }
 
+const DEFAULT_SERVICE_NAMES = {
+    "input-gps": {
+        "gps": "GPS Device"
+    },
+    "input-ess": {
+        "vebus": "ESS VE.Bus",
+        "settings": "ESS System Settings"
+    },
+    "output-ess": {
+        "vebus": "ESS VE.Bus",
+        "settings": "ESS System Settings"
+    }
+}
+
+
 const SERVICES = require("./services.json")
 
 /**
@@ -68,5 +83,6 @@ module.exports = {
     SERVICES,
     STATUS,
     TEMPLATE,
-    UUID
+    UUID,
+    DEFAULT_SERVICE_NAMES
 }
