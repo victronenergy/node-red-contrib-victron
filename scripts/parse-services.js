@@ -23,7 +23,12 @@
  *
  * // generate services.json and provide a filled template file
  * // of missing paths this file overrides the fields parsed from CSV:
- * env node parse-services.js ./additionalpaths.json
+ * node parse-services.js ./missingpaths.json
+ *
+ * // if you would like to append some paths to existing json file
+ * // without parsing any CSV files, use '--append'. This will
+ * // completely bypass the whitelist.
+ * node parse-services.js ./additional.json --append
  */
 
 const parse = require('csv-parse/lib/sync')
@@ -35,128 +40,155 @@ const OUTPUT_JSON = '../src/services/services.json'
 const ENUM_CSV = './csv/dataAttributeEnums.csv'
 const PATH_CSV = './csv/dataAttributes.csv'
 
-// Debug
-let missingPaths = {}
+main()
 
-if (!(fs.existsSync(ENUM_CSV) && fs.existsSync(PATH_CSV))) {
-    console.error(`Please make sure, that the files ${ENUM_CSV} and ${PATH_CSV} exist.`)
-    process.exit()
-}
+function main() {
+    let data = {}
+    let missingPaths = []
+    const args = require('gar')(process.argv.slice(2))
 
-const readCsv = filename => fs.readFileSync(`${filename}`, 'UTF-8')
+    // If -a or --append, we will read the existing services.json
+    // and append to that -- in that case, no CSVs are parsed
+    const onlyAppend = (args['a'] || args['append'])
 
-/**
- * Parse all enums and group them by key idDataAttribute.
- */
-const dataAttributeEnums = parse(readCsv(ENUM_CSV), {
-    columns: true
-}).reduce((acc, item) => {
-    !(item.idDataAttribute in acc)
-        ? acc[item.idDataAttribute] = [item]
-        : acc[item.idDataAttribute].push(item)
-    return acc
-}, {})
-
-/**
- * Parse all dbus paths.
- */
-let dataAttributes = parse(readCsv(PATH_CSV), {
-    columns: true
-}).reduce((acc, item) => {
-    acc[item.dbusServiceType] = acc[item.dbusServiceType] || {}
-
-    // Add enums
-    const attrEnums = dataAttributeEnums[item.idDataAttribute]
-    if (attrEnums !== undefined) {
-        item.enum = attrEnums.reduce((acc, e) => {
-            acc[e.valueEnum] = e.nameEnum
-            return acc
-        }, {})
+    const additionalJSONPath = args['_'][0]
+    if (additionalJSONPath !== undefined && !fs.existsSync(additionalJSONPath)) {
+        console.error(`Please make sure that the file ${additionalJSONPath} exists.`)
+        process.exit()
     }
 
-    acc[item.dbusServiceType][item.dbusPath] = item
-    return acc
-}, {})
+    if (onlyAppend && additionalJSONPath !== undefined) {
+        data = require(OUTPUT_JSON);
+        const missingData = require(args['_'][0])
+        data = _.merge(data, missingData)
+        console.log(`Successfully added data from ${args['_'][0]} to ${OUTPUT_JSON}.`)
+    } else { // otherwise parse the given input CSV's
+        if (!(fs.existsSync(ENUM_CSV) && fs.existsSync(PATH_CSV))) {
+            console.error(`Please make sure that the files ${ENUM_CSV} and ${PATH_CSV} exist.`)
+            process.exit()
+        } else {
+            const extra = additionalJSONPath !== undefined ? require(additionalJSONPath) : null
+            const [d, m] = parseCSVData(extra)
+            data = d
+            missingPaths = m
+        }
+    }
 
-/**
- * Construct a services.json file based on service-whitelist.js file.
- */
+    let jsonData = JSON.stringify(data, null, 4)
 
-if (process.argv[2]) {
-    const _ = require('lodash')
-    const additionalData = require(process.argv[2])
-    dataAttributes = _.merge(dataAttributes, additionalData)
+    fs.writeFile(OUTPUT_JSON, jsonData, 'utf8', () => {
+        console.log(`Please see ${OUTPUT_JSON} for results.`)
+    });
+
+    // In case some paths are missing from the CSVs, generate a template file
+    // to manually fill in the missing paths
+    if (Object.keys(missingPaths).length) {
+
+        const missingPathsTemplate = {}
+        Object.keys(missingPaths).forEach(key => {
+            let pathObjs = {}
+            let missingPathsArray = [...missingPaths[key]]
+            missingPathsArray.map(path => {
+                pathObjs[path] = {
+                    description: `Name for ${path}`,
+                    dbusPath: path,
+                    dataType: 'float',
+                    unit: '',
+                    enum: {}
+                }
+            })
+            missingPathsTemplate[key] = pathObjs
+        })
+
+        const missingPathsTemplateJSON = JSON.stringify(missingPathsTemplate, null, 4)
+        fs.writeFile('./missingpaths.template.json', missingPathsTemplateJSON, 'utf8', () => { });
+
+        console.log('The following paths are missing from the CSV:')
+        console.log(missingPaths)
+    }
 }
 
+function parseCSVData(additionalData) {
+    const readCsv = filename => fs.readFileSync(`${filename}`, 'UTF-8')
 
-let data = Object.assign({}, whitelist) // clone whitelist
+    let missingPaths = {}
 
-Object.entries(data).forEach(([nodeName, nodeServices]) => {
-    Object.entries(nodeServices).forEach(([dbusService, servicePaths]) => {
-        data[nodeName][dbusService] = servicePaths.map(dbusPath => {
-            const attribute = _.get(dataAttributes, [dbusService, dbusPath])
+    /**
+     * Parse all enums and group them by key idDataAttribute.
+     */
+    const dataAttributeEnums = parse(readCsv(ENUM_CSV), {
+        columns: true
+    }).reduce((acc, item) => {
+        !(item.idDataAttribute in acc)
+            ? acc[item.idDataAttribute] = [item]
+            : acc[item.idDataAttribute].push(item)
+        return acc
+    }, {})
 
-            // skip undefined paths, print them if DEBUG env is enabled
-            if (attribute === undefined) {
-                if (missingPaths[dbusService] === undefined)
-                    missingPaths[dbusService] = new Set([dbusPath])
-                else
-                    missingPaths[dbusService].add(dbusPath)
-                return
-            }
+    /**
+     * Parse all dbus paths.
+     */
+    let dataAttributes = parse(readCsv(PATH_CSV), {
+        columns: true
+    }).reduce((acc, item) => {
+        acc[item.dbusServiceType] = acc[item.dbusServiceType] || {}
 
-            const label = attribute.unit
-                ? `${attribute.description} (${attribute.unit})`
-                : `${attribute.description}`
+        // Add enums
+        const attrEnums = dataAttributeEnums[item.idDataAttribute]
+        if (attrEnums !== undefined) {
+            item.enum = attrEnums.reduce((acc, e) => {
+                acc[e.valueEnum] = e.nameEnum
+                return acc
+            }, {})
+        }
 
-            const pathObj = {
-                path: dbusPath,
-                type: attribute.dataType,
-                //unit: attribute.unit,
-                //name: attribute.description,
-                name: label,
-                enum: attribute.enum
-            }
+        acc[item.dbusServiceType][item.dbusPath] = item
+        return acc
+    }, {})
 
-            // add "writable": true for whitelisted output nodes
-            if (nodeName.startsWith('output')) pathObj.writable = true
+    /**
+     * Construct a services.json file based on service-whitelist.js file.
+     */
 
-            return pathObj
+    if (additionalData)
+        dataAttributes = _.merge(dataAttributes, additionalData)
+
+    let data = Object.assign({}, whitelist) // clone whitelist
+
+    Object.entries(data).forEach(([nodeName, nodeServices]) => {
+        Object.entries(nodeServices).forEach(([dbusService, servicePaths]) => {
+            data[nodeName][dbusService] = servicePaths.map(dbusPath => {
+                const attribute = _.get(dataAttributes, [dbusService, dbusPath])
+
+                // skip undefined paths, print them if DEBUG env is enabled
+                if (attribute === undefined) {
+                    if (missingPaths[dbusService] === undefined)
+                        missingPaths[dbusService] = new Set([dbusPath])
+                    else
+                        missingPaths[dbusService].add(dbusPath)
+                    return
+                }
+
+                const label = attribute.unit
+                    ? `${attribute.description} (${attribute.unit})`
+                    : `${attribute.description}`
+
+                const pathObj = {
+                    path: dbusPath,
+                    type: attribute.dataType,
+                    //unit: attribute.unit,
+                    //name: attribute.description,
+                    name: label,
+                    enum: attribute.enum
+                }
+
+                // add "writable": true for whitelisted output nodes
+                if (nodeName.startsWith('output')) pathObj.writable = true
+
+                return pathObj
+            })
         })
-
     })
 
-})
-
-const jsonData = JSON.stringify(data, null, 4)
-
-fs.writeFile(OUTPUT_JSON, jsonData, 'utf8', () => {
-    console.log(`Parsing successful. Please see ${OUTPUT_JSON} for results.`)
-});
-
-// In case some paths are missing from the CSVs, generate a template file
-// to manually fill in the missing paths
-if (Object.keys(missingPaths).length) {
-
-    const missingPathsTemplate = {}
-    Object.keys(missingPaths).forEach(key => {
-        let pathObjs = {}
-        let missingPathsArray = [...missingPaths[key]]
-        missingPathsArray.map(path => {
-            pathObjs[path] = {
-                description: `Name for ${path}`,
-                dbusPath: path,
-                dataType: 'float',
-                unit: '',
-                enum: {}
-            }
-        })
-        missingPathsTemplate[key] = pathObjs
-    })
-
-    const missingPathsTemplateJSON = JSON.stringify(missingPathsTemplate, null, 4)
-    fs.writeFile('./missingpaths.template.json', missingPathsTemplateJSON, 'utf8', () => { });
-
-    console.log('The following paths are missing from the CSV:')
-    console.log(missingPaths)
+    return [data, missingPaths]
 }

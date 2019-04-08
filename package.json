@@ -19,6 +19,7 @@
         "babel-eslint": "^10.0.1",
         "csv-parse": "^4.3.3",
         "eslint": "^5.10.0",
-        "eslint-config-google": "^0.11.0"
+        "eslint-config-google": "^0.11.0",
+        "gar": "^1.0.4"
     }
 }
