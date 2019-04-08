@@ -105,6 +105,40 @@ This `services.json` file is generated using the `parse-services.js` script in `
 4. Copy, rename and populate the `missingpaths.template.json` and run the script again, this time with an extra argument: `node parse-services.js ./missingpaths.json`. This extra input file can also be used to overwrite parsed CSV rows, for example.
 5. You are done! The new fields in services.json can be verified using a your favorite diff tool (`git diff`, for example).
 
+## Adding new nodes
+
+A few modifications to the code are needed in order to add new nodes. Here's an example on how to add a new input node `victron-test`. It uses the dbus service `com.victronenergy.settings` and has one option for a path `/Settings/TestDbusPath`.
+
+1. Add the nodetype to scripts/service-whitelist.js
+```
+    "input-test": {
+        "settings": [
+            "/Settings/TestDbusPath",
+        ]
+    }
+```
+
+2. Run `node parse-services.js ./missingpaths.json` to generate a new `services.json`, which is used to render the node options. If the dbus paths are missing from the given input CSV's, a missingpaths.template.json is generated with pre-filled templates for dbus path definitions. You should fill in the missing data, and copy-paste the new json objects to missingpaths.json file. Run the script again until no more missing paths are printed to the console.
+
+You can use the `--append` switch to completely bypass the whitelist, missingpaths.json and csv parsing. This is useful if you don't have access to the dataAttribute and dataAttributeEnum CSV files. This will simply merge the given input json file with the services.json: `node parse-services.json ./additionalPaths.json`.
+
+3. Add the following rows to given files:
+```
+// The following function defines what services are showin in
+// /victron/services/ API endpoint.
+// src/services/victron-system.js - listAvailableServices()
+"input-test": this.getNodeServices("input-test"),
+
+// Creates a new node-definition for node-red backend API
+// src/nodes/victron-nodes.js
+RED.nodes.registerType('victron-input-test', BaseInputNode);
+
+// Creates a new node-definition for node-red frontend API
+// src/nodes/victron-nodes.html
+registerInputNode('victron-input-test', 'Test', 'input-test');
+```
+
+4. Restart Node-RED and test the new node. It should be visible under Victron Energy nodes. If the path `/Settings/TestDbusPath` is present in dbus under `com.victronenergy.settings`, the node will show the path as an option in its edit panel settings.
 
 ## Installation and Usage
 
