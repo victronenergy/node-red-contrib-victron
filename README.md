@@ -2,18 +2,22 @@
 
 This library provides custom Node-RED nodes for some of the most commonly used Victron Energy products. The aim is to make it easier and faster for users to create automations without actually having to touch any of the devices' internals.
 
-The original issue tracking the progress can be found on [Venus repository](https://github.com/victronenergy/venus/issues/378). A more frequently updated progress of development can be found on the repository [project board](https://github.com/victronenergy/node-red-contrib-victron/projects/1).
+A Venus device is needed for this library to work. The library connects to a system dbus instance in a VenusOS device -- this can be done either remotely (TCP) or directly. See instructions [here](#Installation-and-Usage).
+
+This library is not officially supported by Victron Energy. For any questions or help, please turn to [community.victronenergy.com](https://community.victronenergy.com). Pull-requests are willingly encouraged!
+
+
+## Usage and Examples
+
+When the Node-RED is started, a Victron Energy configuration node is automatically created, connecting to the dbus in the Venus device. All the node services and measurements can be found on [services.json](/src/services/services.json) -- however only those services and measurements that are available in the system are shown in the node edit panel.
+
+![Architecture](documentation/images/node-palette.png)
+
+*Node-palette - Input nodes on the left, output nodes on the right*
 
 Here's an example on a functional flow with the Victron Nodes. More in-depth examples and use cases can be found in [wiki/Example-Flows](https://github.com/victronenergy/node-red-contrib-victron/wiki/Example-Flows).
 
 ![Architecture](documentation/images/example-nighttime-rates.png)
-
-## Usage and Examples
-
-When the Node-RED is started, a Victron Energy configuration node is automatically created, connecting to the dbus in the Venus device. All the mnode services and measurements can be found on [services.json](/src/services/services.json) -- however only those services and measurements that are available in the system are shown in the node edit panel.
-
-![Architecture](documentation/images/node-palette.png)
-*Node-palette - Input nodes on the left, output nodes on the right*
 
 ### Input Nodes
 
@@ -178,3 +182,7 @@ For a new (internal) release, the following steps are adviced;
 5. go to [Releases](https://github.com/victronenergy/node-red-contrib-victron/releases) Page and Draft a new release.
 
 This package is not publicly available in the npm repository.
+
+## Miscellaneous
+
+The original issue tracking the progress can be found on [Venus repository](https://github.com/victronenergy/venus/issues/378).
