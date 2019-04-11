@@ -95,55 +95,6 @@ The following graph demonstrates the architecture of this plugin.
         └── victron-system.js       | DBus service cache
 ```
 
-## Generating the node specification file
-
-All the node configurations (dbus service-path mappings and lables) are generated from a [services.json](/src/services/services.json) file. Please note, that this file is not a full representation of the available dbus paths.
-
-This `services.json` file is generated using the `parse-services.js` script in `./scripts` directory. The script uses two CSV files, `dataAttributes.csv` and `dataAttributeEnums.csv`, as its primary source to generate an up-to-date listing of available dbus services and dbus paths for Victron Energy's devices. The parsed services and paths are filtered against a whitelist (`service-whitelist.js`) before saving the file in order to get rid of undesired or deprecated dbus paths.
-
-![Parser Script Architecture](documentation/images/parser-script-architecture.png)
-
-1. Before running the script, please ensure that you have valid data csv's (`dataAttributes.csv`, `dataAttributeEnums.csv`) in the `./scrip/csv` directory. Edit the `service-whitelist.js` to control all the available fields to the nodes.
-2. Run the script `node run parse-services.js`
-3. If some of the whitelisted services or paths are not found on the CSV files, the script will print out all the missing dbus paths. The script will also generate a `missingpaths.template.json` file, which can be manually populated and added as an extra input to the script.
-4. Copy, rename and populate the `missingpaths.template.json` and run the script again, this time with an extra argument: `node parse-services.js ./missingpaths.json`. This extra input file can also be used to overwrite parsed CSV rows, for example.
-5. You are done! The new fields in services.json can be verified using a your favorite diff tool (`git diff`, for example).
-
-## Adding new nodes
-
-A few modifications to the code are needed in order to add new nodes. Here's an example on how to add a new input node `victron-test`. It uses the dbus service `com.victronenergy.settings` and has one option for a path `/Settings/TestDbusPath`.
-
-1. Add the nodetype to scripts/service-whitelist.js
-```
-    "input-test": {
-        "settings": [
-            "/Settings/TestDbusPath",
-        ]
-    }
-```
-
-2. Run `node parse-services.js ./missingpaths.json` to generate a new `services.json`, which is used to render the node options. If the dbus paths are missing from the given input CSV's, a missingpaths.template.json is generated with pre-filled templates for dbus path definitions. You should fill in the missing data, and copy-paste the new json objects to missingpaths.json file. Run the script again until no more missing paths are printed to the console.
-
-You can use the `--append` switch to completely bypass the whitelist, missingpaths.json and csv parsing. This is useful if you don't have access to the dataAttribute and dataAttributeEnum CSV files. This will simply merge the given input json file with the services.json: `node parse-services.json ./additionalPaths.json`.
-
-3. Add the following rows to given files:
-```
-// The following function defines what services are showin in
-// /victron/services/ API endpoint.
-// src/services/victron-system.js - listAvailableServices()
-"input-test": this.getNodeServices("input-test"),
-
-// Creates a new node-definition for node-red backend API
-// src/nodes/victron-nodes.js
-RED.nodes.registerType('victron-input-test', BaseInputNode);
-
-// Creates a new node-definition for node-red frontend API
-// src/nodes/victron-nodes.html
-registerInputNode('victron-input-test', 'Test', 'input-test');
-```
-
-4. Restart Node-RED and test the new node. It should be visible under Victron Energy nodes. If the path `/Settings/TestDbusPath` is present in dbus under `com.victronenergy.settings`, the node will show the path as an option in its edit panel settings.
-
 ## Installation and Usage
 
 The end goal is to have Node-RED running on a Venus device itself (this library included), but it is also possible to connect to the Venus device via TCP from an external Node-RED instance. If you would already like to test it out now, please dive into the instructions below to see how it can be done.
@@ -171,7 +122,60 @@ In order to use the plugin remotely, Node-RED and the plugin needs to be locally
 Further information on [nodered.org](https://nodered.org/docs/creating-nodes/first-node) and [github](https://github.com/sbender9/signalk-venus-plugin#plugin-installation--configuration).
 
 
-## Releasing a new version (Dev)
+## Generating the node specification file (developers)
+
+All the nodes use a manually generated [services.json](/src/services/services.json) file to figure out what dbus services and paths to expose to the end-user. This file is used to e.g. render the labels to the 'Select measurement' dropdowns in node-RED's edit view. Please note, that this file is not a full representation of all available dbus paths -- rather, a subset of services and paths that the node-red nodes actually use.
+
+This `services.json` file is generated using the `parse-services.js` script in `./scripts` directory. The script uses two CSV files, `dataAttributes.csv` and `dataAttributeEnums.csv`, as its primary source to generate an up-to-date listing of available dbus services and dbus paths for Victron Energy's devices.
+
+(Unfortunately, the CSV files are not committed to the repo for now -- if you need to update the services.json, please ask for the CSVs from Victron Staff or run the parse-services script with the `--append` switch).
+
+The parsed services and paths are filtered against a whitelist (`service-whitelist.js`) before saving the file in order to get rid of undesired or deprecated dbus paths and only reveal the paths actually relevant to the VE nodes.
+
+![Parser Script Architecture](documentation/images/parser-script-architecture.png)
+
+1. Before running the script, please ensure that you have valid data csv's (`dataAttributes.csv`, `dataAttributeEnums.csv`) in the `./scrip/csv` directory. Edit the `service-whitelist.js` to control all the available fields to the nodes.
+2. Run the script `node run parse-services.js`
+3. If some of the whitelisted services or paths are not found on the CSV files, the script will print out all the missing dbus paths. The script will also generate a `missingpaths.template.json` file, which can be manually populated and added as an extra input to the script.
+4. Copy, rename and populate the `missingpaths.template.json` and run the script again, this time with an extra argument: `node parse-services.js ./missingpaths.json`. This extra input file can also be used to overwrite parsed CSV rows, for example.
+5. You are done! The new fields in `services.json` can be verified using a your favorite diff tool (`git diff`, for example).
+
+## Adding new nodes (developers)
+
+A few modifications to the code are needed in order to add new nodes (or new paths to existing ones). Here's an example on how to add a new input node `victron-test`. It uses the dbus service `com.victronenergy.settings` and has one option for a path `/Settings/TestDbusPath`.
+
+1. Add the nodetype to scripts/service-whitelist.js
+```
+    "input-test": {
+        "settings": [
+            "/Settings/TestDbusPath",
+        ]
+    }
+```
+
+2. Run `node parse-services.js ./missingpaths.json` to generate a new `services.json`, which is used to render the node options. If some of the whitelisted path definitions are missing from the given input CSV's (or missingpaths.json), a missingpaths.template.json is generated with pre-filled objects for the path definitions. You should fill in the missing data, and copy-paste the new json objects to missingpaths.json file. Run the script again until no more missing paths are printed to the console.
+
+You can use the `--append` switch to completely bypass the whitelist, missingpaths.json and csv parsing. This is useful if you don't have access to the CSV files. This will simply merge the given input json file with the existing services.json: `node parse-services.json ./additionalPaths.json`.
+
+3. Add the following rows to given files:
+```
+// The following function defines what services are showin in
+// /victron/services/ API endpoint.
+// src/services/victron-system.js - listAvailableServices()
+"input-test": this.getNodeServices("input-test"),
+
+// Creates a new node-definition for node-red backend API
+// src/nodes/victron-nodes.js
+RED.nodes.registerType('victron-input-test', BaseInputNode);
+
+// Creates a new node-definition for node-red frontend API
+// src/nodes/victron-nodes.html
+registerInputNode('victron-input-test', 'Test', 'input-test');
+```
+
+4. Restart Node-RED and test the new node. It should be visible under Victron Energy nodes. If the path `/Settings/TestDbusPath` is present in dbus under `com.victronenergy.settings`, the node will show the path as an option in its edit panel settings (otherwise it will be hidden and you will probably see a disclaimer text on missing services).
+
+## Releasing a new version (developers)
 
 For a new (internal) release, the following steps are adviced;
 
