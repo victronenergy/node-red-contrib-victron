@@ -58,7 +58,7 @@ Please head to [wiki/Example-Flows](https://github.com/victronenergy/node-red-co
 
 ### Plugin Behavior
 
-All the individual nodes (inputs / outputs) will use a singleton instance of a Victron Config Node to access the system dbus in a Venus device. The nodes will provide a easy-to-use interface for accessing various measurements and writing data to the system.
+All the individual nodes (inputs / outputs) will use a singleton instance of a Victron Config Node to access the system dbus in a Venus device. The nodes will provide an easy-to-use interface for accessing various measurements and writing data to the system.
 
 The following graph demonstrates the architecture of this plugin.
 
@@ -134,7 +134,7 @@ The parsed services and paths are filtered against a whitelist (`service-whiteli
 
 ![Parser Script Architecture](documentation/images/parser-script-architecture.png)
 
-1. Before running the script, please ensure that you have valid data csv's (`dataAttributes.csv`, `dataAttributeEnums.csv`) in the `./scrip/csv` directory. Edit the `service-whitelist.js` to control all the available fields to the nodes.
+1. Before running the script, please ensure that you have valid data csv's (`dataAttributes.csv`, `dataAttributeEnums.csv`) in the `./scrip/csv` directory. Edit the `service-whitelist.js` to control all the available fields to the nodes. (Alternatively use `--append`, see [Adding new nodes](#Adding-new-nodes-(developers)))
 2. Run the script `node run parse-services.js`
 3. If some of the whitelisted services or paths are not found on the CSV files, the script will print out all the missing dbus paths. The script will also generate a `missingpaths.template.json` file, which can be manually populated and added as an extra input to the script.
 4. Copy, rename and populate the `missingpaths.template.json` and run the script again, this time with an extra argument: `node parse-services.js ./missingpaths.json`. This extra input file can also be used to overwrite parsed CSV rows, for example.
@@ -155,7 +155,7 @@ A few modifications to the code are needed in order to add new nodes (or new pat
 
 2. Run `node parse-services.js ./missingpaths.json` to generate a new `services.json`, which is used to render the node options. If some of the whitelisted path definitions are missing from the given input CSV's (or missingpaths.json), a missingpaths.template.json is generated with pre-filled objects for the path definitions. You should fill in the missing data, and copy-paste the new json objects to missingpaths.json file. Run the script again until no more missing paths are printed to the console.
 
-You can use the `--append` switch to completely bypass the whitelist, missingpaths.json and csv parsing. This is useful if you don't have access to the CSV files. This will simply merge the given input json file with the existing services.json: `node parse-services.json ./additionalPaths.json`.
+You can use the `--append` switch to completely bypass the whitelist, missingpaths.json and csv parsing. This is useful if you don't have access to the CSV files. This will simply merge the given input json file with the existing services.json: `node parse-services.json ./additionalPaths.json --append`.
 
 3. Add the following rows to given files:
 ```
