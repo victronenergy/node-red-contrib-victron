@@ -134,7 +134,7 @@ The parsed services and paths are filtered against a whitelist (`service-whiteli
 
 ![Parser Script Architecture](documentation/images/parser-script-architecture.png)
 
-1. Before running the script, please ensure that you have valid data csv's (`dataAttributes.csv`, `dataAttributeEnums.csv`) in the `./scrip/csv` directory. Edit the `service-whitelist.js` to control all the available fields to the nodes. (Alternatively use `--append`, see [Adding new nodes](#Adding-new-nodes-(developers)))
+1. Before running the script, please ensure that you have valid data csv's (`dataAttributes.csv`, `dataAttributeEnums.csv`) in the `./scrip/csv` directory. Edit the `service-whitelist.js` to control all the available fields to the nodes. (Alternatively use `--append`, see below)
 2. Run the script `node run parse-services.js`
 3. If some of the whitelisted services or paths are not found on the CSV files, the script will print out all the missing dbus paths. The script will also generate a `missingpaths.template.json` file, which can be manually populated and added as an extra input to the script.
 4. Copy, rename and populate the `missingpaths.template.json` and run the script again, this time with an extra argument: `node parse-services.js ./missingpaths.json`. This extra input file can also be used to overwrite parsed CSV rows, for example.
