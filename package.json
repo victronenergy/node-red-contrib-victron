@@ -18,7 +18,7 @@
     "devDependencies": {
         "@signalk/github-create-release": "^1.2.0",
         "babel-eslint": "^10.0.1",
-        "csv-parse": "^4.3.3",
+        "csv-parse": "^4.4.6",
         "eslint": "^5.10.0",
         "eslint-config-google": "^0.11.0",
         "gar": "^1.0.4"
