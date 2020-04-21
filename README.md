@@ -103,7 +103,7 @@ In order to use the plugin remotely, Node-RED and the plugin needs to be locally
 
 1. install node-red on your system
 2. cd to the node-red user directory, typically `~/.node-red`
-3. install node-red-contrib-victron locally, `npm install /path/to/this/repository`
+3. install node-red-contrib-victron locally, `npm install @victronenergy/node-red-contrib-victron`
 4. enable d-bus over tcp in your Venus device **if you want to use dbus over TCP**, otherwise skip this step. Edit `/etc/dbus-1/system.conf` and add the following directly above `<policy context="default">`:
 
 ```
