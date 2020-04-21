@@ -28,5 +28,10 @@
     "scripts": {
         "create-release": "github-create-release --owner victronenergy --repository node-red-contrib-victron",
         "release": "git tag -d v$npm_package_version; git tag v$npm_package_version && git push --tags && git push && npm run create-release"
-    }
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/victronenergy/node-red-contrib-victron"
+    },
+    "license": "MIT"
 }
