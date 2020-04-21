@@ -1,5 +1,5 @@
 {
-    "name": "node-red-contrib-victron",
+    "name": "@victronenergy/node-red-contrib-victron",
     "description": "Custom Node-RED Nodes for Victron Energy",
     "version": "1.2.1",
     "private": true,
