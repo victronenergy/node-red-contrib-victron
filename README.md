@@ -179,13 +179,9 @@ registerInputNode('victron-input-test', 'Test', 'input-test');
 
 For a new (internal) release, the following steps are adviced;
 
-1. Bump up the package version in package.json
-2. Add the version commit to git `git add package.json && git commit -m 'Version 1.x.x'`
-3. Add a new version tag for a release in this format: `git tag 1.x.x`.
-4. push changes, including the newly created tag `git push --tags`.
-5. go to [Releases](https://github.com/victronenergy/node-red-contrib-victron/releases) Page and Draft a new release.
-
-This package is not publicly available in the npm repository.
+1. Run `npm version [major|minor|patch]`
+2. Run `npm run release`
+3. Run `npm publish`
 
 ## Miscellaneous
 
