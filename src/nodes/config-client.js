@@ -18,13 +18,14 @@ module.exports = function (RED) {
      * An endpoint for nodes to request services from - returns either a single service, or
      * all available services depending whether the requester gives the service parameter
      */
-    RED.httpAdmin.get("/victron/services/:service?", RED.auth.needsPermission('victron-client.read'), (req, res) => {
+
+    RED.httpNode.get("/victron/services/:service?", RED.auth.needsPermission('victron-client.read'), (req, res) => {
         let serialized = JSON.stringify(globalClient.system.listAvailableServices(req.params.service))
         res.setHeader('Content-Type', 'application/json')
         return res.send(serialized)
     })
 
-    RED.httpAdmin.get("/victron/cache", RED.auth.needsPermission('victron-client.read'), (req, res) => {
+    RED.httpNode.get("/victron/cache", RED.auth.needsPermission('victron-client.read'), (req, res) => {
         let serialized = JSON.stringify(globalClient.system.cache)
         res.setHeader('Content-Type', 'application/json')
         return res.send(serialized)
