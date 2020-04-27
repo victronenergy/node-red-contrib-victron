@@ -44,9 +44,9 @@
             "dataType": "string",
             "unit": "kWh"
         },
-        "/MPPOperationMode": {
+        "/MppOperationMode": {
             "description": "MPP operation mode",
-            "dbusPath": "/MPPOperationMode",
+            "dbusPath": "/MppOperationMode",
             "dataType": "enum",
             "unit": "",
             "enum": {
