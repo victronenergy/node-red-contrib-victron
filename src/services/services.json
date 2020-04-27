@@ -1437,6 +1437,30 @@
             }
         ]
     },
+    "input-meteo" : {
+      "meteo": [
+            {
+                "path": "/Irradiance",
+                "type": "float",
+                "name": "Solar irradiance"
+            },
+            {
+                "path": "/WindSpeed",
+                "type": "float",
+                "name": "Wind Speed"
+            },
+            {
+                "path": "/CellTemperature",
+                "type": "float",
+                "name": "Cell temperature of sensor"
+            },
+            {
+                "path": "/ExternalTemperature",
+                "type": "float",
+                "name": "External temperature"
+            }
+      ]
+    },
     "output-relay": {
         "system": [
             {

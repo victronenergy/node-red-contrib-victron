@@ -135,6 +135,7 @@ class SystemConfiguration {
             "input-vebus": this.getNodeServices("input-vebus"),
             "input-gps": this.getNodeServices("input-gps"),
             "input-ess": this.getNodeServices("input-ess"),
+            "input-meteo": this.getNodeServices("input-meteo"),
 
             // output services
             "output-relay": this.getRelayServices(),

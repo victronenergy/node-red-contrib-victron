@@ -325,6 +325,14 @@ module.exports = {
             "/Settings/SystemSetup/MaxChargeCurrent"
         ]
     },
+    "input-meteo": {
+      "meteo": [
+            "/Irradiance",
+            "/WindSpeed",
+            "/CellTemperature",
+            "/ExternalTemperature"
+      ]
+    },
     "output-relay": {
         "system": [
             "/Relay/0/State",
