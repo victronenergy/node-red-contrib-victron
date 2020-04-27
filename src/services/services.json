@@ -594,7 +594,7 @@
                 "name": "Yield since last update (kWh)"
             },
             {
-                "path": "/MPPOperationMode",
+                "path": "/MppOperationMode",
                 "type": "enum",
                 "name": "MPP operation mode",
                 "enum": {
@@ -1598,7 +1598,7 @@
                 "writable": true
             },
             {
-                "path": "/MPPOperationMode",
+                "path": "/MppOperationMode",
                 "type": "enum",
                 "name": "MPP operation mode",
                 "enum": {
