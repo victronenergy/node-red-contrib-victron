@@ -182,7 +182,15 @@
         };
 
         // Upon receiving data, populate the edit form
-        $.getJSON(serviceRoot + serviceUrl, function (data) {
+        $.ajax(serviceRoot + serviceUrl, {
+            beforeSend: function(jqXHR) {
+                var auth_tokens = RED.settings.get("auth-tokens");
+                if (auth_tokens) {
+                    jqXHR.setRequestHeader("Authorization","Bearer "+auth_tokens.access_token);
+                }
+            }
+        })
+        .done(data => {
             serviceDataAvailable = data.length;
 
             // in case any services are available, populate the service and path dropdowns
