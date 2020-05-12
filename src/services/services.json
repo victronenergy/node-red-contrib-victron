@@ -1461,6 +1461,20 @@
             }
       ]
     },
+    "input-system": {
+      "system": [
+            {
+                "path": "/Dc/Pv/Power",
+                "type": "float",
+                "name": "System Power"
+            },
+            {
+                "path": "/Dc/Pv/Current",
+                "type": "float",
+                "name": "System Current"
+            }
+      ]
+    },
     "output-relay": {
         "system": [
             {

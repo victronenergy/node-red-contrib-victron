@@ -333,6 +333,12 @@ module.exports = {
             "/ExternalTemperature"
       ]
     },
+    "input-system": {
+      "system": [
+            "/Dc/Pv/Power",
+            "/Dc/Pv/Current",
+      ]
+    },
     "output-relay": {
         "system": [
             "/Relay/0/State",
