@@ -90,6 +90,7 @@ module.exports = function (RED) {
     RED.nodes.registerType('victron-input-ess', BaseInputNode);
     RED.nodes.registerType('victron-input-meteo', BaseInputNode);
     RED.nodes.registerType('victron-input-system', BaseInputNode);
+    RED.nodes.registerType('victron-input-relay', BaseInputNode);
 
     // Output nodes
     RED.nodes.registerType('victron-output-vebus', BaseOutputNode);
