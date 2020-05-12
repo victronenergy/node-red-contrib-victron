@@ -136,6 +136,7 @@ class SystemConfiguration {
             "input-gps": this.getNodeServices("input-gps"),
             "input-ess": this.getNodeServices("input-ess"),
             "input-meteo": this.getNodeServices("input-meteo"),
+            "input-system": this.getNodeServices("input-system"),
 
             // output services
             "output-relay": this.getRelayServices(),
