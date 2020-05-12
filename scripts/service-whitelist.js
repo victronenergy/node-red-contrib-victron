@@ -339,6 +339,24 @@ module.exports = {
             "/Dc/Pv/Current",
       ]
     },
+  "input-relay": {
+        "system": [
+            "/Relay/0/State",
+            "/Relay/1/State"
+        ],
+        "battery": [
+            "/Relay/0/State"
+        ],
+        "charger": [
+            "/Relay/0/State"
+        ],
+        "solarcharger": [
+            "/Relay/0/State"
+        ],
+        "inverter": [
+            "/Relay/0/State"
+        ]
+    },
     "output-relay": {
         "system": [
             "/Relay/0/State",

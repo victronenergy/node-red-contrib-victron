@@ -1475,6 +1475,72 @@
             }
       ]
     },
+    "input-relay": {
+        "system": [
+            {
+                "path": "/Relay/0/State",
+                "type": "enum",
+                "name": "Venus relay 1 state",
+                "enum": {
+                    "0": "Open",
+                    "1": "Closed"
+                }
+            },
+            {
+                "path": "/Relay/1/State",
+                "type": "enum",
+                "name": "Venus relay 2 state",
+                "enum": {
+                    "0": "Open",
+                    "1": "Closed"
+                }
+            }
+        ],
+        "battery": [
+            {
+                "path": "/Relay/0/State",
+                "type": "enum",
+                "name": "Relay status",
+                "enum": {
+                    "0": "Open",
+                    "1": "Closed"
+                }
+            }
+        ],
+        "charger": [
+            {
+                "path": "/Relay/0/State",
+                "type": "enum",
+                "name": "Relay on the charger",
+                "enum": {
+                    "0": "Open",
+                    "1": "Closed"
+                }
+            }
+        ],
+        "solarcharger": [
+            {
+                "path": "/Relay/0/State",
+                "type": "enum",
+                "name": "Relay on the charger",
+                "enum": {
+                    "0": "Open",
+                    "1": "Closed"
+                }
+            }
+        ],
+        "inverter": [
+            {
+                "path": "/Relay/0/State",
+                "type": "enum",
+                "name": "Relay state",
+                "enum": {
+                    "0": "Open",
+                    "1": "Closed"
+                }
+            }
+        ]
+    },
     "output-relay": {
         "system": [
             {
