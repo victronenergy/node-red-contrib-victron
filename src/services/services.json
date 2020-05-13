@@ -280,7 +280,8 @@
                     "8": "Standby",
                     "9": "Boot loading",
                     "10": "Error",
-                    "11": "Running (MPPT)"
+                    "11": "Running (MPPT)",
+                    "12": "Running (Throttled)"
                 }
             },
             {
@@ -382,18 +383,16 @@
                 "name": "Charge state",
                 "enum": {
                     "0": "Off",
-                    "1": "Low Power Mode",
                     "2": "Fault",
                     "3": "Bulk",
                     "4": "Absorption",
                     "5": "Float",
                     "6": "Storage",
                     "7": "Equalize",
-                    "8": "Passthru",
-                    "9": "Inverting",
-                    "10": "Power assist",
                     "11": "Power supply mode",
-                    "252": "Bulk protection"
+                    "246": "Repeated absorption",
+                    "247": "Equalize",
+                    "248": "Battery safe"
                 }
             },
             {
@@ -460,12 +459,12 @@
             {
                 "path": "/Dc/0/Voltage",
                 "type": "float",
-                "name": "Battery voltage (V)"
+                "name": "Voltage (V)"
             },
             {
                 "path": "/Dc/0/Current",
                 "type": "float",
-                "name": "Battery current (A)"
+                "name": "Current (A)"
             },
             {
                 "path": "/Dc/0/Temperature",
@@ -494,7 +493,9 @@
                     "5": "Float",
                     "6": "Storage",
                     "7": "Equalize",
-                    "252": "ESS"
+                    "245": "Off",
+                    "247": "Equalize",
+                    "252": "Ext. Control"
                 }
             },
             {
@@ -555,7 +556,7 @@
                     "20": "#20 - Max Bulk-time exceeded",
                     "22": "#22 - Current sensor issue",
                     "23": "#23 - Charger temperature sensor disconnected",
-                    "34": "#24 - PV over current",
+                    "34": "#34 - PV over current",
                     "38": "#38 - Input shutdown due to battery over-voltage",
                     "39": "#39 - Input shutdown due to battery over-voltage",
                     "67": "#67 - No BMS",
@@ -600,7 +601,8 @@
                 "enum": {
                     "0": "Off",
                     "1": "Voltage or current limited",
-                    "2": "MPPT Tracker active"
+                    "2": "MPPT Tracker active",
+                    "255": "Not available"
                 }
             }
         ]
@@ -610,7 +612,7 @@
             {
                 "path": "/Dc/0/Voltage",
                 "type": "float",
-                "name": "Battery voltage (V)"
+                "name": "Voltage (V)"
             },
             {
                 "path": "/Dc/1/Voltage",
@@ -1103,12 +1105,12 @@
             {
                 "path": "/Dc/0/Voltage",
                 "type": "float",
-                "name": "Battery voltage (V)"
+                "name": "Voltage (V)"
             },
             {
                 "path": "/Dc/0/Current",
                 "type": "float",
-                "name": "Battery current (A)"
+                "name": "Current (A)"
             },
             {
                 "path": "/Ac/NumberOfPhases",
@@ -1162,12 +1164,12 @@
                     "4": "VE.Bus Error 4: No other device whatsoever detected",
                     "5": "VE.Bus Error 5: Overvoltage on AC-out",
                     "6": "VE.Bus Error 6: Error in DDC Program",
-                    "7": "VE.Bus BMS connected, which requires an Assistant, but no assistant found",
+                    "7": "VE.Bus Error 7:  BMS connected, which requires an Assistant, but no assistant found",
                     "10": "VE.Bus Error 10: System time synchronisation problem occurred",
-                    "11": "VE.Bus Error 11",
+                    "11": "VE.Bus Error 11: Relay test fault",
                     "14": "VE.Bus Error 14: Device cannot transmit data",
                     "16": "VE.Bus Error 16: Dongle missing",
-                    "17": "VE.Bus Error 17: One of the devices assumed master status because the original master failed",
+                    "17": "VE.Bus Error 17: Phase master missing",
                     "18": "VE.Bus Error 18: AC Overvoltage on the output of a slave has occurred while already switched off",
                     "22": "VE.Bus Error 22: This device cannot function as slave",
                     "24": "VE.Bus Error 24: Switch-over system protection initiated",
@@ -1437,43 +1439,393 @@
             }
         ]
     },
-    "input-meteo" : {
-      "meteo": [
+    "input-meteo": {
+        "meteo": [
             {
                 "path": "/Irradiance",
                 "type": "float",
-                "name": "Solar irradiance"
+                "name": "Solar Irradiance (W/m^2)"
             },
             {
                 "path": "/WindSpeed",
                 "type": "float",
-                "name": "Wind Speed"
+                "name": "Wind speed (m/s)"
             },
             {
                 "path": "/CellTemperature",
                 "type": "float",
-                "name": "Cell temperature of sensor"
+                "name": "Sensor cell temperature (C)"
             },
             {
                 "path": "/ExternalTemperature",
                 "type": "float",
-                "name": "External temperature"
+                "name": "External temperature (C)"
             }
-      ]
+        ]
     },
     "input-system": {
-      "system": [
+        "system": [
+            {
+                "path": "/Ac/ActiveIn/Source",
+                "type": "enum",
+                "name": "AC-Input",
+                "enum": {
+                    "0": "Not available",
+                    "1": "Grid",
+                    "2": "Generator",
+                    "3": "Shore",
+                    "240": "Inverting"
+                }
+            },
+            {
+                "path": "/Ac/ConsumptionOnInput/L1/Power",
+                "type": "float",
+                "name": "AC Consumption on Input L1"
+            },
+            {
+                "path": "/Ac/ConsumptionOnInput/L2/Power",
+                "type": "float",
+                "name": "AC Consumption on Input L2"
+            },
+            {
+                "path": "/Ac/ConsumptionOnInput/L3/Power",
+                "type": "float",
+                "name": "AC Consumption on Input L3"
+            },
+            {
+                "path": "/Ac/ConsumptionOnInput/NumberOfPhases",
+                "type": "integer",
+                "name": "AC Consumption on Input Number Of Phases"
+            },
+            {
+                "path": "/Ac/ConsumptionOnOutput/L1/Power",
+                "type": "float",
+                "name": "AC Consumption on Output L1"
+            },
+            {
+                "path": "/Ac/ConsumptionOnOutput/L2/Power",
+                "type": "float",
+                "name": "AC Consumption on Output L2"
+            },
+            {
+                "path": "/Ac/ConsumptionOnOutput/L3/Power",
+                "type": "float",
+                "name": "AC Consumption on Output L3"
+            },
+            {
+                "path": "/Ac/ConsumptionOnOutput/NumberOfPhases",
+                "type": "integer",
+                "name": "AC Consumption on Output Number Of Phases"
+            },
+            {
+                "path": "/Ac/Genset/L1/Power",
+                "type": "float",
+                "name": "Genset L1 (W)"
+            },
+            {
+                "path": "/Ac/Genset/L2/Power",
+                "type": "float",
+                "name": "Genset L2 (W)"
+            },
+            {
+                "path": "/Ac/Genset/L3/Power",
+                "type": "float",
+                "name": "Genset L3 (W)"
+            },
+            {
+                "path": "/Ac/Genset/NumberOfPhases",
+                "type": "integer",
+                "name": "Genset Number Of Phases"
+            },
+            {
+                "path": "/Ac/Genset/DeviceType",
+                "type": "float",
+                "name": "Genset Device Type",
+                "enum": {}
+            },
+            {
+                "path": "/Ac/Grid/L1/Power",
+                "type": "float",
+                "name": "Grid L1 (W)"
+            },
+            {
+                "path": "/Ac/Grid/L2/Power",
+                "type": "float",
+                "name": "Grid L2 (W)"
+            },
+            {
+                "path": "/Ac/Grid/L3/Power",
+                "type": "float",
+                "name": "Grid L3 (W)"
+            },
+            {
+                "path": "/Ac/Grid/NumberOfPhases",
+                "type": "integer",
+                "name": "Grid Number Of Phases"
+            },
+            {
+                "path": "/Ac/Grid/DeviceType",
+                "type": "float",
+                "name": "Grid Device Type"
+            },
+            {
+                "path": "/Ac/PvOnGenset/L1/Power",
+                "type": "float",
+                "name": "PV Power AC-tied on Generator L1"
+            },
+            {
+                "path": "/Ac/PvOnGenset/L2/Power",
+                "type": "float",
+                "name": "PV Power AC-tied on Generator L2"
+            },
+            {
+                "path": "/Ac/PvOnGenset/L3/Power",
+                "type": "float",
+                "name": "PV Power AC-tied on Generator L3"
+            },
+            {
+                "path": "/Ac/PvOnGenset/NumberOfPhases",
+                "type": "integer",
+                "name": "PV Power AC-tied on Generator Number Of Phases"
+            },
+            {
+                "path": "/Ac/PvOnGrid/L1/Power",
+                "type": "float",
+                "name": "PV - AC-coupled on input L1 (W)"
+            },
+            {
+                "path": "/Ac/PvOnGrid/L2/Power",
+                "type": "float",
+                "name": "PV - AC-coupled on input L2 (W)"
+            },
+            {
+                "path": "/Ac/PvOnGrid/L3/Power",
+                "type": "float",
+                "name": "PV - AC-coupled on input L3 (W)"
+            },
+            {
+                "path": "/Ac/PvOnGrid/NumberOfPhases",
+                "type": "integer",
+                "name": "PV - AC-coupled on input Number Of Phases"
+            },
+            {
+                "path": "/Ac/PvOnOutput/L1/Power",
+                "type": "float",
+                "name": "PV - AC-coupled on output L1 (W)"
+            },
+            {
+                "path": "/Ac/PvOnOutput/L2/Power",
+                "type": "float",
+                "name": "PV - AC-coupled on output L2 (W)"
+            },
+            {
+                "path": "/Ac/PvOnOutput/L3/Power",
+                "type": "float",
+                "name": "PV - AC-coupled on output L3 (W)"
+            },
+            {
+                "path": "/Ac/PvOnOutput/NumberOfPhases",
+                "type": "integer",
+                "name": "PV - AC-coupled on output Number Of Phases"
+            },
+            {
+                "path": "/Dc/Battery/ConsumedAmphours",
+                "type": "float",
+                "name": "Battery Consumed Amphours (Ah)"
+            },
+            {
+                "path": "/Dc/Battery/Current",
+                "type": "float",
+                "name": "Current (A)"
+            },
+            {
+                "path": "/Dc/Battery/Power",
+                "type": "float",
+                "name": "Battery Power (W)"
+            },
+            {
+                "path": "/Dc/Battery/Soc",
+                "type": "float",
+                "name": "Battery State of Charge (%)"
+            },
+            {
+                "path": "/Dc/Battery/State",
+                "type": "enum",
+                "name": "Battery state",
+                "enum": {
+                    "0": "idle",
+                    "1": "charging",
+                    "2": "discharging"
+                }
+            },
+            {
+                "path": "/Dc/Battery/TimeToGo",
+                "type": "float",
+                "name": "Battery Time to Go (h)"
+            },
+            {
+                "path": "/Dc/Battery/Voltage",
+                "type": "float",
+                "name": "Voltage (V)"
+            },
+            {
+                "path": "/Dc/Charger/Power",
+                "type": "integer",
+                "name": "Name for /Dc/Charger/Power (W)"
+            },
             {
                 "path": "/Dc/Pv/Power",
                 "type": "float",
-                "name": "System Power"
+                "name": "PV - DC-coupled (W)"
             },
             {
                 "path": "/Dc/Pv/Current",
                 "type": "float",
-                "name": "System Current"
+                "name": "Name for /Dc/Pv/Current (A)"
+            },
+            {
+                "path": "/Dc/System/Power",
+                "type": "float",
+                "name": "DC System (W)"
+            },
+            {
+                "path": "/Dc/Vebus/Current",
+                "type": "float",
+                "name": "VE.Bus charge current (A)"
+            },
+            {
+                "path": "/Dc/Vebus/Power",
+                "type": "float",
+                "name": "VE.Bus charge power (W)"
+            },
+            {
+                "path": "/Buzzer/State",
+                "type": "float",
+                "name": "Buzzer State",
+                "enum": {
+                    "0": "Off",
+                    "1": "On"
+                }
+            },
+            {
+                "path": "/SystemState/State",
+                "type": "enum",
+                "name": "System state",
+                "enum": {
+                    "0": "Off",
+                    "1": "Low power",
+                    "2": "Fault",
+                    "3": "Bulk",
+                    "4": "Absorption",
+                    "5": "Float",
+                    "6": "Storage",
+                    "7": "Equalize",
+                    "8": "Passthru",
+                    "9": "Inverting",
+                    "10": "Assisting",
+                    "11": "Power Supply Mode",
+                    "246": "Repeated Absorption",
+                    "247": "Equalize",
+                    "248": "Battery Safe",
+                    "249": "Test",
+                    "250": "Blocked",
+                    "251": "Test",
+                    "252": "External control",
+                    "256": "Discharging",
+                    "257": "Sustain",
+                    "258": "Recharging",
+                    "259": "Sched charge"
+                }
+            },
+            {
+                "path": "/SystemState/BatteryLife",
+                "type": "enum",
+                "name": "Battery Life",
+                "enum": {
+                    "0": "Off",
+                    "1": "On"
+                }
+            },
+            {
+                "path": "/SystemState/ChargeDisabled",
+                "type": "enum",
+                "name": "Charge Disabled",
+                "enum": {
+                    "0": "No",
+                    "1": "Yes"
+                }
+            },
+            {
+                "path": "/SystemState/DischargeDisabled",
+                "type": "enum",
+                "name": "Discharge Disabled",
+                "enum": {
+                    "0": "No",
+                    "1": "Yes"
+                }
+            },
+            {
+                "path": "/SystemState/LowSoc",
+                "type": "enum",
+                "name": "Low Soc",
+                "enum": {
+                    "0": "No",
+                    "1": "Yes"
+                }
+            },
+            {
+                "path": "/SystemState/SlowCharge",
+                "type": "enum",
+                "name": "Slow Charge",
+                "enum": {
+                    "0": "No",
+                    "1": "Yes"
+                }
+            },
+            {
+                "path": "/SystemState/UserChargeLimited",
+                "type": "enum",
+                "name": "User Charge Limited",
+                "enum": {
+                    "0": "No",
+                    "1": "Yes"
+                }
+            },
+            {
+                "path": "/SystemState/UserDischargeLimited",
+                "type": "enum",
+                "name": "User Discharge Limited",
+                "enum": {
+                    "0": "No",
+                    "1": "Yes"
+                }
+            },
+            {
+                "path": "/Timers/TimeOnGrid",
+                "type": "float",
+                "name": "Time grid (s)"
+            },
+            {
+                "path": "/Timers/TimeOnGenerator",
+                "type": "float",
+                "name": "Time generator (s)"
+            },
+            {
+                "path": "/Timers/TimeOnInverter",
+                "type": "float",
+                "name": "Time inverting (s)"
+            },
+            {
+                "path": "/Timers/TimeOff",
+                "type": "float",
+                "name": "Time off (s)"
+            },
+            {
+                "path": "/SystemType",
+                "type": "string",
+                "name": "System type"
             }
-      ]
+        ]
     },
     "input-relay": {
         "system": [
@@ -1708,7 +2060,8 @@
                 "enum": {
                     "0": "Off",
                     "1": "Voltage or current limited",
-                    "2": "MPPT Tracker active"
+                    "2": "MPPT Tracker active",
+                    "255": "Not available"
                 },
                 "writable": true
             }

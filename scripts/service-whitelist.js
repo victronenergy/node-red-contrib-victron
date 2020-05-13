@@ -122,7 +122,7 @@ module.exports = {
             "/Yield/User",
             "/Yield/Power",
             "/Yield/System",
-            "/MPPOperationMode"
+            "/MppOperationMode"
         ]
     },
     "input-battery": {
@@ -334,12 +334,68 @@ module.exports = {
       ]
     },
     "input-system": {
-      "system": [
+        "system": [
+            "/Ac/ActiveIn/Source",
+            "/Ac/ConsumptionOnInput/L1/Power",
+            "/Ac/ConsumptionOnInput/L2/Power",
+            "/Ac/ConsumptionOnInput/L3/Power",
+            "/Ac/ConsumptionOnInput/NumberOfPhases",
+            "/Ac/ConsumptionOnOutput/L1/Power",
+            "/Ac/ConsumptionOnOutput/L2/Power",
+            "/Ac/ConsumptionOnOutput/L3/Power",
+            "/Ac/ConsumptionOnOutput/NumberOfPhases",
+            "/Ac/Genset/L1/Power",
+            "/Ac/Genset/L2/Power",
+            "/Ac/Genset/L3/Power",
+            "/Ac/Genset/NumberOfPhases",
+            "/Ac/Genset/DeviceType",
+            "/Ac/Grid/L1/Power",
+            "/Ac/Grid/L2/Power",
+            "/Ac/Grid/L3/Power",
+            "/Ac/Grid/NumberOfPhases",
+            "/Ac/Grid/DeviceType",
+            "/Ac/PvOnGenset/L1/Power",
+            "/Ac/PvOnGenset/L2/Power",
+            "/Ac/PvOnGenset/L3/Power",
+            "/Ac/PvOnGenset/NumberOfPhases",
+            "/Ac/PvOnGrid/L1/Power",
+            "/Ac/PvOnGrid/L2/Power",
+            "/Ac/PvOnGrid/L3/Power",
+            "/Ac/PvOnGrid/NumberOfPhases",
+            "/Ac/PvOnOutput/L1/Power",
+            "/Ac/PvOnOutput/L2/Power",
+            "/Ac/PvOnOutput/L3/Power",
+            "/Ac/PvOnOutput/NumberOfPhases",
+            "/Dc/Battery/ConsumedAmphours",
+            "/Dc/Battery/Current",
+            "/Dc/Battery/Power",
+            "/Dc/Battery/Soc",
+            "/Dc/Battery/State",
+            "/Dc/Battery/TimeToGo",
+            "/Dc/Battery/Voltage",
+            "/Dc/Charger/Power",
             "/Dc/Pv/Power",
             "/Dc/Pv/Current",
-      ]
+            "/Dc/System/Power",
+            "/Dc/Vebus/Current",
+            "/Dc/Vebus/Power",
+            "/Buzzer/State",
+            "/SystemState/State",
+            "/SystemState/BatteryLife",
+            "/SystemState/ChargeDisabled",
+            "/SystemState/DischargeDisabled",
+            "/SystemState/LowSoc",
+            "/SystemState/SlowCharge",
+            "/SystemState/UserChargeLimited",
+            "/SystemState/UserDischargeLimited",            
+            "/Timers/TimeOnGrid",
+            "/Timers/TimeOnGenerator",
+            "/Timers/TimeOnInverter",
+            "/Timers/TimeOff",
+            "/SystemType",
+        ]
     },
-  "input-relay": {
+    "input-relay": {
         "system": [
             "/Relay/0/State",
             "/Relay/1/State"
@@ -397,7 +453,7 @@ module.exports = {
     "output-solarcharger": {
         "solarcharger": [
             "/Mode",
-            "/MPPOperationMode"
+            "/MppOperationMode"
         ]
     },
     "output-ess": {
