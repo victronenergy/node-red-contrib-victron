@@ -2,12 +2,19 @@
 
 This library provides custom Node-RED nodes for some of the most commonly used Victron Energy products. The aim is to make it easier and faster for users to create automations without actually having to touch any of the devices' internals.
 
-A Venus device is needed for this library to work. The library connects to a system dbus instance in a VenusOS device -- this can be done either remotely (TCP) or directly. See instructions [here](#Installation-and-Usage).
+This library is made as part of the "Add Node-RED to Venus OS"-project: which is about adding Nodejs, npm, node-red and more all into the Venus OS images. Draft manual [here](https://www.victronenergy.com/live/venus-os:large-image) and issue [here](https://github.com/victronenergy/venus/issues/378).
 
-This library is not officially supported by Victron Energy. For any questions or help, please turn to [community.victronenergy.com](https://community.victronenergy.com). Pull-requests are willingly encouraged!
+This library is not officially supported by Victron Energy: don't call our dealers or other support channels for help.
 
+For any questions or help, please turn to [community.victronenergy.com](https://community.victronenergy.com). Pull-requests are willingly encouraged!
 
-## Usage and Examples
+## Requirements when self-installing this node palette
+- A Victron system that includes a GX device (note that for trial & development you could use the demo mode in Venus OS, Settings -> General)
+- D-Bus configuration on Venus OS to be modified to bind to TCP
+
+More details in the [instructions](#Installation-and-Usage).
+
+## Usage and examples
 
 When the Node-RED is started, a Victron Energy configuration node is automatically created, connecting to the dbus in the Venus device. All the node services and measurements can be found on [services.json](/src/services/services.json) -- however only those services and measurements that are available in the system are shown in the node edit panel.
 
@@ -97,7 +104,7 @@ The following graph demonstrates the architecture of this plugin.
 
 ## Installation and Usage
 
-The end goal is to have Node-RED running on a Venus device itself (this library included), but it is also possible to connect to the Venus device via TCP from an external Node-RED instance. If you would already like to test it out now, please dive into the instructions below to see how it can be done.
+WARNING: these instructions are about how to install and make this node pallette working on your own Node-RED installation. As opposed to the more common (and easier) use case of [running Node-RED inside Venus OS](https://www.victronenergy.com/live/venus-os:large-image).
 
 In order to use the plugin remotely, Node-RED and the plugin needs to be locally installed:
 
