@@ -63,16 +63,19 @@
             "dataType": "integer"
         },
         "/Dc/Charger/Power": {
-            "description": "Name for /Dc/Charger/Power",
+            "description": "AC-Chargers - power",
             "dbusPath": "/Dc/Charger/Power",
             "dataType": "integer",
             "unit": "W"
         },
         "/Dc/Pv/Current": {
-            "description": "Name for /Dc/Pv/Current",
+            "description": "MPPTs - current",
             "dbusPath": "/Dc/Pv/Current",
             "dataType": "float",
             "unit": "A"
+        },
+        "/Dc/Pv/Power": {
+            "description": "MPPTs - power"
         },
         "/Buzzer/State": {
             "description": "Buzzer State",

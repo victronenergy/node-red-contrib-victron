@@ -1670,17 +1670,17 @@
             {
                 "path": "/Dc/Charger/Power",
                 "type": "integer",
-                "name": "Name for /Dc/Charger/Power (W)"
+                "name": "AC-Chargers - power (W)"
             },
             {
                 "path": "/Dc/Pv/Power",
                 "type": "float",
-                "name": "PV - DC-coupled (W)"
+                "name": "MPPTs - power (W)"
             },
             {
                 "path": "/Dc/Pv/Current",
                 "type": "float",
-                "name": "Name for /Dc/Pv/Current (A)"
+                "name": "MPPTs - current (A)"
             },
             {
                 "path": "/Dc/System/Power",
