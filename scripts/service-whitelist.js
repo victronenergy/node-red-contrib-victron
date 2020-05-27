@@ -336,6 +336,7 @@ module.exports = {
     "input-system": {
         "system": [
             "/Ac/ActiveIn/Source",
+            "/Ac/Alarms/GridLost",
             "/Ac/ConsumptionOnInput/L1/Power",
             "/Ac/ConsumptionOnInput/L2/Power",
             "/Ac/ConsumptionOnInput/L3/Power",

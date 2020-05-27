@@ -16,6 +16,15 @@
                 "1": "Closed"
             }
         },
+        "/Ac/Alarms/GridLost": {
+            "description": "Grid lost alarm",
+            "dbusPath": "/Ac/Alarms/GridLost",
+            "dataType": "enum",
+            "enum": {
+                "0": "No alarm",
+                "2": "Alarm"
+            }
+        },
         "/Ac/ConsumptionOnInput/NumberOfPhases": {
             "description": "AC Consumption on Input Number Of Phases",
             "dbusPath": "/Ac/ConsumptionOnInput/NumberOfPhases",

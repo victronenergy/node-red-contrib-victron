@@ -1477,6 +1477,15 @@
                 }
             },
             {
+                "path": "/Ac/Alarms/GridLost",
+                "type": "enum",
+                "name": "Grid lost alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "2": "Alarm"
+                }
+            },
+            {
                 "path": "/Ac/ConsumptionOnInput/L1/Power",
                 "type": "float",
                 "name": "AC Consumption on Input L1"
