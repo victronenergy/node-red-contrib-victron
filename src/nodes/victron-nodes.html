@@ -297,6 +297,24 @@
             },
             oneditsave: function oneditsave() {
                 saveEditPanel(this);
+            },
+            onadd: function() {
+                let hasClient = false
+                RED.nodes.eachConfig(function (n) {
+                    if (n.id === 'victron-client-id') 
+                        hasClient = true
+                });
+      
+                if ( !hasClient ) {
+                    var victronClientNode = {
+                        id: "victron-client-id",
+                        _def: RED.nodes.getType("victron-client"),
+                        type: "victron-client",
+                        users: []
+                    };
+                    RED.nodes.add(victronClientNode);
+                    RED.nodes.dirty(true);
+                }
             }
         });
     }
