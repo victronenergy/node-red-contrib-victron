@@ -15,6 +15,148 @@
                 "0": "Open",
                 "1": "Closed"
             }
+        },
+        "/Ac/Alarms/GridLost": {
+            "description": "Grid lost alarm",
+            "dbusPath": "/Ac/Alarms/GridLost",
+            "dataType": "enum",
+            "enum": {
+                "0": "No alarm",
+                "2": "Alarm"
+            }
+        },
+        "/Ac/ConsumptionOnInput/NumberOfPhases": {
+            "description": "AC Consumption on Input Number Of Phases",
+            "dbusPath": "/Ac/ConsumptionOnInput/NumberOfPhases",
+            "dataType": "integer"
+        },
+        "/Ac/ConsumptionOnOutput/NumberOfPhases": {
+            "description": "AC Consumption on Output Number Of Phases",
+            "dbusPath": "/Ac/ConsumptionOnOutput/NumberOfPhases",
+            "dataType": "integer"
+        },
+        "/Ac/Genset/NumberOfPhases": {
+            "description": "Genset Number Of Phases",
+            "dbusPath": "/Ac/Genset/NumberOfPhases",
+            "dataType": "integer"
+        },
+        "/Ac/Genset/DeviceType": {
+            "description": "Genset Device Type",
+            "dbusPath": "/Ac/Genset/DeviceType",
+            "dataType": "float",
+            "enum": {}
+        },
+        "/Ac/Grid/NumberOfPhases": {
+            "description": "Grid Number Of Phases",
+            "dbusPath": "/Ac/Grid/NumberOfPhases",
+            "dataType": "integer"
+        },
+        "/Ac/Grid/DeviceType": {
+            "description": "Grid Device Type",
+            "dbusPath": "/Ac/Grid/DeviceType",
+            "dataType": "float"
+        },
+        "/Ac/PvOnGenset/NumberOfPhases": {
+            "description": "PV Power AC-tied on Generator Number Of Phases",
+            "dbusPath": "/Ac/PvOnGenset/NumberOfPhases",
+            "dataType": "integer"
+        },
+        "/Ac/PvOnGrid/NumberOfPhases": {
+            "description": "PV - AC-coupled on input Number Of Phases",
+            "dbusPath": "/Ac/PvOnGrid/NumberOfPhases",
+            "dataType": "integer"
+        },
+        "/Ac/PvOnOutput/NumberOfPhases": {
+            "description": "PV - AC-coupled on output Number Of Phases",
+            "dbusPath": "/Ac/PvOnOutput/NumberOfPhases",
+            "dataType": "integer"
+        },
+        "/Dc/Charger/Power": {
+            "description": "AC-Chargers - power",
+            "dbusPath": "/Dc/Charger/Power",
+            "dataType": "integer",
+            "unit": "W"
+        },
+        "/Dc/Pv/Current": {
+            "description": "MPPTs - current",
+            "dbusPath": "/Dc/Pv/Current",
+            "dataType": "float",
+            "unit": "A"
+        },
+        "/Dc/Pv/Power": {
+            "description": "MPPTs - power"
+        },
+        "/Buzzer/State": {
+            "description": "Buzzer State",
+            "dbusPath": "/Buzzer/State",
+            "dataType": "float",
+            "enum": {
+                "0": "Off",
+                "1": "On"
+            }
+        },
+        "/SystemState/BatteryLife": {
+            "description": "Battery Life",
+            "dbusPath": "/SystemState/BatteryLife",
+            "dataType": "enum",
+            "enum": {
+                "0": "Off",
+                "1": "On"
+            }
+        },
+        "/SystemState/ChargeDisabled": {
+            "description": "Charge Disabled",
+            "dbusPath": "/SystemState/ChargeDisabled",
+            "dataType": "enum",
+            "enum": {
+                "0": "No",
+                "1": "Yes"
+            }
+        },
+        "/SystemState/DischargeDisabled": {
+            "description": "Discharge Disabled",
+            "dbusPath": "/SystemState/DischargeDisabled",
+            "dataType": "enum",
+            "enum": {
+                "0": "No",
+                "1": "Yes"
+            }
+        },
+        "/SystemState/LowSoc": {
+            "description": "Low Soc",
+            "dbusPath": "/SystemState/LowSoc",
+            "dataType": "enum",
+            "enum": {
+                "0": "No",
+                "1": "Yes"
+            }
+        },
+        "/SystemState/SlowCharge": {
+            "description": "Slow Charge",
+            "dbusPath": "/SystemState/SlowCharge",
+            "dataType": "enum",
+            "enum": {
+                "0": "No",
+                "1": "Yes"
+            }
+        },
+        "/SystemState/UserChargeLimited": {
+            "description": "User Charge Limited",
+            "dbusPath": "/SystemState/UserChargeLimited",
+            "dataType": "enum",
+            "enum": {
+                "0": "No",
+                "1": "Yes"
+            }
+        },
+        "/SystemState/UserDischargeLimited": {
+            "description": "User Discharge Limited",
+            "dbusPath": "/SystemState/UserDischargeLimited",
+            "dataType": "enum",
+            "enum": {
+                "0": "No",
+                "1": "Yes"
+            }
         }
     },
     "battery": {
@@ -557,5 +699,5 @@
             "dataType": "float",
             "unit": "A"
         }
-    }
+     }
 }
