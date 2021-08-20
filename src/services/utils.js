@@ -49,7 +49,7 @@ const TEMPLATE = (service, name, paths) => {
  * Shown in the UI if the system relay mode is set to any other than 'manual'
  */
 const RELAY_MODE_WARNING = (func) =>
-    `This relay is reserved for ${func} function. Please navigate to Settings > Relay and change it to manual.`
+    `The relays are configured for <strong>${func}</strong> function. Please navigate to Settings > Relay and change it to manual.`
 
 /**
  * All possible system relay functions
