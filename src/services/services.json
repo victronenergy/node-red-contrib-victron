@@ -370,10 +370,11 @@
                 "type": "enum",
                 "name": "Charger on/off",
                 "enum": {
-                    "0": "Off",
+                    "0": "Off (deprecated)",
                     "1": "On",
                     "2": "Error",
-                    "3": "Unavailable, Unknown"
+                    "3": "Unavailable, Unknown",
+                    "4": "Off"
                 }
             },
             {
@@ -479,6 +480,8 @@
                 "enum": {
                     "0": "Off (deprecated)",
                     "1": "On",
+                    "2": "Error",
+                    "3": "Unavailable, Unknown",
                     "4": "Off"
                 }
             },
@@ -1669,10 +1672,8 @@
                 "type": "enum",
                 "name": "Charger on/off",
                 "enum": {
-                    "0": "Off",
                     "1": "On",
-                    "2": "Error",
-                    "3": "Unavailable, Unknown"
+                    "4": "Off"
                 },
                 "writable": true
             },
@@ -1695,7 +1696,6 @@
                 "type": "enum",
                 "name": "Charger on/off",
                 "enum": {
-                    "0": "Off (deprecated)",
                     "1": "On",
                     "4": "Off"
                 },
