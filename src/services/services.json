@@ -372,8 +372,6 @@
                 "enum": {
                     "0": "Off (deprecated)",
                     "1": "On",
-                    "2": "Error",
-                    "3": "Unavailable, Unknown",
                     "4": "Off"
                 }
             },
@@ -480,8 +478,6 @@
                 "enum": {
                     "0": "Off (deprecated)",
                     "1": "On",
-                    "2": "Error",
-                    "3": "Unavailable, Unknown",
                     "4": "Off"
                 }
             },
