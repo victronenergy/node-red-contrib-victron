@@ -105,6 +105,12 @@ module.exports = {
             "/State",
             "/Pv/V",
             "/Pv/I",
+            "/Pv/0/I",
+            "/Pv/0/P",
+            "/Pv/0/V",
+            "/Pv/1/I",
+            "/Pv/1/P",
+            "/Pv/1/V",
             // "/Equalization/Pending",
             // "/Equalization/TimeRemaining",
             "/Relay/0/State",
@@ -339,7 +345,7 @@ module.exports = {
             "/Dc/Pv/Current",
       ]
     },
-  "input-relay": {
+    "input-relay": {
         "system": [
             "/Relay/0/State",
             "/Relay/1/State"
