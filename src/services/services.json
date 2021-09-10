@@ -372,10 +372,7 @@
                 "type": "enum",
                 "name": "Charger on/off",
                 "enum": {
-                    "0": "Off (deprecated)",
                     "1": "On",
-                    "2": "Error",
-                    "3": "Unavailable, Unknown",
                     "4": "Off"
                 }
             },
@@ -479,10 +476,7 @@
                 "type": "enum",
                 "name": "Charger on/off",
                 "enum": {
-                    "0": "Off (deprecated)",
                     "1": "On",
-                    "2": "Error",
-                    "3": "Unavailable, Unknown",
                     "4": "Off"
                 }
             },
@@ -509,16 +503,6 @@
                 "name": "PV voltage"
             },
             {
-                "path": "/Pv/I",
-                "type": "float",
-                "name": "PV current"
-            },
-            {
-                "path": "/Pv/0/I",
-                "type": "float",
-                "name": "Tracker 1 current"
-            },
-            {
                 "path": "/Pv/0/P",
                 "type": "float",
                 "name": "Tracker 1 power"
@@ -529,11 +513,6 @@
                 "name": "Tracker 1 voltage"
             },
             {
-                "path": "/Pv/1/I",
-                "type": "float",
-                "name": "Tracker 2 current"
-            },
-            {
                 "path": "/Pv/1/P",
                 "type": "float",
                 "name": "Tracker 2 power"
@@ -542,6 +521,26 @@
                 "path": "/Pv/1/V",
                 "type": "float",
                 "name": "Tracker 2 voltage"
+            },
+            {
+                "path": "/Pv/2/P",
+                "type": "float",
+                "name": "Tracker 3 power"
+            },
+            {
+                "path": "/Pv/2/V",
+                "type": "float",
+                "name": "Tracker 3 voltage"
+            },
+            {
+                "path": "/Pv/3/P",
+                "type": "float",
+                "name": "Tracker 4 power"
+            },
+            {
+                "path": "/Pv/3/V",
+                "type": "float",
+                "name": "Tracker 4 voltage"
             },
             {
                 "path": "/Relay/0/State",
@@ -945,16 +944,6 @@
                 "path": "/Ac/Power",
                 "type": "float",
                 "name": "Power (W)"
-            },
-            {
-                "path": "/Ac/Current",
-                "type": "float",
-                "name": "Current (deprecated) (A)"
-            },
-            {
-                "path": "/Ac/Voltage",
-                "type": "float",
-                "name": "Voltage (deprecated) (V)"
             },
             {
                 "path": "/Ac/L1/Current",
