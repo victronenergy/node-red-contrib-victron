@@ -2,12 +2,19 @@
 
 This library provides custom Node-RED nodes for some of the most commonly used Victron Energy products. The aim is to make it easier and faster for users to create automations without actually having to touch any of the devices' internals.
 
-A Venus device is needed for this library to work. The library connects to a system dbus instance in a VenusOS device -- this can be done either remotely (TCP) or directly. See instructions [here](#Installation-and-Usage).
+This library is made as part of the "Add Node-RED to Venus OS"-project: which is about adding Nodejs, npm, node-red and more all into the Venus OS images. Draft manual [here](https://www.victronenergy.com/live/venus-os:large-image) and issue [here](https://github.com/victronenergy/venus/issues/378).
 
-This library is not officially supported by Victron Energy. For any questions or help, please turn to [community.victronenergy.com](https://community.victronenergy.com). Pull-requests are willingly encouraged!
+This library is not officially supported by Victron Energy: don't call our dealers or other support channels for help.
 
+For any questions or help, please turn to [community.victronenergy.com](https://community.victronenergy.com). Pull-requests are willingly encouraged!
 
-## Usage and Examples
+## Requirements when self-installing this node palette
+- A Victron system that includes a GX device (note that for trial & development you could use the demo mode in Venus OS, Settings -> General)
+- D-Bus configuration on Venus OS to be modified to bind to TCP
+
+More details in the [instructions](#Installation-and-Usage).
+
+## Usage and examples
 
 When the Node-RED is started, a Victron Energy configuration node is automatically created, connecting to the dbus in the Venus device. All the node services and measurements can be found on [services.json](/src/services/services.json) -- however only those services and measurements that are available in the system are shown in the node edit panel.
 
@@ -97,9 +104,28 @@ The following graph demonstrates the architecture of this plugin.
 
 ## Installation and Usage
 
-The end goal is to have Node-RED running on a Venus device itself (this library included), but it is also possible to connect to the Venus device via TCP from an external Node-RED instance. If you would already like to test it out now, please dive into the instructions below to see how it can be done.
+NOTE: these instructions are about how to install and make this node pallette working on your own Node-RED installation. Make sure that is what you want and need. The more common solution is to [use Node-RED already pre-installed inside Venus OS](https://www.victronenergy.com/live/venus-os:large-image).
 
-In order to use the plugin remotely, Node-RED and the plugin needs to be locally installed:
+WARNINGS: (A) Only do this on a trusted network. Exposing D-Bus to TCP is not secured - anyone on the same network can do
+anything he/she wants after enabling this setting. (B) If you do below change incorrectly, the GX Device will no longer
+boot correctly and will also not enable SSH nor Remote Console anymore. Also the GUI won't work; nor will anything else.
+Basically its rendered unusable, until either debugged via the serial console using a
+[serial console cable](https://www.adafruit.com/product/954); or reinstalled using an factory installation image on an
+sdcard. Note that after factory installation, certain files must be put back in order for, for example, the wifi to
+work again. There is no complete documentation about how to restore those, but the information here will at least help:
+[Venus OS Extended manual - Repart. appendix](https://www.victronenergy.com/live/venus-os:extended#appendix_a_-_repartitioning_venus_gx_flash_memory).
+(C) below modifications are on ones own risk. We'll help where possible; but there are only a few
+people available within Victron that can help; and they won't be standby all the time to help with issues like this:
+only do this when you (I) are not in a rush when it goes wrong and (II) are technical and know what you are doing. To
+get help, you could try the issues, as well as the
+[Modifications section on Community](https://community.victronenergy.com/spaces/31/index.html). (D) Remember that a 
+firmware update of the GX device will override below advised (and any other) changes to the rootfs.
+
+To make above this change, you'll need [root access to the GX device](https://www.victronenergy.com/live/ccgx:root_access).
+
+With all those (important!) warnings out of the way, here are the steps to locally install Node-REDand this
+plug-in. As well as the step to Open up the GX device, so that it can be communicated with remotely by this
+node-red plugin:
 
 1. install node-red on your system
 2. cd to the node-red user directory, typically `~/.node-red`
@@ -119,7 +145,8 @@ In order to use the plugin remotely, Node-RED and the plugin needs to be locally
 
 6. you can optionally run the plugin with a DEBUG=* environment variable set, to see additional debug information printed on the shell. E.g. `export DEBUG=node-red-contrib-victron*`
 
-Further information on [nodered.org](https://nodered.org/docs/creating-nodes/first-node) and [github](https://github.com/sbender9/signalk-venus-plugin#plugin-installation--configuration).
+Further information on [nodered.org](https://nodered.org/docs/creating-nodes/first-node) and
+[this other project that requires the same mod](https://github.com/sbender9/signalk-venus-plugin#plugin-installation--configuration).
 
 
 ## Generating the node specification file (developers)

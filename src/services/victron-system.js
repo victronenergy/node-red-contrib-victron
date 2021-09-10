@@ -80,6 +80,8 @@ class SystemConfiguration {
                     if (systemRelayFunction !== 2) { // manual
                         relayObject["disabled"] = true
                         relayObject["warning"] = utils.RELAY_MODE_WARNING(utils.RELAY_FUNCTIONS[systemRelayFunction])
+                    } else {
+                       delete(relayObject["warning"])
                     }
                 }
                 return relayObject

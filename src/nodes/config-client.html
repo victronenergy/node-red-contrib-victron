@@ -27,16 +27,7 @@
                 if (n.id === 'victron-client') RED.nodes.remove(n.id);
             });
             RED.nodes.dirty(true);
-        },
-        onpaletteadd: function onpaletteadd() {
-            var victronClientNode = {
-                id: "victron-client-id",
-                _def: RED.nodes.getType("victron-client"),
-                type: "victron-client",
-                users: []
-            };
-            RED.nodes.add(victronClientNode);
-            RED.nodes.dirty(true);
         }
+        
     });
 </script>
