@@ -65,7 +65,8 @@
                     "5": "Burglar alarm",
                     "6": "Smoke alarm",
                     "7": "Fire alarm",
-                    "8": "CO2 alarm"
+                    "8": "CO2 alarm",
+                    "9": "Generic input"
                 }
             }
         ]
@@ -146,9 +147,9 @@
                 "type": "enum",
                 "name": "Sensor type",
                 "enum": {
-                    "0": "battery",
-                    "1": "fridge",
-                    "2": "generic"
+                    "0": "Battery",
+                    "1": "Fridge",
+                    "2": "Generic"
                 }
             }
         ]
@@ -373,6 +374,7 @@
                 "enum": {
                     "0": "Off (deprecated)",
                     "1": "On",
+                    "2": "Error",
                     "4": "Off"
                 }
             },
@@ -443,6 +445,7 @@
                 "name": "High voltage alarm",
                 "enum": {
                     "0": "No alarm",
+                    "1": "Warning",
                     "2": "Alarm"
                 }
             },
@@ -549,19 +552,68 @@
                     "7": "#7 - Battery voltage sense miswired (-)",
                     "8": "#8 - Battery voltage sense disconnected",
                     "9": "#9 - Battery voltage wire losses too high",
+                    "10": "#10 - Battery voltage too low",
+                    "11": "#11 - Battery ripple voltage on terminals too high",
+                    "12": "#12 - Battery low state of charge",
+                    "13": "#13 - Battery mid-point voltage issue",
+                    "14": "#14 - Battery temperature too low",
                     "17": "#17 - Charger temperature too high",
                     "18": "#18 - Charger over-current",
                     "19": "#19 - Charger current polarity reversed",
                     "20": "#20 - Max Bulk-time exceeded",
-                    "22": "#22 - Current sensor issue",
+                    "21": "#21 - Charger current sensor issue",
+                    "22": "#22 - Temperature sensor miswired",
                     "23": "#23 - Charger temperature sensor disconnected",
+                    "24": "#24 - Charger internal fan not detected",
+                    "25": "#25 - Charger internal fan over-current",
+                    "26": "#26 - Charger terminal overheated",
+                    "27": "#27 - Charger short circuit",
+                    "28": "#28 - Charger issue with power stage",
+                    "29": "#29 - Over-charge protection",
+                    "31": "#31 - Input voltage out of range",
+                    "32": "#32 - Input voltage too low",
+                    "33": "#33 - Input voltage too high",
                     "34": "#34 - PV over current",
+                    "35": "#35 - Input excessive power",
+                    "36": "#36 - Input polarity issue",
+                    "37": "#37 - Input voltage absent (mains removed, fuse blown?)",
                     "38": "#38 - Input shutdown due to battery over-voltage",
                     "39": "#39 - Input shutdown due to battery over-voltage",
+                    "40": "#40 - Internal failure (PV Input failed to shutdown)",
+                    "41": "#41 - Inverter shutdown (panel isolation resistance too low)",
+                    "42": "#42 - Inverter shutdown (ground current too high: >30mA)",
+                    "43": "#43 - Inverter shutdown (voltage over ground relay too high)",
+                    "50": "#50 - Inverter overload (iit protection)",
+                    "51": "#51 - Inverter temperature too high",
+                    "52": "#52 - Inverter excessive current",
+                    "53": "#53 - Inverter dc level (internal dc rail voltage)",
+                    "54": "#54 - Inverter ac level (output voltage not ok)",
+                    "55": "#55 - Inverter dc fail (dc on output)",
+                    "56": "#56 - Inverter ac fail (shape wrong)*/",
+                    "57": "#57 - Inverter ac on output (inverter only)",
+                    "58": "#58 - Inverter bridge fault (hardware signal)",
+                    "59": "#59 - ACIN1 relay test fault",
+                    "60": "#60 - ACIN2 relay test fault",
+                    "65": "#65 - Device disappeared during parallel operation (broken cable?)",
+                    "66": "#66 - Incompatible device encountered for parallel operation (e.g. old firmware/different settings)",
                     "67": "#67 - No BMS",
+                    "68": "#68 - Network misconfigured",
+                    "113": "#113 - Non-volatile storage write error",
                     "114": "#114 - CPU temperature to high",
+                    "115": "#115 - CAN/SCI communication lost (when critical)",
                     "116": "#116 - Calibration data lost",
-                    "119": "#119 - Settings data lost"
+                    "117": "#117 - Incompatible firmware encountered",
+                    "118": "#118 - Incompatible hardware encountered",
+                    "119": "#119 - Settings data lost",
+                    "120": "#120 - Reference voltage failure",
+                    "121": "#121 - Tester fail",
+                    "122": "#122 - Non-volatile history data invalid/corrupted",
+                    "200": "#200 - Internal error",
+                    "201": "#201 - Internal error",
+                    "203": "#203 - Internal error",
+                    "205": "#205 - Internal error",
+                    "212": "#212 - Internal error",
+                    "215": "#215 - Internal error"
                 }
             },
             {
@@ -1164,16 +1216,31 @@
                     "5": "VE.Bus Error 5: Overvoltage on AC-out",
                     "6": "VE.Bus Error 6: Error in DDC Program",
                     "7": "VE.Bus Error 7:  BMS connected, which requires an Assistant, but no assistant found",
+                    "8": "VE.Bus Error 8: Ground relay test failed",
+                    "9": "VE.Bus Error 9",
                     "10": "VE.Bus Error 10: System time synchronisation problem occurred",
                     "11": "VE.Bus Error 11: Relay test fault",
+                    "12": "VE.Bus Error 12",
+                    "13": "VE.Bus Error 13",
                     "14": "VE.Bus Error 14: Device cannot transmit data",
-                    "16": "VE.Bus Error 16: Dongle missing",
+                    "15": "VE.Bus Error 15",
+                    "16": "VE.Bus Error 16: Awaiting configuration or dongle missing",
                     "17": "VE.Bus Error 17: Phase master missing",
                     "18": "VE.Bus Error 18: AC Overvoltage on the output of a slave has occurred while already switched off",
+                    "19": "VE.Bus Error 19",
+                    "20": "VE.Bus Error 20",
+                    "21": "VE.Bus Error 21",
                     "22": "VE.Bus Error 22: This device cannot function as slave",
+                    "23": "VE.Bus Error 23",
                     "24": "VE.Bus Error 24: Switch-over system protection initiated",
                     "25": "VE.Bus Error 25: Firmware incompatibility. The firmware of one of the connected device is not sufficiently up to date to operate in conjunction with this device",
-                    "26": "VE.Bus Error 26: Internal error"
+                    "26": "VE.Bus Error 26: Internal error",
+                    "27": "VE.Bus Error 27",
+                    "28": "VE.Bus Error 28",
+                    "29": "VE.Bus Error 29",
+                    "30": "VE.Bus Error 30",
+                    "31": "VE.Bus Error 31",
+                    "32": "VE.Bus Error 32"
                 }
             },
             {
@@ -1713,99 +1780,6 @@
                 "enum": {
                     "0": "Off",
                     "1": "On"
-                }
-            },
-            {
-                "path": "/SystemState/State",
-                "type": "enum",
-                "name": "System state",
-                "enum": {
-                    "0": "Off",
-                    "1": "Low power",
-                    "2": "Fault",
-                    "3": "Bulk",
-                    "4": "Absorption",
-                    "5": "Float",
-                    "6": "Storage",
-                    "7": "Equalize",
-                    "8": "Passthru",
-                    "9": "Inverting",
-                    "10": "Assisting",
-                    "11": "Power Supply Mode",
-                    "246": "Repeated Absorption",
-                    "247": "Equalize",
-                    "248": "Battery Safe",
-                    "249": "Test",
-                    "250": "Blocked",
-                    "251": "Test",
-                    "252": "External control",
-                    "256": "Discharging",
-                    "257": "Sustain",
-                    "258": "Recharging",
-                    "259": "Sched charge"
-                }
-            },
-            {
-                "path": "/SystemState/BatteryLife",
-                "type": "enum",
-                "name": "Battery Life",
-                "enum": {
-                    "0": "Off",
-                    "1": "On"
-                }
-            },
-            {
-                "path": "/SystemState/ChargeDisabled",
-                "type": "enum",
-                "name": "Charge Disabled",
-                "enum": {
-                    "0": "No",
-                    "1": "Yes"
-                }
-            },
-            {
-                "path": "/SystemState/DischargeDisabled",
-                "type": "enum",
-                "name": "Discharge Disabled",
-                "enum": {
-                    "0": "No",
-                    "1": "Yes"
-                }
-            },
-            {
-                "path": "/SystemState/LowSoc",
-                "type": "enum",
-                "name": "Low Soc",
-                "enum": {
-                    "0": "No",
-                    "1": "Yes"
-                }
-            },
-            {
-                "path": "/SystemState/SlowCharge",
-                "type": "enum",
-                "name": "Slow Charge",
-                "enum": {
-                    "0": "No",
-                    "1": "Yes"
-                }
-            },
-            {
-                "path": "/SystemState/UserChargeLimited",
-                "type": "enum",
-                "name": "User Charge Limited",
-                "enum": {
-                    "0": "No",
-                    "1": "Yes"
-                }
-            },
-            {
-                "path": "/SystemState/UserDischargeLimited",
-                "type": "enum",
-                "name": "User Discharge Limited",
-                "enum": {
-                    "0": "No",
-                    "1": "Yes"
                 }
             },
             {
