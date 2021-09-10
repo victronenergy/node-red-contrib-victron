@@ -1480,6 +1480,11 @@
                 "name": "Minimum Discharge SOC (%)"
             },
             {
+                "path": "/Settings/CGwacs/BatteryLife/SocLimit",
+                "type": "integer",
+                "name": "Active SOC limit (%)"
+	    },
+            {
                 "path": "/Settings/CGwacs/BatteryLife/State",
                 "type": "enum",
                 "name": "ESS state",
