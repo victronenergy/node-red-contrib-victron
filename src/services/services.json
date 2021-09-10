@@ -375,6 +375,7 @@
                     "0": "Off (deprecated)",
                     "1": "On",
                     "2": "Error",
+                    "3": "Unavailable, Unknown",
                     "4": "Off"
                 }
             },
@@ -480,6 +481,8 @@
                 "enum": {
                     "0": "Off (deprecated)",
                     "1": "On",
+                    "2": "Error",
+                    "3": "Unavailable, Unknown",
                     "4": "Off"
                 }
             },
@@ -509,6 +512,36 @@
                 "path": "/Pv/I",
                 "type": "float",
                 "name": "PV current"
+            },
+            {
+                "path": "/Pv/0/I",
+                "type": "float",
+                "name": "Tracker 1 current"
+            },
+            {
+                "path": "/Pv/0/P",
+                "type": "float",
+                "name": "Tracker 1 power"
+            },
+            {
+                "path": "/Pv/0/V",
+                "type": "float",
+                "name": "Tracker 1 voltage"
+            },
+            {
+                "path": "/Pv/1/I",
+                "type": "float",
+                "name": "Tracker 2 current"
+            },
+            {
+                "path": "/Pv/1/P",
+                "type": "float",
+                "name": "Tracker 2 power"
+            },
+            {
+                "path": "/Pv/1/V",
+                "type": "float",
+                "name": "Tracker 2 voltage"
             },
             {
                 "path": "/Relay/0/State",
