@@ -204,12 +204,52 @@ registerInputNode('victron-input-test', 'Test', 'input-test');
 
 ## Releasing a new version (developers)
 
-For a new (internal) release, the following steps are adviced;
+Below procedure makes a new version, and also updates all dependencies as recorded
+in package-lock.json. And includes instructions on how to update the corresponding
+npm-shrinkwrap.json which is maintained in meta-victronenergy. Doing that is
+important: in Venus OS, the dependencies are installed exactly as recorded in the
+shrinkwrap file. Which is different from how an npm install normally works. This is
+done to have reproducible builds; and makes sense when you think about it.
 
-1. Run `npm version [major|minor|patch]`
+To only make a new release, without such refresh, the following steps are adviced:
+
+1. Run `npm version [major|minor|patch]`, this will increase the version in both the packa
 2. Run `npm run release`
 3. Run `npm publish`
 
-## Miscellaneous
+Here is the full story including a refresh:
 
-The original issue tracking the progress can be found on [Venus repository](https://github.com/victronenergy/venus/issues/378).
+Note that this assumes that you've already made changes to the code, and committed them!
+```
+# these first two lines can be skipped if working from your dev dir.
+git clone git@github.com:victronenergy/node-red-contrib-victron.git
+cd node-red-contrib-victron
+
+# npm install will only install the latest safe version of the dependencies if they
+# don’t exist in the node_modules folder and, there is no package-lock.json file. 
+rm ./package-lock.json && rm -rf ./node-modules
+
+# run the installer.
+# --only-prod is necessary to prevent installing devDependencies, since npm will
+# do that automatically when its run inside a package directory.
+npm install --only=prod
+
+# there will now be a new package-lock.json, to see the difference:
+git diff
+
+# commit the new package-lock
+git add ./package-lock.json && git commit
+
+# here you want to test before actually making the release(!)
+DO YOUR TESTS; MAKE SURE TO DO THEM WITH THE RIGHT DEPENDENCIES
+
+# increase the version (this just ups the version in package.json and package-lock.json as
+# well as commits it in git. The patch flag tells it to increase the "patch" version. The
+# other two,  major and minor can be increased as well by using those respective keywords.
+npm version patch
+
+# get the shrinkwrap
+npm shrinkwrap
+
+# and now copy the resulting file into the meta-victronenergy repo.
+
