@@ -543,6 +543,11 @@
                 "name": "Tracker 4 voltage"
             },
             {
+                "path": "/Yield/Power",
+                "type": "float",
+                "name": "PV Power (kWh)"
+            },
+            {
                 "path": "/Relay/0/State",
                 "type": "enum",
                 "name": "Relay on the charger",
@@ -666,11 +671,6 @@
                 "path": "/Yield/User",
                 "type": "string",
                 "name": "Yield since reset (kWh)"
-            },
-            {
-                "path": "/Yield/Power",
-                "type": "float",
-                "name": "Total yield (kWh)"
             },
             {
                 "path": "/Yield/System",
