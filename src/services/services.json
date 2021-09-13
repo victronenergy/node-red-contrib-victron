@@ -1743,7 +1743,7 @@
             {
                 "path": "/Dc/Battery/Current",
                 "type": "float",
-                "name": "Current (A)"
+                "name": "Battery current (A)"
             },
             {
                 "path": "/Dc/Battery/Power",
@@ -1773,7 +1773,7 @@
             {
                 "path": "/Dc/Battery/Voltage",
                 "type": "float",
-                "name": "Voltage (V)"
+                "name": "Battery voltage (V)"
             },
             {
                 "path": "/Dc/Battery/Temperature",
