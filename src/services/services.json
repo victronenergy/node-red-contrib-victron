@@ -2058,18 +2058,6 @@
                     "4": "Off"
                 },
                 "writable": true
-            },
-            {
-                "path": "/MppOperationMode",
-                "type": "enum",
-                "name": "MPP operation mode",
-                "enum": {
-                    "0": "Off",
-                    "1": "Voltage or current limited",
-                    "2": "MPPT Tracker active",
-                    "255": "Not available"
-                },
-                "writable": true
             }
         ]
     },
