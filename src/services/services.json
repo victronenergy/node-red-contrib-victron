@@ -1776,6 +1776,11 @@
                 "name": "Voltage (V)"
             },
             {
+                "path": "/Dc/Battery/Temperature",
+                "type": "float",
+                "name": "Battery temperature (C)"
+            },
+            {
                 "path": "/Dc/Charger/Power",
                 "type": "integer",
                 "name": "AC-Chargers - power (W)"
