@@ -1369,6 +1369,24 @@
                 "path": "/Energy/OutToInverter",
                 "type": "float",
                 "name": "AcOut to Inverter (kWh)"
+            },
+            {
+                "path": "/Bms/AllowToCharge",
+                "type": "enum",
+                "name": "BMS allows battery to be charged",
+                "enum": {
+                    "0": "No",
+                    "1": "Yes"
+                }
+            },
+            {
+                "path": "/Bms/AllowToDischarge",
+                "type": "enum",
+                "name": "BMS allows battery to be discharged",
+                "enum": {
+                    "0": "No",
+                    "1": "Yes"
+                }
             }
         ]
     },
