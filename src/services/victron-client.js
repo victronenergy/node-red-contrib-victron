@@ -39,11 +39,26 @@ class VictronClient {
         // and matches them with the registered subscriptions invoking their callback
         const messageHandler = messages => {
             messages.forEach(msg => {
-                _this.saveToCache(msg)
+        if ( msg.path == '/' ) {
+            // issue #96
+            msg.value.forEach((e, i) => {
+              var newmsg = {}
+              newmsg.path = msg.path + e[0]
+              newmsg.senderName = msg.senderName
+              newmsg.value = e[1][1][0]
+              let msgKey = newmsg.senderName + newmsg.path
+              if (msgKey in _this.subscriptions) {
+                  _this.subscriptions[msgKey].forEach(sub => sub.callback(newmsg))
+               }
+            })
+        
+        } else {
+                  _this.saveToCache(msg)
 
-                let msgKey = `${msg.senderName}${msg.path}`
-                if (msgKey in _this.subscriptions)
-                    _this.subscriptions[msgKey].forEach(sub => sub.callback(msg))
+                  let msgKey = `${msg.senderName}${msg.path}`
+                  if (msgKey in _this.subscriptions)
+                      _this.subscriptions[msgKey].forEach(sub => sub.callback(msg))
+        }
             })
         }
 
