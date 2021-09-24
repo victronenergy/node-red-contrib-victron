@@ -151,6 +151,21 @@
                     "1": "Fridge",
                     "2": "Generic"
                 }
+            },
+            {
+                "path": "/Humidity",
+                "type": "float",
+                "name": "Humidity (%)"
+            },
+            {
+                "path": "/Pressure",
+                "type": "float",
+                "name": "Pressure (kPa)"
+            },
+            {
+                "path": "/BatteryVoltage",
+                "type": "float",
+                "name": "Sensor battery voltage (V)"
             }
         ]
     },
