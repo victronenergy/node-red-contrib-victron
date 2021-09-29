@@ -227,12 +227,15 @@ class VictronDbusListener {
     }
 
     setValue(destination, path, value) {
+        var num_type = 'd'
+
+        if ( Number.isInteger(value) ) { num_type = 'n' }
         this.bus.invoke({
             path: path,
             destination: destination,
             interface: 'com.victronenergy.BusItem',
             member: 'SetValue',
-            body: [['n', value]],
+            body: [[num_type, value]],
             signature: 'v'
         },
             err => {
