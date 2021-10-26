@@ -1898,6 +1898,24 @@
                     "0": "Open",
                     "1": "Closed"
                 }
+            },
+            {
+                "path": "/Relay/2/State",
+                "type": "enum",
+                "name": "Venus relay 3 state",
+                "enum": {
+                    "0": "Open",
+                    "1": "Closed"
+                }
+            },
+            {
+                "path": "/Relay/3/State",
+                "type": "enum",
+                "name": "Venus relay 4 state",
+                "enum": {
+                    "0": "Open",
+                    "1": "Closed"
+                }
             }
         ],
         "battery": [
@@ -1961,6 +1979,26 @@
                 "path": "/Relay/1/State",
                 "type": "enum",
                 "name": "Venus relay 2 state",
+                "enum": {
+                    "0": "Open",
+                    "1": "Closed"
+                },
+                "writable": true
+            },
+            {
+                "path": "/Relay/2/State",
+                "type": "enum",
+                "name": "Venus relay 3 state",
+                "enum": {
+                    "0": "Open",
+                    "1": "Closed"
+                },
+                "writable": true
+            },
+            {
+                "path": "/Relay/3/State",
+                "type": "enum",
+                "name": "Venus relay 4 state",
                 "enum": {
                     "0": "Open",
                     "1": "Closed"
