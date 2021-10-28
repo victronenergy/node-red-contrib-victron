@@ -166,6 +166,21 @@
                 "path": "/BatteryVoltage",
                 "type": "float",
                 "name": "Sensor battery voltage (V)"
+            },
+            {
+                "path": "/AccelX",
+                "type": "float",
+                "name": "Acceleration X (g)"
+            },
+            {
+                "path": "/AccelY",
+                "type": "float",
+                "name": "Acceleration Y (g)"
+            },
+            {
+                "path": "/AccelZ",
+                "type": "float",
+                "name": "Acceleration Z (g)"
             }
         ]
     },
