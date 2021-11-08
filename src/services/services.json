@@ -2180,9 +2180,25 @@
                 "writable": true
             },
             {
+                "path": "/PvInverter/Disable",
+                "type": "enum",
+                "name": "Disable PV inverter",
+                "enum": {
+                    "0": "No",
+                    "1": "Yes"
+                },
+                "writable": true
+            },
+            {
                 "path": "/Hub4/L1/AcPowerSetpoint",
                 "type": "integer",
                 "name": "AC Power L1 setpoint (W)",
+                "writable": true
+            },
+            {
+                "path": "/Hub4/L1/MaxFeedInPower",
+                "type": "integer",
+                "name": "Maximum overvoltage feed-in power L1 (W)",
                 "writable": true
             },
             {
@@ -2192,9 +2208,41 @@
                 "writable": true
             },
             {
+                "path": "/Hub4/L2/MaxFeedInPower",
+                "type": "integer",
+                "name": "Maximum overvoltage feed-in power L2 (W)",
+                "writable": true
+            },
+            {
                 "path": "/Hub4/L3/AcPowerSetpoint",
                 "type": "integer",
                 "name": "AC Power L3 setpoint (W)",
+                "writable": true
+            },
+            {
+                "path": "/Hub4/L3/MaxFeedInPower",
+                "type": "integer",
+                "name": "Maximum overvoltage feed-in power L3 (W)",
+                "writable": true
+            },
+            {
+                "path": "/Hub4/DoNotFeedInOvervoltage",
+                "type": "enum",
+                "name": "Feed in overvoltage",
+                "enum": {
+                    "1": "No",
+                    "0": "Yes"
+                },
+                "writable": true
+            },
+            {
+                "path": "/SystemReset",
+                "type": "enum",
+                "name": "VE.Bus Reset",
+                "enum": {
+                    "0": "No",
+                    "1": "Yes"
+                },
                 "writable": true
             }
         ],
