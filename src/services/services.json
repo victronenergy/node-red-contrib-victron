@@ -2005,6 +2005,118 @@
 			}
 		]
 	},
+	"input-dcload": {
+		"dcload": [
+			{
+				"path": "/Dc/0/Voltage",
+				"type": "float",
+				"name": "Voltage (V)"
+			},
+			{
+				"path": "/Dc/1/Voltage",
+				"type": "float",
+				"name": "Starter battery voltage (V)"
+			},
+			{
+				"path": "/Dc/0/Current",
+				"type": "float",
+				"name": "Current (A)"
+			},
+			{
+				"path": "/Dc/0/Power",
+				"type": "float",
+				"name": "Battery power (W)"
+			},
+			{
+				"path": "/Relay/0/State",
+				"type": "enum",
+				"name": "Relay status",
+				"enum": {
+					"0": "Open",
+					"1": "Closed"
+				}
+			},
+			{
+				"path": "/Dc/0/Temperature",
+				"type": "float",
+				"name": "Battery temperature (C)"
+			},
+			{
+				"path": "/Dc/0/MidVoltage",
+				"type": "float",
+				"name": "Mid-point voltage of the battery bank (V)"
+			},
+			{
+				"path": "/Dc/0/MidVoltageDeviation",
+				"type": "float",
+				"name": "Mid-point deviation of the battery bank (%)"
+			},
+			{
+				"path": "/Alarms/LowVoltage",
+				"type": "enum",
+				"name": "Low voltage alarm",
+				"enum": {
+					"0": "No alarm",
+					"2": "Alarm"
+				}
+			},
+			{
+				"path": "/Alarms/HighVoltage",
+				"type": "enum",
+				"name": "High voltage alarm",
+				"enum": {
+					"0": "No alarm",
+					"2": "Alarm"
+				}
+			},
+			{
+				"path": "/Alarms/LowStarterVoltage",
+				"type": "enum",
+				"name": "Low starter-voltage alarm",
+				"enum": {
+					"0": "No alarm",
+					"2": "Alarm"
+				}
+			},
+			{
+				"path": "/Alarms/HighStarterVoltage",
+				"type": "enum",
+				"name": "High starter-voltage alarm",
+				"enum": {
+					"0": "No alarm",
+					"2": "Alarm"
+				}
+			},
+			{
+				"path": "/Alarms/LowTemperature",
+				"type": "enum",
+				"name": "Low battery temperature alarm",
+				"enum": {
+					"0": "No alarm",
+					"2": "Alarm"
+				}
+			},
+			{
+				"path": "/Alarms/HighTemperature",
+				"type": "enum",
+				"name": "High battery temperature alarm",
+				"enum": {
+					"0": "No alarm",
+					"2": "Alarm"
+				}
+			},
+			{
+				"path": "/Alarms/MidVoltage",
+				"type": "enum",
+				"name": "Mid-voltage alarm",
+				"enum": {
+					"0": "No alarm",
+					"2": "Alarm"
+				}
+			}
+		]
+	},
+
     "input-relay": {
         "system": [
             {
