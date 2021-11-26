@@ -140,6 +140,7 @@ class SystemConfiguration {
             "input-meteo": this.getNodeServices("input-meteo"),
             "input-system": this.getNodeServices("input-system"),
             "input-relay": this.getNodeServices("input-relay"),
+            "input-dcsource": this.getNodeServices("input-dcsource"),
 
             // output services
             "output-relay": this.getRelayServices(),
