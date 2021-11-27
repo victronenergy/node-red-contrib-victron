@@ -963,7 +963,23 @@
                 "path": "/Dc/0/Power",
                 "type": "float",
                 "name": "Battery power (W)"
-            }
+            },
+			{
+				"path": "/Io/AllowToCharge",
+				"type": "enum",
+				"name": "ATC (Allow to Charge)",
+				"enum": {
+					"0": "No",
+					"1": "Yes",
+			},
+			{
+				"path": "/Io/AllowToDischarge",
+				"type": "enum",
+				"name": "ATD (Allow to Discharge)",
+				"enum": {
+					"0": "No",
+					"1": "Yes",
+			}
         ]
     },
     "input-gridmeter": {
