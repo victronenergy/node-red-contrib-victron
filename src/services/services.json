@@ -2116,7 +2116,227 @@
 			}
 		]
 	},
-
+	"input-alternator": {
+		"alternator": [
+			{
+				"path": "/Dc/0/Voltage",
+				"type": "float",
+				"name": "Voltage (V)"
+			},
+			{
+				"path": "/Dc/0/Current",
+				"type": "float",
+				"name": "Current (A)"
+			},
+			{
+				"path": "/Dc/0/Power",
+				"type": "float",
+				"name": "Battery power (W)"
+			},
+			{
+				"path": "/Dc/0/Temperature",
+				"type": "float",
+				"name": "Battery temperature (C)"
+			},
+			{
+				"path": "/AlterntorRPM",
+				"type": "float",
+				"name": "Alternator RPM"
+			},
+			{
+				"path": "/EngineRPM",
+				"type": "float",
+				"name": "Engine RPM"
+			},
+			{
+				"path": "/FieldDrive",
+				"type": "float",
+				"name": "Alternator Field Drive %"
+			},
+			{
+				"path": "/AlternatorStatus",
+				"type": "enum",
+				"name": "Alterntor Charging Status",
+				"enum": {
+					"0": "Not Charging",
+					"1": "Charing",
+					"2": "Error",
+					"3": "Not Available"
+				}
+			},
+			{
+				"path": "/ChargeEnable",
+				"type": "enum",
+				"name": "Charger Status",
+				"enum": {
+					"0": "Off",
+					"1": "On"
+				}
+			},
+			{
+				"path": "/Mode",
+				"type": "enum",
+				"name": "Charger Mode",
+				"enum": {
+					"0": "Standalone",
+					"1": "Master",
+					"2": "Slave"
+				}
+			},
+			{
+				"path": "/State",
+				"type": "enum",
+				"name": "Charger State",
+				"enum": {
+					"0": "Off",
+					"1": "Bulk",
+					"2": "Absorbtion",
+					"5": "Float",
+					"7": "Ext. Control",
+					"8": "Disabled",
+					"9": "Fault"
+				}
+			},
+			{
+				"path": "/Alarms/LowVoltage",
+				"type": "enum",
+				"name": "Low voltage alarm",
+				"enum": {
+					"0": "No alarm",
+					"2": "Alarm"
+				}
+			},
+			{
+				"path": "/Alarms/ChargerError",
+				"type": "enum",
+				"name": "Charger Error",
+				"enum": {
+					"0": "No alarm",
+					"2": "Alarm"
+				}
+			},
+			{
+				"path": "/Alarms/Overload",
+				"type": "enum",
+				"name": "Charger Overload",
+				"enum": {
+					"0": "No alarm",
+					"2": "Alarm"
+				}
+			},
+			{
+				"path": "/Alarms/Temperature",
+				"type": "enum",
+				"name": "Charger high temperature",
+				"enum": {
+					"0": "No alarm",
+					"2": "Alarm"
+				}
+			},
+			{
+				"path": "/Alarms/AlternatorError",
+				"type": "enum",
+				"name": "Alternator Error",
+				"enum": {
+					"0": "No alarm",
+					"2": "Alarm"
+				}
+			}
+		]
+	},
+	"input-dcdc": {
+		"dcdc": [
+			{
+				"path": "/Dc/0/Voltage",
+				"type": "float",
+				"name": "Voltage (V)"
+			},
+			{
+				"path": "/Dc/0/Current",
+				"type": "float",
+				"name": "Current (A)"
+			},
+			{
+				"path": "/Dc/0/Power",
+				"type": "float",
+				"name": "Battery power (W)"
+			},
+			{
+				"path": "/Dc/0/Temperature",
+				"type": "float",
+				"name": "Battery temperature (C)"
+			},
+			{
+				"path": "/ChargeEnable",
+				"type": "enum",
+				"name": "Charger Status",
+				"enum": {
+					"0": "Off",
+					"1": "On"
+				}
+			},
+			{
+				"path": "/Mode",
+				"type": "enum",
+				"name": "Charger Mode",
+				"enum": {
+					"0": "Standalone",
+					"1": "Master",
+					"2": "Slave"
+				}
+			},
+			{
+				"path": "/State",
+				"type": "enum",
+				"name": "Charger State",
+				"enum": {
+					"0": "Off",
+					"1": "Bulk",
+					"2": "Absorbtion",
+					"5": "Float",
+					"7": "Ext. Control",
+					"8": "Disabled",
+					"9": "Fault"
+				}
+			},
+			{
+				"path": "/Alarms/LowVoltage",
+				"type": "enum",
+				"name": "Low voltage alarm",
+				"enum": {
+					"0": "No alarm",
+					"2": "Alarm"
+				}
+			},
+			{
+				"path": "/Alarms/ChargerError",
+				"type": "enum",
+				"name": "Charger Error",
+				"enum": {
+					"0": "No alarm",
+					"2": "Alarm"
+				}
+			},
+			{
+				"path": "/Alarms/Overload",
+				"type": "enum",
+				"name": "Charger Overload",
+				"enum": {
+					"0": "No alarm",
+					"2": "Alarm"
+				}
+			},
+			{
+				"path": "/Alarms/Temperature",
+				"type": "enum",
+				"name": "Charger high temperature",
+				"enum": {
+					"0": "No alarm",
+					"2": "Alarm"
+				}
+			}
+		]
+	},
     "input-relay": {
         "system": [
             {
