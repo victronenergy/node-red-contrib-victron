@@ -142,6 +142,8 @@ class SystemConfiguration {
             "input-relay": this.getNodeServices("input-relay"),
             "input-dcsource": this.getNodeServices("input-dcsource"),
 			"input-dcload": this.getNodeServices("input-dcload"),
+			"input-alternator": this.getNodeServices("input-alternator"),
+			"input-dcdc": this.getNodeServices("input-dcdc"),
 			
             // output services
             "output-relay": this.getRelayServices(),
