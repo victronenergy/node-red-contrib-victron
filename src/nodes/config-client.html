@@ -1529,6 +1529,339 @@ Questions can also be asked on the Victron Energy community:
 </dl>
 </script>
 
+<script type="text/x-red" data-help-name="victron-input-dcsource">
+	<p>This node allows for monitoring the state BMVs configured in Monitor Mode and DC meter type is a source.</p>
+	<h3>dcsource</h3>
+	<dl class="message-properties">
+	<dt class="optional">Voltage (V)<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/Dc/0/Voltage</b>
+	</dd>
+	<dt class="optional">Current (A)<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/Dc/0/Current</b>
+	</dd>
+	<dt class="optional">Battery power (W)<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/Dc/0/Power</b>
+	</dd>
+	<dt class="optional">Relay status<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Relay/0/State</b>
+	<ul>
+	<li>0 - Open</li>
+	<li>1 - Closed</li>
+	</ul>
+	</dd>
+	<dt class="optional">Battery temperature (C)<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/Dc/0/Temperature</b>
+	</dd>
+	<dt class="optional">Mid-point voltage of the battery bank (V)<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/Dc/0/MidVoltage</b>
+	</dd>
+	<dt class="optional">Mid-point deviation of the battery bank (%)<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/Dc/0/MidVoltageDeviation</b>
+	</dd>
+	<dt class="optional">Low voltage alarm<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/LowVoltage</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	<dt class="optional">High voltage alarm<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/HighVoltage</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	<dt class="optional">Low starter-voltage alarm<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/LowStarterVoltage</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	<dt class="optional">High starter-voltage alarm<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/HighStarterVoltage</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	<dt class="optional">Low battery temperature alarm<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/LowTemperature</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	<dt class="optional">High battery temperature alarm<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/HighTemperature</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	<dt class="optional">Mid-voltage alarm<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/MidVoltage</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	</dl>
+</script>
+<script type="text/x-red" data-help-name="victron-input-dcload">
+	<p>This node allows for monitoring the state BMVs configured in Monitor Mode and DC meter type is a load.</p>
+	<h3>dcsource</h3>
+	<dl class="message-properties">
+	<dt class="optional">Voltage (V)<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/Dc/0/Voltage</b>
+	</dd>
+	<dt class="optional">Current (A)<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/Dc/0/Current</b>
+	</dd>
+	<dt class="optional">Battery power (W)<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/Dc/0/Power</b>
+	</dd>
+	</dl>
+	<dt class="optional">Relay status<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Relay/0/State</b>
+	<ul>
+	<li>0 - Open</li>
+	<li>1 - Closed</li>
+	</ul>
+	</dd>
+	<dt class="optional">Battery temperature (C)<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/Dc/0/Temperature</b>
+	</dd>
+	<dt class="optional">Mid-point voltage of the battery bank (V)<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/Dc/0/MidVoltage</b>
+	</dd>
+	<dt class="optional">Mid-point deviation of the battery bank (%)<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/Dc/0/MidVoltageDeviation</b>
+	</dd>
+	<dt class="optional">Low voltage alarm<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/LowVoltage</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	<dt class="optional">High voltage alarm<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/HighVoltage</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	<dt class="optional">Low starter-voltage alarm<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/LowStarterVoltage</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	<dt class="optional">High starter-voltage alarm<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/HighStarterVoltage</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	<dt class="optional">Low battery temperature alarm<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/LowTemperature</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	<dt class="optional">High battery temperature alarm<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/HighTemperature</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	<dt class="optional">Mid-voltage alarm<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/MidVoltage</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	</dl>
+</script>
+<script type="text/x-red" data-help-name="victron-input-alternator">
+	<p>This node allows for monitoring the state BMVs configured in Monitor Mode and DC meter type is Alternator or an alternator controller which is interfaced to the Venus OS.</p>
+	<h3>alternator</h3>
+	<dl class="message-properties">
+	<dt class="optional">Voltage (V)<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/Dc/0/Voltage</b>
+	</dd>
+	<dt class="optional">Current (A)<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/Dc/0/Current</b>
+	</dd>
+	<dt class="optional">Battery power (W)<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/Dc/0/Power</b>
+	</dd>
+	<dt class="optional">Alternator temperature (C)<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/Dc/0/Temperature</b>
+	</dd>
+	<dt class="optional">Alternator RPM<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/AlternatorRPM</b>
+	</dd>
+	<dt class="optional">Engine RPM<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/EngineRPM</b>
+	</dd>
+	<dt class="optional">Field Drive (%)<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/FieldDrive</b>
+	</dd>
+	<dt class="optional">Alternator Status<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/AlternatorStatus</b>
+	<ul>
+	<li>0 - Not Charging</li>
+	<li>1 - Charging</li>
+	<li>2 - Error</li>
+	<li>4 - Not Available</li>
+	</ul>
+	</dd>
+	<dt class="optional">Charge Enabled<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/ChargeEnable</b>
+	<ul>
+	<li>0 - Off</li>
+	<li>1 - On</li>
+	</ul>
+	</dd>
+	<dt class="optional">Charger Mode<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Mode</b>
+	<ul>
+	<li>0 - Standalone</li>
+	<li>1 - Master</li>
+	<li>2 - Slave</li>
+	</ul>
+	</dd>
+	<dt class="optional">Charger State<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/State</b>
+	<ul>
+	<li>0 - Off</li>
+	<li>1 - Bulk</li>
+	<li>2 - Absorbtion</li>
+	<li>5 - Float</li>
+	<li>7 - Ext. Control</li>
+	<li>8 - Disabled</li>
+	<li>9 - Fault</li>
+	</ul>
+	</dd>
+	<dt class="optional">Low voltage alarm<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/LowVoltage</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	<dt class="optional">Charger Error<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/ChargerError</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	<dt class="optional">Overload<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/Overload</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	<dt class="optional">High Charger Temperature<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/Temperature</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	<dt class="optional">Alternator Error<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/AlternatorError</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	</dl>
+</script>
+<script type="text/x-red" data-help-name="victron-input-dcdc">
+	<p>TThis node allows for monitoring the state BMVs configured in Monitor Mode and DC meter type is DC/DC, or a DC/DC controller which is interfaced to the Venus OS.</p>
+	<h3>alternator</h3>
+	<dl class="message-properties">
+	<dt class="optional">Voltage (V)<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/Dc/0/Voltage</b>
+	</dd>
+	<dt class="optional">Current (A)<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/Dc/0/Current</b>
+	</dd>
+	<dt class="optional">Battery power (W)<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/Dc/0/Power</b>
+	</dd>
+	<dt class="optional">Alternator temperature (C)<span class="property-type">float</dt>
+	<dd>Dbus path: <b>/Dc/0/Temperature</b>
+	</dd>
+	<dt class="optional">Charge Enabled<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/ChargeEnable</b>
+	<ul>
+	<li>0 - Off</li>
+	<li>1 - On</li>
+	</ul>
+	</dd>
+	<dt class="optional">Charger Mode<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Mode</b>
+	<ul>
+	<li>0 - Standalone</li>
+	<li>1 - Master</li>
+	<li>2 - Slave</li>
+	</ul>
+	</dd>
+	<dt class="optional">Charger State<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/State</b>
+	<ul>
+	<li>0 - Off</li>
+	<li>1 - Bulk</li>
+	<li>2 - Absorbtion</li>
+	<li>5 - Float</li>
+	<li>7 - Ext. Control</li>
+	<li>8 - Disabled</li>
+	<li>9 - Fault</li>
+	</ul>
+	</dd>
+	<dt class="optional">Low voltage alarm<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/LowVoltage</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	<dt class="optional">Charger Error<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/ChargerError</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	<dt class="optional">Overload<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/Overload</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	<dt class="optional">High Charger Temperature<span class="property-type">enum</dt>
+	<dd>Dbus path: <b>/Alarms/Temperature</b>
+	<ul>
+	<li>0 - No alarm</li>
+	<li>2 - Alarm</li>
+	</ul>
+	</dd>
+	</dl>
+</script>
+
 <script type="text/x-red" data-help-name="victron-output-relay">
 <p>The relays of the Venus device can be controled with this node. Make sure to set the relay(s) to <b>Manual</b> via the Venus OS GUI first. </p>
 <h3>system</h3>
