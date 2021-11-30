@@ -1925,6 +1925,7 @@
         ]
     },
 	"input-dcsource": {
+		"help": "<p>This node allows for monitoring the state BMVs configured in Monitor Mode and DC meter type is a source.</p>",
 		"dcsource": [
 			{
 				"path": "/Dc/0/Voltage",
@@ -2036,6 +2037,7 @@
 		]
 	},
 	"input-dcload": {
+		"help": "<p>This node allows for monitoring the state BMVs configured in Monitor Mode and DC meter type is a load.</p>",
 		"dcload": [
 			{
 				"path": "/Dc/0/Voltage",
@@ -2147,6 +2149,7 @@
 		]
 	},
 	"input-alternator": {
+		"help": "<p>This node allows for monitoring the state BMVs configured in Monitor Mode and DC meter type is Alternator or an alternator controller which is interfaced to the Venus OS.</p>",
 		"alternator": [
 			{
 				"path": "/Dc/0/Voltage",
@@ -2275,6 +2278,7 @@
 		]
 	},
 	"input-dcdc": {
+		"help": "<p>This node allows for monitoring the state BMVs configured in Monitor Mode and DC meter type is DC/DC, or a DC/DC controller which is interfaced to the Venus OS.</p>",
 		"dcdc": [
 			{
 				"path": "/Dc/0/Voltage",
