@@ -1,5 +1,6 @@
 {
     "input-digitalinput": {
+        "help": "<p>With this node it is possible to read the digital inputs from the Venus device. The node only shows the enabled digital inputs, so first make sure to enable the input from the Venus OS GUI (<i>Settings -> I/O -> digital inputs</i>) for the desired readout.</p><p>Depending on the selected type of input, different measurements become available.</p><p>Also see the section on <a href=\"https://www.victronenergy.com/media/pg/Cerbo_GX/en/digital-inputs.html\">digital inputs</a> in the Cerbo GX manual.</p>",
         "pulsemeter": [
             {
                 "path": "/Aggregate",
@@ -72,6 +73,7 @@
         ]
     },
     "input-tank": {
+        "help": "<p>The input-tank node is for retrieving tank level sensor information.</p><p>Also see the <a href=\"https://www.victronenergy.com/media/pg/Cerbo_GX/en/installation.html#UUID-e4027d37-78e0-4433-1be4-3252d3b79152\">manual</a> for more information.</p>",
         "tank": [
             {
                 "path": "/Capacity",
@@ -124,6 +126,7 @@
         ]
     },
     "input-temperature": {
+        "help": "<p>Like the other nodes, the <b>input-temperature</b> node reads the temperate information from the dbus. This means that source of the temperature sensor can obtain its information from different sources (e.g. directly connected probe or Bluetooth connected Ruuvi tag).</p><p>See the <a href=\"https://www.victronenergy.com/media/pg/Cerbo_GX/en/installation.html#UUID-4d5df29c-761e-cfcc-9e2c-8230f126e7bb\">manual</a> for information on connecting a temperature sensor.</p>",
         "temperature": [
             {
                 "path": "/Temperature",
@@ -185,6 +188,7 @@
         ]
     },
     "input-inverter": {
+        "help": "<p>This node is for reading from the inverter.</p>",
         "inverter": [
             {
                 "path": "/Dc/0/Voltage",
@@ -234,6 +238,7 @@
         ]
     },
     "input-pvinverter": {
+        "help": "<p>This node is for obtaining information from the PV inverter.</p>",
         "pvinverter": [
             {
                 "path": "/Ac/L1/Voltage",
@@ -336,6 +341,7 @@
         ]
     },
     "input-accharger": {
+        "help": "<p>The AC charger can be read with this node.</p>",
         "charger": [
             {
                 "path": "/Dc/0/Voltage",
@@ -485,6 +491,7 @@
         ]
     },
     "input-solarcharger": {
+        "help": "<p>Information from the Solar charger can be read with this node.</p>",
         "solarcharger": [
             {
                 "path": "/Dc/0/Voltage",
@@ -721,6 +728,7 @@
         ]
     },
     "input-battery": {
+        "help": "<p>This node allows for monitoring the state of the battery.</p>",
         "battery": [
             {
                 "path": "/Dc/0/Voltage",
@@ -975,6 +983,7 @@
         ]
     },
     "input-gridmeter": {
+        "help": "<p>This node gives allows for monitoring the grid. See also <a href=\"https://www.victronenergy.com/accessories/energy-meter\">energy meters</a> accessoires.</p>",
         "grid": [
             {
                 "path": "/Ac/Energy/Forward",
@@ -1082,6 +1091,7 @@
         ]
     },
     "input-vebus": {
+        "help": "<p>Information from VE.Bus connected devices can be obtained with this node.</p>",
         "vebus": [
             {
                 "path": "/Ac/ActiveIn/L1/V",
@@ -1437,6 +1447,7 @@
         ]
     },
     "input-gps": {
+        "help": "<p>GPS information can be obtained with this node. For an example usage see the <a href=\"https://github.com/victronenergy/node-red-contrib-victron/wiki/Example-Flows#location-based-scheduling\">location based scheduling</a> example.</p>",
         "gps": [
             {
                 "path": "/Altitude",
@@ -1481,6 +1492,7 @@
         ]
     },
     "input-ess": {
+        "help": "<p>This node gives information on the energy storage system (ESS).</p>",
         "vebus": [
             {
                 "path": "/Hub4/DisableFeedIn",
@@ -1602,6 +1614,7 @@
         ]
     },
     "input-meteo": {
+        "help": "<p>The <b>input-meteo</b> node allows for Solar Irradiance, Temperature and Wind Speed Sensors measuring.</p><p>More information and supported devices can be found in the <a href=\"https://www.victronenergy.com/media/pg/Cerbo_GX/en/installation.html#UUID-d4b7dfe9-4ee0-53bc-8959-c567ed63cebb\">manual</a>.</p>",
         "meteo": [
             {
                 "path": "/Irradiance",
@@ -1626,6 +1639,7 @@
         ]
     },
     "input-system": {
+        "help": "<p>This input node takes is for retrieving information from the <tt>com.victronenergy.system</tt> dbus path.</p>",
         "system": [
             {
                 "path": "/Ac/ActiveIn/Source",
@@ -2354,6 +2368,7 @@
 		]
 	},
     "input-relay": {
+        "help": "<p>The <b>input-relay</b> node reads the state of the relay(s) of the Venus device.</p>",
         "system": [
             {
                 "path": "/Relay/0/State",
@@ -2438,6 +2453,7 @@
         ]
     },
     "output-relay": {
+        "help": "<p>The relays of the Venus device can be controled with this node. Make sure to set the relay(s) to <b>Manual</b> via the Venus OS GUI first. </p>",
         "system": [
             {
                 "path": "/Relay/0/State",
@@ -2530,6 +2546,7 @@
         ]
     },
     "output-vebus": {
+        "help": "<p>This output node is for writing to VE.Bus connected devices.</p>",
         "vebus": [
             {
                 "path": "/Mode",
@@ -2558,6 +2575,7 @@
         ]
     },
     "output-inverter": {
+        "help": "<p>This node can be used for controlling the inverter.</p>",
         "inverter": [
             {
                 "path": "/Mode",
@@ -2573,6 +2591,7 @@
         ]
     },
     "output-accharger": {
+        "help": "<p>This node is for controlling the AC charger.</p>",
         "charger": [
             {
                 "path": "/Ac/In/CurrentLimit",
@@ -2603,6 +2622,7 @@
         ]
     },
     "output-solarcharger": {
+        "help": "<p>With this node the solar charger can be switched on and off.</p>",
         "solarcharger": [
             {
                 "path": "/Mode",
@@ -2617,6 +2637,7 @@
         ]
     },
     "output-ess": {
+        "help": "<p>This node allows for controlling the Energy Storage System (ESS).</p>",
         "vebus": [
             {
                 "path": "/Hub4/DisableFeedIn",
