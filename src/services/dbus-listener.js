@@ -190,7 +190,7 @@ class VictronDbusListener {
 
             msg.senderName = service.name
 
-            if (msg.path == '/DeviceInstance') {
+            if (msg.path === '/DeviceInstance') {
                 this.services[msg.sender].deviceInstance = msg.value
                 msg.instanceName = msg.value
             } else {
@@ -200,8 +200,8 @@ class VictronDbusListener {
             this.messageHandler([msg])
         }
         // Handle newly registered / deleted dbus services
-        else if (msg.interface == 'org.freedesktop.DBus' &&
-            msg.member == 'NameOwnerChanged') {
+        else if (msg.interface === 'org.freedesktop.DBus' &&
+            msg.member === 'NameOwnerChanged') {
             const name = msg.body[0]
 
             if (name.startsWith('com.victronenergy')) {
