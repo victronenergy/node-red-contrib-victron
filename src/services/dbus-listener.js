@@ -103,6 +103,7 @@ class VictronDbusListener {
             //Timeout the connection after 5 seconds if not connected
             setTimeout(reject, 10 * 1000)
 
+            this.bus.addMatch("type='signal',interface='com.victronenergy.BusItem',member='ItemsChanged'", () => { })
             this.bus.addMatch("type='signal',interface='com.victronenergy.BusItem',member='PropertiesChanged'", () => { })
             this.bus.addMatch("type='signal',member='NameOwnerChanged'", () => { })
         })
@@ -163,15 +164,24 @@ class VictronDbusListener {
 
     _signalRecieve(msg) {
         // Handle messages
-        if (msg.interface == 'com.victronenergy.BusItem' &&
-            msg.member == 'PropertiesChanged') {
-
-            msg.body[0].forEach(entry => {
-                if (entry[0] == 'Text')
-                    msg.text = entry[1][1][0]
-                else if (entry[0] == 'Value')
-                    msg.value = entry[1][1][0]
-            })
+        if (msg.interface === 'com.victronenergy.BusItem' &&
+            (msg.member === 'ItemsChanged' || msg.member === 'PropertiesChanged')) {
+            if (msg.member === 'PropertiesChanged') {
+                msg.body[0].forEach(entry => {
+                    if (entry[0] === 'Text')
+                        msg.text = entry[1][1][0]
+                    else if (entry[0] === 'Value')
+                        msg.value = entry[1][1][0]
+                })
+            } else {
+                // ItemsChanged
+                msg.body[0].forEach(entry => {
+                    if (entry[1][1][0] === 'Text')
+                        msg.text = entry[1][1][1][1]
+                    else if (entry[1][0][0] === 'Value')
+                        msg.value = entry[1][0][1][1]
+                })
+            }
 
             let service = this.services[msg.sender]
 
