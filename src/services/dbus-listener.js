@@ -176,6 +176,7 @@ class VictronDbusListener {
             } else {
                 // ItemsChanged
                 msg.body[0].forEach(entry => {
+                    msg.path = entry[0]; 
                     if (entry[1][1][0] === 'Text')
                         msg.text = entry[1][1][1][1]
                     else if (entry[1][0][0] === 'Value')
