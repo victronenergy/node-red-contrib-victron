@@ -167,21 +167,31 @@ class VictronDbusListener {
         if (msg.interface === 'com.victronenergy.BusItem' &&
             (msg.member === 'ItemsChanged' || msg.member === 'PropertiesChanged')) {
             if (msg.member === 'PropertiesChanged') {
-                msg.body[0].forEach(entry => {
-                    if (entry[0] === 'Text')
-                        msg.text = entry[1][1][0]
-                    else if (entry[0] === 'Value')
-                        msg.value = entry[1][1][0]
-                })
+                if ( msg.body[0] && msg.body[0].length === 2 ) {
+                    msg.body[0].forEach(v => {
+                        switch (v[0]) {
+                          case 'Value': msg.value = v[1][1]; break;
+                          case 'Text': msg.text = v[1][1]; break;
+                        }
+                    })
+                }
             } else {
                 // ItemsChanged
                 msg.body[0].forEach(entry => {
                     msg.path = entry[0]; 
-                    if (entry[1][1][0] === 'Text')
-                        msg.text = entry[1][1][1][1]
-                    else if (entry[1][0][0] === 'Value')
-                        msg.value = entry[1][0][1][1]
+                    if ( entry[1] && entry[1].length === 2 ) {
+                      entry[1].forEach(v => {
+                        switch (v[0]) {
+                          case 'Value': msg.value = v[1][1][0]; break;
+                          case 'Text': msg.text = v[1][1][0]; break;
+                        }
+                      })
+                    }
                 })
+            }
+            if ( ! msg.path || ! msg.value || ! msg.text ) { 
+                // console.log(msg);
+                return;
             }
 
             let service = this.services[msg.sender]
