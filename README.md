@@ -184,7 +184,7 @@ A few modifications to the code are needed in order to add new nodes (or new pat
 
 You can use the `--append` switch to completely bypass the whitelist, missingpaths.json and csv parsing. This is useful if you don't have access to the CSV files. This will simply merge the given input json file with the existing services.json: `node parse-services.json ./additionalPaths.json --append`.
 
-3. Add the following rows to given files:
+3. Add the following rows to given files:  
 ```
 // The following function defines what services are showin in
 // /victron/services/ API endpoint.
@@ -217,9 +217,10 @@ To only make a new release, without such refresh, the following steps are advice
 2. Run `npm run release`
 3. Run `npm publish`
 
-Here is the full story including a refresh:
+Here is the full story including a refresh:  
 
 Note that this assumes that you've already made changes to the code, and committed them!
+
 ```
 # these first two lines can be skipped if working from your dev dir.
 git clone git@github.com:victronenergy/node-red-contrib-victron.git
@@ -252,4 +253,4 @@ npm version patch
 npm shrinkwrap
 
 # and now copy the resulting file into the meta-victronenergy repo.
-
+```
