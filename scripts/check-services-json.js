@@ -39,7 +39,7 @@ workbook.xlsx.readFile(xls_file)
       // console.log("Check for node " + node + ", path: " + path);
 
       if ( ! services[node] ) {
-        console.log("Missing node in services.json: " + node);
+        console.log("// Missing node in services.json: " + node);
         //process.exit(1);
       } else {
         // The node exists, check for the path within the node
@@ -55,7 +55,41 @@ workbook.xlsx.readFile(xls_file)
 
         // And check if the path we expect is included in the array of paths
         if (!paths.includes(path)) {
-          console.log("Missing path in services.json node: " + node + ", path: " + path );
+          // Print some info on the missing entry
+          name = row.values[2];
+          if ( row.values[9] && ! row.values[9].match(/;/) ) {
+            name = name + ' (' + row.values[9] + ')';
+          }
+          // check the type; if row 9 contains a semicolon, it is enum. Else it is a bit of
+          // a guess, but we default it to float if we are not sure
+          if ( row.values[9] && row.values[9].match(/;/) ) {
+            type = "enum";
+          } else {
+            if ( row.values[4].match(/string/) ) {
+              type = "string";
+            } else {
+              type = "float";
+            }
+          }
+          console.log("// Missing path in services.json node: " + node + ", path: " + path );
+          console.log("{");
+          console.log('    "path" : "' + path +'",');
+          console.log('    "type" : "' + type +'",');
+          if ( type === "enum" ) {
+            console.log('    "name" : "' + name +'",');
+            console.log('    "enum" : {');
+            xen = [];
+            row.values[9].split(';').forEach( en => {
+              x = en.split('=');
+              xen.push( '        "' + x[0] + '" : "' + x[1] + '"' );
+            })
+            console.log(xen.join(",\n"));
+            console.log('    }');
+
+          } else {
+            console.log('    "name" : "' + name +'"');
+          }
+          console.log("}");
         }
       }
     });
