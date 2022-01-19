@@ -1,4 +1,74 @@
 {
+    "input-acload": {
+      "help": "<p>This node allows for AC load monitoring. Measuring can be done by using an energy meter and assigning it the 'ac load' role.</p>",
+      "acload": [
+            {
+                "path" : "/Serial",
+                "type" : "string",
+                "name" : "Serial number"
+            },
+            {
+                "path" : "/Ac/L1/Power",
+                "type" : "float",
+                "name" : "L1 Power (W)"
+            },
+            {
+                "path" : "/Ac/L2/Power",
+                "type" : "float",
+                "name" : "L2 Power (W)"
+            },
+            {
+                "path" : "/Ac/L3/Power",
+                "type" : "float",
+                "name" : "L3 Power (W)"
+            },
+            {
+                "path" : "/Ac/L1/Voltage",
+                "type" : "float",
+                "name" : "L1 Voltage (V AC)"
+            },
+            {
+                "path" : "/Ac/L1/Current",
+                "type" : "float",
+                "name" : "L1 Current (A)"
+            },
+            {
+                "path" : "/Ac/L2/Voltage",
+                "type" : "float",
+                "name" : "L2 Voltage (V AC)"
+            },
+            {
+                "path" : "/Ac/L2/Current",
+                "type" : "float",
+                "name" : "L2 Current (A)"
+            },
+            {
+                "path" : "/Ac/L3/Voltage",
+                "type" : "float",
+                "name" : "L3 Voltage (V AC)"
+            },
+            {
+                "path" : "/Ac/L3/Current",
+                "type" : "float",
+                "name" : "L3 Current (A)"
+            },
+            {
+                "path" : "/Ac/L1/Energy/Forward",
+                "type" : "float",
+                "name" : "L1 Energy (kWh)"
+            },
+            {
+                "path" : "/Ac/L2/Energy/Forward",
+                "type" : "float",
+                "name" : "L2 Energy (kWh)"
+            },
+            {
+                "path" : "/Ac/L3/Energy/Forward",
+                "type" : "float",
+                "name" : "L3 Energy (kWh)"
+            }
+      ]
+    },
     "input-digitalinput": {
         "help": "<p>With this node it is possible to read the digital inputs from the Venus device. The node only shows the enabled digital inputs, so first make sure to enable the input from the Venus OS GUI (<i>Settings -> I/O -> digital inputs</i>) for the desired readout.</p><p>Depending on the selected type of input, different measurements become available.</p><p>Also see the section on <a href=\"https://www.victronenergy.com/media/pg/Cerbo_GX/en/digital-inputs.html\">digital inputs</a> in the Cerbo GX manual.</p>",
         "pulsemeter": [

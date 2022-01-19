@@ -76,6 +76,7 @@ module.exports = function (RED) {
     }
 
     // Input nodes
+	RED.nodes.registerType('victron-input-acload', BaseInputNode);
     RED.nodes.registerType('victron-input-digitalinput', BaseInputNode);
     RED.nodes.registerType('victron-input-tank', BaseInputNode);
     RED.nodes.registerType('victron-input-temperature', BaseInputNode);

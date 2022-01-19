@@ -125,6 +125,7 @@ class SystemConfiguration {
             "version": _.get(packagejson, 'version'),
 
             // input node services
+			"input-acload": this.getNodeServices("input-acload"),
             "input-digitalinput": this.getNodeServices("input-digitalinput"),
             "input-tank": this.getNodeServices("input-tank"),
             "input-temperature": this.getNodeServices("input-temperature"),
