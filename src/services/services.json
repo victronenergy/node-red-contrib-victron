@@ -1329,6 +1329,24 @@
                 }
             },
             {
+                "path": "/Alarms/GridLost",
+                "type": "enum",
+                "name": "Grid lost alarm",
+                "enum": {
+                    "0": "Ok",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/PhaseRotation",
+                "type": "enum",
+                "name": "Phase Rotation",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning"
+                }
+            },
+            {
                 "path": "/Alarms/HighTemperature",
                 "type": "enum",
                 "name": "Temperature",
@@ -1653,15 +1671,6 @@
                     "2": "Generator",
                     "3": "Shore",
                     "240": "Inverting"
-                }
-            },
-            {
-                "path": "/Ac/Alarms/GridLost",
-                "type": "enum",
-                "name": "Grid lost alarm",
-                "enum": {
-                    "0": "No alarm",
-                    "2": "Alarm"
                 }
             },
             {

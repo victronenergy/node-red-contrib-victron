@@ -1049,6 +1049,20 @@ Questions can also be asked on the Victron Energy community:
   <li>32 - VE.Bus Error 32</li>
 </ul>
 </dd>
+  <dt class="optional">Grid lost alarm<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Alarms/GridLost</b>
+<ul>
+  <li>0 - Ok</li>
+  <li>2 - Alarm</li>
+</ul>
+</dd>
+  <dt class="optional">Phase Rotation<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Alarms/PhaseRotation</b>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+</ul>
+</dd>
   <dt class="optional">Temperature<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Alarms/HighTemperature</b>
 <ul>
@@ -1293,13 +1307,6 @@ Questions can also be asked on the Victron Energy community:
   <li>2 - Generator</li>
   <li>3 - Shore</li>
   <li>240 - Inverting</li>
-</ul>
-</dd>
-  <dt class="optional">Grid lost alarm<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Ac/Alarms/GridLost</b>
-<ul>
-  <li>0 - No alarm</li>
-  <li>2 - Alarm</li>
 </ul>
 </dd>
   <dt class="optional">AC Consumption on Input L1<span class="property-type">float</dt>
