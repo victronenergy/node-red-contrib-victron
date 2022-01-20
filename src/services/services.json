@@ -2643,6 +2643,11 @@
 				"type": "float",
 				"name": "Battery temperature (C)"
 			},
+            {
+                "path": "/Dc/1/Voltage",
+                "type": "float",
+                "name": "Auxiliary voltage (V DC)"
+            },
 			{
 				"path": "/AlterntorRPM",
 				"type": "float",
@@ -2702,6 +2707,11 @@
 					"9": "Fault"
 				}
 			},
+            {
+                "path": "/History/EnergyOut",
+                "type": "float",
+                "name": "Total energy produced (kWh)"
+            },
 			{
 				"path": "/Alarms/LowVoltage",
 				"type": "enum",
@@ -2746,7 +2756,57 @@
 					"0": "No alarm",
 					"2": "Alarm"
 				}
-			}
+			},
+            {
+                "path": "/Alarms/HighVoltage",
+                "type": "enum",
+                "name": "High voltage alarm",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/LowStarterVoltage",
+                "type": "enum",
+                "name": "Low auxiliary voltage alarm",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/HighStarterVoltage",
+                "type": "enum",
+                "name": "High auxiliary voltage alarm",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/LowTemperature",
+                "type": "enum",
+                "name": "Low temperature alarm",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/HighTemperature",
+                "type": "enum",
+                "name": "High temperature alarm",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            }
 		]
 	},
 	"input-dcdc": {
