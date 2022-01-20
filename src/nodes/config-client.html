@@ -63,6 +63,7 @@ Questions can also be asked on the Victron Energy community:
     });
 </script>
 
+<!-- # The rest of the file has been generated from services.json -->
 <script type="text/x-red" data-help-name="victron-input-multi">
 <p>This is the Multi RS input node.</p>
 <h3>multi</h3>
@@ -1990,6 +1991,9 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Battery temperature (C)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/0/Temperature</b>
 </dd>
+  <dt class="optional">Auxiliary voltage (V DC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Dc/1/Voltage</b>
+</dd>
   <dt class="optional">Alternator RPM<span class="property-type">float</dt>
   <dd>Dbus path: <b>/AlterntorRPM</b>
 </dd>
@@ -2035,6 +2039,9 @@ Questions can also be asked on the Victron Energy community:
   <li>9 - Fault</li>
 </ul>
 </dd>
+  <dt class="optional">Total energy produced (kWh)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/EnergyOut</b>
+</dd>
   <dt class="optional">Low voltage alarm<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Alarms/LowVoltage</b>
 <ul>
@@ -2067,6 +2074,46 @@ Questions can also be asked on the Victron Energy community:
   <dd>Dbus path: <b>/Alarms/AlternatorError</b>
 <ul>
   <li>0 - No alarm</li>
+  <li>2 - Alarm</li>
+</ul>
+</dd>
+  <dt class="optional">High voltage alarm<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Alarms/HighVoltage</b>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul>
+</dd>
+  <dt class="optional">Low auxiliary voltage alarm<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Alarms/LowStarterVoltage</b>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul>
+</dd>
+  <dt class="optional">High auxiliary voltage alarm<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Alarms/HighStarterVoltage</b>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul>
+</dd>
+  <dt class="optional">Low temperature alarm<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Alarms/LowTemperature</b>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul>
+</dd>
+  <dt class="optional">High temperature alarm<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Alarms/HighTemperature</b>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
   <li>2 - Alarm</li>
 </ul>
 </dd>
@@ -2217,28 +2264,6 @@ Questions can also be asked on the Victron Energy community:
 <ul>
   <li>0 - Open</li>
   <li>1 - Closed</li>
-</ul>
-</dd>
-</dl>
-</script>
-
-<script type="text/x-red" data-help-name="victron-output-multi">
-<p>Multi RS output node.</p>
-<h3>multi</h3>
-<dl class="message-properties">
-  <dt class="optional">Ac input 1 current limit (A)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Ac/In/1/CurrentLimit</b>
-</dd>
-  <dt class="optional">Ac input 2 current limit (A)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Ac/In/2/CurrentLimit</b>
-</dd>
-  <dt class="optional">Switch position<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Mode</b>
-<ul>
-  <li>1 - Charger Only</li>
-  <li>2 - Inverter Only</li>
-  <li>3 - On</li>
-  <li>4 - Off</li>
 </ul>
 </dd>
 </dl>
@@ -2504,6 +2529,28 @@ Questions can also be asked on the Victron Energy community:
 </dd>
   <dt class="optional">Charge current limit (A)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Settings/SystemSetup/MaxChargeCurrent</b>
+</dd>
+</dl>
+</script>
+
+<script type="text/x-red" data-help-name="victron-output-multi">
+<p>Multi RS output node.</p>
+<h3>multi</h3>
+<dl class="message-properties">
+  <dt class="optional">Ac input 1 current limit (A)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/In/1/CurrentLimit</b>
+</dd>
+  <dt class="optional">Ac input 2 current limit (A)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/In/2/CurrentLimit</b>
+</dd>
+  <dt class="optional">Switch position<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Mode</b>
+<ul>
+  <li>1 - Charger Only</li>
+  <li>2 - Inverter Only</li>
+  <li>3 - On</li>
+  <li>4 - Off</li>
+</ul>
 </dd>
 </dl>
 </script>
