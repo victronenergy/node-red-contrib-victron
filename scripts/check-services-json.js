@@ -35,6 +35,8 @@ workbook.xlsx.readFile(xls_file)
       // Determine the node name. If it is writeable: output else input
       if ( row.values[8] && row.values[8] === "yes" ) { node = "output-"; } else { node = "input-"; };
       node = node + row.values[1].split('.')[2];
+      if ( node === 'input-grid' ) { node = 'input-gridmeter'; }
+      if ( node === 'input-charger' ) { node = 'input-accharger'; }
       path = row.values[7];
       // console.log("Check for node " + node + ", path: " + path);
 
@@ -101,7 +103,8 @@ workbook.xlsx.readFile(xls_file)
     for (const [node, info] of Object.entries(services) ) {
       dbus_service_name = 'com.victronenergy.' + node.split('-')[1];
       if ( dbus_service_name.match(/relay/) ) { continue; }
-      if ( dbus_service_name.match(/gridmeter/) ) { dbus_service_name = 'grid'; }
+      if ( dbus_service_name.match(/gridmeter/) ) { dbus_service_name = 'com.victronenergy.grid'; }
+      if ( dbus_service_name.match(/accharger/) ) { dbus_service_name = 'com.victronenergy.charger'; }
       if (node.split('-')[0] === 'input' ) {
         writable = 'no';
       } else {
@@ -111,6 +114,7 @@ workbook.xlsx.readFile(xls_file)
         if ( _x  === 'help' ) { continue; }
         nodedata.forEach(service => {
           var found = false;
+          if (service.path.match(/\/Relay/) ) { found = true; }
           for (let i = 2; i <= maxrows; i++ ) {
             if ( worksheet.getCell('A'+i).value === dbus_service_name &&
                  worksheet.getCell('G'+i).value === service.path &&
@@ -120,7 +124,7 @@ workbook.xlsx.readFile(xls_file)
             }
           }
           if (! found) {
-            console.log("// Obsolete entry: " + node + ':' + service.path);
+            console.log(node + ':' + service.path);
           }
           // 
         });
