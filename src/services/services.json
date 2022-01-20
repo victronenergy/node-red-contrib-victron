@@ -1,4 +1,395 @@
 {
+    "input-multi": {
+        "help": "<p>This is the Multi RS input node.</p>",
+        "multi": [
+            {
+                "path" : "/Ac/In/1/L1/V",
+                "type" : "float",
+                "name" : "Input voltage phase 1 (V AC)"
+            },
+            {
+                "path" : "/Ac/In/1/L2/V",
+                "type" : "float",
+                "name" : "Input voltage phase 2 (V AC)"
+            },
+            {
+                "path" : "/Ac/In/1/L3/V",
+                "type" : "float",
+                "name" : "Input voltage phase 3 (V AC)"
+            },
+            {
+                "path" : "/Ac/In/1/L1/I",
+                "type" : "float",
+                "name" : "Input current phase 1 (A AC)"
+            },
+            {
+                "path" : "/Ac/In/1/L2/I",
+                "type" : "float",
+                "name" : "Input current phase 2 (A AC)"
+            },
+            {
+                "path" : "/Ac/In/1/L3/I",
+                "type" : "float",
+                "name" : "Input current phase 3 (A AC)"
+            },
+            {
+                "path" : "/Ac/In/1/L1/P",
+                "type" : "float",
+                "name" : "Input power phase 1 (W)"
+            },
+            {
+                "path" : "/Ac/In/1/L2/P",
+                "type" : "float",
+                "name" : "Input power phase 2 (W)"
+            },
+            {
+                "path" : "/Ac/In/1/L3/P",
+                "type" : "float",
+                "name" : "Input power phase 3 (W)"
+            },
+            {
+                "path" : "/Ac/In/1/L1/F",
+                "type" : "float",
+                "name" : "Input frequency (Hz)"
+            },
+            {
+                "path" : "/Ac/Out/L1/V",
+                "type" : "float",
+                "name" : "Output voltage phase 1 (V AC)"
+            },
+            {
+                "path" : "/Ac/Out/L2/V",
+                "type" : "float",
+                "name" : "Output voltage phase 2 (V AC)"
+            },
+            {
+                "path" : "/Ac/Out/L3/V",
+                "type" : "float",
+                "name" : "Output voltage phase 3 (V AC)"
+            },
+            {
+                "path" : "/Ac/Out/L1/I",
+                "type" : "float",
+                "name" : "Output current phase 1 (A AC)"
+            },
+            {
+                "path" : "/Ac/Out/L2/I",
+                "type" : "float",
+                "name" : "Output current phase 2 (A AC)"
+            },
+            {
+                "path" : "/Ac/Out/L3/I",
+                "type" : "float",
+                "name" : "Output current phase 3 (A AC)"
+            },
+            {
+                "path" : "/Ac/Out/L1/P",
+                "type" : "float",
+                "name" : "Output power phase 1 (W)"
+            },
+            {
+                "path" : "/Ac/Out/L2/P",
+                "type" : "float",
+                "name" : "Output power phase 2 (W)"
+            },
+            {
+                "path" : "/Ac/Out/L3/P",
+                "type" : "float",
+                "name" : "Output power phase 3 (W)"
+            },
+            {
+                "path" : "/Ac/Out/L1/F",
+                "type" : "float",
+                "name" : "Output frequency (Hz)"
+            },
+            {
+                "path" : "/Ac/In/1/Type",
+                "type" : "enum",
+                "name" : "AC input 1 source type",
+                "enum" : {
+                    "0" : "Unused",
+                    "1" : "Grid",
+                    "2" : "Genset",
+                    "3" : "Shore"
+                }
+            },
+            {
+                "path" : "/Ac/In/2/Type",
+                "type" : "enum",
+                "name" : "AC input 2 source type",
+                "enum" : {
+                    "0" : "Unused",
+                    "1" : "Grid",
+                    "2" : "Genset",
+                    "3" : "Shore"
+                }
+            },
+            {
+                "path" : "/Ac/NumberOfPhases",
+                "type" : "float",
+                "name" : "Phase count (count)"
+            },
+            {
+                "path" : "/Ac/ActiveIn/ActiveInput",
+                "type" : "enum",
+                "name" : "Active AC input",
+                "enum" : {
+                    "0" : "AC Input 1",
+                    "1" : "AC Input 2",
+                    "240" : "Disconnected"
+                }
+            },
+            {
+                "path" : "/Dc/0/Voltage",
+                "type" : "float",
+                "name" : "Battery voltage (V DC)"
+            },
+            {
+                "path" : "/Dc/0/Current",
+                "type" : "float",
+                "name" : "Battery current (A DC)"
+            },
+            {
+                "path" : "/Dc/0/Temperature",
+                "type" : "float",
+                "name" : "Battery temperature (Degrees celsius)"
+            },
+            {
+                "path" : "/Soc",
+                "type" : "float",
+                "name" : "Battery State of Charge (%)"
+            },
+            {
+                "path" : "/State",
+                "type" : "enum",
+                "name" : "Inverter/Charger state",
+                "enum" : {
+                    "0" : "Off",
+                    "1" : "Low Power",
+                    "2" : "Fault",
+                    "3" : "Bulk",
+                    "4" : "Absorption",
+                    "5" : "Float",
+                    "6" : "Storage",
+                    "7" : "Equalize",
+                    "8" : "Passthru",
+                    "9" : "Inverting",
+                    "10" : "Power assist",
+                    "11" : "Power supply",
+                    "252" : "Bulk protection"
+                }
+            },
+            {
+                "path" : "/Alarms/HighTemperature",
+                "type" : "enum",
+                "name" : "Temperature alarm",
+                "enum" : {
+                    "0" : "Ok",
+                    "1" : "Warning",
+                    "2" : "Alarm"
+                }
+            },
+            {
+                "path" : "/Alarms/HighVoltage",
+                "type" : "enum",
+                "name" : "High voltage alarm",
+                "enum" : {
+                    "0" : "Ok",
+                    "1" : "Warning",
+                    "2" : "Alarm"
+                }
+            },
+            {
+                "path" : "/Alarms/HighVoltageAcOut",
+                "type" : "enum",
+                "name" : "High AC-Out voltage alarm",
+                "enum" : {
+                    "0" : "Ok",
+                    "1" : "Warning",
+                    "2" : "Alarm"
+                }
+            },
+            {
+                "path" : "/Alarms/LowTemperature",
+                "type" : "enum",
+                "name" : "Low battery temperature alarm",
+                "enum" : {
+                    "0" : "Ok",
+                    "1" : "Warning",
+                    "2" : "Alarm"
+                }
+            },
+            {
+                "path" : "/Alarms/LowVoltage",
+                "type" : "enum",
+                "name" : "Low voltage alarm",
+                "enum" : {
+                    "0" : "Ok",
+                    "1" : "Warning",
+                    "2" : "Alarm"
+                }
+            },
+            {
+                "path" : "/Alarms/LowVoltageAcOut",
+                "type" : "enum",
+                "name" : "Low AC-Out voltage alarm",
+                "enum" : {
+                    "0" : "Ok",
+                    "1" : "Warning",
+                    "2" : "Alarm"
+                }
+            },
+            {
+                "path" : "/Alarms/Overload",
+                "type" : "enum",
+                "name" : "Overload alarm",
+                "enum" : {
+                    "0" : "Ok",
+                    "1" : "Warning",
+                    "2" : "Alarm"
+                }
+            },
+            {
+                "path" : "/Alarms/Ripple",
+                "type" : "enum",
+                "name" : "High DC ripple alarm",
+                "enum" : {
+                    "0" : "Ok",
+                    "1" : "Warning",
+                    "2" : "Alarm"
+                }
+            },
+            {
+                "path" : "/Yield/Power",
+                "type" : "float",
+                "name" : "PV power (W)"
+            },
+            {
+                "path" : "/Yield/User",
+                "type" : "float",
+                "name" : "User yield (kWh)"
+            },
+            {
+                "path" : "/Relay/0/State",
+                "type" : "enum",
+                "name" : "Relay on the Multi RS",
+                "enum" : {
+                    "0" : "Open",
+                    "1" : "Closed"
+                }
+            },
+            {
+                "path" : "/MppOperationMode",
+                "type" : "enum",
+                "name" : "MPP operation mode",
+                "enum" : {
+                    "0" : "Off",
+                    "1" : "Voltage/current limited",
+                    "2" : "MPPT active",
+                    "255" : "Not available"
+                }
+            },
+            {
+                "path" : "/Pv/V",
+                "type" : "float",
+                "name" : "PV voltage (V DC)"
+            },
+            {
+                "path" : "/ErrorCode",
+                "type" : "enum",
+                "name" : "Error code",
+                "enum" : {
+                    "0" : "No error",
+                    "1" : "Battery temperature too high",
+                    "2" : "Battery voltage too high",
+                    "3" : "Battery temperature sensor miswired (+)",
+                    "4" : "Battery temperature sensor miswired (-)",
+                    "5" : "Battery temperature sensor disconnected",
+                    "6" : "Battery voltage sense miswired (+)",
+                    "7" : "Battery voltage sense miswired (-)",
+                    "8" : "Battery voltage sense disconnected",
+                    "9" : "Battery voltage wire losses too high",
+                    "17" : "Charger temperature too high",
+                    "18" : "Charger over-current",
+                    "19" : "Charger current polarity reversed",
+                    "20" : "Bulk time limit reached",
+                    "22" : "Charger temperature sensor miswired",
+                    "23" : "Charger temperature sensor disconnected",
+                    "34" : "Input current too high"
+                }
+            },
+            {
+                "path" : "/Energy/AcIn1ToAcOut",
+                "type" : "float",
+                "name" : "Energy from AC-in-1 to AC-out (kWh)"
+            },
+            {
+                "path" : "/Energy/AcIn1ToInverter",
+                "type" : "float",
+                "name" : "Energy from AC-in-1 to battery (kWh)"
+            },
+            {
+                "path" : "/Energy/AcIn2ToAcOut",
+                "type" : "float",
+                "name" : "Energy from AC-in-2 to AC-out (kWh)"
+            },
+            {
+                "path" : "/Energy/AcIn2ToInverter",
+                "type" : "float",
+                "name" : "Energy from AC-in-2 to battery (kWh)"
+            },
+            {
+                "path" : "/Energy/AcOutToAcIn1",
+                "type" : "float",
+                "name" : "Energy from AC-out to AC-in-1 (kWh)"
+            },
+            {
+                "path" : "/Energy/AcOutToAcIn2",
+                "type" : "float",
+                "name" : "Energy from AC-out to AC-in-2 (kWh)"
+            },
+            {
+                "path" : "/Energy/InverterToAcIn1",
+                "type" : "float",
+                "name" : "Energy from battery to AC-in-1 (kWh)"
+            },
+            {
+                "path" : "/Energy/InverterToAcIn2",
+                "type" : "float",
+                "name" : "Energy from battery to AC-in-2 (kWh)"
+            },
+            {
+                "path" : "/Energy/InverterToAcOut",
+                "type" : "float",
+                "name" : "Energy from battery to AC-out (kWh)"
+            },
+            {
+                "path" : "/Energy/OutToInverter",
+                "type" : "float",
+                "name" : "Energy from AC-out to battery (kWh)"
+            },
+            {
+                "path" : "/Energy/SolarToAcIn1",
+                "type" : "float",
+                "name" : "Energy from solar to AC-in-1 (kWh)"
+            },
+            {
+                "path" : "/Energy/SolarToAcIn2",
+                "type" : "float",
+                "name" : "Energy from solar to AC-in-2 (kWh)"
+            },
+            {
+                "path" : "/Energy/SolarToAcOut",
+                "type" : "float",
+                "name" : "Energy from solar to AC-out (kWh)"
+            },
+            {
+                "path" : "/Energy/SolarToBattery",
+                "type" : "float",
+                "name" : "Energy from solar to battery (kWh)"
+            }
+        ]
+    },
     "input-acload": {
       "help": "<p>This node allows for AC load monitoring. Measuring can be done by using an energy meter and assigning it the 'ac load' role.</p>",
       "acload": [
@@ -2885,6 +3276,35 @@
                 "path": "/Settings/SystemSetup/MaxChargeCurrent",
                 "type": "float",
                 "name": "Charge current limit (A)",
+                "writable": true
+            }
+        ]
+    },
+    "output-multi": {
+        "help": "<p>Multi RS output node.</p>",
+        "multi": [
+            {
+                "path" : "/Ac/In/1/CurrentLimit",
+                "type" : "float",
+                "name" : "Ac input 1 current limit (A)",
+                "writable": true
+            },
+            {
+                "path" : "/Ac/In/2/CurrentLimit",
+                "type" : "float",
+                "name" : "Ac input 2 current limit (A)",
+                "writable": true
+            },
+            {
+                "path" : "/Mode",
+                "type" : "enum",
+                "name" : "Switch position",
+                "enum" : {
+                    "1" : "Charger Only",
+                    "2" : "Inverter Only",
+                    "3" : "On",
+                    "4" : "Off"
+                },
                 "writable": true
             }
         ]
