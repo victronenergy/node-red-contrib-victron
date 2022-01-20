@@ -92,4 +92,39 @@ workbook.xlsx.readFile(xls_file)
         }
       }
     });
+
+    // Now check the other way around: Do we have any obsolete entries in our services.json
+    // We check for each service.json entry to exist within the spreadsheet.
+    // We currently _only_ check the path and dbus-service-name combination
+    console.log("// Checking services.json for obsolete entries");
+    maxrows = worksheet.rowCount;
+    for (const [node, info] of Object.entries(services) ) {
+      dbus_service_name = 'com.victronenergy.' + node.split('-')[1];
+      if ( dbus_service_name.match(/relay/) ) { continue; }
+      if ( dbus_service_name.match(/gridmeter/) ) { dbus_service_name = 'grid'; }
+      if (node.split('-')[0] === 'input' ) {
+        writable = 'no';
+      } else {
+        writable = 'yes';
+      }
+      for (const [_x, nodedata] of Object.entries(services[node]) ) {
+        if ( _x  === 'help' ) { continue; }
+        nodedata.forEach(service => {
+          var found = false;
+          for (let i = 2; i <= maxrows; i++ ) {
+            if ( worksheet.getCell('A'+i).value === dbus_service_name &&
+                 worksheet.getCell('G'+i).value === service.path &&
+                 worksheet.getCell('H'+i).value === writable ) {
+              found = true;
+              break;
+            }
+          }
+          if (! found) {
+            console.log("// Obsolete entry: " + node + ':' + service.path);
+          }
+          // 
+        });
+      }
+    }
+
   });
