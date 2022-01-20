@@ -583,6 +583,11 @@
                     "0": "European",
                     "1": "USA"
                 }
+            },
+            {
+                "path": "/ProductId",
+                "type": "float",
+                "name": "Product ID"
             }
         ]
     },
@@ -645,16 +650,36 @@
                 "path": "/AccelZ",
                 "type": "float",
                 "name": "Acceleration Z (g)"
+            },
+            {
+                "path": "/ProductId",
+                "type": "float",
+                "name": "Product ID"
+            },
+            {
+                "path": "/Scale",
+                "type": "float",
+                "name": "Temperature scale factor"
+            },
+            {
+                "path": "/Offset",
+                "type": "float",
+                "name": "Temperature offset"
             }
         ]
     },
     "input-inverter": {
-        "help": "<p>This node is for reading from the inverter.</p>",
+        "help": "<p>This node is for reading from an inverter.</p>",
         "inverter": [
             {
                 "path": "/Dc/0/Voltage",
                 "type": "float",
                 "name": "Input voltage (V)"
+            },
+            {
+                "path": "/Dc/0/Current",
+                "type": "float",
+                "name": "Battery current (A DC)"
             },
             {
                 "path": "/Ac/Out/L1/V",
@@ -665,6 +690,11 @@
                 "path": "/Ac/Out/L1/I",
                 "type": "float",
                 "name": "Output current (A)"
+            },
+            {
+                "path": "/Ac/Out/L1/P",
+                "type": "float",
+                "name": "Output power (W AC)"
             },
             {
                 "path": "/Mode",
@@ -695,6 +725,241 @@
                     "2": "Fault",
                     "9": "Inverting"
                 }
+            },
+            {
+                "path": "/Alarms/HighTemperature",
+                "type": "enum",
+                "name": "High temperature alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/HighVoltage",
+                "type": "enum",
+                "name": "High battery voltage alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/HighVoltageAcOut",
+                "type": "enum",
+                "name": "High AC-Out voltage alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/LowTemperature",
+                "type": "enum",
+                "name": "Low temperature alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/LowVoltage",
+                "type": "enum",
+                "name": "Low battery voltage alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/LowVoltageAcOut",
+                "type": "enum",
+                "name": "Low AC-Out voltage alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/Overload",
+                "type": "enum",
+                "name": "Overload alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/Ripple",
+                "type": "enum",
+                "name": "Ripple alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/FirmwareVersion",
+                "type": "float",
+                "name": "Firmware version"
+            },
+            {
+                "path": "/ProductId",
+                "type": "float",
+                "name": "Inverter model"
+            },
+            {
+                "path": "/Energy/InverterToAcOut",
+                "type": "float",
+                "name": "Energy from battery to AC-out (kWh)"
+            },
+            {
+                "path": "/Energy/OutToInverter",
+                "type": "float",
+                "name": "Energy from AC-out to battery (kWh)"
+            },
+            {
+                "path": "/Energy/SolarToAcOut",
+                "type": "float",
+                "name": "Energy from solar to AC-out (kWh)"
+            },
+            {
+                "path": "/Energy/SolarToBattery",
+                "type": "float",
+                "name": "Energy from solar to battery (kWh)"
+            },
+            {
+                "path": "/Pv/V",
+                "type": "float",
+                "name": "PV voltage (for single tracker units) (V DC)"
+            },
+            {
+                "path": "/Pv/0/V",
+                "type": "float",
+                "name": "PV voltage for tracker 0 (V DC)"
+            },
+            {
+                "path": "/Pv/1/V",
+                "type": "float",
+                "name": "PV voltage for tracker 1 (V DC)"
+            },
+            {
+                "path": "/Pv/2/V",
+                "type": "float",
+                "name": "PV voltage for tracker 2 (V DC)"
+            },
+            {
+                "path": "/Pv/3/V",
+                "type": "float",
+                "name": "PV voltage for tracker 3 (V DC)"
+            },
+            {
+                "path": "/Pv/0/P",
+                "type": "float",
+                "name": "PV power for tracker 0 (W)"
+            },
+            {
+                "path": "/Pv/1/P",
+                "type": "float",
+                "name": "PV power for tracker 1 (W)"
+            },
+            {
+                "path": "/Pv/2/P",
+                "type": "float",
+                "name": "PV power for tracker 2 (W)"
+            },
+            {
+                "path": "/Pv/3/P",
+                "type": "float",
+                "name": "PV power for tracker 3 (W)"
+            },
+            {
+                "path": "/History/Daily/0/Pv/0/Yield",
+                "type": "float",
+                "name": "Yield today for today on tracker 0 (kWh)"
+            },
+            {
+                "path": "/History/Daily/0/Pv/1/Yield",
+                "type": "float",
+                "name": "Yield today for today on tracker 1 (kWh)"
+            },
+            {
+                "path": "/History/Daily/0/Pv/2/Yield",
+                "type": "float",
+                "name": "Yield today for today on tracker 2 (kWh)"
+            },
+            {
+                "path": "/History/Daily/0/Pv/3/Yield",
+                "type": "float",
+                "name": "Yield today for today on tracker 3 (kWh)"
+            },
+            {
+                "path": "/History/Daily/1/Pv/0/Yield",
+                "type": "float",
+                "name": "Yield today for yesterday on tracker 0 (kWh)"
+            },
+            {
+                "path": "/History/Daily/1/Pv/1/Yield",
+                "type": "float",
+                "name": "Yield today for yesterday on tracker 1 (kWh)"
+            },
+            {
+                "path": "/History/Daily/1/Pv/2/Yield",
+                "type": "float",
+                "name": "Yield today for yesterday on tracker 2 (kWh)"
+            },
+            {
+                "path": "/History/Daily/1/Pv/3/Yield",
+                "type": "float",
+                "name": "Yield today for yesterday on tracker 3 (kWh)"
+            },
+            {
+                "path": "/History/Daily/0/Pv/0/MaxPower",
+                "type": "float",
+                "name": "Maximum power for today on tracker 0 (W)"
+            },
+            {
+                "path": "/History/Daily/0/Pv/1/MaxPower",
+                "type": "float",
+                "name": "Maximum power for today on tracker 1 (W)"
+            },
+            {
+                "path": "/History/Daily/0/Pv/2/MaxPower",
+                "type": "float",
+                "name": "Maximum power for today on tracker 2 (W)"
+            },
+            {
+                "path": "/History/Daily/0/Pv/3/MaxPower",
+                "type": "float",
+                "name": "Maximum power for today on tracker 3 (W)"
+            },
+            {
+                "path": "/History/Daily/1/Pv/0/MaxPower",
+                "type": "float",
+                "name": "Maximum power for yesterday on tracker 0 (W)"
+            },
+            {
+                "path": "/History/Daily/1/Pv/1/MaxPower",
+                "type": "float",
+                "name": "Maximum power for yesterday on tracker 1 (W)"
+            },
+            {
+                "path": "/History/Daily/1/Pv/2/MaxPower",
+                "type": "float",
+                "name": "Maximum power for yesterday on tracker 2 (W)"
+            },
+            {
+                "path": "/History/Daily/1/Pv/3/MaxPower",
+                "type": "float",
+                "name": "Maximum power for yesterday on tracker 3 (W)"
             }
         ]
     },
@@ -798,6 +1063,26 @@
                 "path": "/Ac/Power",
                 "type": "float",
                 "name": "Total Power (W)"
+            },
+            {
+                "path": "/Ac/MaxPower",
+                "type": "float",
+                "name": "Maximum Power Capacity (kW)"
+            },
+            {
+                "path": "/Serial",
+                "type": "string",
+                "name": "Serial"
+            },
+            {
+                "path": "/Position",
+                "type": "enum",
+                "name": "Position",
+                "enum": {
+                    "0": "AC input 1",
+                    "1": "AC output",
+                    "2": "AC input 2"
+                }
             }
         ]
     },
@@ -996,6 +1281,16 @@
                 }
             },
             {
+                "path": "/Position",
+                "type": "enum",
+                "name": "Position",
+                "enum": {
+                    "0": "AC input 1",
+                    "1": "AC output",
+                    "2": "AC input 2"
+                }
+            },
+            {
                 "path": "/Pv/V",
                 "type": "float",
                 "name": "PV voltage"
@@ -1052,6 +1347,14 @@
                 "enum": {
                     "0": "Open",
                     "1": "Closed"
+                }
+            },
+            {
+                "path": "/Alarms/Alarm",
+                "type": "enum",
+                "enum": {
+                    "0": "No alarm",
+                    "2": "Alarm"
                 }
             },
             {
@@ -1152,6 +1455,22 @@
                 }
             },
             {
+                "path": "/Equalization/TimeRemaining",
+                "type": "float",
+                "name": "Equalization time remaining (seconds)"
+            },
+            {
+                "path": "/Equalization/Pending",
+                "type": "enum",
+                "name": "Equalization pending",
+                "enum": {
+                    "0": "No",
+                    "1": "Yes",
+                    "2": "Error",
+                    "3": "Unavailable- Unknown"
+                }
+            },
+            {
                 "path": "/Load/State",
                 "type": "enum",
                 "name": "Load state",
@@ -1159,11 +1478,6 @@
                     "0": "Off",
                     "1": "On"
                 }
-            },
-            {
-                "path": "/Load/I",
-                "type": "float",
-                "name": "Load current (A)"
             },
             {
                 "path": "/Yield/User",
@@ -1185,7 +1499,108 @@
                     "2": "MPPT Tracker active",
                     "255": "Not available"
                 }
+            },
+            {
+                "path": "/History/Daily/0/Yield",
+                "type": "float",
+                "name": "Yield today (kWh)"
+            },
+            {
+                "path": "/History/Daily/0/MaxPower",
+                "type": "float",
+                "name": "Maximum charge power today (W)"
+            },
+            {
+                "path": "/History/Daily/1/Yield",
+                "type": "float",
+                "name": "Yield yesterday (kWh)"
+            },
+            {
+                "path": "/History/Daily/1/MaxPower",
+                "type": "float",
+                "name": "Maximum charge power yesterday (W)"
+            },
+            {
+                "path": "/History/Daily/0/Pv/0/Yield",
+                "type": "float",
+                "name": "Yield today for tracker 0 (kWh)"
+            },
+            {
+                "path": "/History/Daily/0/Pv/1/Yield",
+                "type": "float",
+                "name": "Yield today for tracker 1 (kWh)"
+            },
+            {
+                "path": "/History/Daily/0/Pv/2/Yield",
+                "type": "float",
+                "name": "Yield today for tracker 2 (kWh)"
+            },
+            {
+                "path": "/History/Daily/0/Pv/3/Yield",
+                "type": "float",
+                "name": "Yield today for tracker 3 (kWh)"
+            },
+            {
+                "path": "/History/Daily/1/Pv/0/Yield",
+                "type": "float",
+                "name": "Yield yesterday for tracker 0 (kWh)"
+            },
+            {
+                "path": "/History/Daily/1/Pv/1/Yield",
+                "type": "float",
+                "name": "Yield yesterday for tracker 1 (kWh)"
+            },
+            {
+                "path": "/History/Daily/1/Pv/2/Yield",
+                "type": "float",
+                "name": "Yield yesterday for tracker 2 (kWh)"
+            },
+            {
+                "path": "/History/Daily/1/Pv/3/Yield",
+                "type": "float",
+                "name": "Yield yesterday for tracker 3 (kWh)"
+            },
+            {
+                "path": "/History/Daily/0/Pv/0/MaxPower",
+                "type": "float",
+                "name": "Maximum charge power today for tracker 0 (W)"
+            },
+            {
+                "path": "/History/Daily/0/Pv/1/MaxPower",
+                "type": "float",
+                "name": "Maximum charge power today for tracker 1 (W)"
+            },
+            {
+                "path": "/History/Daily/0/Pv/2/MaxPower",
+                "type": "float",
+                "name": "Maximum charge power today for tracker 2 (W)"
+            },
+            {
+                "path": "/History/Daily/0/Pv/3/MaxPower",
+                "type": "float",
+                "name": "Maximum charge power today for tracker 3 (W)"
+            },
+            {
+                "path": "/History/Daily/1/Pv/0/MaxPower",
+                "type": "float",
+                "name": "Maximum charge power yesterday tracker 0 (W)"
+            },
+            {
+                "path": "/History/Daily/1/Pv/1/MaxPower",
+                "type": "float",
+                "name": "Maximum charge power yesterday tracker 1 (W)"
+            },
+            {
+                "path": "/History/Daily/1/Pv/2/MaxPower",
+                "type": "float",
+                "name": "Maximum charge power yesterday tracker 2 (W)"
+            },
+            {
+                "path": "/History/Daily/1/Pv/3/MaxPower",
+                "type": "float",
+                "name": "Maximum charge power yesterday tracker 3 (W)"
             }
+            
         ]
     },
     "input-battery": {
@@ -1336,19 +1751,46 @@
                 }
             },
             {
+                "path": "/Alarms/Alarm",
+                "type": "enum",
+                "name": "Alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/LowFusedVoltage",
+                "type": "enum",
+                "name": "Low fused-voltage alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/HighFusedVoltage",
+                "type": "enum",
+                "name": "High fused-voltage alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "2": "Alarm"
+                }
+            },
+            {
                 "path": "/Soh",
                 "type": "float",
                 "name": "State of health (%)"
             },
             {
+                "path": "/Capacity",
+                "type": "float",
+                "name": "Capacity (Ah)"
+            },
+            {
                 "path": "/Info/MaxChargeVoltage",
                 "type": "float",
                 "name": "CVL - Charge Voltage Limit (V)"
-            },
-            {
-                "path": "/Info/MaxDischargeVoltage",
-                "type": "float",
-                "name": "DVL - Discharge Voltage Limit (V)"
             },
             {
                 "path": "/Info/MaxChargeCurrent",
@@ -1359,6 +1801,126 @@
                 "path": "/Info/MaxDischargeCurrent",
                 "type": "float",
                 "name": "DCL - Discharge Current Limit (A)"
+            },
+            {
+                "path": "/Info/BatteryLowVoltage",
+                "type": "float",
+                "name": "Min discharge voltage (V DC)"
+            },
+            {
+                "path": "/State",
+                "type": "enum",
+                "name": "State",
+                "enum": {
+                    "0": "Initializing (Wait start)",
+                    "1": "Initializing (before boot)",
+                    "2": "Initializing (Before boot delay)",
+                    "3": "Initializing (Wait boot)",
+                    "4": "Initializing",
+                    "5": "Initializing (Measure battery voltage)",
+                    "6": "Initializing (Calculate battery voltage)",
+                    "7": "Initializing (Wait bus voltage)",
+                    "8": "Initializing (Wait for lynx shunt)",
+                    "9": "Running",
+                    "10": "Error (10)",
+                    "11": "Unused (11)",
+                    "12": "Shutdown",
+                    "13": "Slave updating",
+                    "14": "Standby",
+                    "15": "Going to run",
+                    "16": "Pre-charging"
+                }
+            },
+            {
+                "path": "/ErrorCode",
+                "type": "enum",
+                "name": "Error",
+                "enum": {
+                    "0": "No error",
+                    "1": "Battery initialization error",
+                    "2": "No batteries connected",
+                    "3": "Unknown battery connected",
+                    "4": "Different battery type",
+                    "5": "Number of batteries incorrect",
+                    "6": "Lynx Shunt not found",
+                    "7": "Battery measure error",
+                    "8": "Internal calculation error",
+                    "9": "Batteries in series not ok",
+                    "10": "Number of batteries incorrect",
+                    "11": "Hardware error",
+                    "12": "Watchdog error",
+                    "13": "Over voltage",
+                    "14": "Under voltage",
+                    "15": "Over temperature",
+                    "16": "Under temperature",
+                    "17": "Hardware fault",
+                    "18": "Standby shutdown",
+                    "19": "Pre-charge charge error",
+                    "20": "Safety contactor check error",
+                    "21": "Pre-charge discharge error",
+                    "22": "ADC error",
+                    "23": "Slave error",
+                    "24": "Slave warning",
+                    "25": "Pre-charge error",
+                    "26": "Safety contactor error",
+                    "27": "Over current",
+                    "28": "Slave update failed",
+                    "29": "Slave update unavailable",
+                    "30": "Calibration data lost",
+                    "31": "Settings invalid",
+                    "32": "BMS cable",
+                    "33": "Reference failure",
+                    "34": "Wrong system voltage",
+                    "35": "Pre-charge timeout"
+                }
+            },
+            {
+                "path": "/SystemSwitch",
+                "type": "enum",
+                "name": "System-switch",
+                "enum": {
+                    "0": "Disabled",
+                    "1": "Enabled"
+                }
+            },
+            {
+                "path": "/Balancing",
+                "type": "enum",
+                "name": "Balancing",
+                "enum": {
+                    "0": "Inactive",
+                    "1": "Active"
+                }
+            },
+            {
+                "path": "/System/NrOfBatteries",
+                "type": "float",
+                "name": "System; number of batteries (count)"
+            },
+            {
+                "path": "/System/BatteriesParallel",
+                "type": "float",
+                "name": "System; batteries parallel (count)"
+            },
+            {
+                "path": "/System/BatteriesSeries",
+                "type": "float",
+                "name": "System; batteries series (count)"
+            },
+            {
+                "path": "/System/NrOfCellsPerBattery",
+                "type": "float",
+                "name": "System; number of cells per battery (count)"
+            },
+            {
+                "path": "/System/MinCellVoltage",
+                "type": "float",
+                "name": "System; minimum cell voltage (V DC)"
+            },
+            {
+                "path": "/System/MaxCellVoltage",
+                "type": "float",
+                "name": "System; maximum cell voltage (V DC)"
             },
             {
                 "path": "/Alarms/CellImbalance",
@@ -1421,9 +1983,62 @@
                 }
             },
             {
-                "path": "/Dc/0/Power",
+                "path": "/Alarms/LowCellVoltage",
+                "type": "enum",
+                "name": "Low cell voltage alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "1": "Almost discharged",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Diagnostics/ShutDownsDueError",
                 "type": "float",
-                "name": "Battery power (W)"
+                "name": "Diagnostics; shutdowns due to error (count)"
+            },
+            {
+                "path": "/Diagnostics/LastErrors/1/Error",
+                "type": "enum",
+                "name": "Diagnostics; 1st last error",
+                "enum": {
+                    "0": "No error",
+                    "1": "Battery initialization error",
+                    "2": "No batteries connected",
+                    "3": "Unknown battery connected",
+                    "4": "Different battery type",
+                    "5": "Number of batteries incorrect",
+                    "6": "Lynx Shunt not found",
+                    "7": "Battery measure error",
+                    "8": "Internal calculation error",
+                    "9": "Batteries in series not ok",
+                    "10": "Number of batteries incorrect",
+                    "11": "Hardware error",
+                    "12": "Watchdog error",
+                    "13": "Over voltage",
+                    "14": "Under voltage",
+                    "15": "Over temperature",
+                    "16": "Under temperature",
+                    "17": "Hardware fault",
+                    "18": "Standby shutdown",
+                    "19": "Pre-charge charge error",
+                    "20": "Safety contactor check error",
+                    "21": "Pre-charge discharge error",
+                    "22": "ADC error",
+                    "23": "Slave error",
+                    "24": "Slave warning",
+                    "25": "Pre-charge error",
+                    "26": "Safety contactor error",
+                    "27": "Over current",
+                    "28": "Slave update failed",
+                    "29": "Slave update unavailable",
+                    "30": "Calibration data lost",
+                    "31": "Settings invalid",
+                    "32": "BMS cable",
+                    "33": "Reference failure",
+                    "34": "Wrong system voltage",
+                    "35": "Pre-charge timeout"
+                }
             },
 			{
 				"path": "/Io/AllowToCharge",
@@ -1442,7 +2057,167 @@
 					"0": "No",
 					"1": "Yes"
 				}
-			}
+			},
+            {
+                "path": "/Io/ExternalRelay",
+                "type": "enum",
+                "name": "IO; external relay",
+                "enum": {
+                    "0": "Inactive",
+                    "1": "Active"
+                }
+            },
+            {
+                "path": "/History/DeepestDischarge",
+                "type": "float",
+                "name": "Deepest discharge (Ah)"
+            },
+            {
+                "path": "/History/LastDischarge",
+                "type": "float",
+                "name": "Last discharge (Ah)"
+            },
+            {
+                "path": "/History/AverageDischarge",
+                "type": "float",
+                "name": "Average discharge (Ah)"
+            },
+            {
+                "path": "/History/ChargeCycles",
+                "type": "float",
+                "name": "Charge cycles (count)"
+            },
+            {
+                "path": "/History/FullDischarges",
+                "type": "float",
+                "name": "Full discharges (count)"
+            },
+            {
+                "path": "/History/TotalAhDrawn",
+                "type": "float",
+                "name": "Total Ah drawn (Ah)"
+            },
+            {
+                "path": "/History/MinimumVoltage",
+                "type": "float",
+                "name": "Minimum voltage (V DC)"
+            },
+            {
+                "path": "/History/MaximumVoltage",
+                "type": "float",
+                "name": "Maximum voltage (V DC)"
+            },
+            {
+                "path": "/History/TimeSinceLastFullCharge",
+                "type": "float",
+                "name": "Time since last full charge (seconds)"
+            },
+            {
+                "path": "/History/AutomaticSyncs",
+                "type": "float",
+                "name": "Automatic syncs (count)"
+            },
+            {
+                "path": "/History/LowVoltageAlarms",
+                "type": "float",
+                "name": "Low voltage alarms (count)"
+            },
+            {
+                "path": "/History/HighVoltageAlarms",
+                "type": "float",
+                "name": "High voltage alarms (count)"
+            },
+            {
+                "path": "/History/LowStarterVoltageAlarms",
+                "type": "float",
+                "name": "Low starter voltage alarms (count)"
+            },
+            {
+                "path": "/History/HighStarterVoltageAlarms",
+                "type": "float",
+                "name": "High starter voltage alarms (count)"
+            },
+            {
+                "path": "/History/MinimumStarterVoltage",
+                "type": "float",
+                "name": "Minimum starter voltage (V DC)"
+            },
+            {
+                "path": "/History/MaximumStarterVoltage",
+                "type": "float",
+                "name": "Maximum starter voltage (V DC)"
+            },
+            {
+                "path": "/History/LowFusedVoltageAlarms",
+                "type": "float",
+                "name": "Low fused-voltage alarms (count)"
+            },
+            {
+                "path": "/History/HighFusedVoltageAlarms",
+                "type": "float",
+                "name": "High fused-voltage alarms (count)"
+            },
+            {
+                "path": "/History/MinimumFusedVoltage",
+                "type": "float",
+                "name": "Minimum fused voltage (V DC)"
+            },
+            {
+                "path": "/History/MaximumFusedVoltage",
+                "type": "float",
+                "name": "Maximum fused voltage (V DC)"
+            },
+            {
+                "path": "/History/DischargedEnergy",
+                "type": "float",
+                "name": "Discharged Energy (kWh)"
+            },
+            {
+                "path": "/History/ChargedEnergy",
+                "type": "float",
+                "name": "Charged Energy (kWh)"
+            },
+            {
+                "path": "/History/MinimumCellVoltage",
+                "type": "float",
+                "name": "History; Min cell-voltage (V DC)"
+            },
+            {
+                "path": "/History/MaximumCellVoltage",
+                "type": "float",
+                "name": "History; Max cell-voltage (V DC)"
+            },
+            {
+                "path": "/Diagnostics/LastErrors/1/Time",
+                "type": "float",
+                "name": "Diagnostics; 1st last error timestamp"
+            },
+            {
+                "path": "/Diagnostics/LastErrors/2/Time",
+                "type": "float",
+                "name": "Diagnostics; 2nd last error timestamp"
+            },
+            {
+                "path": "/Diagnostics/LastErrors/3/Time",
+                "type": "float",
+                "name": "Diagnostics; 3rd last error timestamp"
+            },
+            {
+                "path": "/Diagnostics/LastErrors/4/Time",
+                "type": "float",
+                "name": "Diagnostics; 4th last error timestamp"
+            },
+            {
+                "path": "/System/MinCellTemperature",
+                "type": "float",
+                "name": "Minimum cell temperature (Degrees celsius)"
+            },
+            {
+                "path": "/System/MaxCellTemperature",
+                "type": "float",
+                "name": "Maximum cell temperature (Degrees celsius)"
+            }
+            
         ]
     },
     "input-gridmeter": {
@@ -1471,8 +2246,7 @@
             {
                 "path": "/Ac/L1/Energy/Forward",
                 "type": "float",
-                "name": "L1 Forward energy (bought) (kWh)",
-                "enum": {}
+                "name": "L1 Forward energy (bought) (kWh)"
             },
             {
                 "path": "/Ac/L1/Energy/Reverse",
@@ -1540,17 +2314,10 @@
                 "name": "L3 Voltage (V)"
             },
             {
-                "path": "/DeviceType",
-                "type": "enum",
-                "name": "Device type",
-                "enum": {}
-            },
-            {
-                "path": "/ErrorCode",
-                "type": "enum",
-                "name": "Error code",
-                "enum": {}
-            }
+                "path": "/Serial",
+                "type": "string",
+                "name": "Serial"
+            }            
         ]
     },
     "input-vebus": {
@@ -1725,6 +2492,24 @@
                 }
             },
             {
+                "path": "/Ac/State/IgnoreAcIn1",
+                "type": "enum",
+                "name": "AC input 1 ignored",
+                "enum": {
+                    "0": "AC input not ignored",
+                    "1": "AC input ignored"
+                }
+            },
+            {
+                "path": "/Ac/State/IgnoreAcIn2",
+                "type": "enum",
+                "name": "AC input 2 ignored",
+                "enum": {
+                    "0": "AC input not ignored",
+                    "1": "AC input ignored"
+                }
+            },
+            {
                 "path": "/Soc",
                 "type": "float",
                 "name": "VE.Bus state of charge (%)"
@@ -1838,6 +2623,146 @@
                 }
             },
             {
+                "path": "/Alarms/TemperatureSensor",
+                "type": "enum",
+                "name": "Temperatur sensor alarm",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/VoltageSensor",
+                "type": "enum",
+                "name": "Voltage sensor alarm",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/L1/HighTemperature",
+                "type": "enum",
+                "name": "Temperature alarm L1",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/L1/LowBattery",
+                "type": "enum",
+                "name": "Low battery alarm L1",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/L1/Overload",
+                "type": "enum",
+                "name": "Overload alarm L1",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/L1/Ripple",
+                "type": "enum",
+                "name": "Ripple alarm L1",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/L2/HighTemperature",
+                "type": "enum",
+                "name": "Temperature alarm L2",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/L2/LowBattery",
+                "type": "enum",
+                "name": "Low battery alarm L2",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/L2/Overload",
+                "type": "enum",
+                "name": "Overload alarm L2",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/L2/Ripple",
+                "type": "enum",
+                "name": "Ripple alarm L2",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/L3/HighTemperature",
+                "type": "enum",
+                "name": "Temperature alarm L3",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/L3/LowBattery",
+                "type": "enum",
+                "name": "Low battery alarm L3",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/L3/Overload",
+                "type": "enum",
+                "name": "Overload alarm L3",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
+                "path": "/Alarms/L3/Ripple",
+                "type": "enum",
+                "name": "Ripple alarm L3",
+                "enum": {
+                    "0": "Ok",
+                    "1": "Warning",
+                    "2": "Alarm"
+                }
+            },
+            {
                 "path": "/Mode",
                 "type": "enum",
                 "name": "Switch Position",
@@ -1924,6 +2849,24 @@
                     "0": "No",
                     "1": "Yes"
                 }
+            },
+            {
+                "path": "/Bms/BmsExpected",
+                "type": "enum",
+                "name": "VE.Bus BMS is expected",
+                "enum": {
+                    "0": "No",
+                    "1": "Yes"
+                }
+            },
+            {
+                "path": "/Bms/Error",
+                "type": "enum",
+                "name": "VE.Bus BMS error",
+                "enum": {
+                    "0": "No",
+                    "1": "Yes"
+                }
             }
         ]
     },
@@ -1964,11 +2907,6 @@
                 "path": "/Speed",
                 "type": "float",
                 "name": "Speed (m/s)"
-            },
-            {
-                "path": "/UtcTimestamp",
-                "type": "integer",
-                "name": "UTC Timestamp"
             }
         ]
     },
@@ -2135,19 +3073,19 @@
                 }
             },
             {
-                "path": "/Ac/ConsumptionOnInput/L1/Power",
+                "path": "/Ac/Consumption/L1/Power",
                 "type": "float",
-                "name": "AC Consumption on Input L1"
+                "name": "AC Consumption L1 (W)"
             },
             {
-                "path": "/Ac/ConsumptionOnInput/L2/Power",
+                "path": "/Ac/Consumption/L2/Power",
                 "type": "float",
-                "name": "AC Consumption on Input L2"
+                "name": "AC Consumption L2 (W)"
             },
             {
-                "path": "/Ac/ConsumptionOnInput/L3/Power",
+                "path": "/Ac/Consumption/L3/Power",
                 "type": "float",
-                "name": "AC Consumption on Input L3"
+                "name": "AC Consumption L3 (W)"
             },
             {
                 "path": "/Ac/ConsumptionOnInput/NumberOfPhases",
@@ -2393,11 +3331,16 @@
                 "path": "/SystemType",
                 "type": "string",
                 "name": "System type"
+            },
+            {
+                "path": "/Serial",
+                "type": "string",
+                "name": "Serial (System)"
             }
         ]
     },
 	"input-dcsource": {
-		"help": "<p>This node allows for monitoring the state BMVs configured in Monitor Mode and DC meter type is a source.</p>",
+		"help": "<p>This node allows for monitoring the state of Battery Monitor Victron devices (BMV's) configured in Monitor Mode and DC meter type is a source.</p>",
 		"dcsource": [
 			{
 				"path": "/Dc/0/Voltage",
@@ -2443,6 +3386,11 @@
 				"type": "float",
 				"name": "Mid-point deviation of the battery bank (%)"
 			},
+            {
+                "path": "/History/EnergyOut",
+                "type": "float",
+                "name": "Total energy produced (kWh)"
+            },
 			{
 				"path": "/Alarms/LowVoltage",
 				"type": "enum",
@@ -2555,6 +3503,11 @@
 				"type": "float",
 				"name": "Mid-point deviation of the battery bank (%)"
 			},
+            {
+                "path": "/History/EnergyIn",
+                "type": "float",
+                "name": "Total energy consumed (kWh)"
+            },
 			{
 				"path": "/Alarms/LowVoltage",
 				"type": "enum",
@@ -2649,7 +3602,7 @@
                 "name": "Auxiliary voltage (V DC)"
             },
 			{
-				"path": "/AlterntorRPM",
+				"path": "/AlternatorRPM",
 				"type": "float",
 				"name": "Alternator RPM"
 			},
@@ -3097,6 +4050,12 @@
                 "writable": true
             },
             {
+                "path": "/Ac/ActiveIn/CurrentLimit",
+                "type": "float",
+                "name": "Active input current limit (A)",
+                "writable": true
+            },
+            {
                 "path": "/Ac/In/1/CurrentLimit",
                 "type": "float",
                 "name": "Input 1 current limit (A)",
@@ -3106,6 +4065,114 @@
                 "path": "/Ac/In/2/CurrentLimit",
                 "type": "float",
                 "name": "Input 2 current limit (A)",
+                "writable": true
+            },
+            {
+                "path": "/Soc",
+                "type": "float",
+                "name": "VE.Bus state of charge (%)",
+                "writable": true
+            },
+            {
+                "path": "/Hub4/L1/AcPowerSetpoint",
+                "type": "float",
+                "name": "ESS power setpoint phase 1 (W)",
+                "writable": true
+            },
+            {
+                "path": "/Hub4/L2/AcPowerSetpoint",
+                "type": "float",
+                "name": "ESS power setpoint phase 2 (W)",
+                "writable": true
+            },
+            {
+                "path": "/Hub4/L3/AcPowerSetpoint",
+                "type": "float",
+                "name": "ESS power setpoint phase 3 (W)",
+                "writable": true
+            },
+            {
+                "path": "/Hub4/DoNotFeedInOvervoltage",
+                "type": "enum",
+                "name": "Feed DC overvoltage into grid",
+                "enum": {
+                    "0": "Feed in overvoltage",
+                    "1": "Do not feed in overvoltage"
+                },
+                "writable": true
+            },
+            {
+                "path": "/Hub4/L1/MaxFeedInPower",
+                "type": "float",
+                "name": "Maximum overvoltage feed-in power L1 (W)",
+                "writable": true
+            },
+            {
+                "path": "/Hub4/L2/MaxFeedInPower",
+                "type": "float",
+                "name": "Maximum overvoltage feed-in power L2 (W)",
+                "writable": true
+            },
+            {
+                "path": "/Hub4/L3/MaxFeedInPower",
+                "type": "float",
+                "name": "Maximum overvoltage feed-in power L3 (W)",
+                "writable": true
+            },
+            {
+                "path": "/Hub4/TargetPowerIsMaxFeedIn",
+                "type": "enum",
+                "name": "AcPowerSetpoint acts as feed-in limit",
+                "enum": {
+                    "0": "AcPowerSetpoint interpreted normally",
+                    " 1": "AcPowerSetpoint is OvervoltageFeedIn limit"
+                },
+                "writable": true
+            },
+            {
+                "path": "/Hub4/DisableCharge",
+                "type": "enum",
+                "name": "ESS disable charge flag phase",
+                "enum": {
+                    "0": "Charge allowed",
+                    "1": "Charge disabled"
+                },
+                "writable": true
+            },
+            {
+                "path": "/Hub4/DisableFeedIn",
+                "type": "enum",
+                "name": "ESS disable feedback flag phase",
+                "enum": {
+                    "0": "Feed in allowed",
+                    "1": "Feed in disabled"
+                },
+                "writable": true
+            },
+            {
+                "path": "/Hub4/FixSolarOffsetTo100mV",
+                "type": "enum",
+                "name": "Solar offset voltage",
+                "enum": {
+                    "0": "OvervoltageFeedIn uses 1V offset",
+                    "1": "OvervoltageFeedIn uses 0.1V offset"
+                },
+                "writable": true
+            },
+            {
+                "path": "/SystemReset",
+                "type": "float",
+                "name": "VE.Bus Reset (1=VE.Bus reset)",
+                "writable": true
+            },
+            {
+                "path": "/PvInverter/Disable",
+                "type": "enum",
+                "name": "Disable PV inverter",
+                "enum": {
+                    "0": "PV enabled",
+                    "1": "PV disabled"
+                },
                 "writable": true
             }
         ]
