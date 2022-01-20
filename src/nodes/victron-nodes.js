@@ -76,32 +76,32 @@ module.exports = function (RED) {
     }
 
     // Input nodes
-	RED.nodes.registerType('victron-input-acload', BaseInputNode);
+    RED.nodes.registerType('victron-input-accharger', BaseInputNode);
+    RED.nodes.registerType('victron-input-acload', BaseInputNode);
+    RED.nodes.registerType('victron-input-alternator', BaseInputNode);
+    RED.nodes.registerType('victron-input-battery', BaseInputNode);
+    RED.nodes.registerType('victron-input-dcdc', BaseInputNode);
+    RED.nodes.registerType('victron-input-dcload', BaseInputNode);
+    RED.nodes.registerType('victron-input-dcsource', BaseInputNode);
+    RED.nodes.registerType('victron-input-ess', BaseInputNode);
     RED.nodes.registerType('victron-input-digitalinput', BaseInputNode);
+    RED.nodes.registerType('victron-input-gps', BaseInputNode);
+    RED.nodes.registerType('victron-input-gridmeter', BaseInputNode);
+    RED.nodes.registerType('victron-input-inverter', BaseInputNode);
+    RED.nodes.registerType('victron-input-meteo', BaseInputNode);
+    RED.nodes.registerType('victron-input-pvinverter', BaseInputNode);
+    RED.nodes.registerType('victron-input-relay', BaseInputNode);
+    RED.nodes.registerType('victron-input-solarcharger', BaseInputNode);
+    RED.nodes.registerType('victron-input-system', BaseInputNode);
     RED.nodes.registerType('victron-input-tank', BaseInputNode);
     RED.nodes.registerType('victron-input-temperature', BaseInputNode);
-    RED.nodes.registerType('victron-input-inverter', BaseInputNode);
-    RED.nodes.registerType('victron-input-pvinverter', BaseInputNode);
-    RED.nodes.registerType('victron-input-accharger', BaseInputNode);
-    RED.nodes.registerType('victron-input-solarcharger', BaseInputNode);
-    RED.nodes.registerType('victron-input-battery', BaseInputNode);
-    RED.nodes.registerType('victron-input-gridmeter', BaseInputNode);
     RED.nodes.registerType('victron-input-vebus', BaseInputNode);
-    RED.nodes.registerType('victron-input-gps', BaseInputNode);
-    RED.nodes.registerType('victron-input-ess', BaseInputNode);
-    RED.nodes.registerType('victron-input-meteo', BaseInputNode);
-    RED.nodes.registerType('victron-input-system', BaseInputNode);
-    RED.nodes.registerType('victron-input-relay', BaseInputNode);
-	RED.nodes.registerType('victron-input-dcsource', BaseInputNode);
-	RED.nodes.registerType('victron-input-dcload', BaseInputNode);
-	RED.nodes.registerType('victron-input-alternator', BaseInputNode);
-	RED.nodes.registerType('victron-input-dcdc', BaseInputNode);
 
     // Output nodes
-    RED.nodes.registerType('victron-output-vebus', BaseOutputNode);
-    RED.nodes.registerType('victron-output-relay', BaseOutputNode);
-    RED.nodes.registerType('victron-output-inverter', BaseOutputNode);
     RED.nodes.registerType('victron-output-accharger', BaseOutputNode);
-    RED.nodes.registerType('victron-output-solarcharger', BaseOutputNode);
     RED.nodes.registerType('victron-output-ess', BaseOutputNode);
+    RED.nodes.registerType('victron-output-inverter', BaseOutputNode);
+    RED.nodes.registerType('victron-output-relay', BaseOutputNode);
+    RED.nodes.registerType('victron-output-solarcharger', BaseOutputNode);
+    RED.nodes.registerType('victron-output-vebus', BaseOutputNode);
 }
