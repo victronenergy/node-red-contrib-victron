@@ -72,24 +72,23 @@ workbook.xlsx.readFile(xls_file)
             }
           }
           console.log("// Missing path in services.json node: " + node + ", path: " + path );
-          console.log("{");
-          console.log('    "path" : "' + path +'",');
-          console.log('    "type" : "' + type +'",');
+          missing = {
+            'path': path,
+            'type': type,
+            'name': name,
+          };
+
           if ( type === "enum" ) {
-            console.log('    "name" : "' + name +'",');
-            console.log('    "enum" : {');
-            xen = [];
+            missing['enum'] = {};
             row.values[9].split(';').forEach( en => {
               x = en.split('=');
-              xen.push( '        "' + x[0] + '" : "' + x[1] + '"' );
+              missing['enum'][x[0]] = x[1];
             })
-            console.log(xen.join(",\n"));
-            console.log('    }');
-
-          } else {
-            console.log('    "name" : "' + name +'"');
           }
-          console.log("}");
+
+          if ( row.values[8] && row.values[8] === "yes" ) { missing['writable'] = true; } 
+
+          console.log(JSON.stringify(missing, null, 4));
         }
       }
     });
