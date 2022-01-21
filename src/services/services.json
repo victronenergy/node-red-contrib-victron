@@ -4125,7 +4125,7 @@
                 "name": "AcPowerSetpoint acts as feed-in limit",
                 "enum": {
                     "0": "AcPowerSetpoint interpreted normally",
-                    " 1": "AcPowerSetpoint is OvervoltageFeedIn limit"
+                    "1": "AcPowerSetpoint is OvervoltageFeedIn limit"
                 },
                 "writable": true
             },
