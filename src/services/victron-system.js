@@ -127,13 +127,17 @@ class SystemConfiguration {
             // input node services
             "input-accharger": this.getNodeServices("input-accharger"),
             "input-acload": this.getNodeServices("input-acload"),
-            "input-battery": this.getNodeServices("input-battery"),
             "input-alternator": this.getNodeServices("input-alternator"),
+            "input-battery": this.getNodeServices("input-battery"),
             "input-dcdc": this.getNodeServices("input-dcdc"),
             "input-dcload": this.getNodeServices("input-dcload"),
             "input-dcsource": this.getNodeServices("input-dcsource"),
+            "input-dcsystem": this.getNodeServices("input-dcystem"),
             "input-digitalinput": this.getNodeServices("input-digitalinput"),
             "input-ess": this.getNodeServices("input-ess"),
+            "input-evcharger": this.getNodeServices("input-evcharger"),
+            "input-generator": this.getNodeServices("input-generator"),
+            "input-genset": this.getNodeServices("input-genset"),
             "input-gps": this.getNodeServices("input-gps"),
             "input-gridmeter": this.getNodeServices("input-gridmeter"),
             "input-inverter": this.getNodeServices("input-inverter"),
@@ -150,11 +154,11 @@ class SystemConfiguration {
             // output services
             "output-accharger": this.getNodeServices("output-accharger"),
             "output-ess": this.getNodeServices("output-ess"),
+            "output-evcharger": this.getNodeServices("output-evcharger"),
             "output-inverter": this.getNodeServices("output-inverter"),
             "output-multi": this.getNodeServices("output-multi"),
             "output-relay": this.getRelayServices(),
             "output-solarcharger": this.getNodeServices("output-solarcharger"),
-            "output-vebus": this.getNodeServices("output-vebus"),
         }
 
         return device !== null

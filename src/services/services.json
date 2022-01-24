@@ -1,4 +1,479 @@
 {
+    "input-dcsystem": {
+       "help": "<p>DC system input node is a DC measurement for loads in your system.</p>",
+       "dcsystem": [
+          {
+              "path": "/Dc/0/Voltage",
+              "type": "float",
+              "name": "Battery voltage (V DC)"
+          },
+          {
+              "path": "/Dc/0/Current",
+              "type": "float",
+              "name": "Battery current (A)"
+          },
+          {
+              "path": "/Dc/1/Voltage",
+              "type": "float",
+              "name": "Auxiliary voltage (V DC)"
+          },
+          {
+              "path": "/Dc/0/Temperature",
+              "type": "float",
+              "name": "Temperature (Degrees celsius)"
+          },
+          {
+              "path": "/History/EnergyOut",
+              "type": "float",
+              "name": "Total energy produced (kWh)"
+          },
+          {
+              "path": "/History/EnergyIn",
+              "type": "float",
+              "name": "Total energy consumed (kWh)"
+          },
+          {
+              "path": "/Alarms/LowVoltage",
+              "type": "enum",
+              "name": "Low voltage alarm",
+              "enum": {
+                  "0": "No alarm",
+                  "1": "Warning",
+                  "2": "Alarm"
+              }
+          },
+          {
+              "path": "/Alarms/HighVoltage",
+              "type": "enum",
+              "name": "High voltage alarm",
+              "enum": {
+                  "0": "No alarm",
+                  "1": "Warning",
+                  "2": "Alarm"
+              }
+          },
+          {
+              "path": "/Alarms/LowStarterVoltage",
+              "type": "enum",
+              "name": "Low auxiliary voltage alarm",
+              "enum": {
+                  "0": "Ok",
+                  "1": "Warning",
+                  "2": "Alarm"
+              }
+          },
+          {
+              "path": "/Alarms/HighStarterVoltage",
+              "type": "enum",
+              "name": "High auxiliary voltage alarm",
+              "enum": {
+                  "0": "Ok",
+                  "1": "Warning",
+                  "2": "Alarm"
+              }
+          },
+          {
+              "path": "/Alarms/LowTemperature",
+              "type": "enum",
+              "name": "Low temperature alarm",
+              "enum": {
+                  "0": "Ok",
+                  "1": "Warning",
+                  "2": "Alarm"
+              }
+          },
+          {
+              "path": "/Alarms/HighTemperature",
+              "type": "enum",
+              "name": "High temperature alarm",
+              "enum": {
+                  "0": "Ok",
+                  "1": "Warning",
+                  "2": "Alarm"
+              }
+          }
+       ]
+    },
+    "input-evcharger": {
+       "help": "<p>EV charger input node</p>",
+       "evcharger": [
+          {
+              "path": "/ProductId",
+              "type": "float",
+              "name": "Product ID"
+          },
+          {
+              "path": "/FirmwareVersion",
+              "type": "float",
+              "name": "Firmware version"
+          },
+          {
+              "path": "/Serial",
+              "type": "string",
+              "name": "Serial"
+          },
+          {
+              "path": "/Model",
+              "type": "float",
+              "name": "Model"
+          },
+          {
+              "path": "/Ac/Energy/Forward",
+              "type": "float",
+              "name": "Energy consumed by charger (kWh)"
+          },
+          {
+              "path": "/Ac/L1/Power",
+              "type": "float",
+              "name": "L1 Power (W)"
+          },
+          {
+              "path": "/Ac/L2/Power",
+              "type": "float",
+              "name": "L2 Power (W)"
+          },
+          {
+              "path": "/Ac/L3/Power",
+              "type": "float",
+              "name": "L3 Power (W)"
+          },
+          {
+              "path": "/Ac/Power",
+              "type": "float",
+              "name": "Total power (W)"
+          },
+          {
+              "path": "/ChargingTime",
+              "type": "float",
+              "name": "Charging time (seconds)"
+          },
+          {
+              "path": "/Current",
+              "type": "float",
+              "name": "Charge current (A)"
+          },
+          {
+              "path": "/Status",
+              "type": "enum",
+              "name": "Status",
+              "enum": {
+                  "0": "Disconnected",
+                  "1": "Connected",
+                  "2": "Charging",
+                  "3": "Charged",
+                  "4": "Waiting for sun",
+                  "5": "Waiting for RFID",
+                  "6": "Waiting for start",
+                  "7": "Low SOC",
+                  "8": "Ground fault",
+                  "9": "Welded contacts",
+                  "10": "CP Input shorted",
+                  "11": "Residual current detected",
+                  "12": "Under voltage detected",
+                  "13": "Overvoltage detected",
+                  "14": "Overheating detected"
+              }
+          }
+       ]
+    },
+    "input-genset": {
+       "help": "<p>This node is essentially an energy meter showing volts, amps, power, energy etc. It is comparable with the input-gridmeter.</p>",
+       "genset": [
+          {
+              "path": "/Ac/L1/Voltage",
+              "type": "float",
+              "name": "Phase 1 voltage (V AC)"
+          },
+          {
+              "path": "/Ac/L2/Voltage",
+              "type": "float",
+              "name": "Phase 2 voltage (V AC)"
+          },
+          {
+              "path": "/Ac/L3/Voltage",
+              "type": "float",
+              "name": "Phase 3 voltage (V AC)"
+          },
+          {
+              "path": "/Ac/L1/Current",
+              "type": "float",
+              "name": "Phase 1 current (A AC)"
+          },
+          {
+              "path": "/Ac/L2/Current",
+              "type": "float",
+              "name": "Phase 2 current (A AC)"
+          },
+          {
+              "path": "/Ac/L3/Current",
+              "type": "float",
+              "name": "Phase 3 current (A AC)"
+          },
+          {
+              "path": "/Ac/L1/Power",
+              "type": "float",
+              "name": "Phase 1 power (W)"
+          },
+          {
+              "path": "/Ac/L2/Power",
+              "type": "float",
+              "name": "Phase 2 power (W)"
+          },
+          {
+              "path": "/Ac/L3/Power",
+              "type": "float",
+              "name": "Phase 3 power (W)"
+          },
+          {
+              "path": "/Ac/L1/Frequency",
+              "type": "float",
+              "name": "Phase 1 frequency (Hz)"
+          },
+          {
+              "path": "/Ac/L2/Frequency",
+              "type": "float",
+              "name": "Phase 2 frequency (Hz)"
+          },
+          {
+              "path": "/Ac/L3/Frequency",
+              "type": "float",
+              "name": "Phase 3 frequency (Hz)"
+          },
+          {
+              "path": "/ProductId",
+              "type": "float",
+              "name": "Generator model"
+          },
+          {
+              "path": "/StatusCode",
+              "type": "enum",
+              "name": "Status",
+              "enum": {
+                  "0": "Standby",
+                  "1": "Startup 1",
+                  "2": "Startup 2",
+                  "3": "Startup 3",
+                  "4": "Startup 4",
+                  "5": "Startup 5",
+                  "6": "Startup 6",
+                  "7": "Startup 7",
+                  "8": "Running",
+                  "9": "Stopping",
+                  "10": "Error"
+              }
+          },
+          {
+              "path": "/ErrorCode",
+              "type": "enum",
+              "name": "Error",
+              "enum": {
+                  "0": "No error",
+                  "1": "AC voltage L1 too low",
+                  "2": "AC frequency L1 too low",
+                  "3": "AC current too low",
+                  "4": "AC power too low",
+                  "5": "Emergency stop",
+                  "6": "Servo current too low",
+                  "7": "Oil pressure too low",
+                  "8": "Engine temperature too low",
+                  "9": "Winding temperature too low",
+                  "10": "Exhaust temperature too low",
+                  "13": "Starter current too low",
+                  "14": "Glow current too low",
+                  "15": "Glow current too low",
+                  "16": "Fuel holding magnet current too low",
+                  "17": "Stop solenoid hold coil current too low",
+                  "18": "Stop solenoid pull coil current too low",
+                  "19": "Optional DC out current too low",
+                  "20": "5V output voltage too low",
+                  "21": "Boost output current too low",
+                  "22": "Panel supply current too high",
+                  "25": "Starter battery voltage too low",
+                  "26": "Startup aborted (rotation too low)",
+                  "28": "Rotation too low",
+                  "29": "Power contactor current too low",
+                  "30": "AC voltage L2 too low",
+                  "31": "AC frequency L2 too low",
+                  "32": "AC current L2 too low",
+                  "33": "AC power L2 too low",
+                  "34": "AC voltage L3 too low",
+                  "35": "AC frequency L3 too low",
+                  "36": "AC current L3 too low",
+                  "37": "AC power L3 too low",
+                  "62": "Fuel temperature too low",
+                  "63": "Fuel level too low",
+                  "65": "AC voltage L1 too high",
+                  "66": "AC frequency too high",
+                  "67": "AC current too high",
+                  "68": "AC power too high",
+                  "70": "Servo current too high",
+                  "71": "Oil pressure too high",
+                  "72": "Engine temperature too high",
+                  "73": "Winding temperature too high",
+                  "74": "Exhaust temperature too low",
+                  "77": "Starter current too low",
+                  "78": "Glow current too high",
+                  "79": "Glow current too high",
+                  "80": "Fuel holding magnet current too high",
+                  "81": "Stop solenoid hold coil current too high",
+                  "82": "Stop solenoid pull coil current too high",
+                  "83": "Optional DC out current too high",
+                  "84": "5V output voltage too high",
+                  "85": "Boost output current too high",
+                  "89": "Starter battery voltage too high",
+                  "90": "Startup aborted (rotation too high)",
+                  "92": "Rotation too high",
+                  "93": "Power contactor current too high",
+                  "94": "AC voltage L2 too high",
+                  "95": "AC frequency L2 too high",
+                  "96": "AC current L2 too high",
+                  "97": "AC power L2 too high",
+                  "98": "AC voltage L3 too high",
+                  "99": "AC frequency L3 too high",
+                  "100": "AC current L3 too high",
+                  "101": "AC power L3 too high",
+                  "126": "Fuel temperature too high",
+                  "127": "Fuel level too high",
+                  "130": "Lost control unit",
+                  "131": "Lost panel",
+                  "132": "Service needed",
+                  "133": "Lost 3-phase module",
+                  "134": "Lost AGT module",
+                  "135": "Synchronization failure",
+                  "137": "Intake airfilter",
+                  "139": "Lost sync. module",
+                  "140": "Load-balance failed",
+                  "141": "Sync-mode deactivated",
+                  "142": "Engine controller",
+                  "148": "Rotating field wrong",
+                  "149": "Fuel level sensor lost",
+                  "150": "Init failed",
+                  "151": "Watchdog",
+                  "152": "Out: winding",
+                  "153": "Out: exhaust",
+                  "154": "Out: Cyl. head",
+                  "155": "Inverter over temperature",
+                  "156": "Inverter overload",
+                  "157": "Inverter communication lost",
+                  "158": "Inverter sync failed",
+                  "159": "CAN communication lost",
+                  "160": "L1 overload",
+                  "161": "L2 overload",
+                  "162": "L3 overload",
+                  "163": "DC overload",
+                  "164": "DC overvoltage",
+                  "165": "Emergency stop",
+                  "166": "No connection"
+              }
+          },
+          {
+              "path": "/AutoStart",
+              "type": "enum",
+              "name": "Auto start",
+              "enum": {
+                  "0": "Disabled",
+                  "1": "Enabled"
+              }
+          },
+          {
+              "path": "/Engine/Load",
+              "type": "float",
+              "name": "Engine load (%)"
+          },
+          {
+              "path": "/Engine/Speed",
+              "type": "float",
+              "name": "Engine speed (RPM)"
+          },
+          {
+              "path": "/Engine/OperatingHours",
+              "type": "float",
+              "name": "Engine operating hours (s)"
+          },
+          {
+              "path": "/Engine/CoolantTemperature",
+              "type": "float",
+              "name": "Engine coolant temperature (Degrees celsius)"
+          },
+          {
+              "path": "/Engine/WindingTemperature",
+              "type": "float",
+              "name": "Engine winding temperature (Degrees celsius)"
+          },
+          {
+              "path": "/Engine/ExaustTemperature",
+              "type": "float",
+              "name": "Engine exhaust temperature (Degrees celsius)"
+          },
+          {
+              "path": "/StarterVoltage",
+              "type": "float",
+              "name": "Starter voltage (V DC)"
+          }
+       ]
+    },
+    "input-generator": {
+        "help": "<p>Generator input node for Fischer Panda generators. Also see <a href=\"https://github.com/victronenergy/venus/wiki/dbus#generator\">here</a> for more information.</p>",
+        "generator": [
+            {
+                "path": "/Generator0/RunningByConditionCode",
+                "type": "enum",
+                "name": "Condition that started the generator",
+                "enum": {
+                    "0": "Stopped",
+                    "1": "Manual",
+                    "2": "TestRun",
+                    "3": "LossOfComms",
+                    "4": "Soc",
+                    "5": "AcLoad",
+                    "6": "BatteryCurrent",
+                    "7": "BatteryVoltage",
+                    "8": "InverterTemperatur",
+                    "9": "InverterOverload",
+                    "10": "StopOnAc1"
+                }
+            },
+            {
+                "path": "/Generator0/Runtime",
+                "type": "float",
+                "name": "Runtime in seconds (seconds)"
+            },
+            {
+                "path": "/Generator0/Runtime",
+                "type": "float",
+                "name": "Runtime in seconds (seconds)"
+            },
+            {
+                "path": "/Generator0/State",
+                "type": "enum",
+                "name": "Generator start/stop state",
+                "enum": {
+                    "0": "Stopped",
+                    "1": "Running",
+                    "10": "Error"
+                }
+            },
+            {
+                "path": "/Generator0/Error",
+                "type": "enum",
+                "name": "Generator remote error",
+                "enum": {
+                    "0": "No Error",
+                    "1": "Remote disabled",
+                    "2": "Remote fault"
+                }
+            },
+            {
+                "path": "/Generator0/Alarms/NoGeneratorAtAcIn",
+                "type": "enum",
+                "name": "Generator not detected at AC input alarm",
+                "enum": {
+                    "0": "No alarm",
+                    "2": "Alarm"
+                }
+            }
+        ]
+    },
     "input-multi": {
         "help": "<p>This is the Multi RS input node.</p>",
         "multi": [
@@ -4034,149 +4509,6 @@
             }
         ]
     },
-    "output-vebus": {
-        "help": "<p>This output node is for writing to VE.Bus connected devices.</p>",
-        "vebus": [
-            {
-                "path": "/Mode",
-                "type": "enum",
-                "name": "Switch Position",
-                "enum": {
-                    "1": "Charger Only",
-                    "2": "Inverter Only",
-                    "3": "On",
-                    "4": "Off"
-                },
-                "writable": true
-            },
-            {
-                "path": "/Ac/ActiveIn/CurrentLimit",
-                "type": "float",
-                "name": "Active input current limit (A)",
-                "writable": true
-            },
-            {
-                "path": "/Ac/In/1/CurrentLimit",
-                "type": "float",
-                "name": "Input 1 current limit (A)",
-                "writable": true
-            },
-            {
-                "path": "/Ac/In/2/CurrentLimit",
-                "type": "float",
-                "name": "Input 2 current limit (A)",
-                "writable": true
-            },
-            {
-                "path": "/Soc",
-                "type": "float",
-                "name": "VE.Bus state of charge (%)",
-                "writable": true
-            },
-            {
-                "path": "/Hub4/L1/AcPowerSetpoint",
-                "type": "float",
-                "name": "ESS power setpoint phase 1 (W)",
-                "writable": true
-            },
-            {
-                "path": "/Hub4/L2/AcPowerSetpoint",
-                "type": "float",
-                "name": "ESS power setpoint phase 2 (W)",
-                "writable": true
-            },
-            {
-                "path": "/Hub4/L3/AcPowerSetpoint",
-                "type": "float",
-                "name": "ESS power setpoint phase 3 (W)",
-                "writable": true
-            },
-            {
-                "path": "/Hub4/DoNotFeedInOvervoltage",
-                "type": "enum",
-                "name": "Feed DC overvoltage into grid",
-                "enum": {
-                    "0": "Feed in overvoltage",
-                    "1": "Do not feed in overvoltage"
-                },
-                "writable": true
-            },
-            {
-                "path": "/Hub4/L1/MaxFeedInPower",
-                "type": "float",
-                "name": "Maximum overvoltage feed-in power L1 (W)",
-                "writable": true
-            },
-            {
-                "path": "/Hub4/L2/MaxFeedInPower",
-                "type": "float",
-                "name": "Maximum overvoltage feed-in power L2 (W)",
-                "writable": true
-            },
-            {
-                "path": "/Hub4/L3/MaxFeedInPower",
-                "type": "float",
-                "name": "Maximum overvoltage feed-in power L3 (W)",
-                "writable": true
-            },
-            {
-                "path": "/Hub4/TargetPowerIsMaxFeedIn",
-                "type": "enum",
-                "name": "AcPowerSetpoint acts as feed-in limit",
-                "enum": {
-                    "0": "AcPowerSetpoint interpreted normally",
-                    "1": "AcPowerSetpoint is OvervoltageFeedIn limit"
-                },
-                "writable": true
-            },
-            {
-                "path": "/Hub4/DisableCharge",
-                "type": "enum",
-                "name": "ESS disable charge flag phase",
-                "enum": {
-                    "0": "Charge allowed",
-                    "1": "Charge disabled"
-                },
-                "writable": true
-            },
-            {
-                "path": "/Hub4/DisableFeedIn",
-                "type": "enum",
-                "name": "ESS disable feedback flag phase",
-                "enum": {
-                    "0": "Feed in allowed",
-                    "1": "Feed in disabled"
-                },
-                "writable": true
-            },
-            {
-                "path": "/Hub4/FixSolarOffsetTo100mV",
-                "type": "enum",
-                "name": "Solar offset voltage",
-                "enum": {
-                    "0": "OvervoltageFeedIn uses 1V offset",
-                    "1": "OvervoltageFeedIn uses 0.1V offset"
-                },
-                "writable": true
-            },
-            {
-                "path": "/SystemReset",
-                "type": "float",
-                "name": "VE.Bus Reset (1=VE.Bus reset)",
-                "writable": true
-            },
-            {
-                "path": "/PvInverter/Disable",
-                "type": "enum",
-                "name": "Disable PV inverter",
-                "enum": {
-                    "0": "PV enabled",
-                    "1": "PV disabled"
-                },
-                "writable": true
-            }
-        ]
-    },
     "output-inverter": {
         "help": "<p>This node can be used for controlling the inverter.</p>",
         "inverter": [
@@ -4435,5 +4767,43 @@
                 "writable": true
             }
         ]
+    },
+    "output-evcharger": {
+        "help": "<p>With this node the ev charger can be controlled.</p>",
+        "evcharger": [
+          {
+              "path": "/MaxCurrent",
+              "type": "float",
+              "name": "Maximum charge current (A)",
+              "writable": true
+          },
+          {
+              "path": "/Mode",
+              "type": "enum",
+              "name": "Mode",
+              "enum": {
+                  "0": "Manual",
+                  "1": "Auto"
+              },
+              "writable": true
+          },
+          {
+              "path": "/SetCurrent",
+              "type": "float",
+              "name": "Set charge current (manual mode) (A)",
+              "writable": true
+          },
+          {
+              "path": "/StartStop",
+              "type": "enum",
+              "name": "Start/stop charging (manual mode)",
+              "enum": {
+                  "0": "Stop",
+                  "1": "Start"
+              },
+              "writable": true
+          }
+        ]
     }
+ 
 }
