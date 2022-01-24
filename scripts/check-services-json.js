@@ -37,7 +37,7 @@ workbook.xlsx.readFile(xls_file)
       node = node + row.values[1].split('.')[2];
       if ( node === 'input-grid' ) { node = 'input-gridmeter'; }
       if ( node === 'input-charger' ) { node = 'input-accharger'; }
-      path = row.values[7];
+      path = row.values[7].replace('Cgwacs', 'CGwacs');
       // console.log("Check for node " + node + ", path: " + path);
 
       if ( ! services[node] ) {
@@ -84,7 +84,7 @@ workbook.xlsx.readFile(xls_file)
             missing['enum'] = {};
             row.values[9].split(';').forEach( en => {
               x = en.split('=');
-              missing['enum'][x[0]] = x[1];
+              missing['enum'][x[0].trim()] = x[1].trim();
             })
           }
 
@@ -117,8 +117,7 @@ workbook.xlsx.readFile(xls_file)
           if (service.path.match(/\/Relay/) ) { found = true; }
           for (let i = 2; i <= maxrows; i++ ) {
             if ( worksheet.getCell('A'+i).value === dbus_service_name &&
-                 worksheet.getCell('G'+i).value === service.path &&
-                 worksheet.getCell('H'+i).value === writable ) {
+                 worksheet.getCell('G'+i).value.replace('Cgwacs', 'CGwacs') === service.path ) {
               found = true;
               break;
             }
