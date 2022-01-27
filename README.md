@@ -234,7 +234,7 @@ cd node-red-contrib-victron
 
 # npm install will only install the latest safe version of the dependencies if they
 # don’t exist in the node_modules folder and, there is no package-lock.json file. 
-rm ./package-lock.json && rm -rf ./node-modules
+rm ./package-lock.json && rm -rf ./node_modules
 
 # run the installer.
 # --only-prod is necessary to prevent installing devDependencies, since npm will
