@@ -170,8 +170,8 @@ class VictronDbusListener {
                 if ( msg.body[0] && msg.body[0].length === 2 ) {
                     msg.body[0].forEach(v => {
                         switch (v[0]) {
-                          case 'Value': msg.value = v[1][1]; break;
-                          case 'Text': msg.text = v[1][1]; break;
+                          case 'Value': msg.value = v[1][1][0]; break;
+                          case 'Text': msg.text = v[1][1][0]; break;
                         }
                     })
                 }
