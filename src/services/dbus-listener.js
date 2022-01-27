@@ -183,7 +183,7 @@ class VictronDbusListener {
                       entry[1].forEach(v => {
                         switch (v[0]) {
                           case 'Value': msg.value = v[1][1][0]; break;
-                          case 'Text': msg.text = v[1][1][0]; break;
+                          case 'Text': msg.text = v[1][1]; break;
                         }
                       })
                     }

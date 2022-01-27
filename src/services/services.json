@@ -3804,6 +3804,13 @@
         "type": "float",
         "name": "Time inverting (s)"
       }
+    ],
+    "settings": [
+      {
+        "path": "/Settings/SystemSetup/SystemName",
+        "type": "string",
+        "name": "System name"
+      }
     ]
   },
   "input-tank": {
