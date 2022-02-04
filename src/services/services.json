@@ -4886,5 +4886,54 @@
         "writable": true
       }
     ]
+  },
+  "output-vebus": {
+    "help": "<p>This output node is for writing to VE.Bus connected devices.</p>",
+    "vebus": [
+      {
+        "path": "/Ac/In/1/CurrentLimit",
+        "type": "float",
+        "name": "Input 1 current limit (A)",
+        "writable": true
+      },
+      {
+        "path": "/Ac/In/2/CurrentLimit",
+        "type": "float",
+        "name": "Input 2 current limit (A)",
+        "writable": true
+      },
+      {
+        "path": "/Mode",
+        "type": "enum",
+        "name": "Switch Position",
+        "enum": {
+          "1": "Charger Only",
+          "2": "Inverter Only",
+          "3": "On",
+          "4": "Off"
+        },
+        "writable": true
+      },
+      {
+        "path": "/PvInverter/Disable",
+        "type": "enum",
+        "name": "Disable PV inverter",
+        "enum": {
+          "0": "No",
+          "1": "Yes"
+        },
+        "writable": true
+      },
+      {
+        "path": "/SystemReset",
+        "type": "enum",
+        "name": "VE.Bus Reset",
+        "enum": {
+          "0": "No",
+          "1": "Yes"
+        },
+        "writable": true
+      }
+    ]
   }
 }
