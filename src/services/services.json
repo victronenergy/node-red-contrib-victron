@@ -4597,26 +4597,6 @@
         "type": "integer",
         "name": "Maximum overvoltage feed-in power L3 (W)",
         "writable": true
-      },
-      {
-        "path": "/PvInverter/Disable",
-        "type": "enum",
-        "name": "Disable PV inverter",
-        "enum": {
-          "0": "No",
-          "1": "Yes"
-        },
-        "writable": true
-      },
-      {
-        "path": "/SystemReset",
-        "type": "enum",
-        "name": "VE.Bus Reset",
-        "enum": {
-          "0": "No",
-          "1": "Yes"
-        },
-        "writable": true
       }
     ],
     "settings": [
