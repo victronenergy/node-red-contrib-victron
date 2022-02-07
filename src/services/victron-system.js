@@ -159,6 +159,7 @@ class SystemConfiguration {
             "output-multi": this.getNodeServices("output-multi"),
             "output-relay": this.getRelayServices(),
             "output-solarcharger": this.getNodeServices("output-solarcharger"),
+            "output-vebus": this.getNodeServices("output-vebus"),
         }
 
         return device !== null
