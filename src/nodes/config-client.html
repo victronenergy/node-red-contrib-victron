@@ -2864,6 +2864,12 @@ Questions can also be asked on the Victron Energy community:
   <dd>Dbus path: <b>/Timers/TimeOnInverter</b>
 </dd>
 </dl>
+<h3>settings</h3>
+<dl class="message-properties">
+  <dt class="optional">System name<span class="property-type">string</dt>
+  <dd>Dbus path: <b>/Settings/SystemSetup/SystemName</b>
+</dd>
+</dl>
 </script>
 
 <script type="text/x-red" data-help-name="victron-input-tank">
@@ -3444,20 +3450,6 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Maximum overvoltage feed-in power L3 (W)<span class="property-type">integer</dt>
   <dd>Dbus path: <b>/Hub4/L3/MaxFeedInPower</b>
 </dd>
-  <dt class="optional">Disable PV inverter<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/PvInverter/Disable</b>
-<ul>
-  <li>0 - No</li>
-  <li>1 - Yes</li>
-</ul>
-</dd>
-  <dt class="optional">VE.Bus Reset<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/SystemReset</b>
-<ul>
-  <li>0 - No</li>
-  <li>1 - Yes</li>
-</ul>
-</dd>
 </dl>
 <h3>settings</h3>
 <dl class="message-properties">
@@ -3663,6 +3655,42 @@ Questions can also be asked on the Victron Energy community:
 <ul>
   <li>1 - On</li>
   <li>4 - Off</li>
+</ul>
+</dd>
+</dl>
+</script>
+
+<script type="text/x-red" data-help-name="victron-output-vebus">
+<p>This output node is for writing to VE.Bus connected devices.</p>
+<h3>vebus</h3>
+<dl class="message-properties">
+  <dt class="optional">Input 1 current limit (A)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/In/1/CurrentLimit</b>
+</dd>
+  <dt class="optional">Input 2 current limit (A)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/In/2/CurrentLimit</b>
+</dd>
+  <dt class="optional">Switch Position<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Mode</b>
+<ul>
+  <li>1 - Charger Only</li>
+  <li>2 - Inverter Only</li>
+  <li>3 - On</li>
+  <li>4 - Off</li>
+</ul>
+</dd>
+  <dt class="optional">Disable PV inverter<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/PvInverter/Disable</b>
+<ul>
+  <li>0 - No</li>
+  <li>1 - Yes</li>
+</ul>
+</dd>
+  <dt class="optional">VE.Bus Reset<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/SystemReset</b>
+<ul>
+  <li>0 - No</li>
+  <li>1 - Yes</li>
 </ul>
 </dd>
 </dl>
