@@ -15,10 +15,10 @@
         }
     },
     "devDependencies": {
-        "@signalk/github-create-release": "^1.2.0",
         "@babel/eslint-parser": "^7.17.0",
+        "@signalk/github-create-release": "^1.2.0",
         "csv-parse": "^4.4.6",
-        "eslint": "^5.10.0",
+        "eslint": "^8.12.0",
         "eslint-config-google": "^0.11.0",
         "gar": "^1.0.4"
     },
