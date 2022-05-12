@@ -37,6 +37,7 @@ workbook.xlsx.readFile(xls_file)
       node = node + row.values[1].split('.')[2];
       if ( node === 'input-grid' ) { node = 'input-gridmeter'; }
       if ( node === 'input-charger' ) { node = 'input-accharger'; }
+      if ( typeof row.values[7] === 'undefined' ) { return; }
       path = row.values[7].replace('Cgwacs', 'CGwacs');
       // console.log("Check for node " + node + ", path: " + path);
 
@@ -116,6 +117,9 @@ workbook.xlsx.readFile(xls_file)
           var found = false;
           if (service.path.match(/\/Relay/) ) { found = true; }
           for (let i = 2; i <= maxrows; i++ ) {
+            if ( worksheet.getCell('G'+i).value === null ) {
+              return;
+            }
             if ( worksheet.getCell('A'+i).value === dbus_service_name &&
                  worksheet.getCell('G'+i).value.replace('Cgwacs', 'CGwacs') === service.path ) {
               found = true;
