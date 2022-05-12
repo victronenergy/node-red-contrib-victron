@@ -1406,7 +1406,7 @@ Questions can also be asked on the Victron Energy community:
 </script>
 
 <script type="text/x-red" data-help-name="victron-input-generator">
-<p>Generator input node for Fischer Panda generators. Also see <a href="https://github.com/victronenergy/venus/wiki/dbus#generator">here</a> for more information.</p>
+<p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the Venos OS GUI first.<br />Also see <a href="https://github.com/victronenergy/venus/wiki/dbus#generator">here</a> for more information.</p>
 <h3>generator</h3>
 <dl class="message-properties">
   <dt class="optional">Generator not detected at AC input alarm<span class="property-type">enum</dt>
@@ -1449,6 +1449,55 @@ Questions can also be asked on the Victron Energy community:
   <li>0 - Stopped</li>
   <li>1 - Running</li>
   <li>10 - Error</li>
+</ul>
+</dd>
+  <dt class="optional">Condition that started the generator<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/RunningByConditionCode</b>
+<ul>
+  <li>0 - Stopped</li>
+  <li>1 - Manual</li>
+  <li>2 - TestRun</li>
+  <li>3 - LossOfComms</li>
+  <li>4 - Soc</li>
+  <li>5 - AcLoad</li>
+  <li>6 - BatteryCurrent</li>
+  <li>7 - BatteryVoltage</li>
+  <li>8 - InverterTemperatur</li>
+  <li>9 - InverterOverload</li>
+  <li>10 - StopOnAc1</li>
+</ul>
+</dd>
+  <dt class="optional">Runtime in seconds (seconds)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Runtime</b>
+</dd>
+  <dt class="optional">Quiet hours active<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/QuietHours</b>
+<ul>
+  <li>0 - Quiet hours inactive</li>
+  <li>1 - Quiet hours active</li>
+</ul>
+</dd>
+  <dt class="optional">Generator start/stop state<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/State</b>
+<ul>
+  <li>0 - Stopped</li>
+  <li>1 - Running</li>
+  <li>10 - Error</li>
+</ul>
+</dd>
+  <dt class="optional">Generator remote error<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Error</b>
+<ul>
+  <li>0 - No Error</li>
+  <li>1 - Remote disabled</li>
+  <li>2 - Remote fault</li>
+</ul>
+</dd>
+  <dt class="optional">Generator not detected at AC input alarm<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Alarms/NoGeneratorAtAcIn</b>
+<ul>
+  <li>0 - No alarm</li>
+  <li>2 - Alarm</li>
 </ul>
 </dd>
 </dl>
@@ -3529,6 +3578,20 @@ Questions can also be asked on the Victron Energy community:
 <ul>
   <li>0 - Stop</li>
   <li>1 - Start</li>
+</ul>
+</dd>
+</dl>
+</script>
+
+<script type="text/x-red" data-help-name="victron-output-generator">
+<p>This node can be used for controlling a generator via the relay. In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the Venos OS GUI first</p>
+<h3>generator</h3>
+<dl class="message-properties">
+  <dt class="optional">Manual Start<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/ManualStart</b>
+<ul>
+  <li>0 - Stop generator</li>
+  <li>1 - Start generator</li>
 </ul>
 </dd>
 </dl>

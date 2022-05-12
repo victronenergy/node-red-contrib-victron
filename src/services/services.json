@@ -1785,7 +1785,7 @@
     ]
   },
   "input-generator": {
-    "help": "<p>Generator input node for Fischer Panda generators. Also see <a href=\"https://github.com/victronenergy/venus/wiki/dbus#generator\">here</a> for more information.</p>",
+    "help": "<p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the Venos OS GUI first.<br />Also see <a href=\"https://github.com/victronenergy/venus/wiki/dbus#generator\">here</a> for more information.</p>",
     "generator": [
       {
         "path": "/Generator0/Alarms/NoGeneratorAtAcIn",
@@ -1837,6 +1837,67 @@
           "0": "Stopped",
           "1": "Running",
           "10": "Error"
+        }
+      },
+      {
+        "path": "/RunningByConditionCode",
+        "type": "enum",
+        "name": "Condition that started the generator",
+        "enum": {
+          "0": "Stopped",
+          "1": "Manual",
+          "2": "TestRun",
+          "3": "LossOfComms",
+          "4": "Soc",
+          "5": "AcLoad",
+          "6": "BatteryCurrent",
+          "7": "BatteryVoltage",
+          "8": "InverterTemperatur",
+          "9": "InverterOverload",
+          "10": "StopOnAc1"
+        }
+      },
+      {
+        "path": "/Runtime",
+        "type": "float",
+        "name": "Runtime in seconds (seconds)"
+      },
+      {
+        "path": "/QuietHours",
+        "type": "enum",
+        "name": "Quiet hours active",
+        "enum": {
+          "0": "Quiet hours inactive",
+          "1": "Quiet hours active"
+        }
+      },
+      {
+        "path": "/State",
+        "type": "enum",
+        "name": "Generator start/stop state",
+        "enum": {
+          "0": "Stopped",
+          "1": "Running",
+          "10": "Error"
+        }
+      },
+      {
+        "path": "/Error",
+        "type": "enum",
+        "name": "Generator remote error",
+        "enum": {
+          "0": "No Error",
+          "1": "Remote disabled",
+          "2": "Remote fault"
+        }
+      },
+      {
+        "path": "/Alarms/NoGeneratorAtAcIn",
+        "type": "enum",
+        "name": "Generator not detected at AC input alarm",
+        "enum": {
+          "0": "No alarm",
+          "2": "Alarm"
         }
       }
     ]
@@ -4709,6 +4770,21 @@
         "enum": {
           "0": "Stop",
           "1": "Start"
+        },
+        "writable": true
+      }
+    ]
+  },
+  "output-generator": {
+    "help": "<p>This node can be used for controlling a generator via the relay. In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the Venos OS GUI first</p>",
+    "generator": [
+      {
+        "path": "/ManualStart",
+        "type": "enum",
+        "name": "Manual Start",
+        "enum": {
+          "0": "Stop generator",
+          "1": "Start generator"
         },
         "writable": true
       }
