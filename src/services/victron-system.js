@@ -147,6 +147,7 @@ class SystemConfiguration {
             "input-pulsemeter": this.getNodeServices("input-pulsemeter"),
             "input-pvinverter": this.getNodeServices("input-pvinverter"),
             "input-relay": this.getNodeServices("input-relay"),
+            "input-settings": this.getNodeServices("input-settings"),
             "input-solarcharger": this.getNodeServices("input-solarcharger"),
             "input-system": this.getNodeServices("input-system"),
             "input-tank": this.getNodeServices("input-tank"),

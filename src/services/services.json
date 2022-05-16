@@ -3485,6 +3485,16 @@
       }
     ]
   },
+  "input-settings": {
+    "help": "<p>With this node several settings can be read. Currently the focus is mainly on the Carlo Gavazzi Wired AC Sensors (cgwacs).</p>",
+    "settings": [
+      {
+        "path": "/Settings/CGwacs/BatteryLife/SocLimit",
+        "type": "float",
+        "name": "ESS active SoC (read only) (%)"
+      }
+    ]
+  },
   "input-solarcharger": {
     "help": "<p>Information from the Solar charger can be read with this node.</p>",
     "solarcharger": [
@@ -4860,22 +4870,22 @@
   "output-charger": {
     "help": "<p>This node allows for controlling a connected charger.</p>",
     "charger": [
-{
-    "path": "/Ac/In/CurrentLimit",
-    "type": "float",
-    "name": "AC Current limit (A AC)",
-    "writable": true
-},
-{
-    "path": "/Mode",
-    "type": "enum",
-    "name": "Charger on/off",
-    "enum": {
-        "0": "Off",
-        "1": "On"
-    },
-    "writable": true
-}
+      {
+        "path": "/Ac/In/CurrentLimit",
+        "type": "float",
+        "name": "AC Current limit (A AC)",
+        "writable": true
+      },
+      {
+        "path": "/Mode",
+        "type": "enum",
+        "name": "Charger on/off",
+        "enum": {
+          "0": "Off",
+          "1": "On"
+        },
+        "writable": true
+      }
     ]
   },
   "output-ess": {
