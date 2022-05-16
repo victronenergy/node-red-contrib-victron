@@ -41,6 +41,22 @@ workbook.xlsx.readFile(xls_file)
       path = row.values[7].replace('Cgwacs', 'CGwacs');
       // console.log("Check for node " + node + ", path: " + path);
 
+      // Relays are to be found under relay node, so modify the node name.
+      if ( path.match(/\/Relay\/\d+\/State/) && node !== 'relay') {
+        // We need to make sure that the in-/output-relay has this sub service
+        if (node.match(/^input-*/) && services['input-relay'][node.replace('input-','')]) {
+          return;
+        }
+        if (node.match(/^output-*/) && services['output-relay'][node.replace('output-','')]) {
+          return;
+        }
+        console.log('// Missing relay service for '+node+' '+path)
+        return;
+      }
+
+      // Leave out hub4, writing stuff here will interfere with systemcalc
+      if (node === 'input-hub4') { return; }
+
       if ( ! services[node] ) {
         console.log("// Missing node in services.json: " + node);
         //process.exit(1);
