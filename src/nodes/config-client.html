@@ -1405,6 +1405,76 @@ Questions can also be asked on the Victron Energy community:
 </dl>
 </script>
 
+<script type="text/x-red" data-help-name="victron-input-fuelcell">
+<p>See <a href="https://github.com/victronenergy/venus/wiki/dbus#fuelcell">https://github.com/victronenergy/venus/wiki/dbus#fuelcell</a> for more information.</p>
+<h3>fuelcell</h3>
+<dl class="message-properties">
+  <dt class="optional">High voltage alarm<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Alarms/HighVoltage</b>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul>
+</dd>
+  <dt class="optional">High auxiliary voltage alarm<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Alarms/HighStarterVoltage</b>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul>
+</dd>
+  <dt class="optional">High temperature alarm<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Alarms/HighTemperature</b>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul>
+</dd>
+  <dt class="optional">Low auxiliary voltage alarm<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Alarms/LowStarterVoltage</b>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul>
+</dd>
+  <dt class="optional">Low temperature alarm<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Alarms/LowTemperature</b>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul>
+</dd>
+  <dt class="optional">Low voltage alarm<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Alarms/LowVoltage</b>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul>
+</dd>
+  <dt class="optional">Battery current (A)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Dc/0/Current</b>
+</dd>
+  <dt class="optional">Temperature (Degrees celsius)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Dc/0/Temperature</b>
+</dd>
+  <dt class="optional">Battery voltage (V DC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Dc/0/Voltage</b>
+</dd>
+  <dt class="optional">Auxiliary voltage (V DC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Dc/1/Voltage</b>
+</dd>
+  <dt class="optional">Total energy produced (kWh)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/EnergyOut</b>
+</dd>
+</dl>
+</script>
+
 <script type="text/x-red" data-help-name="victron-input-generator">
 <p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the Venos OS GUI first.<br />Also see <a href="https://github.com/victronenergy/venus/wiki/dbus#generator">here</a> for more information.</p>
 <h3>generator</h3>
@@ -3570,6 +3640,14 @@ Questions can also be asked on the Victron Energy community:
   <li>1 - Auto</li>
 </ul>
 </dd>
+  <dt class="optional">Position<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Position</b>
+<ul>
+  <li>0 - AC input 1</li>
+  <li>1 - AC output</li>
+  <li>2 - AC input 2</li>
+</ul>
+</dd>
   <dt class="optional">Set charge current (manual mode) (A)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/SetCurrent</b>
 </dd>
@@ -3727,11 +3805,67 @@ Questions can also be asked on the Victron Energy community:
 <p>This output node is for writing to VE.Bus connected devices.</p>
 <h3>vebus</h3>
 <dl class="message-properties">
+  <dt class="optional">Active input current limit (A)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/ActiveIn/CurrentLimit</b>
+</dd>
   <dt class="optional">Input 1 current limit (A)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/In/1/CurrentLimit</b>
 </dd>
   <dt class="optional">Input 2 current limit (A)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/In/2/CurrentLimit</b>
+</dd>
+  <dt class="optional">ESS disable charge flag phase<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Hub4/DisableCharge</b>
+<ul>
+  <li>0 - Charge allowed</li>
+  <li>1 - Charge disabled</li>
+</ul>
+</dd>
+  <dt class="optional">ESS disable feedback flag phase<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Hub4/DisableFeedIn</b>
+<ul>
+  <li>0 - Feed in allowed</li>
+  <li>1 - Feed in disabled</li>
+</ul>
+</dd>
+  <dt class="optional">Feed DC overvoltage into grid<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Hub4/DoNotFeedInOvervoltage</b>
+<ul>
+  <li>0 - Feed in overvoltage</li>
+  <li>1 - Do not feed in overvoltage</li>
+</ul>
+</dd>
+  <dt class="optional">Solar offset voltage<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Hub4/FixSolarOffsetTo100mV</b>
+<ul>
+  <li>0 - OvervoltageFeedIn uses 1V offset</li>
+  <li>1 - OvervoltageFeedIn uses 0.1V offset</li>
+</ul>
+</dd>
+  <dt class="optional">ESS power setpoint phase 1 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Hub4/L1/AcPowerSetpoint</b>
+</dd>
+  <dt class="optional">Maximum overvoltage feed-in power L1 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Hub4/L1/MaxFeedInPower</b>
+</dd>
+  <dt class="optional">ESS power setpoint phase 2 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Hub4/L2/AcPowerSetpoint</b>
+</dd>
+  <dt class="optional">Maximum overvoltage feed-in power L2 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Hub4/L2/MaxFeedInPower</b>
+</dd>
+  <dt class="optional">ESS power setpoint phase 3 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Hub4/L3/AcPowerSetpoint</b>
+</dd>
+  <dt class="optional">Maximum overvoltage feed-in power L3 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Hub4/L3/MaxFeedInPower</b>
+</dd>
+  <dt class="optional">AcPowerSetpoint acts as feed-in limit<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Hub4/TargetPowerIsMaxFeedIn</b>
+<ul>
+  <li>0 - AcPowerSetpoint interpreted normally</li>
+  <li>1 - AcPowerSetpoint is OvervoltageFeedIn limit</li>
+</ul>
 </dd>
   <dt class="optional">Switch Position<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Mode</b>
@@ -3748,6 +3882,9 @@ Questions can also be asked on the Victron Energy community:
   <li>0 - No</li>
   <li>1 - Yes</li>
 </ul>
+</dd>
+  <dt class="optional">VE.Bus state of charge (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Soc</b>
 </dd>
   <dt class="optional">VE.Bus Reset<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/SystemReset</b>

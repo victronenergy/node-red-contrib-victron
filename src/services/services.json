@@ -1784,6 +1784,96 @@
       }
     ]
   },
+  "input-fuelcell": {
+    "help": "<p>See <a href=\"https://github.com/victronenergy/venus/wiki/dbus#fuelcell\">https://github.com/victronenergy/venus/wiki/dbus#fuelcell</a> for more information.</p>",
+    "fuelcell": [
+      {
+        "path": "/Alarms/HighVoltage",
+        "type": "enum",
+        "name": "High voltage alarm",
+        "enum": {
+          "0": "Ok",
+          "1": "Warning",
+          "2": "Alarm"
+        }
+      },
+      {
+        "path": "/Alarms/HighStarterVoltage",
+        "type": "enum",
+        "name": "High auxiliary voltage alarm",
+        "enum": {
+          "0": "Ok",
+          "1": "Warning",
+          "2": "Alarm"
+        }
+      },
+      {
+        "path": "/Alarms/HighTemperature",
+        "type": "enum",
+        "name": "High temperature alarm",
+        "enum": {
+          "0": "Ok",
+          "1": "Warning",
+          "2": "Alarm"
+        }
+      },
+      {
+        "path": "/Alarms/LowStarterVoltage",
+        "type": "enum",
+        "name": "Low auxiliary voltage alarm",
+        "enum": {
+          "0": "Ok",
+          "1": "Warning",
+          "2": "Alarm"
+        }
+      },
+      {
+        "path": "/Alarms/LowTemperature",
+        "type": "enum",
+        "name": "Low temperature alarm",
+        "enum": {
+          "0": "Ok",
+          "1": "Warning",
+          "2": "Alarm"
+        }
+      },
+      {
+        "path": "/Alarms/LowVoltage",
+        "type": "enum",
+        "name": "Low voltage alarm",
+        "enum": {
+          "0": "Ok",
+          "1": "Warning",
+          "2": "Alarm"
+        }
+      },
+      {
+        "path": "/Dc/0/Current",
+        "type": "float",
+        "name": "Battery current (A)"
+      },
+      {
+        "path": "/Dc/0/Temperature",
+        "type": "float",
+        "name": "Temperature (Degrees celsius)"
+      },
+      {
+        "path": "/Dc/0/Voltage",
+        "type": "float",
+        "name": "Battery voltage (V DC)"
+      },
+      {
+        "path": "/Dc/1/Voltage",
+        "type": "float",
+        "name": "Auxiliary voltage (V DC)"
+      },
+      {
+        "path": "/History/EnergyOut",
+        "type": "float",
+        "name": "Total energy produced (kWh)"
+      }
+    ]
+  },
   "input-generator": {
     "help": "<p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the Venos OS GUI first.<br />Also see <a href=\"https://github.com/victronenergy/venus/wiki/dbus#generator\">here</a> for more information.</p>",
     "generator": [
@@ -4758,6 +4848,17 @@
         "writable": true
       },
       {
+        "path": "/Position",
+        "type": "enum",
+        "name": "Position",
+        "enum": {
+          "0": "AC input 1",
+          "1": "AC output",
+          "2": "AC input 2"
+        },
+        "writable": true
+      },
+      {
         "path": "/SetCurrent",
         "type": "float",
         "name": "Set charge current (manual mode) (A)",
@@ -4947,6 +5048,12 @@
     "help": "<p>This output node is for writing to VE.Bus connected devices.</p>",
     "vebus": [
       {
+        "path": "/Ac/ActiveIn/CurrentLimit",
+        "type": "float",
+        "name": "Active input current limit (A)",
+        "writable": true
+      },
+      {
         "path": "/Ac/In/1/CurrentLimit",
         "type": "float",
         "name": "Input 1 current limit (A)",
@@ -4956,6 +5063,92 @@
         "path": "/Ac/In/2/CurrentLimit",
         "type": "float",
         "name": "Input 2 current limit (A)",
+        "writable": true
+      },
+      {
+        "path": "/Hub4/DisableCharge",
+        "type": "enum",
+        "name": "ESS disable charge flag phase",
+        "enum": {
+          "0": "Charge allowed",
+          "1": "Charge disabled"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Hub4/DisableFeedIn",
+        "type": "enum",
+        "name": "ESS disable feedback flag phase",
+        "enum": {
+          "0": "Feed in allowed",
+          "1": "Feed in disabled"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Hub4/DoNotFeedInOvervoltage",
+        "type": "enum",
+        "name": "Feed DC overvoltage into grid",
+        "enum": {
+          "0": "Feed in overvoltage",
+          "1": "Do not feed in overvoltage"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Hub4/FixSolarOffsetTo100mV",
+        "type": "enum",
+        "name": "Solar offset voltage",
+        "enum": {
+          "0": "OvervoltageFeedIn uses 1V offset",
+          "1": "OvervoltageFeedIn uses 0.1V offset"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Hub4/L1/AcPowerSetpoint",
+        "type": "float",
+        "name": "ESS power setpoint phase 1 (W)",
+        "writable": true
+      },
+      {
+        "path": "/Hub4/L1/MaxFeedInPower",
+        "type": "float",
+        "name": "Maximum overvoltage feed-in power L1 (W)",
+        "writable": true
+      },
+      {
+        "path": "/Hub4/L2/AcPowerSetpoint",
+        "type": "float",
+        "name": "ESS power setpoint phase 2 (W)",
+        "writable": true
+      },
+      {
+        "path": "/Hub4/L2/MaxFeedInPower",
+        "type": "float",
+        "name": "Maximum overvoltage feed-in power L2 (W)",
+        "writable": true
+      },
+      {
+        "path": "/Hub4/L3/AcPowerSetpoint",
+        "type": "float",
+        "name": "ESS power setpoint phase 3 (W)",
+        "writable": true
+      },
+      {
+        "path": "/Hub4/L3/MaxFeedInPower",
+        "type": "float",
+        "name": "Maximum overvoltage feed-in power L3 (W)",
+        "writable": true
+      },
+      {
+        "path": "/Hub4/TargetPowerIsMaxFeedIn",
+        "type": "enum",
+        "name": "AcPowerSetpoint acts as feed-in limit",
+        "enum": {
+          "0": "AcPowerSetpoint interpreted normally",
+          "1": "AcPowerSetpoint is OvervoltageFeedIn limit"
+        },
         "writable": true
       },
       {
@@ -4978,6 +5171,12 @@
           "0": "No",
           "1": "Yes"
         },
+        "writable": true
+      },
+      {
+        "path": "/Soc",
+        "type": "float",
+        "name": "VE.Bus state of charge (%)",
         "writable": true
       },
       {

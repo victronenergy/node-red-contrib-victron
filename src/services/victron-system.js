@@ -136,6 +136,7 @@ class SystemConfiguration {
             "input-digitalinput": this.getNodeServices("input-digitalinput"),
             "input-ess": this.getNodeServices("input-ess"),
             "input-evcharger": this.getNodeServices("input-evcharger"),
+            "input-fuelcell": this.getNodeServices("input-fuelcell"),
             "input-generator": this.getNodeServices("input-generator"),
             "input-genset": this.getNodeServices("input-genset"),
             "input-gps": this.getNodeServices("input-gps"),
