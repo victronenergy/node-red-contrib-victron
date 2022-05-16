@@ -2315,6 +2315,66 @@ Questions can also be asked on the Victron Energy community:
   <li>34 - Input current too high</li>
 </ul>
 </dd>
+  <dt class="optional">Maximum charge power today (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Daily/0/MaxPower</b>
+</dd>
+  <dt class="optional">Maximum charge power today for tracker 0 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Daily/0/Pv/0/MaxPower</b>
+</dd>
+  <dt class="optional">Yield today for tracker 0 (kWh)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Daily/0/Pv/0/Yield</b>
+</dd>
+  <dt class="optional">Maximum charge power today for tracker 1 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Daily/0/Pv/1/MaxPower</b>
+</dd>
+  <dt class="optional">Yield today for tracker 1 (kWh)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Daily/0/Pv/1/Yield</b>
+</dd>
+  <dt class="optional">Maximum charge power today for tracker 2 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Daily/0/Pv/2/MaxPower</b>
+</dd>
+  <dt class="optional">Yield today for tracker 2 (kWh)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Daily/0/Pv/2/Yield</b>
+</dd>
+  <dt class="optional">Yield today for tracker 3 (kWh)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Daily/0/Pv/3/Yield</b>
+</dd>
+  <dt class="optional">Maximum charge power today for tracker 3 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Daily/0/Pv/3/MaxPower</b>
+</dd>
+  <dt class="optional">Yield today (kWh)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Daily/0/Yield</b>
+</dd>
+  <dt class="optional">Maximum charge power yesterday (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Daily/1/MaxPower</b>
+</dd>
+  <dt class="optional">Maximum charge power yesterday tracker 0 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Daily/1/Pv/0/MaxPower</b>
+</dd>
+  <dt class="optional">Yield yesterday for tracker 0 (kWh)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Daily/1/Pv/0/Yield</b>
+</dd>
+  <dt class="optional">Maximum charge power yesterday tracker 1 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Daily/1/Pv/1/MaxPower</b>
+</dd>
+  <dt class="optional">Yield yesterday for tracker 1 (kWh)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Daily/1/Pv/1/Yield</b>
+</dd>
+  <dt class="optional">Maximum charge power yesterday tracker 2 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Daily/1/Pv/2/MaxPower</b>
+</dd>
+  <dt class="optional">Yield yesterday for tracker 2 (kWh)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Daily/1/Pv/2/Yield</b>
+</dd>
+  <dt class="optional">Maximum charge power yesterday tracker 3 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Daily/1/Pv/3/MaxPower</b>
+</dd>
+  <dt class="optional">Yield yesterday for tracker 3 (kWh)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Daily/1/Pv/3/Yield</b>
+</dd>
+  <dt class="optional">Yield yesterday (kWh)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Daily/1/Yield</b>
+</dd>
   <dt class="optional">MPP operation mode<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/MppOperationMode</b>
 <ul>
@@ -2323,6 +2383,30 @@ Questions can also be asked on the Victron Energy community:
   <li>2 - MPPT active</li>
   <li>255 - Not available</li>
 </ul>
+</dd>
+  <dt class="optional">PV power for tracker 0 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Pv/0/P</b>
+</dd>
+  <dt class="optional">PV voltage for tracker 0 (V DC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Pv/0/V</b>
+</dd>
+  <dt class="optional">PV power for tracker 1 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Pv/1/P</b>
+</dd>
+  <dt class="optional">PV voltage for tracker 1 (V DC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Pv/1/V</b>
+</dd>
+  <dt class="optional">PV power for tracker 2 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Pv/2/P</b>
+</dd>
+  <dt class="optional">PV voltage for tracker 2 (V DC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Pv/2/V</b>
+</dd>
+  <dt class="optional">PV power for tracker 3 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Pv/3/P</b>
+</dd>
+  <dt class="optional">PV voltage for tracker 3 (V DC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Pv/3/V</b>
 </dd>
   <dt class="optional">PV voltage (V DC)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/V</b>
@@ -3708,6 +3792,16 @@ Questions can also be asked on the Victron Energy community:
   <li>3 - On</li>
   <li>4 - Off</li>
 </ul>
+</dd>
+</dl>
+</script>
+
+<script type="text/x-red" data-help-name="victron-output-pvinverter">
+<p>This node is for setting information into the PV inverter.</p>
+<h3>pvinverter</h3>
+<dl class="message-properties">
+  <dt class="optional">Power limit (kW)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/PowerLimit</b>
 </dd>
 </dl>
 </script>

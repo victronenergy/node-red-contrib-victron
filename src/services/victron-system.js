@@ -159,6 +159,7 @@ class SystemConfiguration {
             "output-generator": this.getNodeServices("output-generator"),
             "output-inverter": this.getNodeServices("output-inverter"),
             "output-multi": this.getNodeServices("output-multi"),
+            "output-pvinverter": this.getNodeServices("output-pvinverter"),
             "output-relay": this.getRelayServices(),
             "output-solarcharger": this.getNodeServices("output-solarcharger"),
             "output-vebus": this.getNodeServices("output-vebus"),

@@ -3028,6 +3028,106 @@
         }
       },
       {
+        "path": "/History/Daily/0/MaxPower",
+        "type": "float",
+        "name": "Maximum charge power today (W)"
+      },
+      {
+        "path": "/History/Daily/0/Pv/0/MaxPower",
+        "type": "float",
+        "name": "Maximum charge power today for tracker 0 (W)"
+      },
+      {
+        "path": "/History/Daily/0/Pv/0/Yield",
+        "type": "float",
+        "name": "Yield today for tracker 0 (kWh)"
+      },
+      {
+        "path": "/History/Daily/0/Pv/1/MaxPower",
+        "type": "float",
+        "name": "Maximum charge power today for tracker 1 (W)"
+      },
+      {
+        "path": "/History/Daily/0/Pv/1/Yield",
+        "type": "float",
+        "name": "Yield today for tracker 1 (kWh)"
+      },
+      {
+        "path": "/History/Daily/0/Pv/2/MaxPower",
+        "type": "float",
+        "name": "Maximum charge power today for tracker 2 (W)"
+      },
+      {
+        "path": "/History/Daily/0/Pv/2/Yield",
+        "type": "float",
+        "name": "Yield today for tracker 2 (kWh)"
+      },
+      {
+        "path": "/History/Daily/0/Pv/3/Yield",
+        "type": "float",
+        "name": "Yield today for tracker 3 (kWh)"
+      },
+      {
+        "path": "/History/Daily/0/Pv/3/MaxPower",
+        "type": "float",
+        "name": "Maximum charge power today for tracker 3 (W)"
+      },
+      {
+        "path": "/History/Daily/0/Yield",
+        "type": "float",
+        "name": "Yield today (kWh)"
+      },
+      {
+        "path": "/History/Daily/1/MaxPower",
+        "type": "float",
+        "name": "Maximum charge power yesterday (W)"
+      },
+      {
+        "path": "/History/Daily/1/Pv/0/MaxPower",
+        "type": "float",
+        "name": "Maximum charge power yesterday tracker 0 (W)"
+      },
+      {
+        "path": "/History/Daily/1/Pv/0/Yield",
+        "type": "float",
+        "name": "Yield yesterday for tracker 0 (kWh)"
+      },
+      {
+        "path": "/History/Daily/1/Pv/1/MaxPower",
+        "type": "float",
+        "name": "Maximum charge power yesterday tracker 1 (W)"
+      },
+      {
+        "path": "/History/Daily/1/Pv/1/Yield",
+        "type": "float",
+        "name": "Yield yesterday for tracker 1 (kWh)"
+      },
+      {
+        "path": "/History/Daily/1/Pv/2/MaxPower",
+        "type": "float",
+        "name": "Maximum charge power yesterday tracker 2 (W)"
+      },
+      {
+        "path": "/History/Daily/1/Pv/2/Yield",
+        "type": "float",
+        "name": "Yield yesterday for tracker 2 (kWh)"
+      },
+      {
+        "path": "/History/Daily/1/Pv/3/MaxPower",
+        "type": "float",
+        "name": "Maximum charge power yesterday tracker 3 (W)"
+      },
+      {
+        "path": "/History/Daily/1/Pv/3/Yield",
+        "type": "float",
+        "name": "Yield yesterday for tracker 3 (kWh)"
+      },
+      {
+        "path": "/History/Daily/1/Yield",
+        "type": "float",
+        "name": "Yield yesterday (kWh)"
+      },
+      {
         "path": "/MppOperationMode",
         "type": "enum",
         "name": "MPP operation mode",
@@ -3037,6 +3137,46 @@
           "2": "MPPT active",
           "255": "Not available"
         }
+      },
+      {
+        "path": "/Pv/0/P",
+        "type": "float",
+        "name": "PV power for tracker 0 (W)"
+      },
+      {
+        "path": "/Pv/0/V",
+        "type": "float",
+        "name": "PV voltage for tracker 0 (V DC)"
+      },
+      {
+        "path": "/Pv/1/P",
+        "type": "float",
+        "name": "PV power for tracker 1 (W)"
+      },
+      {
+        "path": "/Pv/1/V",
+        "type": "float",
+        "name": "PV voltage for tracker 1 (V DC)"
+      },
+      {
+        "path": "/Pv/2/P",
+        "type": "float",
+        "name": "PV power for tracker 2 (W)"
+      },
+      {
+        "path": "/Pv/2/V",
+        "type": "float",
+        "name": "PV voltage for tracker 2 (V DC)"
+      },
+      {
+        "path": "/Pv/3/P",
+        "type": "float",
+        "name": "PV power for tracker 3 (W)"
+      },
+      {
+        "path": "/Pv/3/V",
+        "type": "float",
+        "name": "PV voltage for tracker 3 (V DC)"
       },
       {
         "path": "/Pv/V",
@@ -4932,6 +5072,17 @@
           "3": "On",
           "4": "Off"
         },
+        "writable": true
+      }
+    ]
+  },
+  "output-pvinverter": {
+    "help": "<p>This node is for setting information into the PV inverter.</p>",
+    "pvinverter": [
+      {
+        "path": "/Ac/PowerLimit",
+        "type": "float",
+        "name": "Power limit (kW)",
         "writable": true
       }
     ]
