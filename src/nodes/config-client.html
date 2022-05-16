@@ -3914,6 +3914,77 @@ Questions can also be asked on the Victron Energy community:
 </dl>
 </script>
 
+<script type="text/x-red" data-help-name="victron-output-settings">
+<p>With this node several settings can be adjusted like the Carlo Gavazzi Wired AC Sensors (cgwacs).</p>
+<h3>settings</h3>
+<dl class="message-properties">
+  <dt class="optional">ESS control loop setpoint (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/AcPowerSetPoint</b>
+</dd>
+  <dt class="optional">ESS Minimum SoC (unless grid fails) (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/MinimumSocLimit</b>
+</dd>
+  <dt class="optional">ESS BatteryLife state<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b>
+<ul>
+  <li>0 - Unused, BL disabled</li>
+  <li>1 - Restarting</li>
+  <li>2 - Self-consumption</li>
+  <li>3 - Self-consumption</li>
+  <li>4 - Self-consumption</li>
+  <li>5 - Discharge disabled</li>
+  <li>6 - Force charge</li>
+  <li>7 - Sustain</li>
+  <li>8 - Low Soc Recharge</li>
+  <li>9 - Keep batteries charged</li>
+  <li>10 - BL Disabled</li>
+  <li>11 - BL Disabled (Low SoC)</li>
+  <li>12 - BL Disabled (Low SOC recharge)</li>
+</ul>
+</dd>
+  <dt class="optional">DVCC system max charge current (A DC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/SystemSetup/MaxChargeCurrent</b>
+</dd>
+  <dt class="optional">ESS Mode<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/Hub4Mode</b>
+<ul>
+  <li>1 - ESS with Phase Compensation</li>
+  <li>2 - ESS without phase compensation</li>
+  <li>3 - Disabled/External Control</li>
+</ul>
+</dd>
+  <dt class="optional">ESS max charge current (fractional) (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/MaxChargePercentage</b>
+</dd>
+  <dt class="optional">ESS max discharge current (fractional) (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/MaxDischargePercentage</b>
+</dd>
+  <dt class="optional">ESS max discharge current (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/MaxDischargePower</b>
+</dd>
+  <dt class="optional">Maximum System Grid Feed In (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/MaxFeedInPower</b>
+</dd>
+  <dt class="optional">Feed excess DC-coupled PV into grid<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/OvervoltageFeedIn</b>
+<ul>
+  <li>0 - Don’t feed excess DC-tied PV into grid</li>
+  <li>1 - Feed excess DC-tied PV into the grid</li>
+</ul>
+</dd>
+  <dt class="optional">Don’t feed excess AC-coupled PV into grid<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/PreventFeedback</b>
+<ul>
+  <li>0 - Feed excess AC-tied PV into grid</li>
+  <li>1 - Don’t feed excess AC-tied PV into the grid</li>
+</ul>
+</dd>
+  <dt class="optional">Limit managed battery voltage (V DC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/SystemSetup/MaxChargeVoltage</b>
+</dd>
+</dl>
+</script>
+
 <script type="text/x-red" data-help-name="victron-output-solarcharger">
 <p>With this node the solar charger can be switched on and off.</p>
 <h3>solarcharger</h3>

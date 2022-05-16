@@ -3243,16 +3243,16 @@
   "input-pulsemeter": {
     "help": "<p>This node is for obtaining information from the pulsemeter.</p>",
     "pulsemeter": [
-{
-    "path": "/Count",
-    "type": "float",
-    "name": "Count (number of pulses on meter)"
-},
-{
-    "path": "/Aggregate",
-    "type": "float",
-    "name": "Aggregate (measured value) (m3)"
-}
+      {
+        "path": "/Count",
+        "type": "float",
+        "name": "Count (number of pulses on meter)"
+      },
+      {
+        "path": "/Aggregate",
+        "type": "float",
+        "name": "Aggregate (measured value) (m3)"
+      }
     ]
   },
   "input-pvinverter": {
@@ -5213,6 +5213,111 @@
           "0": "Open",
           "1": "Closed"
         },
+        "writable": true
+      }
+    ]
+  },
+  "output-settings": {
+    "help": "<p>With this node several settings can be adjusted. Currently the focus is mainly on the Carlo Gavazzi Wired AC Sensors (cgwacs).</p>",
+    "settings": [
+      {
+        "path": "/Settings/CGwacs/AcPowerSetPoint",
+        "type": "float",
+        "name": "ESS control loop setpoint (W)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/MinimumSocLimit",
+        "type": "float",
+        "name": "ESS Minimum SoC (unless grid fails) (%)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/State",
+        "type": "enum",
+        "name": "ESS BatteryLife state",
+        "enum": {
+          "0": "Unused, BL disabled",
+          "1": "Restarting",
+          "2": "Self-consumption",
+          "3": "Self-consumption",
+          "4": "Self-consumption",
+          "5": "Discharge disabled",
+          "6": "Force charge",
+          "7": "Sustain",
+          "8": "Low Soc Recharge",
+          "9": "Keep batteries charged",
+          "10": "BL Disabled",
+          "11": "BL Disabled (Low SoC)",
+          "12": "BL Disabled (Low SOC recharge)"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/SystemSetup/MaxChargeCurrent",
+        "type": "float",
+        "name": "DVCC system max charge current (A DC)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/Hub4Mode",
+        "type": "enum",
+        "name": "ESS Mode",
+        "enum": {
+          "1": "ESS with Phase Compensation",
+          "2": "ESS without phase compensation",
+          "3": "Disabled/External Control"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/MaxChargePercentage",
+        "type": "float",
+        "name": "ESS max charge current (fractional) (%)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/MaxDischargePercentage",
+        "type": "float",
+        "name": "ESS max discharge current (fractional) (%)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/MaxDischargePower",
+        "type": "float",
+        "name": "ESS max discharge current (W)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/MaxFeedInPower",
+        "type": "float",
+        "name": "Maximum System Grid Feed In (W)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/OvervoltageFeedIn",
+        "type": "enum",
+        "name": "Feed excess DC-coupled PV into grid",
+        "enum": {
+          "0": "Don’t feed excess DC-tied PV into grid",
+          "1": "Feed excess DC-tied PV into the grid"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/PreventFeedback",
+        "type": "enum",
+        "name": "Don’t feed excess AC-coupled PV into grid",
+        "enum": {
+          "0": "Feed excess AC-tied PV into grid",
+          "1": "Don’t feed excess AC-tied PV into the grid"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/SystemSetup/MaxChargeVoltage",
+        "type": "float",
+        "name": "Limit managed battery voltage (V DC)",
         "writable": true
       }
     ]
