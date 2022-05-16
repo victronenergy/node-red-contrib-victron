@@ -155,6 +155,7 @@ class SystemConfiguration {
 
             // output services
             "output-accharger": this.getNodeServices("output-accharger"),
+            "output-charger": this.getNodeServices("output-charger"),
             "output-ess": this.getNodeServices("output-ess"),
             "output-evcharger": this.getNodeServices("output-evcharger"),
             "output-generator": this.getNodeServices("output-generator"),

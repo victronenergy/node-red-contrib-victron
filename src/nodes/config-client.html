@@ -3643,6 +3643,23 @@ Questions can also be asked on the Victron Energy community:
 </dl>
 </script>
 
+<script type="text/x-red" data-help-name="victron-output-charger">
+<p>This node allows for controlling a connected charger.</p>
+<h3>charger</h3>
+<dl class="message-properties">
+  <dt class="optional">AC Current limit (A AC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/In/CurrentLimit</b>
+</dd>
+  <dt class="optional">Charger on/off<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Mode</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+</dl>
+</script>
+
 <script type="text/x-red" data-help-name="victron-output-ess">
 <p>This node allows for controlling the Energy Storage System (ESS).</p>
 <h3>vebus</h3>
@@ -3915,7 +3932,7 @@ Questions can also be asked on the Victron Energy community:
 </script>
 
 <script type="text/x-red" data-help-name="victron-output-settings">
-<p>With this node several settings can be adjusted like the Carlo Gavazzi Wired AC Sensors (cgwacs).</p>
+<p>With this node several settings can be adjusted. Currently the focus is mainly on the Carlo Gavazzi Wired AC Sensors (cgwacs).</p>
 <h3>settings</h3>
 <dl class="message-properties">
   <dt class="optional">ESS control loop setpoint (W)<span class="property-type">float</dt>

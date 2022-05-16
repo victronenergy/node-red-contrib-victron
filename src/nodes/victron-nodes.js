@@ -106,6 +106,7 @@ module.exports = function (RED) {
 
     // Output nodes
     RED.nodes.registerType('victron-output-accharger', BaseOutputNode);
+    RED.nodes.registerType('victron-output-charger', BaseOutputNode);
     RED.nodes.registerType('victron-output-ess', BaseOutputNode);
     RED.nodes.registerType('victron-output-evcharger', BaseOutputNode);
     RED.nodes.registerType('victron-output-generator', BaseOutputNode);

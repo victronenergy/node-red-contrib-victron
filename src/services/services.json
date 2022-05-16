@@ -4857,6 +4857,27 @@
       }
     ]
   },
+  "output-charger": {
+    "help": "<p>This node allows for controlling a connected charger.</p>",
+    "charger": [
+{
+    "path": "/Ac/In/CurrentLimit",
+    "type": "float",
+    "name": "AC Current limit (A AC)",
+    "writable": true
+},
+{
+    "path": "/Mode",
+    "type": "enum",
+    "name": "Charger on/off",
+    "enum": {
+        "0": "Off",
+        "1": "On"
+    },
+    "writable": true
+}
+    ]
+  },
   "output-ess": {
     "help": "<p>This node allows for controlling the Energy Storage System (ESS).</p>",
     "vebus": [
