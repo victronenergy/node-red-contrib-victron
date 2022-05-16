@@ -3240,6 +3240,21 @@
       }
     ]
   },
+  "input-pulsemeter": {
+    "help": "<p>This node is for obtaining information from the pulsemeter.</p>",
+    "pulsemeter": [
+{
+    "path": "/Count",
+    "type": "float",
+    "name": "Count (number of pulses on meter)"
+},
+{
+    "path": "/Aggregate",
+    "type": "float",
+    "name": "Aggregate (measured value) (m3)"
+}
+    ]
+  },
   "input-pvinverter": {
     "help": "<p>This node is for obtaining information from the PV inverter.</p>",
     "pvinverter": [
@@ -3403,6 +3418,17 @@
         }
       }
     ],
+    "accharger": [
+      {
+        "path": "/Relay/0/State",
+        "type": "enum",
+        "name": "Relay on the charger",
+        "enum": {
+          "0": "Open",
+          "1": "Closed"
+        }
+      }
+    ],
     "battery": [
       {
         "path": "/Relay/0/State",
@@ -3425,22 +3451,33 @@
         }
       }
     ],
-    "solarcharger": [
+    "inverter": [
       {
         "path": "/Relay/0/State",
         "type": "enum",
-        "name": "Relay on the charger",
+        "name": "Relay state",
         "enum": {
           "0": "Open",
           "1": "Closed"
         }
       }
     ],
-    "inverter": [
+    "multi": [
       {
         "path": "/Relay/0/State",
         "type": "enum",
-        "name": "Relay state",
+        "name": "Relay on the Multi RS",
+        "enum": {
+          "0": "Open",
+          "1": "Closed"
+        }
+      }
+    ],
+    "solarcharger": [
+      {
+        "path": "/Relay/0/State",
+        "type": "enum",
+        "name": "Relay on the charger",
         "enum": {
           "0": "Open",
           "1": "Closed"
