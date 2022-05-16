@@ -595,11 +595,20 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Diagnostics; 1st last error timestamp<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Diagnostics/LastErrors/1/Time</b>
 </dd>
+  <dt class="optional">Diagnostics; 2nd last error<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Diagnostics/LastErrors/2/Error</b>
+</dd>
   <dt class="optional">Diagnostics; 2nd last error timestamp<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Diagnostics/LastErrors/2/Time</b>
 </dd>
+  <dt class="optional">Diagnostics; 3rd last error<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Diagnostics/LastErrors/3/Error</b>
+</dd>
   <dt class="optional">Diagnostics; 3rd last error timestamp<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Diagnostics/LastErrors/3/Time</b>
+</dd>
+  <dt class="optional">Diagnostics; 4th last error<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Diagnostics/LastErrors/4/Error</b>
 </dd>
   <dt class="optional">Diagnostics; 4th last error timestamp<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Diagnostics/LastErrors/4/Time</b>
@@ -2075,6 +2084,31 @@ Questions can also be asked on the Victron Energy community:
 </dd>
   <dt class="optional">Wind speed (m/s)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/WindSpeed</b>
+</dd>
+</dl>
+</script>
+
+<script type="text/x-red" data-help-name="victron-input-motordrive">
+<p>This is the motordrive input node. See <a href="https://bitbucket.org/oceanvolt/dbus_motordrive/src">https://bitbucket.org/oceanvolt/dbus_motordrive/src</a> for more information.</p>
+<h3>motordrive</h3>
+<dl class="message-properties">
+  <dt class="optional">Controller Temperature (Degrees celsius)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Controller/Temperature</b>
+</dd>
+  <dt class="optional">Motor RPM (RPM)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Motor/RPM</b>
+</dd>
+  <dt class="optional">Motor temperature (Degrees celsius)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Motor/Temperature</b>
+</dd>
+  <dt class="optional">Controller DC Current (A DC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Dc/0/Current</b>
+</dd>
+  <dt class="optional">Controller DC Power (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Dc/0/Power</b>
+</dd>
+  <dt class="optional">Controller DC Voltage (V DC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Dc/0/Voltage</b>
 </dd>
 </dl>
 </script>
@@ -3814,6 +3848,20 @@ Questions can also be asked on the Victron Energy community:
 <ul>
   <li>0 - Stop generator</li>
   <li>1 - Start generator</li>
+</ul>
+</dd>
+</dl>
+</script>
+
+<script type="text/x-red" data-help-name="victron-output-genset">
+<p>Used for controlling a (Fischer Panda) generator. See <a href="https://www.victronenergy.com/live/ccgx:fischer_panda">https://www.victronenergy.com/live/ccgx:fischer_panda</a> for more information.</p>
+<h3>genset</h3>
+<dl class="message-properties">
+  <dt class="optional">Start generator<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Start</b>
+<ul>
+  <li>0 - Stop</li>
+  <li>1 - Start</li>
 </ul>
 </dd>
 </dl>

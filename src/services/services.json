@@ -696,14 +696,29 @@
         "name": "Diagnostics; 1st last error timestamp"
       },
       {
+        "path": "/Diagnostics/LastErrors/2/Error",
+        "type": "float",
+        "name": "Diagnostics; 2nd last error"
+      },
+      {
         "path": "/Diagnostics/LastErrors/2/Time",
         "type": "float",
         "name": "Diagnostics; 2nd last error timestamp"
       },
       {
+        "path": "/Diagnostics/LastErrors/3/Error",
+        "type": "float",
+        "name": "Diagnostics; 3rd last error"
+      },
+      {
         "path": "/Diagnostics/LastErrors/3/Time",
         "type": "float",
         "name": "Diagnostics; 3rd last error timestamp"
+      },
+      {
+        "path": "/Diagnostics/LastErrors/4/Error",
+        "type": "float",
+        "name": "Diagnostics; 4th last error"
       },
       {
         "path": "/Diagnostics/LastErrors/4/Time",
@@ -2685,6 +2700,41 @@
         "path": "/WindSpeed",
         "type": "float",
         "name": "Wind speed (m/s)"
+      }
+    ]
+  },
+  "input-motordrive": {
+    "help": "<p>This is the motordrive input node. See <a href=\"https://bitbucket.org/oceanvolt/dbus_motordrive/src\">https://bitbucket.org/oceanvolt/dbus_motordrive/src</a> for more information.</p>",
+    "motordrive": [
+      {
+        "path": "/Controller/Temperature",
+        "type": "float",
+        "name": "Controller Temperature (Degrees celsius)"
+      },
+      {
+        "path": "/Motor/RPM",
+        "type": "float",
+        "name": "Motor RPM (RPM)"
+      },
+      {
+        "path": "/Motor/Temperature",
+        "type": "float",
+        "name": "Motor temperature (Degrees celsius)"
+      },
+      {
+        "path": "/Dc/0/Current",
+        "type": "float",
+        "name": "Controller DC Current (A DC)"
+      },
+      {
+        "path": "/Dc/0/Power",
+        "type": "float",
+        "name": "Controller DC Power (W)"
+      },
+      {
+        "path": "/Dc/0/Voltage",
+        "type": "float",
+        "name": "Controller DC Voltage (V DC)"
       }
     ]
   },
@@ -5094,6 +5144,21 @@
         "enum": {
           "0": "Stop generator",
           "1": "Start generator"
+        },
+        "writable": true
+      }
+    ]
+  },
+  "output-genset": {
+    "help": "<p>Used for controlling a (Fischer Panda) generator. See <a href=\"https://www.victronenergy.com/live/ccgx:fischer_panda\">https://www.victronenergy.com/live/ccgx:fischer_panda</a> for more information.</p>",
+    "genset": [
+      {
+        "path": "/Start",
+        "type": "enum",
+        "name": "Start generator",
+        "enum": {
+          "0": "Stop",
+          "1": "Start"
         },
         "writable": true
       }

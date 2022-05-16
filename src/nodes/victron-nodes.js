@@ -111,6 +111,7 @@ module.exports = function (RED) {
     RED.nodes.registerType('victron-output-ess', BaseOutputNode);
     RED.nodes.registerType('victron-output-evcharger', BaseOutputNode);
     RED.nodes.registerType('victron-output-generator', BaseOutputNode);
+    RED.nodes.registerType('victron-output-genset', BaseOutputNode);
     RED.nodes.registerType('victron-output-inverter', BaseOutputNode);
     RED.nodes.registerType('victron-output-multi', BaseOutputNode);
     RED.nodes.registerType('victron-output-pvinverter', BaseOutputNode);
