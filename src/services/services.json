@@ -373,6 +373,40 @@
         "name": "Engine RPM"
       },
       {
+        "path": "/Engine/Speed",
+        "type": "float",
+        "name": "Engine speed (RPM)"
+      },
+      {
+        "path": "/ErrorCode",
+        "type": "enum",
+        "name": "Alternator error code",
+        "enum": {
+          "12": "High battery temperature",
+          "13": "High battery voltage",
+          "14": "Low battery voltage",
+          "15": "VBat exceeds $CPB",
+          "21": "High alternator temperature",
+          "22": "Alternator overspeed",
+          "24": "Internal error",
+          "41": "High field FET temperature",
+          "42": "Sensor missing",
+          "43": "Low VAlt",
+          "44": "High Voltage offset",
+          "45": "VAlt exceeds $CPB",
+          "53": "Battery instance out of range",
+          "54": "Too many BMSes",
+          "55": "AEBus fault",
+          "56": "Too many Victron devices",
+          "91": "BMS lost",
+          "92": "Forced idle",
+          "201": "DCDC converter fail",
+          "51-52": "Battery disconnect request",
+          "58-61": "Battery requested disconnection",
+          "201-207": "DCDC error"
+        }
+      },
+      {
         "path": "/FieldDrive",
         "type": "float",
         "name": "Alternator Field Drive %"
@@ -391,6 +425,11 @@
           "1": "Master",
           "2": "Slave"
         }
+      },
+      {
+        "path": "/Speed",
+        "type": "float",
+        "name": "Alternator speed (RPM)"
       },
       {
         "path": "/State",
@@ -4798,6 +4837,15 @@
         "path": "/Energy/OutToInverter",
         "type": "float",
         "name": "AcOut to Inverter (kWh)"
+      },
+      {
+        "path": "/Hub4/Sustain",
+        "type": "enum",
+        "name": "Sustain active",
+        "enum": {
+          "0": "Sustain inactive",
+          "1": "Sustain active"
+        }
       },
       {
         "path": "/Mode",
