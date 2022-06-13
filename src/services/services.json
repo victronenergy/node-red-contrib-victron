@@ -220,7 +220,7 @@
     ]
   },
   "input-alternator": {
-    "help": "<p>This node allows for monitoring the state BMVs configured in Monitor Mode and DC meter type is Alternator or an alternator controller which is interfaced to the Venus OS.</p>",
+    "help": "<p>This node allows for monitoring the state of BMVs configured in Monitor Mode and DC meter type is Alternator or an alternator controller which is interfaced to the Venus OS.</p>",
     "alternator": [
       {
         "path": "/Alarms/HighStarterVoltage",
@@ -998,7 +998,7 @@
     ]
   },
   "input-dcload": {
-    "help": "<p>This node allows for monitoring the state BMVs configured in Monitor Mode and DC meter type is a load.</p>",
+    "help": "<p>This node allows for monitoring the state of BMVs configured in Monitor Mode and DC meter type is a load.</p>",
     "dcload": [
       {
         "path": "/Alarms/HighStarterVoltage",
@@ -3093,7 +3093,7 @@
     ]
   },
   "input-pulsemeter": {
-    "help": "<p>This node is for obtaining information from the pulsemeter.</p>",
+    "help": "<p>This node is for obtaining information from a pulsemeter. In order to use this, set a digital input to <strong>Pulse meter</strong> first via the GUI (Under <i>I/O -> Digital inputs</i>)</p>",
     "pulsemeter": [
       {
         "path": "/Count",

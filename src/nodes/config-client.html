@@ -225,23 +225,9 @@ Questions can also be asked on the Victron Energy community:
 </script>
 
 <script type="text/x-red" data-help-name="victron-input-alternator">
-<p>This node allows for monitoring the state BMVs configured in Monitor Mode and DC meter type is Alternator or an alternator controller which is interfaced to the Venus OS.</p>
+<p>This node allows for monitoring the state of BMVs configured in Monitor Mode and DC meter type is Alternator or an alternator controller which is interfaced to the Venus OS.</p>
 <h3>alternator</h3>
 <dl class="message-properties">
-  <dt class="optional">Alternator Error<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Alarms/AlternatorError</b>
-<ul>
-  <li>0 - No alarm</li>
-  <li>2 - Alarm</li>
-</ul>
-</dd>
-  <dt class="optional">Charger Error<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Alarms/ChargerError</b>
-<ul>
-  <li>0 - No alarm</li>
-  <li>2 - Alarm</li>
-</ul>
-</dd>
   <dt class="optional">High auxiliary voltage alarm<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Alarms/HighStarterVoltage</b>
 <ul>
@@ -289,44 +275,8 @@ Questions can also be asked on the Victron Energy community:
   <li>2 - Alarm</li>
 </ul>
 </dd>
-  <dt class="optional">Charger Overload<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Alarms/Overload</b>
-<ul>
-  <li>0 - No alarm</li>
-  <li>2 - Alarm</li>
-</ul>
-</dd>
-  <dt class="optional">Charger high temperature<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Alarms/Temperature</b>
-<ul>
-  <li>0 - No alarm</li>
-  <li>2 - Alarm</li>
-</ul>
-</dd>
-  <dt class="optional">Alternator RPM<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/AlternatorRPM</b>
-</dd>
-  <dt class="optional">Alterntor Charging Status<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/AlternatorStatus</b>
-<ul>
-  <li>0 - Not Charging</li>
-  <li>1 - Charing</li>
-  <li>2 - Error</li>
-  <li>3 - Not Available</li>
-</ul>
-</dd>
-  <dt class="optional">Charger Status<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/ChargeEnable</b>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - On</li>
-</ul>
-</dd>
   <dt class="optional">Current (A)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/0/Current</b>
-</dd>
-  <dt class="optional">Battery power (W)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Dc/0/Power</b>
 </dd>
   <dt class="optional">Battery temperature (C)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/0/Temperature</b>
@@ -336,9 +286,6 @@ Questions can also be asked on the Victron Energy community:
 </dd>
   <dt class="optional">Auxiliary voltage (V DC)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/1/Voltage</b>
-</dd>
-  <dt class="optional">Engine RPM<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/EngineRPM</b>
 </dd>
   <dt class="optional">Engine speed (RPM)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Engine/Speed</b>
@@ -375,14 +322,6 @@ Questions can also be asked on the Victron Energy community:
 </dd>
   <dt class="optional">Total energy produced (kWh)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/History/EnergyOut</b>
-</dd>
-  <dt class="optional">Charger Mode<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Mode</b>
-<ul>
-  <li>0 - Standalone</li>
-  <li>1 - Master</li>
-  <li>2 - Slave</li>
-</ul>
 </dd>
   <dt class="optional">Alternator speed (RPM)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Speed</b>
@@ -868,7 +807,7 @@ Questions can also be asked on the Victron Energy community:
 </script>
 
 <script type="text/x-red" data-help-name="victron-input-dcload">
-<p>This node allows for monitoring the state BMVs configured in Monitor Mode and DC meter type is a load.</p>
+<p>This node allows for monitoring the state of BMVs configured in Monitor Mode and DC meter type is a load.</p>
 <h3>dcload</h3>
 <dl class="message-properties">
   <dt class="optional">High starter-voltage alarm<span class="property-type">enum</dt>
@@ -928,9 +867,6 @@ Questions can also be asked on the Victron Energy community:
 </dd>
   <dt class="optional">Mid-point deviation of the battery bank (%)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/0/MidVoltageDeviation</b>
-</dd>
-  <dt class="optional">Battery power (W)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Dc/0/Power</b>
 </dd>
   <dt class="optional">Battery temperature (C)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/0/Temperature</b>
@@ -1015,9 +951,6 @@ Questions can also be asked on the Victron Energy community:
 </dd>
   <dt class="optional">Mid-point deviation of the battery bank (%)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/0/MidVoltageDeviation</b>
-</dd>
-  <dt class="optional">Battery power (W)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Dc/0/Power</b>
 </dd>
   <dt class="optional">Battery temperature (C)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/0/Temperature</b>
@@ -1447,48 +1380,6 @@ Questions can also be asked on the Victron Energy community:
 <p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the Venos OS GUI first.<br />Also see <a href="https://github.com/victronenergy/venus/wiki/dbus#generator">here</a> for more information.</p>
 <h3>generator</h3>
 <dl class="message-properties">
-  <dt class="optional">Generator not detected at AC input alarm<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Generator0/Alarms/NoGeneratorAtAcIn</b>
-<ul>
-  <li>0 - No alarm</li>
-  <li>2 - Alarm</li>
-</ul>
-</dd>
-  <dt class="optional">Generator remote error<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Generator0/Error</b>
-<ul>
-  <li>0 - No Error</li>
-  <li>1 - Remote disabled</li>
-  <li>2 - Remote fault</li>
-</ul>
-</dd>
-  <dt class="optional">Condition that started the generator<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Generator0/RunningByConditionCode</b>
-<ul>
-  <li>0 - Stopped</li>
-  <li>1 - Manual</li>
-  <li>2 - TestRun</li>
-  <li>3 - LossOfComms</li>
-  <li>4 - Soc</li>
-  <li>5 - AcLoad</li>
-  <li>6 - BatteryCurrent</li>
-  <li>7 - BatteryVoltage</li>
-  <li>8 - InverterTemperatur</li>
-  <li>9 - InverterOverload</li>
-  <li>10 - StopOnAc1</li>
-</ul>
-</dd>
-  <dt class="optional">Runtime in seconds (seconds)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Generator0/Runtime</b>
-</dd>
-  <dt class="optional">Generator start/stop state<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Generator0/State</b>
-<ul>
-  <li>0 - Stopped</li>
-  <li>1 - Running</li>
-  <li>10 - Error</li>
-</ul>
-</dd>
   <dt class="optional">Condition that started the generator<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/RunningByConditionCode</b>
 <ul>
@@ -2451,7 +2342,7 @@ Questions can also be asked on the Victron Energy community:
 </script>
 
 <script type="text/x-red" data-help-name="victron-input-pulsemeter">
-<p>This node is for obtaining information from the pulsemeter.</p>
+<p>This node is for obtaining information from a pulsemeter. In order to use this, set a digital input to <strong>Pulse meter</strong> first via the GUI (Under <i>I/O -> Digital inputs</i>)</p>
 <h3>pulsemeter</h3>
 <dl class="message-properties">
   <dt class="optional">Count (number of pulses on meter)<span class="property-type">float</dt>
@@ -2952,21 +2843,6 @@ Questions can also be asked on the Victron Energy community:
 </dd>
   <dt class="optional">AC Consumption L3 (W)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/Consumption/L3/Power</b>
-</dd>
-  <dt class="optional">AC Consumption on Input Number Of Phases<span class="property-type">integer</dt>
-  <dd>Dbus path: <b>/Ac/ConsumptionOnInput/NumberOfPhases</b>
-</dd>
-  <dt class="optional">AC Consumption on Output L1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Ac/ConsumptionOnOutput/L1/Power</b>
-</dd>
-  <dt class="optional">AC Consumption on Output L2<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Ac/ConsumptionOnOutput/L2/Power</b>
-</dd>
-  <dt class="optional">AC Consumption on Output L3<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Ac/ConsumptionOnOutput/L3/Power</b>
-</dd>
-  <dt class="optional">AC Consumption on Output Number Of Phases<span class="property-type">integer</dt>
-  <dd>Dbus path: <b>/Ac/ConsumptionOnOutput/NumberOfPhases</b>
 </dd>
   <dt class="optional">Genset Device Type<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/Genset/DeviceType</b>
