@@ -1079,11 +1079,6 @@
         "name": "Mid-point deviation of the battery bank (%)"
       },
       {
-        "path": "/Dc/0/Power",
-        "type": "float",
-        "name": "Battery power (W)"
-      },
-      {
         "path": "/Dc/0/Temperature",
         "type": "float",
         "name": "Battery temperature (C)"
@@ -1194,11 +1189,6 @@
         "path": "/Dc/0/MidVoltageDeviation",
         "type": "float",
         "name": "Mid-point deviation of the battery bank (%)"
-      },
-      {
-        "path": "/Dc/0/Power",
-        "type": "float",
-        "name": "Battery power (W)"
       },
       {
         "path": "/Dc/0/Temperature",
