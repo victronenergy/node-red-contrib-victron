@@ -32,6 +32,8 @@ workbook.xlsx.readFile(xls_file)
     worksheet.eachRow({ includeEmpty: true }, function(row, rowNumber) {
       // We can ignore the first two rows
       if ( rowNumber <= 2 ) { return; }
+      // Nothing to do when there are no more entries
+      if ( typeof row.values[1] === 'undefined' ) { return; }
       // Determine the node name. If it is writeable: output else input
       if ( row.values[8] && row.values[8] === "yes" ) { node = "output-"; } else { node = "input-"; };
       node = node + row.values[1].split('.')[2];
@@ -116,7 +118,7 @@ workbook.xlsx.readFile(xls_file)
     // We check for each service.json entry to exist within the spreadsheet.
     // We currently _only_ check the path and dbus-service-name combination
     console.log("// Checking services.json for obsolete entries");
-    maxrows = worksheet.rowCount;
+    maxrows = worksheet.actualRowCount;
     for (const [node, info] of Object.entries(services) ) {
       dbus_service_name = 'com.victronenergy.' + node.split('-')[1];
       if ( dbus_service_name.match(/relay/) ) { continue; }
@@ -134,7 +136,7 @@ workbook.xlsx.readFile(xls_file)
           if (service.path.match(/\/Relay/) ) { found = true; }
           for (let i = 2; i <= maxrows; i++ ) {
             if ( worksheet.getCell('G'+i).value === null ) {
-              return;
+              continue;
             }
             if ( worksheet.getCell('A'+i).value === dbus_service_name &&
                  worksheet.getCell('G'+i).value.replace('Cgwacs', 'CGwacs') === service.path ) {
