@@ -3807,31 +3807,6 @@
         "name": "AC Consumption L3 (W)"
       },
       {
-        "path": "/Ac/ConsumptionOnInput/NumberOfPhases",
-        "type": "integer",
-        "name": "AC Consumption on Input Number Of Phases"
-      },
-      {
-        "path": "/Ac/ConsumptionOnOutput/L1/Power",
-        "type": "float",
-        "name": "AC Consumption on Output L1"
-      },
-      {
-        "path": "/Ac/ConsumptionOnOutput/L2/Power",
-        "type": "float",
-        "name": "AC Consumption on Output L2"
-      },
-      {
-        "path": "/Ac/ConsumptionOnOutput/L3/Power",
-        "type": "float",
-        "name": "AC Consumption on Output L3"
-      },
-      {
-        "path": "/Ac/ConsumptionOnOutput/NumberOfPhases",
-        "type": "integer",
-        "name": "AC Consumption on Output Number Of Phases"
-      },
-      {
         "path": "/Ac/Genset/DeviceType",
         "type": "float",
         "name": "Genset Device Type",
