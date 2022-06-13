@@ -223,24 +223,6 @@
     "help": "<p>This node allows for monitoring the state BMVs configured in Monitor Mode and DC meter type is Alternator or an alternator controller which is interfaced to the Venus OS.</p>",
     "alternator": [
       {
-        "path": "/Alarms/AlternatorError",
-        "type": "enum",
-        "name": "Alternator Error",
-        "enum": {
-          "0": "No alarm",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/ChargerError",
-        "type": "enum",
-        "name": "Charger Error",
-        "enum": {
-          "0": "No alarm",
-          "2": "Alarm"
-        }
-      },
-      {
         "path": "/Alarms/HighStarterVoltage",
         "type": "enum",
         "name": "High auxiliary voltage alarm",
@@ -300,57 +282,9 @@
         }
       },
       {
-        "path": "/Alarms/Overload",
-        "type": "enum",
-        "name": "Charger Overload",
-        "enum": {
-          "0": "No alarm",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/Temperature",
-        "type": "enum",
-        "name": "Charger high temperature",
-        "enum": {
-          "0": "No alarm",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/AlternatorRPM",
-        "type": "float",
-        "name": "Alternator RPM"
-      },
-      {
-        "path": "/AlternatorStatus",
-        "type": "enum",
-        "name": "Alterntor Charging Status",
-        "enum": {
-          "0": "Not Charging",
-          "1": "Charing",
-          "2": "Error",
-          "3": "Not Available"
-        }
-      },
-      {
-        "path": "/ChargeEnable",
-        "type": "enum",
-        "name": "Charger Status",
-        "enum": {
-          "0": "Off",
-          "1": "On"
-        }
-      },
-      {
         "path": "/Dc/0/Current",
         "type": "float",
         "name": "Current (A)"
-      },
-      {
-        "path": "/Dc/0/Power",
-        "type": "float",
-        "name": "Battery power (W)"
       },
       {
         "path": "/Dc/0/Temperature",
@@ -366,11 +300,6 @@
         "path": "/Dc/1/Voltage",
         "type": "float",
         "name": "Auxiliary voltage (V DC)"
-      },
-      {
-        "path": "/EngineRPM",
-        "type": "float",
-        "name": "Engine RPM"
       },
       {
         "path": "/Engine/Speed",
@@ -415,16 +344,6 @@
         "path": "/History/EnergyOut",
         "type": "float",
         "name": "Total energy produced (kWh)"
-      },
-      {
-        "path": "/Mode",
-        "type": "enum",
-        "name": "Charger Mode",
-        "enum": {
-          "0": "Standalone",
-          "1": "Master",
-          "2": "Slave"
-        }
       },
       {
         "path": "/Speed",
