@@ -80,7 +80,6 @@ module.exports = function (RED) {
     RED.nodes.registerType('victron-input-acload', BaseInputNode);
     RED.nodes.registerType('victron-input-alternator', BaseInputNode);
     RED.nodes.registerType('victron-input-battery', BaseInputNode);
-    RED.nodes.registerType('victron-input-dcdc', BaseInputNode);
     RED.nodes.registerType('victron-input-dcload', BaseInputNode);
     RED.nodes.registerType('victron-input-dcsource', BaseInputNode);
     RED.nodes.registerType('victron-input-dcsystem', BaseInputNode);

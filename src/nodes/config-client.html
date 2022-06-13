@@ -340,6 +340,36 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Engine RPM<span class="property-type">float</dt>
   <dd>Dbus path: <b>/EngineRPM</b>
 </dd>
+  <dt class="optional">Engine speed (RPM)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Engine/Speed</b>
+</dd>
+  <dt class="optional">Alternator error code<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/ErrorCode</b>
+<ul>
+  <li>12 - High battery temperature</li>
+  <li>13 - High battery voltage</li>
+  <li>14 - Low battery voltage</li>
+  <li>15 - VBat exceeds $CPB</li>
+  <li>21 - High alternator temperature</li>
+  <li>22 - Alternator overspeed</li>
+  <li>24 - Internal error</li>
+  <li>41 - High field FET temperature</li>
+  <li>42 - Sensor missing</li>
+  <li>43 - Low VAlt</li>
+  <li>44 - High Voltage offset</li>
+  <li>45 - VAlt exceeds $CPB</li>
+  <li>53 - Battery instance out of range</li>
+  <li>54 - Too many BMSes</li>
+  <li>55 - AEBus fault</li>
+  <li>56 - Too many Victron devices</li>
+  <li>91 - BMS lost</li>
+  <li>92 - Forced idle</li>
+  <li>201 - DCDC converter fail</li>
+  <li>51-52 - Battery disconnect request</li>
+  <li>58-61 - Battery requested disconnection</li>
+  <li>201-207 - DCDC error</li>
+</ul>
+</dd>
   <dt class="optional">Alternator Field Drive %<span class="property-type">float</dt>
   <dd>Dbus path: <b>/FieldDrive</b>
 </dd>
@@ -353,6 +383,9 @@ Questions can also be asked on the Victron Energy community:
   <li>1 - Master</li>
   <li>2 - Slave</li>
 </ul>
+</dd>
+  <dt class="optional">Alternator speed (RPM)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Speed</b>
 </dd>
   <dt class="optional">Charger State<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/State</b>
@@ -830,80 +863,6 @@ Questions can also be asked on the Victron Energy community:
 </dd>
   <dt class="optional">Time to go (h)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/TimeToGo</b>
-</dd>
-</dl>
-</script>
-
-<script type="text/x-red" data-help-name="victron-input-dcdc">
-<p>This node allows for monitoring the state BMVs configured in Monitor Mode and DC meter type is DC/DC, or a DC/DC controller which is interfaced to the Venus OS.</p>
-<h3>dcdc</h3>
-<dl class="message-properties">
-  <dt class="optional">Charger Error<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Alarms/ChargerError</b>
-<ul>
-  <li>0 - No alarm</li>
-  <li>2 - Alarm</li>
-</ul>
-</dd>
-  <dt class="optional">Low voltage alarm<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Alarms/LowVoltage</b>
-<ul>
-  <li>0 - No alarm</li>
-  <li>2 - Alarm</li>
-</ul>
-</dd>
-  <dt class="optional">Charger Overload<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Alarms/Overload</b>
-<ul>
-  <li>0 - No alarm</li>
-  <li>2 - Alarm</li>
-</ul>
-</dd>
-  <dt class="optional">Charger high temperature<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Alarms/Temperature</b>
-<ul>
-  <li>0 - No alarm</li>
-  <li>2 - Alarm</li>
-</ul>
-</dd>
-  <dt class="optional">Charger Status<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/ChargeEnable</b>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - On</li>
-</ul>
-</dd>
-  <dt class="optional">Current (A)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Dc/0/Current</b>
-</dd>
-  <dt class="optional">Battery power (W)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Dc/0/Power</b>
-</dd>
-  <dt class="optional">Battery temperature (C)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Dc/0/Temperature</b>
-</dd>
-  <dt class="optional">Voltage (V)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Dc/0/Voltage</b>
-</dd>
-  <dt class="optional">Charger Mode<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Mode</b>
-<ul>
-  <li>0 - Standalone</li>
-  <li>1 - Master</li>
-  <li>2 - Slave</li>
-</ul>
-</dd>
-  <dt class="optional">Charger State<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/State</b>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - Bulk</li>
-  <li>2 - Absorbtion</li>
-  <li>5 - Float</li>
-  <li>7 - Ext. Control</li>
-  <li>8 - Disabled</li>
-  <li>9 - Fault</li>
-</ul>
 </dd>
 </dl>
 </script>
@@ -3168,6 +3127,12 @@ Questions can also be asked on the Victron Energy community:
   <li>3 - Live well</li>
   <li>4 - Oil</li>
   <li>5 - Black water (sewage)</li>
+  <li>6 - Gasoline</li>
+  <li>7 - Diesel</li>
+  <li>8 - Liquid Petroleum Gas (LPG)</li>
+  <li>9 - Liquid Natural Gas (LNG)</li>
+  <li>10 - Hydraulic oil</li>
+  <li>11 - Raw water</li>
 </ul>
 </dd>
   <dt class="optional">Tank level (%)<span class="property-type">float</dt>
@@ -3585,6 +3550,13 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">AcOut to Inverter (kWh)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Energy/OutToInverter</b>
 </dd>
+  <dt class="optional">Sustain active<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Hub4/Sustain</b>
+<ul>
+  <li>0 - Sustain inactive</li>
+  <li>1 - Sustain active</li>
+</ul>
+</dd>
   <dt class="optional">Switch Position<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Mode</b>
 <ul>
@@ -3908,7 +3880,7 @@ Questions can also be asked on the Victron Energy community:
 <p>This node is for setting information into the PV inverter.</p>
 <h3>pvinverter</h3>
 <dl class="message-properties">
-  <dt class="optional">Power limit (kW)<span class="property-type">float</dt>
+  <dt class="optional">Power limit (W)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/PowerLimit</b>
 </dd>
 </dl>

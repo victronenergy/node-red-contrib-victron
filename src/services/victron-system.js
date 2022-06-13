@@ -129,7 +129,6 @@ class SystemConfiguration {
             "input-acload": this.getNodeServices("input-acload"),
             "input-alternator": this.getNodeServices("input-alternator"),
             "input-battery": this.getNodeServices("input-battery"),
-            "input-dcdc": this.getNodeServices("input-dcdc"),
             "input-dcload": this.getNodeServices("input-dcload"),
             "input-dcsource": this.getNodeServices("input-dcsource"),
             "input-dcsystem": this.getNodeServices("input-dcsystem"),
