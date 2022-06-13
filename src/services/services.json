@@ -5269,7 +5269,7 @@
       {
         "path": "/Ac/PowerLimit",
         "type": "float",
-        "name": "Power limit (kW)",
+        "name": "Power limit (W)",
         "writable": true
       }
     ]
