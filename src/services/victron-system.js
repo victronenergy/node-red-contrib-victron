@@ -159,7 +159,6 @@ class SystemConfiguration {
             "output-ess": this.getNodeServices("output-ess"),
             "output-evcharger": this.getNodeServices("output-evcharger"),
             "output-generator": this.getNodeServices("output-generator"),
-            "output-genset": this.getNodeServices("output-genset"),
             "output-inverter": this.getNodeServices("output-inverter"),
             "output-multi": this.getNodeServices("output-multi"),
             "output-pvinverter": this.getNodeServices("output-pvinverter"),

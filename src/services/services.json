@@ -1821,7 +1821,7 @@
     ]
   },
   "input-generator": {
-    "help": "<p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the Venos OS GUI first.<br />Also see <a href=\"https://github.com/victronenergy/venus/wiki/dbus#generator\">here</a> for more information.</p>",
+    "help": "<p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the Venos OS GUI first.<br />Also see <a href=\"https://github.com/victronenergy/venus/wiki/dbus#generator-data\">here</a> for more information.</p>",
     "generator": [
       {
         "path": "/RunningByConditionCode",
@@ -1950,11 +1950,6 @@
         "name": "Phase 3 voltage (V AC)"
       },
       {
-        "path": "/Ac/Power",
-        "type": "float",
-        "name": "Power (W)"
-      },
-      {
         "path": "/AutoStart",
         "type": "enum",
         "name": "Auto start",
@@ -1962,6 +1957,21 @@
           "0": "Disabled",
           "1": "Enabled"
         }
+      },
+      {
+        "path": "/Dc/0/Current",
+        "type": "float",
+        "name": "DC output 1 - Current (A)"
+      },
+      {
+        "path": "/Dc/0/Power",
+        "type": "float",
+        "name": "DC output 1 - Power (W)"
+      },
+      {
+        "path": "/Dc/0/Voltage",
+        "type": "float",
+        "name": "DC output 1 - Voltage (V)"
       },
       {
         "path": "/Engine/CoolantTemperature",
@@ -2096,6 +2106,11 @@
           "165": "Emergency stop",
           "166": "No connection"
         }
+      },
+      {
+        "path": "/HeatsinkTemperature",
+        "type": "float",
+        "name": "Heatsink temperature (C)"
       },
       {
         "path": "/ProductId",
@@ -5024,21 +5039,6 @@
         "enum": {
           "0": "Stop generator",
           "1": "Start generator"
-        },
-        "writable": true
-      }
-    ]
-  },
-  "output-genset": {
-    "help": "<p>Used for controlling a (Fischer Panda) generator. See <a href=\"https://www.victronenergy.com/live/ccgx:fischer_panda\">https://www.victronenergy.com/live/ccgx:fischer_panda</a> for more information.</p>",
-    "genset": [
-      {
-        "path": "/Start",
-        "type": "enum",
-        "name": "Start generator",
-        "enum": {
-          "0": "Stop",
-          "1": "Start"
         },
         "writable": true
       }

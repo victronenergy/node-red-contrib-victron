@@ -1425,7 +1425,7 @@ Questions can also be asked on the Victron Energy community:
 </script>
 
 <script type="text/x-red" data-help-name="victron-input-generator">
-<p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the Venos OS GUI first.<br />Also see <a href="https://github.com/victronenergy/venus/wiki/dbus#generator">here</a> for more information.</p>
+<p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the Venos OS GUI first.<br />Also see <a href="https://github.com/victronenergy/venus/wiki/dbus#generator-data">here</a> for more information.</p>
 <h3>generator</h3>
 <dl class="message-properties">
   <dt class="optional">Condition that started the generator<span class="property-type">enum</dt>
@@ -1520,7 +1520,7 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Phase 3 voltage (V AC)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/L3/Voltage</b>
 </dd>
-  <dt class="optional">Power (W)<span class="property-type">float</dt>
+  <dt class="optional">AC Power (W)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/Power</b>
 </dd>
   <dt class="optional">Auto start<span class="property-type">enum</dt>
@@ -1529,6 +1529,15 @@ Questions can also be asked on the Victron Energy community:
   <li>0 - Disabled</li>
   <li>1 - Enabled</li>
 </ul>
+</dd>
+  <dt class="optional">DC output 1 - Current (A)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Dc/0/Current</b>
+</dd>
+  <dt class="optional">DC output 1 - Power (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Dc/0/Power</b>
+</dd>
+  <dt class="optional">DC output 1 - Voltage (V)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Dc/0/Voltage</b>
 </dd>
   <dt class="optional">Engine coolant temperature (Degrees celsius)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Engine/CoolantTemperature</b>
@@ -1649,6 +1658,9 @@ Questions can also be asked on the Victron Energy community:
   <li>165 - Emergency stop</li>
   <li>166 - No connection</li>
 </ul>
+</dd>
+  <dt class="optional">Heatsink temperature (C)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/HeatsinkTemperature</b>
 </dd>
   <dt class="optional">Generator model<span class="property-type">float</dt>
   <dd>Dbus path: <b>/ProductId</b>
@@ -3752,20 +3764,6 @@ Questions can also be asked on the Victron Energy community:
 <ul>
   <li>0 - Stop generator</li>
   <li>1 - Start generator</li>
-</ul>
-</dd>
-</dl>
-</script>
-
-<script type="text/x-red" data-help-name="victron-output-genset">
-<p>Used for controlling a (Fischer Panda) generator. See <a href="https://www.victronenergy.com/live/ccgx:fischer_panda">https://www.victronenergy.com/live/ccgx:fischer_panda</a> for more information.</p>
-<h3>genset</h3>
-<dl class="message-properties">
-  <dt class="optional">Start generator<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Start</b>
-<ul>
-  <li>0 - Stop</li>
-  <li>1 - Start</li>
 </ul>
 </dd>
 </dl>
