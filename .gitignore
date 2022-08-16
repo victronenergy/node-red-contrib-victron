@@ -2,3 +2,5 @@
 node_modules
 scripts/csv/*.csv
 missingpaths.template.json
+
+*.swp
