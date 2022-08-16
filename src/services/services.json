@@ -116,11 +116,6 @@
         }
       },
       {
-        "path": "/NrOfOutputs",
-        "type": "float",
-        "name": "Number of charger outputs"
-      },
-      {
         "path": "/Relay/0/State",
         "type": "enum",
         "name": "Relay on the charger",
@@ -952,6 +947,11 @@
         "name": "System; batteries series (count)"
       },
       {
+        "path": "/System/MaxVoltageCellId",
+        "type": "string",
+        "name": "System; ID of module with highest cell voltage"
+      },
+      {
         "path": "/System/MaxCellTemperature",
         "type": "float",
         "name": "Maximum cell temperature (Degrees celsius)"
@@ -960,6 +960,16 @@
         "path": "/System/MaxCellVoltage",
         "type": "float",
         "name": "System; maximum cell voltage (V DC)"
+      },
+      {
+        "path": "/System/MaxTemperatureCellId",
+        "type": "string",
+        "name": "System; ID of module with highest cell temperature"
+      },
+      {
+        "path": "/System/MinVoltageCellId",
+        "type": "string",
+        "name": "System; ID of module with lowest cell voltage"
       },
       {
         "path": "/System/MinCellTemperature",
@@ -972,6 +982,11 @@
         "name": "System; minimum cell voltage (V DC)"
       },
       {
+        "path": "/System/MinTemperatureCellId",
+        "type": "string",
+        "name": "System; ID of module with lowest cell temperature"
+      },
+      {
         "path": "/System/NrOfBatteries",
         "type": "float",
         "name": "System; number of batteries (count)"
@@ -980,6 +995,26 @@
         "path": "/System/NrOfCellsPerBattery",
         "type": "float",
         "name": "System; number of cells per battery (count)"
+      },
+      {
+        "path": "/System/NrOfModulesBlockingCharge",
+        "type": "integer",
+        "name": "Number of modules blocking charge"
+      },
+      {
+        "path": "/System/NrOfModulesBlockingDischarge",
+        "type": "integer",
+        "name": "Number of modules blocking discharge"
+      },
+      {
+        "path": "/System/NrOfModulesOffline",
+        "type": "integer",
+        "name": "Number of offline modules"
+      },
+      {
+        "path": "/System/NrOfModulesOnline",
+        "type": "integer",
+        "name": "Number of online modules"
       },
       {
         "path": "/SystemSwitch",
@@ -1391,6 +1426,48 @@
   },
   "input-ess": {
     "help": "<p>This node gives information on the energy storage system (ESS).</p>",
+    "battery": [
+      {
+        "path": "/System/MaxCellTemperature",
+        "type": "integer",
+        "name": "Maximum battery cell temperature"
+      },
+      {
+        "path": "/System/MaxCellVoltage",
+        "type": "integer",
+        "name": "Maximum battery cell voltage"
+      },
+      {
+        "path": "/System/MinCellTemperature",
+        "type": "integer",
+        "name": "Minimum battery cell temperature"
+      },
+      {
+        "path": "/System/MinCellVoltage",
+        "type": "integer",
+        "name": "Minimum battery cell voltage"
+      },
+      {
+        "path": "/System/NrOfModulesBlockingCharge",
+        "type": "integer",
+        "name": "Number of modules blocking charge"
+      },
+      {
+        "path": "/System/NrOfModulesBlockingDischarge",
+        "type": "integer",
+        "name": "Number of modules blocking discharge"
+      },
+      {
+        "path": "/System/NrOfModulesOffline",
+        "type": "integer",
+        "name": "Number of offline modules"
+      },
+      {
+        "path": "/System/NrOfModulesOnline",
+        "type": "integer",
+        "name": "Number of online modules"
+      }
+    ],
     "vebus": [
       {
         "path": "/Hub4/DisableCharge",
@@ -1873,6 +1950,11 @@
         "name": "Phase 3 voltage (V AC)"
       },
       {
+        "path": "/Ac/Power",
+        "type": "float",
+        "name": "Power (W)"
+      },
+      {
         "path": "/AutoStart",
         "type": "enum",
         "name": "Auto start",
@@ -2174,11 +2256,6 @@
         "name": "L3 Voltage (V)"
       },
       {
-        "path": "/Ac/Power",
-        "type": "float",
-        "name": "Power (W)"
-      },
-      {
         "path": "/Serial",
         "type": "string",
         "name": "Serial"
@@ -2227,6 +2304,16 @@
         "path": "/Alarms/HighVoltageAcOut",
         "type": "enum",
         "name": "High AC-Out voltage alarm",
+        "enum": {
+          "0": "No alarm",
+          "1": "Warning",
+          "2": "Alarm"
+        }
+      },
+      {
+        "path": "/Alarms/LowSoc",
+        "type": "enum",
+        "name": "Low SOC alarm",
         "enum": {
           "0": "No alarm",
           "1": "Warning",
@@ -2716,6 +2803,16 @@
         "name": "High AC-Out voltage alarm",
         "enum": {
           "0": "Ok",
+          "1": "Warning",
+          "2": "Alarm"
+        }
+      },
+      {
+        "path": "/Alarms/LowSoc",
+        "type": "enum",
+        "name": "Low SOC alarm",
+        "enum": {
+          "0": "No alarm",
           "1": "Warning",
           "2": "Alarm"
         }
@@ -3617,16 +3714,6 @@
         }
       },
       {
-        "path": "/Position",
-        "type": "enum",
-        "name": "Position",
-        "enum": {
-          "0": "AC input 1",
-          "1": "AC output",
-          "2": "AC input 2"
-        }
-      },
-      {
         "path": "/Pv/0/P",
         "type": "float",
         "name": "Tracker 1 power"
@@ -4019,15 +4106,6 @@
         "path": "/Remaining",
         "type": "float",
         "name": "Fluid remaining (m3)"
-      },
-      {
-        "path": "/Standard",
-        "type": "enum",
-        "name": "Standard",
-        "enum": {
-          "0": "European",
-          "1": "USA"
-        }
       },
       {
         "path": "/Status",
@@ -4929,6 +5007,16 @@
   "output-generator": {
     "help": "<p>This node can be used for controlling a generator via the relay. In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the Venos OS GUI first</p>",
     "generator": [
+      {
+        "path": "/AutoStartEnabled",
+        "type": "enum",
+        "name": "Auto start enabled/disabled",
+        "enum": {
+          "0": "Autostart disabled",
+          "1": "Autostart enabled"
+        },
+        "writable": true
+      },
       {
         "path": "/ManualStart",
         "type": "enum",
