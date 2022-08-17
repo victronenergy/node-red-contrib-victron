@@ -1616,12 +1616,12 @@
       {
         "path": "/Settings/SystemSetup/MaxChargeCurrent",
         "type": "float",
-        "name": "Charge current limit (A)"
+        "name": "DVCC Charge current limit (A)"
       },
       {
         "path": "/Settings/SystemSetup/MaxChargeVoltage",
         "type": "float",
-        "name": "Maximum charge voltage (V)"
+        "name": "DVCC Maximum charge voltage (V)"
       }
     ]
   },
