@@ -25,7 +25,7 @@ xls_file = argv.excel;
 // Read the services.json file
 let services = JSON.parse(fs.readFileSync( services_json ));
 
-var workbook = new Excel.Workbook(); 
+var workbook = new Excel.Workbook();
 workbook.xlsx.readFile(xls_file)
   .then(function() {
     var worksheet = workbook.getWorksheet("Field list");
@@ -107,7 +107,7 @@ workbook.xlsx.readFile(xls_file)
             })
           }
 
-          if ( row.values[8] && row.values[8] === "yes" ) { missing['writable'] = true; } 
+          if ( row.values[8] && row.values[8] === "yes" ) { missing['writable'] = true; }
 
           console.log(JSON.stringify(missing, null, 4));
         }
@@ -131,6 +131,9 @@ workbook.xlsx.readFile(xls_file)
       }
       for (const [_x, nodedata] of Object.entries(services[node]) ) {
         if ( _x  === 'help' ) { continue; }
+        if (dbus_service_name.split('.')[2] != _x ) {
+          dbus_service_name = dbus_service_name.replace(dbus_service_name.split('.')[2], _x)
+        }
         nodedata.forEach(service => {
           var found = false;
           if (service.path.match(/\/Relay/) ) { found = true; }
@@ -138,18 +141,64 @@ workbook.xlsx.readFile(xls_file)
             if ( worksheet.getCell('G'+i).value === null ) {
               continue;
             }
-            if ( worksheet.getCell('A'+i).value === dbus_service_name &&
-                 worksheet.getCell('G'+i).value.replace('Cgwacs', 'CGwacs') === service.path ) {
-              found = true;
-              break;
+            if ( worksheet.getCell('G'+i).value.replace('Cgwacs', 'CGwacs') === service.path ) {
+              if (worksheet.getCell('A'+i).value === dbus_service_name) {
+                found = true;
+                break;
+              }
             }
           }
           if (! found) {
             console.log(node + ':' + service.path);
           }
-          // 
+          //
         });
       }
     }
 
+    // Another check (comming from issue #182). We also want to make sure that all of the output
+    // paths are defined as an input path as well.
+    console.log('// Checking if all output paths are available as input too')
+    for (const [node, info] of Object.entries(services) ) {
+
+      if (node.split('-')[0] === 'input' ) {
+        continue;
+      }
+
+      for (const [_x, nodedata] of Object.entries(services[node]) ) {
+        if ( _x  === 'help' ) { continue; }
+
+        nodedata.forEach(service => {
+          var found = false;
+          for (const [searchnode, searchinfo] of Object.entries(services) ) {
+
+            if (searchnode.split('-')[0] === 'output' ) {
+              continue;
+            }
+            for (const [_y, searchnodedata] of Object.entries(services[searchnode]) ) {
+              missing = {
+                'path': service.path,
+                'type': service.type,
+                'name': service.name,
+              }
+              if ( service.type === "enum" ) {
+                missing['enum'] = service['enum'];
+              }
+              if ( _y  === 'help' ) { continue; }
+              searchnodedata.forEach(searchservice => {
+                if ( searchservice.path === service.path ) {
+                  found = true;
+                  return;
+                }
+              })
+            }
+          }
+
+          if (! found) {
+            console.log('// Missing input entry for ' + node + ':' + service.path);
+            console.log(JSON.stringify(missing, null, 4));
+          }
+        })
+      }
+    }
   });
