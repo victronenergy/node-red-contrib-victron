@@ -1598,19 +1598,19 @@
       {
         "path": "/Settings/CGwacs/OvervoltageFeedIn",
         "type": "enum",
-        "name": "Feed-in excess solar charger power",
+        "name": "Feed excess DC-coupled PV into grid",
         "enum": {
-          "0": "No",
-          "1": "Yes"
+          "0": "Don’t feed excess DC-tied PV into grid",
+          "1": "Feed excess DC-tied PV into the grid"
         }
       },
       {
         "path": "/Settings/CGwacs/PreventFeedback",
         "type": "enum",
-        "name": "PV Inverter zero feed-in (on/off)",
+        "name": "Don’t feed excess AC-coupled PV into grid",
         "enum": {
-          "0": "No",
-          "1": "Yes"
+          "0": "Feed excess AC-tied PV into grid",
+          "1": "Don’t feed excess AC-tied PV into the grid"
         }
       },
       {
@@ -3461,6 +3461,34 @@
         "path": "/Settings/CGwacs/BatteryLife/SocLimit",
         "type": "float",
         "name": "ESS active SoC (read only) (%)"
+      },
+      {
+        "path": "/Settings/CGwacs/MaxChargePercentage",
+        "type": "float",
+        "name": "ESS max charge current (fractional) (%)"
+      },
+      {
+        "path": "/Settings/CGwacs/MaxDischargePercentage",
+        "type": "float",
+        "name": "ESS max discharge current (fractional) (%)"
+      },
+      {
+        "path": "/Settings/CGwacs/MaxFeedInPower",
+        "type": "integer",
+        "name": "Maximum System Grid Feed In (W)",
+        "remarks": "<ul><li>-1: No limit</li><li> &gt;=0: limited system feed-in</li></ul><p>Applies to DC-coupled and AC-coupled feed-in.</p>"
+      }
+    ],
+    "hub4": [
+      {
+        "path": "/PvPowerLimiterActive",
+        "type": "enum",
+        "name": "Grid limiting status",
+        "remarks": "<p>Applies to both AC-coupled and DC-coupled limiting.</p>",
+        "enum": {
+          "0": "Feed-in limiting is inactive",
+          "1": "Feed-in limiting is active"
+        }
       }
     ]
   },
@@ -4949,22 +4977,29 @@
         "writable": true
       },
       {
+        "path": "/Settings/CGwacs/MaxFeedInPower",
+        "type": "integer",
+        "name": "Maximum System Grid Feed In (W)",
+        "remarks": "<ul><li>-1: No limit</li><li> &gt;=0: limited system feed-in</li></ul><p>Applies to DC-coupled and AC-coupled feed-in.</p>",
+        "writable": true
+      },
+      {
         "path": "/Settings/CGwacs/OvervoltageFeedIn",
         "type": "enum",
-        "name": "Feed-in excess solar charger power",
+        "name": "Feed excess DC-coupled PV into grid",
         "enum": {
-          "0": "No",
-          "1": "Yes"
+          "0": "Don’t feed excess DC-tied PV into grid",
+          "1": "Feed excess DC-tied PV into the grid"
         },
         "writable": true
       },
       {
         "path": "/Settings/CGwacs/PreventFeedback",
         "type": "enum",
-        "name": "PV Inverter zero feed-in (on/off)",
+        "name": "Don’t feed excess AC-coupled PV into grid",
         "enum": {
-          "0": "No",
-          "1": "Yes"
+          "0": "Feed excess AC-tied PV into grid",
+          "1": "Don’t feed excess AC-tied PV into the grid"
         },
         "writable": true
       },
@@ -5288,7 +5323,7 @@
       {
         "path": "/Settings/CGwacs/PreventFeedback",
         "type": "enum",
-        "name": "Don’t feed excess AC-coupled PV into grid",
+        "name": "AC-coupled PV - grid feed in excess",
         "enum": {
           "0": "Feed excess AC-tied PV into grid",
           "1": "Don’t feed excess AC-tied PV into the grid"

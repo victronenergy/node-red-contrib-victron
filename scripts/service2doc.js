@@ -27,6 +27,9 @@ fs.readFile('../src/services/services.json', 'utf8', (err, jsonString) => {
                 });
                 console.log("</ul>");
               }
+              if (services[k][v][p].remarks) {
+                console.log(services[k][v][p].remarks)
+              }
               console.log("</dd>");
             });
             console.log('</dl>');
