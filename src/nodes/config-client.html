@@ -873,21 +873,8 @@ Questions can also be asked on the Victron Energy community:
   <li>2 - Alarm</li>
 </ul>
 </dd>
-  <dt class="optional">Mid-voltage alarm<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Alarms/MidVoltage</b>
-<ul>
-  <li>0 - No alarm</li>
-  <li>2 - Alarm</li>
-</ul>
-</dd>
   <dt class="optional">Current (A)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/0/Current</b>
-</dd>
-  <dt class="optional">Mid-point voltage of the battery bank (V)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Dc/0/MidVoltage</b>
-</dd>
-  <dt class="optional">Mid-point deviation of the battery bank (%)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Dc/0/MidVoltageDeviation</b>
 </dd>
   <dt class="optional">Battery temperature (C)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/0/Temperature</b>
@@ -957,21 +944,8 @@ Questions can also be asked on the Victron Energy community:
   <li>2 - Alarm</li>
 </ul>
 </dd>
-  <dt class="optional">Mid-voltage alarm<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Alarms/MidVoltage</b>
-<ul>
-  <li>0 - No alarm</li>
-  <li>2 - Alarm</li>
-</ul>
-</dd>
   <dt class="optional">Current (A)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/0/Current</b>
-</dd>
-  <dt class="optional">Mid-point voltage of the battery bank (V)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Dc/0/MidVoltage</b>
-</dd>
-  <dt class="optional">Mid-point deviation of the battery bank (%)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Dc/0/MidVoltageDeviation</b>
 </dd>
   <dt class="optional">Battery temperature (C)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/0/Temperature</b>
@@ -1091,9 +1065,6 @@ Questions can also be asked on the Victron Energy community:
 </dd>
   <dt class="optional">Digital input count<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Count</b>
-</dd>
-  <dt class="optional">Digital input product id<span class="property-type">string</dt>
-  <dd>Dbus path: <b>/ProductId</b>
 </dd>
   <dt class="optional">Digital input state<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/State</b>
@@ -1431,6 +1402,20 @@ Questions can also be asked on the Victron Energy community:
 <p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the Venos OS GUI first.<br />Also see <a href="https://github.com/victronenergy/venus/wiki/dbus#generator-data">here</a> for more information.</p>
 <h3>generator</h3>
 <dl class="message-properties">
+  <dt class="optional">Auto start enabled/disabled<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/AutoStartEnabled</b>
+<ul>
+  <li>0 - Autostart disabled</li>
+  <li>1 - Autostart enabled</li>
+</ul>
+</dd>
+  <dt class="optional">Manual Start<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/ManualStart</b>
+<ul>
+  <li>0 - Stop generator</li>
+  <li>1 - Start generator</li>
+</ul>
+</dd>
   <dt class="optional">Condition that started the generator<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/RunningByConditionCode</b>
 <ul>
@@ -2446,6 +2431,9 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">L1 Power (W)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/L1/Power</b>
 </dd>
+  <dt class="optional">Power limit (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/PowerLimit</b>
+</dd>
   <dt class="optional">L1 Voltage (V)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/L1/Voltage</b>
 </dd>
@@ -3197,6 +3185,9 @@ Questions can also be asked on the Victron Energy community:
   <li>240 - Disconnected</li>
 </ul>
 </dd>
+  <dt class="optional">Active input current limit (A)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/ActiveIn/CurrentLimit</b>
+</dd>
   <dt class="optional">Input frequency 1 (Hz)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/ActiveIn/L1/F</b>
 </dd>
@@ -3517,11 +3508,25 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">AcOut to Inverter (kWh)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Energy/OutToInverter</b>
 </dd>
+  <dt class="optional">Solar offset voltage<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Hub4/FixSolarOffsetTo100mV</b>
+<ul>
+  <li>0 - OvervoltageFeedIn uses 1V offset</li>
+  <li>1 - OvervoltageFeedIn uses 0.1V offset</li>
+</ul>
+</dd>
   <dt class="optional">Sustain active<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Hub4/Sustain</b>
 <ul>
   <li>0 - Sustain inactive</li>
   <li>1 - Sustain active</li>
+</ul>
+</dd>
+  <dt class="optional">AcPowerSetpoint acts as feed-in limit<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Hub4/TargetPowerIsMaxFeedIn</b>
+<ul>
+  <li>0 - AcPowerSetpoint interpreted normally</li>
+  <li>1 - AcPowerSetpoint is OvervoltageFeedIn limit</li>
 </ul>
 </dd>
   <dt class="optional">Switch Position<span class="property-type">enum</dt>

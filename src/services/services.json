@@ -1090,28 +1090,9 @@
         }
       },
       {
-        "path": "/Alarms/MidVoltage",
-        "type": "enum",
-        "name": "Mid-voltage alarm",
-        "enum": {
-          "0": "No alarm",
-          "2": "Alarm"
-        }
-      },
-      {
         "path": "/Dc/0/Current",
         "type": "float",
         "name": "Current (A)"
-      },
-      {
-        "path": "/Dc/0/MidVoltage",
-        "type": "float",
-        "name": "Mid-point voltage of the battery bank (V)"
-      },
-      {
-        "path": "/Dc/0/MidVoltageDeviation",
-        "type": "float",
-        "name": "Mid-point deviation of the battery bank (%)"
       },
       {
         "path": "/Dc/0/Temperature",
@@ -1202,28 +1183,9 @@
         }
       },
       {
-        "path": "/Alarms/MidVoltage",
-        "type": "enum",
-        "name": "Mid-voltage alarm",
-        "enum": {
-          "0": "No alarm",
-          "2": "Alarm"
-        }
-      },
-      {
         "path": "/Dc/0/Current",
         "type": "float",
         "name": "Current (A)"
-      },
-      {
-        "path": "/Dc/0/MidVoltage",
-        "type": "float",
-        "name": "Mid-point voltage of the battery bank (V)"
-      },
-      {
-        "path": "/Dc/0/MidVoltageDeviation",
-        "type": "float",
-        "name": "Mid-point deviation of the battery bank (%)"
       },
       {
         "path": "/Dc/0/Temperature",
@@ -1380,11 +1342,6 @@
         "path": "/Count",
         "type": "float",
         "name": "Digital input count"
-      },
-      {
-        "path": "/ProductId",
-        "type": "string",
-        "name": "Digital input product id"
       },
       {
         "path": "/State",
@@ -1828,6 +1785,24 @@
   "input-generator": {
     "help": "<p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the Venos OS GUI first.<br />Also see <a href=\"https://github.com/victronenergy/venus/wiki/dbus#generator-data\">here</a> for more information.</p>",
     "generator": [
+      {
+        "path": "/AutoStartEnabled",
+        "type": "enum",
+        "name": "Auto start enabled/disabled",
+        "enum": {
+          "0": "Autostart disabled",
+          "1": "Autostart enabled"
+        }
+      },
+      {
+        "path": "/ManualStart",
+        "type": "enum",
+        "name": "Manual Start",
+        "enum": {
+          "0": "Stop generator",
+          "1": "Start generator"
+        }
+      },
       {
         "path": "/RunningByConditionCode",
         "type": "enum",
@@ -3248,6 +3223,11 @@
         "name": "L1 Power (W)"
       },
       {
+        "path": "/Ac/PowerLimit",
+        "type": "float",
+        "name": "Power limit (W)"
+      },
+      {
         "path": "/Ac/L1/Voltage",
         "type": "float",
         "name": "L1 Voltage (V)"
@@ -4271,6 +4251,11 @@
         }
       },
       {
+        "path": "/Ac/ActiveIn/CurrentLimit",
+        "type": "float",
+        "name": "Active input current limit (A)"
+      },
+      {
         "path": "/Ac/ActiveIn/L1/F",
         "type": "float",
         "name": "Input frequency 1 (Hz)"
@@ -4721,12 +4706,30 @@
         "name": "AcOut to Inverter (kWh)"
       },
       {
+        "path": "/Hub4/FixSolarOffsetTo100mV",
+        "type": "enum",
+        "name": "Solar offset voltage",
+        "enum": {
+          "0": "OvervoltageFeedIn uses 1V offset",
+          "1": "OvervoltageFeedIn uses 0.1V offset"
+        }
+      },
+      {
         "path": "/Hub4/Sustain",
         "type": "enum",
         "name": "Sustain active",
         "enum": {
           "0": "Sustain inactive",
           "1": "Sustain active"
+        }
+      },
+      {
+        "path": "/Hub4/TargetPowerIsMaxFeedIn",
+        "type": "enum",
+        "name": "AcPowerSetpoint acts as feed-in limit",
+        "enum": {
+          "0": "AcPowerSetpoint interpreted normally",
+          "1": "AcPowerSetpoint is OvervoltageFeedIn limit"
         }
       },
       {

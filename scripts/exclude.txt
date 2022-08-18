@@ -1,0 +1,41 @@
+# This file contains dbus entries that are available on the dbus
+# (see https://github.com/victronenergy/venus/wiki/dbus), but not 
+# via dbus_modbustcp
+input-accharger:/Dc/1/Temperature
+input-accharger:/Dc/2/Temperature
+input-genset:/Dc/0/Current
+input-genset:/Dc/0/Power
+input-genset:/Dc/0/Voltage
+input-genset:/HeatsinkTemperature
+input-pvinverter:/Ac/Energy/Forward
+input-pvinverter:/ErrorCode
+input-pvinverter:/StatusCode
+input-temperature:/AccelX
+input-temperature:/AccelY
+input-temperature:/AccelZ
+input-solarcharger:/Load/State
+input-solarcharger:/Yield/System
+input-system:/Ac/Genset/DeviceType
+input-system:/Ac/Genset/NumberOfPhases
+input-system:/Ac/Grid/DeviceType
+input-system:/Ac/Grid/NumberOfPhases
+input-system:/Ac/PvOnGenset/NumberOfPhases
+input-system:/Ac/PvOnGrid/NumberOfPhases
+input-system:/Ac/PvOnOutput/NumberOfPhases
+input-system:/Buzzer/State
+input-system:/Dc/Battery/Temperature
+input-system:/Settings/SystemSetup/SystemName
+input-system:/SystemType
+input-system:/Timers/TimeOff
+input-system:/Timers/TimeOnGenerator
+input-system:/Timers/TimeOnGrid
+input-system:/Timers/TimeOnInverter
+input-temperature:/BatteryVoltage
+input-temperature:/Temperature
+input-vebus:/Ac/In/1/CurrentLimit
+input-vebus:/Ac/In/1/CurrentLimitIsAdjustable
+input-vebus:/Ac/In/2/CurrentLimit
+input-vebus:/Ac/In/2/CurrentLimitIsAdjustable
+input-vebus:/ModeIsAdjustable
+output-vebus:/Ac/In/1/CurrentLimit
+output-vebus:/Ac/In/2/CurrentLimit
