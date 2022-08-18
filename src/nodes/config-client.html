@@ -1254,18 +1254,18 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Max inverter power (W)<span class="property-type">integer</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/MaxDischargePower</b>
 </dd>
-  <dt class="optional">Feed-in excess solar charger power<span class="property-type">enum</dt>
+  <dt class="optional">Feed excess DC-coupled PV into grid<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/OvervoltageFeedIn</b>
 <ul>
-  <li>0 - No</li>
-  <li>1 - Yes</li>
+  <li>0 - Don’t feed excess DC-tied PV into grid</li>
+  <li>1 - Feed excess DC-tied PV into the grid</li>
 </ul>
 </dd>
-  <dt class="optional">PV Inverter zero feed-in (on/off)<span class="property-type">enum</dt>
+  <dt class="optional">Don’t feed excess AC-coupled PV into grid<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/PreventFeedback</b>
 <ul>
-  <li>0 - No</li>
-  <li>1 - Yes</li>
+  <li>0 - Feed excess AC-tied PV into grid</li>
+  <li>1 - Don’t feed excess AC-tied PV into the grid</li>
 </ul>
 </dd>
   <dt class="optional">DVCC Charge current limit (A)<span class="property-type">float</dt>
@@ -2619,6 +2619,27 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">ESS active SoC (read only) (%)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/SocLimit</b>
 </dd>
+  <dt class="optional">ESS max charge current (fractional) (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/MaxChargePercentage</b>
+</dd>
+  <dt class="optional">ESS max discharge current (fractional) (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/MaxDischargePercentage</b>
+</dd>
+  <dt class="optional">Maximum System Grid Feed In (W)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/MaxFeedInPower</b>
+<ul><li>-1: No limit</li><li> &gt;=0: limited system feed-in</li></ul><p>Applies to DC-coupled and AC-coupled feed-in.</p>
+</dd>
+</dl>
+<h3>hub4</h3>
+<dl class="message-properties">
+  <dt class="optional">Grid limiting status<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/PvPowerLimiterActive</b>
+<ul>
+  <li>0 - Feed-in limiting is inactive</li>
+  <li>1 - Feed-in limiting is active</li>
+</ul>
+<p>Applies to both AC-coupled and DC-coupled limiting.</p>
+</dd>
 </dl>
 </script>
 
@@ -3702,18 +3723,22 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Max inverter power (W)<span class="property-type">integer</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/MaxDischargePower</b>
 </dd>
-  <dt class="optional">Feed-in excess solar charger power<span class="property-type">enum</dt>
+  <dt class="optional">Maximum System Grid Feed In (W)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/MaxFeedInPower</b>
+<ul><li>-1: No limit</li><li> &gt;=0: limited system feed-in</li></ul><p>Applies to DC-coupled and AC-coupled feed-in.</p>
+</dd>
+  <dt class="optional">Feed excess DC-coupled PV into grid<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/OvervoltageFeedIn</b>
 <ul>
-  <li>0 - No</li>
-  <li>1 - Yes</li>
+  <li>0 - Don’t feed excess DC-tied PV into grid</li>
+  <li>1 - Feed excess DC-tied PV into the grid</li>
 </ul>
 </dd>
-  <dt class="optional">PV Inverter zero feed-in (on/off)<span class="property-type">enum</dt>
+  <dt class="optional">Don’t feed excess AC-coupled PV into grid<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/PreventFeedback</b>
 <ul>
-  <li>0 - No</li>
-  <li>1 - Yes</li>
+  <li>0 - Feed excess AC-tied PV into grid</li>
+  <li>1 - Don’t feed excess AC-tied PV into the grid</li>
 </ul>
 </dd>
   <dt class="optional">Charge current limit (A)<span class="property-type">float</dt>
@@ -3958,7 +3983,7 @@ Questions can also be asked on the Victron Energy community:
   <li>1 - Feed excess DC-tied PV into the grid</li>
 </ul>
 </dd>
-  <dt class="optional">Don’t feed excess AC-coupled PV into grid<span class="property-type">enum</dt>
+  <dt class="optional">AC-coupled PV - grid feed in excess<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/PreventFeedback</b>
 <ul>
   <li>0 - Feed excess AC-tied PV into grid</li>
