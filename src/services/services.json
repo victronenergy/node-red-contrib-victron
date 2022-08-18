@@ -4215,6 +4215,18 @@
           "2": "Generic"
         }
       }
+    ],
+    "tank": [
+      {
+        "path": "/BatteryVoltage",
+        "type": "float",
+        "name": "Sensor battery voltage (V)"
+      },
+      {
+        "path": "/Temperature",
+        "type": "float",
+        "name": "Temperature (C)"
+      }
     ]
   },
   "input-vebus": {
