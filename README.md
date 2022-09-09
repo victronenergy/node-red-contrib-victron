@@ -202,8 +202,16 @@ registerInputNode('victron-input-test', 'Test', 'input-test');
 
 4. Make sure to update the documentation. The script for this is in the `scripts/` directory and called `service2doc.js`. It adds the generated context after the first html comment match in the file and uses `sponge` (part of moreutils) not to overwrite the original contents:  
 ```
-( sed '/^<!--/q' ../src/nodes/config-client.html && node service2doc.js ) | sponge ../src/nodes/config-client.html
+( sed '/^<!--/q' ../src/nodes/config-client.html && node service2doc.js -s ../src/services/services.json -r ../src/nodes/victron-nodes.html -t nodered ) | sponge ../src/nodes/config-client.html
 ```
+
+Besides that it is also important to update the wiki:
+
+```
+node scripts/service2doc.js -s src/services/services.json -r src/nodes/victron-nodes.html -t md > doc.md
+```
+
+And copy/paste the contents of that file into the [wiki/Available-nodes](https://github.com/victronenergy/node-red-contrib-victron/wiki/Available-nodes) overview.
 
 5. Restart Node-RED and test the new node. It should be visible under Victron Energy nodes. If the path `/Settings/TestDbusPath` is present in dbus under `com.victronenergy.settings`, the node will show the path as an option in its edit panel settings (otherwise it will be hidden and you will probably see a disclaimer text on missing services). Make sure also to check the documentation.
 
