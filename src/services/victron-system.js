@@ -142,6 +142,7 @@ class SystemConfiguration {
             "input-gridmeter": this.getNodeServices("input-gridmeter"),
             "input-inverter": this.getNodeServices("input-inverter"),
             "input-meteo": this.getNodeServices("input-meteo"),
+            "input-motordrive": this.getNodeServices("input-motordrive"),
             "input-multi": this.getNodeServices("input-multi"),
             "input-pulsemeter": this.getNodeServices("input-pulsemeter"),
             "input-pvinverter": this.getNodeServices("input-pvinverter"),
