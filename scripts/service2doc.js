@@ -52,6 +52,22 @@ function show(a, text) {
 }
 
 searchLabelInfo(register_html).then(function(labelinfo){
+  const input = [];
+  const output= [];
+
+  for (const [key, value] of Object.entries(labelinfo)) {
+     if (/input-/.test(key) ) {
+       input.push('['+value+'](#'+value.replace(/ /g, '-').toLowerCase()+')')
+     } else {
+       output.push('['+value+' Control](#'+value.replace(/ /g, '-').toLowerCase()+'-control)')
+     }
+  }
+
+  show('md', 'On this page you find and overview of _all_ possible services and measurements for the available nodes. However only those services and measurements that are available in the dbus are shown in the node edit panel.')
+  show('md', 'For example a Cerbo CX has 2 relays and thus will show 2 relays to control. An EasySolar-II GX has only one relay and thus will only show one.\n')
+  show('md', '**Input nodes:** '+input.join(', ')+ '  ')
+  show('md', '**Ouput nodes:** '+output.join(', ')+ '  ')
+
   fs.readFile(services_json, 'utf8', (err, jsonString) => {
     if (err) {
         console.log("Error reading file from disk:", err)
