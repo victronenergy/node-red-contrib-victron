@@ -63,7 +63,7 @@ searchLabelInfo(register_html).then(function(labelinfo){
      }
   }
 
-  show('md', 'On this page you find and overview of _all_ possible services and measurements for the available nodes. However only those services and measurements that are available in the dbus are shown in the node edit panel.')
+  show('md', 'On this page you find and overview of _all_ possible services and measurements for the available nodes. The edit panel will only show items available in your system..')
   show('md', 'For example a Cerbo CX has 2 relays and thus will show 2 relays to control. An EasySolar-II GX has only one relay and thus will only show one.\n')
   show('md', '**Input nodes:** '+input.join(', ')+ '  ')
   show('md', '**Ouput nodes:** '+output.join(', ')+ '  ')
