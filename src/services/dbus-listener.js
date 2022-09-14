@@ -156,77 +156,86 @@ class VictronDbusListener {
                             fluidType: service.fluidType
                         }
                     })
-
                     this.messageHandler(messages)
                 }
             })
     }
 
     _signalRecieve(msg) {
-        // Handle messages
-        if (msg.interface === 'com.victronenergy.BusItem' &&
-            (msg.member === 'ItemsChanged' || msg.member === 'PropertiesChanged')) {
-            if (msg.member === 'PropertiesChanged') {
+        if (msg.interface !== 'com.victronenergy.BusItem' ) {
+            if (msg.interface === 'org.freedesktop.DBus' &&
+                msg.member === 'NameOwnerChanged') {
+                const name = msg.body[0]
+
+                if (name.startsWith('com.victronenergy')) {
+                    const new_owner = msg.body[2]
+                    this._initService(new_owner, name)
+                    this.eventHandler("INITIALIZE", name)
+                } else {
+                    const old_owner = msg.body[1]
+                    let svcName = this.services[old_owner] ? this.services[old_owner].name : null
+                    delete this.services[old_owner]
+                    this.eventHandler("DELETE", svcName)
+                }
+            }
+            return;
+        }
+
+        const messages = []
+        switch ( msg.member ) {
+            case "ItemsChanged": {
+                msg.body[0].forEach(entry => {
+                    var m = {};
+                    m.path = entry[0];
+                    if ( entry[1] && entry[1].length === 2 ) {
+                        entry[1].forEach(v => {
+                        switch (v[0]) {
+                            case 'Value': m.value = v[1][1][0]; break;
+                            case 'Text': m.text = v[1][1][0]; break;
+                        }
+                        })
+                    }
+                    if (! m.path || ! m.value || ! m.text ) {
+                        return;
+                    }
+                    let service = this.services[msg.sender]
+                    if (! service || ! service.name ) {
+                        return;
+                    }
+                    m.senderName = service.name;
+                    m.instanceName = service.deviceInstance;
+                    messages.push(m)
+                })
+                break;
+            }
+            case 'PropertiesChanged': {
                 if ( msg.body[0] && msg.body[0].length === 2 ) {
+                    var m = msg;
                     msg.body[0].forEach(v => {
                         switch (v[0]) {
-                          case 'Value': msg.value = v[1][1][0]; break;
-                          case 'Text': msg.text = v[1][1][0]; break;
+                            case 'Value': m.value = v[1][1][0]; break;
+                            case 'Text': m.text = v[1][1][0]; break;
                         }
                     })
-                }
-            } else {
-                // ItemsChanged
-                msg.body[0].forEach(entry => {
-                    msg.path = entry[0]; 
-                    if ( entry[1] && entry[1].length === 2 ) {
-                      entry[1].forEach(v => {
-                        switch (v[0]) {
-                          case 'Value': msg.value = v[1][1][0]; break;
-                          case 'Text': msg.text = v[1][1][0]; break;
-                        }
-                      })
+                    if (! m.path || ! m.value || ! m.text ) {
+                        return;
                     }
-                })
+                    let service = this.services[msg.sender]
+                    if (! service || ! service.name ) {
+                        return;
+                    }
+                    m.senderName = service.name;
+                    m.instanceName = service.deviceInstance;
+                    messages.push(m);
+                }
+                break;
             }
-            if ( ! msg.path || ! msg.value || ! msg.text ) { 
-                // console.log(msg);
-                return;
+            default: {
+                debug(`Unexpected message: ${msg}`);
             }
-
-            let service = this.services[msg.sender]
-
-            // Some services don't have the /DeviceInstance path
-            if (!service || !service.name) return
-
-            msg.senderName = service.name
-
-            if (msg.path === '/DeviceInstance') {
-                this.services[msg.sender].deviceInstance = msg.value
-                msg.instanceName = msg.value
-            } else {
-                msg.instanceName = service.deviceInstance
-            }
-
-            this.messageHandler([msg])
         }
-        // Handle newly registered / deleted dbus services
-        else if (msg.interface === 'org.freedesktop.DBus' &&
-            msg.member === 'NameOwnerChanged') {
-            const name = msg.body[0]
 
-            if (name.startsWith('com.victronenergy')) {
-                const new_owner = msg.body[2]
-                this._initService(new_owner, name)
-                this.eventHandler("INITIALIZE", name)
-            } else {
-                const old_owner = msg.body[1]
-                let svcName = this.services[old_owner] ? this.services[old_owner].name : null
-                delete this.services[old_owner]
-                this.eventHandler("DELETE", svcName)
-            }
-
-        }
+        this.messageHandler(messages)
     }
 
     getValue(destination, path) {
