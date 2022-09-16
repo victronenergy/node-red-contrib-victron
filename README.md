@@ -2,7 +2,7 @@
 
 This library provides custom Node-RED nodes for some of the most commonly used Victron Energy products. The aim is to make it easier and faster for users to create automations without actually having to touch any of the devices' internals.
 
-This library is made as part of the "Add Node-RED to Venus OS"-project: which is about adding Nodejs, npm, node-red and more all into the Venus OS images. Draft manual [here](https://www.victronenergy.com/live/venus-os:large-image) and issue [here](https://github.com/victronenergy/venus/issues/378).
+This library is made as part of the "Add Node-RED to Venus OS"-project: which is about adding Nodejs, npm, node-red and more all into the Venus OS images. Manual [here](https://www.victronenergy.com/live/venus-os:large) and issue [here](https://github.com/victronenergy/venus/issues/378).
 
 This library is not officially supported by Victron Energy: don't call our dealers or other support channels for help.
 
@@ -16,7 +16,7 @@ More details in the [instructions](#Installation-and-Usage).
 
 ## Usage and examples
 
-When the Node-RED is started, a Victron Energy configuration node is automatically created, connecting to the dbus in the Venus device. All the node services and measurements can be found on [services.json](/src/services/services.json) -- however only those services and measurements that are available in the system are shown in the node edit panel.
+When the Node-RED is started, a Victron Energy configuration node is automatically created, connecting to the dbus in the Venus device. All the node services and measurements can be found on [services.json](/src/services/services.json) and on the [wiki](https://github.com/victronenergy/node-red-contrib-victron/wiki/Available-nodes) -- however only those services and measurements that are available in the system are shown in the node edit panel.
 
 ![Architecture](documentation/images/node-palette.png)
 
@@ -104,7 +104,7 @@ The following graph demonstrates the architecture of this plugin.
 
 ## Installation and Usage
 
-NOTE: these instructions are about how to install and make this node pallette working on your own Node-RED installation. Make sure that is what you want and need. The more common solution is to [use Node-RED already pre-installed inside Venus OS](https://www.victronenergy.com/live/venus-os:large-image).
+NOTE: these instructions are about how to install and make this node pallette working on your own Node-RED installation. Make sure that is what you want and need. The more common solution is to [use Node-RED already pre-installed inside Venus OS](https://www.victronenergy.com/live/venus-os:large).
 
 WARNINGS: (A) Only do this on a trusted network. Exposing D-Bus to TCP is not secured - anyone on the same network can do
 anything he/she wants after enabling this setting. (B) If you do below change incorrectly, the GX Device will no longer
@@ -112,7 +112,7 @@ boot correctly and will also not enable SSH nor Remote Console anymore. Also the
 Basically its rendered unusable, until either debugged via the serial console using a
 [serial console cable](https://www.adafruit.com/product/954); or reinstalled using an factory installation image on an
 sdcard. Note that after factory installation, certain files must be put back in order for, for example, the wifi to
-work again. There is no complete documentation about how to restore those, but the information here will at least help:
+work again. There is no complete documentation about how to restore those, but the information on older revisions of this page will at least help:
 [Venus OS Extended manual - Repart. appendix](https://www.victronenergy.com/live/venus-os:extended#appendix_a_-_repartitioning_venus_gx_flash_memory).
 (C) below modifications are on ones own risk. We'll help where possible; but there are only a few
 people available within Victron that can help; and they won't be standby all the time to help with issues like this:
@@ -186,7 +186,7 @@ You can use the `--append` switch to completely bypass the whitelist, missingpat
 
 3. Add the following rows to given files:  
 ```
-// The following function defines what services are showin in
+// The following function defines what services are shown in
 // /victron/services/ API endpoint.
 // src/services/victron-system.js - listAvailableServices()
 "input-test": this.getNodeServices("input-test"),
@@ -208,10 +208,11 @@ registerInputNode('victron-input-test', 'Test', 'input-test');
 Besides that it is also important to update the wiki:
 
 ```
-node scripts/service2doc.js -s src/services/services.json -r src/nodes/victron-nodes.html -t md > doc.md
+node scripts/service2doc.js -s src/services/services.json -r src/nodes/victron-nodes.html -t md >\
+  ~/git/node-red-contrib-victron.wiki/Available-nodes.md
 ```
 
-And copy/paste the contents of that file into the [wiki/Available-nodes](https://github.com/victronenergy/node-red-contrib-victron/wiki/Available-nodes) overview.
+Assuming you have the wiki cloned as well in `~/git/` directory. Review and commit those changes too.
 
 5. Restart Node-RED and test the new node. It should be visible under Victron Energy nodes. If the path `/Settings/TestDbusPath` is present in dbus under `com.victronenergy.settings`, the node will show the path as an option in its edit panel settings (otherwise it will be hidden and you will probably see a disclaimer text on missing services). Make sure also to check the documentation.
 
