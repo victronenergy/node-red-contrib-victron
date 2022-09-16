@@ -27,7 +27,7 @@ register_html = argv.register;
 // ## Get the label info from ../nodes/victron-nodes.html as well
 const searchLabelInfo = (filename) => {
     return new Promise((resolve) => {
-        
+
         const regEx = new RegExp(/^ *register(In|Out)putNode\('[^,]*', '([^']*)', '([^']*)'\);/, "")
         var result = new Object();
 
@@ -63,8 +63,9 @@ searchLabelInfo(register_html).then(function(labelinfo){
      }
   }
 
-  show('md', 'On this page you find and overview of _all_ possible services and measurements for the available nodes. The edit panel will only show items available in your system..')
+  show('md', 'On this page you find and overview of _all_ possible services and measurements for the available nodes. The edit panel will only show items available in your system.')
   show('md', 'For example a Cerbo CX has 2 relays and thus will show 2 relays to control. An EasySolar-II GX has only one relay and thus will only show one.\n')
+  show('md', 'You can find more background information on the paths and how to use them [here](https://github.com/victronenergy/venus/wiki/dbus).\n')
   show('md', '**Input nodes:** '+input.join(', ')+ '  ')
   show('md', '**Ouput nodes:** '+output.join(', ')+ '  ')
 
@@ -77,11 +78,24 @@ searchLabelInfo(register_html).then(function(labelinfo){
         const services = JSON.parse(jsonString)
         var oc = false;
         show('md', '# Input nodes\n')
+        show('md', 'The input nodes have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.\n')
+        show('md', '- **Device select** - lists all available devices')
+        show('md', '- **Measurement select** - lists all available device-specific measurements')
+        show('md', '- **Node label input field** - sets a custom label for the node\n')
+        show('md', 'The measurement unit type is shown in the measurement label in brackets, e.g. Battery voltage (V). In case the data type is enumerated, an approppriate enum legend is shown below the selected option.\n')
         Object.keys(services).forEach(function(k) {
           show('nodered', '<script type="text/x-red" data-help-name="victron-'+k+'">')
           if (/output-/.test(k)) {
             labelinfo[k] += ' Control';
-            if ( oc === false) {show('md', '# Output nodes\n') };
+            if ( oc === false) {
+              show('md', '# Output nodes\n')
+              show('md', 'Output Nodes have the same options available, but the selectable _measurement_ only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.\n')
+              show('md', '- **Device select** - lists all available devices')
+              show('md', '- **Measurement select** - lists all available device-specific measurements')
+              show('md', '- **Initial value input field** - lists all available device-specific measurements')
+              show('md', '- **Node label input field** - sets a custom label for the node\n')
+              show('md', 'All output nodes should have the control value set in its incoming messages `msg.payload` property.\n')
+            };
             oc = true;
           }
           show('md', '## '+labelinfo[k])
