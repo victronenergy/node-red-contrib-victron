@@ -83,6 +83,7 @@ searchLabelInfo(register_html).then(function(labelinfo){
         show('md', '- **Measurement select** - lists all available device-specific measurements')
         show('md', '- **Node label input field** - sets a custom label for the node\n')
         show('md', 'The measurement unit type is shown in the measurement label in brackets, e.g. Battery voltage (V). In case the data type is enumerated, an approppriate enum legend is shown below the selected option.\n')
+        show('md', '![input nodes](https://github.com/victronenergy/node-red-contrib-victron/blob/master/documentation/images/edit-vebus-input.png)\n')
         Object.keys(services).forEach(function(k) {
           show('nodered', '<script type="text/x-red" data-help-name="victron-'+k+'">')
           if (/output-/.test(k)) {
@@ -95,6 +96,7 @@ searchLabelInfo(register_html).then(function(labelinfo){
               show('md', '- **Initial value input field** - lists all available device-specific measurements')
               show('md', '- **Node label input field** - sets a custom label for the node\n')
               show('md', 'All output nodes should have the control value set in its incoming messages `msg.payload` property.\n')
+        show('md', '![output nodes](https://github.com/victronenergy/node-red-contrib-victron/blob/master/documentation/images/edit-vebus-output.png)\n')
             };
             oc = true;
           }
