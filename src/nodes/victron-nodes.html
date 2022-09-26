@@ -175,6 +175,8 @@
                     return s.service === node.service;
                 })) {
                     buildOption(node.serviceObj).text(node.serviceObj.name + " [disconnected]").appendTo(serviceElem);
+                    changeStatusText($('#statusmessage'), 'fa-exclamation-circle', "The device is no longer available via the stored service path. Please (re)select the device from the dropdown and deploy again.");
+
                 }
 
                 serviceElem.val(node.service);
@@ -280,6 +282,7 @@
             defaults: {
                 service: { value: "" },
                 path: { value: "" },
+                deviceInstance: { value : "" },
                 serviceObj: { value: undefined },
                 pathObj: { value: undefined },
                 initial: { value: undefined },

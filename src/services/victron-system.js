@@ -51,9 +51,10 @@ class SystemConfiguration {
                         )
                     )
 
+                    let deviceInstance = cachedPaths['/DeviceInstance'] || ''
                     // Only show the service if it actually has paths available
                     if (paths.length)
-                        acc.push(utils.TEMPLATE(dbusInterface, name, paths))
+                        acc.push(utils.TEMPLATE(dbusInterface, name, deviceInstance, paths))
                 })
                 return acc
             }, [])
@@ -93,7 +94,9 @@ class SystemConfiguration {
                 || this.cache[service]['/ProductName']
                 || service.split('.').pop()
 
-            return utils.TEMPLATE(service, name, pathObjects)
+            let deviceInstance = this.cache[service]['/DeviceInstance'] || '-'
+
+            return utils.TEMPLATE(service, name, deviceInstance, pathObjects)
 
         }
 

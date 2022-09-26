@@ -1,6 +1,28 @@
 module.exports = function (RED) {
 
     const _ = require('lodash')
+    const debug = require('debug')('node-red-contrib-victron:victron-client')
+
+    const migrateSubscriptions = (x) => {
+        var deviceInstance = ''
+        const services = x.client.client.services
+        for (var key in services) {
+            if (services[key].name === x.service) {
+                deviceInstance = services[key].deviceInstance || ''
+                break
+            }
+        }
+        if (deviceInstance) {
+            var dbusInterface = x.service.split('.').splice(0,3).join('.')+('.'+deviceInstance).replace(/\.$/, '')
+            var newsub = dbusInterface+x.path
+            var oldsub = x.service+x.path
+            debug(`Migrating subscription from ${oldsub} to ${newsub} (please update your flow)`)
+            x.service = dbusInterface
+            x.client.subscriptions[newsub] = x.client.subscriptions[oldsub]
+            x.client.subscriptions[newsub][0].dbusInterface = dbusInterface
+            delete x.client.subscriptions[oldsub]
+        }
+    }
 
     class BaseInputNode {
         constructor(nodeDefinition) {
@@ -8,12 +30,8 @@ module.exports = function (RED) {
 
             this.node = this
 
-            // this.serviceObj = nodeDefinition.serviceObj
-            // this.pathObj = nodeDefinition.pathObj
             this.service = nodeDefinition.service
             this.path = nodeDefinition.path
-            // this.initialValue = nodeDefinition.initial
-
 
             this.configNode = RED.nodes.getNode("victron-client-id")
             this.client = this.configNode.client
@@ -23,6 +41,15 @@ module.exports = function (RED) {
             let handlerId = this.configNode.addStatusListener(this, this.service, this.path)
 
             if (this.service && this.path) {
+                // The following is for migration purposes:
+                // we used to store the full path of the servicepath instead of the first
+                // 3 parts + optional deviceinstance.
+                var device = this.service.split('.')[3]
+                if ( device && ! device.match(/^\d+$/) ) {
+                    this.client.client.getValue(this.service, '/DeviceInstance')
+                    setTimeout(migrateSubscriptions, 1000, this)
+                }
+
                 this.subscription = this.client.subscribe(this.service, this.path, (msg) => {
                     this.node.send({
                         payload: msg.value,
@@ -45,7 +72,6 @@ module.exports = function (RED) {
 
             this.node = this
 
-            // this.serviceObj = nodeDefinition.serviceObj
             this.pathObj = nodeDefinition.pathObj
             this.service = nodeDefinition.service
             this.path = nodeDefinition.path

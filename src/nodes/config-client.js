@@ -1,3 +1,5 @@
+const { split } = require('lodash')
+
 module.exports = function (RED) {
     "use strict"
 
@@ -74,10 +76,15 @@ module.exports = function (RED) {
 
             // Upon initialization, the initial node status will be fetched from the cache
             if (service) {
-                if (_.get(this.client, ['system', 'cache', service, path]) === undefined)
-                    listener.status(utils.DISCONNECTED)
-                else
+                if (_.get(this.client, ['system', 'cache', service, path]) === undefined) {
+                    if (service.split('.')[3] && ! service.split('.')[3].match(/^\d+$/)) {
+                        listener.status(utils.MIGRATE)
+                    } else {
+                        listener.status(utils.DISCONNECTED)
+                    }
+                } else {
                     listener.status(utils.CONNECTED)
+                }
             }
 
             statusListeners.push({
