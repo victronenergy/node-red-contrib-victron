@@ -99,6 +99,10 @@
         };
 
         var populateSelect = function populateSelect(selector, services) {
+            var oldselect = selector.find(':selected')
+console.log(oldselect);
+console.log(oldselect.value)
+console.log('Old value was '+oldselect.text())
             selector[0].options.length = 0;
             services.forEach(function (service) {
                 selector.append(buildOption(service));

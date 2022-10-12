@@ -16,11 +16,13 @@ module.exports = function (RED) {
             var dbusInterface = x.service.split('.').splice(0,3).join('.')+('.'+deviceInstance).replace(/\.$/, '')
             var newsub = dbusInterface+x.path
             var oldsub = x.service+x.path
-            debug(`Migrating subscription from ${oldsub} to ${newsub} (please update your flow)`)
-            x.service = dbusInterface
-            x.client.subscriptions[newsub] = x.client.subscriptions[oldsub]
-            x.client.subscriptions[newsub][0].dbusInterface = dbusInterface
-            delete x.client.subscriptions[oldsub]
+            if (x.client.subscriptions[oldsub]) {
+              debug(`Migrating subscription from ${oldsub} to ${newsub} (please update your flow)`)
+              x.service = dbusInterface
+              x.client.subscriptions[newsub] = x.client.subscriptions[oldsub]
+              x.client.subscriptions[newsub][0].dbusInterface = dbusInterface
+              delete x.client.subscriptions[oldsub]
+           }
         }
     }
 
