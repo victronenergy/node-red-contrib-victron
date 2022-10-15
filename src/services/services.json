@@ -1028,7 +1028,7 @@
       {
         "path": "/TimeToGo",
         "type": "float",
-        "name": "Time to go (h)"
+        "name": "Time to go (s)"
       }
     ]
   },
@@ -4017,7 +4017,7 @@
       {
         "path": "/Dc/Battery/TimeToGo",
         "type": "float",
-        "name": "Battery Time to Go (h)"
+        "name": "Battery Time to Go (s)"
       },
       {
         "path": "/Dc/Battery/Voltage",
