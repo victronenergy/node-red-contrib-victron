@@ -1376,7 +1376,8 @@
           "6": "Smoke alarm",
           "7": "Fire alarm",
           "8": "CO2 alarm",
-          "9": "Generic input"
+	  "9": "Generator Start/Stop",
+          "10": "Generic input"
         }
       }
     ]
