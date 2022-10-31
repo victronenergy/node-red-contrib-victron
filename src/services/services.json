@@ -2629,7 +2629,7 @@
       }
     ]
   },
-  "input-multi": {
+  "input-multirs": {
     "help": "<p>This is the Multi RS input node.</p>",
     "multi": [
       {
@@ -5137,7 +5137,7 @@
       }
     ]
   },
-  "output-multi": {
+  "output-multirs": {
     "help": "<p>Multi RS output node.</p>",
     "multi": [
       {
