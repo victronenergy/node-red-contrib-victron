@@ -511,6 +511,9 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Mid-point deviation of the battery bank (%)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/0/MidVoltageDeviation</b>
 </dd>
+  <dt class="optional">Battery power (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Dc/0/Power</b>
+</dd>
   <dt class="optional">Battery temperature (C)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/0/Temperature</b>
 </dd>
@@ -757,8 +760,8 @@ Questions can also be asked on the Victron Energy community:
   <li>7 - Initializing (Wait bus voltage)</li>
   <li>8 - Initializing (Wait for lynx shunt)</li>
   <li>9 - Running</li>
-  <li>10 - Error (10)</li>
-  <li>11 - Unused (11)</li>
+  <li>10 - Error</li>
+  <li>11 - Unused</li>
   <li>12 - Shutdown</li>
   <li>13 - Slave updating</li>
   <li>14 - Standby</li>
@@ -820,8 +823,9 @@ Questions can also be asked on the Victron Energy community:
   <li>0 - Disabled</li>
   <li>1 - Enabled</li>
 </ul>
+For monitoring the state of the built-in contactor.
 </dd>
-  <dt class="optional">Time to go (h)<span class="property-type">float</dt>
+  <dt class="optional">Time to go (s)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/TimeToGo</b>
 </dd>
 </dl>
@@ -1095,7 +1099,8 @@ Questions can also be asked on the Victron Energy community:
   <li>6 - Smoke alarm</li>
   <li>7 - Fire alarm</li>
   <li>8 - CO2 alarm</li>
-  <li>9 - Generic input</li>
+  <li>9 - Generator</li>
+  <li>10 - Generic input</li>
 </ul>
 </dd>
 </dl>
@@ -2016,7 +2021,7 @@ Questions can also be asked on the Victron Energy community:
 </dl>
 </script>
 
-<script type="text/x-red" data-help-name="victron-input-multi">
+<script type="text/x-red" data-help-name="victron-input-multirs">
 <p>This is the Multi RS input node.</p>
 <h3>multi</h3>
 <dl class="message-properties">
@@ -3013,7 +3018,7 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Battery temperature (C)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/Battery/Temperature</b>
 </dd>
-  <dt class="optional">Battery Time to Go (h)<span class="property-type">float</dt>
+  <dt class="optional">Battery Time to Go (s)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/Battery/TimeToGo</b>
 </dd>
   <dt class="optional">Battery voltage (V)<span class="property-type">float</dt>
@@ -3631,6 +3636,20 @@ Questions can also be asked on the Victron Energy community:
 </dl>
 </script>
 
+<script type="text/x-red" data-help-name="victron-output-battery">
+<p>Battery monitor output node, which can be used for controlling a <a href="https://www.victronenergy.com/dc-distribution-systems/lynx-smart-bms">Lynx Smart BMS</a>.</p>
+<h3>battery</h3>
+<dl class="message-properties">
+  <dt class="optional">Mode<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Mode</b>
+<ul>
+  <li>3 - On</li>
+  <li>252 - Standby</li>
+</ul>
+</dd>
+</dl>
+</script>
+
 <script type="text/x-red" data-help-name="victron-output-charger">
 <p>This node allows for controlling a connected charger.</p>
 <h3>charger</h3>
@@ -3823,7 +3842,7 @@ Questions can also be asked on the Victron Energy community:
 </dl>
 </script>
 
-<script type="text/x-red" data-help-name="victron-output-multi">
+<script type="text/x-red" data-help-name="victron-output-multirs">
 <p>Multi RS output node.</p>
 <h3>multi</h3>
 <dl class="message-properties">

@@ -146,7 +146,7 @@ class SystemConfiguration {
             "input-inverter": this.getNodeServices("input-inverter"),
             "input-meteo": this.getNodeServices("input-meteo"),
             "input-motordrive": this.getNodeServices("input-motordrive"),
-            "input-multi": this.getNodeServices("input-multi"),
+            "input-multirs": this.getNodeServices("input-multirs"),
             "input-pulsemeter": this.getNodeServices("input-pulsemeter"),
             "input-pvinverter": this.getNodeServices("input-pvinverter"),
             "input-relay": this.getNodeServices("input-relay"),
@@ -159,12 +159,13 @@ class SystemConfiguration {
 
             // output services
             "output-accharger": this.getNodeServices("output-accharger"),
+            "output-battery": this.getNodeServices("output-battery"),
             "output-charger": this.getNodeServices("output-charger"),
             "output-ess": this.getNodeServices("output-ess"),
             "output-evcharger": this.getNodeServices("output-evcharger"),
             "output-generator": this.getNodeServices("output-generator"),
             "output-inverter": this.getNodeServices("output-inverter"),
-            "output-multi": this.getNodeServices("output-multi"),
+            "output-multirs": this.getNodeServices("output-multirs"),
             "output-pvinverter": this.getNodeServices("output-pvinverter"),
             "output-relay": this.getRelayServices(),
             "output-settings": this.getNodeServices("output-settings"),

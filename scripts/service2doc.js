@@ -130,6 +130,7 @@ searchLabelInfo(register_html).then(function(labelinfo){
               }
               if (services[k][v][p].remarks) {
                 show('nodered', services[k][v][p].remarks)
+                show('md', '_'+services[k][v][p].remarks+'_')
               }
               show('nodered', "</dd>");
             });

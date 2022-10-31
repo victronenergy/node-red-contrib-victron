@@ -586,6 +586,11 @@
         "name": "Mid-point deviation of the battery bank (%)"
       },
       {
+        "path": "/Dc/0/Power",
+        "type": "float",
+        "name": "Battery power (W)"
+      },
+      {
         "path": "/Dc/0/Temperature",
         "type": "float",
         "name": "Battery temperature (C)"
@@ -927,8 +932,8 @@
           "7": "Initializing (Wait bus voltage)",
           "8": "Initializing (Wait for lynx shunt)",
           "9": "Running",
-          "10": "Error (10)",
-          "11": "Unused (11)",
+          "10": "Error",
+          "11": "Unused",
           "12": "Shutdown",
           "13": "Slave updating",
           "14": "Standby",
@@ -1023,12 +1028,13 @@
         "enum": {
           "0": "Disabled",
           "1": "Enabled"
-        }
+        },
+        "remarks": "For monitoring the state of the built-in contactor."
       },
       {
         "path": "/TimeToGo",
         "type": "float",
-        "name": "Time to go (h)"
+        "name": "Time to go (s)"
       }
     ]
   },
@@ -1376,7 +1382,8 @@
           "6": "Smoke alarm",
           "7": "Fire alarm",
           "8": "CO2 alarm",
-          "9": "Generic input"
+          "9": "Generator",
+          "10": "Generic input"
         }
       }
     ]
@@ -2622,7 +2629,7 @@
       }
     ]
   },
-  "input-multi": {
+  "input-multirs": {
     "help": "<p>This is the Multi RS input node.</p>",
     "multi": [
       {
@@ -4017,7 +4024,7 @@
       {
         "path": "/Dc/Battery/TimeToGo",
         "type": "float",
-        "name": "Battery Time to Go (h)"
+        "name": "Battery Time to Go (s)"
       },
       {
         "path": "/Dc/Battery/Voltage",
@@ -4850,6 +4857,21 @@
       }
     ]
   },
+  "output-battery": {
+    "help": "<p>Battery monitor output node, which can be used for controlling a <a href=\"https://www.victronenergy.com/dc-distribution-systems/lynx-smart-bms\">Lynx Smart BMS</a>.</p>",
+    "battery": [
+      {
+        "path": "/Mode",
+        "type": "enum",
+        "name": "Mode",
+        "enum": {
+          "3": "On",
+          "252": "Standby"
+        },
+        "writable": true
+      }
+    ]
+  },
   "output-charger": {
     "help": "<p>This node allows for controlling a connected charger.</p>",
     "charger": [
@@ -5115,7 +5137,7 @@
       }
     ]
   },
-  "output-multi": {
+  "output-multirs": {
     "help": "<p>Multi RS output node.</p>",
     "multi": [
       {
