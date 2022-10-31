@@ -586,6 +586,11 @@
         "name": "Mid-point deviation of the battery bank (%)"
       },
       {
+        "path": "/Dc/0/Power",
+        "type": "float",
+        "name": "Battery power (W)"
+      },
+      {
         "path": "/Dc/0/Temperature",
         "type": "float",
         "name": "Battery temperature (C)"
@@ -927,8 +932,8 @@
           "7": "Initializing (Wait bus voltage)",
           "8": "Initializing (Wait for lynx shunt)",
           "9": "Running",
-          "10": "Error (10)",
-          "11": "Unused (11)",
+          "10": "Error",
+          "11": "Unused",
           "12": "Shutdown",
           "13": "Slave updating",
           "14": "Standby",
@@ -1023,7 +1028,8 @@
         "enum": {
           "0": "Disabled",
           "1": "Enabled"
-        }
+        },
+        "remarks": "For monitoring the state of the built-in contactor."
       },
       {
         "path": "/TimeToGo",
@@ -1376,7 +1382,7 @@
           "6": "Smoke alarm",
           "7": "Fire alarm",
           "8": "CO2 alarm",
-	  "9": "Generator",
+          "9": "Generator",
           "10": "Generic input"
         }
       }
@@ -4846,6 +4852,21 @@
         "enum": {
           "0": "Open",
           "1": "Closed"
+        },
+        "writable": true
+      }
+    ]
+  },
+  "output-battery": {
+    "help": "<p>Battery monitor output node, which can be used for controlling a <a href=\"https://www.victronenergy.com/dc-distribution-systems/lynx-smart-bms\">Lynx Smart BMS</a>.</p>",
+    "battery": [
+      {
+        "path": "/Mode",
+        "type": "enum",
+        "name": "Mode",
+        "enum": {
+          "3": "On",
+          "252": "Standby"
         },
         "writable": true
       }
