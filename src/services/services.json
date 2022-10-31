@@ -5245,11 +5245,11 @@
         "writable": true
       }
     ],
-    "solarcharger": [
+    "inverter": [
       {
         "path": "/Relay/0/State",
         "type": "enum",
-        "name": "Relay on the charger",
+        "name": "Relay state",
         "enum": {
           "0": "Open",
           "1": "Closed"
@@ -5257,11 +5257,23 @@
         "writable": true
       }
     ],
-    "inverter": [
+    "multi": [
       {
         "path": "/Relay/0/State",
         "type": "enum",
-        "name": "Relay state",
+        "name": "Relay on the Multi RS",
+        "enum": {
+          "0": "Open",
+          "1": "Closed"
+        },
+        "writable": true
+      }
+    ],
+    "solarcharger": [
+      {
+        "path": "/Relay/0/State",
+        "type": "enum",
+        "name": "Relay on the charger",
         "enum": {
           "0": "Open",
           "1": "Closed"
