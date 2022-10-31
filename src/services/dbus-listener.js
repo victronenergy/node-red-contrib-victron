@@ -162,7 +162,7 @@ class VictronDbusListener {
                             path: '/' + path,
                             senderName: service.name.split('.').splice(0,3).join('.'),
                             value: data[path],
-                            deviceInstance: service.deviceInstance || '',
+                            deviceInstance: service.deviceInstance,
                             fluidType: service.fluidType
                         }
                     })
@@ -186,7 +186,7 @@ class VictronDbusListener {
                 } else {
                     const old_owner = msg.body[1]
                     if ( old_owner && this.services[old_owner]) {
-                        let trail = ( '.' + ( this.services[old_owner].deviceInstance || '' ) ).replace(/\.$/, '')
+                        let trail = ( '.' + ( this.services[old_owner].deviceInstance != null ? this.services[old_owner].deviceInstance : '' ) ).replace(/\.$/, '')
                         let svcName = this.services[old_owner].name.split('.').splice(0, 3).join('.') + trail;
                         delete this.services[old_owner]
                         this.eventHandler("DELETE", svcName)

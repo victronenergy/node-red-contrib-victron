@@ -32,7 +32,7 @@ const SERVICES = require("./services.json")
  */
 const CONNECTED = { fill: "green", shape: "dot", text: "connected" }
 const DISCONNECTED = { fill: "red", shape: "ring", text: "disconnected" }
-const MIGRATE = { fill: "blue", shape: "dot", text: "please migrate"}
+const MIGRATE = { fill: "yellow", shape: "dot", text: "please migrate"}
 
 /**
  * Constructs a node config object that is

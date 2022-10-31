@@ -40,7 +40,7 @@ class VictronClient {
         const messageHandler = messages => {
             messages.forEach(msg => {
                 _this.saveToCache(msg)
-                let trail = ('.' + (msg.deviceInstance || '')).replace(/\.$/, '')
+                let trail = ('.' + (msg.deviceInstance != null ? msg.deviceInstance : '')).replace(/\.$/, '')
                 let msgKey = `${msg.senderName}${trail}${msg.path}`
                 if (msgKey in _this.subscriptions)
                     _this.subscriptions[msgKey].forEach(sub => sub.callback(msg))
@@ -92,7 +92,7 @@ class VictronClient {
     saveToCache(msg) {
         let dbusPaths = {}
 
-        const trail = ('.' + (msg.deviceInstance || '')).replace(/\.$/, '')
+        const trail = ('.' + (msg.deviceInstance != null ? msg.deviceInstance : '')).replace(/\.$/, '')
 
         if (this.system.cache[msg.senderName + trail])
             dbusPaths = this.system.cache[msg.senderName + trail]

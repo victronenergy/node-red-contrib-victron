@@ -2629,7 +2629,7 @@
       }
     ]
   },
-  "input-multirs": {
+  "input-multi": {
     "help": "<p>This is the Multi RS input node.</p>",
     "multi": [
       {
@@ -5137,7 +5137,7 @@
       }
     ]
   },
-  "output-multirs": {
+  "output-multi": {
     "help": "<p>Multi RS output node.</p>",
     "multi": [
       {
@@ -5238,6 +5238,30 @@
         "path": "/Relay/0/State",
         "type": "enum",
         "name": "Relay on the charger",
+        "enum": {
+          "0": "Open",
+          "1": "Closed"
+        },
+        "writable": true
+      }
+    ],
+    "dcsystem": [
+      {
+        "path": "/Relay/0/State",
+        "type": "enum",
+        "name": "Relay on the dc system",
+        "enum": {
+          "0": "Open",
+          "1": "Closed"
+        },
+        "writable": true
+      }
+    ],
+    "multi": [
+      {
+        "path": "/Relay/0/State",
+        "type": "enum",
+        "name": "Relay on the Multi RS",
         "enum": {
           "0": "Open",
           "1": "Closed"

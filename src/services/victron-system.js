@@ -35,6 +35,10 @@ class SystemConfiguration {
                         || cachedPaths['/ProductName']
                         || _.get(utils.DEFAULT_SERVICE_NAMES, [nodeName, dbusService], dbusInterface)
 
+                    if (dbusInterface.startsWith('com.victronenergy.system')) {
+                        name = 'Venus Device'
+                    }
+
                     // the cache is filtered against the desired paths in services.json
                     // to only show available options per service on the node's edit form.
 
@@ -82,7 +86,7 @@ class SystemConfiguration {
                         relayObject["disabled"] = true
                         relayObject["warning"] = utils.RELAY_MODE_WARNING(utils.RELAY_FUNCTIONS[systemRelayFunction])
                     } else {
-                       delete(relayObject["warning"])
+                        delete (relayObject["warning"])
                     }
                 }
                 return relayObject
@@ -146,7 +150,7 @@ class SystemConfiguration {
             "input-inverter": this.getNodeServices("input-inverter"),
             "input-meteo": this.getNodeServices("input-meteo"),
             "input-motordrive": this.getNodeServices("input-motordrive"),
-            "input-multirs": this.getNodeServices("input-multirs"),
+            "input-multi": this.getNodeServices("input-multi"),
             "input-pulsemeter": this.getNodeServices("input-pulsemeter"),
             "input-pvinverter": this.getNodeServices("input-pvinverter"),
             "input-relay": this.getNodeServices("input-relay"),
@@ -165,7 +169,7 @@ class SystemConfiguration {
             "output-evcharger": this.getNodeServices("output-evcharger"),
             "output-generator": this.getNodeServices("output-generator"),
             "output-inverter": this.getNodeServices("output-inverter"),
-            "output-multirs": this.getNodeServices("output-multirs"),
+            "output-multi": this.getNodeServices("output-multi"),
             "output-pvinverter": this.getNodeServices("output-pvinverter"),
             "output-relay": this.getRelayServices(),
             "output-settings": this.getNodeServices("output-settings"),

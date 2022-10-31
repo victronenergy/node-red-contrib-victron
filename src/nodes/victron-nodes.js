@@ -8,21 +8,27 @@ module.exports = function (RED) {
         const services = x.client.client.services
         for (var key in services) {
             if (services[key].name === x.service) {
-                deviceInstance = services[key].deviceInstance || ''
+                deviceInstance = services[key].deviceInstance
                 break
             }
         }
-        if (deviceInstance) {
+        if (typeof deviceInstance !== 'undefined' && deviceInstance !== null) {
             var dbusInterface = x.service.split('.').splice(0,3).join('.')+('.'+deviceInstance).replace(/\.$/, '')
             var newsub = dbusInterface+x.path
             var oldsub = x.service+x.path
             if (x.client.subscriptions[oldsub]) {
               debug(`Migrating subscription from ${oldsub} to ${newsub} (please update your flow)`)
               x.service = dbusInterface
-              x.client.subscriptions[newsub] = x.client.subscriptions[oldsub]
-              x.client.subscriptions[newsub][0].dbusInterface = dbusInterface
+              x.client.subscriptions[oldsub][0].dbusInterface = dbusInterface;
+              if (newsub in x.client.subscriptions) {
+                x.client.subscriptions[newsub].push(x.client.subscriptions[oldsub][0])
+              } else {
+                x.client.subscriptions[newsub] = x.client.subscriptions[oldsub]
+              }
               delete x.client.subscriptions[oldsub]
            }
+        } else {
+            debug(`Failed to migrate service ${x.service}`)
         }
     }
 
@@ -122,7 +128,7 @@ module.exports = function (RED) {
     RED.nodes.registerType('victron-input-inverter', BaseInputNode);
     RED.nodes.registerType('victron-input-meteo', BaseInputNode);
     RED.nodes.registerType('victron-input-motordrive', BaseInputNode);
-    RED.nodes.registerType('victron-input-multirs', BaseInputNode);
+    RED.nodes.registerType('victron-input-multi', BaseInputNode);
     RED.nodes.registerType('victron-input-pulsemeter', BaseInputNode);
     RED.nodes.registerType('victron-input-pvinverter', BaseInputNode);
     RED.nodes.registerType('victron-input-relay', BaseInputNode);
@@ -141,7 +147,7 @@ module.exports = function (RED) {
     RED.nodes.registerType('victron-output-evcharger', BaseOutputNode);
     RED.nodes.registerType('victron-output-generator', BaseOutputNode);
     RED.nodes.registerType('victron-output-inverter', BaseOutputNode);
-    RED.nodes.registerType('victron-output-multirs', BaseOutputNode);
+    RED.nodes.registerType('victron-output-multi', BaseOutputNode);
     RED.nodes.registerType('victron-output-pvinverter', BaseOutputNode);
     RED.nodes.registerType('victron-output-relay', BaseOutputNode);
     RED.nodes.registerType('victron-output-settings', BaseOutputNode);
