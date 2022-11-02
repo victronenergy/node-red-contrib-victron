@@ -5245,11 +5245,11 @@
         "writable": true
       }
     ],
-    "dcsystem": [
+    "inverter": [
       {
         "path": "/Relay/0/State",
         "type": "enum",
-        "name": "Relay on the dc system",
+        "name": "Relay state",
         "enum": {
           "0": "Open",
           "1": "Closed"
@@ -5274,18 +5274,6 @@
         "path": "/Relay/0/State",
         "type": "enum",
         "name": "Relay on the charger",
-        "enum": {
-          "0": "Open",
-          "1": "Closed"
-        },
-        "writable": true
-      }
-    ],
-    "inverter": [
-      {
-        "path": "/Relay/0/State",
-        "type": "enum",
-        "name": "Relay state",
         "enum": {
           "0": "Open",
           "1": "Closed"

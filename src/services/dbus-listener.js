@@ -30,7 +30,8 @@ const _ = require('lodash')
 
 function searchHaystack(stack, needle, fallback) {
     for (var key in stack) {
-        if ( stack[key].deviceInstance == needle ) {
+        if ( stack[key].deviceInstance == needle &&
+            stack[key].name.split('.').splice(0,3).join('.') === fallback ) {
           return stack[key].name
         }
     }

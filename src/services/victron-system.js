@@ -36,7 +36,10 @@ class SystemConfiguration {
                         || _.get(utils.DEFAULT_SERVICE_NAMES, [nodeName, dbusService], dbusInterface)
 
                     if (dbusInterface.startsWith('com.victronenergy.system')) {
-                        name = 'Venus Device'
+                        name = 'Venus system'
+                    }
+                    if (dbusInterface.startsWith('com.victronenergy.settings')) {
+                        name = 'Venus settings'
                     }
 
                     // the cache is filtered against the desired paths in services.json

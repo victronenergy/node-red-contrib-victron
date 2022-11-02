@@ -77,10 +77,10 @@ module.exports = function (RED) {
             // Upon initialization, the initial node status will be fetched from the cache
             if (service) {
                 if (_.get(this.client, ['system', 'cache', service, path]) === undefined) {
-                    if (service.split('.')[3] && ! service.split('.')[3].match(/^\d+$/)) {
-                        listener.status(utils.MIGRATE)
-                    } else {
+                    if (service === '' || path === '') {
                         listener.status(utils.DISCONNECTED)
+                    } else {
+                        listener.status(utils.MIGRATE)
                     }
                 } else {
                     listener.status(utils.CONNECTED)
