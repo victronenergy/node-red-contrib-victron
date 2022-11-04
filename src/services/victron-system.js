@@ -75,7 +75,7 @@ class SystemConfiguration {
         // Build a relay object representing the relay node settings in node-red UI
         const buildRelayService = (service, paths) => {
             let pathObjects = paths.map(p => {
-                const svc = service.split('.')[2] // com.victronenergy.system => system
+                const svc = service.split('.')[2].split('/')[0] // com.victronenergy.system => system
 
                 let relayObject = _.find(_.get(utils.SERVICES, ['output-relay', svc]), { path: p })
 
@@ -101,7 +101,7 @@ class SystemConfiguration {
                 || this.cache[service]['/ProductName']
                 || service.split('.').pop()
 
-            let deviceInstance = this.cache[service]['/DeviceInstance'] || '-'
+            let deviceInstance = this.cache[service]['/DeviceInstance'] || service.split('/')[1] || '-'
 
             return utils.TEMPLATE(service, name, deviceInstance, pathObjects)
 

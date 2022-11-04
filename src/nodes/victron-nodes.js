@@ -2,23 +2,24 @@ module.exports = function (RED) {
 
     const _ = require('lodash')
     const debug = require('debug')('node-red-contrib-victron:victron-client')
+    const utils = require('../services/utils.js')
 
     const migrateSubscriptions = (x) => {
-        var deviceInstance = ''
+
         const services = x.client.client.services
         for (var key in services) {
             if (services[key].name === x.service) {
-                deviceInstance = services[key].deviceInstance
+                x.deviceInstance = services[key].deviceInstance
                 break
             }
         }
-        if (typeof deviceInstance !== 'undefined' && deviceInstance !== null) {
-            var dbusInterface = x.service.split('.').splice(0,3).join('.')+('.'+deviceInstance).replace(/\.$/, '')
-            var newsub = dbusInterface+x.path
-            var oldsub = x.service+x.path
+        if (typeof x.deviceInstance !== 'undefined' && x.deviceInstance.toString().match(/^\d+$/)) {
+            var dbusInterface = x.service.split('.').splice(0,3).join('.')+('/'+x.deviceInstance).replace(/\/$/, '')
+            // var dbusInterface = x.service
+            var newsub = dbusInterface+':'+x.path
+            var oldsub = x.service+':'+x.path
             if (x.client.subscriptions[oldsub]) {
               debug(`Migrating subscription from ${oldsub} to ${newsub} (please update your flow)`)
-              x.service = dbusInterface
               x.client.subscriptions[oldsub][0].dbusInterface = dbusInterface;
               if (newsub in x.client.subscriptions) {
                 x.client.subscriptions[newsub].push(x.client.subscriptions[oldsub][0])
@@ -26,9 +27,12 @@ module.exports = function (RED) {
                 x.client.subscriptions[newsub] = x.client.subscriptions[oldsub]
               }
               delete x.client.subscriptions[oldsub]
+              delete x.client.system.cache[x.service.split('.').splice(0,3).join('.')]
+              x.client.onStatusUpdate({ "service": x.service }, utils.STATUS.SERVICE_MIGRATE)
            }
         } else {
-            debug(`Failed to migrate service ${x.service}`)
+            if (typeof x.deviceInstance !== 'undefined' )
+                debug(`Failed to migrate service ${x.service}`)
         }
     }
 
@@ -50,11 +54,10 @@ module.exports = function (RED) {
             let handlerId = this.configNode.addStatusListener(this, this.service, this.path)
 
             if (this.service && this.path) {
-                // The following is for migration purposes:
-                // we used to store the full path of the servicepath instead of the first
-                // 3 parts + optional deviceinstance.
-                var device = this.service.split('.')[3]
-                if ( device && ! device.match(/^\d+$/) ) {
+                // The following is for migration purposes
+                if ( ! this.service.match(/\/\d+$/) ) {
+                    this.deviceInstance = this.service.replace(/^.*\.(\d+)$/, '$1')
+                    this.service = this.service.replace(/\.\d+$/, '')
                     this.client.client.getValue(this.service, '/DeviceInstance')
                     setTimeout(migrateSubscriptions, 1000, this)
                 }

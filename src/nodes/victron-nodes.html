@@ -114,6 +114,7 @@
             var serviceData = serviceElem.find(':selected').data();
             if (serviceData && serviceData.paths) populateSelect(pathElem, serviceData.paths);
             pathElem.val($('#selectedpath').text());
+            updateEnums();
         };
 
         var updateEnums = function updateEnums() {
@@ -248,7 +249,8 @@
     function saveEditPanel(node) {
         // save the current service and path objects
         node.serviceObj = $('#node-input-service').find(':selected').data();
-        node.serviceObj.paths = [];
+        delete(node.serviceObj.paths)
+        delete(node.serviceObj.deviceInstance)
         node.pathObj = $('#node-input-path').find(':selected').data();
     }
 
@@ -288,7 +290,6 @@
             defaults: {
                 service: { value: "" },
                 path: { value: "" },
-                deviceInstance: { value : "" },
                 serviceObj: { value: undefined },
                 pathObj: { value: undefined },
                 initial: { value: undefined },
