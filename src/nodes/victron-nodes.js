@@ -40,6 +40,7 @@ module.exports = function (RED) {
 
             this.service = nodeDefinition.service
             this.path = nodeDefinition.path
+            this.defaulttopic = nodeDefinition.serviceObj.name + ' - ' + nodeDefinition.pathObj.name
 
             this.configNode = RED.nodes.getNode("victron-client-id")
             this.client = this.configNode.client
@@ -59,9 +60,13 @@ module.exports = function (RED) {
                 }
 
                 this.subscription = this.client.subscribe(this.service, this.path, (msg) => {
+                    var topic = this.defaulttopic
+                    if (this.node.name) {
+                        topic = this.node.name
+                    }
                     this.node.send({
                         payload: msg.value,
-                        topic: `${this.service} - ${this.path}`
+                        topic: topic
                     })
                 })
             }
