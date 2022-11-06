@@ -248,6 +248,7 @@
     function saveEditPanel(node) {
         // save the current service and path objects
         node.serviceObj = $('#node-input-service').find(':selected').data();
+        node.serviceObj.paths = [];
         node.pathObj = $('#node-input-path').find(':selected').data();
     }
 
@@ -256,9 +257,7 @@
 
         if (node.serviceObj && node.path) {
             var svc = node.serviceObj.name;
-            var path = node.serviceObj.paths.find(function (p) {
-                return p.path === node.path;
-            }).name;
+            var path = node.pathObj.name;
             altName = "".concat(svc, " | ").concat(path);
         }
 
