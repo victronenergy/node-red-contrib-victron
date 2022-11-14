@@ -311,10 +311,10 @@
             onadd: function() {
                 let hasClient = false
                 RED.nodes.eachConfig(function (n) {
-                    if (n.id === 'victron-client-id') 
+                    if (n.id === 'victron-client-id')
                         hasClient = true
                 });
-      
+
                 if ( !hasClient ) {
                     var victronClientNode = {
                         id: "victron-client-id",
@@ -357,6 +357,7 @@
     registerInputNode('victron-input-motordrive', 'Motordrive', 'input-motordrive');
     registerInputNode('victron-input-multi', 'Multi RS', 'input-multi');
     registerInputNode('victron-input-pulsemeter', 'Pulsemeter', 'input-pulsemeter');
+    registerInputNode('victron-input-pump', 'Pump', 'input-pump');
     registerInputNode('victron-input-pvinverter', 'PV Inverter', 'input-pvinverter');
     registerInputNode('victron-input-relay', 'Relay', 'input-relay');
     registerInputNode('victron-input-settings', 'Settings', 'input-settings');
@@ -374,6 +375,7 @@
     registerOutputNode('victron-output-generator', 'GX Generator', 'output-generator');
     registerOutputNode('victron-output-inverter', 'Inverter', 'output-inverter');
     registerOutputNode('victron-output-multi', 'Multi RS', 'output-multi');
+    registerOutputNode('victron-output-pump', 'Pump', 'output-pump');
     registerOutputNode('victron-output-pvinverter', 'PV Inverter', 'output-pvinverter');
     registerOutputNode('victron-output-relay', 'Relay', 'output-relay');
     registerOutputNode('victron-output-settings', 'Settings', 'output-settings');

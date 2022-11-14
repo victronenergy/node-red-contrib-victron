@@ -2428,6 +2428,44 @@ For monitoring the state of the built-in contactor.
 </dl>
 </script>
 
+<script type="text/x-red" data-help-name="victron-input-pump">
+<p>Node for getting pump information.</p>
+<h3>pump</h3>
+<dl class="message-properties">
+  <dt class="optional">Pump State<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/State</b>
+<ul>
+  <li>0 - Stopped</li>
+  <li>1 - Running</li>
+</ul>
+</dd>
+</dl>
+<h3>settings</h3>
+<dl class="message-properties">
+  <dt class="optional">Auto start enabled<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/Pump0/AutoStartEnabled</b>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
+</ul>
+</dd>
+  <dt class="optional">Mode<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/Pump0/Mode</b>
+<ul>
+  <li>0 - Auto</li>
+  <li>1 - On</li>
+  <li>2 - Off</li>
+</ul>
+</dd>
+  <dt class="optional">Start value (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/Pump0/StartValue</b>
+</dd>
+  <dt class="optional">Stop value (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/Pump0/StopValue</b>
+</dd>
+</dl>
+</script>
+
 <script type="text/x-red" data-help-name="victron-input-pvinverter">
 <p>This node is for obtaining information from the PV inverter.</p>
 <h3>pvinverter</h3>
@@ -3865,6 +3903,34 @@ For monitoring the state of the built-in contactor.
   <li>3 - On</li>
   <li>4 - Off</li>
 </ul>
+</dd>
+</dl>
+</script>
+
+<script type="text/x-red" data-help-name="victron-output-pump">
+<p>Node for controlling a relay connected pump. In auto mode, the pump looks at the connected tank sensor levels for starting and stopping the pump.</p>
+<h3>settings</h3>
+<dl class="message-properties">
+  <dt class="optional">Auto start enabled<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/Pump0/AutoStartEnabled</b>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
+</ul>
+</dd>
+  <dt class="optional">Mode<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/Pump0/Mode</b>
+<ul>
+  <li>0 - Auto</li>
+  <li>1 - On</li>
+  <li>2 - Off</li>
+</ul>
+</dd>
+  <dt class="optional">Start value (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/Pump0/StartValue</b>
+</dd>
+  <dt class="optional">Stop value (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/Pump0/StopValue</b>
 </dd>
 </dl>
 </script>

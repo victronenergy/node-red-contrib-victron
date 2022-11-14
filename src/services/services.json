@@ -3216,6 +3216,51 @@
       }
     ]
   },
+  "input-pump": {
+    "help": "<p>Node for getting pump information.</p>",
+    "pump": [
+      {
+        "path": "/State",
+        "type": "enum",
+        "name": "Pump State",
+        "enum": {
+          "0": "Stopped",
+          "1": "Running"
+        }
+      }
+    ],
+    "settings": [
+      {
+        "path": "/Settings/Pump0/AutoStartEnabled",
+        "type": "enum",
+        "name": "Auto start enabled",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        }
+      },
+      {
+        "path": "/Settings/Pump0/Mode",
+        "type": "enum",
+        "name": "Mode",
+        "enum": {
+          "0": "Auto",
+          "1": "On",
+          "2": "Off"
+        }
+      },
+      {
+        "path": "/Settings/Pump0/StartValue",
+        "type": "float",
+        "name": "Start value (%)"
+      },
+      {
+        "path": "/Settings/Pump0/StopValue",
+        "type": "float",
+        "name": "Stop value (%)"
+      }
+    ]
+  },
   "input-pvinverter": {
     "help": "<p>This node is for obtaining information from the PV inverter.</p>",
     "pvinverter": [
@@ -5170,6 +5215,44 @@
           "3": "On",
           "4": "Off"
         },
+        "writable": true
+      }
+    ]
+  },
+  "output-pump": {
+    "help": "<p>Node for controlling a relay connected pump. In auto mode, the pump looks at the connected tank sensor levels for starting and stopping the pump.</p>",
+    "settings": [
+      {
+        "path": "/Settings/Pump0/AutoStartEnabled",
+        "type": "enum",
+        "name": "Auto start enabled",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/Pump0/Mode",
+        "type": "enum",
+        "name": "Mode",
+        "enum": {
+          "0": "Auto",
+          "1": "On",
+          "2": "Off"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/Pump0/StartValue",
+        "type": "float",
+        "name": "Start value (%)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/Pump0/StopValue",
+        "type": "float",
+        "name": "Stop value (%)",
         "writable": true
       }
     ]
