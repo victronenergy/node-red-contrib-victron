@@ -734,6 +734,13 @@ Questions can also be asked on the Victron Energy community:
   <li>1 - Active</li>
 </ul>
 </dd>
+  <dt class="optional">Mode<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Mode</b>
+<ul>
+  <li>3 - On</li>
+  <li>252 - Standby</li>
+</ul>
+</dd>
   <dt class="optional">Relay status<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Relay/0/State</b>
 <ul>
@@ -767,6 +774,7 @@ Questions can also be asked on the Victron Energy community:
   <li>14 - Standby</li>
   <li>15 - Going to run</li>
   <li>16 - Pre-charging</li>
+  <li>17 - Contactor check</li>
 </ul>
 </dd>
   <dt class="optional">System; batteries parallel (count)<span class="property-type">float</dt>
@@ -2622,6 +2630,9 @@ For monitoring the state of the built-in contactor.
   <dd>Dbus path: <b>/Settings/CGwacs/MaxFeedInPower</b>
 <ul><li>-1: No limit</li><li> &gt;=0: limited system feed-in</li></ul><p>Applies to DC-coupled and AC-coupled feed-in.</p>
 </dd>
+  <dt class="optional">System name<span class="property-type">string</dt>
+  <dd>Dbus path: <b>/Settings/SystemSetup/SystemName</b>
+</dd>
 </dl>
 <h3>hub4</h3>
 <dl class="message-properties">
@@ -3059,12 +3070,6 @@ For monitoring the state of the built-in contactor.
 </dd>
   <dt class="optional">Time inverting (s)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Timers/TimeOnInverter</b>
-</dd>
-</dl>
-<h3>settings</h3>
-<dl class="message-properties">
-  <dt class="optional">System name<span class="property-type">string</dt>
-  <dd>Dbus path: <b>/Settings/SystemSetup/SystemName</b>
 </dd>
 </dl>
 </script>

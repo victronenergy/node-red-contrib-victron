@@ -1,6 +1,10 @@
 
 <script type="text/template" id="input-edit-template">
     <div class="victron-form">
+        <div class="form-row" id="stored-settings">
+            <div class="info-text">
+            </div>
+        </div>
         <div class="form-row" id="service-row">
             <label for="node-input-service">Device</label>
             <select id="node-input-service"></select>
@@ -109,6 +113,8 @@
         var updatePaths = function updatePaths() {
             var serviceData = serviceElem.find(':selected').data();
             if (serviceData && serviceData.paths) populateSelect(pathElem, serviceData.paths);
+            pathElem.val($('#selectedpath').text());
+            updateEnums();
         };
 
         var updateEnums = function updateEnums() {
@@ -175,8 +181,12 @@
                     return s.service === node.service;
                 })) {
                     buildOption(node.serviceObj).text(node.serviceObj.name + " [disconnected]").appendTo(serviceElem);
+                    changeStatusText($('#statusmessage'), 'fa-exclamation-circle', "The device is no longer available via the stored service path. Please (re)select the device from the dropdown and deploy again.");
                 }
 
+                if (node.serviceObj && node.pathObj) {
+                    $('#stored-settings').html('Currently stored selection:<br /><ul><li>'+node.serviceObj.name+'</li><li>'+node.pathObj.name+'</li></ul><div class="hidden" id="selectedpath">'+node.pathObj.path+'</div><hr />')
+                }
                 serviceElem.val(node.service);
             }
         };
@@ -239,6 +249,8 @@
     function saveEditPanel(node) {
         // save the current service and path objects
         node.serviceObj = $('#node-input-service').find(':selected').data();
+        delete(node.serviceObj.paths)
+        delete(node.serviceObj.deviceInstance)
         node.pathObj = $('#node-input-path').find(':selected').data();
     }
 
@@ -247,9 +259,7 @@
 
         if (node.serviceObj && node.path) {
             var svc = node.serviceObj.name;
-            var path = node.serviceObj.paths.find(function (p) {
-                return p.path === node.path;
-            }).name;
+            var path = node.pathObj.name;
             altName = "".concat(svc, " | ").concat(path);
         }
 

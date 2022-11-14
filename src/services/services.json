@@ -899,6 +899,15 @@
         }
       },
       {
+        "path": "/Mode",
+        "type": "enum",
+        "name": "Mode",
+        "enum": {
+          "3": "On",
+          "252": "Standby"
+        }
+      },
+      {
         "path": "/Relay/0/State",
         "type": "enum",
         "name": "Relay status",
@@ -938,7 +947,8 @@
           "13": "Slave updating",
           "14": "Standby",
           "15": "Going to run",
-          "16": "Pre-charging"
+          "16": "Pre-charging",
+          "17": "Contactor check"
         }
       },
       {
@@ -3464,6 +3474,11 @@
         "type": "integer",
         "name": "Maximum System Grid Feed In (W)",
         "remarks": "<ul><li>-1: No limit</li><li> &gt;=0: limited system feed-in</li></ul><p>Applies to DC-coupled and AC-coupled feed-in.</p>"
+      },
+      {
+        "path": "/Settings/SystemSetup/SystemName",
+        "type": "string",
+        "name": "System name"
       }
     ],
     "hub4": [
@@ -4090,13 +4105,6 @@
         "path": "/Timers/TimeOnInverter",
         "type": "float",
         "name": "Time inverting (s)"
-      }
-    ],
-    "settings": [
-      {
-        "path": "/Settings/SystemSetup/SystemName",
-        "type": "string",
-        "name": "System name"
       }
     ]
   },

@@ -1,3 +1,5 @@
+const { split } = require('lodash')
+
 module.exports = function (RED) {
     "use strict"
 
@@ -62,7 +64,8 @@ module.exports = function (RED) {
                         obj.node.status(utils.DISCONNECTED)
                     else if (status === utils.STATUS.PATH_ADD && obj.path === msg.path) {
                         obj.node.status(utils.CONNECTED)
-                    }
+                    } else if (status === utils.STATUS.SERVICE_MIGRATE )
+                        obj.node.status(utils.MIGRATE)
                 }
             })
         }
@@ -72,12 +75,12 @@ module.exports = function (RED) {
         this.addStatusListener = (listener, service, path) => {
             const id = utils.UUID()
 
+            listener.status(utils.DISCONNECTED)
             // Upon initialization, the initial node status will be fetched from the cache
             if (service) {
-                if (_.get(this.client, ['system', 'cache', service, path]) === undefined)
-                    listener.status(utils.DISCONNECTED)
-                else
+                if (_.get(this.client, ['system', 'cache', service, path]) !== undefined) {
                     listener.status(utils.CONNECTED)
+                }
             }
 
             statusListeners.push({

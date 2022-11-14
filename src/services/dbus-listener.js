@@ -27,6 +27,26 @@ const _ = require('lodash')
         })
         .catch(err => console.error)
  */
+
+function searchHaystack(stack, needle, fallback) {
+    for (var key in stack) {
+        if ( stack[key].deviceInstance == needle &&
+            stack[key].name.startsWith(fallback) ) {
+          return stack[key].name
+        }
+    }
+    return fallback
+}
+
+function searchDeviceInstanceByName(stack, needle, fallback) {
+    for (var key in stack) {
+        if (stack[key].name === needle ) {
+            return stack[key].deviceInstance
+        }
+    }
+    return fallback
+}
+
 class VictronDbusListener {
     constructor(address, callbacks) {
         this.address = address
@@ -111,8 +131,6 @@ class VictronDbusListener {
 
     _initService(owner, name) {
         let service = { name }
-        this.services[owner] = service
-
         this.bus.invoke({
             path: '/DeviceInstance',
             destination: name,
@@ -120,8 +138,10 @@ class VictronDbusListener {
             member: 'GetValue'
         },
             (err, res) => {
-                if (res)
+                this.services[owner] = service
+                if (res) {
                     this.services[owner].deviceInstance = res[1][0]
+                }
             })
         this._requestRoot(service)
     }
@@ -150,9 +170,9 @@ class VictronDbusListener {
                     const messages = _.keys(data).map(path => {
                         return {
                             path: '/' + path,
-                            senderName: service.name,
+                            senderName: service.name.split('.').splice(0,3).join('.'),
                             value: data[path],
-                            instanceName: service.deviceInstance,
+                            deviceInstance: ( service.deviceInstance != null ? service.deviceInstance : '' ),
                             fluidType: service.fluidType
                         }
                     })
@@ -169,13 +189,19 @@ class VictronDbusListener {
 
                 if (name.startsWith('com.victronenergy')) {
                     const new_owner = msg.body[2]
-                    this._initService(new_owner, name)
-                    this.eventHandler("INITIALIZE", name)
+                    if ( new_owner ) {
+                        this._initService(new_owner, name)
+                        this.eventHandler("INITIALIZE", name)
+                    }
                 } else {
                     const old_owner = msg.body[1]
-                    let svcName = this.services[old_owner] ? this.services[old_owner].name : null
-                    delete this.services[old_owner]
-                    this.eventHandler("DELETE", svcName)
+                    if ( old_owner && this.services[old_owner]) {
+                        let trail = ( '/' + ( this.services[old_owner].deviceInstance != null ? this.services[old_owner].deviceInstance : '' ) ).replace(/\.$/, '')
+                        let svcName = this.services[old_owner].name.split('.').splice(0, 3).join('.') + trail;
+                        this.eventHandler("DELETE", this.services[old_owner].name)
+                        delete this.services[old_owner]
+                        this.eventHandler("DELETE", svcName)
+                    }
                 }
             }
             return;
@@ -202,8 +228,11 @@ class VictronDbusListener {
                     if (! service || ! service.name ) {
                         return;
                     }
-                    m.senderName = service.name;
-                    m.instanceName = service.deviceInstance;
+                    m.senderName = service.name.split('.').splice(0,3).join('.');
+                    if (service.deviceInstance === null) {
+                        service.deviceInstance = searchDeviceInstanceByName(this.services, m.senderName, '')
+                    }
+                    m.deviceInstance = service.deviceInstance;
                     messages.push(m)
                 })
                 break;
@@ -224,8 +253,11 @@ class VictronDbusListener {
                     if (! service || ! service.name ) {
                         return;
                     }
-                    m.senderName = service.name;
-                    m.instanceName = service.deviceInstance;
+                    m.senderName = service.name.split('.').splice(0,3).join('.');
+                    m.deviceInstance = service.deviceInstance;
+                    if (service.deviceInstance === null) {
+                        service.deviceInstance = searchDeviceInstanceByName(this.services, m.senderName, '')
+                    }
                     messages.push(m);
                 }
                 break;
@@ -234,7 +266,6 @@ class VictronDbusListener {
                 debug(`Unexpected message: ${msg}`);
             }
         }
-
         this.messageHandler(messages)
     }
 
@@ -247,6 +278,10 @@ class VictronDbusListener {
         },
             (err, res) => {
                 if (!err) {
+                    destination = destination.split('.').splice(0,3).join('.')
+                    if (path === '/DeviceInstance') {
+                        destination += '/'+res[1][0]
+                    }
                     this.messageHandler([{
                         path: path,
                         senderName: destination,
@@ -258,6 +293,13 @@ class VictronDbusListener {
 
     setValue(destination, path, value) {
         var num_type = 'd'
+
+        // Check if we need to find the full path
+        if (destination.split('/').length === 2) {
+            var deviceInstance = destination.split('/')[1]
+            destination = searchHaystack(this.services, deviceInstance, destination.split('/')[0])
+        }
+
 
         if ( Number.isInteger(value) ) { num_type = 'n' }
         this.bus.invoke({

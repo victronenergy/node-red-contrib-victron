@@ -32,15 +32,17 @@ const SERVICES = require("./services.json")
  */
 const CONNECTED = { fill: "green", shape: "dot", text: "connected" }
 const DISCONNECTED = { fill: "red", shape: "ring", text: "disconnected" }
+const MIGRATE = { fill: "blue", shape: "dot", text: "please migrate"}
 
 /**
  * Constructs a node config object that is
  * used to render node-specific editable options in UI.
  */
-const TEMPLATE = (service, name, paths) => {
+const TEMPLATE = (service, name, deviceInstance, paths) => {
     return {
         "service": `${service}`,
         "name": `${name}`,
+        "deviceInstance": `${deviceInstance}`,
         "paths": paths
     }
 }
@@ -71,13 +73,15 @@ const STATUS = {
     PATH_REMOVE: 4,
     PROVIDER_STATUS: 5,
     PROVIDER_ERROR: 6,
-    PLUGIN_ERROR: 7
+    PLUGIN_ERROR: 7,
+    SERVICE_MIGRATE: 8
 }
 
 
 module.exports = {
     CONNECTED,
     DISCONNECTED,
+    MIGRATE,
     RELAY_FUNCTIONS,
     RELAY_MODE_WARNING,
     SERVICES,

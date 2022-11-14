@@ -35,6 +35,13 @@ class SystemConfiguration {
                         || cachedPaths['/ProductName']
                         || _.get(utils.DEFAULT_SERVICE_NAMES, [nodeName, dbusService], dbusInterface)
 
+                    if (dbusInterface.startsWith('com.victronenergy.system')) {
+                        name = 'Venus system'
+                    }
+                    if (dbusInterface.startsWith('com.victronenergy.settings')) {
+                        name = 'Venus settings'
+                    }
+
                     // the cache is filtered against the desired paths in services.json
                     // to only show available options per service on the node's edit form.
 
@@ -51,9 +58,10 @@ class SystemConfiguration {
                         )
                     )
 
+                    let deviceInstance = cachedPaths['/DeviceInstance'] || ''
                     // Only show the service if it actually has paths available
                     if (paths.length)
-                        acc.push(utils.TEMPLATE(dbusInterface, name, paths))
+                        acc.push(utils.TEMPLATE(dbusInterface, name, deviceInstance, paths))
                 })
                 return acc
             }, [])
@@ -67,7 +75,7 @@ class SystemConfiguration {
         // Build a relay object representing the relay node settings in node-red UI
         const buildRelayService = (service, paths) => {
             let pathObjects = paths.map(p => {
-                const svc = service.split('.')[2] // com.victronenergy.system => system
+                const svc = service.split('.')[2].split('/')[0] // com.victronenergy.system => system
 
                 let relayObject = _.find(_.get(utils.SERVICES, ['output-relay', svc]), { path: p })
 
@@ -81,7 +89,7 @@ class SystemConfiguration {
                         relayObject["disabled"] = true
                         relayObject["warning"] = utils.RELAY_MODE_WARNING(utils.RELAY_FUNCTIONS[systemRelayFunction])
                     } else {
-                       delete(relayObject["warning"])
+                        delete (relayObject["warning"])
                     }
                 }
                 return relayObject
@@ -93,7 +101,9 @@ class SystemConfiguration {
                 || this.cache[service]['/ProductName']
                 || service.split('.').pop()
 
-            return utils.TEMPLATE(service, name, pathObjects)
+            let deviceInstance = this.cache[service]['/DeviceInstance'] || service.split('/')[1] || '-'
+
+            return utils.TEMPLATE(service, name, deviceInstance, pathObjects)
 
         }
 
