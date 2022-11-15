@@ -20,7 +20,7 @@ When the Node-RED is started, a Victron Energy configuration node is automatical
 
 ![Architecture](documentation/images/node-palette.png)
 
-*Node-palette - Input nodes on the left, output nodes on the right*
+*Node-palette - Input nodes on the top, output nodes below,*
 
 Here's an example on a functional flow with the Victron Nodes. More in-depth examples and use cases can be found in [wiki/Example-Flows](https://github.com/victronenergy/node-red-contrib-victron/wiki/Example-Flows).
 
