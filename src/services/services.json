@@ -5441,7 +5441,7 @@
       {
         "path": "/Settings/CGwacs/MaxDischargePower",
         "type": "float",
-        "name": "ESS max discharge current (W)",
+        "name": "ESS max discharge power (W)",
         "writable": true
       },
       {
