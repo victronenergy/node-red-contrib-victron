@@ -1565,6 +1565,11 @@
         }
       },
       {
+        "path": "/Settings/CGwacs/MaxChargePower",
+        "type": "integer",
+        "name": "Max charge power (W)"
+      },
+      {
         "path": "/Settings/CGwacs/MaxDischargePower",
         "type": "integer",
         "name": "Max inverter power (W)"
@@ -5061,6 +5066,12 @@
         "writable": true
       },
       {
+        "path": "/Settings/CGwacs/MaxChargePower",
+        "type": "integer",
+        "name": "Max charge power (W)",
+        "writable": true
+      },
+      {
         "path": "/Settings/CGwacs/MaxDischargePower",
         "type": "integer",
         "name": "Max inverter power (W)",
@@ -5436,6 +5447,12 @@
         "path": "/Settings/CGwacs/MaxDischargePercentage",
         "type": "float",
         "name": "ESS max discharge current (fractional) (%)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/MaxChargePower",
+        "type": "float",
+        "name": "ESS max charge power (W)",
         "writable": true
       },
       {
