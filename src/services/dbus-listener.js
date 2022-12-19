@@ -301,7 +301,7 @@ class VictronDbusListener {
         }
 
 
-        if ( Number.isInteger(value) ) { num_type = 'n' }
+        if ( Number.isInteger(value) ) { num_type = 'i' }
         this.bus.invoke({
             path: path,
             destination: destination,
