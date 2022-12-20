@@ -1039,7 +1039,7 @@
           "0": "Disabled",
           "1": "Enabled"
         },
-        "remarks": "For monitoring the state of the built-in contactor."
+        "remarks": "<p>For monitoring the state of the built-in contactor.</p>"
       },
       {
         "path": "/TimeToGo",
@@ -1567,7 +1567,8 @@
       {
         "path": "/Settings/CGwacs/MaxChargePower",
         "type": "integer",
-        "name": "Max charge power (W)"
+        "name": "Max charge power (W)",
+        "remarks": "<p>Not used with DVCC.</p>"
       },
       {
         "path": "/Settings/CGwacs/MaxDischargePower",
@@ -5069,7 +5070,8 @@
         "path": "/Settings/CGwacs/MaxChargePower",
         "type": "integer",
         "name": "Max charge power (W)",
-        "writable": true
+        "writable": true,
+        "remarks": "<p>Not used with DVCC.</p>"
       },
       {
         "path": "/Settings/CGwacs/MaxDischargePower",
