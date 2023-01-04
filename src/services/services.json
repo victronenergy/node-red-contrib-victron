@@ -4772,6 +4772,15 @@
         "name": "AcOut to Inverter (kWh)"
       },
       {
+        "path": "/Hub4/DisableCharge",
+        "type": "enum",
+        "name": "ESS disable charge flag phase",
+        "enum": {
+          "0": "Charge allowed",
+          "1": "Charge disabled"
+        }
+      },
+      {
         "path": "/Hub4/FixSolarOffsetTo100mV",
         "type": "enum",
         "name": "Solar offset voltage",
