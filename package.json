@@ -12,7 +12,8 @@
         "nodes": {
             "victron-client": "./src/nodes/config-client.js",
             "victron-nodes": "./src/nodes/victron-nodes.js"
-        }
+        },
+        "version": ">=3.0.2"
     },
     "devDependencies": {
         "@babel/eslint-parser": "^7.17.0",
@@ -32,6 +33,9 @@
     "repository": {
         "type": "git",
         "url": "https://github.com/victronenergy/node-red-contrib-victron"
+    },
+    "engines": {
+        "node": ">=14.17.4"
     },
     "license": "MIT"
 }
