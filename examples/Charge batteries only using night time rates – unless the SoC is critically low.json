@@ -1,0 +1,453 @@
+[
+    {
+        "id": "3c01ea259e67c9d9",
+        "type": "group",
+        "z": "271f9aed7163cd66",
+        "style": {
+            "stroke": "#999999",
+            "stroke-opacity": "1",
+            "fill": "none",
+            "fill-opacity": "1",
+            "label": true,
+            "label-position": "nw",
+            "color": "#a4a4a4"
+        },
+        "nodes": [
+            "a7e1312e.5108a",
+            "967c021a.4e981",
+            "e174d8df.3ed888",
+            "7a66435e.a64fcc",
+            "95d75091.0ac12",
+            "f5995c2.c28a4a",
+            "1898bb04.622815",
+            "6a49a216f2fd6d49",
+            "b230325ac8272a18",
+            "150e7f4338deb0b8",
+            "1e298e33c4e3de39",
+            "ca5c387b3366f8aa"
+        ],
+        "x": 254,
+        "y": 759,
+        "w": 912,
+        "h": 242
+    },
+    {
+        "id": "a7e1312e.5108a",
+        "type": "victron-input-battery",
+        "z": "271f9aed7163cd66",
+        "g": "3c01ea259e67c9d9",
+        "service": "com.victronenergy.battery.ttyO4",
+        "path": "/Soc",
+        "serviceObj": {
+            "service": "com.victronenergy.battery.ttyO4",
+            "name": "BMV Quattro",
+            "paths": [
+                {
+                    "path": "/Dc/0/Voltage",
+                    "type": "float",
+                    "name": "Battery voltage (V)"
+                },
+                {
+                    "path": "/Dc/1/Voltage",
+                    "type": "float",
+                    "name": "Starter battery voltage (V)"
+                },
+                {
+                    "path": "/Dc/0/Current",
+                    "type": "float",
+                    "name": "Current (A)"
+                },
+                {
+                    "path": "/ConsumedAmphours",
+                    "type": "float",
+                    "name": "Consumed Amphours (Ah)"
+                },
+                {
+                    "path": "/Soc",
+                    "type": "float",
+                    "name": "State of charge (%)"
+                },
+                {
+                    "path": "/TimeToGo",
+                    "type": "float",
+                    "name": "Time to go (h)"
+                },
+                {
+                    "path": "/Relay/0/State",
+                    "type": "enum",
+                    "name": "Relay status",
+                    "enum": {
+                        "0": "Open",
+                        "1": "Closed"
+                    }
+                },
+                {
+                    "path": "/Dc/0/Temperature",
+                    "type": "float",
+                    "name": "Battery temperature (C)"
+                },
+                {
+                    "path": "/Dc/0/MidVoltage",
+                    "type": "float",
+                    "name": "Mid-point voltage of the battery bank (V)"
+                },
+                {
+                    "path": "/Dc/0/MidVoltageDeviation",
+                    "type": "float",
+                    "name": "Mid-point deviation of the battery bank (%)"
+                },
+                {
+                    "path": "/Alarms/LowVoltage",
+                    "type": "enum",
+                    "name": "Low voltage alarm",
+                    "enum": {
+                        "0": "No alarm",
+                        "2": "Alarm"
+                    }
+                },
+                {
+                    "path": "/Alarms/HighVoltage",
+                    "type": "enum",
+                    "name": "High voltage alarm",
+                    "enum": {
+                        "0": "No alarm",
+                        "2": "Alarm"
+                    }
+                },
+                {
+                    "path": "/Alarms/LowStarterVoltage",
+                    "type": "enum",
+                    "name": "Low starter-voltage alarm",
+                    "enum": {
+                        "0": "No alarm",
+                        "2": "Alarm"
+                    }
+                },
+                {
+                    "path": "/Alarms/HighStarterVoltage",
+                    "type": "enum",
+                    "name": "High starter-voltage alarm",
+                    "enum": {
+                        "0": "No alarm",
+                        "2": "Alarm"
+                    }
+                },
+                {
+                    "path": "/Alarms/LowSoc",
+                    "type": "enum",
+                    "name": "Low state-of-charge alarm",
+                    "enum": {
+                        "0": "No alarm",
+                        "2": "Alarm"
+                    }
+                },
+                {
+                    "path": "/Alarms/LowTemperature",
+                    "type": "enum",
+                    "name": "Low battery temperature alarm",
+                    "enum": {
+                        "0": "No alarm",
+                        "2": "Alarm"
+                    }
+                },
+                {
+                    "path": "/Alarms/HighTemperature",
+                    "type": "enum",
+                    "name": "High battery temperature alarm",
+                    "enum": {
+                        "0": "No alarm",
+                        "2": "Alarm"
+                    }
+                },
+                {
+                    "path": "/Alarms/MidVoltage",
+                    "type": "enum",
+                    "name": "Mid-voltage alarm",
+                    "enum": {
+                        "0": "No alarm",
+                        "2": "Alarm"
+                    }
+                },
+                {
+                    "path": "/Dc/0/Power",
+                    "type": "float",
+                    "name": "Battery power (W)"
+                }
+            ]
+        },
+        "pathObj": {
+            "path": "/Soc",
+            "type": "float",
+            "name": "State of charge (%)"
+        },
+        "name": "",
+        "x": 480,
+        "y": 860,
+        "wires": [
+            [
+                "967c021a.4e981"
+            ]
+        ]
+    },
+    {
+        "id": "967c021a.4e981",
+        "type": "switch",
+        "z": "271f9aed7163cd66",
+        "g": "3c01ea259e67c9d9",
+        "name": "SoC Switch",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lt",
+                "v": "25",
+                "vt": "str"
+            },
+            {
+                "t": "lt",
+                "v": "50",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 710,
+        "y": 860,
+        "wires": [
+            [
+                "6a49a216f2fd6d49"
+            ],
+            [
+                "e174d8df.3ed888"
+            ],
+            [
+                "b230325ac8272a18"
+            ]
+        ]
+    },
+    {
+        "id": "e174d8df.3ed888",
+        "type": "function",
+        "z": "271f9aed7163cd66",
+        "g": "3c01ea259e67c9d9",
+        "name": "night?",
+        "func": "// get current hours\nconst hr = new Date().getHours();\n\n// trigger a message if the time is between 11pm and 6am or 'night'\nif (hr >= 23 || hr <= 6) {\n    return [msg, null]; // input 1\n} else {\n    return [null, msg]; // input 2\n}\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 890,
+        "y": 860,
+        "wires": [
+            [
+                "6a49a216f2fd6d49"
+            ],
+            [
+                "b230325ac8272a18"
+            ]
+        ]
+    },
+    {
+        "id": "7a66435e.a64fcc",
+        "type": "victron-output-vebus",
+        "z": "271f9aed7163cd66",
+        "g": "3c01ea259e67c9d9",
+        "service": "com.victronenergy.vebus.ttyO5",
+        "path": "/Mode",
+        "serviceObj": {
+            "service": "com.victronenergy.vebus.ttyO5",
+            "name": "MultiPlus 12/3000/120-16",
+            "id": 170784220,
+            "paths": [
+                {
+                    "path": "/Ac/In/1/CurrentLimit",
+                    "type": "float",
+                    "name": "Input 1 current limit (A)",
+                    "writable": true
+                },
+                {
+                    "path": "/Mode",
+                    "type": "enum",
+                    "name": "Switch Position",
+                    "enum": {
+                        "1": "Charger Only",
+                        "2": "Inverter Only",
+                        "3": "On",
+                        "4": "Off"
+                    },
+                    "writable": true
+                }
+            ]
+        },
+        "pathObj": {
+            "path": "/Mode",
+            "type": "enum",
+            "name": "Switch Position",
+            "enum": {
+                "1": "Charger Only",
+                "2": "Inverter Only",
+                "3": "On",
+                "4": "Off"
+            },
+            "writable": true
+        },
+        "initial": "",
+        "name": "",
+        "x": 970,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "95d75091.0ac12",
+        "type": "change",
+        "z": "271f9aed7163cd66",
+        "g": "3c01ea259e67c9d9",
+        "name": "Charger Only (grid input, charge batteries)",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "1",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 500,
+        "y": 920,
+        "wires": [
+            [
+                "1898bb04.622815"
+            ]
+        ]
+    },
+    {
+        "id": "f5995c2.c28a4a",
+        "type": "change",
+        "z": "271f9aed7163cd66",
+        "g": "3c01ea259e67c9d9",
+        "name": "Inverter Only (no grid, use batteries)",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "2",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 490,
+        "y": 960,
+        "wires": [
+            [
+                "1898bb04.622815"
+            ]
+        ]
+    },
+    {
+        "id": "1898bb04.622815",
+        "type": "rbe",
+        "z": "271f9aed7163cd66",
+        "g": "3c01ea259e67c9d9",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "property": "payload",
+        "x": 730,
+        "y": 940,
+        "wires": [
+            [
+                "7a66435e.a64fcc"
+            ]
+        ]
+    },
+    {
+        "id": "6a49a216f2fd6d49",
+        "type": "link out",
+        "z": "271f9aed7163cd66",
+        "g": "3c01ea259e67c9d9",
+        "name": "link out 1",
+        "mode": "link",
+        "links": [
+            "150e7f4338deb0b8"
+        ],
+        "x": 985,
+        "y": 820,
+        "wires": []
+    },
+    {
+        "id": "b230325ac8272a18",
+        "type": "link out",
+        "z": "271f9aed7163cd66",
+        "g": "3c01ea259e67c9d9",
+        "name": "link out 2",
+        "mode": "link",
+        "links": [
+            "1e298e33c4e3de39"
+        ],
+        "x": 985,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "150e7f4338deb0b8",
+        "type": "link in",
+        "z": "271f9aed7163cd66",
+        "g": "3c01ea259e67c9d9",
+        "name": "link in 1",
+        "links": [
+            "6a49a216f2fd6d49"
+        ],
+        "x": 305,
+        "y": 920,
+        "wires": [
+            [
+                "95d75091.0ac12"
+            ]
+        ]
+    },
+    {
+        "id": "1e298e33c4e3de39",
+        "type": "link in",
+        "z": "271f9aed7163cd66",
+        "g": "3c01ea259e67c9d9",
+        "name": "link in 2",
+        "links": [
+            "b230325ac8272a18"
+        ],
+        "x": 305,
+        "y": 960,
+        "wires": [
+            [
+                "f5995c2.c28a4a"
+            ]
+        ]
+    },
+    {
+        "id": "ca5c387b3366f8aa",
+        "type": "comment",
+        "z": "271f9aed7163cd66",
+        "g": "3c01ea259e67c9d9",
+        "name": "Charge batteries only using night time rates – unless the SoC is critically low",
+        "info": "This flow tries to maximise the electricity cost savings by charging the batteries only \nduring night time -- unless the battery level is critically low.\n\nThe incoming message from the inverter/charger (Quattro) is routed to one of the \nswitchnode outputs based on the battery level (Stat of Charge, SoC):\n\n- If the battery level is below 25%, charge it regardless of the time of the day\n- If the battery level is between 25% and 50%, charge at night and use battery p\n  ower (inverter only mode) during the daytime\n- otherwise (50% - 100% SoC) use battery battery power (inverter only mode)",
+        "x": 550,
+        "y": 800,
+        "wires": []
+    }
+]
