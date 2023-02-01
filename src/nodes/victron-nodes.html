@@ -43,6 +43,13 @@
                 Please refer to 'Value Types' box above for adjustable settings.</i>
             </div>
         </div>
+        <div class="form-row hidden" id="onlyChanges">
+            <label style="min-width:190px" for="node-input-onlyChanges"><i class="fa fa-bell"></i>Only changes</label>
+                <input type="checkbox" checked id="node-input-onlyChanges" style="max-width:30px">
+                <div class="info-text">
+                Only send output on value changes and not every 5 seconds.
+            </div>
+        </div>
     </div>
 </script>
 
@@ -240,7 +247,11 @@
             updateEnums();
             pathElem.change(updateEnums); // show the information text on using 'msg.payload' to trigger settings for output nodes
 
-            if (isOutputNode) $('#outputinfo').show();
+            if (isOutputNode) {
+                $('#outputinfo').show()
+            } else {
+                $('#onlyChanges').show()
+            }
         }).fail(function () {
             return showStatusMessage("Unable to access the service endpoint.");
         });
@@ -293,7 +304,8 @@
                 serviceObj: { value: undefined },
                 pathObj: { value: undefined },
                 initial: { value: undefined },
-                name: { value: "" }
+                name: { value: "" },
+                "onlyChanges": { value: false },
             },
             color: '#4790d0',
             inputs: isOutputNode ? 1 : 0,

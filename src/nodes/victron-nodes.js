@@ -45,6 +45,7 @@ module.exports = function (RED) {
             this.service = nodeDefinition.service
             this.path = nodeDefinition.path
             this.defaulttopic = nodeDefinition.serviceObj.name + ' - ' + nodeDefinition.pathObj.name
+            this.onlyChanges = nodeDefinition.onlyChanges
 
             this.configNode = RED.nodes.getNode("victron-client-id")
             this.client = this.configNode.client
@@ -66,6 +67,9 @@ module.exports = function (RED) {
                     var topic = this.defaulttopic
                     if (this.node.name) {
                         topic = this.node.name
+                    }
+                    if (this.node.onlyChanges && ! msg.changed) {
+                        return;
                     }
                     this.node.send({
                         payload: msg.value,

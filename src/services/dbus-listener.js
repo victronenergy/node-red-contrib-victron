@@ -211,7 +211,7 @@ class VictronDbusListener {
         switch ( msg.member ) {
             case "ItemsChanged": {
                 msg.body[0].forEach(entry => {
-                    var m = {};
+                    var m = { 'changed': true };
                     m.path = entry[0];
                     if ( entry[1] && entry[1].length === 2 ) {
                         entry[1].forEach(v => {
