@@ -1806,7 +1806,7 @@
     ]
   },
   "input-generator": {
-    "help": "<p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the Venos OS GUI first.<br />Also see <a href=\"https://github.com/victronenergy/venus/wiki/dbus#generator-data\">here</a> for more information.</p>",
+    "help": "<p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the (remote) console first.<br />Also see <a href=\"https://github.com/victronenergy/venus/wiki/dbus#generator-data\">here</a> for more information.</p>",
     "generator": [
       {
         "path": "/AutoStartEnabled",
@@ -4215,7 +4215,7 @@
     ]
   },
   "input-temperature": {
-    "help": "<p>Like the other nodes, the <b>input-temperature</b> node reads the temperate information from the dbus. This means that source of the temperature sensor can obtain its information from different sources (e.g. directly connected probe or Bluetooth connected Ruuvi tag).</p><p>See the <a href=\"https://www.victronenergy.com/media/pg/Cerbo_GX/en/installation.html#UUID-4d5df29c-761e-cfcc-9e2c-8230f126e7bb\">manual</a> for information on connecting a temperature sensor.</p>",
+    "help": "<p>Like the other nodes, the <b>input-temperature</b> node reads the temperate information from the dbus. This means that source of the temperature sensor can obtain its information from different sources (e.g. directly connected probe or Bluetooth connected Ruuvi tag).</p><p>See the <a href=\"https://www.victronenergy.com/media/pg/Cerbo_GX/en/installation.html#UUID-4d5df29c-761e-cfcc-9e2c-8230f126e7bb\">manual</a> for information on connecting a temperature sensor.</p><p>Tank sensors also expose temperature, so they can appear under the dropdown too.</p>",
     "temperature": [
       {
         "path": "/AccelX",
@@ -5198,7 +5198,7 @@
     ]
   },
   "output-generator": {
-    "help": "<p>This node can be used for controlling a generator via the relay. In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the Venos OS GUI first.</p>",
+    "help": "<p>This node can be used for controlling a generator via the relay. In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the (remote) console first.</p>",
     "generator": [
       {
         "path": "/AutoStartEnabled",
