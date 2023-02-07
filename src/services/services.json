@@ -3181,7 +3181,7 @@
           "9": "Inverting",
           "10": "Power assist",
           "11": "Power supply",
-          "252": "Bulk protection"
+          "252": "External control"
         }
       },
       {
@@ -3882,7 +3882,7 @@
           "7": "Equalize",
           "245": "Off",
           "247": "Equalize",
-          "252": "Ext. Control"
+          "252": "External Control"
         }
       },
       {
@@ -4858,7 +4858,7 @@
           "9": "Inverting",
           "10": "Power assist",
           "11": "Power supply",
-          "252": "Bulk protect"
+          "252": "External control"
         }
       },
       {
