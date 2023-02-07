@@ -27,7 +27,7 @@
         "node-red"
     ],
     "scripts": {
-        "test": "standard --fix src/*.js scripts/*.js",
+        "test": "standard --fix src/ scripts/",
         "create-release": "github-create-release --owner victronenergy --repository node-red-contrib-victron",
         "release": "git tag -d v$npm_package_version; git tag v$npm_package_version && git push --tags && git push && npm run create-release"
     },
