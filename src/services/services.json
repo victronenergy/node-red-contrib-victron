@@ -4707,6 +4707,15 @@
         }
       },
       {
+        "path": "/Bms/PreAlarm",
+        "type": "enum",
+        "name": "Low cell voltage imminent",
+        "enum": {
+          "0": "OK",
+          "1": "Pre-Alarm"
+        }
+      },
+      {
         "path": "/Dc/0/Current",
         "type": "float",
         "name": "Current (A)"
@@ -4850,6 +4859,23 @@
           "10": "Power assist",
           "11": "Power supply",
           "252": "Bulk protect"
+        }
+      },
+      {
+        "path": "/VebusChargeState",
+        "type": "enum",
+        "name": "Charge state",
+        "enum": {
+          "0": "Initialising",
+          "1": "Bulk",
+          "2": "Absorption",
+          "3": "Float",
+          "4": "Storage",
+          "5": "Absorb repeat",
+          "6": "Forced absorb",
+          "7": "Equalise",
+          "8": "Bulk stopped",
+          "9": "Unknown"
         }
       },
       {
