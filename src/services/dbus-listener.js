@@ -29,7 +29,7 @@ const _ = require('lodash')
 
 function searchHaystack (stack, needle, fallback) {
   for (const key in stack) {
-    if (stack[key].deviceInstance === needle &&
+    if (stack[key].deviceInstance === Number(needle) &&
             stack[key].name.startsWith(fallback)) {
       return stack[key].name
     }
