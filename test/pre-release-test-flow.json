@@ -1,0 +1,556 @@
+[
+    {
+        "id": "6c34e5de12f4c596",
+        "type": "group",
+        "z": "59cadd6a1fc347c9",
+        "style": {
+            "stroke": "#999999",
+            "stroke-opacity": "1",
+            "fill": "none",
+            "fill-opacity": "1",
+            "label": true,
+            "label-position": "nw",
+            "color": "#a4a4a4"
+        },
+        "nodes": [
+            "4a684b4743f873a0",
+            "f8272f398bbec98c",
+            "76eb841c66b12ea7",
+            "a2f25f8ddb4c4580",
+            "944b0ef5602981e6",
+            "293a5c197d354076"
+        ],
+        "x": 54,
+        "y": 239,
+        "w": 672,
+        "h": 222
+    },
+    {
+        "id": "4a684b4743f873a0",
+        "type": "victron-output-vebus",
+        "z": "59cadd6a1fc347c9",
+        "g": "6c34e5de12f4c596",
+        "service": "com.victronenergy.vebus/274",
+        "path": "/Mode",
+        "serviceObj": {
+            "service": "com.victronenergy.vebus/274",
+            "name": "MultiPlus 12/500/20-16"
+        },
+        "pathObj": {
+            "path": "/Mode",
+            "type": "enum",
+            "name": "Switch Position",
+            "enum": {
+                "1": "Charger Only",
+                "2": "Inverter Only",
+                "3": "On",
+                "4": "Off"
+            },
+            "writable": true
+        },
+        "initial": "",
+        "name": "",
+        "onlyChanges": false,
+        "x": 540,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "f8272f398bbec98c",
+        "type": "inject",
+        "z": "59cadd6a1fc347c9",
+        "g": "6c34e5de12f4c596",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "3",
+        "payloadType": "num",
+        "x": 150,
+        "y": 380,
+        "wires": [
+            [
+                "4a684b4743f873a0"
+            ]
+        ]
+    },
+    {
+        "id": "76eb841c66b12ea7",
+        "type": "inject",
+        "z": "59cadd6a1fc347c9",
+        "g": "6c34e5de12f4c596",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "2",
+        "payloadType": "num",
+        "x": 150,
+        "y": 420,
+        "wires": [
+            [
+                "4a684b4743f873a0"
+            ]
+        ]
+    },
+    {
+        "id": "a2f25f8ddb4c4580",
+        "type": "victron-input-vebus",
+        "z": "59cadd6a1fc347c9",
+        "g": "6c34e5de12f4c596",
+        "service": "com.victronenergy.vebus/274",
+        "path": "/Mode",
+        "serviceObj": {
+            "service": "com.victronenergy.vebus/274",
+            "name": "MultiPlus 12/500/20-16"
+        },
+        "pathObj": {
+            "path": "/Mode",
+            "type": "enum",
+            "name": "Switch Position",
+            "enum": {
+                "1": "Charger Only",
+                "2": "Inverter Only",
+                "3": "On",
+                "4": "Off"
+            }
+        },
+        "initial": "",
+        "name": "",
+        "onlyChanges": true,
+        "x": 240,
+        "y": 320,
+        "wires": [
+            [
+                "944b0ef5602981e6"
+            ]
+        ]
+    },
+    {
+        "id": "944b0ef5602981e6",
+        "type": "debug",
+        "z": "59cadd6a1fc347c9",
+        "g": "6c34e5de12f4c596",
+        "name": "test setting values",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 590,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "293a5c197d354076",
+        "type": "comment",
+        "z": "59cadd6a1fc347c9",
+        "g": "6c34e5de12f4c596",
+        "name": "SetValue: Test if setting a value works",
+        "info": "Test if setting a value results in changing the value on the dbus. (issue #160)",
+        "x": 230,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "0cb018257e04be4b",
+        "type": "group",
+        "z": "59cadd6a1fc347c9",
+        "style": {
+            "stroke": "#999999",
+            "stroke-opacity": "1",
+            "fill": "none",
+            "fill-opacity": "1",
+            "label": true,
+            "label-position": "nw",
+            "color": "#a4a4a4"
+        },
+        "nodes": [
+            "2d8eedaeea07844c",
+            "2648245f96f28a0d",
+            "02eda1f45d5559d3",
+            "744c46a6261073e0",
+            "07eb0a10e91de180"
+        ],
+        "x": 54,
+        "y": 39,
+        "w": 672,
+        "h": 182
+    },
+    {
+        "id": "2d8eedaeea07844c",
+        "type": "victron-input-vebus",
+        "z": "59cadd6a1fc347c9",
+        "g": "0cb018257e04be4b",
+        "service": "com.victronenergy.vebus/274",
+        "path": "/Dc/0/Voltage",
+        "serviceObj": {
+            "service": "com.victronenergy.vebus/274",
+            "name": "MultiPlus 12/500/20-16"
+        },
+        "pathObj": {
+            "path": "/Dc/0/Voltage",
+            "type": "float",
+            "name": "Voltage (V)"
+        },
+        "name": "",
+        "onlyChanges": false,
+        "x": 220,
+        "y": 120,
+        "wires": [
+            [
+                "2648245f96f28a0d"
+            ]
+        ]
+    },
+    {
+        "id": "2648245f96f28a0d",
+        "type": "debug",
+        "z": "59cadd6a1fc347c9",
+        "g": "0cb018257e04be4b",
+        "name": "Repeating output",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 590,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "02eda1f45d5559d3",
+        "type": "victron-input-vebus",
+        "z": "59cadd6a1fc347c9",
+        "g": "0cb018257e04be4b",
+        "service": "com.victronenergy.vebus/274",
+        "path": "/Dc/0/Voltage",
+        "serviceObj": {
+            "service": "com.victronenergy.vebus/274",
+            "name": "MultiPlus 12/500/20-16"
+        },
+        "pathObj": {
+            "path": "/Dc/0/Voltage",
+            "type": "float",
+            "name": "Voltage (V)"
+        },
+        "name": "",
+        "onlyChanges": true,
+        "x": 220,
+        "y": 180,
+        "wires": [
+            [
+                "744c46a6261073e0"
+            ]
+        ]
+    },
+    {
+        "id": "744c46a6261073e0",
+        "type": "debug",
+        "z": "59cadd6a1fc347c9",
+        "g": "0cb018257e04be4b",
+        "name": "Only changes",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 600,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "07eb0a10e91de180",
+        "type": "comment",
+        "z": "59cadd6a1fc347c9",
+        "g": "0cb018257e04be4b",
+        "name": "GetValue: Only changes vs repeating output",
+        "info": "Check if _only changes_ only show changed values, while\nthe normal node has _repeating output_.",
+        "x": 250,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "b872adf0eff4d096",
+        "type": "group",
+        "z": "59cadd6a1fc347c9",
+        "style": {
+            "stroke": "#999999",
+            "stroke-opacity": "1",
+            "fill": "none",
+            "fill-opacity": "1",
+            "label": true,
+            "label-position": "nw",
+            "color": "#a4a4a4"
+        },
+        "nodes": [
+            "ba06bb8aa5152fbe",
+            "6590ad25e23eec1e",
+            "07489de25e49eed5"
+        ],
+        "x": 54,
+        "y": 479,
+        "w": 672,
+        "h": 122
+    },
+    {
+        "id": "ba06bb8aa5152fbe",
+        "type": "victron-input-battery",
+        "z": "59cadd6a1fc347c9",
+        "g": "b872adf0eff4d096",
+        "service": "com.victronenergy.battery/0",
+        "path": "/Dc/0/Voltage",
+        "serviceObj": {
+            "service": "com.victronenergy.battery/0",
+            "name": "Lynx Shunt"
+        },
+        "pathObj": {
+            "path": "/Dc/0/Voltage",
+            "type": "float",
+            "name": "Voltage (V)"
+        },
+        "name": "",
+        "onlyChanges": false,
+        "x": 180,
+        "y": 560,
+        "wires": [
+            [
+                "6590ad25e23eec1e"
+            ]
+        ]
+    },
+    {
+        "id": "6590ad25e23eec1e",
+        "type": "debug",
+        "z": "59cadd6a1fc347c9",
+        "g": "b872adf0eff4d096",
+        "name": "Test device migration",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 580,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "07489de25e49eed5",
+        "type": "comment",
+        "z": "59cadd6a1fc347c9",
+        "g": "b872adf0eff4d096",
+        "name": "DeviceInstance check",
+        "info": "Move the connected VE.bus cable from USB bus and / or from a the VE.bus on the GX device. It should show\n\"please migrate\" and pick up the data after it rediscovers the device.",
+        "x": 180,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "09ade9a3c5034b93",
+        "type": "group",
+        "z": "59cadd6a1fc347c9",
+        "style": {
+            "stroke": "#999999",
+            "stroke-opacity": "1",
+            "fill": "none",
+            "fill-opacity": "1",
+            "label": true,
+            "label-position": "nw",
+            "color": "#a4a4a4"
+        },
+        "nodes": [
+            "f9cbe10f885572a5",
+            "2bd6835b697269b5",
+            "9fbe6e8f08a850ba",
+            "263baf1bbf9616a5",
+            "6c90954f651fa6d2",
+            "b3088ae7e70757a9"
+        ],
+        "x": 54,
+        "y": 619,
+        "w": 672,
+        "h": 202
+    },
+    {
+        "id": "f9cbe10f885572a5",
+        "type": "victron-input-relay",
+        "z": "59cadd6a1fc347c9",
+        "g": "09ade9a3c5034b93",
+        "service": "com.victronenergy.system/0",
+        "path": "/Relay/1/State",
+        "serviceObj": {
+            "service": "com.victronenergy.system/0",
+            "name": "Venus system"
+        },
+        "pathObj": {
+            "path": "/Relay/1/State",
+            "type": "enum",
+            "name": "Venus relay 2 state",
+            "enum": {
+                "0": "Open",
+                "1": "Closed"
+            }
+        },
+        "initial": "",
+        "name": "",
+        "onlyChanges": false,
+        "x": 220,
+        "y": 700,
+        "wires": [
+            [
+                "6c90954f651fa6d2"
+            ]
+        ]
+    },
+    {
+        "id": "2bd6835b697269b5",
+        "type": "victron-output-relay",
+        "z": "59cadd6a1fc347c9",
+        "g": "09ade9a3c5034b93",
+        "service": "com.victronenergy.system/0",
+        "path": "/Relay/1/State",
+        "serviceObj": {
+            "service": "com.victronenergy.system/0",
+            "name": "Venus device"
+        },
+        "pathObj": {
+            "path": "/Relay/1/State",
+            "type": "enum",
+            "name": "Venus relay 2 state",
+            "enum": {
+                "0": "Open",
+                "1": "Closed"
+            },
+            "writable": true
+        },
+        "initial": "",
+        "name": "",
+        "onlyChanges": false,
+        "x": 560,
+        "y": 760,
+        "wires": []
+    },
+    {
+        "id": "9fbe6e8f08a850ba",
+        "type": "inject",
+        "z": "59cadd6a1fc347c9",
+        "g": "09ade9a3c5034b93",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "0",
+        "payloadType": "num",
+        "x": 150,
+        "y": 740,
+        "wires": [
+            [
+                "2bd6835b697269b5"
+            ]
+        ]
+    },
+    {
+        "id": "263baf1bbf9616a5",
+        "type": "inject",
+        "z": "59cadd6a1fc347c9",
+        "g": "09ade9a3c5034b93",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "1",
+        "payloadType": "num",
+        "x": 150,
+        "y": 780,
+        "wires": [
+            [
+                "2bd6835b697269b5"
+            ]
+        ]
+    },
+    {
+        "id": "6c90954f651fa6d2",
+        "type": "debug",
+        "z": "59cadd6a1fc347c9",
+        "g": "09ade9a3c5034b93",
+        "name": "Relay value",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 610,
+        "y": 700,
+        "wires": []
+    },
+    {
+        "id": "b3088ae7e70757a9",
+        "type": "comment",
+        "z": "59cadd6a1fc347c9",
+        "g": "09ade9a3c5034b93",
+        "name": "Relay: Test reading and setting",
+        "info": "Test if the internal relay can be set and read.\n\nMake sure that the relay mode has been set to _manual_.",
+        "x": 210,
+        "y": 660,
+        "wires": []
+    }
+]
