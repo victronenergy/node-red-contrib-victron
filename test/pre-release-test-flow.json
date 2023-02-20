@@ -427,7 +427,7 @@
         },
         "initial": "",
         "name": "",
-        "onlyChanges": false,
+        "onlyChanges": true,
         "x": 220,
         "y": 700,
         "wires": [

@@ -220,7 +220,7 @@ class VictronDbusListener {
               }
             })
           }
-          if (!m.path || !m.value || !m.text) {
+          if (!m.path || m.value === null || !m.text) {
             return
           }
           const service = this.services[msg.sender]
@@ -245,7 +245,7 @@ class VictronDbusListener {
               case 'Text': m.text = v[1][1][0]; break
             }
           })
-          if (!m.path || !m.value || !m.text) {
+          if (!m.path || m.value === null || !m.text) {
             return
           }
           const service = this.services[msg.sender]
@@ -257,6 +257,7 @@ class VictronDbusListener {
           if (service.deviceInstance === null) {
             service.deviceInstance = searchDeviceInstanceByName(this.services, m.senderName, '')
           }
+          m.changed = true
           messages.push(m)
         }
         break
