@@ -2189,6 +2189,11 @@
     "help": "<p>This node gives allows for monitoring the grid. See also <a href=\"https://www.victronenergy.com/accessories/energy-meter\">energy meters</a> accessoires.</p>",
     "grid": [
       {
+        "path": "/Ac/Frequency",
+        "type": "float",
+        "name": "Frequency (Hz)"
+      },
+      {
         "path": "/Ac/Energy/Forward",
         "type": "float",
         "name": "Total Forward Energy (bought) (kWh)"
