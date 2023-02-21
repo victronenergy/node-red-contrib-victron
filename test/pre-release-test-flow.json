@@ -552,5 +552,15 @@
         "x": 210,
         "y": 660,
         "wires": []
+    },
+    {
+        "id": "f0238676ff8ec6ca",
+        "type": "comment",
+        "z": "040b6fa6f3725c79",
+        "name": "Check for required fields",
+        "info": "Drag a new victron node on the flow and\nmake sure that you cannot deploy it \nwithout a warning that the service and \npath are set.",
+        "x": 950,
+        "y": 80,
+        "wires": []
     }
 ]
