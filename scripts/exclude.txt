@@ -1,18 +1,21 @@
 # This file contains dbus entries that are available on the dbus
-# (see https://github.com/victronenergy/venus/wiki/dbus), but not 
+# (see https://github.com/victronenergy/venus/wiki/dbus), but not
 # via dbus_modbustcp
 input-accharger:/Dc/1/Temperature
 input-accharger:/Dc/2/Temperature
+input-ess:/Settings/CGwacs/MaxChargePower
 input-genset:/Dc/0/Current
 input-genset:/Dc/0/Power
 input-genset:/Dc/0/Voltage
 input-genset:/HeatsinkTemperature
+input-gridmeter:/Ac/Frequency
 input-pvinverter:/Ac/Energy/Forward
 input-pvinverter:/ErrorCode
 input-pvinverter:/StatusCode
 input-temperature:/AccelX
 input-temperature:/AccelY
 input-temperature:/AccelZ
+input-settings:/Settings/SystemSetup/SystemName
 input-solarcharger:/Load/State
 input-solarcharger:/Yield/System
 input-system:/Ac/Genset/DeviceType
@@ -37,5 +40,7 @@ input-vebus:/Ac/In/1/CurrentLimitIsAdjustable
 input-vebus:/Ac/In/2/CurrentLimit
 input-vebus:/Ac/In/2/CurrentLimitIsAdjustable
 input-vebus:/ModeIsAdjustable
+output-ess:/Settings/CGwacs/MaxChargePower
+output-settings:/Settings/CGwacs/MaxChargePower
 output-vebus:/Ac/In/1/CurrentLimit
 output-vebus:/Ac/In/2/CurrentLimit
