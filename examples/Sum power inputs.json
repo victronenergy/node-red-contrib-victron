@@ -1,0 +1,226 @@
+[
+    {
+        "id": "ef206fcd63fc785c",
+        "type": "subflow",
+        "name": "Sum inputs",
+        "info": "Subflow that can be used for totalizing\ndifferint inputs. A use case can be if\nyou want to show the total of three\ninput phases.\n\n# description\n\nA typical input is linking three phases\nof power to the input, all with its own\ntopic.\n\nThe inputs are cached, based on `msg.topic`\nand are summed as output.\n\nThe output rate defaults to once per 5\nseconds, but that can be changed in the _edit\npanel_. Note that you cannot output faster\nthan the inputs get injected.\n\nIf you check the _Show only changed values_\ncheckbox, only values that are different than\nthe previous sum will be outputted.\n\n\n# cache\n\nIf you want to delete a value from the\ncache, you can input a message\nwith the `msg.payload` set to `delete`\nand the `msg.topic` send to the item\nthat you want to delete.",
+        "category": "",
+        "in": [
+            {
+                "x": 40,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "ab00184d6b31cf39"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 600,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "9cacac0ef42a925a",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "rate",
+                "type": "num",
+                "value": "5",
+                "ui": {
+                    "icon": "font-awesome/fa-clock-o",
+                    "label": {
+                        "en-US": "Time between messages (s)"
+                    },
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "num"
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "onlychanges",
+                "type": "bool",
+                "value": "true",
+                "ui": {
+                    "icon": "font-awesome/fa-exchange",
+                    "label": {
+                        "en-US": "Show only changed values"
+                    },
+                    "type": "checkbox"
+                }
+            }
+        ],
+        "meta": {
+            "module": "Total (grid)",
+            "version": "0.0.1",
+            "author": "Dirk-Jan Faber <dfaber@victronenergy.com>",
+            "desc": "Totals the inputs, based on different msg.topic strings",
+            "keywords": "total, grid power",
+            "license": "MIT"
+        },
+        "color": "#f7ab3e"
+    },
+    {
+        "id": "ab00184d6b31cf39",
+        "type": "function",
+        "z": "ef206fcd63fc785c",
+        "name": "Sum inputs on topic",
+        "func": "let stored = flow.get(node.id+'stored') || {}\nlet previousSum = flow.get(node.id+'previousSum')\n\nif (Number(msg.payload)) {\n    stored[msg.topic] = msg.payload\n} else {\n    if (msg.payload === 'delete' && stored[msg.topic]) {\n        delete stored[msg.topic]\n    }\n}\n\nflow.set(node.id+'stored', stored)\nmsg.payload = Object.keys(stored).reduce((sum, key) => sum + parseFloat(stored[key] || 0), 0);\nif (env.get('onlychanges') && ( previousSum === msg.payload )) {\n    return\n}\nflow.set(node.id+'previousSum', msg.payload)\nmsg.rate = (Number(env.get('rate')) || 5) * 1000 \n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 210,
+        "y": 80,
+        "wires": [
+            [
+                "9cacac0ef42a925a"
+            ]
+        ]
+    },
+    {
+        "id": "9cacac0ef42a925a",
+        "type": "delay",
+        "z": "ef206fcd63fc785c",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "5",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": true,
+        "allowrate": true,
+        "outputs": 1,
+        "x": 460,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "eb8bf3be4bd80ae7",
+        "type": "subflow:ef206fcd63fc785c",
+        "z": "b6fe2e445e340263",
+        "name": "",
+        "env": [
+            {
+                "name": "onlychanges",
+                "type": "bool",
+                "value": "false"
+            }
+        ],
+        "x": 630,
+        "y": 220,
+        "wires": [
+            [
+                "61de96920fc889e1"
+            ]
+        ]
+    },
+    {
+        "id": "61de96920fc889e1",
+        "type": "debug",
+        "z": "b6fe2e445e340263",
+        "name": "Total grid power",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 820,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "edc90db6c254ba7b",
+        "type": "victron-input-system",
+        "z": "b6fe2e445e340263",
+        "service": "com.victronenergy.system/0",
+        "path": "/Ac/Grid/L1/Power",
+        "serviceObj": {
+            "service": "com.victronenergy.system/0",
+            "name": "Venus system"
+        },
+        "pathObj": {
+            "path": "/Ac/Grid/L1/Power",
+            "type": "float",
+            "name": "Grid L1 (W)"
+        },
+        "name": "",
+        "onlyChanges": false,
+        "x": 320,
+        "y": 160,
+        "wires": [
+            [
+                "eb8bf3be4bd80ae7"
+            ]
+        ]
+    },
+    {
+        "id": "5a50bc5468376db0",
+        "type": "victron-input-system",
+        "z": "b6fe2e445e340263",
+        "service": "com.victronenergy.system/0",
+        "path": "/Ac/Grid/L2/Power",
+        "serviceObj": {
+            "service": "com.victronenergy.system/0",
+            "name": "Venus system"
+        },
+        "pathObj": {
+            "path": "/Ac/Grid/L2/Power",
+            "type": "float",
+            "name": "Grid L2 (W)"
+        },
+        "name": "",
+        "onlyChanges": false,
+        "x": 320,
+        "y": 220,
+        "wires": [
+            [
+                "eb8bf3be4bd80ae7"
+            ]
+        ]
+    },
+    {
+        "id": "6c8388c891b9cf8f",
+        "type": "victron-input-system",
+        "z": "b6fe2e445e340263",
+        "service": "com.victronenergy.system/0",
+        "path": "/Ac/Grid/L3/Power",
+        "serviceObj": {
+            "service": "com.victronenergy.system/0",
+            "name": "Venus system"
+        },
+        "pathObj": {
+            "path": "/Ac/Grid/L3/Power",
+            "type": "float",
+            "name": "Grid L3 (W)"
+        },
+        "name": "",
+        "onlyChanges": false,
+        "x": 320,
+        "y": 280,
+        "wires": [
+            [
+                "eb8bf3be4bd80ae7"
+            ]
+        ]
+    }
+]
