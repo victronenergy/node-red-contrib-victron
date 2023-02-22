@@ -1,0 +1,932 @@
+[
+    {
+        "id": "91f1db9e8bceb20b",
+        "type": "group",
+        "z": "36b0f88ad9b68620",
+        "style": {
+            "stroke": "#999999",
+            "stroke-opacity": "1",
+            "fill": "none",
+            "fill-opacity": "1",
+            "label": true,
+            "label-position": "nw",
+            "color": "#a4a4a4"
+        },
+        "nodes": [
+            "ad64735eb43be81d",
+            "6c386c8232cc7396",
+            "7ca6f97295af986f",
+            "194e5338ee4e0ac8",
+            "f361fa9c3ddc24a6",
+            "4eb83d863018b3e8",
+            "f53c257eac8a2d96",
+            "8af7009d16e5d76c",
+            "e236135716c84250"
+        ],
+        "x": 134,
+        "y": 339,
+        "w": 752,
+        "h": 202
+    },
+    {
+        "id": "93f485839dfa27a8",
+        "type": "subflow",
+        "name": "Solar forecast",
+        "info": "This subflow uses the http request node to fetch solar forecasts for geographical positions, using the API from https://forecast.solar/. Please check their website and consider getting a paid account.\n\nDo note that, on a free account, you are limited in the number of requests to do. Also note that the data only gets updated once every 15 minutes, so there is no reason to query more often. There is rate limiting built in the subflow not to perform requests more than once every 15 minutes.\n\n# Configuration\n\nIt uses the parameters as described on: http://doc.forecast.solar/doku.php\n\n - `:apikey` - personal API key for registered users\n - `:lat` - latitude of location, -90 (south) … 90 (north); Internal precission is 0.0001 or abt. 10 m\n - `:lon` - longitude of location, -180 (west) … 180 (east); Internal precission is 0.0001 or abt. 10 m\n - `:dec` - plane declination, 0 (horizontal) … 90 (vertical); Internal precission is integer\n - `:az` - plane azimuth, -180 … 180 (-180 = north, -90 = east, 0 = south, 90 = west, 180 = north); Internal precission is integer\n - `:kwp` - installed modules power in kilo watt peak (kWp)\n\nYou can choose between 3 different type of requests. Note that only `estimate` is available on the free plan.\n\n- `estimate` - this is the forecasted estimate that your panels should produce (given the right parameter settings)\n- `history` - historical data showing the long term averages for the days to come. See [https://joint-research-centre.ec.europa.eu/pvgis-online-tool/pvgis-data-download/cm-saf-solar-radiation_en](https://joint-research-centre.ec.europa.eu/pvgis-online-tool/pvgis-data-download/cm-saf-solar-radiation_en) for where the data is fetched from.\n- `clear sky` - estimate given if there would be a clear sky tomorrow\n\nIn case of estimates, one of the following options can be selected:\n- `watts` - Watts (power) average for the period\n- `watt_hours_period` - Watt hours (energy) for the period\n- `watt_hours` - Watt hours (energy) summarized over the day\n- `watt_hours_day` - Watt hours (energy) summarized for each day\n\nFor the graph output there are some extra settings available:\n\n- _Output in kWh_ - when checked output can be set to kWh instead of Wh\n- _Show todays forecast_ - whether or not to include todays forecast\n- _Days to forecast_ - the number of days to forecast (excluding today). Note that you can not get more days forecasted than your API key allows.\n- _Widen graph_ - widen the graph to only show non-zero values\n\n# Input \n\nThe input is for triggering the solar forecast request. \nIt triggers when injecting a message into the node.\n\n# Output\n\nThere are two outputs. The first output is an object with the result and a status message stored into the `msg.payload`.\n\nMost important is the `msg.payload.result`, which contains the estimated production of the panels. E.g.:\n\n```\npayload: object\n  result: object\n    2022-11-28: 23\n    2022-11-29: 35\n```\n\nThe `msg.payload.message` gives information on how successful the query was, the exitcode of the query and the status of the rate limit (how many queries you have left).\n\nThe **second** output can be directly linked to a line or a bar chart, quickly giving a once-glance overview for the predicted forecast.\n\n# Status\n\nInitially the status of the note will be a blue dot, showing \"_Unknown limit_\", as it is unaware of the set ratelmits. After the first request, the returned ratelimit will be put in the text in the form of `remaining/limit`. If more than half the limit is remaining, the dot will be green. If less then half the limit is remaining, the dot will be yellow. If no limit is left, the dot will turn red.\nPlease keep in mind that the ratelimit will be reset after one hour, so you can send a new request after that hour.\n\nIf something is wrong in the API request, the dot will turn red\nand the message will contain the msg.payload with the error. This\nhappens typically when the API is temporally down for maintenance.",
+        "category": "",
+        "in": [
+            {
+                "x": 240,
+                "y": 100,
+                "wires": [
+                    {
+                        "id": "c8dc6aa14b9f3e92"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 760,
+                "y": 260,
+                "wires": [
+                    {
+                        "id": "2f42837904c91d73",
+                        "port": 0
+                    },
+                    {
+                        "id": "fcc8d69a3ab88e6d",
+                        "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 770,
+                "y": 340,
+                "wires": [
+                    {
+                        "id": "5b0a430fb61e70e7",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "latitude",
+                "type": "num",
+                "value": "51.3",
+                "ui": {
+                    "icon": "font-awesome/fa-location-arrow",
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "num"
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "longitude",
+                "type": "num",
+                "value": "5.6",
+                "ui": {
+                    "icon": "font-awesome/fa-location-arrow",
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "num"
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "declination",
+                "type": "num",
+                "value": "37",
+                "ui": {
+                    "icon": "font-awesome/fa-chevron-up",
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "num"
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "azimuth",
+                "type": "num",
+                "value": "0",
+                "ui": {
+                    "icon": "font-awesome/fa-compass",
+                    "type": "spinner",
+                    "opts": {
+                        "min": -180,
+                        "max": 180
+                    }
+                }
+            },
+            {
+                "name": "modules power",
+                "type": "num",
+                "value": "1",
+                "ui": {
+                    "icon": "font-awesome/fa-power-off",
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "num"
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "apikey",
+                "type": "cred",
+                "ui": {
+                    "icon": "font-awesome/fa-key",
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "cred"
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "type",
+                "type": "str",
+                "value": "estimate",
+                "ui": {
+                    "label": {
+                        "en-US": "type"
+                    },
+                    "type": "select",
+                    "opts": {
+                        "opts": [
+                            {
+                                "l": {
+                                    "en-US": "Estimate"
+                                },
+                                "v": "estimate"
+                            },
+                            {
+                                "l": {
+                                    "en-US": "History"
+                                },
+                                "v": "history"
+                            },
+                            {
+                                "l": {
+                                    "en-US": "Clear sky"
+                                },
+                                "v": "clearsky"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "watt",
+                "type": "str",
+                "value": "watts",
+                "ui": {
+                    "icon": "font-awesome/fa-question-circle-o",
+                    "type": "select",
+                    "opts": {
+                        "opts": [
+                            {
+                                "l": {
+                                    "en-US": "Watts (power) average for the period"
+                                },
+                                "v": "watts"
+                            },
+                            {
+                                "l": {
+                                    "en-US": "Watt hours (energy) for the period"
+                                },
+                                "v": "watt_hours_period"
+                            },
+                            {
+                                "l": {
+                                    "en-US": "Watt hours (energy) summarized over the day"
+                                },
+                                "v": "watt_hours"
+                            },
+                            {
+                                "l": {
+                                    "en-US": "Watt hours (energy) summarized for each day"
+                                },
+                                "v": "watt_hours_day"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "kwhoutput",
+                "type": "bool",
+                "value": "false",
+                "ui": {
+                    "label": {
+                        "en-US": "Output in kWh (in the graph)"
+                    },
+                    "type": "checkbox"
+                }
+            },
+            {
+                "name": "showtoday",
+                "type": "bool",
+                "value": "true",
+                "ui": {
+                    "label": {
+                        "en-US": "Show todays forecast"
+                    },
+                    "type": "checkbox"
+                }
+            },
+            {
+                "name": "daystoforecast",
+                "type": "str",
+                "value": "-1",
+                "ui": {
+                    "label": {
+                        "en-US": "Days to forecast"
+                    },
+                    "type": "select",
+                    "opts": {
+                        "opts": [
+                            {
+                                "l": {
+                                    "en-US": "Max"
+                                },
+                                "v": "-1"
+                            },
+                            {
+                                "l": {
+                                    "en-US": "0"
+                                },
+                                "v": "0"
+                            },
+                            {
+                                "l": {
+                                    "en-US": "1"
+                                },
+                                "v": "1"
+                            },
+                            {
+                                "l": {
+                                    "en-US": "2"
+                                },
+                                "v": "2"
+                            },
+                            {
+                                "l": {
+                                    "en-US": "3"
+                                },
+                                "v": "3"
+                            },
+                            {
+                                "l": {
+                                    "en-US": "4"
+                                },
+                                "v": "4"
+                            },
+                            {
+                                "l": {
+                                    "en-US": "5"
+                                },
+                                "v": "5"
+                            },
+                            {
+                                "l": {
+                                    "en-US": "6"
+                                },
+                                "v": "6"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "widengraph",
+                "type": "bool",
+                "value": "true",
+                "ui": {
+                    "label": {
+                        "en-US": "Widen graph"
+                    },
+                    "type": "checkbox"
+                }
+            }
+        ],
+        "meta": {
+            "module": "Solar Forecast",
+            "version": "0.0.9",
+            "author": "dfaber@victronenergy.com",
+            "desc": "Get solar forecasting per location",
+            "keywords": "solar,forecast,api",
+            "license": "GPL-3.0"
+        },
+        "color": "#FFCC66",
+        "inputLabels": [
+            "trigger"
+        ],
+        "outputLabels": [
+            "output",
+            "graph"
+        ],
+        "icon": "font-awesome/fa-sun-o",
+        "status": {
+            "x": 680,
+            "y": 560,
+            "wires": [
+                {
+                    "id": "1bfc1cde3ee94e4b",
+                    "port": 0
+                },
+                {
+                    "id": "a798fbe66cf133d5",
+                    "port": 0
+                }
+            ]
+        }
+    },
+    {
+        "id": "c706820c0d61f023",
+        "type": "http request",
+        "z": "93f485839dfa27a8",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 390,
+        "y": 180,
+        "wires": [
+            [
+                "1b5ccaa05d54f7c3"
+            ]
+        ]
+    },
+    {
+        "id": "b9488734852cd0ca",
+        "type": "function",
+        "z": "93f485839dfa27a8",
+        "name": "create forecast.solar url",
+        "func": "msg.url = 'https://api.forecast.solar/';\n\nif (env.get('apikey')) {\n    msg.url += env.get('apikey') + '/';\n    }\n\nmsg.url += env.get('type') + '/';\n\nmsg.url += env.get('watt') + '/';\n\nmsg.url += env.get('latitude') + '/' +\n           env.get('longitude') + '/' +\n           env.get('declination') + '/' +\n           env.get('azimuth') + '/' +\n           env.get('modules power');\n\nmsg.topic = 'solar forecast: '+(env.get('type') || '');\nmsg.topic += (' '+env.get('watt') || '');\nif (env.get('kwhoutput')) {\n    msg.topic += ' (kWh)';\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 630,
+        "y": 100,
+        "wires": [
+            [
+                "975daf96f15cfb61"
+            ]
+        ]
+    },
+    {
+        "id": "1b5ccaa05d54f7c3",
+        "type": "json",
+        "z": "93f485839dfa27a8",
+        "name": "Convert to json",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 680,
+        "y": 180,
+        "wires": [
+            [
+                "e718a22973cc2864"
+            ]
+        ]
+    },
+    {
+        "id": "559391d1288f762a",
+        "type": "function",
+        "z": "93f485839dfa27a8",
+        "name": "update ratelimit",
+        "func": "var remaining = msg.payload.message.ratelimit.remaining || 0;\nvar limit = msg.payload.message.ratelimit.limit;\n\nflow.set('forecast.solar.ratelimit.remaining', remaining)\nflow.set('forecast.solar.ratelimit.limit', limit)\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 480,
+        "wires": [
+            [
+                "e56826252134b93a"
+            ]
+        ]
+    },
+    {
+        "id": "e718a22973cc2864",
+        "type": "link out",
+        "z": "93f485839dfa27a8",
+        "name": "link out 1",
+        "mode": "link",
+        "links": [
+            "3fa24f2d08195961",
+            "0a20e852662c8cec"
+        ],
+        "x": 815,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "3fa24f2d08195961",
+        "type": "link in",
+        "z": "93f485839dfa27a8",
+        "name": "link in 1",
+        "links": [
+            "e718a22973cc2864"
+        ],
+        "x": 385,
+        "y": 480,
+        "wires": [
+            [
+                "559391d1288f762a"
+            ]
+        ]
+    },
+    {
+        "id": "0a20e852662c8cec",
+        "type": "link in",
+        "z": "93f485839dfa27a8",
+        "name": "link in 2",
+        "links": [
+            "e718a22973cc2864"
+        ],
+        "x": 225,
+        "y": 260,
+        "wires": [
+            [
+                "fcc8d69a3ab88e6d"
+            ]
+        ]
+    },
+    {
+        "id": "4734b6f403e1f03e",
+        "type": "inject",
+        "z": "93f485839dfa27a8",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 530,
+        "y": 440,
+        "wires": [
+            [
+                "e56826252134b93a"
+            ]
+        ]
+    },
+    {
+        "id": "1bfc1cde3ee94e4b",
+        "type": "function",
+        "z": "93f485839dfa27a8",
+        "name": "update status",
+        "func": "var remaining = flow.get('forecast.solar.ratelimit.remaining') || -1;\nvar limit = flow.get('forecast.solar.ratelimit.limit') || -1\n\nvar text = remaining.toString() + '/' + limit.toString();\nvar fill = \"green\";\n\nif (remaining == 0) {\n    fill = \"red\";\n    text = \"Limit used\";\n}\n\nif (remaining > 0 && remaining < limit / 2) {\n    fill = \"yellow\"\n}\n\nif (remaining == -1 ) {\n    fill = \"blue\"\n    text = \"Limits unknown\"\n}\n\nmsg.payload = ({ fill: fill, text: text });\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 580,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a18e96179ec2d987",
+        "type": "function",
+        "z": "93f485839dfa27a8",
+        "name": "Create graph output",
+        "func": "var m = {};\nm.labels = [];\nm.data = [];\n\nm.series = [];\nm.data = [];\nm.labels = [];\n\nfor (let j = 0; j <= msg.days; j++) {\n    m.data[j] = [];\n}\n\nif (msg.watt === 'watt_hours_day') {\n    var i = 0;\n    m.series.push(\"Watt hours per day\");\n    for (const key in msg.payload.result) {\n        m.labels.push(key);\n        if (msg.kwhoutput) {\n            m.data[i] = +(Math.round(msg.payload.result[key]/100)*.1).toFixed(1);\n        } else {\n            m.data[i] = msg.payload.result[key];\n        }\n        i++;\n    }\n    m.data = [m.data];\n    return { payload: [m] };\n}\n\nfor (let i = 0; i <= 23; i++) {\n\n    m.labels.push(i.toString()+':00');\n    if (msg.resolution === 4) {\n       m.labels.push(i.toString()+':15');\n    }\n    if (msg.resolution === 2 || msg.resolution == 4) {\n       m.labels.push(i.toString()+':30');\n    }\n    if (msg.resolution === 4) {\n       m.labels.push(i.toString()+':45');\n    }\n\n    for (let j = 0; j <= msg.days; j++) {\n        m.data[j].push(0);\n        if (msg.resolution === 4) {\n           m.data[j].push(0)\n        }\n        if (msg.resolution === 2 || msg.resolution == 4) {\n           m.data[j].push(0)\n        }\n        if (msg.resolution === 4) {\n           m.data[j].push(0)\n        }\n\n    }\n}\n\nvar offset = 0;\nfor (const key in msg.payload.result) {\n    var d = new Date(key)\n    if (m.series.indexOf(d.toISOString().split('T')[0]) === -1) {\n        m.series.push(d.toISOString().split('T')[0])\n    }\n\n    var h = d.getHours();\n    var minutes = d.getMinutes();\n\n    if (minutes === 0 ) {\n        offset = 0;\n    } else {\n        offset++;\n    }\n\n    if (msg.kwhoutput) {\n        m.data[m.series.length - 1][h*msg.resolution+offset] = +(Math.round(msg.payload.result[key]/100)*.1).toFixed(1);\n    } else {\n        m.data[m.series.length - 1][h*msg.resolution+offset] = msg.payload.result[key];\n    }\n}\n\nreturn { payload: [m] };\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 340,
+        "wires": [
+            [
+                "5b0a430fb61e70e7"
+            ]
+        ]
+    },
+    {
+        "id": "975daf96f15cfb61",
+        "type": "link out",
+        "z": "93f485839dfa27a8",
+        "name": "link out 7",
+        "mode": "link",
+        "links": [
+            "14f2e68e572f4ef8"
+        ],
+        "x": 805,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "14f2e68e572f4ef8",
+        "type": "link in",
+        "z": "93f485839dfa27a8",
+        "name": "link in 18",
+        "links": [
+            "975daf96f15cfb61"
+        ],
+        "x": 245,
+        "y": 180,
+        "wires": [
+            [
+                "c706820c0d61f023"
+            ]
+        ]
+    },
+    {
+        "id": "c4307905e114824f",
+        "type": "catch",
+        "z": "93f485839dfa27a8",
+        "name": "",
+        "scope": null,
+        "uncaught": false,
+        "x": 260,
+        "y": 440,
+        "wires": [
+            [
+                "f427f19392c399ce"
+            ]
+        ]
+    },
+    {
+        "id": "e56826252134b93a",
+        "type": "link out",
+        "z": "93f485839dfa27a8",
+        "name": "link out 8",
+        "mode": "link",
+        "links": [
+            "dbaf8f5f5a920686"
+        ],
+        "x": 685,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "dbaf8f5f5a920686",
+        "type": "link in",
+        "z": "93f485839dfa27a8",
+        "name": "link in 19",
+        "links": [
+            "e56826252134b93a"
+        ],
+        "x": 385,
+        "y": 580,
+        "wires": [
+            [
+                "1bfc1cde3ee94e4b"
+            ]
+        ]
+    },
+    {
+        "id": "f427f19392c399ce",
+        "type": "link out",
+        "z": "93f485839dfa27a8",
+        "name": "link out 9",
+        "mode": "link",
+        "links": [
+            "2ded0c14a222b4d9",
+            "2f42837904c91d73"
+        ],
+        "x": 375,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "2ded0c14a222b4d9",
+        "type": "link in",
+        "z": "93f485839dfa27a8",
+        "name": "link in 20",
+        "links": [
+            "f427f19392c399ce"
+        ],
+        "x": 385,
+        "y": 540,
+        "wires": [
+            [
+                "a798fbe66cf133d5"
+            ]
+        ]
+    },
+    {
+        "id": "a798fbe66cf133d5",
+        "type": "function",
+        "z": "93f485839dfa27a8",
+        "name": "Set error status",
+        "func": "node.warn(msg.payload)\nmsg.payload = ({ fill: \"red\", text: msg.payload });\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 540,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2f42837904c91d73",
+        "type": "link in",
+        "z": "93f485839dfa27a8",
+        "name": "link in 21",
+        "links": [
+            "f427f19392c399ce"
+        ],
+        "x": 665,
+        "y": 280,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fcc8d69a3ab88e6d",
+        "type": "function",
+        "z": "93f485839dfa27a8",
+        "name": "Processed info",
+        "func": "msg.resolution = 60;\nmsg.days = 1;\nmsg.type = env.get('type');\nmsg.watt = env.get('watt');\nmsg.kwhoutput = env.get('kwhoutput');\n\nvar key1 = Object.keys(msg.payload.result)[1];\nvar key2 = Object.keys(msg.payload.result)[2];\nvar key3 = Object.keys(msg.payload.result)[Object.keys(msg.payload.result).length-1];\n\nvar d1 = new Date(key1);\nvar d2 = new Date(key2); \nvar d3 = new Date(key3);\nmsg.resolution = 3600000 / (d2.getTime() - d1.getTime());\n\nmsg.days = Math.floor((d3.getTime() - d1.getTime()) / (1000 * 3600 * 24));\n\nif (msg.watt === 'watt_hours_day') {\n    msg.resolution = null;\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 260,
+        "wires": [
+            [
+                "a18e96179ec2d987"
+            ]
+        ],
+        "info": "Function to process the result from forecast.solar to add\nextra information, which is handy for either graphing or\nto store in a database.\n\n\nThe extra values added:\n- `msg.resolution` - The number of measurements per hour. If\nno API key is used, this will be 1. Other values may be 2 or 4.\n- `msg.days` - The number of days in the forcast. If no API\n- key is used this will be 1. Other values may be 3 or 6."
+    },
+    {
+        "id": "5b0a430fb61e70e7",
+        "type": "function",
+        "z": "93f485839dfa27a8",
+        "name": "Filter graph",
+        "func": "var forecasted = msg.payload[0].series.length;\n\nif ((env.get('daystoforecast') > -1) && (env.get('daystoforecast') < forecasted)) {\n    for (i = 1; i < (forecasted - env.get('daystoforecast')); i++ ) {\n        msg.payload[0].data.pop();\n        msg.payload[0].series.pop();\n    }\n}\n\nif (env.get('watt') === 'watt_hours_day' ) {\n    forecasted = msg.payload[0].labels.length;\n    for (i = 1; i < (forecasted - env.get('daystoforecast')); i++ ) {\n        msg.payload[0].labels.pop();\n        msg.payload[0].data[0].pop();\n    }\n}\n\nif (!env.get('showtoday')) {\n    msg.payload[0].data.shift();\n    msg.payload[0].series.shift();\n}\n\nif (env.get('widengraph')) {\n    var c = msg.payload[0].labels.length;\n    var x = 0;\n    for (i = 0; i < c; i++) {\n        var remove = true;\n        for (d = 0; d < msg.payload[0].data.length; d++) {\n            if (msg.payload[0].data[d][x] > 0) {\n                remove = false;\n            }\n        }\n        if (remove) {\n            msg.payload[0].labels.splice(x, 1);\n            for (d = 0; d < msg.payload[0].data.length; d++) {\n                 msg.payload[0].data[d].splice(x, 1);\n            }\n            x--;\n        }\n        x++;\n    }\n    // Still the first and last datapoints should be zero, so\n    // add those again\n    msg.payload[0].labels.unshift('');\n    msg.payload[0].labels.push('');\n    for (d = 0; d < msg.payload[0].data.length; d++) {\n         msg.payload[0].data[d].unshift(0);\n         msg.payload[0].data[d].push(0);\n    }   \n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 590,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c8dc6aa14b9f3e92",
+        "type": "delay",
+        "z": "93f485839dfa27a8",
+        "name": "1 msg/15 minutes",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "15",
+        "rateUnits": "minute",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 390,
+        "y": 100,
+        "wires": [
+            [
+                "b9488734852cd0ca"
+            ]
+        ]
+    },
+    {
+        "id": "ad64735eb43be81d",
+        "type": "subflow:93f485839dfa27a8",
+        "z": "36b0f88ad9b68620",
+        "g": "91f1db9e8bceb20b",
+        "name": "",
+        "env": [
+            {
+                "name": "apikey",
+                "type": "cred"
+            },
+            {
+                "name": "watt",
+                "value": "watt_hours_day",
+                "type": "str"
+            },
+            {
+                "name": "showtoday",
+                "type": "bool",
+                "value": "false"
+            }
+        ],
+        "x": 440,
+        "y": 440,
+        "wires": [
+            [
+                "7ca6f97295af986f",
+                "e236135716c84250"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "6c386c8232cc7396",
+        "type": "inject",
+        "z": "36b0f88ad9b68620",
+        "g": "91f1db9e8bceb20b",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "3600",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 270,
+        "y": 440,
+        "wires": [
+            [
+                "ad64735eb43be81d"
+            ]
+        ]
+    },
+    {
+        "id": "7ca6f97295af986f",
+        "type": "debug",
+        "z": "36b0f88ad9b68620",
+        "g": "91f1db9e8bceb20b",
+        "name": "Solar forecast",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 680,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "194e5338ee4e0ac8",
+        "type": "comment",
+        "z": "36b0f88ad9b68620",
+        "g": "91f1db9e8bceb20b",
+        "name": "Relay control based on solar forecast",
+        "info": "This example shows what you can do with solar forecasting.\nThe relay will be set to open when the predicted PV yield of\ntoday is above a threshold. The threshold is 1000 in this\nexample.\n\nThis could be a crude way to only use power when there is \nenough solar predicted.\n\nIt takes the first `msg.payload.result` and maps that\nto a valid relay value. \n\nOf course you could just add a graph to the second output.\nMore info on the solar forecast subflow can be found [here](https://flows.nodered.org/flow/d83d3224f241ec4abf6f9f119bbee9cc).",
+        "x": 310,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "f361fa9c3ddc24a6",
+        "type": "function",
+        "z": "36b0f88ad9b68620",
+        "g": "91f1db9e8bceb20b",
+        "name": "Get the forecast for now",
+        "func": "msg.payload = Object.values(msg.payload.result)[0]\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 500,
+        "wires": [
+            [
+                "4eb83d863018b3e8"
+            ]
+        ]
+    },
+    {
+        "id": "4eb83d863018b3e8",
+        "type": "range",
+        "z": "36b0f88ad9b68620",
+        "g": "91f1db9e8bceb20b",
+        "minin": "0",
+        "maxin": "2000",
+        "minout": "0",
+        "maxout": "1",
+        "action": "clamp",
+        "round": true,
+        "property": "payload",
+        "name": "",
+        "x": 510,
+        "y": 500,
+        "wires": [
+            [
+                "f53c257eac8a2d96"
+            ]
+        ]
+    },
+    {
+        "id": "f53c257eac8a2d96",
+        "type": "victron-output-relay",
+        "z": "36b0f88ad9b68620",
+        "g": "91f1db9e8bceb20b",
+        "service": "com.victronenergy.system/0",
+        "path": "/Relay/1/State",
+        "serviceObj": {
+            "service": "com.victronenergy.system/0",
+            "name": "Venus device"
+        },
+        "pathObj": {
+            "path": "/Relay/1/State",
+            "type": "enum",
+            "name": "Venus relay 2 state",
+            "enum": {
+                "0": "Open",
+                "1": "Closed"
+            },
+            "writable": true
+        },
+        "initial": "",
+        "name": "",
+        "onlyChanges": false,
+        "x": 720,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "8af7009d16e5d76c",
+        "type": "link in",
+        "z": "36b0f88ad9b68620",
+        "g": "91f1db9e8bceb20b",
+        "name": "link in 22",
+        "links": [
+            "e236135716c84250"
+        ],
+        "x": 185,
+        "y": 500,
+        "wires": [
+            [
+                "f361fa9c3ddc24a6"
+            ]
+        ]
+    },
+    {
+        "id": "e236135716c84250",
+        "type": "link out",
+        "z": "36b0f88ad9b68620",
+        "g": "91f1db9e8bceb20b",
+        "name": "link out 10",
+        "mode": "link",
+        "links": [
+            "8af7009d16e5d76c"
+        ],
+        "x": 605,
+        "y": 420,
+        "wires": []
+    }
+]
