@@ -3531,6 +3531,28 @@
         "name": "Maximum System Grid Feed In (W)",
         "remarks": "<ul><li>-1: No limit</li><li> &gt;=0: limited system feed-in</li></ul><p>Applies to DC-coupled and AC-coupled feed-in.</p>"
       },
+{
+    "path": "/Settings/SystemSetup/AcInput1",
+    "type": "enum",
+    "name": "AC input 1 source (for VE.Bus inverter/chargers)",
+    "enum": {
+        "0": "Unused",
+        "1": "Grid",
+        "2": "Genset",
+        "3": "Shore"
+    }
+},
+{
+    "path": "/Settings/SystemSetup/AcInput2",
+    "type": "enum",
+    "name": "AC input 2 source (for VE.Bus inverter/chargers)",
+    "enum": {
+        "0": "Unused",
+        "1": "Grid",
+        "2": "Genset",
+        "3": "Shore"
+    }
+},
       {
         "path": "/Settings/SystemSetup/SystemName",
         "type": "string",
@@ -5526,6 +5548,30 @@
         "enum": {
           "0": "Feed excess AC-tied PV into grid",
           "1": "Don’t feed excess AC-tied PV into the grid"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/SystemSetup/AcInput1",
+        "type": "enum",
+        "name": "AC input 1 source (for VE.Bus inverter/chargers)",
+        "enum": {
+          "0": "Unused",
+          "1": "Grid",
+          "2": "Genset",
+          "3": "Shore"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/SystemSetup/AcInput2",
+        "type": "enum",
+        "name": "AC input 2 source (for VE.Bus inverter/chargers)",
+        "enum": {
+          "0": "Unused",
+          "1": "Grid",
+          "2": "Genset",
+          "3": "Shore"
         },
         "writable": true
       },

@@ -2771,6 +2771,24 @@ Questions can also be asked on the Victron Energy community:
   <dd>Dbus path: <b>/Settings/CGwacs/MaxFeedInPower</b>
 <ul><li>-1: No limit</li><li> &gt;=0: limited system feed-in</li></ul><p>Applies to DC-coupled and AC-coupled feed-in.</p>
 </dd>
+  <dt class="optional">AC input 1 source (for VE.Bus inverter/chargers)<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/SystemSetup/AcInput1</b>
+<ul>
+  <li>0 - Unused</li>
+  <li>1 - Grid</li>
+  <li>2 - Genset</li>
+  <li>3 - Shore</li>
+</ul>
+</dd>
+  <dt class="optional">AC input 2 source (for VE.Bus inverter/chargers)<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/SystemSetup/AcInput2</b>
+<ul>
+  <li>0 - Unused</li>
+  <li>1 - Grid</li>
+  <li>2 - Genset</li>
+  <li>3 - Shore</li>
+</ul>
+</dd>
   <dt class="optional">System name<span class="property-type">string</dt>
   <dd>Dbus path: <b>/Settings/SystemSetup/SystemName</b>
 </dd>
@@ -4276,6 +4294,24 @@ Questions can also be asked on the Victron Energy community:
 <ul>
   <li>0 - Feed excess AC-tied PV into grid</li>
   <li>1 - Don’t feed excess AC-tied PV into the grid</li>
+</ul>
+</dd>
+  <dt class="optional">AC input 1 source (for VE.Bus inverter/chargers)<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/SystemSetup/AcInput1</b>
+<ul>
+  <li>0 - Unused</li>
+  <li>1 - Grid</li>
+  <li>2 - Genset</li>
+  <li>3 - Shore</li>
+</ul>
+</dd>
+  <dt class="optional">AC input 2 source (for VE.Bus inverter/chargers)<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/SystemSetup/AcInput2</b>
+<ul>
+  <li>0 - Unused</li>
+  <li>1 - Grid</li>
+  <li>2 - Genset</li>
+  <li>3 - Shore</li>
 </ul>
 </dd>
   <dt class="optional">Limit managed battery voltage (V DC)<span class="property-type">float</dt>
