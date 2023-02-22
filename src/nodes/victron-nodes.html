@@ -43,6 +43,19 @@
                 Please refer to 'Value Types' box above for adjustable settings.</i>
             </div>
         </div>
+        <div class="form-row hidden" id="roundValues">
+            <label style="min-width:190px" for="node-input-roundValues"><i class="fa fa-minus-circle"></i>Rounding</label>
+            <select id="node-input-roundValues">
+                <option value="no">Do not round</option>
+                <option value="0">Zero digits</option>
+                <option value="1">1 digit</option>
+                <option value="2">2 digits</option>
+                <option value="3">3 digits</option>
+            </select>
+                <div class="info-text">
+                Round values to less digits.
+            </div>
+        </div>
         <div class="form-row hidden" id="onlyChanges">
             <label style="min-width:190px" for="node-input-onlyChanges"><i class="fa fa-bell"></i>Only changes</label>
                 <input type="checkbox" checked id="node-input-onlyChanges" style="max-width:30px">
@@ -153,6 +166,11 @@
                 // unset and hide initialValue
                 $('#initial-row').hide();
                 initialValueElem.val(null);
+            }
+            if (pathData.type === 'float') {
+                $('#roundValues').show()
+            } else {
+                $('#roundValues').hide()
             }
         };
 
@@ -306,6 +324,7 @@
                 initial: { value: undefined },
                 name: { value: "" },
                 "onlyChanges": { value: false },
+                "roundValues": { value: undefined }
             },
             color: '#4790d0',
             inputs: isOutputNode ? 1 : 0,

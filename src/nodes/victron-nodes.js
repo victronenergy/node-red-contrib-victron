@@ -42,6 +42,7 @@ module.exports = function (RED) {
       this.path = nodeDefinition.path
       this.defaulttopic = nodeDefinition.serviceObj.name + ' - ' + nodeDefinition.pathObj.name
       this.onlyChanges = nodeDefinition.onlyChanges
+      this.roundValues = nodeDefinition.roundValues
 
       this.configNode = RED.nodes.getNode('victron-client-id')
       this.client = this.configNode.client
@@ -66,6 +67,9 @@ module.exports = function (RED) {
           }
           if (this.node.onlyChanges && !msg.changed) {
             return
+          }
+          if ((Number(this.node.roundValues) >= 0 ) && (typeof(msg.value) === 'number')) {
+            msg.value = +msg.value.toFixed(this.node.roundValues)
           }
           this.node.send({
             payload: msg.value,
