@@ -2671,7 +2671,7 @@
       {
         "path": "/Ac/In/1/L1/F",
         "type": "float",
-        "name": "Input frequency (Hz)"
+        "name": "Input frequency phase 1 (Hz)"
       },
       {
         "path": "/Ac/In/1/L1/I",
@@ -2753,7 +2753,7 @@
       {
         "path": "/Ac/Out/L1/F",
         "type": "float",
-        "name": "Output frequency (Hz)"
+        "name": "Output frequency phase 1 (Hz)"
       },
       {
         "path": "/Ac/Out/L1/I",
@@ -4329,7 +4329,7 @@
       {
         "path": "/Ac/ActiveIn/L1/F",
         "type": "float",
-        "name": "Input frequency 1 (Hz)"
+        "name": "Input frequency phase 1 (Hz)"
       },
       {
         "path": "/Ac/ActiveIn/L1/I",
@@ -4339,7 +4339,7 @@
       {
         "path": "/Ac/ActiveIn/L1/P",
         "type": "float",
-        "name": "Input power 1 (W)"
+        "name": "Input power phase 1 (W)"
       },
       {
         "path": "/Ac/ActiveIn/L1/V",
@@ -4349,7 +4349,7 @@
       {
         "path": "/Ac/ActiveIn/L2/F",
         "type": "float",
-        "name": "Input frequency 2 (Hz)"
+        "name": "Input frequency phase 2 (Hz)"
       },
       {
         "path": "/Ac/ActiveIn/L2/I",
@@ -4359,7 +4359,7 @@
       {
         "path": "/Ac/ActiveIn/L2/P",
         "type": "float",
-        "name": "Input power 2 (W)"
+        "name": "Input power phase 2 (W)"
       },
       {
         "path": "/Ac/ActiveIn/L2/V",
@@ -4369,7 +4369,7 @@
       {
         "path": "/Ac/ActiveIn/L3/F",
         "type": "float",
-        "name": "Input frequency 3 (Hz)"
+        "name": "Input frequency phase 3 (Hz)"
       },
       {
         "path": "/Ac/ActiveIn/L3/I",
@@ -4379,7 +4379,7 @@
       {
         "path": "/Ac/ActiveIn/L3/P",
         "type": "float",
-        "name": "Input power 3 (W)"
+        "name": "Input power phase 3 (W)"
       },
       {
         "path": "/Ac/ActiveIn/L3/V",
@@ -4422,7 +4422,7 @@
       {
         "path": "/Ac/Out/L1/F",
         "type": "float",
-        "name": "Output frequency (Hz)"
+        "name": "Output frequency phase 1 (Hz)"
       },
       {
         "path": "/Ac/Out/L1/I",
@@ -4432,7 +4432,7 @@
       {
         "path": "/Ac/Out/L1/P",
         "type": "float",
-        "name": "Output power 1 (W)"
+        "name": "Output power phase 1 (W)"
       },
       {
         "path": "/Ac/Out/L1/V",
@@ -4447,7 +4447,7 @@
       {
         "path": "/Ac/Out/L2/P",
         "type": "float",
-        "name": "Output power 2 (W)"
+        "name": "Output power phase 2 (W)"
       },
       {
         "path": "/Ac/Out/L2/V",
@@ -4462,7 +4462,7 @@
       {
         "path": "/Ac/Out/L3/P",
         "type": "float",
-        "name": "Output power 3 (W)"
+        "name": "Output power phase 3 (W)"
       },
       {
         "path": "/Ac/Out/L3/V",
