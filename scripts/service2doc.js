@@ -113,7 +113,7 @@ searchLabelInfo(registerHTML).then(function (labelinfo) {
         } else {
           show('nodered', '<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> ')
         }
- 
+
         Object.keys(services[k]).forEach(function (v) {
           if (v === 'help') {
             show('nodered', services[k].help)

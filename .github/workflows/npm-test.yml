@@ -1,0 +1,20 @@
+name: npm-test
+run-name: ${{ github.actor }} is running npm test
+on: [push]
+jobs:
+  npm-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [ 14, 16, 18 ]
+    steps:
+    - name: Checkout repository and submodules
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    - name: Setup node
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
+    - run: npm install standard --global
+    - run: npm test
