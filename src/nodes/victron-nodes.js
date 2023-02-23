@@ -68,7 +68,7 @@ module.exports = function (RED) {
           if (this.node.onlyChanges && !msg.changed) {
             return
           }
-          if ((Number(this.node.roundValues) >= 0 ) && (typeof(msg.value) === 'number')) {
+          if ((Number(this.node.roundValues) >= 0) && (typeof (msg.value) === 'number')) {
             msg.value = +msg.value.toFixed(this.node.roundValues)
           }
           this.node.send({
