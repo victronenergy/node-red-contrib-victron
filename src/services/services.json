@@ -2256,7 +2256,7 @@
       {
         "path": "/Ac/L3/Current",
         "type": "float",
-        "name": "L2 Current (A)"
+        "name": "L3 Current (A)"
       },
       {
         "path": "/Ac/L3/Energy/Forward",
