@@ -2204,6 +2204,11 @@
         "name": "Total Reverse Energy (sold) (kWh)"
       },
       {
+        "path": "/Ac/Power",
+        "type": "float",
+        "name": "Power (W)"
+      },
+      {
         "path": "/Ac/L1/Current",
         "type": "float",
         "name": "L1 Current (A)"
