@@ -226,7 +226,7 @@ to remove all version locking files, and also remove the node_modules folder
 itselves as npm install will not touch any already installed dependencies, and then
 run npm install. In other words, do this:
 ```
-rm ./package-lock.json; ./npm-shrinkwrap.json; ./yarn.lock
+rm ./package-lock.json ./npm-shrinkwrap.json ./yarn.lock
 rm -rf ./node_modules
 npm install --only=prod
 ```
@@ -291,7 +291,7 @@ For node-red-contrib-victron for example we do keep that. But Node-RED and signa
 don't have that, and they don't publish a npm-shrinkwrap.json to the NPM registry either.
 Neither do we for node-red-contrib-victron by the way.
 
-So, with all tha explained, here is how to make the shrinkwrap file:
+So, with all that explained, here is how to make the shrinkwrap file:
 ```
 npm shrinkwrap
 ```
