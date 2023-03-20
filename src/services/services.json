@@ -1644,6 +1644,15 @@
         "name": "Charge current (A)"
       },
       {
+        "path": "/EnableDisplay",
+        "type": "enum",
+        "name": "Display",
+        "enum": {
+          "0": "Locked",
+          "1": "Unlocked"
+        }
+      },
+      {
         "path": "/FirmwareVersion",
         "type": "float",
         "name": "Firmware version"
@@ -1659,7 +1668,8 @@
         "name": "Mode",
         "enum": {
           "0": "Manual",
-          "1": "Auto"
+          "1": "Auto",
+          "2": "Schedule"
         }
       },
       {
@@ -3531,28 +3541,28 @@
         "name": "Maximum System Grid Feed In (W)",
         "remarks": "<ul><li>-1: No limit</li><li> &gt;=0: limited system feed-in</li></ul><p>Applies to DC-coupled and AC-coupled feed-in.</p>"
       },
-{
-    "path": "/Settings/SystemSetup/AcInput1",
-    "type": "enum",
-    "name": "AC input 1 source (for VE.Bus inverter/chargers)",
-    "enum": {
-        "0": "Unused",
-        "1": "Grid",
-        "2": "Genset",
-        "3": "Shore"
-    }
-},
-{
-    "path": "/Settings/SystemSetup/AcInput2",
-    "type": "enum",
-    "name": "AC input 2 source (for VE.Bus inverter/chargers)",
-    "enum": {
-        "0": "Unused",
-        "1": "Grid",
-        "2": "Genset",
-        "3": "Shore"
-    }
-},
+      {
+        "path": "/Settings/SystemSetup/AcInput1",
+        "type": "enum",
+        "name": "AC input 1 source (for VE.Bus inverter/chargers)",
+        "enum": {
+          "0": "Unused",
+          "1": "Grid",
+          "2": "Genset",
+          "3": "Shore"
+        }
+      },
+      {
+        "path": "/Settings/SystemSetup/AcInput2",
+        "type": "enum",
+        "name": "AC input 2 source (for VE.Bus inverter/chargers)",
+        "enum": {
+          "0": "Unused",
+          "1": "Grid",
+          "2": "Genset",
+          "3": "Shore"
+        }
+      },
       {
         "path": "/Settings/SystemSetup/SystemName",
         "type": "string",
@@ -5180,6 +5190,16 @@
     "help": "<p>With this node the EV charging station can be controlled.</p><p>Note that you need to refresh the website of the EV charger in order to see the changed settings there.</p>",
     "evcharger": [
       {
+        "path": "/EnableDisplay",
+        "type": "enum",
+        "name": "Display",
+        "enum": {
+          "0": "Locked",
+          "1": "Unlocked"
+        },
+        "writable": true
+      },
+      {
         "path": "/MaxCurrent",
         "type": "float",
         "name": "Maximum charge current (A)",
@@ -5191,7 +5211,8 @@
         "name": "Mode",
         "enum": {
           "0": "Manual",
-          "1": "Auto"
+          "1": "Auto",
+          "2": "Schedule"
         },
         "writable": true
       },

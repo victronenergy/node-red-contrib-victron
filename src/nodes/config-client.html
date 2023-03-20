@@ -1330,6 +1330,13 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Charge current (A)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Current</b>
 </dd>
+  <dt class="optional">Display<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/EnableDisplay</b>
+<ul>
+  <li>0 - Locked</li>
+  <li>1 - Unlocked</li>
+</ul>
+</dd>
   <dt class="optional">Firmware version<span class="property-type">float</dt>
   <dd>Dbus path: <b>/FirmwareVersion</b>
 </dd>
@@ -1341,6 +1348,7 @@ Questions can also be asked on the Victron Energy community:
 <ul>
   <li>0 - Manual</li>
   <li>1 - Auto</li>
+  <li>2 - Schedule</li>
 </ul>
 </dd>
   <dt class="optional">Model<span class="property-type">float</dt>
@@ -4002,6 +4010,13 @@ Questions can also be asked on the Victron Energy community:
 <p>With this node the EV charging station can be controlled.</p><p>Note that you need to refresh the website of the EV charger in order to see the changed settings there.</p>
 <h3>Evcharger</h3>
 <dl class="message-properties">
+  <dt class="optional">Display<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/EnableDisplay</b>
+<ul>
+  <li>0 - Locked</li>
+  <li>1 - Unlocked</li>
+</ul>
+</dd>
   <dt class="optional">Maximum charge current (A)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/MaxCurrent</b>
 </dd>
@@ -4010,6 +4025,7 @@ Questions can also be asked on the Victron Energy community:
 <ul>
   <li>0 - Manual</li>
   <li>1 - Auto</li>
+  <li>2 - Schedule</li>
 </ul>
 </dd>
   <dt class="optional">Position<span class="property-type">enum</dt>
