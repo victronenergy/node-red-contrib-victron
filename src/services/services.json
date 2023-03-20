@@ -1512,7 +1512,7 @@
       {
         "path": "/SystemReset",
         "type": "enum",
-        "name": "VE.Bus Reset",
+        "name": "VE.Bus system restart",
         "enum": {
           "0": "No",
           "1": "Yes"
