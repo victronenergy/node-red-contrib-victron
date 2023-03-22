@@ -1243,9 +1243,6 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Minimum Discharge SOC (%)<span class="property-type">integer</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/MinimumSocLimit</b>
 </dd>
-  <dt class="optional">Active SOC limit (%)<span class="property-type">integer</dt>
-  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/SocLimit</b>
-</dd>
   <dt class="optional">ESS state<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b>
 <ul>
@@ -1297,6 +1294,12 @@ Questions can also be asked on the Victron Energy community:
 </dd>
   <dt class="optional">DVCC Maximum charge voltage (V)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Settings/SystemSetup/MaxChargeVoltage</b>
+</dd>
+</dl>
+<h3>System</h3>
+<dl class="message-properties">
+  <dt class="optional">Active SOC limit (%)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Control/ActiveSocLimit</b>
 </dd>
 </dl>
 </script>
@@ -2766,9 +2769,6 @@ Questions can also be asked on the Victron Energy community:
 <p>With this node several settings can be read. Currently the focus is mainly on the Carlo Gavazzi Wired AC Sensors (cgwacs).</p>
 <h3>Settings</h3>
 <dl class="message-properties">
-  <dt class="optional">ESS active SoC (read only) (%)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/SocLimit</b>
-</dd>
   <dt class="optional">ESS max charge current (fractional) (%)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/MaxChargePercentage</b>
 </dd>
@@ -3180,6 +3180,9 @@ Questions can also be asked on the Victron Energy community:
 </dd>
   <dt class="optional">Buzzer State<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Buzzer/State</b>
+</dd>
+  <dt class="optional">ESS active SOC limit (%)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Control/ActiveSocLimit</b>
 </dd>
   <dt class="optional">Battery Consumed Amphours (Ah)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/Battery/ConsumedAmphours</b>
