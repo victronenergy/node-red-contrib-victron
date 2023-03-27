@@ -5732,6 +5732,7 @@
         "path": "/Mode",
         "type": "enum",
         "name": "Switch Position",
+        "remarks": "<p>Note that <tt>/ModeIsAdjustable</tt> needs to be set to 1.</p> ",
         "enum": {
           "1": "Charger Only",
           "2": "Inverter Only",
