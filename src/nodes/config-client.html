@@ -1227,7 +1227,7 @@ Questions can also be asked on the Victron Energy community:
   <li>1 - Yes</li>
 </ul>
 </dd>
-  <dt class="optional">VE.Bus Reset<span class="property-type">enum</dt>
+  <dt class="optional">VE.Bus system restart<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/SystemReset</b>
 <ul>
   <li>0 - No</li>
@@ -1242,9 +1242,6 @@ Questions can also be asked on the Victron Energy community:
 </dd>
   <dt class="optional">Minimum Discharge SOC (%)<span class="property-type">integer</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/MinimumSocLimit</b>
-</dd>
-  <dt class="optional">Active SOC limit (%)<span class="property-type">integer</dt>
-  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/SocLimit</b>
 </dd>
   <dt class="optional">ESS state<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b>
@@ -1299,6 +1296,12 @@ Questions can also be asked on the Victron Energy community:
   <dd>Dbus path: <b>/Settings/SystemSetup/MaxChargeVoltage</b>
 </dd>
 </dl>
+<h3>System</h3>
+<dl class="message-properties">
+  <dt class="optional">Active SOC limit (%)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Control/ActiveSocLimit</b>
+</dd>
+</dl>
 </script>
 
 <script type="text/x-red" data-help-name="victron-input-evcharger">
@@ -1330,6 +1333,13 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Charge current (A)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Current</b>
 </dd>
+  <dt class="optional">Display<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/EnableDisplay</b>
+<ul>
+  <li>0 - Locked</li>
+  <li>1 - Unlocked</li>
+</ul>
+</dd>
   <dt class="optional">Firmware version<span class="property-type">float</dt>
   <dd>Dbus path: <b>/FirmwareVersion</b>
 </dd>
@@ -1341,6 +1351,7 @@ Questions can also be asked on the Victron Energy community:
 <ul>
   <li>0 - Manual</li>
   <li>1 - Auto</li>
+  <li>2 - Schedule</li>
 </ul>
 </dd>
   <dt class="optional">Model<span class="property-type">float</dt>
@@ -1820,7 +1831,7 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">L2 Voltage (V)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/L2/Voltage</b>
 </dd>
-  <dt class="optional">L2 Current (A)<span class="property-type">float</dt>
+  <dt class="optional">L3 Current (A)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/L3/Current</b>
 </dd>
   <dt class="optional">L3 Forward energy (bought) (kWh)<span class="property-type">float</dt>
@@ -2758,9 +2769,6 @@ Questions can also be asked on the Victron Energy community:
 <p>With this node several settings can be read. Currently the focus is mainly on the Carlo Gavazzi Wired AC Sensors (cgwacs).</p>
 <h3>Settings</h3>
 <dl class="message-properties">
-  <dt class="optional">ESS active SoC (read only) (%)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/SocLimit</b>
-</dd>
   <dt class="optional">ESS max charge current (fractional) (%)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/MaxChargePercentage</b>
 </dd>
@@ -3172,6 +3180,9 @@ Questions can also be asked on the Victron Energy community:
 </dd>
   <dt class="optional">Buzzer State<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Buzzer/State</b>
+</dd>
+  <dt class="optional">ESS active SOC limit (%)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Control/ActiveSocLimit</b>
 </dd>
   <dt class="optional">Battery Consumed Amphours (Ah)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/Battery/ConsumedAmphours</b>
@@ -4002,6 +4013,13 @@ Questions can also be asked on the Victron Energy community:
 <p>With this node the EV charging station can be controlled.</p><p>Note that you need to refresh the website of the EV charger in order to see the changed settings there.</p>
 <h3>Evcharger</h3>
 <dl class="message-properties">
+  <dt class="optional">Display<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/EnableDisplay</b>
+<ul>
+  <li>0 - Locked</li>
+  <li>1 - Unlocked</li>
+</ul>
+</dd>
   <dt class="optional">Maximum charge current (A)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/MaxCurrent</b>
 </dd>
@@ -4010,6 +4028,7 @@ Questions can also be asked on the Victron Energy community:
 <ul>
   <li>0 - Manual</li>
   <li>1 - Auto</li>
+  <li>2 - Schedule</li>
 </ul>
 </dd>
   <dt class="optional">Position<span class="property-type">enum</dt>
@@ -4412,6 +4431,7 @@ Questions can also be asked on the Victron Energy community:
   <li>3 - On</li>
   <li>4 - Off</li>
 </ul>
+<p>Note that <tt>/ModeIsAdjustable</tt> needs to be set to 1.</p> 
 </dd>
   <dt class="optional">Disable PV inverter<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/PvInverter/Disable</b>

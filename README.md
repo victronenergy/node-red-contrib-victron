@@ -219,53 +219,86 @@ Assuming you have the wiki cloned as well in `~/git/` directory. Review and comm
 
 ## Releasing a new version (developers)
 
-Below procedure makes a new version, and also updates all dependencies as recorded
-in package-lock.json. And includes instructions on how to update the corresponding
-npm-shrinkwrap.json which is maintained in meta-victronenergy. Doing that is
-important: in Venus OS, the dependencies are installed exactly as recorded in the
-shrinkwrap file. Which is different from how an npm install normally works. This is
-done to have reproducible builds; and makes sense when you think about it.
+### 1. Updating dependencies
 
-To only make a new release, without such refresh, the following steps are adviced:
-
-1. Run `npm version [major|minor|patch]`, this will increase the version in both the packa
-2. Run `npm run release`
-3. Run `npm publish`
-
-Here is the full story including a refresh:  
-
-Note that this assumes that you've already made changes to the code, and committed them!
-
+Regularly, you'll need to check if its time to update dependencies. A crude way is
+to remove all version locking files, and also remove the node_modules folder
+itselves as npm install will not touch any already installed dependencies, and then
+run npm install. In other words, do this:
 ```
-# these first two lines can be skipped if working from your dev dir.
-git clone git@github.com:victronenergy/node-red-contrib-victron.git
-cd node-red-contrib-victron
-
-# npm install will only install the latest safe version of the dependencies if they
-# don’t exist in the node_modules folder and, there is no package-lock.json file. 
-rm ./package-lock.json && rm -rf ./node_modules
-
-# run the installer.
-# --only-prod is necessary to prevent installing devDependencies, since npm will
-# do that automatically when its run inside a package directory.
+rm ./package-lock.json ./npm-shrinkwrap.json ./yarn.lock
+rm -rf ./node_modules
 npm install --only=prod
-
-# there will now be a new package-lock.json, to see the difference:
-git diff
-
-# commit the new package-lock
-git add ./package-lock.json && git commit
-
-# here you want to test before actually making the release(!)
-DO YOUR TESTS; MAKE SURE TO DO THEM WITH THE RIGHT DEPENDENCIES
-
-# increase the version (this just ups the version in package.json and package-lock.json as
-# well as commits it in git. The patch flag tells it to increase the "patch" version. The
-# other two,  major and minor can be increased as well by using those respective keywords.
-npm version patch
-
-# get the shrinkwrap
-npm shrinkwrap
-
-# and now copy the resulting file into the meta-victronenergy repo.
 ```
+
+Now, all dependencies are installed as per latest version that is allowed by
+package.json. And also a new package-lock.json with all their version numbers
+and sha-sums is generated as well.
+
+Since package-lock.json is in git, commit it.
+
+Note that above only updates the depedencies as allowed per rules definied package.json.
+To really update them, ie. check for newer, possibly breaking versions, something else
+is needed. That can for example easily be checked with
+[npm-check-updates](https://www.npmjs.com/package/npm-check-updates). Here is
+an example output:
+```
+$ ncu
+Checking /home/matthijs/dev/node-red-contrib-victron/package.json
+[====================] 10/10 100%
+
+ @babel/eslint-parser             ^7.17.0  →   ^7.21.3
+ @signalk/github-create-release    ^1.2.0  →    ^1.2.1
+ csv-parse                         ^4.4.6  →    ^5.3.6
+ debug                             ^4.1.0  →    ^4.3.4
+ eslint                           ^8.12.0  →   ^8.36.0
+ eslint-config-google             ^0.11.0  →   ^0.14.0
+ lodash                          ^4.17.11  →  ^4.17.21
+ promise-retry                     ^1.1.1  →    ^2.0.1
+
+Run ncu -u to upgrade package.json
+```
+
+### 2. Testing
+
+Now, run a full test and make sure the package, including the now locked dependencies
+functions correctly.
+
+### 3. Releasing and publishing
+
+1. Run `npm version [major|minor|patch]`, this bumps the version in package.json, as well
+   as package-lock.json, and, if present, npm-shrinkwrap.json
+2. Run `npm run release`, this will create a Github Release (on Github!)
+3. Run `npm publish`, this will publishes the package to the npm registry
+
+### 4. Making a new npm-shrinkwrap.json
+
+First a bit of background:
+
+The purpose of package-lock.json is mainly to make developers all work on the same
+situation.
+
+npm-shrinkwrap.json is exactly the same file, with same effect, but a different purpose:
+the recommended use-case for npm-shrinkwrap.json is applications deployed through the
+publishing process on the registry: for example, daemons and command-line tools intended
+as global installs. More about that here:
+https://docs.npmjs.com/cli/v9/configuring-npm/npm-shrinkwrap-json
+
+In Venus OS, we use npm-shrinkwrap.json as well, purpose there is to have 100% reproducible
+builds. The shrinkwrap file is kept in the meta repos, ie meta-victronenergy.
+
+Note that some repos/packages have a package-lock.json in their repo, and others do not.
+For node-red-contrib-victron for example we do keep that. But Node-RED and signalk-server
+don't have that, and they don't publish a npm-shrinkwrap.json to the NPM registry either.
+Neither do we for node-red-contrib-victron by the way.
+
+So, with all that explained, here is how to make the shrinkwrap file:
+```
+npm shrinkwrap
+```
+
+Careful, that must be done on a repo having a package-lock.json. Which for signalk-server
+and Node-RED means you need to run `npm install --only=prod` before you can make a
+meaningful npm-shrinkwrap.json.
+
+Copy the resulting file into the meta-victronenergy repo.
