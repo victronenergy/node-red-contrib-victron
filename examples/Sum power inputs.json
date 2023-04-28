@@ -64,6 +64,9 @@
                 "value": "Sum inputs",
                 "ui": {
                     "icon": "font-awesome/fa-file-text-o",
+                    "label": {
+                        "en-US": "Topic"
+                    },
                     "type": "input",
                     "opts": {
                         "types": [
