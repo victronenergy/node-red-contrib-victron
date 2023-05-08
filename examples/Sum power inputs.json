@@ -3,7 +3,7 @@
         "id": "ef206fcd63fc785c",
         "type": "subflow",
         "name": "Sum inputs",
-        "info": "Subflow that can be used for totalizing\ndifferint inputs. A use case can be if\nyou want to show the total of three\ninput phases.\n\n# description\n\nA typical input is linking three phases\nof power to the input, all with its own\ntopic.\n\nThe inputs are cached, based on `msg.topic`\nand are summed as output.\n\nThe output rate defaults to once per 5\nseconds, but that can be changed in the _edit\npanel_. Note that you cannot output faster\nthan the inputs get injected.\n\nIf you check the _Show only changed values_\ncheckbox, only values that are different than\nthe previous sum will be outputted.\n\n\n# cache\n\nIf you want to delete a value from the\ncache, you can input a message\nwith the `msg.payload` set to `delete`\nand the `msg.topic` send to the item\nthat you want to delete.",
+        "info": "Subflow that can be used for totalizing\ndifferint inputs. A use case can be if\nyou want to show the total of three\ninput phases.\n\n# description\n\nA typical input is linking three phases\nof power to the input, all with its own\ntopic.\n\nThe inputs are cached, based on `msg.topic`\nand are summed as output.\n\n# configuration\n\nThe output _rate_ defaults to once per 5\nseconds, but that can be changed in the _edit\npanel_. Note that you cannot output faster\nthan the inputs get injected.\n\nIf you check the _Show only changed values_\ncheckbox, only values that are different than\nthe previous sum will be outputted.\n\nThe _expected_ is the number of inputs with different\ntopics that need to be seen before the node starts outputting data. If set to `0`, this field is ignored\nand output is send on first input.\n\nThe _topic_ can be used to set the topic.\n\n# cache\n\nIf you want to delete a value from the\ncache, you can input a message\nwith the `msg.payload` set to `delete`\nand the `msg.topic` send to the item\nthat you want to delete.",
         "category": "",
         "in": [
             {
@@ -57,11 +57,45 @@
                     },
                     "type": "checkbox"
                 }
+            },
+            {
+                "name": "topic",
+                "type": "str",
+                "value": "Sum inputs",
+                "ui": {
+                    "icon": "font-awesome/fa-file-text-o",
+                    "label": {
+                        "en-US": "Topic"
+                    },
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "str"
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "expected",
+                "type": "num",
+                "value": "3",
+                "ui": {
+                    "icon": "font-awesome/fa-bullseye",
+                    "label": {
+                        "en-US": "Expected inputs"
+                    },
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "num"
+                        ]
+                    }
+                }
             }
         ],
         "meta": {
             "module": "Total (grid)",
-            "version": "0.0.1",
+            "version": "0.0.2",
             "author": "Dirk-Jan Faber <dfaber@victronenergy.com>",
             "desc": "Totals the inputs, based on different msg.topic strings",
             "keywords": "total, grid power",
@@ -74,7 +108,7 @@
         "type": "function",
         "z": "ef206fcd63fc785c",
         "name": "Sum inputs on topic",
-        "func": "let stored = flow.get(node.id+'stored') || {}\nlet previousSum = flow.get(node.id+'previousSum')\n\nif (Number(msg.payload)) {\n    stored[msg.topic] = msg.payload\n} else {\n    if (msg.payload === 'delete' && stored[msg.topic]) {\n        delete stored[msg.topic]\n    }\n}\n\nflow.set(node.id+'stored', stored)\nmsg.payload = Object.keys(stored).reduce((sum, key) => sum + parseFloat(stored[key] || 0), 0);\nif (env.get('onlychanges') && ( previousSum === msg.payload )) {\n    return\n}\nflow.set(node.id+'previousSum', msg.payload)\nmsg.rate = (Number(env.get('rate')) || 5) * 1000 \n\nreturn msg;",
+        "func": "let stored = flow.get(node.id+'stored') || {}\nlet previousSum = flow.get(node.id+'previousSum')\n\nif (Number(msg.payload)) {\n    stored[msg.topic] = msg.payload\n} else {\n    if (msg.payload === 'delete' && stored[msg.topic]) {\n        delete stored[msg.topic]\n    }\n}\n\nflow.set(node.id+'stored', stored)\nmsg.payload = Object.keys(stored).reduce((sum, key) => sum + parseFloat(stored[key] || 0), 0);\nif (env.get('onlychanges') && ( previousSum === msg.payload )) {\n    return\n}\nflow.set(node.id+'previousSum', msg.payload)\nmsg.rate = (Number(env.get('rate')) || 5) * 1000 \n\nmsg.topic = env.get('topic')\n\nif (env.get('expected') > 0 && Object.keys(stored).length < env.get('expected')) {\n    return\n}\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -112,9 +146,17 @@
         ]
     },
     {
+        "id": "f58786176192b1b7",
+        "type": "tab",
+        "label": "Flow 3",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
         "id": "eb8bf3be4bd80ae7",
         "type": "subflow:ef206fcd63fc785c",
-        "z": "b6fe2e445e340263",
+        "z": "f58786176192b1b7",
         "name": "",
         "env": [
             {
@@ -124,7 +166,7 @@
             }
         ],
         "x": 630,
-        "y": 220,
+        "y": 260,
         "wires": [
             [
                 "61de96920fc889e1"
@@ -134,7 +176,7 @@
     {
         "id": "61de96920fc889e1",
         "type": "debug",
-        "z": "b6fe2e445e340263",
+        "z": "f58786176192b1b7",
         "name": "Total grid power",
         "active": true,
         "tosidebar": true,
@@ -144,14 +186,14 @@
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 820,
-        "y": 220,
+        "x": 840,
+        "y": 260,
         "wires": []
     },
     {
-        "id": "edc90db6c254ba7b",
+        "id": "a74e729465f1468e",
         "type": "victron-input-system",
-        "z": "b6fe2e445e340263",
+        "z": "f58786176192b1b7",
         "service": "com.victronenergy.system/0",
         "path": "/Ac/Grid/L1/Power",
         "serviceObj": {
@@ -165,8 +207,8 @@
         },
         "name": "",
         "onlyChanges": false,
-        "x": 320,
-        "y": 160,
+        "x": 370,
+        "y": 200,
         "wires": [
             [
                 "eb8bf3be4bd80ae7"
@@ -174,9 +216,9 @@
         ]
     },
     {
-        "id": "5a50bc5468376db0",
+        "id": "0559245366f6d5a4",
         "type": "victron-input-system",
-        "z": "b6fe2e445e340263",
+        "z": "f58786176192b1b7",
         "service": "com.victronenergy.system/0",
         "path": "/Ac/Grid/L2/Power",
         "serviceObj": {
@@ -190,8 +232,8 @@
         },
         "name": "",
         "onlyChanges": false,
-        "x": 320,
-        "y": 220,
+        "x": 370,
+        "y": 260,
         "wires": [
             [
                 "eb8bf3be4bd80ae7"
@@ -199,9 +241,9 @@
         ]
     },
     {
-        "id": "6c8388c891b9cf8f",
+        "id": "74a545740f24ba3f",
         "type": "victron-input-system",
-        "z": "b6fe2e445e340263",
+        "z": "f58786176192b1b7",
         "service": "com.victronenergy.system/0",
         "path": "/Ac/Grid/L3/Power",
         "serviceObj": {
@@ -215,8 +257,8 @@
         },
         "name": "",
         "onlyChanges": false,
-        "x": 320,
-        "y": 280,
+        "x": 370,
+        "y": 320,
         "wires": [
             [
                 "eb8bf3be4bd80ae7"
