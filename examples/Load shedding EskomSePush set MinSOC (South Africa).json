@@ -1,0 +1,344 @@
+[
+    {
+        "id": "854cb9223eb1d95f",
+        "type": "eskomsepush",
+        "z": "7095b9db2dd9e047",
+        "name": "",
+        "licensekey": "",
+        "area": "capetown-3-helderbergvillage",
+        "statusselect": "capetown",
+        "test": false,
+        "x": 250,
+        "y": 220,
+        "wires": [
+            [
+                "685df7425884177e"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "685df7425884177e",
+        "type": "switch",
+        "z": "7095b9db2dd9e047",
+        "name": "Stage",
+        "property": "stage",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "2",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "3",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "4",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "5",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "6",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "7",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "8",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 9,
+        "x": 430,
+        "y": 220,
+        "wires": [
+            [
+                "d52bbef6b535646e"
+            ],
+            [
+                "d52bbef6b535646e"
+            ],
+            [
+                "9a6d3dab537b880f"
+            ],
+            [
+                "f1c3df4e680f41a6"
+            ],
+            [
+                "02a4b5afeb44828f"
+            ],
+            [
+                "a4c5cec636c88ea4"
+            ],
+            [
+                "a5f3427bd40f7aa1"
+            ],
+            [
+                "a5f3427bd40f7aa1"
+            ],
+            [
+                "c80133f055cc326a"
+            ]
+        ],
+        "inputLabels": [
+            "EskomSePush API"
+        ],
+        "outputLabels": [
+            "stage 1",
+            "stage 2",
+            "stage 3",
+            "stage 4",
+            "stage 5",
+            "stage 6",
+            "stage 7",
+            "stage 8",
+            "otherwise"
+        ]
+    },
+    {
+        "id": "9a6d3dab537b880f",
+        "type": "change",
+        "z": "7095b9db2dd9e047",
+        "name": "60%",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "60",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 610,
+        "y": 140,
+        "wires": [
+            [
+                "c7e0a8b8221196b2"
+            ]
+        ]
+    },
+    {
+        "id": "02a4b5afeb44828f",
+        "type": "change",
+        "z": "7095b9db2dd9e047",
+        "name": "80%",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "80",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 610,
+        "y": 220,
+        "wires": [
+            [
+                "c7e0a8b8221196b2"
+            ]
+        ]
+    },
+    {
+        "id": "a5f3427bd40f7aa1",
+        "type": "change",
+        "z": "7095b9db2dd9e047",
+        "name": "100%",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "100",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 610,
+        "y": 300,
+        "wires": [
+            [
+                "c7e0a8b8221196b2"
+            ]
+        ]
+    },
+    {
+        "id": "d811aee571fa6d6b",
+        "type": "victron-output-settings",
+        "z": "7095b9db2dd9e047",
+        "service": "com.victronenergy.settings",
+        "path": "/Settings/CGwacs/BatteryLife/MinimumSocLimit",
+        "serviceObj": {
+            "service": "com.victronenergy.settings",
+            "name": "Venus settings"
+        },
+        "pathObj": {
+            "path": "/Settings/CGwacs/BatteryLife/MinimumSocLimit",
+            "type": "float",
+            "name": "ESS Minimum SoC (unless grid fails) (%)",
+            "writable": true
+        },
+        "name": "",
+        "onlyChanges": false,
+        "x": 1030,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "a4c5cec636c88ea4",
+        "type": "change",
+        "z": "7095b9db2dd9e047",
+        "name": "90%",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "90",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 610,
+        "y": 260,
+        "wires": [
+            [
+                "c7e0a8b8221196b2"
+            ]
+        ]
+    },
+    {
+        "id": "f1c3df4e680f41a6",
+        "type": "change",
+        "z": "7095b9db2dd9e047",
+        "name": "70%",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "70",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 610,
+        "y": 180,
+        "wires": [
+            [
+                "c7e0a8b8221196b2"
+            ]
+        ]
+    },
+    {
+        "id": "d52bbef6b535646e",
+        "type": "change",
+        "z": "7095b9db2dd9e047",
+        "name": "50%",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "50",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 610,
+        "y": 100,
+        "wires": [
+            [
+                "c7e0a8b8221196b2"
+            ]
+        ]
+    },
+    {
+        "id": "c80133f055cc326a",
+        "type": "change",
+        "z": "7095b9db2dd9e047",
+        "name": "30%",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "30",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 610,
+        "y": 340,
+        "wires": [
+            [
+                "c7e0a8b8221196b2"
+            ]
+        ]
+    },
+    {
+        "id": "c7e0a8b8221196b2",
+        "type": "junction",
+        "z": "7095b9db2dd9e047",
+        "x": 760,
+        "y": 200,
+        "wires": [
+            [
+                "d811aee571fa6d6b"
+            ]
+        ]
+    }
+]
