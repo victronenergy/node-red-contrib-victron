@@ -167,7 +167,7 @@
                 $('#initial-row').hide();
                 initialValueElem.val(null);
             }
-            if (typeof pathData !== 'undefined' && pathData.type === 'float') {
+            if (typeof pathData !== 'undefined' && pathData.type === 'float' && !isOutputNode) {
                 $('#roundValues').show()
             } else {
                 $('#roundValues').hide()
