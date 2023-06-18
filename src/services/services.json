@@ -470,7 +470,7 @@
       {
         "path": "/Alarms/InternalFailure",
         "type": "enum",
-        "name": "Internal error alarm",
+        "name": "Internal failure",
         "enum": {
           "0": "No alarm",
           "1": "Warning",
