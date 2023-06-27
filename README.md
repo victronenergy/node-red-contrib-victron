@@ -130,7 +130,14 @@ node-red plugin:
 1. install node-red on your system
 2. cd to the node-red user directory, typically `~/.node-red`
 3. install node-red-contrib-victron locally, `npm install @victronenergy/node-red-contrib-victron`
-4. enable d-bus over tcp in your Venus device **if you want to use dbus over TCP**, otherwise skip this step. Edit `/etc/dbus-1/system.conf` and add the following directly above `<policy context="default">`:
+4. enable d-bus over tcp in your Venus device **if you want to use dbus over TCP**, otherwise skip this step.
+
+Set the dbus service `com.victronenergy.settings`, path: `/Settings/Services/InsecureDbusOverTcp` to
+`1`:
+`dbus -y com.victronenergy.settings /Settings/Services/InsecureDbusOverTcp SetValue 1` and reboot
+the Cerbo (the dbus needs to be restarted)
+
+The old way was to edit `/etc/dbus-1/system.conf` and add the following directly above `<policy context="default">`:
 
 ```
   <listen>tcp:host=0.0.0.0,port=78</listen>
