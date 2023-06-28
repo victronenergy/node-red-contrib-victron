@@ -3937,7 +3937,7 @@
     ]
   },
   "input-system": {
-    "help": "<p>This input node takes is for retrieving information from the <tt>com.victronenergy.system</tt> dbus path.</p>",
+    "help": "<p>This input node is for retrieving information from the <tt>com.victronenergy.system</tt> dbus path.</p>",
     "system": [
       {
         "path": "/Ac/ActiveIn/Source",
