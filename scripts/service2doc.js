@@ -105,14 +105,7 @@ searchLabelInfo(registerHTML).then(function (labelinfo) {
           oc = true
         }
         show('md', '## ' + labelinfo[k])
-        show('nodered', '<h3>Details</h3>')
-        if (/input-/.test(k)) {
-          show('nodered', '<p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>The measurement unit type is shown in the measurement label in brackets, e.g. Battery voltage (V). In case the data type is enumerated, an approppriate enum legend is shown below the selected option.</p>')
-          show('nodered', '<p>If the data type is <em>float</em>, a dropdown for rounding the output appears.</p>')
-          show('nodered', '<p>By default the node outputs its value every five seconds. If the <em>only changes</em> is checked, the node will only output on value changes.</p>')
-        } else {
-          show('nodered', '<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> ')
-        }
+
 
         Object.keys(services[k]).forEach(function (v) {
           if (v === 'help') {
@@ -134,7 +127,7 @@ searchLabelInfo(registerHTML).then(function (labelinfo) {
               show('nodered', '<ul>')
               Object.keys(services[k][v][p].enum).forEach(function (e) {
                 if (services[k][v][p].enum[e]) {
-                  show('nodered', '  <li>' + e + ' - ' + services[k][v][p].enum[e] + '</li>')
+                  show('nodered', '  <li><tt>' + e + '</tt> - ' + services[k][v][p].enum[e] + '</li>')
                   show('md', '  - ' + e + ' - ' + services[k][v][p].enum[e])
                 }
               })
@@ -149,6 +142,14 @@ searchLabelInfo(registerHTML).then(function (labelinfo) {
           })
           show('nodered', '</dl>')
         })
+        show('nodered', '<h3>Details</h3>')
+        if (/input-/.test(k)) {
+          show('nodered', '<p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>The measurement unit type is shown in the measurement label in brackets, e.g. Battery voltage (V). In case the data type is enumerated, an approppriate enum legend is shown below the selected option.</p>')
+          show('nodered', '<p>If the data type is <em>float</em>, a dropdown for rounding the output appears.</p>')
+          show('nodered', '<p>By default the node outputs its value every five seconds. If the <em>only changes</em> is checked, the node will only output on value changes.</p>')
+        } else {
+          show('nodered', '<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> ')
+        }
         show('nodered', '</script>\n')
         show('md', '\n')
       })
