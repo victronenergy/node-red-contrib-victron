@@ -3951,6 +3951,37 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Minimum Discharge SOC (%)<span class="property-type">integer</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/MinimumSocLimit</b>
 </dd>
+  <dt class="optional">Schedule (0) Self-consumption above limit<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/0/AllowDischarge</b>
+<ul>
+  <li>0 - Yes</li>
+  <li>1 - No</li>
+</ul>
+</dd>
+  <dt class="optional">Schedule (0) Day<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Day</b>
+<ul>
+  <li>0 - Every day</li>
+  <li>1 - Monday</li>
+  <li>2 - Tuesday</li>
+  <li>3 - Wednesday</li>
+  <li>4 - Thursday</li>
+  <li>5 - Friday</li>
+  <li>6 - Saturday</li>
+  <li>7 - Sunday</li>
+  <li>8 - Weekdays</li>
+  <li>9 - Weekends</li>
+</ul>
+</dd>
+  <dt class="optional">Schedule (0) Duration (seconds)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Duration</b>
+</dd>
+  <dt class="optional">Schedule (0) State of charge (%)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Soc</b>
+</dd>
+  <dt class="optional">Schedule (0) Start (seconds after midnight)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Start</b>
+</dd>
   <dt class="optional">ESS state<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b>
 <ul>
