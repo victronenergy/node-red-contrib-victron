@@ -5110,6 +5110,236 @@
         "writable": true
       },
       {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/0/AllowDischarge",
+        "type": "enum",
+        "name": "Schedule 1: Self-consumption above limit",
+        "enum": {
+          "0": "Yes",
+          "1": "No"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Day",
+        "type": "enum",
+        "name": "Schedule 1: Day",
+        "enum": {
+          "0": "Sunday",
+          "1": "Monday",
+          "2": "Tuesday",
+          "3": "Wednesday",
+          "4": "Thursday",
+          "5": "Friday",
+          "6": "Saturday",
+          "7": "Every day",
+          "8": "Weekdays",
+          "9": "Weekends"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Duration",
+        "type": "integer",
+        "name": "Schedule 1: Duration (seconds)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Soc",
+        "type": "integer",
+        "name": "Schedule 1: State of charge (%)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Start",
+        "type": "integer",
+        "name": "Schedule 1: Start (seconds after midnight)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/1/AllowDischarge",
+        "type": "enum",
+        "name": "Schedule 2: Self-consumption above limit",
+        "enum": {
+          "0": "Yes",
+          "1": "No"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Day",
+        "type": "enum",
+        "name": "Schedule 2: Day",
+        "enum": {
+          "0": "Sunday",
+          "1": "Monday",
+          "2": "Tuesday",
+          "3": "Wednesday",
+          "4": "Thursday",
+          "5": "Friday",
+          "6": "Saturday",
+          "7": "Every day",
+          "8": "Weekdays",
+          "9": "Weekends"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Duration",
+        "type": "integer",
+        "name": "Schedule 2: Duration (seconds)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Soc",
+        "type": "integer",
+        "name": "Schedule 2: State of charge (%)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Start",
+        "type": "integer",
+        "name": "Schedule 2: Start (seconds after midnight)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/2/AllowDischarge",
+        "type": "enum",
+        "name": "Schedule 3: Self-consumption above limit",
+        "enum": {
+          "0": "Yes",
+          "1": "No"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Day",
+        "type": "enum",
+        "name": "Schedule 3: Day",
+        "enum": {
+          "0": "Sunday",
+          "1": "Monday",
+          "2": "Tuesday",
+          "3": "Wednesday",
+          "4": "Thursday",
+          "5": "Friday",
+          "6": "Saturday",
+          "7": "Every day",
+          "8": "Weekdays",
+          "9": "Weekends"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Duration",
+        "type": "integer",
+        "name": "Schedule 3: Duration (seconds)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Soc",
+        "type": "integer",
+        "name": "Schedule 3: State of charge (%)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Start",
+        "type": "integer",
+        "name": "Schedule 3: Start (seconds after midnight)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/3/AllowDischarge",
+        "type": "enum",
+        "name": "Schedule 4: Self-consumption above limit",
+        "enum": {
+          "0": "Yes",
+          "1": "No"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Day",
+        "type": "enum",
+        "name": "Schedule 4: Day",
+        "enum": {
+          "0": "Sunday",
+          "1": "Monday",
+          "2": "Tuesday",
+          "3": "Wednesday",
+          "4": "Thursday",
+          "5": "Friday",
+          "6": "Saturday",
+          "7": "Every day",
+          "8": "Weekdays",
+          "9": "Weekends"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Duration",
+        "type": "integer",
+        "name": "Schedule 4: Duration (seconds)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Soc",
+        "type": "integer",
+        "name": "Schedule 4: State of charge (%)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Start",
+        "type": "integer",
+        "name": "Schedule 4: Start (seconds after midnight)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/4/AllowDischarge",
+        "type": "enum",
+        "name": "Schedule 5: Self-consumption above limit",
+        "enum": {
+          "0": "Yes",
+          "1": "No"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Day",
+        "type": "enum",
+        "name": "Schedule 5: Day",
+        "enum": {
+          "0": "Sunday",
+          "1": "Monday",
+          "2": "Tuesday",
+          "3": "Wednesday",
+          "4": "Thursday",
+          "5": "Friday",
+          "6": "Saturday",
+          "7": "Every day",
+          "8": "Weekdays",
+          "9": "Weekends"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Duration",
+        "type": "integer",
+        "name": "Schedule 5: Duration (seconds)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Soc",
+        "type": "integer",
+        "name": "Schedule 5: State of charge (%)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Start",
+        "type": "integer",
+        "name": "Schedule 5: Start (seconds after midnight)",
+        "writable": true
+      },
+      {
         "path": "/Settings/CGwacs/BatteryLife/State",
         "type": "enum",
         "name": "ESS state",
