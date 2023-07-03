@@ -1243,6 +1243,161 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Minimum Discharge SOC (%)<span class="property-type">integer</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/MinimumSocLimit</b>
 </dd>
+  <dt class="optional">Schedule 1: Self-consumption above limit<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/0/AllowDischarge</b>
+<ul>
+  <li>0 - Yes</li>
+  <li>1 - No</li>
+</ul>
+</dd>
+  <dt class="optional">Schedule 1: Day<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Day</b>
+<ul>
+  <li>0 - Sunday</li>
+  <li>1 - Monday</li>
+  <li>2 - Tuesday</li>
+  <li>3 - Wednesday</li>
+  <li>4 - Thursday</li>
+  <li>5 - Friday</li>
+  <li>6 - Saturday</li>
+  <li>7 - Every day</li>
+  <li>8 - Weekdays</li>
+  <li>9 - Weekends</li>
+</ul>
+</dd>
+  <dt class="optional">Schedule 1: Duration (seconds)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Duration</b>
+</dd>
+  <dt class="optional">Schedule 1: State of charge (%)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Soc</b>
+</dd>
+  <dt class="optional">Schedule 1: Start (seconds after midnight)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Start</b>
+</dd>
+  <dt class="optional">Schedule 2: Self-consumption above limit<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/1/AllowDischarge</b>
+<ul>
+  <li>0 - Yes</li>
+  <li>1 - No</li>
+</ul>
+</dd>
+  <dt class="optional">Schedule 2: Day<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Day</b>
+<ul>
+  <li>0 - Sunday</li>
+  <li>1 - Monday</li>
+  <li>2 - Tuesday</li>
+  <li>3 - Wednesday</li>
+  <li>4 - Thursday</li>
+  <li>5 - Friday</li>
+  <li>6 - Saturday</li>
+  <li>7 - Every day</li>
+  <li>8 - Weekdays</li>
+  <li>9 - Weekends</li>
+</ul>
+</dd>
+  <dt class="optional">Schedule 2: Duration (seconds)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Duration</b>
+</dd>
+  <dt class="optional">Schedule 2: State of charge (%)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Soc</b>
+</dd>
+  <dt class="optional">Schedule 2: Start (seconds after midnight)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Start</b>
+</dd>
+  <dt class="optional">Schedule 3: Self-consumption above limit<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/2/AllowDischarge</b>
+<ul>
+  <li>0 - Yes</li>
+  <li>1 - No</li>
+</ul>
+</dd>
+  <dt class="optional">Schedule 3: Day<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Day</b>
+<ul>
+  <li>0 - Sunday</li>
+  <li>1 - Monday</li>
+  <li>2 - Tuesday</li>
+  <li>3 - Wednesday</li>
+  <li>4 - Thursday</li>
+  <li>5 - Friday</li>
+  <li>6 - Saturday</li>
+  <li>7 - Every day</li>
+  <li>8 - Weekdays</li>
+  <li>9 - Weekends</li>
+</ul>
+</dd>
+  <dt class="optional">Schedule 3: Duration (seconds)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Duration</b>
+</dd>
+  <dt class="optional">Schedule 3: State of charge (%)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Soc</b>
+</dd>
+  <dt class="optional">Schedule 3: Start (seconds after midnight)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Start</b>
+</dd>
+  <dt class="optional">Schedule 4: Self-consumption above limit<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/3/AllowDischarge</b>
+<ul>
+  <li>0 - Yes</li>
+  <li>1 - No</li>
+</ul>
+</dd>
+  <dt class="optional">Schedule 4: Day<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Day</b>
+<ul>
+  <li>0 - Sunday</li>
+  <li>1 - Monday</li>
+  <li>2 - Tuesday</li>
+  <li>3 - Wednesday</li>
+  <li>4 - Thursday</li>
+  <li>5 - Friday</li>
+  <li>6 - Saturday</li>
+  <li>7 - Every day</li>
+  <li>8 - Weekdays</li>
+  <li>9 - Weekends</li>
+</ul>
+</dd>
+  <dt class="optional">Schedule 4: Duration (seconds)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Duration</b>
+</dd>
+  <dt class="optional">Schedule 4: State of charge (%)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Soc</b>
+</dd>
+  <dt class="optional">Schedule 4: Start (seconds after midnight)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Start</b>
+</dd>
+  <dt class="optional">Schedule 5: Self-consumption above limit<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/4/AllowDischarge</b>
+<ul>
+  <li>0 - Yes</li>
+  <li>1 - No</li>
+</ul>
+</dd>
+  <dt class="optional">Schedule 5: Day<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Day</b>
+<ul>
+  <li>0 - Sunday</li>
+  <li>1 - Monday</li>
+  <li>2 - Tuesday</li>
+  <li>3 - Wednesday</li>
+  <li>4 - Thursday</li>
+  <li>5 - Friday</li>
+  <li>6 - Saturday</li>
+  <li>7 - Every day</li>
+  <li>8 - Weekdays</li>
+  <li>9 - Weekends</li>
+</ul>
+</dd>
+  <dt class="optional">Schedule 5: Duration (seconds)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Duration</b>
+</dd>
+  <dt class="optional">Schedule 5: State of charge (%)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Soc</b>
+</dd>
+  <dt class="optional">Schedule 5: Start (seconds after midnight)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Start</b>
+</dd>
   <dt class="optional">ESS state<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b>
 <ul>
@@ -3951,36 +4106,160 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Minimum Discharge SOC (%)<span class="property-type">integer</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/MinimumSocLimit</b>
 </dd>
-  <dt class="optional">Schedule (0) Self-consumption above limit<span class="property-type">enum</dt>
+  <dt class="optional">Schedule 1: Self-consumption above limit<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/0/AllowDischarge</b>
 <ul>
   <li>0 - Yes</li>
   <li>1 - No</li>
 </ul>
 </dd>
-  <dt class="optional">Schedule (0) Day<span class="property-type">enum</dt>
+  <dt class="optional">Schedule 1: Day<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Day</b>
 <ul>
-  <li>0 - Every day</li>
+  <li>0 - Sunday</li>
   <li>1 - Monday</li>
   <li>2 - Tuesday</li>
   <li>3 - Wednesday</li>
   <li>4 - Thursday</li>
   <li>5 - Friday</li>
   <li>6 - Saturday</li>
-  <li>7 - Sunday</li>
+  <li>7 - Every day</li>
   <li>8 - Weekdays</li>
   <li>9 - Weekends</li>
 </ul>
 </dd>
-  <dt class="optional">Schedule (0) Duration (seconds)<span class="property-type">integer</dt>
+  <dt class="optional">Schedule 1: Duration (seconds)<span class="property-type">integer</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Duration</b>
 </dd>
-  <dt class="optional">Schedule (0) State of charge (%)<span class="property-type">integer</dt>
+  <dt class="optional">Schedule 1: State of charge (%)<span class="property-type">integer</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Soc</b>
 </dd>
-  <dt class="optional">Schedule (0) Start (seconds after midnight)<span class="property-type">integer</dt>
+  <dt class="optional">Schedule 1: Start (seconds after midnight)<span class="property-type">integer</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Start</b>
+</dd>
+  <dt class="optional">Schedule 2: Self-consumption above limit<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/1/AllowDischarge</b>
+<ul>
+  <li>0 - Yes</li>
+  <li>1 - No</li>
+</ul>
+</dd>
+  <dt class="optional">Schedule 2: Day<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Day</b>
+<ul>
+  <li>0 - Sunday</li>
+  <li>1 - Monday</li>
+  <li>2 - Tuesday</li>
+  <li>3 - Wednesday</li>
+  <li>4 - Thursday</li>
+  <li>5 - Friday</li>
+  <li>6 - Saturday</li>
+  <li>7 - Every day</li>
+  <li>8 - Weekdays</li>
+  <li>9 - Weekends</li>
+</ul>
+</dd>
+  <dt class="optional">Schedule 2: Duration (seconds)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Duration</b>
+</dd>
+  <dt class="optional">Schedule 2: State of charge (%)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Soc</b>
+</dd>
+  <dt class="optional">Schedule 2: Start (seconds after midnight)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Start</b>
+</dd>
+  <dt class="optional">Schedule 3: Self-consumption above limit<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/2/AllowDischarge</b>
+<ul>
+  <li>0 - Yes</li>
+  <li>1 - No</li>
+</ul>
+</dd>
+  <dt class="optional">Schedule 3: Day<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Day</b>
+<ul>
+  <li>0 - Sunday</li>
+  <li>1 - Monday</li>
+  <li>2 - Tuesday</li>
+  <li>3 - Wednesday</li>
+  <li>4 - Thursday</li>
+  <li>5 - Friday</li>
+  <li>6 - Saturday</li>
+  <li>7 - Every day</li>
+  <li>8 - Weekdays</li>
+  <li>9 - Weekends</li>
+</ul>
+</dd>
+  <dt class="optional">Schedule 3: Duration (seconds)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Duration</b>
+</dd>
+  <dt class="optional">Schedule 3: State of charge (%)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Soc</b>
+</dd>
+  <dt class="optional">Schedule 3: Start (seconds after midnight)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Start</b>
+</dd>
+  <dt class="optional">Schedule 4: Self-consumption above limit<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/3/AllowDischarge</b>
+<ul>
+  <li>0 - Yes</li>
+  <li>1 - No</li>
+</ul>
+</dd>
+  <dt class="optional">Schedule 4: Day<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Day</b>
+<ul>
+  <li>0 - Sunday</li>
+  <li>1 - Monday</li>
+  <li>2 - Tuesday</li>
+  <li>3 - Wednesday</li>
+  <li>4 - Thursday</li>
+  <li>5 - Friday</li>
+  <li>6 - Saturday</li>
+  <li>7 - Every day</li>
+  <li>8 - Weekdays</li>
+  <li>9 - Weekends</li>
+</ul>
+</dd>
+  <dt class="optional">Schedule 4: Duration (seconds)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Duration</b>
+</dd>
+  <dt class="optional">Schedule 4: State of charge (%)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Soc</b>
+</dd>
+  <dt class="optional">Schedule 4: Start (seconds after midnight)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Start</b>
+</dd>
+  <dt class="optional">Schedule 5: Self-consumption above limit<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/4/AllowDischarge</b>
+<ul>
+  <li>0 - Yes</li>
+  <li>1 - No</li>
+</ul>
+</dd>
+  <dt class="optional">Schedule 5: Day<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Day</b>
+<ul>
+  <li>0 - Sunday</li>
+  <li>1 - Monday</li>
+  <li>2 - Tuesday</li>
+  <li>3 - Wednesday</li>
+  <li>4 - Thursday</li>
+  <li>5 - Friday</li>
+  <li>6 - Saturday</li>
+  <li>7 - Every day</li>
+  <li>8 - Weekdays</li>
+  <li>9 - Weekends</li>
+</ul>
+</dd>
+  <dt class="optional">Schedule 5: Duration (seconds)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Duration</b>
+</dd>
+  <dt class="optional">Schedule 5: State of charge (%)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Soc</b>
+</dd>
+  <dt class="optional">Schedule 5: Start (seconds after midnight)<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Start</b>
 </dd>
   <dt class="optional">ESS state<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b>
