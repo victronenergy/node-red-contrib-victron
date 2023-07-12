@@ -1,7 +1,7 @@
 {
     "name": "@victronenergy/node-red-contrib-victron",
     "description": "Custom Node-RED Nodes for Victron Energy",
-    "version": "1.4.32",
+    "version": "1.4.33",
     "dependencies": {
         "dbus-native": "^0.4.0",
         "debug": "^4.3.4",
@@ -16,10 +16,10 @@
         "version": ">=3.0.2"
     },
     "devDependencies": {
-        "@babel/eslint-parser": "^7.21.3",
+        "@babel/eslint-parser": "^7.22.7",
         "@signalk/github-create-release": "^1.2.1",
-        "csv-parse": "^5.3.6",
-        "eslint": "^8.36.0",
+        "csv-parse": "^5.4.0",
+        "eslint": "^8.44.0",
         "eslint-config-google": "^0.14.0",
         "gar": "^1.0.4"
     },
