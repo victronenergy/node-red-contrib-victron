@@ -43,6 +43,7 @@ module.exports = function (RED) {
       this.defaulttopic = nodeDefinition.serviceObj.name + ' - ' + nodeDefinition.pathObj.name
       this.onlyChanges = nodeDefinition.onlyChanges
       this.roundValues = nodeDefinition.roundValues
+      this.sentInitialValue = false
 
       this.configNode = RED.nodes.getNode('victron-client-id')
       this.client = this.configNode.client
@@ -65,7 +66,7 @@ module.exports = function (RED) {
           if (this.node.name) {
             topic = this.node.name
           }
-          if (this.node.onlyChanges && !msg.changed) {
+          if (this.node.onlyChanges && !msg.changed && this.sentInitialValue) {
             return
           }
           if ((Number(this.node.roundValues) >= 0) && (typeof (msg.value) === 'number')) {
@@ -75,12 +76,16 @@ module.exports = function (RED) {
             payload: msg.value,
             topic
           })
+          if (!this.sentInitialValue) {
+            this.sentInitialValue = true
+          }
         })
       }
 
       this.on('close', function (done) {
         this.node.client.unsubscribe(this.node.subscription)
         this.node.configNode.removeStatusListener(handlerId)
+        this.sentInitialValue = false
         done()
       })
     }
