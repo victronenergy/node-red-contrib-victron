@@ -55,7 +55,7 @@
                 {
                     "path": "/Dc/0/Current",
                     "type": "float",
-                    "name": "Current (A)"
+                    "name": "Battery current (A)"
                 },
                 {
                     "path": "/ConsumedAmphours",
@@ -84,7 +84,7 @@
                 {
                     "path": "/Dc/0/Temperature",
                     "type": "float",
-                    "name": "Battery temperature (C)"
+                    "name": "Battery temperature (°C)"
                 },
                 {
                     "path": "/Dc/0/MidVoltage",
