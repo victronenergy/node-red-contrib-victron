@@ -216,7 +216,7 @@
         "pathObj": {
             "path": "/Dc/0/Voltage",
             "type": "float",
-            "name": "Voltage (V)"
+            "name": "Battery voltage (V)"
         },
         "name": "",
         "onlyChanges": false,
@@ -260,7 +260,7 @@
         "pathObj": {
             "path": "/Dc/0/Voltage",
             "type": "float",
-            "name": "Voltage (V)"
+            "name": "Battery voltage (V)"
         },
         "name": "",
         "onlyChanges": true,
@@ -338,7 +338,7 @@
         "pathObj": {
             "path": "/Dc/0/Voltage",
             "type": "float",
-            "name": "Voltage (V)"
+            "name": "Battery voltage (V)"
         },
         "name": "",
         "onlyChanges": false,

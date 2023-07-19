@@ -44,7 +44,7 @@
       {
         "path": "/Dc/0/Temperature",
         "type": "float",
-        "name": "Output 1 - temperature (C)"
+        "name": "Output 1 - temperature (°C)"
       },
       {
         "path": "/Dc/0/Voltage",
@@ -59,7 +59,7 @@
       {
         "path": "/Dc/1/Temperature",
         "type": "float",
-        "name": "Battery 1 temperature (C)"
+        "name": "Battery 1 temperature (°C)"
       },
       {
         "path": "/Dc/1/Voltage",
@@ -74,7 +74,7 @@
       {
         "path": "/Dc/2/Temperature",
         "type": "float",
-        "name": "Battery 2 temperature (C)"
+        "name": "Battery 2 temperature (°C)"
       },
       {
         "path": "/Dc/2/Voltage",
@@ -279,17 +279,17 @@
       {
         "path": "/Dc/0/Current",
         "type": "float",
-        "name": "Current (A)"
+        "name": "Battery current (A)"
       },
       {
         "path": "/Dc/0/Temperature",
         "type": "float",
-        "name": "Battery temperature (C)"
+        "name": "Battery temperature (°C)"
       },
       {
         "path": "/Dc/0/Voltage",
         "type": "float",
-        "name": "Voltage (V)"
+        "name": "Battery voltage (V)"
       },
       {
         "path": "/Dc/1/Voltage",
@@ -573,7 +573,7 @@
       {
         "path": "/Dc/0/Current",
         "type": "float",
-        "name": "Current (A)"
+        "name": "Battery current (A)"
       },
       {
         "path": "/Dc/0/MidVoltage",
@@ -593,12 +593,12 @@
       {
         "path": "/Dc/0/Temperature",
         "type": "float",
-        "name": "Battery temperature (C)"
+        "name": "Battery temperature (°C)"
       },
       {
         "path": "/Dc/0/Voltage",
         "type": "float",
-        "name": "Voltage (V)"
+        "name": "Battery voltage (V)"
       },
       {
         "path": "/Dc/1/Voltage",
@@ -969,7 +969,7 @@
       {
         "path": "/System/MaxCellTemperature",
         "type": "float",
-        "name": "Maximum cell temperature (Degrees celsius)"
+        "name": "Maximum cell temperature (°C)"
       },
       {
         "path": "/System/MaxCellVoltage",
@@ -989,7 +989,7 @@
       {
         "path": "/System/MinCellTemperature",
         "type": "float",
-        "name": "Minimum cell temperature (Degrees celsius)"
+        "name": "Minimum cell temperature (°C)"
       },
       {
         "path": "/System/MinCellVoltage",
@@ -1108,17 +1108,17 @@
       {
         "path": "/Dc/0/Current",
         "type": "float",
-        "name": "Current (A)"
+        "name": "Battery current (A)"
       },
       {
         "path": "/Dc/0/Temperature",
         "type": "float",
-        "name": "Battery temperature (C)"
+        "name": "Battery temperature (°C)"
       },
       {
         "path": "/Dc/0/Voltage",
         "type": "float",
-        "name": "Voltage (V)"
+        "name": "Battery voltage (V)"
       },
       {
         "path": "/Dc/1/Voltage",
@@ -1201,17 +1201,17 @@
       {
         "path": "/Dc/0/Current",
         "type": "float",
-        "name": "Current (A)"
+        "name": "Battery current (A)"
       },
       {
         "path": "/Dc/0/Temperature",
         "type": "float",
-        "name": "Battery temperature (C)"
+        "name": "Battery temperature (°C)"
       },
       {
         "path": "/Dc/0/Voltage",
         "type": "float",
-        "name": "Voltage (V)"
+        "name": "Battery voltage (V)"
       },
       {
         "path": "/Dc/1/Voltage",
@@ -1305,7 +1305,7 @@
       {
         "path": "/Dc/0/Temperature",
         "type": "float",
-        "name": "Temperature (Degrees celsius)"
+        "name": "Battery temperature (°C)"
       },
       {
         "path": "/Dc/0/Voltage",
@@ -2003,7 +2003,7 @@
       {
         "path": "/Dc/0/Temperature",
         "type": "float",
-        "name": "Temperature (Degrees celsius)"
+        "name": "Battery temperature (°C)"
       },
       {
         "path": "/Dc/0/Voltage",
@@ -2196,12 +2196,12 @@
       {
         "path": "/Engine/CoolantTemperature",
         "type": "float",
-        "name": "Engine coolant temperature (Degrees celsius)"
+        "name": "Engine coolant temperature (°C)"
       },
       {
         "path": "/Engine/ExaustTemperature",
         "type": "float",
-        "name": "Engine exhaust temperature (Degrees celsius)"
+        "name": "Engine exhaust temperature (°C)"
       },
       {
         "path": "/Engine/Load",
@@ -2221,7 +2221,7 @@
       {
         "path": "/Engine/WindingTemperature",
         "type": "float",
-        "name": "Engine winding temperature (Degrees celsius)"
+        "name": "Engine winding temperature (°C)"
       },
       {
         "path": "/ErrorCode",
@@ -2330,7 +2330,7 @@
       {
         "path": "/HeatsinkTemperature",
         "type": "float",
-        "name": "Heatsink temperature (C)"
+        "name": "Heatsink temperature (°C)"
       },
       {
         "path": "/ProductId",
@@ -2813,12 +2813,12 @@
       {
         "path": "/CellTemperature",
         "type": "float",
-        "name": "Sensor cell temperature (C)"
+        "name": "Sensor cell temperature (°C)"
       },
       {
         "path": "/ExternalTemperature",
         "type": "float",
-        "name": "External temperature (C)"
+        "name": "External temperature (°C)"
       },
       {
         "path": "/Irradiance",
@@ -2838,7 +2838,7 @@
       {
         "path": "/Controller/Temperature",
         "type": "float",
-        "name": "Controller Temperature (Degrees celsius)"
+        "name": "Controller Temperature (°C)"
       },
       {
         "path": "/Motor/RPM",
@@ -2848,7 +2848,7 @@
       {
         "path": "/Motor/Temperature",
         "type": "float",
-        "name": "Motor temperature (Degrees celsius)"
+        "name": "Motor temperature (°C)"
       },
       {
         "path": "/Dc/0/Current",
@@ -3115,7 +3115,7 @@
       {
         "path": "/Dc/0/Temperature",
         "type": "float",
-        "name": "Battery temperature (Degrees celsius)"
+        "name": "Battery temperature (°C)"
       },
       {
         "path": "/Dc/0/Voltage",
@@ -3817,17 +3817,17 @@
       {
         "path": "/Dc/0/Current",
         "type": "float",
-        "name": "Current (A)"
+        "name": "Battery current (A)"
       },
       {
         "path": "/Dc/0/Temperature",
         "type": "float",
-        "name": "Battery temperature (C)"
+        "name": "Battery temperature (°C)"
       },
       {
         "path": "/Dc/0/Voltage",
         "type": "float",
-        "name": "Voltage (V)"
+        "name": "Battery voltage (V)"
       },
       {
         "path": "/Equalization/Pending",
@@ -4329,7 +4329,7 @@
       {
         "path": "/Dc/Battery/Temperature",
         "type": "float",
-        "name": "Battery temperature (C)"
+        "name": "Battery temperature (°C)"
       },
       {
         "path": "/Dc/Battery/TimeToGo",
@@ -4521,7 +4521,7 @@
       {
         "path": "/Temperature",
         "type": "float",
-        "name": "Temperature (C)"
+        "name": "Temperature (°C)"
       },
       {
         "path": "/TemperatureType",
@@ -4543,7 +4543,7 @@
       {
         "path": "/Temperature",
         "type": "float",
-        "name": "Temperature (C)"
+        "name": "Temperature (°C)"
       }
     ]
   },
@@ -4962,17 +4962,17 @@
       {
         "path": "/Dc/0/Current",
         "type": "float",
-        "name": "Current (A)"
+        "name": "Battery current (A)"
       },
       {
         "path": "/Dc/0/Temperature",
         "type": "float",
-        "name": "Temperature (C)"
+        "name": "Battery temperature (°C)"
       },
       {
         "path": "/Dc/0/Voltage",
         "type": "float",
-        "name": "Voltage (V)"
+        "name": "Battery voltage (V)"
       },
       {
         "path": "/Energy/AcIn1ToAcOut",
