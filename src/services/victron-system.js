@@ -119,6 +119,43 @@ class SystemConfiguration {
       }, [])
   }
 
+  getCachedServices (nodeName) {
+    const cachedService = _.pickBy(this.cache, (val, key) => key.startsWith('com.victronenergy'))
+    const services = []
+    Object.keys(cachedService).forEach((dbusInterface) => {
+      const cachedPaths = cachedService[dbusInterface]
+      let name = cachedPaths['/CustomName'] ||
+                        cachedPaths['/ProductName']
+      if (!name) {
+        name = dbusInterface.split('/')[0]
+      }
+      if (dbusInterface.split('/')[1]) {
+        name += ' ('+dbusInterface.split('/')[1]+ ')'
+      }
+      let deviceInstance = cachedPaths['/DeviceInstance']
+      if (cachedPaths['/DeviceInstance'] === 0) { deviceInstance = 0 }
+
+      const paths = []
+      for (const path in cachedPaths) {
+        if (cachedPaths[path] || cachedPaths[path] === 0) {
+          paths.push({ path, name: path, type: typeof (cachedPaths[path]) })
+        }
+      }
+      paths.sort((a, b) => a.name > b.name ? 1: -1 )
+
+      services.push(
+        {
+          service: dbusInterface,
+          name,
+          deviceInstance,
+          paths
+        })
+    })
+
+    services.sort((a, b) => a.name > b.name ? 1 : -1)
+    return services
+  }
+
   /**
      * List all currently available services. This list is used to populate the nodes' edit dialog.
      * E.g. if a battery monitor is available, all the given battery monitor services are listed
@@ -176,7 +213,11 @@ class SystemConfiguration {
       'output-relay': this.getRelayServices(),
       'output-settings': this.getNodeServices('output-settings'),
       'output-solarcharger': this.getNodeServices('output-solarcharger'),
-      'output-vebus': this.getNodeServices('output-vebus')
+      'output-vebus': this.getNodeServices('output-vebus'),
+
+      // custom service
+      'input-custom': this.getCachedServices(),
+      'output-custom': this.getCachedServices()
     }
 
     return device !== null

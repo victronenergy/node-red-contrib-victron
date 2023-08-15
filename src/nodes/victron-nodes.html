@@ -1,6 +1,12 @@
 
 <script type="text/template" id="input-edit-template">
     <div class="victron-form">
+        <div class="hidden" id="custominfo">
+            <div class="info-text">
+                Note that there is no guarantee that used services and paths will remain existent with firmware updates for custom nodes.</i>
+            </div>
+            <hr />
+        </div>
         <div class="form-row" id="stored-settings">
             <div class="info-text">
             </div>
@@ -111,7 +117,7 @@
 
     var serviceRoot = (RED.settings.httpNodeRoot || RED.settings.httpAdminRoot || "").replace(/\/$/, "") + '/victron/services/';
 
-    function buildEditPanel(node, serviceUrl, isOutputNode, nodeLabel) {
+    function buildEditPanel(node, serviceUrl, isOutputNode, isCustomNode, nodeLabel) {
         var serviceElem = $('#node-input-service');
         var pathElem = $('#node-input-path');
         var initialValueElem = $('#node-input-initial');
@@ -167,7 +173,7 @@
                 $('#initial-row').hide();
                 initialValueElem.val(null);
             }
-            if (typeof pathData !== 'undefined' && pathData.type === 'float' && !isOutputNode) {
+            if (typeof pathData !== 'undefined' && (pathData.type === 'float' || pathData.type === 'number') && !isOutputNode) {
                 $('#roundValues').show()
             } else {
                 $('#roundValues').hide()
@@ -215,6 +221,12 @@
                 serviceElem.val(node.service);
             }
         };
+
+        if (isCustomNode) {
+            $('#custominfo').show()
+        } else {
+            $('#custominfo').hide()
+        }
 
         // Upon receiving data, populate the edit form
         $.ajax(serviceRoot + serviceUrl, {
@@ -311,7 +323,7 @@
 
     // Creates an input-node config and registers it with
     // the Node-RED Node API
-    function registerNode(nodeType, nodeLabel, serviceType, isOutputNode) {
+    function registerNode(nodeType, nodeLabel, serviceType, isOutputNode, isCustomNode) {
         // Copy the edit form template to the html body
         buildEditForm(nodeType, nodeLabel);
         var nodePaletteLabel = isOutputNode ? nodeLabel + ' Control' : nodeLabel;
@@ -329,7 +341,7 @@
                 "onlyChanges": { value: false },
                 "roundValues": { value: undefined }
             },
-            color: '#4790d0',
+            color: isCustomNode ? "#f7ab3e" : "#4790d0",
             inputs: isOutputNode ? 1 : 0,
             outputs: isOutputNode ? 0 : 1,
             icon: "victronenergy.svg",
@@ -337,7 +349,7 @@
                 return buildNodeLabel(this, nodePaletteLabel);
             },
             oneditprepare: function oneditprepare() {
-                buildEditPanel(this, serviceType, isOutputNode, nodeLabel);
+                buildEditPanel(this, serviceType, isOutputNode, isCustomNode, nodeLabel);
             },
             oneditsave: function oneditsave() {
                 saveEditPanel(this);
@@ -364,11 +376,11 @@
     }
 
     function registerInputNode(nodeType, nodeLabel, serviceType) {
-        registerNode(nodeType, nodeLabel, serviceType, false);
+        registerNode(nodeType, nodeLabel, serviceType, false, false);
     }
 
     function registerOutputNode(nodeType, nodeLabel, serviceType) {
-        registerNode(nodeType, nodeLabel, serviceType, true);
+        registerNode(nodeType, nodeLabel, serviceType, true, false);
     }
 
     registerInputNode('victron-input-accharger', 'AC Charger', 'input-accharger');
@@ -415,6 +427,10 @@
     registerOutputNode('victron-output-settings', 'Settings', 'output-settings');
     registerOutputNode('victron-output-solarcharger', 'Solar Charger', 'output-solarcharger');
     registerOutputNode('victron-output-vebus', 'VE.Bus System', 'output-vebus');
+
+    // Custom input and output nodes:
+    registerNode('victron-input-custom', 'Custom Input', 'input-custom', false, true)
+    registerNode('victron-output-custom', 'Custom', 'output-custom', true, true);
 
 </script>
 

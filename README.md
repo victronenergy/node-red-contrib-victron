@@ -45,7 +45,6 @@ In case the data type is enumerated, an approppriate enum legend is shown below 
 
 Input Nodes have the same options available, but the selectable 'measurement' only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.
 
-
 All output nodes should have the control value set in its incoming message's `msg.payload` property.
 
 ```
@@ -54,6 +53,11 @@ Measurement Select  - lists all available device-specific measurements
 Initial value Input - initializes the device when the flow is deployed
 Node label Input    - sets a custom label for the node
 ```
+
+### Custom Nodes
+
+There are 2 custom nodes. An input and an output node. The input node allow to read from and the output node allows to  write to all found dbus services and paths. This obviously comes with a risk, as not all services and paths are supposed to be written to. So only use the custom output node if you have read the documentation and know what you are doing. Also note that used services and paths might change, so there is no guarantee
+that a node will remain functional after a Venus firmware update.
 
 ![Architecture](documentation/images/edit-relay-output.png)
 
