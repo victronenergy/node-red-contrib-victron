@@ -239,16 +239,16 @@ run npm install. In other words, do this:
 ```
 rm ./package-lock.json ./npm-shrinkwrap.json ./yarn.lock
 rm -rf ./node_modules
-npm install --only=prod
+npm install --omit=dev
 ```
 
 Now, all dependencies are installed as per latest version that is allowed by
-package.json. And also a new package-lock.json with all their version numbers
+`package.json`. And also a new `package-lock.json` with all their version numbers
 and sha-sums is generated as well.
 
-Since package-lock.json is in git, commit it.
+Since `package-lock.json` is in git, commit it.
 
-Note that above only updates the depedencies as allowed per rules definied package.json.
+Note that above only updates the depedencies as allowed per rules definied in `package.json`.
 To really update them, ie. check for newer, possibly breaking versions, something else
 is needed. That can for example easily be checked with
 [npm-check-updates](https://www.npmjs.com/package/npm-check-updates). Here is
