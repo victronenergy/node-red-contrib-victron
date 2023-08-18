@@ -130,7 +130,7 @@ class SystemConfiguration {
         name = dbusInterface.split('/')[0]
       }
       if (dbusInterface.split('/')[1]) {
-        name += ' ('+dbusInterface.split('/')[1]+ ')'
+        name += ' (' + dbusInterface.split('/')[1] + ')'
       }
       let deviceInstance = cachedPaths['/DeviceInstance']
       if (cachedPaths['/DeviceInstance'] === 0) { deviceInstance = 0 }
@@ -141,7 +141,7 @@ class SystemConfiguration {
           paths.push({ path, name: path, type: typeof (cachedPaths[path]) })
         }
       }
-      paths.sort((a, b) => a.name > b.name ? 1: -1 )
+      paths.sort((a, b) => a.name > b.name ? 1 : -1)
 
       services.push(
         {
