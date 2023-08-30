@@ -70,6 +70,7 @@ searchLabelInfo(registerHTML).then(function (labelinfo) {
   show('md', 'You can find more background information on the paths and how to use them [here](https://github.com/victronenergy/venus/wiki/dbus).\n')
   show('md', '**Input nodes:** ' + input.join(', ') + '  ')
   show('md', '**Ouput nodes:** ' + output.join(', ') + '  ')
+  show('md', "If there are services and paths not covered by the above nodes, there are also 2 [custom nodes](#custom-nodes) that allow you to read from and write to all found dbus services and paths.")
 
   fs.readFile(servicesJSON, 'utf8', (err, jsonString) => {
     if (err) {
@@ -151,9 +152,14 @@ searchLabelInfo(registerHTML).then(function (labelinfo) {
         })
         show('nodered', '</script>\n')
         show('md', '\n')
-      })
+     })
+     show('md', '# Custom nodes')
+     show('md', 'The custom nodes also have 2 selectable inputs: the (dbus) service and the (dbus) path.')
+     show('md', 'This obviously comes with a risk, as not all services and paths are supposed to be written to. So only use the custom output node if you have read the documentation and know what you are doing. Also note that used services and paths might change, so there is no guarantee that a node will remain functional after a Venus firmware update.')
+
     } catch (err) {
       console.log('Error parsing JSON string:', err)
     }
   })
+
 })
