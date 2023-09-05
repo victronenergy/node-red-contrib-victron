@@ -1,8 +1,10 @@
 # Custom Victron Energy nodes for Node-RED
 
-This library provides custom Node-RED nodes for some of the most commonly used Victron Energy products. The aim is to make it easier and faster for users to create automations without actually having to touch any of the devices' internals.
+This library provides custom Node-RED nodes for some of the most commonly used Victron Energy products. The aim is to make it easier and faster for users to create automations for and around a Victron system, without actually having to touch any of the devices' internals.
 
-This library is made as part of the "Add Node-RED to Venus OS"-project: which is about adding Nodejs, npm, node-red and more all into the Venus OS images. Manual [here](https://www.victronenergy.com/live/venus-os:large) and issue [here](https://github.com/victronenergy/venus/issues/378).
+This library is usually used as part of [Venus OS Large](https://www.victronenergy.com/live/venus-os:large) where it comes preinstalled, together with Node-RED itself.
+
+It is also possible to use this library when running Node-RED on a separate host.
 
 This library is not officially supported by Victron Energy: don't call our dealers or other support channels for help.
 
@@ -16,7 +18,7 @@ More details in the [instructions](#Installation-and-Usage).
 
 ## Usage and examples
 
-When the Node-RED is started, a Victron Energy configuration node is automatically created, connecting to the dbus in the Venus device. All the node services and measurements can be found on [services.json](/src/services/services.json) and on the [wiki](https://github.com/victronenergy/node-red-contrib-victron/wiki/Available-nodes) -- however only those services and measurements that are available in the system are shown in the node edit panel.
+When Node-RED is started, a Victron Energy configuration node is automatically created, connecting to the dbus in the GX device. All the node services and measurements can be found on [services.json](/src/services/services.json) and on the [wiki](https://github.com/victronenergy/node-red-contrib-victron/wiki/Available-nodes) -- however only those services and measurements that are available in the system are shown in the node edit panel.
 
 ![Architecture](documentation/images/node-palette.png)
 
