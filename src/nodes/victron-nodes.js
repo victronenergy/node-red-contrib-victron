@@ -76,6 +76,9 @@ module.exports = function (RED) {
             payload: msg.value,
             topic
           })
+          if (this.configNode && this.configNode.showValues) {
+            this.node.status({fill: 'green', shape: 'dot', text: msg.value})
+          }
           if (!this.sentInitialValue) {
             this.sentInitialValue = true
           }
@@ -108,7 +111,11 @@ module.exports = function (RED) {
       const handlerId = this.configNode.addStatusListener(this, this.service, this.path)
 
       const setValue = (value) => {
-        if (!this.pathObj.disabled && this.service && this.path) { this.client.publish(this.service, this.path, value) }
+        if (!this.pathObj.disabled && this.service && this.path) { this.client.publish(this.service, this.path, value)
+          if (this.configNode && this.configNode.showValues) {
+            this.node.status({fill: 'green', shape: 'dot', text: value})
+          }
+        }
       }
 
       if (this.initialValue) { setValue(parseInt(this.initialValue)) }

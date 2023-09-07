@@ -5,6 +5,14 @@
 </style>
 
 <script type="text/x-red" data-template-name="victron-client">
+
+  <div class="form-row">
+    <label style="min-width:190px" for="node-config-input-showValues"><i class="fa fa-eye"></i> Show values</label>
+    <input type="checkbox" checked id="node-config-input-showValues" style="max-width:30px">
+    <div class="info-text">
+    Show the last read/written values in the flow instead of "Ok" and "Connected". <br />
+    Note that it will show the last valid received value, even if there is an issue and new data is not being sent.
+  </div>
 </script>
 
 <script type="text/x-red" data-help-name="victron-client">
@@ -48,7 +56,9 @@ Questions can also be asked on the Victron Energy community:
     RED.nodes.registerType('victron-client', {
         category: 'config',
         color: '#a6bbcf',
-        defaults: {},
+        defaults: {
+          showValues: { value: false }
+        },
         label: function label() {
             return "Victron Energy Client";
         },
@@ -59,7 +69,6 @@ Questions can also be asked on the Victron Energy community:
             });
             RED.nodes.dirty(true);
         }
-
     });
 </script>
 

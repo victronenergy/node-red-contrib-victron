@@ -44,6 +44,7 @@ module.exports = function (RED) {
     RED.nodes.createNode(this, config)
 
     this.client = globalClient
+    this.showValues = config.showValues
     let statusListeners = []
 
     /**
