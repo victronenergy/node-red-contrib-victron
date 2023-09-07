@@ -158,10 +158,6 @@ The old way was to edit `/etc/dbus-1/system.conf` and add the following directly
 
 6. you can optionally run the plugin with a DEBUG=* environment variable set, to see additional debug information printed on the shell. E.g. `export DEBUG=node-red-contrib-victron*`
 
-Further information on [nodered.org](https://nodered.org/docs/creating-nodes/first-node) and
-[this other project that requires the same mod](https://github.com/sbender9/signalk-venus-plugin#plugin-installation--configuration).
-
-
 ## Generating the node specification file (developers)
 
 All the nodes use a manually generated [services.json](/src/services/services.json) file to figure out what dbus services and paths to expose to the end-user. This file is used to e.g. render the labels to the 'Select measurement' dropdowns in node-RED's edit view. Please note, that this file is not a full representation of all available dbus paths -- rather, a subset of services and paths that the node-red nodes actually use.
