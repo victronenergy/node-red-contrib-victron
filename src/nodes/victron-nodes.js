@@ -71,13 +71,17 @@ module.exports = function (RED) {
           }
           if ((Number(this.node.roundValues) >= 0) && (typeof (msg.value) === 'number')) {
             msg.value = +msg.value.toFixed(this.node.roundValues)
+            if (this.node.onlyChanges && this.node.previousvalue === msg.value) {
+              return
+            }
           }
+          this.node.previousvalue = msg.value
           this.node.send({
             payload: msg.value,
             topic
           })
           if (this.configNode && this.configNode.showValues) {
-            this.node.status({fill: 'green', shape: 'dot', text: msg.value})
+            this.node.status({ fill: 'green', shape: 'dot', text: msg.value })
           }
           if (!this.sentInitialValue) {
             this.sentInitialValue = true
@@ -111,9 +115,10 @@ module.exports = function (RED) {
       const handlerId = this.configNode.addStatusListener(this, this.service, this.path)
 
       const setValue = (value) => {
-        if (!this.pathObj.disabled && this.service && this.path) { this.client.publish(this.service, this.path, value)
+        if (!this.pathObj.disabled && this.service && this.path) {
+          this.client.publish(this.service, this.path, value)
           if (this.configNode && this.configNode.showValues) {
-            this.node.status({fill: 'green', shape: 'dot', text: value})
+            this.node.status({ fill: 'green', shape: 'dot', text: value })
           }
         }
       }
