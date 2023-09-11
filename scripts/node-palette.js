@@ -4,12 +4,12 @@
   Uses the services file as a basis to generate a node-palette flow,
   which is used for making a screenshot for the README.
   usage:
-  node vcflows.js -s ../src/services/services.json  > ~/git/node-red-contrib-victron/documentation/node-palette.json
+  node node-palette.js -s ../src/services/services.json  > ~/git/node-red-contrib-victron/documentation/node-palette.json
 
   and then, using curl:
   curl -k -X POST https://192.168.4.66:1881/flow -H 'content-type: application/json' -d @documentation/node-palette.json
 
-  after which you can take your favorite screenshot to to grab the flow.
+  after which you can take your favorite screenshot application to to grab the flow.
 */
 
 const fs = require('fs')
@@ -43,7 +43,20 @@ output.nodes.push({ type: 'comment', name: 'Output nodes', id: output.id + 11, x
 let i = 1
 let p, x, y
 
+let nodes = []
+
 for (const [node] of Object.entries(services)) {
+  if (node.match(/^output-/) && p.match(/^input-/)) {
+    nodes.push('input-custom')
+    nodes.push(node)
+  } else {
+    nodes.push(node)
+  }
+  p = node
+}
+nodes.push('output-custom')
+
+for (const node of nodes) {
   if (node.match(/^output-/) && p.match(/^input-/)) {
     i = 37
   }
