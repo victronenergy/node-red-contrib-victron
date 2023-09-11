@@ -43,7 +43,7 @@ output.nodes.push({ type: 'comment', name: 'Output nodes', id: output.id + 11, x
 let i = 1
 let p, x, y
 
-let nodes = []
+const nodes = []
 
 for (const [node] of Object.entries(services)) {
   if (node.match(/^output-/) && p.match(/^input-/)) {
