@@ -71,9 +71,9 @@ module.exports = function (RED) {
           }
           if ((Number(this.node.roundValues) >= 0) && (typeof (msg.value) === 'number')) {
             msg.value = +msg.value.toFixed(this.node.roundValues)
-            if (this.node.onlyChanges && this.node.previousvalue === msg.value) {
-              return
-            }
+          }
+          if (this.node.onlyChanges && this.node.previousvalue === msg.value) {
+            return
           }
           this.node.previousvalue = msg.value
           this.node.send({
