@@ -1701,6 +1701,13 @@ Questions can also be asked on the Victron Energy community:
 <p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the (remote) console first.<br />Also see <a href="https://github.com/victronenergy/venus/wiki/dbus#generator-data">here</a> for more information.</p>
 <h3>Generator</h3>
 <dl class="message-properties">
+  <dt class="optional">Generator not detected at AC input alarm<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Alarms/NoGeneratorAtAcIn</b>
+<ul>
+  <li>0 - No alarm</li>
+  <li>2 - Alarm</li>
+</ul>
+</dd>
   <dt class="optional">Auto start enabled/disabled<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/AutoStartEnabled</b>
 <ul>
@@ -1708,11 +1715,26 @@ Questions can also be asked on the Victron Energy community:
   <li>1 - Autostart enabled</li>
 </ul>
 </dd>
+  <dt class="optional">Generator remote error<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Error</b>
+<ul>
+  <li>0 - No Error</li>
+  <li>1 - Remote disabled</li>
+  <li>2 - Remote fault</li>
+</ul>
+</dd>
   <dt class="optional">Manual Start<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/ManualStart</b>
 <ul>
   <li>0 - Stop generator</li>
   <li>1 - Start generator</li>
+</ul>
+</dd>
+  <dt class="optional">Quiet hours active<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/QuietHours</b>
+<ul>
+  <li>0 - Quiet hours inactive</li>
+  <li>1 - Quiet hours active</li>
 </ul>
 </dd>
   <dt class="optional">Condition that started the generator<span class="property-type">enum</dt>
@@ -1734,12 +1756,8 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Runtime in seconds (seconds)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Runtime</b>
 </dd>
-  <dt class="optional">Quiet hours active<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/QuietHours</b>
-<ul>
-  <li>0 - Quiet hours inactive</li>
-  <li>1 - Quiet hours active</li>
-</ul>
+  <dt class="optional">Service countdown counter (seconds until next generator service)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/ServiceCounter</b>
 </dd>
   <dt class="optional">Generator start/stop state<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/State</b>
@@ -1747,21 +1765,6 @@ Questions can also be asked on the Victron Energy community:
   <li>0 - Stopped</li>
   <li>1 - Running</li>
   <li>10 - Error</li>
-</ul>
-</dd>
-  <dt class="optional">Generator remote error<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Error</b>
-<ul>
-  <li>0 - No Error</li>
-  <li>1 - Remote disabled</li>
-  <li>2 - Remote fault</li>
-</ul>
-</dd>
-  <dt class="optional">Generator not detected at AC input alarm<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Alarms/NoGeneratorAtAcIn</b>
-<ul>
-  <li>0 - No alarm</li>
-  <li>2 - Alarm</li>
 </ul>
 </dd>
 </dl>
@@ -1835,6 +1838,9 @@ Questions can also be asked on the Victron Energy community:
 </dd>
   <dt class="optional">Engine load (%)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Engine/Load</b>
+</dd>
+  <dt class="optional">Oil pressure (kPa)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Engine/OilPressure</b>
 </dd>
   <dt class="optional">Engine operating hours (s)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Engine/OperatingHours</b>
@@ -2244,11 +2250,29 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Inverter model<span class="property-type">float</dt>
   <dd>Dbus path: <b>/ProductId</b>
 </dd>
+  <dt class="optional">MPP operation mode tracker 1<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Pv/0/MppOperationMode</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - Voltage/current limited</li>
+  <li>2 - MPPT active</li>
+  <li>255 - Not available</li>
+</ul>
+</dd>
   <dt class="optional">PV power for tracker 0 (W)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/0/P</b>
 </dd>
   <dt class="optional">PV voltage for tracker 0 (V DC)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/0/V</b>
+</dd>
+  <dt class="optional">MPP operation mode tracker 2<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Pv/1/MppOperationMode</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - Voltage/current limited</li>
+  <li>2 - MPPT active</li>
+  <li>255 - Not available</li>
+</ul>
 </dd>
   <dt class="optional">PV power for tracker 1 (W)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/1/P</b>
@@ -2256,11 +2280,29 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">PV voltage for tracker 1 (V DC)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/1/V</b>
 </dd>
+  <dt class="optional">MPP operation mode tracker 3<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Pv/2/MppOperationMode</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - Voltage/current limited</li>
+  <li>2 - MPPT active</li>
+  <li>255 - Not available</li>
+</ul>
+</dd>
   <dt class="optional">PV power for tracker 2 (W)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/2/P</b>
 </dd>
   <dt class="optional">PV voltage for tracker 2 (V DC)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/2/V</b>
+</dd>
+  <dt class="optional">MPP operation mode tracker 4<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Pv/3/MppOperationMode</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - Voltage/current limited</li>
+  <li>2 - MPPT active</li>
+  <li>255 - Not available</li>
+</ul>
 </dd>
   <dt class="optional">PV power for tracker 3 (W)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/3/P</b>
@@ -2303,6 +2345,9 @@ Questions can also be asked on the Victron Energy community:
 </dd>
   <dt class="optional">External temperature (°C)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/ExternalTemperature</b>
+</dd>
+  <dt class="optional">External temperature – second sensor (Degrees celsius)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/ExternalTemperature2</b>
 </dd>
   <dt class="optional">Solar Irradiance (W/m^2)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Irradiance</b>
@@ -2659,11 +2704,29 @@ Questions can also be asked on the Victron Energy community:
   <li>255 - Not available</li>
 </ul>
 </dd>
+  <dt class="optional">MPP operation mode tracker 1<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Pv/0/MppOperationMode</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - Voltage/current limited</li>
+  <li>2 - MPPT active</li>
+  <li>255 - Not available</li>
+</ul>
+</dd>
   <dt class="optional">PV power for tracker 0 (W)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/0/P</b>
 </dd>
   <dt class="optional">PV voltage for tracker 0 (V DC)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/0/V</b>
+</dd>
+  <dt class="optional">MPP operation mode tracker 2<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Pv/1/MppOperationMode</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - Voltage/current limited</li>
+  <li>2 - MPPT active</li>
+  <li>255 - Not available</li>
+</ul>
 </dd>
   <dt class="optional">PV power for tracker 1 (W)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/1/P</b>
@@ -2671,11 +2734,29 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">PV voltage for tracker 1 (V DC)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/1/V</b>
 </dd>
+  <dt class="optional">MPP operation mode tracker 3<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Pv/2/MppOperationMode</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - Voltage/current limited</li>
+  <li>2 - MPPT active</li>
+  <li>255 - Not available</li>
+</ul>
+</dd>
   <dt class="optional">PV power for tracker 2 (W)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/2/P</b>
 </dd>
   <dt class="optional">PV voltage for tracker 2 (V DC)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/2/V</b>
+</dd>
+  <dt class="optional">MPP operation mode tracker 4<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Pv/3/MppOperationMode</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - Voltage/current limited</li>
+  <li>2 - MPPT active</li>
+  <li>255 - Not available</li>
+</ul>
 </dd>
   <dt class="optional">PV power for tracker 3 (W)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/3/P</b>
@@ -3002,6 +3083,9 @@ Questions can also be asked on the Victron Energy community:
   <dd>Dbus path: <b>/Settings/CGwacs/MaxFeedInPower</b>
 <ul><li>-1: No limit</li><li> &gt;=0: limited system feed-in</li></ul><p>Applies to DC-coupled and AC-coupled feed-in.</p>
 </dd>
+  <dt class="optional">ESS BatteryLife SoC limit (read only) (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/SocLimit</b>
+</dd>
   <dt class="optional">AC input 1 source (for VE.Bus inverter/chargers)<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/SystemSetup/AcInput1</b>
 <ul>
@@ -3247,11 +3331,29 @@ Questions can also be asked on the Victron Energy community:
   <li>255 - Not available</li>
 </ul>
 </dd>
+  <dt class="optional">MPP operation mode tracker 1<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Pv/0/MppOperationMode</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - Voltage/current limited</li>
+  <li>2 - MPPT active</li>
+  <li>255 - Not available</li>
+</ul>
+</dd>
   <dt class="optional">Tracker 1 power<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/0/P</b>
 </dd>
   <dt class="optional">Tracker 1 voltage<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/0/V</b>
+</dd>
+  <dt class="optional">MPP operation mode tracker 2<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Pv/1/MppOperationMode</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - Voltage/current limited</li>
+  <li>2 - MPPT active</li>
+  <li>255 - Not available</li>
+</ul>
 </dd>
   <dt class="optional">Tracker 2 power<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/1/P</b>
@@ -3259,11 +3361,29 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Tracker 2 voltage<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/1/V</b>
 </dd>
+  <dt class="optional">MPP operation mode tracker 3<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Pv/2/MppOperationMode</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - Voltage/current limited</li>
+  <li>2 - MPPT active</li>
+  <li>255 - Not available</li>
+</ul>
+</dd>
   <dt class="optional">Tracker 3 power<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/2/P</b>
 </dd>
   <dt class="optional">Tracker 3 voltage<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/2/V</b>
+</dd>
+  <dt class="optional">MPP operation mode tracker 4<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Pv/3/MppOperationMode</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - Voltage/current limited</li>
+  <li>2 - MPPT active</li>
+  <li>255 - Not available</li>
+</ul>
 </dd>
   <dt class="optional">Tracker 4 power<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Pv/3/P</b>
@@ -3714,6 +3834,20 @@ Questions can also be asked on the Victron Energy community:
   <li>1 - AC input ignored</li>
 </ul>
 </dd>
+  <dt class="optional">Remote generator selected<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Ac/State/RemoteGeneratorSelected</b>
+<ul>
+  <li>0 - Generator not selected</li>
+  <li>1 - Generator selected</li>
+</ul>
+</dd>
+  <dt class="optional">Low cell voltage imminent<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Alarms/BmsPreAlarm</b>
+<ul>
+  <li>0 - OK</li>
+  <li>1 - Warning</li>
+</ul>
+</dd>
   <dt class="optional">Grid lost alarm<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Alarms/GridLost</b>
 <ul>
@@ -3902,6 +4036,13 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Battery current (A)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/0/Current</b>
 </dd>
+  <dt class="optional">Prefer Renewable Energy<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Dc/0/PreferRenewableEnergy</b>
+<ul>
+  <li>0 - Renewable energy not preferred</li>
+  <li>1 - Renewable energy preferred</li>
+</ul>
+</dd>
   <dt class="optional">Battery temperature (°C)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/0/Temperature</b>
 </dd>
@@ -4061,7 +4202,7 @@ Questions can also be asked on the Victron Energy community:
 
 <script type="text/x-red" data-help-name="victron-output-accharger">
 <h3>Details</h3>
-<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
+<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> 
 <p>This node is for controlling the AC charger.</p>
 <h3>Charger</h3>
 <dl class="message-properties">
@@ -4087,7 +4228,7 @@ Questions can also be asked on the Victron Energy community:
 
 <script type="text/x-red" data-help-name="victron-output-battery">
 <h3>Details</h3>
-<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
+<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> 
 <p>Battery monitor output node, which can be used for controlling a <a href="https://www.victronenergy.com/dc-distribution-systems/lynx-smart-bms">Lynx Smart BMS</a>.</p>
 <h3>Battery</h3>
 <dl class="message-properties">
@@ -4103,7 +4244,7 @@ Questions can also be asked on the Victron Energy community:
 
 <script type="text/x-red" data-help-name="victron-output-charger">
 <h3>Details</h3>
-<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
+<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> 
 <p>This node allows for controlling a connected charger.</p>
 <h3>Charger</h3>
 <dl class="message-properties">
@@ -4122,7 +4263,7 @@ Questions can also be asked on the Victron Energy community:
 
 <script type="text/x-red" data-help-name="victron-output-ess">
 <h3>Details</h3>
-<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
+<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> 
 <p>This node allows for controlling the Energy Storage System (ESS).</p>
 <h3>Vebus</h3>
 <dl class="message-properties">
@@ -4387,7 +4528,7 @@ Questions can also be asked on the Victron Energy community:
 
 <script type="text/x-red" data-help-name="victron-output-evcharger">
 <h3>Details</h3>
-<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
+<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> 
 <p>With this node the EV charging station can be controlled.</p><p>Note that you need to refresh the website of the EV charger in order to see the changed settings there.</p>
 <h3>Evcharger</h3>
 <dl class="message-properties">
@@ -4432,7 +4573,7 @@ Questions can also be asked on the Victron Energy community:
 
 <script type="text/x-red" data-help-name="victron-output-generator">
 <h3>Details</h3>
-<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
+<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> 
 <p>This node can be used for controlling a generator via the relay. In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the (remote) console first.</p>
 <h3>Generator</h3>
 <dl class="message-properties">
@@ -4450,12 +4591,15 @@ Questions can also be asked on the Victron Energy community:
   <li>1 - Start generator</li>
 </ul>
 </dd>
+  <dt class="optional">Service countdown reset (1=Reset service counter)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/ServiceCounterReset</b>
+</dd>
 </dl>
 </script>
 
 <script type="text/x-red" data-help-name="victron-output-inverter">
 <h3>Details</h3>
-<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
+<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> 
 <p>This node can be used for controlling the inverter.</p>
 <h3>Inverter</h3>
 <dl class="message-properties">
@@ -4472,7 +4616,7 @@ Questions can also be asked on the Victron Energy community:
 
 <script type="text/x-red" data-help-name="victron-output-multi">
 <h3>Details</h3>
-<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
+<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> 
 <p>Multi RS output node.</p>
 <h3>Multi</h3>
 <dl class="message-properties">
@@ -4496,7 +4640,7 @@ Questions can also be asked on the Victron Energy community:
 
 <script type="text/x-red" data-help-name="victron-output-pump">
 <h3>Details</h3>
-<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
+<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> 
 <p>Node for controlling a relay connected pump. In auto mode, the pump looks at the connected tank sensor levels for starting and stopping the pump.</p>
 <h3>Settings</h3>
 <dl class="message-properties">
@@ -4526,7 +4670,7 @@ Questions can also be asked on the Victron Energy community:
 
 <script type="text/x-red" data-help-name="victron-output-pvinverter">
 <h3>Details</h3>
-<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
+<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> 
 <p>This node is for setting information into the PV inverter.</p>
 <h3>Pvinverter</h3>
 <dl class="message-properties">
@@ -4538,7 +4682,7 @@ Questions can also be asked on the Victron Energy community:
 
 <script type="text/x-red" data-help-name="victron-output-relay">
 <h3>Details</h3>
-<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
+<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> 
 <p>The relays of the Venus device can be controled with this node. Make sure to set the relay(s) to <b>Manual</b> via the Venus OS GUI first.</p>
 <h3>System</h3>
 <dl class="message-properties">
@@ -4625,7 +4769,7 @@ Questions can also be asked on the Victron Energy community:
 
 <script type="text/x-red" data-help-name="victron-output-settings">
 <h3>Details</h3>
-<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
+<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> 
 <p>With this node several settings can be adjusted. Currently the focus is mainly on the Carlo Gavazzi Wired AC Sensors (cgwacs).</p>
 <h3>Settings</h3>
 <dl class="message-properties">
@@ -4652,6 +4796,27 @@ Questions can also be asked on the Victron Energy community:
   <li>11 - BL Disabled (Low SoC)</li>
   <li>12 - BL Disabled (Low SOC recharge)</li>
 </ul>
+</dd>
+  <dt class="optional">Auto start enabled<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/Pump0/AutoStartEnabled</b>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
+</ul>
+</dd>
+  <dt class="optional">Mode<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/Pump0/Mode</b>
+<ul>
+  <li>0 - Auto</li>
+  <li>1 - On</li>
+  <li>2 - Off</li>
+</ul>
+</dd>
+  <dt class="optional">Start value (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/Pump0/StartValue</b>
+</dd>
+  <dt class="optional">Stop value (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/Pump0/StopValue</b>
 </dd>
   <dt class="optional">DVCC system max charge current (A DC)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Settings/SystemSetup/MaxChargeCurrent</b>
@@ -4719,7 +4884,7 @@ Questions can also be asked on the Victron Energy community:
 
 <script type="text/x-red" data-help-name="victron-output-solarcharger">
 <h3>Details</h3>
-<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
+<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> 
 <p>With this node the solar charger can be switched on and off.</p>
 <h3>Solarcharger</h3>
 <dl class="message-properties">
@@ -4735,18 +4900,32 @@ Questions can also be asked on the Victron Energy community:
 
 <script type="text/x-red" data-help-name="victron-output-vebus">
 <h3>Details</h3>
-<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
+<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> 
 <p>This output node is for writing to VE.Bus connected devices.</p>
 <h3>Vebus</h3>
 <dl class="message-properties">
   <dt class="optional">Active input current limit (A)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/ActiveIn/CurrentLimit</b>
 </dd>
+  <dt class="optional">Select Remote Generator<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Ac/Control/RemoteGeneratorSelected</b>
+<ul>
+  <li>0 - Generator not selected</li>
+  <li>1 - Generator selected</li>
+</ul>
+</dd>
   <dt class="optional">Input 1 current limit (A)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/In/1/CurrentLimit</b>
 </dd>
   <dt class="optional">Input 2 current limit (A)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/In/2/CurrentLimit</b>
+</dd>
+  <dt class="optional">Prefer Renewable Energy<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Dc/0/PreferRenewableEnergy</b>
+<ul>
+  <li>0 - Renewable energy not preferred</li>
+  <li>1 - Renewable energy preferred</li>
+</ul>
 </dd>
   <dt class="optional">ESS disable charge flag phase<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Hub4/DisableCharge</b>
@@ -4809,7 +4988,7 @@ Questions can also be asked on the Victron Energy community:
   <li>3 - On</li>
   <li>4 - Off</li>
 </ul>
-<p>Note that <tt>/ModeIsAdjustable</tt> needs to be set to 1.</p>
+<p>Note that <tt>/ModeIsAdjustable</tt> needs to be set to 1.</p> 
 </dd>
   <dt class="optional">Disable PV inverter<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/PvInverter/Disable</b>
@@ -4830,3 +5009,4 @@ Questions can also be asked on the Victron Energy community:
 </dd>
 </dl>
 </script>
+
