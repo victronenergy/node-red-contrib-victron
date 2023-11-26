@@ -114,11 +114,20 @@ module.exports = function (RED) {
 
       const handlerId = this.configNode.addStatusListener(this, this.service, this.path)
 
-      const setValue = (value) => {
-        if (!this.pathObj.disabled && this.service && this.path) {
-          this.client.publish(this.service, this.path, value)
+      const setValue = (value, path) => {
+        let writepath = this.path
+        let shape = 'dot'
+        if (path && path !== this.path) {
+          writepath = path
+          shape = 'ring'
+        }
+        if (!/^\/.*/.test(writepath)) {
+          writepath = '/' + writepath
+        }
+        if (!this.pathObj.disabled && this.service && writepath) {
+          this.client.publish(this.service, writepath, value)
           if (this.configNode && this.configNode.showValues) {
-            this.node.status({ fill: 'green', shape: 'dot', text: value })
+            this.node.status({ fill: 'green', shape, text: value })
           }
         }
       }
@@ -126,7 +135,7 @@ module.exports = function (RED) {
       if (this.initialValue) { setValue(parseInt(this.initialValue)) }
 
       this.on('input', function (msg) {
-        setValue(msg.payload)
+        setValue(msg.payload, msg.path)
       })
 
       this.on('close', function (done) {
