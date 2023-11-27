@@ -17,10 +17,10 @@
         "version": ">=3.0.2"
     },
     "devDependencies": {
-        "@babel/eslint-parser": "^7.22.10",
+        "@babel/eslint-parser": "^7.23.3",
         "@signalk/github-create-release": "^1.2.1",
-        "csv-parse": "^5.4.0",
-        "eslint": "^8.47.0",
+        "csv-parse": "^5.5.2",
+        "eslint": "^8.54.0",
         "eslint-config-google": "^0.14.0",
         "gar": "^1.0.4"
     },
