@@ -1554,7 +1554,8 @@
           "7": "Every day",
           "8": "Weekdays",
           "9": "Weekends"
-        }
+        },
+        "remarks": "<p>A negative value means that the schedule has been de-activated.</p>"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Duration",
@@ -1595,7 +1596,8 @@
           "7": "Every day",
           "8": "Weekdays",
           "9": "Weekends"
-        }
+        },
+        "remarks": "<p>A negative value means that the schedule has been de-activated.</p>"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Duration",
@@ -1636,7 +1638,8 @@
           "7": "Every day",
           "8": "Weekdays",
           "9": "Weekends"
-        }
+        },
+        "remarks": "<p>A negative value means that the schedule has been de-activated.</p>"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Duration",
@@ -1677,7 +1680,8 @@
           "7": "Every day",
           "8": "Weekdays",
           "9": "Weekends"
-        }
+        },
+        "remarks": "<p>A negative value means that the schedule has been de-activated.</p>"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Duration",
@@ -1718,7 +1722,8 @@
           "7": "Every day",
           "8": "Weekdays",
           "9": "Weekends"
-        }
+        },
+        "remarks": "Writing a negative value to the path will de-activate the schedule."
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Duration",
@@ -5519,7 +5524,8 @@
           "8": "Weekdays",
           "9": "Weekends"
         },
-        "writable": true
+        "writable": true,
+        "remarks": "<p>Writing a negative value to the path will de-activate the schedule.</p>"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Duration",
@@ -5565,7 +5571,8 @@
           "8": "Weekdays",
           "9": "Weekends"
         },
-        "writable": true
+        "writable": true,
+        "remarks": "<p>Writing a negative value to the path will de-activate the schedule.</p>"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Duration",
@@ -5611,7 +5618,8 @@
           "8": "Weekdays",
           "9": "Weekends"
         },
-        "writable": true
+        "writable": true,
+        "remarks": "<p>Writing a negative value to the path will de-activate the schedule.</p>"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Duration",
@@ -5657,7 +5665,8 @@
           "8": "Weekdays",
           "9": "Weekends"
         },
-        "writable": true
+        "writable": true,
+        "remarks": "<p>Writing a negative value to the path will de-activate the schedule.</p>"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Duration",
@@ -5703,7 +5712,8 @@
           "8": "Weekdays",
           "9": "Weekends"
         },
-        "writable": true
+        "writable": true,
+        "remarks": "<p>Writing a negative value to the path will de-activate the schedule.</p>"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Duration",
