@@ -80,7 +80,7 @@ module.exports = function (RED) {
             payload: msg.value,
             topic
           })
-          if (this.configNode && this.configNode.showValues) {
+          if (this.configNode && (this.configNode.showValues || typeof this.configNode.showValues === 'undefined')) {
             this.node.status({ fill: 'green', shape: 'dot', text: msg.value })
           }
           if (!this.sentInitialValue) {
