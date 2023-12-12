@@ -2511,6 +2511,11 @@
         "name": "L3 Voltage (V)"
       },
       {
+        "path": "/Ac/Power",
+        "type": "float",
+        "name": "Power (W)"
+      },
+      {
         "path": "/Serial",
         "type": "string",
         "name": "Serial"
