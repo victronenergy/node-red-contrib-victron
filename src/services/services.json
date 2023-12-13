@@ -1048,6 +1048,89 @@
       }
     ]
   },
+  "input-dcdc": {
+    "help": "<p>This node allows for monitoring the state of a Smart BuckBoost DC-DC charger.</p>",
+    "dcdc": [
+      {
+        "path": "/Dc/0/Current",
+        "type": "float",
+        "name": "/Dc/0/Current (A DC)"
+      },
+      {
+        "path": "/Dc/0/Temperature",
+        "type": "float",
+        "name": "/Dc/0/Temperature (Degrees celsius)"
+      },
+      {
+        "path": "/Dc/0/Voltage",
+        "type": "float",
+        "name": "/Dc/0/Voltage (V DC)"
+      },
+      {
+        "path": "/Dc/In/V",
+        "type": "float",
+        "name": "/Dc/In/V (V DC)"
+      },
+      {
+        "path": "/Dc/In/P",
+        "type": "float",
+        "name": "/Dc/In/P (W)"
+      },
+      {
+        "path": "/ErrorCode",
+        "type": "enum",
+        "name": "/ErrorCode",
+        "enum": {
+          "0": "No error",
+          "1": "Battery temperature too high",
+          "2": "Battery voltage too high",
+          "3": "Battery temperature sensor miswired (+)",
+          "4": "Battery temperature sensor miswired (-)",
+          "5": "Battery temperature sensor disconnected",
+          "6": "Battery voltage sense miswired (+)",
+          "7": "Battery voltage sense miswired (-)",
+          "8": "Battery voltage sense disconnected",
+          "9": "Battery voltage wire losses too high",
+          "17": "Charger temperature too high",
+          "18": "Charger over-current",
+          "19": "Charger current polarity reversed",
+          "20": "Bulk time limit reached",
+          "22": "Charger temperature sensor miswired",
+          "23": "Charger temperature sensor disconnected",
+          "34": "Input current too high"
+        }
+      },
+      {
+        "path": "/FirmwareVersion",
+        "type": "float",
+        "name": "/FirmwareVersion"
+      },
+      {
+        "path": "/History/Cumulative/User/ChargedAh",
+        "type": "float",
+        "name": "/History/Cumulative/User/ChargedAh (Ah)"
+      },
+      {
+        "path": "/ProductId",
+        "type": "float",
+        "name": "/ProductId"
+      },
+      {
+        "path": "/State",
+        "type": "enum",
+        "name": "/State",
+        "enum": {
+          "0": "Off",
+          "2": "Fault",
+          "3": "Bulk",
+          "4": "Absorption",
+          "5": "Float",
+          "6": "Storage",
+          "7": "Equalize"
+        }
+      }
+    ]
+  },
   "input-dcload": {
     "help": "<p>This node allows for monitoring the state of BMVs configured in Monitor Mode and DC meter type is a load.</p>",
     "dcload": [
@@ -4788,6 +4871,15 @@
         "name": "Input voltage phase 3 (VAC)"
       },
       {
+        "path": "/Ac/Control/RemoteGeneratorSelected",
+        "type": "enum",
+        "name": "Select Remote Generator",
+        "enum": {
+          "0": "Generator not selected",
+          "1": "Generator selected"
+        }
+      },
+      {
         "path": "/Ac/In/1/CurrentLimit",
         "type": "float",
         "name": "Input 1 current limit (A)"
@@ -5415,6 +5507,21 @@
         "enum": {
           "0": "Off",
           "1": "On"
+        },
+        "writable": true
+      }
+    ]
+  },
+  "output-dcdc": {
+    "help": "<p>This node allows for controlling the Smart BuckBoost DC-DC chargers.</p>",
+    "dcdc": [
+      {
+        "path": "/Mode",
+        "type": "enum",
+        "name": "/Mode",
+        "enum": {
+          "1": "On",
+          "4": "Off"
         },
         "writable": true
       }

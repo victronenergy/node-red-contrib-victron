@@ -923,6 +923,75 @@ Questions can also be asked on the Victron Energy community:
 </dl>
 </script>
 
+<script type="text/x-red" data-help-name="victron-input-dcdc">
+<h3>Details</h3>
+<p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>The measurement unit type is shown in the measurement label in brackets, e.g. Battery voltage (V). In case the data type is enumerated, an approppriate enum legend is shown below the selected option.</p>
+<p>If the data type is <em>float</em>, a dropdown for rounding the output appears.</p>
+<p>By default the node outputs its value every five seconds. If the <em>only changes</em> is checked, the node will only output on value changes.</p>
+<p>This node allows for monitoring the state of a Smart BuckBoost DC-DC charger.</p>
+<h3>Dcdc</h3>
+<dl class="message-properties">
+  <dt class="optional">/Dc/0/Current (A DC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Dc/0/Current</b>
+</dd>
+  <dt class="optional">/Dc/0/Temperature (Degrees celsius)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Dc/0/Temperature</b>
+</dd>
+  <dt class="optional">/Dc/0/Voltage (V DC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Dc/0/Voltage</b>
+</dd>
+  <dt class="optional">/Dc/In/V (V DC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Dc/In/V</b>
+</dd>
+  <dt class="optional">/Dc/In/P (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Dc/In/P</b>
+</dd>
+  <dt class="optional">/ErrorCode<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/ErrorCode</b>
+<ul>
+  <li>0 - No error</li>
+  <li>1 - Battery temperature too high</li>
+  <li>2 - Battery voltage too high</li>
+  <li>3 - Battery temperature sensor miswired (+)</li>
+  <li>4 - Battery temperature sensor miswired (-)</li>
+  <li>5 - Battery temperature sensor disconnected</li>
+  <li>6 - Battery voltage sense miswired (+)</li>
+  <li>7 - Battery voltage sense miswired (-)</li>
+  <li>8 - Battery voltage sense disconnected</li>
+  <li>9 - Battery voltage wire losses too high</li>
+  <li>17 - Charger temperature too high</li>
+  <li>18 - Charger over-current</li>
+  <li>19 - Charger current polarity reversed</li>
+  <li>20 - Bulk time limit reached</li>
+  <li>22 - Charger temperature sensor miswired</li>
+  <li>23 - Charger temperature sensor disconnected</li>
+  <li>34 - Input current too high</li>
+</ul>
+</dd>
+  <dt class="optional">/FirmwareVersion<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/FirmwareVersion</b>
+</dd>
+  <dt class="optional">/History/Cumulative/User/ChargedAh (Ah)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Cumulative/User/ChargedAh</b>
+</dd>
+  <dt class="optional">/ProductId<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/ProductId</b>
+</dd>
+  <dt class="optional">/State<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/State</b>
+<ul>
+  <li>0 - Off</li>
+  <li>2 - Fault</li>
+  <li>3 - Bulk</li>
+  <li>4 - Absorption</li>
+  <li>5 - Float</li>
+  <li>6 - Storage</li>
+  <li>7 - Equalize</li>
+</ul>
+</dd>
+</dl>
+</script>
+
 <script type="text/x-red" data-help-name="victron-input-dcload">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>The measurement unit type is shown in the measurement label in brackets, e.g. Battery voltage (V). In case the data type is enumerated, an approppriate enum legend is shown below the selected option.</p>
@@ -3775,6 +3844,13 @@ Writing a negative value to the path will de-activate the schedule.
   <dt class="optional">Input voltage phase 3 (VAC)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/ActiveIn/L3/V</b>
 </dd>
+  <dt class="optional">Select Remote Generator<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Ac/Control/RemoteGeneratorSelected</b>
+<ul>
+  <li>0 - Generator not selected</li>
+  <li>1 - Generator selected</li>
+</ul>
+</dd>
   <dt class="optional">Input 1 current limit (A)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/In/1/CurrentLimit</b>
 </dd>
@@ -4264,6 +4340,22 @@ Writing a negative value to the path will de-activate the schedule.
 <ul>
   <li>0 - Off</li>
   <li>1 - On</li>
+</ul>
+</dd>
+</dl>
+</script>
+
+<script type="text/x-red" data-help-name="victron-output-dcdc">
+<h3>Details</h3>
+<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> 
+<p>This node allows for controlling the Smart BuckBoost DC-DC chargers.</p>
+<h3>Dcdc</h3>
+<dl class="message-properties">
+  <dt class="optional">/Mode<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Mode</b>
+<ul>
+  <li>1 - On</li>
+  <li>4 - Off</li>
 </ul>
 </dd>
 </dl>
