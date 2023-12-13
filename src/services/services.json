@@ -1049,7 +1049,7 @@
     ]
   },
   "input-dcdc": {
-    "help": "<p>This node allows for monitoring the state of a Smart BuckBoost DC-DC charger.</p>",
+    "help": "<p>This node allows for monitoring the state of an Orion XS.</p>",
     "dcdc": [
       {
         "path": "/Dc/0/Current",
@@ -5513,7 +5513,7 @@
     ]
   },
   "output-dcdc": {
-    "help": "<p>This node allows for controlling the Smart BuckBoost DC-DC chargers.</p>",
+    "help": "<p>This node allows for controlling an Orion XS.</p>",
     "dcdc": [
       {
         "path": "/Mode",

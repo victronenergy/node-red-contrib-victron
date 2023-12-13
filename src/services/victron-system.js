@@ -204,6 +204,7 @@ class SystemConfiguration {
       'output-accharger': this.getNodeServices('output-accharger'),
       'output-battery': this.getNodeServices('output-battery'),
       'output-charger': this.getNodeServices('output-charger'),
+      'output-dcdc': this.getNodeServices('output-dcdc'),
       'output-ess': this.getNodeServices('output-ess'),
       'output-evcharger': this.getNodeServices('output-evcharger'),
       'output-generator': this.getNodeServices('output-generator'),
