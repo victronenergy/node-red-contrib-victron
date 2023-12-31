@@ -150,17 +150,15 @@ class VictronDbusListener {
       path: '/',
       destination: service.name,
       interface: 'com.victronenergy.BusItem',
-      member: 'GetValue'
+      member: 'GetItems'
     },
     (err, res) => {
       if (!err) {
         const data = {}
 
-        res[1][0].forEach(kp => {
-          data[kp[0]] = kp[1][1][0]
+        res.forEach(([path, values]) => {
+          data[path] = values[0][1][1][0]
         })
-
-        service.deviceInstance = data.DeviceInstance
 
         if (!_.isUndefined(data.FluidType)) {
           service.fluidType = data.FluidType
@@ -168,7 +166,7 @@ class VictronDbusListener {
 
         const messages = _.keys(data).map(path => {
           return {
-            path: '/' + path,
+            path: '/' + path.replace(/^\/+/, ''),
             senderName: service.name.split('.').splice(0, 3).join('.'),
             value: data[path],
             deviceInstance: (service.deviceInstance != null ? service.deviceInstance : ''),
