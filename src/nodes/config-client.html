@@ -13,6 +13,12 @@
     Show the last read/written values in the flow instead of "Ok" and "Connected". <br />
     Note that it will show the last valid received value, even if there is an issue and new data is not being sent.
   </div>
+  <div class="form-row">
+    <label style="min-width:190px" for="node-config-input-contextStore"><i class="fa fa-database"></i> Context store</label>
+    <input type="checkbox" checked id="node-config-input-contextStore" style="max-width:30px">
+    <div class="info-text">
+    Store the last read value into the (global) context.
+  </div>
 </script>
 
 <script type="text/x-red" data-help-name="victron-client">
@@ -57,7 +63,8 @@ Questions can also be asked on the Victron Energy community:
         category: 'config',
         color: '#a6bbcf',
         defaults: {
-          showValues: { value: false }
+          showValues: { value: false },
+          contextStore: {value: true }
         },
         label: function label() {
             return "Victron Energy Client";

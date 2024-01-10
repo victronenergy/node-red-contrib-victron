@@ -75,6 +75,11 @@ module.exports = function (RED) {
           if (this.node.onlyChanges && this.node.previousvalue === msg.value) {
             return
           }
+          if (this.configNode && (this.configNode.contextStore || typeof this.configNode.contextStore === 'undefined')) {
+            const globalContext = this.node.context().global
+            const v = `${this.service}${this.path}`.replace(/\//g, '.').replace(/com\.victronenergy\.(.+?)\.(\d+)\.(\w+)/, 'victronenergy.$1._$2.$3')
+            globalContext.set(v, msg.value)
+          }
           this.node.previousvalue = msg.value
           this.node.send({
             payload: msg.value,

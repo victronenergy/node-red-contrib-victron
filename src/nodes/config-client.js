@@ -45,6 +45,7 @@ module.exports = function (RED) {
 
     this.client = globalClient
     this.showValues = config.showValues
+    this.contextStore = config.contextStore
     let statusListeners = []
 
     /**

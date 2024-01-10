@@ -43,6 +43,9 @@ In case the data type is enumerated, an approppriate enum legend is shown below 
 
 ![Architecture](documentation/images/edit-vebus-input.png)
 
+If in the configuration node, the _Context store_ checkbox has been set, the received values will also
+be stored in the (global) context.
+
 ### Output Nodes
 
 Input Nodes have the same options available, but the selectable 'measurement' only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.
