@@ -155,9 +155,10 @@ class VictronDbusListener {
     (err, res) => {
       if (!err) {
         const data = {}
+        const getTargetValue = (arr) => arr[arr.findIndex(innerArr => innerArr[0] === 'Value')]?.[1]?.[1]?.[0]
 
         res.forEach(([path, values]) => {
-          data[path] = values[0][1][1][0]
+          data[path] = getTargetValue(values)
         })
 
         if (!_.isUndefined(data.FluidType)) {
