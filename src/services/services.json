@@ -352,7 +352,7 @@
         "enum": {
           "0": "Off",
           "1": "Bulk",
-          "2": "Absorbtion",
+          "2": "Absorption",
           "5": "Float",
           "7": "Ext. Control",
           "8": "Disabled",
@@ -2501,7 +2501,7 @@
     ]
   },
   "input-gridmeter": {
-    "help": "<p>This node gives allows for monitoring the grid. See also <a href=\"https://www.victronenergy.com/accessories/energy-meter\">energy meters</a> accessoires.</p>",
+    "help": "<p>This node gives allows for monitoring the grid. See also <a href=\"https://www.victronenergy.com/accessories/energy-meter\">energy meters</a> accessories.</p>",
     "grid": [
       {
         "path": "/Ac/Frequency",
@@ -5169,7 +5169,7 @@
       {
         "path": "/Alarms/TemperatureSensor",
         "type": "enum",
-        "name": "Temperatur sensor alarm",
+        "name": "Temperature sensor alarm",
         "enum": {
           "0": "Ok",
           "1": "Warning",
@@ -6337,7 +6337,7 @@
     ]
   },
   "output-relay": {
-    "help": "<p>The relays of the Venus device can be controled with this node. Make sure to set the relay(s) to <b>Manual</b> via the Venus OS GUI first.</p>",
+    "help": "<p>The relays of the Venus device can be controlled with this node. Make sure to set the relay(s) to <b>Manual</b> via the Venus OS GUI first.</p>",
     "system": [
       {
         "path": "/Relay/0/State",

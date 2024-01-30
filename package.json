@@ -28,6 +28,7 @@
     ],
     "scripts": {
         "test": "standard --fix src/ scripts/",
+        "codespell": "codespell src/ scripts/",
         "release": "git tag -d v$npm_package_version; git tag v$npm_package_version && git push --tags && git push && npm run create-release"
     },
     "repository": {

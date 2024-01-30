@@ -152,7 +152,7 @@ workbook.xlsx.readFile(xlsFile)
       }
     }
 
-    // Another check (comming from issue #182). We also want to make sure that all of the output
+    // Another check (coming from issue #182). We also want to make sure that all of the output
     // paths are defined as an input path as well.
     console.log('// Checking if all output paths are available as input too')
     for (const [node] of Object.entries(services)) {

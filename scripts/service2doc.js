@@ -69,7 +69,7 @@ searchLabelInfo(registerHTML).then(function (labelinfo) {
   show('md', 'For example a Cerbo CX has 2 relays and thus will show 2 relays to control. An EasySolar-II GX has only one relay and thus will only show one.\n')
   show('md', 'You can find more background information on the paths and how to use them [here](https://github.com/victronenergy/venus/wiki/dbus).\n')
   show('md', '**Input nodes:** ' + input.join(', ') + '  ')
-  show('md', '**Ouput nodes:** ' + output.join(', ') + '  ')
+  show('md', '**Output nodes:** ' + output.join(', ') + '  ')
   show('md', 'If there are services and paths not covered by the above nodes, there are also 2 [custom nodes](#custom-nodes) that allow you to read from and write to all found dbus services and paths.')
 
   fs.readFile(servicesJSON, 'utf8', (err, jsonString) => {
@@ -85,7 +85,7 @@ searchLabelInfo(registerHTML).then(function (labelinfo) {
       show('md', '- **Device select** - lists all available devices')
       show('md', '- **Measurement select** - lists all available device-specific measurements')
       show('md', '- **Node label input field** - sets a custom label for the node\n')
-      show('md', 'The measurement unit type is shown in the measurement label in brackets, e.g. Battery voltage (V). In case the data type is enumerated, an approppriate enum legend is shown below the selected option.\n')
+      show('md', 'The measurement unit type is shown in the measurement label in brackets, e.g. Battery voltage (V). In case the data type is enumerated, an appropriate enum legend is shown below the selected option.\n')
       show('md', 'If the data type is _float_, a dropdown for rounding the output appears.\n')
       show('md', 'By default the node outputs its value every five seconds. If the only changes is checked, the node will only output on value changes.\n')
       show('md', '![input nodes](https://github.com/victronenergy/node-red-contrib-victron/blob/master/documentation/images/edit-vebus-input.png)\n')
@@ -108,7 +108,7 @@ searchLabelInfo(registerHTML).then(function (labelinfo) {
         show('md', '## ' + labelinfo[k])
         show('nodered', '<h3>Details</h3>')
         if (/input-/.test(k)) {
-          show('nodered', '<p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>The measurement unit type is shown in the measurement label in brackets, e.g. Battery voltage (V). In case the data type is enumerated, an approppriate enum legend is shown below the selected option.</p>')
+          show('nodered', '<p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>The measurement unit type is shown in the measurement label in brackets, e.g. Battery voltage (V). In case the data type is enumerated, an appropriate enum legend is shown below the selected option.</p>')
           show('nodered', '<p>If the data type is <em>float</em>, a dropdown for rounding the output appears.</p>')
           show('nodered', '<p>By default the node outputs its value every five seconds. If the <em>only changes</em> is checked, the node will only output on value changes.</p>')
         } else {
