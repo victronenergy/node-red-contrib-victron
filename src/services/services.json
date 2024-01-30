@@ -5256,6 +5256,234 @@
         "name": "Battery voltage (V)"
       },
       {
+        "path": "/Devices/0/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1"
+      },
+      {
+        "path": "/Devices/0/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
+      },
+      {
+        "path": "/Devices/0/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        }
+      },
+      {
+        "path": "/Devices/1/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1"
+      },
+      {
+        "path": "/Devices/1/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
+      },
+      {
+        "path": "/Devices/1/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        }
+      },
+      {
+        "path": "/Devices/2/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1"
+      },
+      {
+        "path": "/Devices/2/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
+      },
+      {
+        "path": "/Devices/2/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        }
+      },
+      {
+        "path": "/Devices/3/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1"
+      },
+      {
+        "path": "/Devices/3/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
+      },
+      {
+        "path": "/Devices/3/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        }
+      },
+      {
+        "path": "/Devices/4/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1"
+      },
+      {
+        "path": "/Devices/4/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
+      },
+      {
+        "path": "/Devices/4/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        }
+      },
+      {
+        "path": "/Devices/5/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1"
+      },
+      {
+        "path": "/Devices/5/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
+      },
+      {
+        "path": "/Devices/5/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        }
+      },
+      {
+        "path": "/Devices/6/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1"
+      },
+      {
+        "path": "/Devices/6/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
+      },
+      {
+        "path": "/Devices/6/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        }
+      },
+      {
+        "path": "/Devices/7/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1"
+      },
+      {
+        "path": "/Devices/7/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
+      },
+      {
+        "path": "/Devices/7/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        }
+      },
+      {
+        "path": "/Devices/8/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1"
+      },
+      {
+        "path": "/Devices/8/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
+      },
+      {
+        "path": "/Devices/8/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        }
+      },
+      {
+        "path": "/Devices/9/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1"
+      },
+      {
+        "path": "/Devices/9/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
+      },
+      {
+        "path": "/Devices/9/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        }
+      },
+      {
+        "path": "/Devices/10/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1"
+      },
+      {
+        "path": "/Devices/10/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
+      },
+      {
+        "path": "/Devices/10/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        }
+      },
+      {
+        "path": "/Devices/11/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1"
+      },
+      {
+        "path": "/Devices/11/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
+      },
+      {
+        "path": "/Devices/11/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        }
+      },
+      {
         "path": "/Energy/AcIn1ToAcOut",
         "type": "float",
         "name": "Energy ACIn1 to AcOut (kWh)"
@@ -6422,6 +6650,270 @@
         "enum": {
           "0": "Renewable energy not preferred",
           "1": "Renewable energy preferred"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Devices/0/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1",
+        "writable": true
+      },
+      {
+        "path": "/Devices/0/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
+        "writable": true
+      },
+      {
+        "path": "/Devices/0/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Devices/1/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1",
+        "writable": true
+      },
+      {
+        "path": "/Devices/1/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
+        "writable": true
+      },
+      {
+        "path": "/Devices/1/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Devices/2/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1",
+        "writable": true
+      },
+      {
+        "path": "/Devices/2/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
+        "writable": true
+      },
+      {
+        "path": "/Devices/2/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Devices/3/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1",
+        "writable": true
+      },
+      {
+        "path": "/Devices/3/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
+        "writable": true
+      },
+      {
+        "path": "/Devices/3/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Devices/4/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1",
+        "writable": true
+      },
+      {
+        "path": "/Devices/4/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
+        "writable": true
+      },
+      {
+        "path": "/Devices/4/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Devices/5/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1",
+        "writable": true
+      },
+      {
+        "path": "/Devices/5/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
+        "writable": true
+      },
+      {
+        "path": "/Devices/5/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Devices/6/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1",
+        "writable": true
+      },
+      {
+        "path": "/Devices/6/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
+        "writable": true
+      },
+      {
+        "path": "/Devices/6/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Devices/7/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1",
+        "writable": true
+      },
+      {
+        "path": "/Devices/7/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
+        "writable": true
+      },
+      {
+        "path": "/Devices/7/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Devices/8/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1",
+        "writable": true
+      },
+      {
+        "path": "/Devices/8/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
+        "writable": true
+      },
+      {
+        "path": "/Devices/8/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Devices/9/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1",
+        "writable": true
+      },
+      {
+        "path": "/Devices/9/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
+        "writable": true
+      },
+      {
+        "path": "/Devices/9/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Devices/10/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1",
+        "writable": true
+      },
+      {
+        "path": "/Devices/10/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
+        "writable": true
+      },
+      {
+        "path": "/Devices/10/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Devices/11/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Configured boost factor for VE.Bus unit 1",
+        "writable": true
+      },
+      {
+        "path": "/Devices/11/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
+        "writable": true
+      },
+      {
+        "path": "/Devices/11/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
         },
         "writable": true
       },
