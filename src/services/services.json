@@ -297,6 +297,16 @@
         "name": "Auxiliary voltage (V DC)"
       },
       {
+        "path": "/Dc/In/V",
+        "type": "float",
+        "name": "Input voltage (before DC/DC converter) (V DC)"
+      },
+      {
+        "path": "/Dc/In/P",
+        "type": "float",
+        "name": "Input power (W DC)"
+      },
+      {
         "path": "/Engine/Speed",
         "type": "float",
         "name": "Engine speed (RPM)"
@@ -336,9 +346,23 @@
         "name": "Alternator Field Drive %"
       },
       {
+        "path": "/History/Cumulative/User/ChargedAh",
+        "type": "float",
+        "name": "Cumulative amp-hours charged (Ah)"
+      },
+      {
         "path": "/History/EnergyOut",
         "type": "float",
         "name": "Total energy produced (kWh)"
+      },
+      {
+        "path": "/Mode",
+        "type": "enum",
+        "name": "Mode",
+        "enum": {
+          "1": "On",
+          "4": "Off"
+        }
       },
       {
         "path": "/Speed",
@@ -348,15 +372,17 @@
       {
         "path": "/State",
         "type": "enum",
-        "name": "Charger State",
+        "name": "Alternator state",
         "enum": {
           "0": "Off",
-          "1": "Bulk",
-          "2": "Absorption",
+          "2": "Fault",
+          "3": "Bulk",
+          "4": "Absorption",
           "5": "Float",
-          "7": "Ext. Control",
-          "8": "Disabled",
-          "9": "Fault"
+          "6": "Storage",
+          "7": "Equalize",
+          "11": "Psu",
+          "252": "External control"
         }
       }
     ]

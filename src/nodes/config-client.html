@@ -371,6 +371,12 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Auxiliary voltage (V DC)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/1/Voltage</b>
 </dd>
+  <dt class="optional">Input voltage (before DC/DC converter) (V DC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Dc/In/V</b>
+</dd>
+  <dt class="optional">Input power (W DC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Dc/In/P</b>
+</dd>
   <dt class="optional">Engine speed (RPM)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Engine/Speed</b>
 </dd>
@@ -404,22 +410,34 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Alternator Field Drive %<span class="property-type">float</dt>
   <dd>Dbus path: <b>/FieldDrive</b>
 </dd>
+  <dt class="optional">Cumulative amp-hours charged (Ah)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/History/Cumulative/User/ChargedAh</b>
+</dd>
   <dt class="optional">Total energy produced (kWh)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/History/EnergyOut</b>
+</dd>
+  <dt class="optional">Mode<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Mode</b>
+<ul>
+  <li>1 - On</li>
+  <li>4 - Off</li>
+</ul>
 </dd>
   <dt class="optional">Alternator speed (RPM)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Speed</b>
 </dd>
-  <dt class="optional">Charger State<span class="property-type">enum</dt>
+  <dt class="optional">Alternator state<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/State</b>
 <ul>
   <li>0 - Off</li>
-  <li>1 - Bulk</li>
-  <li>2 - Absorption</li>
+  <li>2 - Fault</li>
+  <li>3 - Bulk</li>
+  <li>4 - Absorption</li>
   <li>5 - Float</li>
-  <li>7 - Ext. Control</li>
-  <li>8 - Disabled</li>
-  <li>9 - Fault</li>
+  <li>6 - Storage</li>
+  <li>7 - Equalize</li>
+  <li>11 - Psu</li>
+  <li>252 - External control</li>
 </ul>
 </dd>
 </dl>
