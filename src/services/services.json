@@ -3971,6 +3971,15 @@
         "name": "ESS BatteryLife SoC limit (read only) (%)"
       },
       {
+        "path": "/Settings/LEDs/Enable",
+        "type": "enum",
+        "name": "Enable status LEDs",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        }
+      },
+      {
         "path": "/Settings/SystemSetup/AcInput1",
         "type": "enum",
         "name": "AC input 1 source (for VE.Bus inverter/chargers)",
@@ -6588,6 +6597,16 @@
         "enum": {
           "0": "Feed excess AC-tied PV into grid",
           "1": "Don’t feed excess AC-tied PV into the grid"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/LEDs/Enable",
+        "type": "enum",
+        "name": "Enable status LEDs",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
         },
         "writable": true
       },

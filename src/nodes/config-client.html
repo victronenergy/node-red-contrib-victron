@@ -3188,6 +3188,13 @@ Writing a negative value to the path will de-activate the schedule.
   <dt class="optional">ESS BatteryLife SoC limit (read only) (%)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/SocLimit</b>
 </dd>
+  <dt class="optional">Enable status LEDs<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/LEDs/Enable</b>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
+</ul>
+</dd>
   <dt class="optional">AC input 1 source (for VE.Bus inverter/chargers)<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/SystemSetup/AcInput1</b>
 <ul>
@@ -5132,6 +5139,13 @@ Writing a negative value to the path will de-activate the schedule.
 <ul>
   <li>0 - Feed excess AC-tied PV into grid</li>
   <li>1 - Don’t feed excess AC-tied PV into the grid</li>
+</ul>
+</dd>
+  <dt class="optional">Enable status LEDs<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/LEDs/Enable</b>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
 </ul>
 </dd>
   <dt class="optional">AC input 1 source (for VE.Bus inverter/chargers)<span class="property-type">enum</dt>
