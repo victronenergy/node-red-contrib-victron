@@ -8,7 +8,7 @@ It is also possible to use this library when running Node-RED on a separate host
 
 This library is not officially supported by Victron Energy: don't call our dealers or other support channels for help.
 
-For any questions or help, please turn to [community.victronenergy.com](https://community.victronenergy.com). Pull-requests are willingly encouraged!
+For any questions or help, please turn to [community.victronenergy.com](https://community.victronenergy.com/smart-spaces/71/node-red.html). Pull-requests are willingly encouraged!
 
 ## Requirements when self-installing this node palette
 - A Victron system that includes a GX device (note that for trial & development you could use the demo mode in Venus OS, Settings -> General)
