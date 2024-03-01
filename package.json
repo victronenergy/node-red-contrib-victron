@@ -18,8 +18,8 @@
     },
     "devDependencies": {
         "@babel/eslint-parser": "^7.23.10",
-        "csv-parse": "^5.5.3",
-        "eslint": "^8.56.0",
+        "csv-parse": "^5.5.5",
+        "eslint": "^8.57.0",
         "eslint-config-google": "^0.14.0",
         "gar": "^1.0.4"
     },
