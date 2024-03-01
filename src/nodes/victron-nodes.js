@@ -40,6 +40,7 @@ module.exports = function (RED) {
 
       this.service = nodeDefinition.service
       this.path = nodeDefinition.path
+      this.pathObj = nodeDefinition.pathObj
       this.defaulttopic = nodeDefinition.serviceObj.name + ' - ' + nodeDefinition.pathObj.name
       this.onlyChanges = nodeDefinition.onlyChanges
       this.roundValues = nodeDefinition.roundValues
@@ -81,12 +82,18 @@ module.exports = function (RED) {
             globalContext.set(v, msg.value)
           }
           this.node.previousvalue = msg.value
-          this.node.send({
+          const outmsg = {
             payload: msg.value,
             topic
-          })
+          }
+          let text = msg.value
+          if (this.node.pathObj.type === 'enum') {
+            outmsg.textvalue = this.node.pathObj.enum[msg.value] || ''
+            text = `${msg.value} (${this.node.pathObj.enum[msg.value]})`
+          }
+          this.node.send(outmsg)
           if (this.configNode && (this.configNode.showValues || typeof this.configNode.showValues === 'undefined')) {
-            this.node.status({ fill: 'green', shape: 'dot', text: msg.value })
+            this.node.status({ fill: 'green', shape: 'dot', text })
           }
           if (!this.sentInitialValue) {
             this.sentInitialValue = true
@@ -131,8 +138,12 @@ module.exports = function (RED) {
         }
         if (!this.pathObj.disabled && this.service && writepath) {
           this.client.publish(this.service, writepath, value)
+          let text = value
+          if (this.pathObj.type === 'enum') {
+            text = `${value} (${this.pathObj.enum[value]})`
+          }
           if (this.configNode && this.configNode.showValues) {
-            this.node.status({ fill: 'green', shape, text: value })
+            this.node.status({ fill: 'green', shape, text })
           }
         }
       }
