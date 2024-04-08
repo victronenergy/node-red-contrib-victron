@@ -87,6 +87,7 @@ class SystemConfiguration {
             relayObject.disabled = true
             relayObject.warning = utils.RELAY_MODE_WARNING(utils.RELAY_FUNCTIONS[systemRelayFunction])
           } else {
+            relayObject.disabled = false
             delete (relayObject.warning)
           }
         }
