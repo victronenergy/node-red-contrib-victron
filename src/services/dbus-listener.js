@@ -105,19 +105,16 @@ class VictronDbusListener {
           clearInterval(this.rootPoller)
           this.connected = false
           console.error('Lost connection to D-Bus.')
+          reject(new Error('dbus connection end'))
         })
 
         this.connected = true
-        resolve()
       })
 
       this.bus.connection.on('error', (err) => {
         console.error(`Error connecting to dbus: ${err}`)
         reject(new Error('dbus connection error'))
       })
-
-      // Timeout the connection after 5 seconds if not connected
-      setTimeout(reject, 10 * 1000)
 
       this.bus.addMatch("type='signal',interface='com.victronenergy.BusItem',member='ItemsChanged'", () => { })
       this.bus.addMatch("type='signal',interface='com.victronenergy.BusItem',member='PropertiesChanged'", () => { })

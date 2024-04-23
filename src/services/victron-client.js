@@ -72,14 +72,17 @@ class VictronClient {
     )
 
     promiseRetry(retry => {
+      debug('Retrying dbus connection.')
       return this.client
         .connect()
         .catch(retry)
     },
     {
-      factor: 1,
+      factor: 2,
       forever: true,
-      minTimeout: 5 * 1000
+      minTimeout: 5 * 1000,
+      maxTimeout: 60 * 1000,
+
     })
       .catch(() => console.error('Unable to connect to dbus.'))
   }
