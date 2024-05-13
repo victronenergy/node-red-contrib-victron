@@ -112,6 +112,7 @@ class VictronDbusListener {
       })
 
       this.bus.connection.on('error', (err) => {
+        this.connected = false
         console.error(`Error connecting to dbus: ${err}`)
         reject(new Error('dbus connection error'))
       })
