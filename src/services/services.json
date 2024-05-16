@@ -2035,13 +2035,23 @@
           "5": "Waiting for RFID",
           "6": "Waiting for start",
           "7": "Low SOC",
-          "8": "Ground fault",
-          "9": "Welded contacts",
-          "10": "CP Input shorted",
+          "8": "Ground test error",
+          "9": "Welded contacts test error",
+          "10": "CP input test error (shorted)",
           "11": "Residual current detected",
-          "12": "Under voltage detected",
+          "12": "Undervoltage detected",
           "13": "Overvoltage detected",
-          "14": "Overheating detected"
+          "14": "Overheating detected",
+          "15": "Reserved",
+          "16": "Reserved",
+          "17": "Reserved",
+          "18": "Reserved",
+          "19": "Reserved",
+          "20": "Charging limit",
+          "21": "Start charging",
+          "22": "Switching to 3 phase",
+          "23": "Switching to 1 phase",
+          "24": "Stop charging"
         }
       }
     ]
@@ -3395,6 +3405,29 @@
         }
       },
       {
+        "path": "/Ess/AcPowerSetpoint",
+        "type": "float",
+        "name": "ESS power setpoint (W)"
+      },
+      {
+        "path": "/Ess/DisableFeedIn",
+        "type": "enum",
+        "name": "Disable Feed-in",
+        "enum": {
+          "0": "Feed-in enabled",
+          "1": "Feed-in disabled"
+        }
+      },
+      {
+        "path": "/Ess/DisableCharge",
+        "type": "enum",
+        "name": "Disable charge",
+        "enum": {
+          "0": "Charge enabled",
+          "1": "Charge disabled"
+        }
+      },
+      {
         "path": "/History/Daily/0/MaxPower",
         "type": "float",
         "name": "Maximum charge power today (W)"
@@ -3601,6 +3634,22 @@
         "enum": {
           "0": "Open",
           "1": "Closed"
+        }
+      },
+      {
+        "path": "/Settings/Ess/MinimumSocLimit",
+        "type": "float",
+        "name": "ESS Minimum SOC Limit (%)"
+      },
+      {
+        "path": "/Settings/Ess/Mode",
+        "type": "enum",
+        "name": "ESS mode",
+        "enum": {
+          "0": "self-consumption (battery-life)",
+          "1": "self-consumption",
+          "2": "Keep charged",
+          "3": "External control"
         }
       },
       {
@@ -4627,6 +4676,16 @@
         "name": "AC-Chargers - power (W)"
       },
       {
+        "path": "/Dc/InverterCharger/Current",
+        "type": "float",
+        "name": "Inverter/Charger current"
+      },
+      {
+        "path": "/Dc/InverterCharger/Power",
+        "type": "float",
+        "name": "Inverter/Charger power"
+      },
+      {
         "path": "/Dc/Pv/Current",
         "type": "float",
         "name": "MPPTs - current (A)"
@@ -5310,6 +5369,15 @@
         }
       },
       {
+        "path": "/Devices/0/Settings/UpsFunction",
+        "type": "enum",
+        "name": "UPS function L1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        }
+      },
+      {
         "path": "/Devices/1/Settings/AssistCurrentBoostFactor",
         "type": "float",
         "name": "Configured boost factor for VE.Bus unit 1"
@@ -5323,6 +5391,15 @@
         "path": "/Devices/1/Settings/PowerAssistEnabled",
         "type": "enum",
         "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        }
+      },
+      {
+        "path": "/Devices/1/Settings/UpsFunction",
+        "type": "enum",
+        "name": "UPS function L2",
         "enum": {
           "0": "Disabled",
           "1": "Enabled"
@@ -6309,6 +6386,38 @@
         "writable": true
       },
       {
+        "path": "/Ess/AcPowerSetpoint",
+        "type": "float",
+        "name": "ESS power setpoint (W)",
+        "writable": true
+      },
+      {
+        "path": "/Ess/DisableFeedIn",
+        "type": "enum",
+        "name": "Disable Feed-in",
+        "enum": {
+          "0": "Feed-in enabled",
+          "1": "Feed-in disabled"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Ess/DisableCharge",
+        "type": "enum",
+        "name": "Disable charge",
+        "enum": {
+          "0": "Charge enabled",
+          "1": "Charge disabled"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/Ess/MinimumSocLimit",
+        "type": "float",
+        "name": "ESS Minimum SOC Limit (%)",
+        "writable": true
+      },
+      {
         "path": "/Mode",
         "type": "enum",
         "name": "Switch position",
@@ -6317,6 +6426,18 @@
           "2": "Inverter Only",
           "3": "On",
           "4": "Off"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/Ess/Mode",
+        "type": "enum",
+        "name": "ESS mode",
+        "enum": {
+          "0": "self-consumption (battery-life)",
+          "1": "self-consumption",
+          "2": "Keep charged",
+          "3": "External control"
         },
         "writable": true
       }
@@ -6721,6 +6842,16 @@
         "writable": true
       },
       {
+        "path": "/Devices/0/Settings/UpsFunction",
+        "type": "enum",
+        "name": "UPS function L1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        },
+        "writable": true
+      },
+      {
         "path": "/Devices/1/Settings/AssistCurrentBoostFactor",
         "type": "float",
         "name": "Configured boost factor for VE.Bus unit 1",
@@ -6743,6 +6874,16 @@
         "writable": true
       },
       {
+        "path": "/Devices/1/Settings/UpsFunction",
+        "type": "enum",
+        "name": "UPS function L2",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        },
+        "writable": true
+      },
+      {
         "path": "/Devices/2/Settings/AssistCurrentBoostFactor",
         "type": "float",
         "name": "Configured boost factor for VE.Bus unit 1",
@@ -6758,6 +6899,16 @@
         "path": "/Devices/2/Settings/PowerAssistEnabled",
         "type": "enum",
         "name": "PowerAssist enabled unit 1",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Devices/2/Settings/UpsFunction",
+        "type": "enum",
+        "name": "UPS function L3",
         "enum": {
           "0": "Disabled",
           "1": "Enabled"
@@ -7068,6 +7219,16 @@
         "enum": {
           "0": "No",
           "1": "Yes"
+        },
+        "writable": true
+      },
+      {
+        "path": "/RedetectSystem",
+        "type": "enum",
+        "name": "Redetect VE.Bus system",
+        "enum": {
+          "0": "No action",
+          "1": "Redetect system"
         },
         "writable": true
       },
