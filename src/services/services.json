@@ -4731,9 +4731,10 @@
         "name": "Tank sensor status",
         "enum": {
           "0": "Ok",
-          "1": "Disconnected",
+          "1": "Open circuit",
           "2": "Short circuited",
-          "3": "Unknown"
+          "3": "Reverse polarity",
+          "4": "Unknown"
         }
       }
     ]
@@ -4792,7 +4793,7 @@
         "name": "Sensor status",
         "enum": {
           "0": "Ok",
-          "1": "Disconnected",
+          "1": "Open circuit",
           "2": "Short circuited",
           "3": "Reverse polarity",
           "4": "Unknown"
