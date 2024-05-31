@@ -2208,7 +2208,7 @@
           "5": "AcLoad",
           "6": "BatteryCurrent",
           "7": "BatteryVoltage",
-          "8": "InverterTemperatur",
+          "8": "InverterTemperature",
           "9": "InverterOverload",
           "10": "StopOnAc1"
         }
@@ -2232,6 +2232,16 @@
           "1": "Running",
           "10": "Error"
         }
+      },
+      {
+        "path": "/TestRunIntervalRuntime",
+        "type": "float",
+        "name": "Run time since last test run (seconds)"
+      },
+      {
+        "path": "/TodayRunTime",
+        "type": "float",
+        "name": "Today's run time (seconds)"
       }
     ]
   },
@@ -2299,9 +2309,14 @@
         "name": "Phase 3 voltage (V AC)"
       },
       {
-        "path": "/AutoStart",
+        "path": "/NrOfPhases",
+        "type": "float",
+        "name": "The number of phases (1, 2 or 3)"
+      },
+      {
+        "path": "/RemoteStartModeEnabled",
         "type": "enum",
-        "name": "Auto start",
+        "name": "Remote start mode",
         "enum": {
           "0": "Disabled",
           "1": "Enabled"
@@ -2333,6 +2348,11 @@
         "name": "Engine exhaust temperature (°C)"
       },
       {
+        "path": "/Engine/OilTemperature",
+        "type": "float",
+        "name": "Oil temperature (°C)"
+      },
+      {
         "path": "/Engine/Load",
         "type": "float",
         "name": "Engine load (%)"
@@ -2351,6 +2371,11 @@
         "path": "/Engine/Speed",
         "type": "float",
         "name": "Engine speed (RPM)"
+      },
+      {
+        "path": "/Engine/Starts",
+        "type": "float",
+        "name": "Nr of starts (absolute count)"
       },
       {
         "path": "/Engine/WindingTemperature",
@@ -6345,6 +6370,12 @@
           "0": "Stop generator",
           "1": "Start generator"
         },
+        "writable": true
+      },
+      {
+        "path": "/ManualStartTimer",
+        "type": "float",
+        "name": "Set it before a manual start to make the generator run for a fixed amount of seconds. Once the generator is started it indicates the seconds left until the generator is stopped",
         "writable": true
       },
       {

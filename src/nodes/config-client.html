@@ -1857,7 +1857,7 @@ Writing a negative value to the path will de-activate the schedule.
   <li>5 - AcLoad</li>
   <li>6 - BatteryCurrent</li>
   <li>7 - BatteryVoltage</li>
-  <li>8 - InverterTemperatur</li>
+  <li>8 - InverterTemperature</li>
   <li>9 - InverterOverload</li>
   <li>10 - StopOnAc1</li>
 </ul>
@@ -1875,6 +1875,12 @@ Writing a negative value to the path will de-activate the schedule.
   <li>1 - Running</li>
   <li>10 - Error</li>
 </ul>
+</dd>
+  <dt class="optional">Run time since last test run (seconds)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/TestRunIntervalRuntime</b>
+</dd>
+  <dt class="optional">Today's run time (seconds)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/TodayRunTime</b>
 </dd>
 </dl>
 </script>
@@ -1923,8 +1929,11 @@ Writing a negative value to the path will de-activate the schedule.
   <dt class="optional">Phase 3 voltage (V AC)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/L3/Voltage</b>
 </dd>
-  <dt class="optional">Auto start<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/AutoStart</b>
+  <dt class="optional">The number of phases (1, 2 or 3)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/NrOfPhases</b>
+</dd>
+  <dt class="optional">Remote start mode<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/RemoteStartModeEnabled</b>
 <ul>
   <li>0 - Disabled</li>
   <li>1 - Enabled</li>
@@ -1945,6 +1954,9 @@ Writing a negative value to the path will de-activate the schedule.
   <dt class="optional">Engine exhaust temperature (°C)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Engine/ExaustTemperature</b>
 </dd>
+  <dt class="optional">Oil temperature (°C)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Engine/OilTemperature</b>
+</dd>
   <dt class="optional">Engine load (%)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Engine/Load</b>
 </dd>
@@ -1956,6 +1968,9 @@ Writing a negative value to the path will de-activate the schedule.
 </dd>
   <dt class="optional">Engine speed (RPM)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Engine/Speed</b>
+</dd>
+  <dt class="optional">Nr of starts (absolute count)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Engine/Starts</b>
 </dd>
   <dt class="optional">Engine winding temperature (°C)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Engine/WindingTemperature</b>
@@ -4943,6 +4958,9 @@ Writing a negative value to the path will de-activate the schedule.
   <li>0 - Stop generator</li>
   <li>1 - Start generator</li>
 </ul>
+</dd>
+  <dt class="optional">Set it before a manual start to make the generator run for a fixed amount of seconds. Once the generator is started it indicates the seconds left until the generator is stopped<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/ManualStartTimer</b>
 </dd>
   <dt class="optional">Service countdown reset (1=Reset service counter)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/ServiceCounterReset</b>
