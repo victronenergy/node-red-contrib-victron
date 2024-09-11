@@ -2018,7 +2018,7 @@ Writing a negative value to the path will de-activate the schedule.
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>The measurement unit type is shown in the measurement label in brackets, e.g. Battery voltage (V). In case the data type is enumerated, an appropriate enum legend is shown below the selected option. In this case the node will also output the enumerated textual value as <tt>msg.textvalue</tt>.</p>
 <p>If the data type is <em>float</em>, a dropdown for rounding the output appears.</p>
 <p>By default the node outputs its value every five seconds. If the <em>only changes</em> is checked, the node will only output on value changes.</p>
-<p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the (remote) console first.<br />Also see <a href="https://github.com/victronenergy/venus/wiki/dbus#generator-data">here</a> for more information.</p>
+<p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the (remote) console first.<br />The <strong>Generator start/stop<strong> dropdown is for the generic generator. It can activate a relay, but also, in case of Fischer panda, a generator directly via D-Bus.<br />The other option(s) are for generator data like voltages, RPM, oil pressure etcetera.<br />Also see <a href="https://github.com/victronenergy/venus/wiki/dbus#generator-data">here</a> for more information.</p>
 <h3>Generator</h3>
 <dl class="message-properties">
   <dt class="optional">Generator not detected at AC input alarm<span class="property-type">enum</dt>
@@ -2094,14 +2094,6 @@ Writing a negative value to the path will de-activate the schedule.
   <dd>Dbus path: <b>/TodayRunTime</b>
 </dd>
 </dl>
-</script>
-
-<script type="text/x-red" data-help-name="victron-input-genset">
-<h3>Details</h3>
-<p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>The measurement unit type is shown in the measurement label in brackets, e.g. Battery voltage (V). In case the data type is enumerated, an appropriate enum legend is shown below the selected option. In this case the node will also output the enumerated textual value as <tt>msg.textvalue</tt>.</p>
-<p>If the data type is <em>float</em>, a dropdown for rounding the output appears.</p>
-<p>By default the node outputs its value every five seconds. If the <em>only changes</em> is checked, the node will only output on value changes.</p>
-<p>This node is essentially an energy meter showing volts, amps, power, energy etc. It is comparable with the input-gridmeter.</p>
 <h3>Genset</h3>
 <dl class="message-properties">
   <dt class="optional">AC Frequency (Hz)<span class="property-type">float</dt>
@@ -2319,6 +2311,42 @@ Writing a negative value to the path will de-activate the schedule.
 </dl>
 <h3>Dcgenset</h3>
 <dl class="message-properties">
+  <dt class="optional">DC current (DC A)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Dc/0/Current</b>
+</dd>
+  <dt class="optional">DC current (DC A)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Dc/0/Current</b>
+</dd>
+  <dt class="optional">Engine coolant temperature (Degrees celsius)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Engine/CoolantTemperature</b>
+</dd>
+  <dt class="optional">Engine exhaust temperature (Degrees celsius)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Engine/ExaustTemperature</b>
+</dd>
+  <dt class="optional">Engine load (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Engine/Load</b>
+</dd>
+  <dt class="optional">Oil pressure (kPa)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Engine/OilPressure</b>
+</dd>
+  <dt class="optional">Engine oil temperature (Degrees celsius)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Engine/OilTemperature</b>
+</dd>
+  <dt class="optional">Engine oil temperature (Seconds)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Engine/OperatingHours</b>
+</dd>
+  <dt class="optional">Heatsink temperature (RPM)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Engine/Speed</b>
+</dd>
+  <dt class="optional">Internal winding temperature (Degrees celsius)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Engine/WindingTemperature</b>
+</dd>
+  <dt class="optional">Heatsink temperature (Degrees celsius)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/HeatsinkTemperature</b>
+</dd>
+  <dt class="optional">Starter battery voltage (DC V)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/StarterVoltage</b>
+</dd>
 </dl>
 </script>
 
@@ -5156,6 +5184,26 @@ Writing a negative value to the path will de-activate the schedule.
 </dd>
   <dt class="optional">Service countdown reset (1=Reset service counter)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/ServiceCounterReset</b>
+</dd>
+</dl>
+<h3>Genset</h3>
+<dl class="message-properties">
+  <dt class="optional">Start generator<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Start</b>
+<ul>
+  <li>0 - Stop</li>
+  <li>1 - Start</li>
+</ul>
+</dd>
+</dl>
+<h3>Dcgenset</h3>
+<dl class="message-properties">
+  <dt class="optional">Start generator<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Start</b>
+<ul>
+  <li>0 - Stop generator</li>
+  <li>1 - Start generator</li>
+</ul>
 </dd>
 </dl>
 </script>

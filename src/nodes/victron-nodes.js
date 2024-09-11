@@ -178,7 +178,6 @@ module.exports = function (RED) {
   RED.nodes.registerType('victron-input-evcharger', BaseInputNode)
   RED.nodes.registerType('victron-input-fuelcell', BaseInputNode)
   RED.nodes.registerType('victron-input-generator', BaseInputNode)
-  RED.nodes.registerType('victron-input-genset', BaseInputNode)
   RED.nodes.registerType('victron-input-gps', BaseInputNode)
   RED.nodes.registerType('victron-input-gridmeter', BaseInputNode)
   RED.nodes.registerType('victron-input-inverter', BaseInputNode)

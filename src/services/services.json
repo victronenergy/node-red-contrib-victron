@@ -2421,7 +2421,7 @@
     ]
   },
   "input-generator": {
-    "help": "<p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the (remote) console first.<br />Also see <a href=\"https://github.com/victronenergy/venus/wiki/dbus#generator-data\">here</a> for more information.</p>",
+    "help": "<p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the (remote) console first.<br />The <strong>Generator start/stop<strong> dropdown is for the generic generator. It can activate a relay, but also, in case of Fischer panda, a generator directly via D-Bus.<br />The other option(s) are for generator data like voltages, RPM, oil pressure etcetera.<br />Also see <a href=\"https://github.com/victronenergy/venus/wiki/dbus#generator-data\">here</a> for more information.</p>",
     "generator": [
       {
         "path": "/Alarms/NoGeneratorAtAcIn",
@@ -2517,10 +2517,7 @@
         "type": "float",
         "name": "Today's run time (seconds)"
       }
-    ]
-  },
-  "input-genset": {
-    "help": "<p>This node is essentially an energy meter showing volts, amps, power, energy etc. It is comparable with the input-gridmeter.</p>",
+    ],
     "genset": [
       {
         "path": "/Ac/Frequency",
@@ -2799,7 +2796,68 @@
         }
       }
     ],
-    "dcgenset": []
+    "dcgenset": [
+      {
+        "path": "/Dc/0/Current",
+        "type": "float",
+        "name": "DC current (DC A)"
+      },
+      {
+        "path": "/Dc/0/Current",
+        "type": "float",
+        "name": "DC current (DC A)"
+      },
+      {
+        "path": "/Engine/CoolantTemperature",
+        "type": "float",
+        "name": "Engine coolant temperature (Degrees celsius)"
+      },
+      {
+        "path": "/Engine/ExaustTemperature",
+        "type": "float",
+        "name": "Engine exhaust temperature (Degrees celsius)"
+      },
+      {
+        "path": "/Engine/Load",
+        "type": "float",
+        "name": "Engine load (%)"
+      },
+      {
+        "path": "/Engine/OilPressure",
+        "type": "float",
+        "name": "Oil pressure (kPa)"
+      },
+      {
+        "path": "/Engine/OilTemperature",
+        "type": "float",
+        "name": "Engine oil temperature (Degrees celsius)"
+      },
+      {
+        "path": "/Engine/OperatingHours",
+        "type": "float",
+        "name": "Engine oil temperature (Seconds)"
+      },
+      {
+        "path": "/Engine/Speed",
+        "type": "float",
+        "name": "Heatsink temperature (RPM)"
+      },
+      {
+        "path": "/Engine/WindingTemperature",
+        "type": "float",
+        "name": "Internal winding temperature (Degrees celsius)"
+      },
+      {
+        "path": "/HeatsinkTemperature",
+        "type": "float",
+        "name": "Heatsink temperature (Degrees celsius)"
+      },
+      {
+        "path": "/StarterVoltage",
+        "type": "float",
+        "name": "Starter battery voltage (DC V)"
+      }
+    ]
   },
   "input-gps": {
     "help": "<p>GPS information can be obtained with this node. For an example usage see the <a href=\"https://github.com/victronenergy/node-red-contrib-victron/wiki/Example-Flows#location-based-scheduling\">location based scheduling</a> example.</p>",
@@ -6617,6 +6675,30 @@
         "path": "/ServiceCounterReset",
         "type": "float",
         "name": "Service countdown reset (1=Reset service counter)",
+        "writable": true
+      }
+    ],
+    "genset": [
+      {
+        "path": "/Start",
+        "type": "enum",
+        "name": "Start generator",
+        "enum": {
+          "0": "Stop",
+          "1": "Start"
+        },
+        "writable": true
+      }
+    ],
+    "dcgenset": [
+      {
+        "path": "/Start",
+        "type": "enum",
+        "name": "Start generator",
+        "enum": {
+          "0": "Stop generator",
+          "1": "Start generator"
+        },
         "writable": true
       }
     ]

@@ -185,7 +185,6 @@ class SystemConfiguration {
       'input-evcharger': this.getNodeServices('input-evcharger'),
       'input-fuelcell': this.getNodeServices('input-fuelcell'),
       'input-generator': this.getNodeServices('input-generator'),
-      'input-genset': this.getNodeServices('input-genset'),
       'input-gps': this.getNodeServices('input-gps'),
       'input-gridmeter': this.getNodeServices('input-gridmeter'),
       'input-inverter': this.getNodeServices('input-inverter'),
