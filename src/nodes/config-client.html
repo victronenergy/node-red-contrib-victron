@@ -304,6 +304,111 @@ Questions can also be asked on the Victron Energy community:
 </dl>
 </script>
 
+<script type="text/x-red" data-help-name="victron-input-acsystem">
+<h3>Details</h3>
+<p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>The measurement unit type is shown in the measurement label in brackets, e.g. Battery voltage (V). In case the data type is enumerated, an appropriate enum legend is shown below the selected option. In this case the node will also output the enumerated textual value as <tt>msg.textvalue</tt>.</p>
+<p>If the data type is <em>float</em>, a dropdown for rounding the output appears.</p>
+<p>By default the node outputs its value every five seconds. If the <em>only changes</em> is checked, the node will only output on value changes.</p>
+<p>Managing service for Multi-RS and other future inverter/chargers.</p>
+<h3>Acsystem</h3>
+<dl class="message-properties">
+  <dt class="optional">Input voltage phase 1 (V AC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/In/1/L1/V</b>
+</dd>
+  <dt class="optional">Input voltage phase 2 (V AC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/In/1/L2/V</b>
+</dd>
+  <dt class="optional">Input voltage phase 3 (V AC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/In/1/L3/V</b>
+</dd>
+  <dt class="optional">Input current phase 1 (A AC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/In/1/L1/I</b>
+</dd>
+  <dt class="optional">Input current phase 2 (A AC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/In/1/L2/I</b>
+</dd>
+  <dt class="optional">Input current phase 3 (A AC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/In/1/L3/I</b>
+</dd>
+  <dt class="optional">Input power phase 1 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/In/1/L1/P</b>
+</dd>
+  <dt class="optional">Input power phase 2 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/In/1/L2/P</b>
+</dd>
+  <dt class="optional">Input power phase 3 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/In/1/L3/P</b>
+</dd>
+  <dt class="optional">Input frequency (Hz)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/In/1/L1/F</b>
+</dd>
+  <dt class="optional">Output voltage phase 1 (V AC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/Out/L1/V</b>
+</dd>
+  <dt class="optional">Output voltage phase 2 (V AC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/Out/L2/V</b>
+</dd>
+  <dt class="optional">Output voltage phase 3 (V AC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/Out/L3/V</b>
+</dd>
+  <dt class="optional">Output current phase 1 (A AC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/Out/L1/I</b>
+</dd>
+  <dt class="optional">Output current phase 2 (A AC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/Out/L2/I</b>
+</dd>
+  <dt class="optional">Output current phase 3 (A AC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/Out/L3/I</b>
+</dd>
+  <dt class="optional">Output power phase 1 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/Out/L1/P</b>
+</dd>
+  <dt class="optional">Output power phase 2 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/Out/L2/P</b>
+</dd>
+  <dt class="optional">Output power phase 3 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/Out/L3/P</b>
+</dd>
+  <dt class="optional">Output frequency (Hz)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/Out/L1/F</b>
+</dd>
+  <dt class="optional">Grid Lost Alarm<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Alarms/GridLost</b>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul>
+</dd>
+  <dt class="optional">Phase Rotation Alarm<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Alarms/PhaseRotation</b>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul>
+</dd>
+  <dt class="optional">System state<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/State</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - Low Power</li>
+  <li>2 - Fault</li>
+  <li>3 - Bulk</li>
+  <li>4 - Absorption</li>
+  <li>5 - Float</li>
+  <li>6 - Storage</li>
+  <li>7 - Equalize</li>
+  <li>8 - Passthru</li>
+  <li>9 - Inverting</li>
+  <li>10 - Power assist</li>
+  <li>11 - Power supply</li>
+  <li>252 - External control</li>
+</ul>
+</dd>
+</dl>
+</script>
+
 <script type="text/x-red" data-help-name="victron-input-alternator">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>The measurement unit type is shown in the measurement label in brackets, e.g. Battery voltage (V). In case the data type is enumerated, an appropriate enum legend is shown below the selected option. In this case the node will also output the enumerated textual value as <tt>msg.textvalue</tt>.</p>
@@ -603,6 +708,15 @@ Questions can also be asked on the Victron Energy community:
 <ul>
   <li>0 - Inactive</li>
   <li>1 - Active</li>
+</ul>
+</dd>
+  <dt class="optional">Balancer status<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Balancer/Status</b>
+<ul>
+  <li>0 - Unknown</li>
+  <li>1 - Balanced</li>
+  <li>2 - Balancing</li>
+  <li>3 - Cell imbalance</li>
 </ul>
 </dd>
   <dt class="optional">Capacity (Ah)<span class="property-type">float</dt>
@@ -1240,6 +1354,103 @@ Questions can also be asked on the Victron Energy community:
 </dd>
   <dt class="optional">Total energy produced (kWh)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/History/EnergyOut</b>
+</dd>
+</dl>
+</script>
+
+<script type="text/x-red" data-help-name="victron-input-dess">
+<h3>Details</h3>
+<p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>The measurement unit type is shown in the measurement label in brackets, e.g. Battery voltage (V). In case the data type is enumerated, an appropriate enum legend is shown below the selected option. In this case the node will also output the enumerated textual value as <tt>msg.textvalue</tt>.</p>
+<p>If the data type is <em>float</em>, a dropdown for rounding the output appears.</p>
+<p>By default the node outputs its value every five seconds. If the <em>only changes</em> is checked, the node will only output on value changes.</p>
+<p>Dynamic ESS input node.</p>
+<h3>System</h3>
+<dl class="message-properties">
+  <dt class="optional">Is Dynamic ESS available<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/DynamicEss/Available</b>
+<ul>
+  <li>0 - System is not capable of doing DynamicEss</li>
+  <li>1 - System is capable of doing DynamicEss</li>
+</ul>
+</dd>
+  <dt class="optional">Error<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/DynamicEss/ErrorCode</b>
+<ul>
+  <li>0 - No error</li>
+  <li>1 - No ESS</li>
+  <li>2 - ESS mode</li>
+  <li>3 - No matching schedule</li>
+  <li>4 - SOC low</li>
+  <li>5 - Battery capacity not configured</li>
+</ul>
+</dd>
+  <dt class="optional">Active restrictions<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/DynamicEss/Restrictions</b>
+<ul>
+  <li>0 - No restrictions between battery and the grid</li>
+  <li>1 - Grid to battery energy flow is restricted</li>
+  <li>2 - Battery to grid energy flow is restricted</li>
+  <li>3 - No energy flow between battery and grid</li>
+</ul>
+</dd>
+  <dt class="optional">Used strategy for current time slot<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/DynamicEss/Strategy</b>
+<ul>
+  <li>0 - Target SOC</li>
+  <li>1 - Self-consumption</li>
+</ul>
+</dd>
+  <dt class="optional">The set target SOC for this time slot (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/DynamicEss/TargetSoc</b>
+</dd>
+</dl>
+<h3>Settings</h3>
+<dl class="message-properties">
+  <dt class="optional">Battery capacity (kWh)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/BatteryCapacity</b>
+</dd>
+  <dt class="optional">Full battery charge duration (hour)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/FullChargeDuration</b>
+</dd>
+  <dt class="optional">Full battery charge interval (day)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/FullChargeInterval</b>
+</dd>
+  <dt class="optional">Dynamic ESS mode<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Mode</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - Auto</li>
+  <li>4 - Node-RED</li>
+</ul>
+</dd>
+  <dt class="optional">Allow grid feed-in during this schedule<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/0/AllowGridFeedIn</b>
+<ul>
+  <li>0 - Not allowed</li>
+  <li>1 - Allowed</li>
+</ul>
+</dd>
+  <dt class="optional">Duration for this schedule (Seconds)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/0/Duration</b>
+</dd>
+  <dt class="optional">Active restrictions for this schedule<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/0/Restrictions</b>
+<ul>
+  <li>0 - No restrictions between battery and the grid</li>
+  <li>1 - Grid to battery energy flow is restricted</li>
+  <li>2 - Battery to grid energy flow is restricted</li>
+  <li>3 - No energy flow between battery and grid</li>
+</ul>
+</dd>
+  <dt class="optional">Target SOC for this schedule (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/0/Soc</b>
+</dd>
+  <dt class="optional">Used strategy for this schedule<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/0/Strategy</b>
+<ul>
+  <li>0 - Target SOC</li>
+  <li>1 - Self-consumption</li>
+</ul>
 </dd>
 </dl>
 </script>
@@ -1893,6 +2104,9 @@ Writing a negative value to the path will de-activate the schedule.
 <p>This node is essentially an energy meter showing volts, amps, power, energy etc. It is comparable with the input-gridmeter.</p>
 <h3>Genset</h3>
 <dl class="message-properties">
+  <dt class="optional">AC Frequency (Hz)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/Frequency</b>
+</dd>
   <dt class="optional">Phase 1 current (A AC)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/L1/Current</b>
 </dd>
@@ -2102,6 +2316,9 @@ Writing a negative value to the path will de-activate the schedule.
   <li>10 - Error</li>
 </ul>
 </dd>
+</dl>
+<h3>Dcgenset</h3>
+<dl class="message-properties">
 </dl>
 </script>
 
@@ -2689,6 +2906,14 @@ Writing a negative value to the path will de-activate the schedule.
   <li>2 - Alarm</li>
 </ul>
 </dd>
+  <dt class="optional">Short Circuit Alarm<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Alarms/ShortCircuit</b>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul>
+</dd>
   <dt class="optional">Battery current (A DC)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Dc/0/Current</b>
 </dd>
@@ -2777,6 +3002,13 @@ Writing a negative value to the path will de-activate the schedule.
 <ul>
   <li>0 - Charge enabled</li>
   <li>1 - Charge disabled</li>
+</ul>
+</dd>
+  <dt class="optional">Sustain active<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Ess/Sustain</b>
+<ul>
+  <li>0 - Sustain inactive</li>
+  <li>1 - Sustain active</li>
 </ul>
 </dd>
   <dt class="optional">Maximum charge power today (W)<span class="property-type">float</dt>
@@ -3618,6 +3850,24 @@ Writing a negative value to the path will de-activate the schedule.
   <dt class="optional">AC Consumption L3 (W)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/Consumption/L3/Power</b>
 </dd>
+  <dt class="optional">Power between meter and inverter/charger, L1 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/ConsumptionOnInput/L1/Power</b>
+</dd>
+  <dt class="optional">Power between meter and inverter/charger, L2 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/ConsumptionOnInput/L2/Power</b>
+</dd>
+  <dt class="optional">Power between meter and inverter/charger, L3 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/ConsumptionOnInput/L3/Power</b>
+</dd>
+  <dt class="optional">Power on output of inverter/charger, L1 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/ConsumptionOnOutput/L1/Power</b>
+</dd>
+  <dt class="optional">Power on output of inverter/charger, L2 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/ConsumptionOnOutput/L2/Power</b>
+</dd>
+  <dt class="optional">Power on output of inverter/charger, L3 (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/ConsumptionOnOutput/L3/Power</b>
+</dd>
   <dt class="optional">Genset Device Type<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/Genset/DeviceType</b>
 </dd>
@@ -4239,163 +4489,6 @@ Writing a negative value to the path will de-activate the schedule.
   <li>1 - Enabled</li>
 </ul>
 </dd>
-  <dt class="optional">UPS function L1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/0/Settings/UpsFunction</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/1/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/1/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/1/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">UPS function L2<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/1/Settings/UpsFunction</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/2/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/2/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/2/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/3/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/3/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/3/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/4/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/4/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/4/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/5/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/5/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/5/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/6/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/6/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/6/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/7/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/7/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/7/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/8/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/8/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/8/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/9/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/9/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/9/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/10/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/10/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/10/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/11/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/11/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/11/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
   <dt class="optional">Energy ACIn1 to AcOut (kWh)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Energy/AcIn1ToAcOut</b>
 </dd>
@@ -4468,6 +4561,23 @@ Writing a negative value to the path will de-activate the schedule.
 <ul>
   <li>0 - No</li>
   <li>1 - Yes</li>
+</ul>
+</dd>
+  <dt class="optional">Configured output voltage (V AC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/InverterOutputVoltage</b>
+</dd>
+  <dt class="optional">PowerAssist enabled<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/PowerAssistEnabled</b>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
+</ul>
+</dd>
+  <dt class="optional">UPS function enabled<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/UpsFunction</b>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
 </ul>
 </dd>
   <dt class="optional">VE.Bus state of charge (%)<span class="property-type">float</dt>
@@ -4573,6 +4683,33 @@ Writing a negative value to the path will de-activate the schedule.
 </dl>
 </script>
 
+<script type="text/x-red" data-help-name="victron-output-acsystem">
+<h3>Details</h3>
+<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> 
+<p>This node is for controlling the Multi-RS and other future inverter/chargers.</p>
+<h3>Acsystem</h3>
+<dl class="message-properties">
+  <dt class="optional">ESS setpoint (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ess/AcPowerSetpoint</b>
+</dd>
+  <dt class="optional">Disable Feed-in (into grid)<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Ess/DisableFeedIn</b>
+<ul>
+  <li>0 - Feed-in enabled</li>
+  <li>1 - Feed-in disabled</li>
+</ul>
+</dd>
+  <dt class="optional">ESS mode<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/Ess/Mode</b>
+<ul>
+  <li>1 - ESS with Phase Compensation</li>
+  <li>2 - ESS without phase compensation</li>
+  <li>3 - Disabled/External Control</li>
+</ul>
+</dd>
+</dl>
+</script>
+
 <script type="text/x-red" data-help-name="victron-output-battery">
 <h3>Details</h3>
 <p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> 
@@ -4619,6 +4756,61 @@ Writing a negative value to the path will de-activate the schedule.
 <ul>
   <li>1 - On</li>
   <li>4 - Off</li>
+</ul>
+</dd>
+</dl>
+</script>
+
+<script type="text/x-red" data-help-name="victron-output-dess">
+<h3>Details</h3>
+<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> 
+<p>Dynamic ESS output node.</p>
+<h3>Settings</h3>
+<dl class="message-properties">
+  <dt class="optional">Battery capacity (kWh)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/BatteryCapacity</b>
+</dd>
+  <dt class="optional">Full battery charge duration (hour)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/FullChargeDuration</b>
+</dd>
+  <dt class="optional">Full battery charge interval (day)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/FullChargeInterval</b>
+</dd>
+  <dt class="optional">Dynamic ESS mode<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Mode</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - Auto</li>
+  <li>4 - Node-RED</li>
+</ul>
+</dd>
+  <dt class="optional">Allow grid feed-in during this schedule<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/0/AllowGridFeedIn</b>
+<ul>
+  <li>0 - Not allowed</li>
+  <li>1 - Allowed</li>
+</ul>
+</dd>
+  <dt class="optional">Duration for this schedule (Seconds)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/0/Duration</b>
+</dd>
+  <dt class="optional">Active restrictions for this schedule<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/0/Restrictions</b>
+<ul>
+  <li>0 - No restrictions between battery and the grid</li>
+  <li>1 - Grid to battery energy flow is restricted</li>
+  <li>2 - Battery to grid energy flow is restricted</li>
+  <li>3 - No energy flow between battery and grid</li>
+</ul>
+</dd>
+  <dt class="optional">Target SOC for this schedule (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/0/Soc</b>
+</dd>
+  <dt class="optional">Used strategy for this schedule<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/0/Strategy</b>
+<ul>
+  <li>0 - Target SOC</li>
+  <li>1 - Self-consumption</li>
 </ul>
 </dd>
 </dl>
@@ -5337,170 +5529,6 @@ Writing a negative value to the path will de-activate the schedule.
   <li>1 - Enabled</li>
 </ul>
 </dd>
-  <dt class="optional">UPS function L1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/0/Settings/UpsFunction</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/1/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/1/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/1/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">UPS function L2<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/1/Settings/UpsFunction</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/2/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/2/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/2/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">UPS function L3<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/2/Settings/UpsFunction</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/3/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/3/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/3/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/4/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/4/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/4/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/5/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/5/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/5/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/6/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/6/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/6/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/7/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/7/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/7/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/8/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/8/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/8/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/9/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/9/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/9/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/10/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/10/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/10/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
-  <dt class="optional">Configured boost factor for VE.Bus unit 1<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/11/Settings/AssistCurrentBoostFactor</b>
-</dd>
-  <dt class="optional">Configured output voltage for VE.Bus unit 1 (V AC)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Devices/11/Settings/InverterOutputVoltage</b>
-</dd>
-  <dt class="optional">PowerAssist enabled unit 1<span class="property-type">enum</dt>
-  <dd>Dbus path: <b>/Devices/11/Settings/PowerAssistEnabled</b>
-<ul>
-  <li>0 - Disabled</li>
-  <li>1 - Enabled</li>
-</ul>
-</dd>
   <dt class="optional">ESS disable charge flag phase<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Hub4/DisableCharge</b>
 <ul>
@@ -5576,6 +5604,23 @@ Writing a negative value to the path will de-activate the schedule.
 <ul>
   <li>0 - No action</li>
   <li>1 - Redetect system</li>
+</ul>
+</dd>
+  <dt class="optional">Configured output voltage (V AC)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/InverterOutputVoltage</b>
+</dd>
+  <dt class="optional">PowerAssist enabled<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/PowerAssistEnabled</b>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
+</ul>
+</dd>
+  <dt class="optional">UPS function enabled<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/UpsFunction</b>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
 </ul>
 </dd>
   <dt class="optional">VE.Bus state of charge (%)<span class="property-type">float</dt>

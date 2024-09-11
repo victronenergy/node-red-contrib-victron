@@ -164,6 +164,7 @@ module.exports = function (RED) {
   // Input nodes
   RED.nodes.registerType('victron-input-accharger', BaseInputNode)
   RED.nodes.registerType('victron-input-acload', BaseInputNode)
+  RED.nodes.registerType('victron-input-acsystem', BaseInputNode)
   RED.nodes.registerType('victron-input-alternator', BaseInputNode)
   RED.nodes.registerType('victron-input-battery', BaseInputNode)
   RED.nodes.registerType('victron-input-custom', BaseInputNode)
@@ -171,6 +172,7 @@ module.exports = function (RED) {
   RED.nodes.registerType('victron-input-dcload', BaseInputNode)
   RED.nodes.registerType('victron-input-dcsource', BaseInputNode)
   RED.nodes.registerType('victron-input-dcsystem', BaseInputNode)
+  RED.nodes.registerType('victron-input-dess', BaseInputNode)
   RED.nodes.registerType('victron-input-digitalinput', BaseInputNode)
   RED.nodes.registerType('victron-input-ess', BaseInputNode)
   RED.nodes.registerType('victron-input-evcharger', BaseInputNode)
@@ -200,6 +202,7 @@ module.exports = function (RED) {
   RED.nodes.registerType('victron-output-charger', BaseOutputNode)
   RED.nodes.registerType('victron-output-custom', BaseOutputNode)
   RED.nodes.registerType('victron-output-dcdc', BaseOutputNode)
+  RED.nodes.registerType('victron-output-dess', BaseOutputNode)
   RED.nodes.registerType('victron-output-ess', BaseOutputNode)
   RED.nodes.registerType('victron-output-evcharger', BaseOutputNode)
   RED.nodes.registerType('victron-output-generator', BaseOutputNode)

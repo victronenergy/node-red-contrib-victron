@@ -214,6 +214,151 @@
       }
     ]
   },
+  "input-acsystem": {
+    "help": "<p>Managing service for Multi-RS and other future inverter/chargers.</p>",
+    "acsystem": [
+      {
+        "path": "/Ac/In/1/L1/V",
+        "type": "float",
+        "name": "Input voltage phase 1 (V AC)"
+      },
+      {
+        "path": "/Ac/In/1/L2/V",
+        "type": "float",
+        "name": "Input voltage phase 2 (V AC)"
+      },
+      {
+        "path": "/Ac/In/1/L3/V",
+        "type": "float",
+        "name": "Input voltage phase 3 (V AC)"
+      },
+      {
+        "path": "/Ac/In/1/L1/I",
+        "type": "float",
+        "name": "Input current phase 1 (A AC)"
+      },
+      {
+        "path": "/Ac/In/1/L2/I",
+        "type": "float",
+        "name": "Input current phase 2 (A AC)"
+      },
+      {
+        "path": "/Ac/In/1/L3/I",
+        "type": "float",
+        "name": "Input current phase 3 (A AC)"
+      },
+      {
+        "path": "/Ac/In/1/L1/P",
+        "type": "float",
+        "name": "Input power phase 1 (W)"
+      },
+      {
+        "path": "/Ac/In/1/L2/P",
+        "type": "float",
+        "name": "Input power phase 2 (W)"
+      },
+      {
+        "path": "/Ac/In/1/L3/P",
+        "type": "float",
+        "name": "Input power phase 3 (W)"
+      },
+      {
+        "path": "/Ac/In/1/L1/F",
+        "type": "float",
+        "name": "Input frequency (Hz)"
+      },
+      {
+        "path": "/Ac/Out/L1/V",
+        "type": "float",
+        "name": "Output voltage phase 1 (V AC)"
+      },
+      {
+        "path": "/Ac/Out/L2/V",
+        "type": "float",
+        "name": "Output voltage phase 2 (V AC)"
+      },
+      {
+        "path": "/Ac/Out/L3/V",
+        "type": "float",
+        "name": "Output voltage phase 3 (V AC)"
+      },
+      {
+        "path": "/Ac/Out/L1/I",
+        "type": "float",
+        "name": "Output current phase 1 (A AC)"
+      },
+      {
+        "path": "/Ac/Out/L2/I",
+        "type": "float",
+        "name": "Output current phase 2 (A AC)"
+      },
+      {
+        "path": "/Ac/Out/L3/I",
+        "type": "float",
+        "name": "Output current phase 3 (A AC)"
+      },
+      {
+        "path": "/Ac/Out/L1/P",
+        "type": "float",
+        "name": "Output power phase 1 (W)"
+      },
+      {
+        "path": "/Ac/Out/L2/P",
+        "type": "float",
+        "name": "Output power phase 2 (W)"
+      },
+      {
+        "path": "/Ac/Out/L3/P",
+        "type": "float",
+        "name": "Output power phase 3 (W)"
+      },
+      {
+        "path": "/Ac/Out/L1/F",
+        "type": "float",
+        "name": "Output frequency (Hz)"
+      },
+      {
+        "path": "/Alarms/GridLost",
+        "type": "enum",
+        "name": "Grid Lost Alarm",
+        "enum": {
+          "0": "Ok",
+          "1": "Warning",
+          "2": "Alarm"
+        }
+      },
+      {
+        "path": "/Alarms/PhaseRotation",
+        "type": "enum",
+        "name": "Phase Rotation Alarm",
+        "enum": {
+          "0": "Ok",
+          "1": "Warning",
+          "2": "Alarm"
+        }
+      },
+      {
+        "path": "/State",
+        "type": "enum",
+        "name": "System state",
+        "enum": {
+          "0": "Off",
+          "1": "Low Power",
+          "2": "Fault",
+          "3": "Bulk",
+          "4": "Absorption",
+          "5": "Float",
+          "6": "Storage",
+          "7": "Equalize",
+          "8": "Passthru",
+          "9": "Inverting",
+          "10": "Power assist",
+          "11": "Power supply",
+          "252": "External control"
+        }
+      }
+    ]
+  },
   "input-alternator": {
     "help": "<p>This node allows for monitoring the state of BMVs configured in Monitor Mode and DC meter type is Alternator or an alternator controller which is interfaced to the Venus OS.</p>",
     "alternator": [
@@ -584,6 +729,17 @@
         "enum": {
           "0": "Inactive",
           "1": "Active"
+        }
+      },
+      {
+        "path": "/Balancer/Status",
+        "type": "enum",
+        "name": "Balancer status",
+        "enum": {
+          "0": "Unknown",
+          "1": "Balanced",
+          "2": "Balancing",
+          "3": "Cell imbalance"
         }
       },
       {
@@ -1438,6 +1594,124 @@
       }
     ]
   },
+  "input-dess": {
+    "help": "<p>Dynamic ESS input node.</p>",
+    "system": [
+      {
+        "path": "/DynamicEss/Available",
+        "type": "enum",
+        "name": "Is Dynamic ESS available",
+        "enum": {
+          "0": "System is not capable of doing DynamicEss",
+          "1": "System is capable of doing DynamicEss"
+        }
+      },
+      {
+        "path": "/DynamicEss/ErrorCode",
+        "type": "enum",
+        "name": "Error",
+        "enum": {
+          "0": "No error",
+          "1": "No ESS",
+          "2": "ESS mode",
+          "3": "No matching schedule",
+          "4": "SOC low",
+          "5": "Battery capacity not configured"
+        }
+      },
+      {
+        "path": "/DynamicEss/Restrictions",
+        "type": "enum",
+        "name": "Active restrictions",
+        "enum": {
+          "0": "No restrictions between battery and the grid",
+          "1": "Grid to battery energy flow is restricted",
+          "2": "Battery to grid energy flow is restricted",
+          "3": "No energy flow between battery and grid"
+        }
+      },
+      {
+        "path": "/DynamicEss/Strategy",
+        "type": "enum",
+        "name": "Used strategy for current time slot",
+        "enum": {
+          "0": "Target SOC",
+          "1": "Self-consumption"
+        }
+      },
+      {
+        "path": "/DynamicEss/TargetSoc",
+        "type": "float",
+        "name": "The set target SOC for this time slot (%)"
+      }
+    ],
+    "settings": [
+      {
+        "path": "/Settings/DynamicEss/BatteryCapacity",
+        "type": "float",
+        "name": "Battery capacity (kWh)"
+      },
+      {
+        "path": "/Settings/DynamicEss/FullChargeDuration",
+        "type": "float",
+        "name": "Full battery charge duration (hour)"
+      },
+      {
+        "path": "/Settings/DynamicEss/FullChargeInterval",
+        "type": "float",
+        "name": "Full battery charge interval (day)"
+      },
+      {
+        "path": "/Settings/DynamicEss/Mode",
+        "type": "enum",
+        "name": "Dynamic ESS mode",
+        "enum": {
+          "0": "Off",
+          "1": "Auto",
+          "4": "Node-RED"
+        }
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/0/AllowGridFeedIn",
+        "type": "enum",
+        "name": "Allow grid feed-in during this schedule",
+        "enum": {
+          "0": "Not allowed",
+          "1": "Allowed"
+        }
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/0/Duration",
+        "type": "float",
+        "name": "Duration for this schedule (Seconds)"
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/0/Restrictions",
+        "type": "enum",
+        "name": "Active restrictions for this schedule",
+        "enum": {
+          "0": "No restrictions between battery and the grid",
+          "1": "Grid to battery energy flow is restricted",
+          "2": "Battery to grid energy flow is restricted",
+          "3": "No energy flow between battery and grid"
+        }
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/0/Soc",
+        "type": "float",
+        "name": "Target SOC for this schedule (%)"
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/0/Strategy",
+        "type": "enum",
+        "name": "Used strategy for this schedule",
+        "enum": {
+          "0": "Target SOC",
+          "1": "Self-consumption"
+        }
+      }
+    ]
+  },
   "input-digitalinput": {
     "help": "<p>With this node it is possible to read the digital inputs from the Venus device. The node only shows the enabled digital inputs, so first make sure to enable the input from the Venus OS GUI (<i>Settings -> I/O -> digital inputs</i>) for the desired readout.</p><p>Depending on the selected type of input, different measurements become available.</p><p>Also see the section on <a href=\"https://www.victronenergy.com/media/pg/Cerbo_GX/en/digital-inputs.html\">digital inputs</a> in the Cerbo GX manual.</p>",
     "pulsemeter": [
@@ -2249,6 +2523,11 @@
     "help": "<p>This node is essentially an energy meter showing volts, amps, power, energy etc. It is comparable with the input-gridmeter.</p>",
     "genset": [
       {
+        "path": "/Ac/Frequency",
+        "type": "float",
+        "name": "AC Frequency (Hz)"
+      },
+      {
         "path": "/Ac/L1/Current",
         "type": "float",
         "name": "Phase 1 current (A AC)"
@@ -2519,7 +2798,8 @@
           "10": "Error"
         }
       }
-    ]
+    ],
+    "dcgenset": []
   },
   "input-gps": {
     "help": "<p>GPS information can be obtained with this node. For an example usage see the <a href=\"https://github.com/victronenergy/node-red-contrib-victron/wiki/Example-Flows#location-based-scheduling\">location based scheduling</a> example.</p>",
@@ -3321,6 +3601,16 @@
         }
       },
       {
+        "path": "/Alarms/ShortCircuit",
+        "type": "enum",
+        "name": "Short Circuit Alarm",
+        "enum": {
+          "0": "Ok",
+          "1": "Warning",
+          "2": "Alarm"
+        }
+      },
+      {
         "path": "/Dc/0/Current",
         "type": "float",
         "name": "Battery current (A DC)"
@@ -3450,6 +3740,15 @@
         "enum": {
           "0": "Charge enabled",
           "1": "Charge disabled"
+        }
+      },
+      {
+        "path": "/Ess/Sustain",
+        "type": "enum",
+        "name": "Sustain active",
+        "enum": {
+          "0": "Sustain inactive",
+          "1": "Sustain active"
         }
       },
       {
@@ -4526,6 +4825,36 @@
         "name": "AC Consumption L3 (W)"
       },
       {
+        "path": "/Ac/ConsumptionOnInput/L1/Power",
+        "type": "float",
+        "name": "Power between meter and inverter/charger, L1 (W)"
+      },
+      {
+        "path": "/Ac/ConsumptionOnInput/L2/Power",
+        "type": "float",
+        "name": "Power between meter and inverter/charger, L2 (W)"
+      },
+      {
+        "path": "/Ac/ConsumptionOnInput/L3/Power",
+        "type": "float",
+        "name": "Power between meter and inverter/charger, L3 (W)"
+      },
+      {
+        "path": "/Ac/ConsumptionOnOutput/L1/Power",
+        "type": "float",
+        "name": "Power on output of inverter/charger, L1 (W)"
+      },
+      {
+        "path": "/Ac/ConsumptionOnOutput/L2/Power",
+        "type": "float",
+        "name": "Power on output of inverter/charger, L2 (W)"
+      },
+      {
+        "path": "/Ac/ConsumptionOnOutput/L3/Power",
+        "type": "float",
+        "name": "Power on output of inverter/charger, L3 (W)"
+      },
+      {
         "path": "/Ac/Genset/DeviceType",
         "type": "float",
         "name": "Genset Device Type",
@@ -5395,233 +5724,6 @@
         }
       },
       {
-        "path": "/Devices/0/Settings/UpsFunction",
-        "type": "enum",
-        "name": "UPS function L1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        }
-      },
-      {
-        "path": "/Devices/1/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1"
-      },
-      {
-        "path": "/Devices/1/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
-      },
-      {
-        "path": "/Devices/1/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        }
-      },
-      {
-        "path": "/Devices/1/Settings/UpsFunction",
-        "type": "enum",
-        "name": "UPS function L2",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        }
-      },
-      {
-        "path": "/Devices/2/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1"
-      },
-      {
-        "path": "/Devices/2/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
-      },
-      {
-        "path": "/Devices/2/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        }
-      },
-      {
-        "path": "/Devices/3/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1"
-      },
-      {
-        "path": "/Devices/3/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
-      },
-      {
-        "path": "/Devices/3/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        }
-      },
-      {
-        "path": "/Devices/4/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1"
-      },
-      {
-        "path": "/Devices/4/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
-      },
-      {
-        "path": "/Devices/4/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        }
-      },
-      {
-        "path": "/Devices/5/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1"
-      },
-      {
-        "path": "/Devices/5/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
-      },
-      {
-        "path": "/Devices/5/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        }
-      },
-      {
-        "path": "/Devices/6/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1"
-      },
-      {
-        "path": "/Devices/6/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
-      },
-      {
-        "path": "/Devices/6/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        }
-      },
-      {
-        "path": "/Devices/7/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1"
-      },
-      {
-        "path": "/Devices/7/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
-      },
-      {
-        "path": "/Devices/7/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        }
-      },
-      {
-        "path": "/Devices/8/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1"
-      },
-      {
-        "path": "/Devices/8/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
-      },
-      {
-        "path": "/Devices/8/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        }
-      },
-      {
-        "path": "/Devices/9/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1"
-      },
-      {
-        "path": "/Devices/9/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
-      },
-      {
-        "path": "/Devices/9/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        }
-      },
-      {
-        "path": "/Devices/10/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1"
-      },
-      {
-        "path": "/Devices/10/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
-      },
-      {
-        "path": "/Devices/10/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        }
-      },
-      {
-        "path": "/Devices/11/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1"
-      },
-      {
-        "path": "/Devices/11/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
-      },
-      {
-        "path": "/Devices/11/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        }
-      },
-      {
         "path": "/Energy/AcIn1ToAcOut",
         "type": "float",
         "name": "Energy ACIn1 to AcOut (kWh)"
@@ -5725,6 +5827,29 @@
         "enum": {
           "0": "No",
           "1": "Yes"
+        }
+      },
+      {
+        "path": "/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage (V AC)"
+      },
+      {
+        "path": "/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        }
+      },
+      {
+        "path": "/Settings/UpsFunction",
+        "type": "enum",
+        "name": "UPS function enabled",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
         }
       },
       {
@@ -5842,6 +5967,38 @@
       }
     ]
   },
+  "output-acsystem": {
+    "help": "<p>This node is for controlling the Multi-RS and other future inverter/chargers.</p>",
+    "acsystem": [
+      {
+        "path": "/Ess/AcPowerSetpoint",
+        "type": "float",
+        "name": "ESS setpoint (W)",
+        "writable": true
+      },
+      {
+        "path": "/Ess/DisableFeedIn",
+        "type": "enum",
+        "name": "Disable Feed-in (into grid)",
+        "enum": {
+          "0": "Feed-in enabled",
+          "1": "Feed-in disabled"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/Ess/Mode",
+        "type": "enum",
+        "name": "ESS mode",
+        "enum": {
+          "1": "ESS with Phase Compensation",
+          "2": "ESS without phase compensation",
+          "3": "Disabled/External Control"
+        },
+        "writable": true
+      }
+    ]
+  },
   "output-battery": {
     "help": "<p>Battery monitor output node, which can be used for controlling a <a href=\"https://www.victronenergy.com/dc-distribution-systems/lynx-smart-bms\">Lynx Smart BMS</a>.</p>",
     "battery": [
@@ -5888,6 +6045,84 @@
         "enum": {
           "1": "On",
           "4": "Off"
+        },
+        "writable": true
+      }
+    ]
+  },
+  "output-dess": {
+    "help": "<p>Dynamic ESS output node.</p>",
+    "settings": [
+      {
+        "path": "/Settings/DynamicEss/BatteryCapacity",
+        "type": "float",
+        "name": "Battery capacity (kWh)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/FullChargeDuration",
+        "type": "float",
+        "name": "Full battery charge duration (hour)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/FullChargeInterval",
+        "type": "float",
+        "name": "Full battery charge interval (day)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/Mode",
+        "type": "enum",
+        "name": "Dynamic ESS mode",
+        "enum": {
+          "0": "Off",
+          "1": "Auto",
+          "4": "Node-RED"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/0/AllowGridFeedIn",
+        "type": "enum",
+        "name": "Allow grid feed-in during this schedule",
+        "enum": {
+          "0": "Not allowed",
+          "1": "Allowed"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/0/Duration",
+        "type": "float",
+        "name": "Duration for this schedule (Seconds)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/0/Restrictions",
+        "type": "enum",
+        "name": "Active restrictions for this schedule",
+        "enum": {
+          "0": "No restrictions between battery and the grid",
+          "1": "Grid to battery energy flow is restricted",
+          "2": "Battery to grid energy flow is restricted",
+          "3": "No energy flow between battery and grid"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/0/Soc",
+        "type": "float",
+        "name": "Target SOC for this schedule (%)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/0/Strategy",
+        "type": "enum",
+        "name": "Used strategy for this schedule",
+        "enum": {
+          "0": "Target SOC",
+          "1": "Self-consumption"
         },
         "writable": true
       }
@@ -6874,278 +7109,6 @@
         "writable": true
       },
       {
-        "path": "/Devices/0/Settings/UpsFunction",
-        "type": "enum",
-        "name": "UPS function L1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        },
-        "writable": true
-      },
-      {
-        "path": "/Devices/1/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1",
-        "writable": true
-      },
-      {
-        "path": "/Devices/1/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
-        "writable": true
-      },
-      {
-        "path": "/Devices/1/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        },
-        "writable": true
-      },
-      {
-        "path": "/Devices/1/Settings/UpsFunction",
-        "type": "enum",
-        "name": "UPS function L2",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        },
-        "writable": true
-      },
-      {
-        "path": "/Devices/2/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1",
-        "writable": true
-      },
-      {
-        "path": "/Devices/2/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
-        "writable": true
-      },
-      {
-        "path": "/Devices/2/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        },
-        "writable": true
-      },
-      {
-        "path": "/Devices/2/Settings/UpsFunction",
-        "type": "enum",
-        "name": "UPS function L3",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        },
-        "writable": true
-      },
-      {
-        "path": "/Devices/3/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1",
-        "writable": true
-      },
-      {
-        "path": "/Devices/3/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
-        "writable": true
-      },
-      {
-        "path": "/Devices/3/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        },
-        "writable": true
-      },
-      {
-        "path": "/Devices/4/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1",
-        "writable": true
-      },
-      {
-        "path": "/Devices/4/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
-        "writable": true
-      },
-      {
-        "path": "/Devices/4/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        },
-        "writable": true
-      },
-      {
-        "path": "/Devices/5/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1",
-        "writable": true
-      },
-      {
-        "path": "/Devices/5/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
-        "writable": true
-      },
-      {
-        "path": "/Devices/5/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        },
-        "writable": true
-      },
-      {
-        "path": "/Devices/6/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1",
-        "writable": true
-      },
-      {
-        "path": "/Devices/6/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
-        "writable": true
-      },
-      {
-        "path": "/Devices/6/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        },
-        "writable": true
-      },
-      {
-        "path": "/Devices/7/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1",
-        "writable": true
-      },
-      {
-        "path": "/Devices/7/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
-        "writable": true
-      },
-      {
-        "path": "/Devices/7/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        },
-        "writable": true
-      },
-      {
-        "path": "/Devices/8/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1",
-        "writable": true
-      },
-      {
-        "path": "/Devices/8/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
-        "writable": true
-      },
-      {
-        "path": "/Devices/8/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        },
-        "writable": true
-      },
-      {
-        "path": "/Devices/9/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1",
-        "writable": true
-      },
-      {
-        "path": "/Devices/9/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
-        "writable": true
-      },
-      {
-        "path": "/Devices/9/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        },
-        "writable": true
-      },
-      {
-        "path": "/Devices/10/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1",
-        "writable": true
-      },
-      {
-        "path": "/Devices/10/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
-        "writable": true
-      },
-      {
-        "path": "/Devices/10/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        },
-        "writable": true
-      },
-      {
-        "path": "/Devices/11/Settings/AssistCurrentBoostFactor",
-        "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1",
-        "writable": true
-      },
-      {
-        "path": "/Devices/11/Settings/InverterOutputVoltage",
-        "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
-        "writable": true
-      },
-      {
-        "path": "/Devices/11/Settings/PowerAssistEnabled",
-        "type": "enum",
-        "name": "PowerAssist enabled unit 1",
-        "enum": {
-          "0": "Disabled",
-          "1": "Enabled"
-        },
-        "writable": true
-      },
-      {
         "path": "/Hub4/DisableCharge",
         "type": "enum",
         "name": "ESS disable charge flag phase",
@@ -7261,6 +7224,32 @@
         "enum": {
           "0": "No action",
           "1": "Redetect system"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/InverterOutputVoltage",
+        "type": "float",
+        "name": "Configured output voltage (V AC)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/PowerAssistEnabled",
+        "type": "enum",
+        "name": "PowerAssist enabled",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/UpsFunction",
+        "type": "enum",
+        "name": "UPS function enabled",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
         },
         "writable": true
       },

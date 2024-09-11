@@ -286,7 +286,7 @@
                 $('#onlyChanges').show()
             }
         }).fail(function () {
-            return showStatusMessage("Unable to access the service endpoint.");
+            return showStatusMessage("Unable to access the service endpoint:" + serviceRoot + serviceUrl);
         });
     }
 
@@ -391,6 +391,7 @@
     registerInputNode('victron-input-dcload', 'DC Load', 'input-dcload');
     registerInputNode('victron-input-dcsource', 'DC Source', 'input-dcsource');
     registerInputNode('victron-input-dcsystem', 'DC System', 'input-dcsystem');
+    registerInputNode('victron-input-dess', 'Dynamic ESS', 'input-dess');
     registerInputNode('victron-input-digitalinput', 'Digital Input', 'input-digitalinput');
     registerInputNode('victron-input-genset', 'Energy Meter', 'input-genset');
     registerInputNode('victron-input-ess', 'ESS', 'input-ess');
@@ -418,6 +419,7 @@
     registerOutputNode('victron-output-battery', 'Battery Monitor', 'output-battery');
     registerOutputNode('victron-output-charger', 'Charger', 'output-charger');
     registerOutputNode('victron-output-dcdc', 'DC-DC', 'output-dcdc');
+    registerOutputNode('victron-output-dess', 'Dynamic ESS', 'output-dess');
     registerOutputNode('victron-output-ess', 'ESS', 'output-ess');
     registerOutputNode('victron-output-evcharger', 'EV Charger', 'output-evcharger');
     registerOutputNode('victron-output-generator', 'GX Generator', 'output-generator');
