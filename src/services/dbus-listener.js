@@ -136,7 +136,7 @@ class VictronDbusListener {
       if (res) {
         this.services[owner].deviceInstance = res[1]?.[0]
         if (!this.services[owner].deviceInstance) {
-          console.error(`deviceInstance could not be assigned because res[1][0] is undefined ${owner}/${this.services[owner]} (${this.services[owner].name})`);
+          console.error(`deviceInstance could not be assigned because res[1][0] is undefined ${owner}/${this.services[owner]} (${this.services[owner].name})`)
           // Handle the case where res[1][0] is undefined
         }
       }
