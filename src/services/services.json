@@ -4381,6 +4381,25 @@
     "help": "<p>With this node several settings can be read. Currently the focus is mainly on the Carlo Gavazzi Wired AC Sensors (cgwacs).</p>",
     "settings": [
       {
+        "path": "/Settings/CGwacs/AcExportLimit",
+        "type": "float",
+        "name": "AC export current limit (A)"
+      },
+      {
+        "path": "/Settings/CGwacs/AcImportLimit",
+        "type": "float",
+        "name": "AC import current limit (A)"
+      },
+      {
+        "path": "/Settings/CGwacs/AlwaysPeakShave",
+        "type": "enum",
+        "name": "Mode for peakshaving",
+        "enum": {
+          "0": "Above minimum SOC only",
+          "1": "Always"
+        }
+      },
+      {
         "path": "/Settings/CGwacs/MaxChargePercentage",
         "type": "float",
         "name": "ESS max charge current (fractional) (%)"
@@ -6938,9 +6957,25 @@
     "help": "<p>With this node several settings can be adjusted. Currently the focus is mainly on the Carlo Gavazzi Wired AC Sensors (cgwacs).</p>",
     "settings": [
       {
-        "path": "/Settings/CGwacs/AcPowerSetPoint",
+        "path": "/Settings/CGwacs/AcExportLimit",
         "type": "float",
-        "name": "ESS control loop setpoint (W)",
+        "name": "AC export current limit (A)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/AcImportLimit",
+        "type": "float",
+        "name": "AC import current limit (A)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/AlwaysPeakShave",
+        "type": "enum",
+        "name": "Mode for peakshaving",
+        "enum": {
+          "0": "Above minimum SOC only",
+          "1": "Always"
+        },
         "writable": true
       },
       {

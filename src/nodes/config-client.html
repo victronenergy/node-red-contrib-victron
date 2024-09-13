@@ -3489,6 +3489,19 @@ Writing a negative value to the path will de-activate the schedule.
 <p>With this node several settings can be read. Currently the focus is mainly on the Carlo Gavazzi Wired AC Sensors (cgwacs).</p>
 <h3>Settings</h3>
 <dl class="message-properties">
+  <dt class="optional">AC export current limit (A)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/AcExportLimit</b>
+</dd>
+  <dt class="optional">AC import current limit (A)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/AcImportLimit</b>
+</dd>
+  <dt class="optional">Mode for peakshaving<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/AlwaysPeakShave</b>
+<ul>
+  <li>0 - Above minimum SOC only</li>
+  <li>1 - Always</li>
+</ul>
+</dd>
   <dt class="optional">ESS max charge current (fractional) (%)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/MaxChargePercentage</b>
 </dd>
@@ -5403,8 +5416,18 @@ Writing a negative value to the path will de-activate the schedule.
 <p>With this node several settings can be adjusted. Currently the focus is mainly on the Carlo Gavazzi Wired AC Sensors (cgwacs).</p>
 <h3>Settings</h3>
 <dl class="message-properties">
-  <dt class="optional">ESS control loop setpoint (W)<span class="property-type">float</dt>
-  <dd>Dbus path: <b>/Settings/CGwacs/AcPowerSetPoint</b>
+  <dt class="optional">AC export current limit (A)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/AcExportLimit</b>
+</dd>
+  <dt class="optional">AC import current limit (A)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/AcImportLimit</b>
+</dd>
+  <dt class="optional">Mode for peakshaving<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/AlwaysPeakShave</b>
+<ul>
+  <li>0 - Above minimum SOC only</li>
+  <li>1 - Always</li>
+</ul>
 </dd>
   <dt class="optional">ESS Minimum SoC (unless grid fails) (%)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/MinimumSocLimit</b>
