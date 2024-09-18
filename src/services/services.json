@@ -2504,6 +2504,9 @@
         "enum": {
           "0": "Stopped",
           "1": "Running",
+          "2": "Warm-up",
+          "3": "Cool-down",
+          "4": "Stopping",
           "10": "Error"
         }
       },
