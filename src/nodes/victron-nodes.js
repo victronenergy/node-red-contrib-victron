@@ -77,9 +77,16 @@ module.exports = function (RED) {
             return
           }
           if (this.configNode && (this.configNode.contextStore || typeof this.configNode.contextStore === 'undefined')) {
+            const transform = (input) => {
+              input = input.replace(/^com\./, '')
+              return input.replace(/\/(\d+\b)?|\/|(\b\d+\b)/g, (match, p1, p2) => {
+                if (p1) return `._${p1}`
+                if (p2) return `_${p2}`
+                return '.'
+              })
+            }
             const globalContext = this.node.context().global
-            const v = `${this.service}${this.path}`.replace(/\//g, '.').replace(/com\.victronenergy\.(.+?)\.(\d+)\.(\w+)/, 'victronenergy.$1._$2.$3')
-            globalContext.set(v, msg.value)
+            globalContext.set(transform(`${this.service}${this.path}`), msg.value)
           }
           this.node.previousvalue = msg.value
           const outmsg = {
