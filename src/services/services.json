@@ -2182,6 +2182,15 @@
         }
       },
       {
+        "path": "/Settings/CGwacs/RunWithoutGridMeter",
+        "type": "enum",
+        "name": "Grid metering",
+        "enum": {
+          "0": "External meter",
+          "1": "Inverter/Charger"
+        }
+      },
+      {
         "path": "/Settings/SystemSetup/MaxChargeCurrent",
         "type": "float",
         "name": "DVCC Charge current limit (A)"
@@ -6594,6 +6603,16 @@
         "enum": {
           "0": "Feed excess AC-tied PV into grid",
           "1": "Don’t feed excess AC-tied PV into the grid"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/RunWithoutGridMeter",
+        "type": "enum",
+        "name": "Grid metering",
+        "enum": {
+          "0": "External meter",
+          "1": "Inverter/Charger"
         },
         "writable": true
       },
