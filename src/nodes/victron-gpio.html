@@ -1,0 +1,105 @@
+<script type="text/javascript">
+    RED.nodes.registerType('digital-output',{
+        category: 'Victron Energy',
+        color: '#4790d0',
+        defaults: {
+            name: {value:""},
+            output: {value:"", required:true}
+        },
+        inputs:1,
+        outputs:0,
+        icon: "victronenergy.svg",
+        label: function() {
+            return this.name || "Digital Output Control";
+        },
+        paletteLabel: "Digital Output Control",
+        oneditprepare: function() {
+            var node = this;
+            $.getJSON('gpio-outputs/'+this.id, function(data) {
+                var select = $('#node-input-output');
+                var warning = $('#node-warning');
+                select.empty();
+                if (data.outputs && data.outputs.length > 0) {
+                    $.each(data.outputs, function(i, output) {
+                        select.append($("<option></option>")
+                            .attr("value", output)
+                            .text("Output " + output));
+                    });
+                    select.val(node.output);
+                    warning.hide();
+                } else {
+                    select.hide();
+                    warning.show();
+                    var warningText = "<strong>Warning:</strong> NODE_RED_DBUS_ADDRESS is set";
+                    if (data.dbusAddress) {
+                        warningText += ` to "${data.dbusAddress}"`;
+                    }
+                    warningText += ". This node will not function, and no digital outputs are available. <br>Make sure NODE_RED_DBUS_ADDRESS is not set for this node to function.";
+                    warning.html(warningText);
+                }
+            }).fail(function() {
+                var select = $('#node-input-output');
+                var warning = $('#node-warning');
+                select.hide();
+                warning.show();
+                warning.html("<strong>Warning:</strong> Unable to fetch digital outputs. NODE_RED_DBUS_ADDRESS might be set, preventing this node from functioning. <br>Ensure NODE_RED_DBUS_ADDRESS is not set for this node to function.");
+            });
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="digital-output">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-output"><i class="fa fa-dot-circle-o"></i> Output</label>
+        <select id="node-input-output">
+            <!-- Options will be populated dynamically -->
+        </select>
+    </div>
+    <div class="form-row">
+        <div id="node-warning" style="display: none; color: #ff8c00; margin-top: 10px;"></div>
+    </div>
+</script>
+
+<script type="text/markdown" data-help-name="digital-output">
+# Digital Output Control
+
+This node writes a 0 or 1 to a selected digital output.
+
+## Important Note
+
+This node requires the `NODE_RED_DBUS_ADDRESS` environment variable to NOT be set. If it's set, the node will not function.
+
+## Input
+
+The input should be one of the following:
+- Boolean: `true` or `false`
+- Number: `0` or `1`
+- String: `"0"` or `"1"`
+
+Any truthy value will be written as "1", and any falsy value will be written as "0".
+
+## Configuration
+
+- **Name**: Optional name for the node
+- **Output**: Select an available digital output from the dropdown list
+
+## Details
+
+The node checks for available digital outputs in the `/run/io-ext/gpiochip388/output_[1-9]/value` directory.
+
+When it receives an input, it writes the corresponding value to the selected digital output file.
+
+## Status
+
+- Green dot: Last written output and value (when successful)
+- Red ring: Indicates that `NODE_RED_DBUS_ADDRESS` is set (node will not function)
+
+## Error Handling
+
+- If `NODE_RED_DBUS_ADDRESS` is set, the node will show a warning with the set value and won't function.
+- If an invalid output is selected or there's an error writing to the file, the node will report an error.
+</script>
