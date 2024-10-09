@@ -125,6 +125,9 @@
         var nodeLabelLower = nodeLabel.toLowerCase();
 
         var buildOption = function buildOption(service) {
+            if (service.deviceInstance) {
+                return $('<option/>').val(service.service || service.path).text(`${service.name} (${service.deviceInstance})`).data(service);
+            }
             return $('<option/>').val(service.service || service.path).text(service.name).data(service);
         };
 
