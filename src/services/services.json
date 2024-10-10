@@ -748,6 +748,11 @@
         "name": "Capacity (Ah)"
       },
       {
+        "path": "/ConnectionInformation",
+        "type": "string",
+        "name": "Connection information"
+      },
+      {
         "path": "/ConsumedAmphours",
         "type": "float",
         "name": "Consumed Amphours (Ah)"
@@ -912,6 +917,26 @@
           "34": "Wrong system voltage",
           "35": "Pre-charge timeout"
         }
+      },
+      {
+        "path": "/Errors/SmartLithium/Communication",
+        "type": "float",
+        "name": "SmartLithium error flag: Communication"
+      },
+      {
+        "path": "/Errors/SmartLithium/InvalidConfiguration",
+        "type": "float",
+        "name": "SmartLithium error flag: Invalid configuration"
+      },
+      {
+        "path": "/Errors/SmartLithium/NrOfBatteries",
+        "type": "float",
+        "name": "SmartLithium error flag: Battery number"
+      },
+      {
+        "path": "/Errors/SmartLithium/Voltage",
+        "type": "float",
+        "name": "SmartLithium error flag: Voltage"
       },
       {
         "path": "/History/AutomaticSyncs",
@@ -7444,6 +7469,12 @@
           "0": "No action",
           "1": "Redetect system"
         },
+        "writable": true
+      },
+      {
+        "path": "/Settings/AssistCurrentBoostFactor",
+        "type": "float",
+        "name": "Power Assist boost factor",
         "writable": true
       },
       {

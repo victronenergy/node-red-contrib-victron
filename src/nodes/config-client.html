@@ -722,6 +722,9 @@ Questions can also be asked on the Victron Energy community:
   <dt class="optional">Capacity (Ah)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Capacity</b>
 </dd>
+  <dt class="optional">Connection information<span class="property-type">string</dt>
+  <dd>Dbus path: <b>/ConnectionInformation</b>
+</dd>
   <dt class="optional">Consumed Amphours (Ah)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/ConsumedAmphours</b>
 </dd>
@@ -851,6 +854,18 @@ Questions can also be asked on the Victron Energy community:
   <li>34 - Wrong system voltage</li>
   <li>35 - Pre-charge timeout</li>
 </ul>
+</dd>
+  <dt class="optional">SmartLithium error flag: Communication<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Errors/SmartLithium/Communication</b>
+</dd>
+  <dt class="optional">SmartLithium error flag: Invalid configuration<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Errors/SmartLithium/InvalidConfiguration</b>
+</dd>
+  <dt class="optional">SmartLithium error flag: Battery number<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Errors/SmartLithium/NrOfBatteries</b>
+</dd>
+  <dt class="optional">SmartLithium error flag: Voltage<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Errors/SmartLithium/Voltage</b>
 </dd>
   <dt class="optional">Automatic syncs (count)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/History/AutomaticSyncs</b>
@@ -5741,6 +5756,9 @@ Writing a negative value to the path will de-activate the schedule.
   <li>0 - No action</li>
   <li>1 - Redetect system</li>
 </ul>
+</dd>
+  <dt class="optional">Power Assist boost factor<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/AssistCurrentBoostFactor</b>
 </dd>
   <dt class="optional">Configured output voltage (V AC)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Settings/InverterOutputVoltage</b>
