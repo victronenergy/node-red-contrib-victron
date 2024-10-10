@@ -4,10 +4,10 @@
     "version": "1.5.21",
     "dependencies": {
         "dbus-native": "^0.4.0",
-        "debug": "^4.3.4",
+        "debug": "^4.3.7",
         "lodash": "^4.17.21",
         "promise-retry": "^2.0.1",
-        "standard": "^17.1.0"
+        "standard": "^17.1.2"
     },
     "node-red": {
         "nodes": {
@@ -17,9 +17,9 @@
         "version": ">=3.0.2"
     },
     "devDependencies": {
-        "@babel/eslint-parser": "^7.24.5",
+        "@babel/eslint-parser": "^7.25.7",
         "csv-parse": "^5.5.6",
-        "eslint": "^9.2.0",
+        "eslint": "^9.12.0",
         "eslint-config-google": "^0.14.0",
         "gar": "^1.0.4"
     },
