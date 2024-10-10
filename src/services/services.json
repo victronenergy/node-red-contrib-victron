@@ -1699,7 +1699,7 @@
       {
         "path": "/Settings/DynamicEss/Schedule/0/AllowGridFeedIn",
         "type": "enum",
-        "name": "Allow grid feed-in during this schedule",
+        "name": "Allow grid feed-in during schedule 0",
         "enum": {
           "0": "Not allowed",
           "1": "Allowed"
@@ -1708,12 +1708,12 @@
       {
         "path": "/Settings/DynamicEss/Schedule/0/Duration",
         "type": "float",
-        "name": "Duration for this schedule (Seconds)"
+        "name": "Duration for schedule 0 (Seconds)"
       },
       {
         "path": "/Settings/DynamicEss/Schedule/0/Restrictions",
         "type": "enum",
-        "name": "Active restrictions for this schedule",
+        "name": "Active restrictions for schedule 0",
         "enum": {
           "0": "No restrictions between battery and the grid",
           "1": "Grid to battery energy flow is restricted",
@@ -1724,12 +1724,129 @@
       {
         "path": "/Settings/DynamicEss/Schedule/0/Soc",
         "type": "float",
-        "name": "Target SOC for this schedule (%)"
+        "name": "Target SOC for schedule 0 (%)"
       },
       {
         "path": "/Settings/DynamicEss/Schedule/0/Strategy",
         "type": "enum",
-        "name": "Used strategy for this schedule",
+        "name": "Used strategy for schedule 0",
+        "enum": {
+          "0": "Target SOC",
+          "1": "Self-consumption"
+        }
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/1/AllowGridFeedIn",
+        "type": "enum",
+        "name": "Allow grid feed-in during schedule 1",
+        "enum": {
+          "0": "Not allowed",
+          "1": "Allowed"
+        }
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/1/Duration",
+        "type": "float",
+        "name": "Duration for schedule 1 (Seconds)"
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/1/Restrictions",
+        "type": "enum",
+        "name": "Active restrictions for schedule 1",
+        "enum": {
+          "0": "No restrictions between battery and the grid",
+          "1": "Grid to battery energy flow is restricted",
+          "2": "Battery to grid energy flow is restricted",
+          "3": "No energy flow between battery and grid"
+        }
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/1/Soc",
+        "type": "float",
+        "name": "Target SOC for schedule 1 (%)"
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/1/Strategy",
+        "type": "enum",
+        "name": "Used strategy for schedule 1",
+        "enum": {
+          "0": "Target SOC",
+          "1": "Self-consumption"
+        }
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/2/AllowGridFeedIn",
+        "type": "enum",
+        "name": "Allow grid feed-in during schedule 2",
+        "enum": {
+          "0": "Not allowed",
+          "1": "Allowed"
+        }
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/2/Duration",
+        "type": "float",
+        "name": "Duration for schedule 2 (Seconds)"
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/2/Restrictions",
+        "type": "enum",
+        "name": "Active restrictions for schedule 2",
+        "enum": {
+          "0": "No restrictions between battery and the grid",
+          "1": "Grid to battery energy flow is restricted",
+          "2": "Battery to grid energy flow is restricted",
+          "3": "No energy flow between battery and grid"
+        }
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/2/Soc",
+        "type": "float",
+        "name": "Target SOC for schedule 2 (%)"
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/2/Strategy",
+        "type": "enum",
+        "name": "Used strategy for schedule 2",
+        "enum": {
+          "0": "Target SOC",
+          "1": "Self-consumption"
+        }
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/3/AllowGridFeedIn",
+        "type": "enum",
+        "name": "Allow grid feed-in during schedule 3",
+        "enum": {
+          "0": "Not allowed",
+          "1": "Allowed"
+        }
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/3/Duration",
+        "type": "float",
+        "name": "Duration for schedule 3 (Seconds)"
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/3/Restrictions",
+        "type": "enum",
+        "name": "Active restrictions for schedule 3",
+        "enum": {
+          "0": "No restrictions between battery and the grid",
+          "1": "Grid to battery energy flow is restricted",
+          "2": "Battery to grid energy flow is restricted",
+          "3": "No energy flow between battery and grid"
+        }
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/3/Soc",
+        "type": "float",
+        "name": "Target SOC for schedule 3 (%)"
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/3/Strategy",
+        "type": "enum",
+        "name": "Used strategy for schedule 3",
         "enum": {
           "0": "Target SOC",
           "1": "Self-consumption"
@@ -6279,7 +6396,7 @@
       {
         "path": "/Settings/DynamicEss/Schedule/0/AllowGridFeedIn",
         "type": "enum",
-        "name": "Allow grid feed-in during this schedule",
+        "name": "Allow grid feed-in during schedule 0",
         "enum": {
           "0": "Not allowed",
           "1": "Allowed"
@@ -6289,13 +6406,13 @@
       {
         "path": "/Settings/DynamicEss/Schedule/0/Duration",
         "type": "float",
-        "name": "Duration for this schedule (Seconds)",
+        "name": "Duration for schedule 0 (Seconds)",
         "writable": true
       },
       {
         "path": "/Settings/DynamicEss/Schedule/0/Restrictions",
         "type": "enum",
-        "name": "Active restrictions for this schedule",
+        "name": "Active restrictions for schedule 0",
         "enum": {
           "0": "No restrictions between battery and the grid",
           "1": "Grid to battery energy flow is restricted",
@@ -6307,13 +6424,145 @@
       {
         "path": "/Settings/DynamicEss/Schedule/0/Soc",
         "type": "float",
-        "name": "Target SOC for this schedule (%)",
+        "name": "Target SOC for schedule 0 (%)",
         "writable": true
       },
       {
         "path": "/Settings/DynamicEss/Schedule/0/Strategy",
         "type": "enum",
-        "name": "Used strategy for this schedule",
+        "name": "Used strategy for schedule 0",
+        "enum": {
+          "0": "Target SOC",
+          "1": "Self-consumption"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/1/AllowGridFeedIn",
+        "type": "enum",
+        "name": "Allow grid feed-in during schedule 1",
+        "enum": {
+          "0": "Not allowed",
+          "1": "Allowed"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/1/Duration",
+        "type": "float",
+        "name": "Duration for schedule 1 (Seconds)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/1/Restrictions",
+        "type": "enum",
+        "name": "Active restrictions for schedule 1",
+        "enum": {
+          "0": "No restrictions between battery and the grid",
+          "1": "Grid to battery energy flow is restricted",
+          "2": "Battery to grid energy flow is restricted",
+          "3": "No energy flow between battery and grid"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/1/Soc",
+        "type": "float",
+        "name": "Target SOC for schedule 1 (%)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/1/Strategy",
+        "type": "enum",
+        "name": "Used strategy for schedule 1",
+        "enum": {
+          "0": "Target SOC",
+          "1": "Self-consumption"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/2/AllowGridFeedIn",
+        "type": "enum",
+        "name": "Allow grid feed-in during schedule 2",
+        "enum": {
+          "0": "Not allowed",
+          "1": "Allowed"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/2/Duration",
+        "type": "float",
+        "name": "Duration for schedule 2 (Seconds)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/2/Restrictions",
+        "type": "enum",
+        "name": "Active restrictions for schedule 2",
+        "enum": {
+          "0": "No restrictions between battery and the grid",
+          "1": "Grid to battery energy flow is restricted",
+          "2": "Battery to grid energy flow is restricted",
+          "3": "No energy flow between battery and grid"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/2/Soc",
+        "type": "float",
+        "name": "Target SOC for schedule 2 (%)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/2/Strategy",
+        "type": "enum",
+        "name": "Used strategy for schedule 2",
+        "enum": {
+          "0": "Target SOC",
+          "1": "Self-consumption"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/3/AllowGridFeedIn",
+        "type": "enum",
+        "name": "Allow grid feed-in during schedule 3",
+        "enum": {
+          "0": "Not allowed",
+          "1": "Allowed"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/3/Duration",
+        "type": "float",
+        "name": "Duration for schedule 3 (Seconds)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/3/Restrictions",
+        "type": "enum",
+        "name": "Active restrictions for schedule 3",
+        "enum": {
+          "0": "No restrictions between battery and the grid",
+          "1": "Grid to battery energy flow is restricted",
+          "2": "Battery to grid energy flow is restricted",
+          "3": "No energy flow between battery and grid"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/3/Soc",
+        "type": "float",
+        "name": "Target SOC for schedule 3 (%)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/DynamicEss/Schedule/3/Strategy",
+        "type": "enum",
+        "name": "Used strategy for schedule 3",
         "enum": {
           "0": "Target SOC",
           "1": "Self-consumption"

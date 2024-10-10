@@ -1438,17 +1438,17 @@ Questions can also be asked on the Victron Energy community:
   <li>4 - Node-RED</li>
 </ul>
 </dd>
-  <dt class="optional">Allow grid feed-in during this schedule<span class="property-type">enum</dt>
+  <dt class="optional">Allow grid feed-in during schedule 0<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/0/AllowGridFeedIn</b>
 <ul>
   <li>0 - Not allowed</li>
   <li>1 - Allowed</li>
 </ul>
 </dd>
-  <dt class="optional">Duration for this schedule (Seconds)<span class="property-type">float</dt>
+  <dt class="optional">Duration for schedule 0 (Seconds)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/0/Duration</b>
 </dd>
-  <dt class="optional">Active restrictions for this schedule<span class="property-type">enum</dt>
+  <dt class="optional">Active restrictions for schedule 0<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/0/Restrictions</b>
 <ul>
   <li>0 - No restrictions between battery and the grid</li>
@@ -1457,11 +1457,98 @@ Questions can also be asked on the Victron Energy community:
   <li>3 - No energy flow between battery and grid</li>
 </ul>
 </dd>
-  <dt class="optional">Target SOC for this schedule (%)<span class="property-type">float</dt>
+  <dt class="optional">Target SOC for schedule 0 (%)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/0/Soc</b>
 </dd>
-  <dt class="optional">Used strategy for this schedule<span class="property-type">enum</dt>
+  <dt class="optional">Used strategy for schedule 0<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/0/Strategy</b>
+<ul>
+  <li>0 - Target SOC</li>
+  <li>1 - Self-consumption</li>
+</ul>
+</dd>
+  <dt class="optional">Allow grid feed-in during schedule 1<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/1/AllowGridFeedIn</b>
+<ul>
+  <li>0 - Not allowed</li>
+  <li>1 - Allowed</li>
+</ul>
+</dd>
+  <dt class="optional">Duration for schedule 1 (Seconds)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/1/Duration</b>
+</dd>
+  <dt class="optional">Active restrictions for schedule 1<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/1/Restrictions</b>
+<ul>
+  <li>0 - No restrictions between battery and the grid</li>
+  <li>1 - Grid to battery energy flow is restricted</li>
+  <li>2 - Battery to grid energy flow is restricted</li>
+  <li>3 - No energy flow between battery and grid</li>
+</ul>
+</dd>
+  <dt class="optional">Target SOC for schedule 1 (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/1/Soc</b>
+</dd>
+  <dt class="optional">Used strategy for schedule 1<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/1/Strategy</b>
+<ul>
+  <li>0 - Target SOC</li>
+  <li>1 - Self-consumption</li>
+</ul>
+</dd>
+  <dt class="optional">Allow grid feed-in during schedule 2<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/2/AllowGridFeedIn</b>
+<ul>
+  <li>0 - Not allowed</li>
+  <li>1 - Allowed</li>
+</ul>
+</dd>
+  <dt class="optional">Duration for schedule 2 (Seconds)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/2/Duration</b>
+</dd>
+  <dt class="optional">Active restrictions for schedule 2<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/2/Restrictions</b>
+<ul>
+  <li>0 - No restrictions between battery and the grid</li>
+  <li>1 - Grid to battery energy flow is restricted</li>
+  <li>2 - Battery to grid energy flow is restricted</li>
+  <li>3 - No energy flow between battery and grid</li>
+</ul>
+</dd>
+  <dt class="optional">Target SOC for schedule 2 (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/2/Soc</b>
+</dd>
+  <dt class="optional">Used strategy for schedule 2<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/2/Strategy</b>
+<ul>
+  <li>0 - Target SOC</li>
+  <li>1 - Self-consumption</li>
+</ul>
+</dd>
+  <dt class="optional">Allow grid feed-in during schedule 3<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/3/AllowGridFeedIn</b>
+<ul>
+  <li>0 - Not allowed</li>
+  <li>1 - Allowed</li>
+</ul>
+</dd>
+  <dt class="optional">Duration for schedule 3 (Seconds)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/3/Duration</b>
+</dd>
+  <dt class="optional">Active restrictions for schedule 3<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/3/Restrictions</b>
+<ul>
+  <li>0 - No restrictions between battery and the grid</li>
+  <li>1 - Grid to battery energy flow is restricted</li>
+  <li>2 - Battery to grid energy flow is restricted</li>
+  <li>3 - No energy flow between battery and grid</li>
+</ul>
+</dd>
+  <dt class="optional">Target SOC for schedule 3 (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/3/Soc</b>
+</dd>
+  <dt class="optional">Used strategy for schedule 3<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/3/Strategy</b>
 <ul>
   <li>0 - Target SOC</li>
   <li>1 - Self-consumption</li>
@@ -4898,17 +4985,17 @@ Writing a negative value to the path will de-activate the schedule.
   <li>4 - Node-RED</li>
 </ul>
 </dd>
-  <dt class="optional">Allow grid feed-in during this schedule<span class="property-type">enum</dt>
+  <dt class="optional">Allow grid feed-in during schedule 0<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/0/AllowGridFeedIn</b>
 <ul>
   <li>0 - Not allowed</li>
   <li>1 - Allowed</li>
 </ul>
 </dd>
-  <dt class="optional">Duration for this schedule (Seconds)<span class="property-type">float</dt>
+  <dt class="optional">Duration for schedule 0 (Seconds)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/0/Duration</b>
 </dd>
-  <dt class="optional">Active restrictions for this schedule<span class="property-type">enum</dt>
+  <dt class="optional">Active restrictions for schedule 0<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/0/Restrictions</b>
 <ul>
   <li>0 - No restrictions between battery and the grid</li>
@@ -4917,11 +5004,98 @@ Writing a negative value to the path will de-activate the schedule.
   <li>3 - No energy flow between battery and grid</li>
 </ul>
 </dd>
-  <dt class="optional">Target SOC for this schedule (%)<span class="property-type">float</dt>
+  <dt class="optional">Target SOC for schedule 0 (%)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/0/Soc</b>
 </dd>
-  <dt class="optional">Used strategy for this schedule<span class="property-type">enum</dt>
+  <dt class="optional">Used strategy for schedule 0<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/0/Strategy</b>
+<ul>
+  <li>0 - Target SOC</li>
+  <li>1 - Self-consumption</li>
+</ul>
+</dd>
+  <dt class="optional">Allow grid feed-in during schedule 1<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/1/AllowGridFeedIn</b>
+<ul>
+  <li>0 - Not allowed</li>
+  <li>1 - Allowed</li>
+</ul>
+</dd>
+  <dt class="optional">Duration for schedule 1 (Seconds)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/1/Duration</b>
+</dd>
+  <dt class="optional">Active restrictions for schedule 1<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/1/Restrictions</b>
+<ul>
+  <li>0 - No restrictions between battery and the grid</li>
+  <li>1 - Grid to battery energy flow is restricted</li>
+  <li>2 - Battery to grid energy flow is restricted</li>
+  <li>3 - No energy flow between battery and grid</li>
+</ul>
+</dd>
+  <dt class="optional">Target SOC for schedule 1 (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/1/Soc</b>
+</dd>
+  <dt class="optional">Used strategy for schedule 1<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/1/Strategy</b>
+<ul>
+  <li>0 - Target SOC</li>
+  <li>1 - Self-consumption</li>
+</ul>
+</dd>
+  <dt class="optional">Allow grid feed-in during schedule 2<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/2/AllowGridFeedIn</b>
+<ul>
+  <li>0 - Not allowed</li>
+  <li>1 - Allowed</li>
+</ul>
+</dd>
+  <dt class="optional">Duration for schedule 2 (Seconds)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/2/Duration</b>
+</dd>
+  <dt class="optional">Active restrictions for schedule 2<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/2/Restrictions</b>
+<ul>
+  <li>0 - No restrictions between battery and the grid</li>
+  <li>1 - Grid to battery energy flow is restricted</li>
+  <li>2 - Battery to grid energy flow is restricted</li>
+  <li>3 - No energy flow between battery and grid</li>
+</ul>
+</dd>
+  <dt class="optional">Target SOC for schedule 2 (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/2/Soc</b>
+</dd>
+  <dt class="optional">Used strategy for schedule 2<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/2/Strategy</b>
+<ul>
+  <li>0 - Target SOC</li>
+  <li>1 - Self-consumption</li>
+</ul>
+</dd>
+  <dt class="optional">Allow grid feed-in during schedule 3<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/3/AllowGridFeedIn</b>
+<ul>
+  <li>0 - Not allowed</li>
+  <li>1 - Allowed</li>
+</ul>
+</dd>
+  <dt class="optional">Duration for schedule 3 (Seconds)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/3/Duration</b>
+</dd>
+  <dt class="optional">Active restrictions for schedule 3<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/3/Restrictions</b>
+<ul>
+  <li>0 - No restrictions between battery and the grid</li>
+  <li>1 - Grid to battery energy flow is restricted</li>
+  <li>2 - Battery to grid energy flow is restricted</li>
+  <li>3 - No energy flow between battery and grid</li>
+</ul>
+</dd>
+  <dt class="optional">Target SOC for schedule 3 (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/3/Soc</b>
+</dd>
+  <dt class="optional">Used strategy for schedule 3<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/DynamicEss/Schedule/3/Strategy</b>
 <ul>
   <li>0 - Target SOC</li>
   <li>1 - Self-consumption</li>
