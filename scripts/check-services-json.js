@@ -39,6 +39,8 @@ workbook.xlsx.readFile(xlsFile)
       node = node + row.values[1].split('.')[2]
       if (node === 'input-grid') { node = 'input-gridmeter' }
       if (node === 'input-charger') { node = 'input-accharger' }
+      if (node === 'input-genset') { node = 'input-generator' }
+      if (node === 'input-dcgenset') { node = 'input-generator' }
       if (typeof row.values[7] === 'undefined') { return }
       const path = row.values[7].replace('Cgwacs', 'CGwacs')
       // console.log("Check for node " + node + ", path: " + path);
@@ -78,13 +80,13 @@ workbook.xlsx.readFile(xlsFile)
         if (!paths.includes(path)) {
           // Print some info on the missing entry
           let name = row.values[2]
-          if (row.values[9] && !row.values[9].match(/;/)) {
+          if (row.values[9] && typeof row.values[9] === 'string' && !row.values[9].match(/;/)) {
             name = name + ' (' + row.values[9] + ')'
           }
           // check the type; if row 9 contains a semicolon, it is enum. Else it is a bit of
           // a guess, but we default it to float if we are not sure
           let type
-          if (row.values[9] && row.values[9].match(/;/)) {
+          if (row.values[9] && typeof row.values[9] === 'string' && row.values[9].match(/;/)) {
             type = 'enum'
           } else {
             if (row.values[4].match(/string/)) {

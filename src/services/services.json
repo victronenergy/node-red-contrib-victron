@@ -2671,6 +2671,46 @@
         "name": "Engine winding temperature (°C)"
       },
       {
+        "path": "/Error/0/Id",
+        "type": "string",
+        "name": "Generator specific error code 0"
+      },
+      {
+        "path": "/Error/1/Id",
+        "type": "string",
+        "name": "Generator specific error code 1"
+      },
+      {
+        "path": "/Error/2/Id",
+        "type": "string",
+        "name": "Generator specific error code 2"
+      },
+      {
+        "path": "/Error/3/Id",
+        "type": "string",
+        "name": "Generator specific error code 3"
+      },
+      {
+        "path": "/Error/4/Id",
+        "type": "string",
+        "name": "Generator specific error code 4"
+      },
+      {
+        "path": "/Error/5/Id",
+        "type": "string",
+        "name": "Generator specific error code 5"
+      },
+      {
+        "path": "/Error/6/Id",
+        "type": "string",
+        "name": "Generator specific error code 6"
+      },
+      {
+        "path": "/Error/7/Id",
+        "type": "string",
+        "name": "Generator specific error code 7"
+      },
+      {
         "path": "/ErrorCode",
         "type": "enum",
         "name": "Error",
@@ -2858,6 +2898,46 @@
         "path": "/Engine/WindingTemperature",
         "type": "float",
         "name": "Internal winding temperature (Degrees celsius)"
+      },
+      {
+        "path": "/Error/0/Id",
+        "type": "string",
+        "name": "Generator specific error code 0"
+      },
+      {
+        "path": "/Error/1/Id",
+        "type": "string",
+        "name": "Generator specific error code 1"
+      },
+      {
+        "path": "/Error/2/Id",
+        "type": "string",
+        "name": "Generator specific error code 2"
+      },
+      {
+        "path": "/Error/3/Id",
+        "type": "string",
+        "name": "Generator specific error code 3"
+      },
+      {
+        "path": "/Error/4/Id",
+        "type": "string",
+        "name": "Generator specific error code 4"
+      },
+      {
+        "path": "/Error/5/Id",
+        "type": "string",
+        "name": "Generator specific error code 5"
+      },
+      {
+        "path": "/Error/6/Id",
+        "type": "string",
+        "name": "Generator specific error code 6"
+      },
+      {
+        "path": "/Error/7/Id",
+        "type": "string",
+        "name": "Generator specific error code 7"
       },
       {
         "path": "/HeatsinkTemperature",
