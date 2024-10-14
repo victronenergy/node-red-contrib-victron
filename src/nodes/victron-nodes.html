@@ -125,10 +125,18 @@
         var nodeLabelLower = nodeLabel.toLowerCase();
 
         var buildOption = function buildOption(service) {
-            if (service.deviceInstance) {
-                return $('<option/>').val(service.service || service.path).text(`${service.name} (${service.deviceInstance})`).data(service);
+            var optionText = service.name;
+
+            if (service.value === null) {
+                optionText += " - (null)";
             }
-            return $('<option/>').val(service.service || service.path).text(service.name).data(service);
+
+            var option = $('<option/>')
+                .val(service.service || service.path)
+                .text(optionText)
+                .data(service);
+
+            return option
         };
 
         var populateSelect = function populateSelect(selector, services) {
