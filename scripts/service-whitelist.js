@@ -461,7 +461,8 @@ module.exports = {
   'output-solarcharger': {
     solarcharger: [
       '/Mode',
-      '/MppOperationMode'
+      '/MppOperationMode',
+      '/Relay/0/State'
     ]
   },
   'output-ess': {
