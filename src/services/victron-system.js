@@ -120,7 +120,7 @@ class SystemConfiguration {
       }, [])
   }
 
-  getCachedServices (nodeName) {
+  getCachedServices () {
     const cachedService = _.pickBy(this.cache, (val, key) => key.startsWith('com.victronenergy'))
     const services = []
     Object.keys(cachedService).forEach((dbusInterface) => {
@@ -138,8 +138,8 @@ class SystemConfiguration {
 
       const paths = []
       for (const path in cachedPaths) {
-        if (cachedPaths[path] || cachedPaths[path] === 0) {
-          paths.push({ path, name: path, type: typeof (cachedPaths[path]) })
+        if (cachedPaths[path] || cachedPaths[path] === 0 || cachedPaths[path] === null) {
+          paths.push({ path, name: path, type: typeof (cachedPaths[path]), value: cachedPaths[path]})
         }
       }
       paths.sort((a, b) => a.name > b.name ? 1 : -1)
