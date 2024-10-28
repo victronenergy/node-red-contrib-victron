@@ -3,7 +3,7 @@
  * https://github.com/sbender9/signalk-venus-plugin/blob/master/dbus-listener.js
  */
 
-const dbus = require('dbus-native')
+const dbus = require('dbus-native-victron')
 const debug = require('debug')('node-red-contrib-victron:dbus')
 const _ = require('lodash')
 
@@ -167,12 +167,14 @@ class VictronDbusListener {
           service.fluidType = data.FluidType
         }
 
+        const deviceInstance =  data['/DeviceInstance'] != null ? data['/DeviceInstance'] : service.deviceInstance;
+
         const messages = _.keys(data).map(path => {
           return {
             path: '/' + path.replace(/^\/+/, ''),
             senderName: service.name.split('.').splice(0, 3).join('.'),
             value: data[path],
-            deviceInstance: (service.deviceInstance != null ? service.deviceInstance : ''),
+            deviceInstance,
             fluidType: service.fluidType
           }
         })
@@ -227,6 +229,9 @@ class VictronDbusListener {
           const service = this.services[msg.sender]
           if (!service || !service.name) {
             return
+          }
+          if (m.path === '/DeviceInstance') {
+            service.deviceInstance = m.value
           }
           m.senderName = service.name.split('.').splice(0, 3).join('.')
           if (service.deviceInstance === null) {
