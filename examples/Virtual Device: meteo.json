@@ -1,0 +1,319 @@
+[
+    {
+        "id": "ba0560ad671f5f80",
+        "type": "subflow",
+        "name": "Alecto",
+        "info": "This subflow node is for retrieving the weather information from an Alecto weatherstation. \nIt does this by listening for post requests.\n\nIn order to get this working, you need to \nadd a customized service to the weather station.\nThis can be done in the _WS View_ app, under \n_device list_. Under _Customized_ add:\n\n- _Enable_ - set the Customized service to\naccept incomming POST requests.\n- _Protocol type_ - Only _Ecowitt_ is supported.\n- _Server IP / Hostname_ - needst to be set\nto the internal IP of the running Node-RED\ninstance.\n- _Path_ - needs to be set to `/Alecto`\n- _Port_ - needs to be set to the port that\nNode-RED is running on (usually `1880`)\n- _Update interval_ - can be set to the number\nof seconds between updates. `60` seconds is a\nnormal interval.\n\n# Configuration\n\nIf you set \"store to global context\", the node will store\nthe latest input into the global context under the \"alecto\" object.\n\n# Output\n\nThe node outputs the incoming messages from the weather\nstation. Some conversions are being made to make the parsing of the data easier.\n\n# Status\n\nThe status turns green when listening. With \nincoming messages, it updates the text to\nshow the timestamp of the last incoming \nmessage (in readable format).",
+        "category": "Weather",
+        "in": [],
+        "out": [
+            {
+                "x": 780,
+                "y": 140,
+                "wires": [
+                    {
+                        "id": "4b17af6d0361cfaa",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "context_store",
+                "type": "bool",
+                "value": "true",
+                "ui": {
+                    "label": {
+                        "en-US": "Save to global context"
+                    },
+                    "type": "checkbox"
+                }
+            }
+        ],
+        "meta": {
+            "module": "Alecto",
+            "version": "0.0.4",
+            "author": "Dirk-Jan Faber <dfaber@victronenergy.com>",
+            "desc": "Retrieve info from the Alecto WS 5500 weather station",
+            "keywords": "alecto, weatherstation, node-red, ws5500",
+            "license": "MIT"
+        },
+        "color": "#3FADB5",
+        "icon": "font-awesome/fa-cloud",
+        "status": {
+            "x": 680,
+            "y": 220,
+            "wires": [
+                {
+                    "id": "fcfb63da787cf68b",
+                    "port": 0
+                },
+                {
+                    "id": "5c042399dc9cef98",
+                    "port": 0
+                }
+            ]
+        }
+    },
+    {
+        "id": "60cc8426ac213ba1",
+        "type": "http in",
+        "z": "ba0560ad671f5f80",
+        "name": "Weatherstation - EcoWitt",
+        "url": "/Alecto",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 170,
+        "y": 80,
+        "wires": [
+            [
+                "2869fd8c3fd4b249",
+                "4b17af6d0361cfaa",
+                "5c042399dc9cef98"
+            ]
+        ]
+    },
+    {
+        "id": "4add5ac157a9818c",
+        "type": "http response",
+        "z": "ba0560ad671f5f80",
+        "name": "",
+        "statusCode": "200",
+        "headers": {},
+        "x": 740,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "2869fd8c3fd4b249",
+        "type": "template",
+        "z": "ba0560ad671f5f80",
+        "name": "",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "Ok",
+        "output": "str",
+        "x": 460,
+        "y": 80,
+        "wires": [
+            [
+                "4add5ac157a9818c"
+            ]
+        ]
+    },
+    {
+        "id": "fcfb63da787cf68b",
+        "type": "function",
+        "z": "ba0560ad671f5f80",
+        "name": "Set status",
+        "func": "msg.payload = ({ fill: \"green\", text: \"Listening\" });\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5c042399dc9cef98",
+        "type": "function",
+        "z": "ba0560ad671f5f80",
+        "name": "Update status",
+        "func": "const now = new Date();\nlet fill = \"red\";\n\nif (msg.payload.tempf) {\n    fill = \"green\";\n}\n\nmsg.payload = ({ fill: fill, text: now.toTimeString()});\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "36b37ca7e2e3d17f",
+        "type": "inject",
+        "z": "ba0560ad671f5f80",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 270,
+        "y": 220,
+        "wires": [
+            [
+                "fcfb63da787cf68b"
+            ]
+        ]
+    },
+    {
+        "id": "4b17af6d0361cfaa",
+        "type": "function",
+        "z": "ba0560ad671f5f80",
+        "name": "Parse data",
+        "func": "if (msg.payload.tempf) {\n  msg.payload.tempc = String(((Number(msg.payload.tempf) -32)*5/9).toFixed(1));\n}\n\nif (msg.payload.baromabsin) {\n    msg.payload.baromabshpa =  msg.payload.baromabsin * 33.6585\n}\n\nif (msg.payload.baromrelin) {\n    msg.payload.baromrelhpa =  msg.payload.baromrelin * 33.6585\n}\n\nif (msg.payload.windspeedmph) {\n    msg.payload.windspeedms = msg.payload.windspeedmph * 0.44704\n}\n\nif (msg.payload.windgustmph) {\n    msg.payload.windgustms = msg.payload.windgustmph * 0.44704\n}\n\nfor (let item in msg.payload) {\n  if ( ! Number.isNaN(Number(msg.payload[item]))) {\n     msg.payload[item] = Number(msg.payload[item])\n  }\n}\n\nmsg.payload[\"dateutc\"] = Date.parse(msg.payload[\"dateutc\"])\n\nif (env.get('context_store')) {\n  global.set(\"alecto\", msg.payload)\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "508d0eabc1eb130c",
+        "type": "change",
+        "z": "de710832a415f877",
+        "g": "b68361b29e58749a",
+        "name": "Get Solar Radiation",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "alecto.solarradiation",
+                "tot": "global"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 450,
+        "y": 280,
+        "wires": [
+            [
+                "aaf144bd2fc8d707"
+            ]
+        ]
+    },
+    {
+        "id": "156c4dd298958bf5",
+        "type": "change",
+        "z": "de710832a415f877",
+        "g": "b68361b29e58749a",
+        "name": "Get Windspeed",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "alecto.windspeedms",
+                "tot": "global"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 440,
+        "y": 340,
+        "wires": [
+            [
+                "ad7651cd24febf4c"
+            ]
+        ]
+    },
+    {
+        "id": "ad7651cd24febf4c",
+        "type": "victron-output-custom",
+        "z": "de710832a415f877",
+        "g": "b68361b29e58749a",
+        "service": "com.victronenergy.meteo/1",
+        "path": "/Windspeeed",
+        "serviceObj": {
+            "service": "com.victronenergy.meteo/1",
+            "name": "Virtual meteo (1)"
+        },
+        "pathObj": {
+            "path": "/Windspeeed",
+            "name": "/Windspeeed",
+            "type": "object",
+            "value": null
+        },
+        "name": "",
+        "onlyChanges": false,
+        "x": 750,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "aaf144bd2fc8d707",
+        "type": "victron-output-custom",
+        "z": "de710832a415f877",
+        "g": "b68361b29e58749a",
+        "service": "com.victronenergy.meteo/1",
+        "path": "/Irradiance",
+        "serviceObj": {
+            "service": "com.victronenergy.meteo/1",
+            "name": "Virtual meteo (1)"
+        },
+        "pathObj": {
+            "path": "/Irradiance",
+            "name": "/Irradiance",
+            "type": "number"
+        },
+        "name": "",
+        "onlyChanges": false,
+        "x": 740,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "5e274fe783c892f0",
+        "type": "subflow:ba0560ad671f5f80",
+        "z": "de710832a415f877",
+        "name": "Alecto weather station",
+        "x": 160,
+        "y": 120,
+        "wires": [
+            [
+                "4f09a0bb5474a0da",
+                "cb5b55ea34d29c06",
+                "c8109b6132f16289",
+                "508d0eabc1eb130c",
+                "156c4dd298958bf5",
+                "c7af05d00271b886"
+            ]
+        ]
+    },
+    {
+        "id": "965441bc584a2726",
+        "type": "Virtual Device",
+        "z": "de710832a415f877",
+        "name": "",
+        "device": "meteo",
+        "deviceinstance": "1",
+        "x": 750,
+        "y": 1160,
+        "wires": []
+    }
+]

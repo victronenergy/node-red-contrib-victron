@@ -317,7 +317,7 @@ class VictronDbusListener {
       signature: 'v'
     },
     err => {
-      if (err) console.error('Error: ' + err)
+      if (err) console.error(`Error setting value for ${destination}, ${path}, ${value}: ${err}`)
     }
     )
   }

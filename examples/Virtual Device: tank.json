@@ -1,0 +1,142 @@
+[
+    {
+        "id": "f5bdb1bb02f4d6dc",
+        "type": "Virtual Device",
+        "z": "a442aa86b4030805",
+        "name": "Water",
+        "device": "tank",
+        "grid_nrofphases": 1,
+        "fluid_type": "1",
+        "include_tank_battery": true,
+        "include_tank_temperature": true,
+        "tank_battery_voltage": "1.1",
+        "tank_capacity": "20",
+        "temperature_type": 2,
+        "include_humidity": false,
+        "include_pressure": false,
+        "include_temp_battery": false,
+        "temp_battery_voltage": "",
+        "x": 950,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "5d58d505f96214fc",
+        "type": "victron-output-custom",
+        "z": "a442aa86b4030805",
+        "service": "com.victronenergy.tank/100",
+        "path": "/Remaining",
+        "serviceObj": {
+            "service": "com.victronenergy.tank/100",
+            "name": "Water (100)"
+        },
+        "pathObj": {
+            "path": "/Remaining",
+            "name": "/Remaining",
+            "type": "number",
+            "value": 12.96
+        },
+        "name": "",
+        "onlyChanges": false,
+        "x": 730,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "6fcaf21d8fb88f77",
+        "type": "function",
+        "z": "a442aa86b4030805",
+        "name": "Simulate tank",
+        "func": "// Parameters for the sine wave\nlet amplitude = 10; // The amplitude of the sine wave (half the range)\nlet offset = 10;    // The offset to center the sine wave (average of 10 and 30)\nlet frequency = 0.01; // Controls the speed of the wave (lower = slower)\nlet time = context.get('time') || 0; // Get time from context or initialize\n\nlet capacity = global.get('victronenergy.tank._100.Capacity')\n\nif (capacity === undefined) {\n    node.state({\n        color: \"red\",\n        shape: \"dot\",\n        text: \"Unable to determine the tank capacity\"\n    })\n}\n\n// Calculate sine wave value\nlet sineValue = Math.sin(time * frequency);\n\n// Map sine wave from [-1, 1] to [10, 30]\nlet scaledValue = offset + (amplitude * sineValue);\n\nlet level = 100 * scaledValue / capacity\n\n// Increment time\ntime += 1;\ncontext.set('time', time);\n\nreturn [{ \n  topic: 'remaining',\n  payload: Number(scaledValue.toFixed(2))\n}, { \n  topic: 'level',\n  payload: Number(level.toFixed(0))\n}];\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 640,
+        "wires": [
+            [
+                "5d58d505f96214fc"
+            ],
+            [
+                "5b22765fd4d99a90"
+            ]
+        ]
+    },
+    {
+        "id": "9571a81dc7073dbb",
+        "type": "inject",
+        "z": "a442aa86b4030805",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "1",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 170,
+        "y": 640,
+        "wires": [
+            [
+                "6fcaf21d8fb88f77"
+            ]
+        ]
+    },
+    {
+        "id": "5b22765fd4d99a90",
+        "type": "victron-output-custom",
+        "z": "a442aa86b4030805",
+        "service": "com.victronenergy.tank/100",
+        "path": "/Level",
+        "serviceObj": {
+            "service": "com.victronenergy.tank/100",
+            "name": "Water (100)"
+        },
+        "pathObj": {
+            "path": "/Level",
+            "name": "/Level",
+            "type": "number",
+            "value": 20
+        },
+        "name": "",
+        "onlyChanges": false,
+        "x": 720,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "f442ec41ab90a295",
+        "type": "victron-input-tank",
+        "z": "a442aa86b4030805",
+        "service": "com.victronenergy.tank/100",
+        "path": "/Capacity",
+        "serviceObj": {
+            "service": "com.victronenergy.tank/100",
+            "name": "Water"
+        },
+        "pathObj": {
+            "path": "/Capacity",
+            "type": "float",
+            "name": "Tank capacity (m3)"
+        },
+        "name": "",
+        "onlyChanges": true,
+        "x": 190,
+        "y": 700,
+        "wires": [
+            []
+        ]
+    }
+]

@@ -1,0 +1,251 @@
+<style>
+  a.blue-link {
+    color: rgb(71, 144, 208) !important;
+  }
+  .form-warning, .form-info {
+        padding-bottom: 8px;
+        max-width: 450px;
+  }
+  .form-warning .fa {
+        color: #d6615f;
+  }
+</style>
+
+<script type="text/javascript">
+
+    function checkSelectedVirtualDevice() {
+        [
+            'grid', 'tank', 'temperature'
+        ].map( x => { $('.input-'+x).hide() })
+        const selected = $('select#node-input-device').val()
+        $('.input-'+selected).show()
+
+        if (selected === 'temperature') {
+        // Show/hide battery voltage input based on checkbox
+        $('#node-input-include-battery').off('change').on('change', function() {
+            if($(this).is(':checked')) {
+                $('#battery-voltage-row').show()
+            } else {
+                $('#battery-voltage-row').hide()
+            }
+        })
+
+        // Initially set battery voltage visibility
+        $('#battery-voltage-row').toggle($('#node-input-include-battery').is(':checked'))
+    }
+    }
+
+
+    RED.nodes.registerType('Virtual Device',{
+        category: 'Victron Energy',
+        color: '#f7ab3e',
+        defaults: {
+            name: {value:""},
+            device: {value:"", required: true},
+            // grid
+            grid_nrofphases: {value: 1, required: false},
+            // tank
+            fluid_type: { value: 0, required: false},
+            include_tank_battery: { value: false },
+            include_tank_temperature: {value: false},
+            tank_battery_voltage: { value: 3.3 },
+            tank_capacity: {value:10, required:false,
+                validate: v => v === '' || v === undefined || Number(v) > 0},
+            // temperature
+            temperature_type: {value: 2, required: false},
+            include_humidity: { value: false },
+            include_pressure: { value: false },
+            include_temp_battery: { value: false },
+            temp_battery_voltage: { value: 3.3 }
+        },
+        icon: "victronenergy.svg",
+        inputs:0,
+        outputs:0,
+        label: function() {
+            return (this.name||"Virtual "+this.device)
+        },
+        oneditprepare: function oneditprepare() {
+            checkSelectedVirtualDevice()
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="Virtual Device">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <select id="node-input-device" required onchange="checkSelectedVirtualDevice()">
+            <option value="grid">Grid meter</option>
+            <option value="meteo">Meteo</option>
+            <option value="tank">Tank sensor</option>
+            <option value="temperature">Temperature sensor</option>
+        </select>
+    </div>
+    <div class="input-grid">
+        <div class="form-tips" style="display: block;">
+            <p><strong>Note:</strong> Do not use this feature to make an ESS system with third party energy meters. There are multiple <a href="https://www.victronenergy.com/meters-and-sensors/energy-meter" class="blue-link">officially supported meters</a> that can be used in a Victron ESS system. Using other meters has proven too often to lead to issues related with stability.</p>
+        </div>
+        <div class="form-row">
+            <label for="node-input-grid_nrofphases"><i class="fa fa-plug"></i> Nr of phases</label>
+            <select id="node-input-grid_nrofphases">
+                <option value="1">1</option>
+                <option value="3">3</option>
+            </select>
+        </div>
+    </div>
+    <div class="input-tank">
+        <div class="form-row">
+            <label for="node-input-fluid_type"><i class="fa fa-tint"></i> Fluid type</label>
+            <select id="node-input-fluid_type">
+                <option value="0">Fuel</option>
+                <option value="1">Fresh water</option>
+                <option value="2">Waste water</option>
+                <option value="3">Live well</option>
+                <option value="4">Oil</option>
+                <option value="5">Black water (sewage)</option>
+                <option value="6">Gasoline</option>
+                <option value="7">Diesel</option>
+                <option value="8">LPG</option>
+                <option value="9">LNG</option>
+                <option value="10">Hydraulic oil</option>
+                <option value="11">Raw water</option>
+            </select>
+        </div>
+
+        <div class="form-row" id="tank-capacity">
+            <label for="node-input-tank_capacity"><i class="fa fa-flask"></i> Tank Capacity</label>
+            <input type="number" id="node-input-tank_capacity" min="0">
+        </div>
+
+        <div class="form-row">
+            <label>&nbsp;</label>
+            <label for="node-input-include_tank_temperature" style="width:70%;">
+                <input type="checkbox" id="node-input-include_tank_temperature" style="display:inline-block; width:22px; vertical-align:baseline;">
+                Include temperature
+            </label>
+        </div>
+
+        <div class="form-row">
+            <label>&nbsp;</label>
+            <label for="node-input-include_tank_battery" style="width:70%;">
+                <input type="checkbox" id="node-input-include_tank_battery" style="display:inline-block; width:22px; vertical-align:baseline;">
+                Include Battery Voltage
+            </label>
+        </div>
+
+        <div class="form-row" id="tank_battery-voltage-row">
+            <label>&nbsp;</label>
+            <label for="node-input-tank_battery_voltage" style="width:auto;">Battery Voltage (V):</label>
+            <input type="number" id="node-input-tank_battery_voltage" style="width:100px;" value="3.3" step="0.1" min="0">
+        </div>
+    </div>
+    <div class="input-temperature">
+        <div class="form-row">
+            <label for="node-input-temperature_type"><i class="fa fa-thermometer-half"></i> Temperature type</label>
+            <select id="node-input-temperature_type">
+                <option value="0">Battery</option>
+                <option value="1">Fridge</option>
+                <option value="2">Generic</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <label>&nbsp;</label>
+            <label for="node-input-include_humidity" style="width:70%;">
+                <input type="checkbox" id="node-input-include_humidity" style="display:inline-block; width:22px; vertical-align:baseline;">
+                Include Humidity Sensor
+            </label>
+        </div>
+
+        <div class="form-row">
+            <label>&nbsp;</label>
+            <label for="node-input-include_pressure" style="width:70%;">
+                <input type="checkbox" id="node-input-include_pressure" style="display:inline-block; width:22px; vertical-align:baseline;">
+                Include Pressure Sensor
+            </label>
+        </div>
+
+        <div class="form-row">
+            <label>&nbsp;</label>
+            <label for="node-input-include_temp_battery" style="width:70%;">
+                <input type="checkbox" id="node-input-include_temp_battery" style="display:inline-block; width:22px; vertical-align:baseline;">
+                Include Battery Voltage
+            </label>
+        </div>
+
+        <div class="form-row" id="battery-temp_voltage-row">
+            <label>&nbsp;</label>
+            <label for="node-input-temp_battery_voltage" style="width:auto;">Battery Voltage (V):</label>
+            <input type="number" id="node-input-temp_battery_voltage" style="width:100px;" value="3.3" step="0.1" min="0">
+        </div>
+    </div>
+</script>
+
+<script type="text/markdown" data-help-name="Virtual Device">
+
+The _Virtual Device_ node creates a virtual device on the underlying `dbus`, which allows for reading from and writing to the device as
+if it is an actually connected device. The virtual device will also show up in VRM, allowing you to plot data from less-supported hardware.
+
+Important note: Please be aware that using virtual devices on Victron systems may result in lower performance compared to using actual physical devices. Additionally, there is no official support provided when using virtual devices. These tools are intended for advanced users who understand and accept these limitations.
+
+## Adding a device
+
+To get started, pull a virtual device to the canvas and configure it. First the
+device type needs to be selected. At the moment the system supports:
+- Grid meter
+- Meteo
+- Tank sensor
+- Temperature sensor
+
+Depending on the selected device type, you may get a few more fields that need
+to be filled out. They are described below for each type of device.
+
+Once the device has been deployed and the flow restarted, the device should
+appear on the dbus. Then you can use a custom output node to write values to
+the device. And of course use the regular nodes to read from the device.
+
+Note that the _deviceInstance_, which uniquely defines a device on the dbus
+will be generated automatically. The node status will show the obtained
+deviceInstance in brackets. The label of the node will be set as _CustomName_
+for the device, making it all easier to identify the virtual device.
+
+Also note that it might take a short while before the service on the dbus is
+actually created. So best practice is to wait a second before injecting data
+into the virtual device.
+
+With most virtual devices, you can pre-define some values via the edit panel to
+make its use more convenient. For other devices, the edit panel allows you to
+enable or disable some of the paths.
+
+### Grid meter
+
+For the grid meter, you wil need to select the number of phases that are
+available on the device.
+
+Do not use this feature to make an ESS system with third party energy meters.
+There are multiple [officially supported
+meters](https://www.victronenergy.com/meters-and-sensors/energy-meter) that can
+be used in a Victron ESS system. Using other meters has proven too often to
+lead to issues related with stability.
+
+### Meteo
+
+The meteo device only supports the irradiance and windspeed. Typically you
+would use it to send data from your weather stations to both a virtual meteo
+device and a virtual temperature sensor.
+
+### Tank sensor
+
+For the tank sensor you can pre-define some values, like the liquid type and
+the capacity.  The capacity is a number. The volume unit is something that is
+defined on the GX.
+
+### Temperature sensor
+
+Next to setting the temperature, the temperature sensor allows for setting
+humidity, pressure and battery voltage.
+
+</script>

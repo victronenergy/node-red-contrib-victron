@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Launch Node-red",
+        "program": "${env:NVM_BIN}/../lib/node_modules/node-red/red.js",
+        "cwd": "${env:HOME}",
+        "runtimeArgs": ["--preserve-symlinks", "--experimental-modules"],
+        "env": {
+          "NO_UPDATE_NOTIFIER": "1",
+          "DEBUG": "*",
+          "NODE_RED_DBUS_ADDRESS": "venus.local:78"
+        }
+      },
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Debug Current File",
+        "program": "${file}"
+      },
+      { "type": "node", "request": "attach", "name": "Attach to Process", "processId": "${command:PickProcess}" } 
+      
+    ]
+  }

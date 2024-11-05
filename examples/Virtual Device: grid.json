@@ -1,0 +1,109 @@
+[
+    {
+        "id": "82af4d599bf0380c",
+        "type": "Virtual Device",
+        "z": "456c3da89ebad689",
+        "name": "P1",
+        "device": "grid",
+        "deviceinstance": "166",
+        "grid_nrofphases": "3",
+        "x": 420,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "a860b3ae04af98ad",
+        "type": "function",
+        "z": "456c3da89ebad689",
+        "name": "p1 to gridmeter",
+        "func": "function convertSmartMeterData(data) {\n    const result = {\n        'Ac/Energy/Forward': data.received.tariff1.reading + data.received.tariff2.reading,\n        'Ac/Energy/Reverse': data.delivered.tariff1.reading + data.delivered.tariff2.reading,\n        'Ac/Frequency': null,\n        'Ac/Power': null,\n        'Ac/N/Current': null,\n        'Ac/PENVoltage': null\n    };\n\n    for (let i = 1; i <= 3; i++) {\n        const phase = `L${i}`;\n        result[`Ac/${phase}/Current`] = data.instantaneous.current[phase].reading || 0;\n        result[`Ac/${phase}/Energy/Forward`] = 0; // Data not provided in the input\n        result[`Ac/${phase}/Energy/Reverse`] = 0; // Data not provided in the input\n        result[`Ac/${phase}/Power`] = (data.instantaneous.power.positive[phase].reading || 0) * 1000; // Convert kW to W\n        result[`Ac/${phase}/Voltage`] = data.instantaneous.voltage[phase].reading || 0;\n    }\n\n    return result;\n}\n\nif (msg.payload && msg.payload.electricity) {\n    try {\n        const convertedData = convertSmartMeterData(msg.payload.electricity);\n\n        // For each key-value pair in convertedData, send a new message\n        for (const [path, value] of Object.entries(convertedData)) {\n            node.send({ path: path, payload: Number(value) });\n        }\n    } catch (error) {\n        node.error(\"Error converting smart meter data: \" + error.message);\n    }\n} else {\n    node.warn(\"No electricity data found in payload\");\n}\n\n// Return null to prevent the default send behavior\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 240,
+        "y": 1000,
+        "wires": [
+            [
+                "aeedbefe716c3343"
+            ]
+        ]
+    },
+    {
+        "id": "d186bbb545db6616",
+        "type": "victron-output-custom",
+        "z": "456c3da89ebad689",
+        "service": "com.victronenergy.grid/166",
+        "path": "/CustomName",
+        "serviceObj": {
+            "service": "com.victronenergy.grid/166",
+            "name": "P1 - (166)"
+        },
+        "pathObj": {
+            "path": "/CustomName",
+            "name": "/CustomName",
+            "type": "string"
+        },
+        "name": "",
+        "onlyChanges": false,
+        "x": 710,
+        "y": 1000,
+        "wires": []
+    },
+    {
+        "id": "aeedbefe716c3343",
+        "type": "delay",
+        "z": "456c3da89ebad689",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "1",
+        "timeoutUnits": "seconds",
+        "rate": "20",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 420,
+        "y": 1000,
+        "wires": [
+            [
+                "d186bbb545db6616"
+            ]
+        ]
+    },
+    {
+        "id": "ee3550eb6c79330a",
+        "type": "inject",
+        "z": "456c3da89ebad689",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"meterType\":\"XMX5LGBBFFB231136583\",\"version\":\"42\",\"timestamp\":\"2024-10-16T09:16:04.000Z\",\"equipmentId\":\"4588830303521330313536323563933383134\",\"textMessage\":{\"codes\":\"\",\"message\":\"\"},\"electricity\":{\"received\":{\"tariff1\":{\"reading\":30250.311,\"unit\":\"kWh\"},\"tariff2\":{\"reading\":30164.074,\"unit\":\"kWh\"},\"actual\":{\"reading\":0.165,\"unit\":\"kW\"}},\"delivered\":{\"tariff1\":{\"reading\":3006.968,\"unit\":\"kWh\"},\"tariff2\":{\"reading\":5994.86,\"unit\":\"kWh\"},\"actual\":{\"reading\":0,\"unit\":\"kW\"}},\"tariffIndicator\":2,\"threshold\":null,\"fuseThreshold\":null,\"switchPosition\":null,\"numberOfPowerFailures\":5,\"numberOfLongPowerFailures\":13,\"longPowerFailureLog\":{\"count\":10,\"log\":[{\"startOfFailure\":\"2024-06-21T13:59:45.000Z\",\"endOfFailure\":\"2024-06-21T14:31:07.000Z\",\"duration\":1882,\"unit\":\"s\"},{\"startOfFailure\":\"2023-02-14T09:44:04.000Z\",\"endOfFailure\":\"2023-02-14T09:44:04.000Z\",\"duration\":0,\"unit\":\"s\"},{\"startOfFailure\":\"2021-11-10T05:38:36.000Z\",\"endOfFailure\":\"2021-11-10T07:00:43.000Z\",\"duration\":4927,\"unit\":\"s\"},{\"startOfFailure\":\"2021-06-19T11:08:01.000Z\",\"endOfFailure\":\"2021-06-19T11:36:52.000Z\",\"duration\":1731,\"unit\":\"s\"},{\"startOfFailure\":\"2021-04-08T15:31:59.000Z\",\"endOfFailure\":\"2021-04-08T15:35:08.000Z\",\"duration\":189,\"unit\":\"s\"},{\"startOfFailure\":\"2021-01-11T09:42:24.000Z\",\"endOfFailure\":\"2021-01-11T10:45:59.000Z\",\"duration\":3815,\"unit\":\"s\"},{\"startOfFailure\":\"2020-08-11T23:38:08.000Z\",\"endOfFailure\":\"2020-08-12T00:15:07.000Z\",\"duration\":2219,\"unit\":\"s\"},{\"startOfFailure\":\"2020-08-11T23:38:08.000Z\",\"endOfFailure\":\"2020-08-11T23:41:53.000Z\",\"duration\":225,\"unit\":\"s\"},{\"startOfFailure\":\"2020-08-10T15:59:28.000Z\",\"endOfFailure\":\"2020-08-10T16:42:05.000Z\",\"duration\":2557,\"unit\":\"s\"},{\"startOfFailure\":\"2018-07-24T15:23:28.000Z\",\"endOfFailure\":\"2018-07-24T16:16:30.000Z\",\"duration\":3182,\"unit\":\"s\"}]},\"voltageSags\":{\"L1\":0,\"L2\":0,\"L3\":0},\"voltageSwell\":{\"L1\":0,\"L2\":0,\"L3\":0},\"instantaneous\":{\"current\":{\"L1\":{\"reading\":2,\"unit\":\"A\"},\"L2\":{\"reading\":1,\"unit\":\"A\"},\"L3\":{\"reading\":2,\"unit\":\"A\"}},\"voltage\":{\"L1\":{\"reading\":null,\"unit\":null},\"L2\":{\"reading\":null,\"unit\":null},\"L3\":{\"reading\":null,\"unit\":null}},\"power\":{\"positive\":{\"L1\":{\"reading\":0.037,\"unit\":\"kW\"},\"L2\":{\"reading\":0,\"unit\":\"kW\"},\"L3\":{\"reading\":0.128,\"unit\":\"kW\"}},\"negative\":{\"L1\":{\"reading\":0,\"unit\":\"kW\"},\"L2\":{\"reading\":0,\"unit\":\"kW\"},\"L3\":{\"reading\":0,\"unit\":\"kW\"}}}},\"demand\":{\"positiveActiveDemand\":{\"currentDemandPeriod\":{\"reading\":null,\"unit\":null},\"maximumDemand\":{\"timestamp\":null,\"reading\":null,\"unit\":null}},\"negativeActiveDemand\":{\"currentDemandPeriod\":{\"reading\":null,\"unit\":null},\"maximumDemand\":{\"timestamp\":null,\"reading\":null,\"unit\":null}},\"maximumDemandLastMonths\":{\"count\":null,\"months\":null}}},\"gas\":{\"deviceType\":null,\"equipmentId\":null,\"timestamp\":null,\"reading\":null,\"unit\":null,\"valvePosition\":null}}",
+        "payloadType": "json",
+        "x": 90,
+        "y": 1000,
+        "wires": [
+            [
+                "a860b3ae04af98ad"
+            ]
+        ]
+    }
+]

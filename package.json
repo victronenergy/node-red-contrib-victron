@@ -4,6 +4,7 @@
     "version": "1.5.23",
     "dependencies": {
         "dbus-native-victron": "^0.4.2",
+        "dbus-victron-virtual": "^0.1.3",
         "debug": "^4.3.7",
         "lodash": "^4.17.21",
         "promise-retry": "^2.0.1",
@@ -12,7 +13,8 @@
     "node-red": {
         "nodes": {
             "victron-client": "./src/nodes/config-client.js",
-            "victron-nodes": "./src/nodes/victron-nodes.js"
+            "victron-nodes": "./src/nodes/victron-nodes.js",
+            "victron-virtual": "./src/nodes/victron-virtual.js"
         },
         "version": ">=3.0.2"
     },
