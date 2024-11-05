@@ -139,7 +139,7 @@ class SystemConfiguration {
       const paths = []
       for (const path in cachedPaths) {
         if (cachedPaths[path] || cachedPaths[path] === 0 || cachedPaths[path] === null) {
-          paths.push({ path, name: path, type: typeof (cachedPaths[path]), value: cachedPaths[path]})
+          paths.push({ path, name: path, type: typeof (cachedPaths[path]), value: cachedPaths[path] })
         }
       }
       paths.sort((a, b) => a.name > b.name ? 1 : -1)

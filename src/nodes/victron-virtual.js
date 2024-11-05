@@ -182,6 +182,10 @@ module.exports = function (RED) {
       throw new Error('Could not connect to the DBus session bus.')
     }
 
+    if (!config.device || config.device === '') {
+      throw new Error ('Node needs a configuration first')
+    }
+
     let serviceName = `com.victronenergy.${config.device}.virtual_${this.id}`
     // For relays, we only add services, setting the serviceName to this (will result in 0x3 code)
     if (config.device === 'relay') {
@@ -273,28 +277,28 @@ module.exports = function (RED) {
         }
           break
         case 'tank': {
-            iface.FluidType = Number(config.fluid_type ?? 1) // Fresh water
-            if (!config.include_tank_battery) {
-              delete ifaceDesc.properties.BatteryVoltage
-              delete iface.BatteryVoltage
-            } else {
-              iface.BatteryVoltage = Number(config.tank_battery_voltage) || 3.3
+          iface.FluidType = Number(config.fluid_type ?? 1) // Fresh water
+          if (!config.include_tank_battery) {
+            delete ifaceDesc.properties.BatteryVoltage
+            delete iface.BatteryVoltage
+          } else {
+            iface.BatteryVoltage = Number(config.tank_battery_voltage) || 3.3
+          }
+          if (!config.include_tank_temperature) {
+            delete ifaceDesc.properties.Temperature
+            delete iface.Temperature
+          }
+          if (config.tank_capacity !== '' && config.tank_capacity !== undefined) {
+            const capacity = Number(config.tank_capacity)
+            if (isNaN(capacity) || capacity <= 0) {
+              node.error('Tank capacity must be greater than 0')
+              return
             }
-            if (!config.include_tank_temperature) {
-              delete ifaceDesc.properties.Temperature
-              delete iface.Temperature
-            }
-            if (config.tank_capacity !== '' && config.tank_capacity !== undefined) {
-              const capacity = Number(config.tank_capacity)
-              if (isNaN(capacity) || capacity <= 0) {
-                node.error("Tank capacity must be greater than 0")
-                return
-              }
-              iface.Capacity = capacity
-            }
-            text = `Virtual ${properties.tank.FluidType.format(iface.FluidType).toLowerCase()} tank sensor`
+            iface.Capacity = capacity
+          }
+          text = `Virtual ${properties.tank.FluidType.format(iface.FluidType).toLowerCase()} tank sensor`
         }
-        break
+          break
         case 'temperature': {
           iface.TemperatureType = Number(config.temperature_type ?? 2) // Generic
           // Remove optional properties if not enabled
@@ -442,5 +446,5 @@ module.exports = function (RED) {
     })
   }
 
-  RED.nodes.registerType('Virtual Device', VictronVirtualNode)
+  RED.nodes.registerType('victron-virtual', VictronVirtualNode)
 }

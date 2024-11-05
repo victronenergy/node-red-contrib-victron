@@ -167,7 +167,7 @@ class VictronDbusListener {
           service.fluidType = data.FluidType
         }
 
-        const deviceInstance =  data['/DeviceInstance'] != null ? data['/DeviceInstance'] : service.deviceInstance;
+        const deviceInstance = data['/DeviceInstance'] != null ? data['/DeviceInstance'] : service.deviceInstance
 
         const messages = _.keys(data).map(path => {
           return {

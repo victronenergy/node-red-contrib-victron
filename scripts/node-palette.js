@@ -4,10 +4,10 @@
   Uses the services file as a basis to generate a node-palette flow,
   which is used for making a screenshot for the README.
   usage:
-  node node-palette.js -s ../src/services/services.json  > ~/git/node-red-contrib-victron/documentation/node-palette.json
+  node node-palette.js -s ../src/services/services.json  > ~/git/node-red-contrib-victron/docs/node-palette.json
 
   and then, using curl:
-  curl -k -X POST https://192.168.4.66:1881/flow -H 'content-type: application/json' -d @documentation/node-palette.json
+  curl -k -X POST https://192.168.4.66:1881/flow -H 'content-type: application/json' -d @docs/node-palette.json
 
   after which you can take your favorite screenshot application to to grab the flow.
 */
@@ -39,6 +39,7 @@ const output = {
 
 output.nodes.push({ type: 'comment', name: 'Input nodes', id: output.id + 1, x: 150, y: 60 })
 output.nodes.push({ type: 'comment', name: 'Output nodes', id: output.id + 11, x: 150, y: 420 })
+output.nodes.push({ type: 'comment', name: 'Special nodes', id: output.id + 21, x: 150, y: 620 })
 
 let i = 1
 let p, x, y
@@ -67,5 +68,7 @@ for (const node of nodes) {
   p = node
   i++
 }
+
+output.nodes.push({ type: 'victron-virtual', name: 'Virtual device', z: '1234567891', id: '1234567891', x: 370, y: 620})
 
 console.log(JSON.stringify(output))
