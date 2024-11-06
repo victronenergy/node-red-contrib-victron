@@ -69,6 +69,6 @@ for (const node of nodes) {
   i++
 }
 
-output.nodes.push({ type: 'victron-virtual', name: 'Virtual device', z: '1234567891', id: '1234567891', x: 370, y: 620})
+output.nodes.push({ type: 'victron-virtual', name: 'Virtual device', z: '1234567891', id: '1234567891', x: 370, y: 620 })
 
 console.log(JSON.stringify(output))

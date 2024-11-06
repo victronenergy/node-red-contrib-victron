@@ -164,7 +164,6 @@ module.exports = function (RED) {
     if (address && address.length === 2) {
       this.address = `tcp:host=${address[0]},port=${address[1]}`
     }
-    const timeoutHandle = null
 
     // Connnect to the dbus
     if (this.address) {
@@ -183,7 +182,7 @@ module.exports = function (RED) {
     }
 
     if (!config.device || config.device === '') {
-      throw new Error ('Node needs a configuration first')
+      throw new Error('Node needs a configuration first')
     }
 
     let serviceName = `com.victronenergy.${config.device}.virtual_${this.id}`
@@ -274,9 +273,9 @@ module.exports = function (RED) {
             })
           }
           text = `Virtual ${iface.NrOfPhases}-phase grid meter`
-        }
           break
-        case 'tank': {
+        }
+        case 'tank':
           iface.FluidType = Number(config.fluid_type ?? 1) // Fresh water
           if (!config.include_tank_battery) {
             delete ifaceDesc.properties.BatteryVoltage
@@ -297,9 +296,8 @@ module.exports = function (RED) {
             iface.Capacity = capacity
           }
           text = `Virtual ${properties.tank.FluidType.format(iface.FluidType).toLowerCase()} tank sensor`
-        }
           break
-        case 'temperature': {
+        case 'temperature':
           iface.TemperatureType = Number(config.temperature_type ?? 2) // Generic
           // Remove optional properties if not enabled
           if (!config.include_humidity) {
@@ -317,7 +315,6 @@ module.exports = function (RED) {
             iface.BatteryVoltage = Number(config.temp_battery_voltage) || 3.3
           }
           text = `Virtual ${properties.temperature.TemperatureType.format(iface.TemperatureType).toLowerCase()} temperature sensor`
-        }
           break
       }
 
