@@ -1,7 +1,7 @@
 [
     {
         "id": "82af4d599bf0380c",
-        "type": "Virtual Device",
+        "type": "victron-virtual",
         "z": "456c3da89ebad689",
         "name": "P1",
         "device": "grid",
