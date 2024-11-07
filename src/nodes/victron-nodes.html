@@ -377,7 +377,9 @@
                         id: "victron-client-id",
                         _def: RED.nodes.getType("victron-client"),
                         type: "victron-client",
-                        users: []
+                        users: [],
+                        "showValues": true,
+                        "contextStore": true
                     };
                     RED.nodes.add(victronClientNode);
                     RED.nodes.dirty(true);

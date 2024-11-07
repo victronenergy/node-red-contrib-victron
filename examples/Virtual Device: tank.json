@@ -1,7 +1,7 @@
 [
     {
         "id": "f5bdb1bb02f4d6dc",
-        "type": "Virtual Device",
+        "type": "victron-virtual",
         "z": "a442aa86b4030805",
         "name": "Water",
         "device": "tank",

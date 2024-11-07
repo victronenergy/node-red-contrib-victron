@@ -149,7 +149,7 @@ module.exports = function (RED) {
           if (this.pathObj.type === 'enum') {
             text = `${value} (${this.pathObj.enum[value]})`
           }
-          if (this.configNode && this.configNode.showValues) {
+          if (this.configNode && (this.configNode.showValues || typeof this.configNode.showValues === 'undefined')) {
             this.node.status({ fill: 'green', shape, text })
           }
         }

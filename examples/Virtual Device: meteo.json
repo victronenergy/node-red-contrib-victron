@@ -307,7 +307,7 @@
     },
     {
         "id": "965441bc584a2726",
-        "type": "Virtual Device",
+        "type": "victron-virtual",
         "z": "de710832a415f877",
         "name": "",
         "device": "meteo",
