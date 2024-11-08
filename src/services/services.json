@@ -4620,9 +4620,9 @@
         "name": "AC export current limit (A)"
       },
       {
-        "path": "/Settings/CGwacs/AcImportLimit",
+        "path": "/Settings/CGwacs/AcInputLimit",
         "type": "float",
-        "name": "AC import current limit (A)"
+        "name": "AC input current limit (A)"
       },
       {
         "path": "/Settings/CGwacs/AlwaysPeakShave",
