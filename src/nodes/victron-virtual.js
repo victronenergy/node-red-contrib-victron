@@ -178,11 +178,27 @@ module.exports = function (RED) {
         : dbus.systemBus()
     }
     if (!this.bus) {
-      throw new Error('Could not connect to the DBus session bus.')
+      node.warn(
+        'Could not connect to the DBus session bus.'
+      )
+      node.status({
+        color: 'red',
+        shape: 'dot',
+        text: 'Could not connect to the DBus session bus.'
+      })
+      return
     }
 
     if (!config.device || config.device === '') {
-      throw new Error('Node needs a configuration first')
+      node.warn(
+        'No device configured'
+      )
+      node.status({
+        color: 'red',
+        shape: 'dot',
+        text: 'No device configured'
+      })
+      return
     }
 
     let serviceName = `com.victronenergy.${config.device}.virtual_${this.id}`
