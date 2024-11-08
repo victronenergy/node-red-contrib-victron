@@ -5072,6 +5072,11 @@
         }
       },
       {
+        "path": "/Settings/ChargeCurrentLimit",
+        "type": "float",
+        "name": "The maximum configured (non-volatile) charge current (A). This is the same as set by VictronConnect."
+      },
+      {
         "path": "/State",
         "type": "enum",
         "name": "Charge state",
@@ -7546,6 +7551,12 @@
           "1": "On",
           "4": "Off"
         },
+        "writable": true
+      },
+      {
+        "path": "/Settings/ChargeCurrentLimit",
+        "type": "float",
+        "name": "The maximum configured (non-volatile) charge current (A). This is the same as set by VictronConnect.",
         "writable": true
       }
     ]
