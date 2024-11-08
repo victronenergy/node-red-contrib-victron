@@ -134,9 +134,12 @@ npm publish
 ## Documentation
 
 ### Generating Documentation
+
+Make sure you've got `moreutils` installed (for `sponge`) first.
+
 ```bash
 # Update node documentation
-node scripts/service2doc.js -s src/services/services.json -r src/nodes/victron-nodes.html -t nodered
+( sed '/^<!--/q' ../src/nodes/config-client.html && node service2doc.js -s ../src/services/services.json -r ../src/nodes/victron-nodes.html -t nodered ) | sponge ../src/nodes/config-client.html
 
 # Update wiki
 node scripts/service2doc.js -s src/services/services.json -r src/nodes/victron-nodes.html -t md
