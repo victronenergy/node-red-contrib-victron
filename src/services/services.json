@@ -7327,6 +7327,18 @@
         },
         "writable": true
       }
+    ],
+    "solarcharger": [
+      {
+        "path": "/Relay/0/State",
+        "type": "enum",
+        "name": "Relay on the MPPT",
+        "enum": {
+          "0": "Open",
+          "1": "Closed"
+        },
+        "writable": true
+      }
     ]
   },
   "output-settings": {
