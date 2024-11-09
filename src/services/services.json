@@ -5540,7 +5540,11 @@
         "enum": {
           "0": "Battery",
           "1": "Fridge",
-          "2": "Generic"
+          "2": "Generic",
+          "3": "Room;",
+          "4": "Outdoor",
+          "5": "WaterHeater",
+          "6": "Freezer"
         }
       }
     ],
