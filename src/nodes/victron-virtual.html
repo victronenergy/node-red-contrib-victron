@@ -20,6 +20,21 @@
         const selected = $('select#node-input-device').val()
         $('.input-'+selected).show()
 
+        if (selected) {
+            $.getJSON('victron/deviceinstance/' + selected)
+                .done(function(response) {
+                    if (response && typeof response.instance !== 'undefined') {
+                        // Ensure instance is converted to string
+                        const instanceStr = String(response.instance);
+                        $('#node-input-instance').val(instanceStr);
+                    }
+                })
+                .fail(function(jqXHR, textStatus, errorThrown) {
+                    console.error('Failed to fetch instance:', textStatus, errorThrown);
+                    RED.notify("Error fetching instance number: " + textStatus, "error");
+                });
+        }
+
         if (selected === 'temperature') {
         // Show/hide battery voltage input based on checkbox
         $('#node-input-include-battery').off('change').on('change', function() {
@@ -35,7 +50,6 @@
     }
     }
 
-
     RED.nodes.registerType('victron-virtual',{
         category: 'Victron Energy',
         color: '#f7ab3e',
@@ -43,6 +57,7 @@
         defaults: {
             name: {value:""},
             device: {value:"", required: true},
+            instance: {value:"", required: true},
             // grid
             grid_nrofphases: {value: 1, required: false},
             // tank
@@ -76,6 +91,7 @@
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
+    <input type="hidden" id="node-input-instance">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <select id="node-input-device" required onchange="checkSelectedVirtualDevice()">

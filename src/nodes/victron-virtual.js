@@ -259,7 +259,7 @@ module.exports = function (RED) {
       const iface = getIface(device)
 
       // Initially set the DeviceInstance to 100, this may be updated later if it has already been taken
-      iface.DeviceInstance = 100
+      iface.DeviceInstance = Number(config.instance) || 199
       iface.CustomName = config.name || `Virtual ${config.device}`
       iface.Status = 0
       iface.Serial = id || '-'
