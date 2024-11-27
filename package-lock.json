@@ -1,12 +1,12 @@
 {
     "name": "@victronenergy/node-red-contrib-victron",
-    "version": "1.6.2",
+    "version": "1.6.3",
     "lockfileVersion": 3,
     "requires": true,
     "packages": {
         "": {
             "name": "@victronenergy/node-red-contrib-victron",
-            "version": "1.6.2",
+            "version": "1.6.3",
             "license": "MIT",
             "dependencies": {
                 "dbus-native-victron": "^0.4.2",
