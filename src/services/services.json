@@ -3466,9 +3466,14 @@
         "type": "enum",
         "name": "Mode",
         "enum": {
-          "2": "Inverter on",
+          "1": "Charger only",
+          "2": "Inverter only",
+          "3": "On",
           "4": "Off",
-          "5": "Low Power/ECO"
+          "5": "Low Power/Eco",
+          "251": "Passthrough",
+          "252": "Standby",
+          "253": "Hibernate"
         }
       },
       {
@@ -7115,9 +7120,14 @@
         "type": "enum",
         "name": "Mode",
         "enum": {
-          "2": "Inverter on",
+          "1": "Charger only",
+          "2": "Inverter only",
+          "3": "On",
           "4": "Off",
-          "5": "Low Power/ECO"
+          "5": "Low Power/Eco",
+          "251": "Passthrough",
+          "252": "Standby",
+          "253": "Hibernate"
         },
         "writable": true
       }
