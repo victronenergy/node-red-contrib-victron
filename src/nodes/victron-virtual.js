@@ -55,7 +55,8 @@ const properties = {
   },
   meteo: {
     Irradiance: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'W/m2' : '' },
-    Windspeeed: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'm/s' : '' }
+    WindSpeed: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'm/s' : '' },
+    WindDirection: { type: 'd' }
   },
   tank: {
     'Alarms/High/Active': { type: 'd' },
@@ -374,6 +375,7 @@ module.exports = function (RED) {
           interface: 'com.victronenergy.BusItem',
           destination: serviceName
         })
+        config.instance = ActualDeviceInstance
         emitItemsChanged()
       }
 
