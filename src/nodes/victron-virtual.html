@@ -15,25 +15,10 @@
 
     function checkSelectedVirtualDevice() {
         [
-            'grid', 'tank', 'temperature'
+            'battery', 'grid', 'pvinverter', 'tank', 'temperature'
         ].map( x => { $('.input-'+x).hide() })
         const selected = $('select#node-input-device').val()
         $('.input-'+selected).show()
-
-        if (selected) {
-            $.getJSON('victron/deviceinstance/' + selected)
-                .done(function(response) {
-                    if (response && typeof response.instance !== 'undefined') {
-                        // Ensure instance is converted to string
-                        const instanceStr = String(response.instance);
-                        $('#node-input-instance').val(instanceStr);
-                    }
-                })
-                .fail(function(jqXHR, textStatus, errorThrown) {
-                    console.error('Failed to fetch instance:', textStatus, errorThrown);
-                    RED.notify("Error fetching instance number: " + textStatus, "error");
-                });
-        }
 
         if (selected === 'temperature') {
         // Show/hide battery voltage input based on checkbox
@@ -57,9 +42,13 @@
         defaults: {
             name: {value:""},
             device: {value:"", required: true},
-            instance: {value:"", required: true},
+            default_values: {value: false, required: false},
+            // battery
+            battery_capacity: {value: 25, required: false},
             // grid
             grid_nrofphases: {value: 1, required: false},
+            // pvinverter
+            position: { value: 0, required: false},
             // tank
             fluid_type: { value: 0, required: false},
             include_tank_battery: { value: false },
@@ -95,11 +84,19 @@
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <select id="node-input-device" required onchange="checkSelectedVirtualDevice()">
+            <option value="battery">Battery</option>
             <option value="grid">Grid meter</option>
             <option value="meteo">Meteo</option>
+            <option value="pvinverter">PV inverter</option>
             <option value="tank">Tank sensor</option>
             <option value="temperature">Temperature sensor</option>
         </select>
+    </div>
+    <div class="input-battery">
+        <div class="form-row" id="battery-capacity">
+            <label for="node-input-battery_capacity"><i class="fa fa-flask"></i> Battery Capacity (Ah)</label>
+            <input type="number" id="node-input-battery_capacity" min="0">
+        </div>
     </div>
     <div class="input-grid">
         <div class="form-tips" style="display: block;">
@@ -159,6 +156,16 @@
             <input type="number" id="node-input-tank_battery_voltage" style="width:100px;" value="3.3" step="0.1" min="0">
         </div>
     </div>
+    <div class="input-pvinverter">
+        <div class="form-row">
+            <label for="node-input-position"><i class="fa fa-sliders"></i> Position</label>
+            <select id="node-input-position">
+                <option value="0">AC input 1</option>
+                <option value="1">AC output</option>
+                <option value="2">AC input 2</option>
+            </select>
+        </div>        
+    </div>
     <div class="input-temperature">
         <div class="form-row">
             <label for="node-input-temperature_type"><i class="fa fa-thermometer-half"></i> Temperature type</label>
@@ -199,6 +206,18 @@
             <input type="number" id="node-input-temp_battery_voltage" style="width:100px;" value="3.3" step="0.1" min="0">
         </div>
     </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <div style="width:70%">
+            <label for="node-input-default_values" style="width:100%">
+                <input type="checkbox" id="node-input-default_values" style="display:inline-block; width:22px; vertical-align:baseline;">
+                Initialize with default values
+            </label>
+            <div class="form-tips" style="margin-top:3px;">
+                Use this to make the device appear on VRM immediately. You can change these values later.
+            </div>
+        </div>
+    </div>
 </script>
 
 <script type="text/markdown" data-help-name="victron-virtual">
@@ -212,8 +231,10 @@ Important note: Please be aware that using virtual devices on Victron systems ma
 
 To get started, pull a virtual device to the canvas and configure it. First the
 device type needs to be selected. At the moment the system supports:
+- Battery
 - Grid meter
 - Meteo
+- PV inverter
 - Tank sensor
 - Temperature sensor
 
@@ -237,6 +258,17 @@ With most virtual devices, you can pre-define some values via the edit panel to
 make its use more convenient. For other devices, the edit panel allows you to
 enable or disable some of the paths.
 
+Depending on the created device, it might not appear on VRM directly. You will
+need to write some values to it first. Alternative, you could use _initialize
+with defaults_ to make it appear on VRM directly. Do note that those default
+values probably are not the one that make a lot of sense for your specific
+situation. But it can help to get you started.
+
+### Battery
+
+The battery device allows for setting the capacity of the battery. The capacity
+is configured in Ah.
+
 ### Grid meter
 
 For the grid meter, you wil need to select the number of phases that are
@@ -253,6 +285,13 @@ lead to issues related with stability.
 The meteo device only supports the irradiance and windspeed. Typically you
 would use it to send data from your weather stations to both a virtual meteo
 device and a virtual temperature sensor.
+
+### PV inverter
+
+For the PV inverter you can set the position of the inverter. This can be:
+- AC input 1
+- AC output
+- AC input 2
 
 ### Tank sensor
 

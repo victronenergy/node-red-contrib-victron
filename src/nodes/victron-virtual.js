@@ -1,8 +1,16 @@
-const { addVictronInterfaces } = require('dbus-victron-virtual')
+const { addVictronInterfaces, addSettings } = require('dbus-victron-virtual')
 const dbus = require('dbus-native-victron')
 const debug = require('debug')('victron-virtual')
 
 const properties = {
+  battery: {
+    Capacity: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'Ah' : '' },
+    'Dc/0/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
+    'Dc/0/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
+    'Dc/0/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
+    'Dc/0/Temperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
+    Soc: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '' }
+  },
   temperature: {
     Temperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
     TemperatureType: {
@@ -18,7 +26,8 @@ const properties = {
     },
     Pressure: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'hPa' : '' },
     Humidity: { type: 'd', format: (v) => v != null ? v.toFixed(1) + '%' : '' },
-    BatteryVoltage: { type: 'd', value: 3.3, format: (v) => v != null ? v.toFixed(2) + 'V' : '' }
+    BatteryVoltage: { type: 'd', value: 3.3, format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
+    Status: { type: 'i' }
   },
   grid: {
     'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', value: 0 },
@@ -52,6 +61,55 @@ const properties = {
     'Temperature/LeavingWaterTempAfterBUH': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
     'Temperature/LeavingWaterTempBeforeBUH': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
     'Temperature/OutdoorHeatExchanger': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' }
+  },
+  pvinverter: {
+    'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
+    'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
+    'Ac/L1/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
+    'Ac/L1/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
+    'Ac/L1/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
+    'Ac/L1/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
+    'Ac/L2/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
+    'Ac/L2/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
+    'Ac/L2/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
+    'Ac/L2/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
+    'Ac/L3/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
+    'Ac/L3/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
+    'Ac/L3/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
+    'Ac/L3/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
+    'Ac/MaxPower': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
+    'Ac/PowerLimit': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
+    ErrorCode: {
+      type: 'i',
+      value: 0,
+      format: (v) => ({
+        0: 'No error'
+      }[v] || 'unknown')
+    },
+    Position: {
+      type: 'i',
+      format: (v) => ({
+        0: 'AC input 1',
+        1: 'AC output',
+        2: 'AC input 2'
+      }[v] || 'unknown')
+    },
+    StatusCode: {
+      type: 'i',
+      format: (v) => ({
+        0: 'Startup 0',
+        1: 'Startup 1',
+        2: 'Startup 2',
+        3: 'Startup 3',
+        4: 'Startup 4',
+        5: 'Startup 5',
+        6: 'Startup 6',
+        7: 'Running',
+        8: 'Standby',
+        9: 'Boot loading',
+        10: 'Error'
+      }[v] || 'unknown')
+    }
   },
   meteo: {
     Irradiance: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'W/m2' : '' },
@@ -96,7 +154,8 @@ const properties = {
     Remaining: { type: 'd' },
     Shape: { type: 's' },
     Temperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
-    BatteryVoltage: { type: 'd', value: 3.3, format: (v) => v != null ? v.toFixed(2) + 'V' : '' }
+    BatteryVoltage: { type: 'd', value: 3.3, format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
+    Status: { type: 'i' }
   }
 }
 
@@ -117,7 +176,6 @@ function getIfaceDesc (dev) {
 
   result.DeviceInstance = { type: 'i' }
   result.CustomName = { type: 's' }
-  result.Status = { type: 'i' }
   result.Serial = { type: 's' }
 
   return result
@@ -259,8 +317,6 @@ module.exports = function (RED) {
       // Then we need to create the interface implementation (with actual functions)
       const iface = getIface(device)
 
-      // Initially set the DeviceInstance to 100, this may be updated later if it has already been taken
-      iface.DeviceInstance = Number(config.instance) || 199
       iface.CustomName = config.name || `Virtual ${config.device}`
       iface.Status = 0
       iface.Serial = id || '-'
@@ -269,6 +325,20 @@ module.exports = function (RED) {
 
       // Device specific configuration
       switch (config.device) {
+        case 'battery': {
+          if (config.battery_capacity != null && !isNaN(Number(config.battery_capacity))) {
+            iface.Capacity = Number(config.battery_capacity)
+          }
+          if (config.default_values) {
+            iface['Dc/0/Current'] = 0
+            iface['Dc/0/Voltage'] = 24
+            iface['Dc/0/Power'] = 0
+            iface['Dc/0/Temperature'] = 25
+            iface.Soc = 80
+          }
+          text = `Virtual ${properties.battery.Capacity.format(iface.Capacity)} battery`
+          break
+        }
         case 'grid': {
           iface.NrOfPhases = Number(config.grid_nrofphases ?? 1)
           const properties = [
@@ -289,7 +359,44 @@ module.exports = function (RED) {
               iface[key] = 0
             })
           }
+          if (config.default_values) {
+            iface['Ac/Power'] = 0
+            iface['Ac/Frequency'] = 50
+            iface['Ac/N/Current'] = 0
+            iface['Ac/PENVoltage'] = 230
+          }
           text = `Virtual ${iface.NrOfPhases}-phase grid meter`
+          break
+        }
+        case 'meteo': {
+          if (config.default_values) {
+            iface.Irradiance = 0
+            iface.WindSpeed = 0
+          }
+          break
+        }
+        case 'pvinverter': {
+          iface.Position = Number(config.position ?? 0)
+          if (config.default_values) {
+            iface['Ac/Power'] = 0
+            iface['Ac/MaxPower'] = 1000
+            iface['Ac/PowerLimit'] = 1000
+            iface['Ac/L1/Power'] = 0
+            iface['Ac/L1/Current'] = 0
+            iface['Ac/L1/Voltage'] = 230
+            iface['Ac/L2/Power'] = 0
+            iface['Ac/L2/Current'] = 0
+            iface['Ac/L2/Voltage'] = 230
+            iface['Ac/L3/Power'] = 0
+            iface['Ac/L3/Current'] = 0
+            iface['Ac/L3/Voltage'] = 230
+            iface['Ac/Energy/Forward'] = 0
+            iface['Ac/L1/Energy/Forward'] = 0
+            iface['Ac/L2/Energy/Forward'] = 0
+            iface['Ac/L3/Energy/Forward'] = 0
+            iface.ErrorCode = 0
+            iface.StatusCode = 0
+          }
           break
         }
         case 'tank':
@@ -298,7 +405,7 @@ module.exports = function (RED) {
             delete ifaceDesc.properties.BatteryVoltage
             delete iface.BatteryVoltage
           } else {
-            iface.BatteryVoltage = Number(config.tank_battery_voltage) || 3.3
+            iface.BatteryVoltage = Number(config.tank_battery_voltage ?? 3.3)
           }
           if (!config.include_tank_temperature) {
             delete ifaceDesc.properties.Temperature
@@ -311,6 +418,11 @@ module.exports = function (RED) {
               return
             }
             iface.Capacity = capacity
+          }
+          if (config.default_values) {
+            iface.Level = 50
+            iface.Remaining = 50
+            iface.Temperature = 25
           }
           text = `Virtual ${properties.tank.FluidType.format(iface.FluidType).toLowerCase()} tank sensor`
           break
@@ -329,10 +441,59 @@ module.exports = function (RED) {
             delete ifaceDesc.properties.BatteryVoltage
             delete iface.BatteryVoltage
           } else {
-            iface.BatteryVoltage = Number(config.temp_battery_voltage) || 3.3
+            iface.BatteryVoltage = Number(config.temp_battery_voltage ?? 3.3)
+          }
+          if (config.default_values) {
+            iface.Temperature = 25
+            iface.Humidity = 50
+            iface.Pressure = 1013
           }
           text = `Virtual ${properties.temperature.TemperatureType.format(iface.TemperatureType).toLowerCase()} temperature sensor`
           break
+      }
+
+      // First we use addSettings to claim a deviceInstance
+      const settingsResult = await addSettings(mybus, [
+        {
+          path: `/Settings/Devices/virtual_${id}/ClassAndVrmInstance`,
+          default: `${config.device}:100`,
+          type: 's'
+        }
+      ])
+
+      // It looks like there are a few posibilities here:
+      // 1. We claimed this deviceInstance before, and we get the same one
+      // 2. a. The deviceInstance is already taken, and we get a new one
+      // 2. b. The deviceInstance is not taken, and we get the one we requested
+      const getDeviceInstance = (result) => {
+        try {
+          const firstValue = result?.[0]?.[2]?.[1]?.[1]?.[0]?.split(':')[1]
+          if (firstValue != null) {
+            const number = Number(firstValue)
+            if (!isNaN(number)) {
+              return number
+            }
+          }
+        } catch (e) {
+        }
+
+        try {
+          const fallbackValue = result?.[1]?.[0]?.split(':')[1]
+          if (fallbackValue != null) {
+            const number = Number(fallbackValue)
+            if (!isNaN(number)) {
+              return number
+            }
+          }
+        } catch (e) {
+        }
+
+        console.warn('Failed to extract valid DeviceInstance from settings result')
+        return null
+      }
+      iface.DeviceInstance = getDeviceInstance(settingsResult)
+      if (iface.deviceInstance === null) {
+        return // Exit early if we couldn't get a valid device instance
       }
 
       // Now we need to actually export our interface on our object
@@ -340,49 +501,16 @@ module.exports = function (RED) {
 
       // Then we can add the required Victron interfaces, and receive some funtions to use
       const {
-        emitItemsChanged,
-        addSettings,
         removeSettings,
-        // addSystem
-        // removeSystem,
-        getValue,
-        setValue
+        getValue
       } = addVictronInterfaces(mybus, ifaceDesc, iface)
 
-      // Then we need to add the device to com.victronenergy.settings to check the DeviceInstance
-      await addSettings([
-        {
-          path: `/Settings/Devices/virtual_${id}/ClassAndVrmInstance`,
-          default: `${config.device}:${iface.DeviceInstance}`,
-          type: 's'
-        }
-      ])
-
-      // Request the actual deviceInstance we got
-      const getValueResult = await getValue({
-        path: `/Settings/Devices/virtual_${id}/ClassAndVrmInstance`,
-        interface: 'com.victronenergy.BusItem',
-        destination: 'com.victronenergy.settings'
-      })
-
       node.removeSettings = removeSettings
-
-      const ActualDeviceInstance = Number(getValueResult[1][0].split(':')[1])
-      if (ActualDeviceInstance !== iface.DeviceInstance) {
-        setValue({
-          path: '/DeviceInstance',
-          value: ActualDeviceInstance,
-          interface: 'com.victronenergy.BusItem',
-          destination: serviceName
-        })
-        config.instance = ActualDeviceInstance
-        emitItemsChanged()
-      }
 
       node.status({
         fill: 'green',
         shape: 'dot',
-        text: `${text} (${ActualDeviceInstance})`
+        text: `${text} (${iface.DeviceInstance})`
       })
 
       nodeInstances.add(node)

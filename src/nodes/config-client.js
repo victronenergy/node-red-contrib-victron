@@ -31,69 +31,6 @@ module.exports = function (RED) {
     return res.send(serialized)
   })
 
-  // Track last assigned instance numbers
-  const lastAssignedInstances = new Map()
-
-  function findNextAvailableInstance (jsonStr, deviceType) {
-    const data = JSON.parse(jsonStr)
-    const victronSettings = data['com.victronenergy.settings']
-
-    if (!victronSettings) {
-      return null
-    }
-
-    // Get all used instance numbers for the specified device type
-    const usedInstances = new Set()
-
-    function collectInstances (obj) {
-      for (const [key, value] of Object.entries(obj)) {
-        if (typeof value === 'object' && value !== null) {
-          collectInstances(value)
-        } else if (
-          key.endsWith('ClassAndVrmInstance') &&
-            typeof value === 'string' &&
-            value.startsWith(deviceType + ':')
-        ) {
-          const instance = parseInt(value.split(':')[1])
-          if (!isNaN(instance)) {
-            usedInstances.add(instance)
-          }
-        }
-      }
-    }
-
-    collectInstances(victronSettings)
-
-    // Get the last assigned number for this device type, or start at 99
-    let nextInstance = (lastAssignedInstances.get(deviceType) || 99) + 1
-
-    // Keep incrementing until we find an unused number
-    while (usedInstances.has(nextInstance)) {
-      nextInstance++
-    }
-
-    // Store this assignment for future requests
-    lastAssignedInstances.set(deviceType, nextInstance)
-
-    return nextInstance
-  }
-
-  RED.httpNode.get('/victron/deviceinstance/:type', RED.auth.needsPermission('victron-client.read'), (req, res) => {
-    try {
-      const serialized = JSON.stringify(globalClient.system.cache)
-      const nextInstance = findNextAvailableInstance(serialized, req.params.type)
-
-      if (nextInstance === null) {
-        return res.status(404).json({ error: 'No settings found' })
-      }
-
-      res.setHeader('Content-Type', 'application/json')
-      return res.json({ instance: nextInstance })
-    } catch (error) {
-      console.error('Error finding next instance:', error)
-      return res.status(500).json({ error: 'Internal server error' })
-    }
-  })
   /**
      * Victron Energy Configuration Node.
      *
