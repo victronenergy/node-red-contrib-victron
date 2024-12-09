@@ -3,6 +3,14 @@ const dbus = require('dbus-native-victron')
 const debug = require('debug')('victron-virtual')
 
 const properties = {
+  battery: {
+    Capacity: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'Ah' : '' },
+    'Dc/0/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
+    'Dc/0/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
+    'Dc/0/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
+    'Dc/0/Temperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
+    Soc: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '' },
+  },
   temperature: {
     Temperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
     TemperatureType: {
@@ -18,7 +26,8 @@ const properties = {
     },
     Pressure: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'hPa' : '' },
     Humidity: { type: 'd', format: (v) => v != null ? v.toFixed(1) + '%' : '' },
-    BatteryVoltage: { type: 'd', value: 3.3, format: (v) => v != null ? v.toFixed(2) + 'V' : '' }
+    BatteryVoltage: { type: 'd', value: 3.3, format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
+    Status: {type: 'i' }
   },
   grid: {
     'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', value: 0 },
@@ -52,6 +61,45 @@ const properties = {
     'Temperature/LeavingWaterTempAfterBUH': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
     'Temperature/LeavingWaterTempBeforeBUH': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
     'Temperature/OutdoorHeatExchanger': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' }
+  },
+  pvinverter: {
+    'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
+    'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
+    'Ac/L1/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
+    'Ac/L1/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
+    'Ac/L1/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
+    'Ac/L1/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
+    'Ac/L2/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
+    'Ac/L2/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
+    'Ac/L2/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
+    'Ac/L2/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
+    'Ac/L3/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
+    'Ac/L3/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
+    'Ac/L3/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
+    'Ac/L3/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
+    'Ac/MaxPower': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
+    'Ac/PowerLimit': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
+    'ErrorCode': { type: 'i', value: 0, format: (v) => ({
+      0: 'No error',
+    }[v] || 'unknown'), },
+    'Position': { type: 'i', format: (v) => ({
+      0: 'AC input 1',
+      1: 'AC output',
+      2: 'AC input 2',
+    }[v] || 'unknown'), },
+    'StatusCode': { type: 'i', format: (v) => ({
+      0: 'Startup 0',
+      1: 'Startup 1',
+      2: 'Startup 2',
+      3: 'Startup 3',
+      4: 'Startup 4',
+      5: 'Startup 5',
+      6: 'Startup 6',
+      7: 'Running',
+      8: 'Standby',
+      9: 'Boot loading',
+      10: 'Error',
+    }[v] || 'unknown'), },
   },
   meteo: {
     Irradiance: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'W/m2' : '' },
@@ -96,7 +144,8 @@ const properties = {
     Remaining: { type: 'd' },
     Shape: { type: 's' },
     Temperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
-    BatteryVoltage: { type: 'd', value: 3.3, format: (v) => v != null ? v.toFixed(2) + 'V' : '' }
+    BatteryVoltage: { type: 'd', value: 3.3, format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
+    Status: {type: 'i' }
   }
 }
 
@@ -117,7 +166,6 @@ function getIfaceDesc (dev) {
 
   result.DeviceInstance = { type: 'i' }
   result.CustomName = { type: 's' }
-  result.Status = { type: 'i' }
   result.Serial = { type: 's' }
 
   return result
@@ -290,6 +338,10 @@ module.exports = function (RED) {
             })
           }
           text = `Virtual ${iface.NrOfPhases}-phase grid meter`
+          break
+        }
+        case 'pvinverter': {
+          iface.Position = Number(config.position ?? 0)
           break
         }
         case 'tank':

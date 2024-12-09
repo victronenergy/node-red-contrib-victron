@@ -15,7 +15,7 @@
 
     function checkSelectedVirtualDevice() {
         [
-            'grid', 'tank', 'temperature'
+            'grid', 'pvinverter', 'tank', 'temperature'
         ].map( x => { $('.input-'+x).hide() })
         const selected = $('select#node-input-device').val()
         $('.input-'+selected).show()
@@ -60,6 +60,8 @@
             instance: {value:"", required: true},
             // grid
             grid_nrofphases: {value: 1, required: false},
+            // pvinverter
+            position: { value: 0, required: false},
             // tank
             fluid_type: { value: 0, required: false},
             include_tank_battery: { value: false },
@@ -95,8 +97,10 @@
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <select id="node-input-device" required onchange="checkSelectedVirtualDevice()">
+            <option value="battery">Battery</option>
             <option value="grid">Grid meter</option>
             <option value="meteo">Meteo</option>
+            <option value="pvinverter">PV inverter</option>
             <option value="tank">Tank sensor</option>
             <option value="temperature">Temperature sensor</option>
         </select>
@@ -158,6 +162,16 @@
             <label for="node-input-tank_battery_voltage" style="width:auto;">Battery Voltage (V):</label>
             <input type="number" id="node-input-tank_battery_voltage" style="width:100px;" value="3.3" step="0.1" min="0">
         </div>
+    </div>
+    <div class="input-pvinverter">
+        <div class="form-row">
+            <label for="node-input-position"><i class="fa fa-sliders"></i> Position</label>
+            <select id="node-input-position">
+                <option value="0">AC input 1</option>
+                <option value="1">AC output</option>
+                <option value="2">AC input 2</option>
+            </select>
+        </div>        
     </div>
     <div class="input-temperature">
         <div class="form-row">
