@@ -7,12 +7,14 @@
         "name": "Launch Node-red",
         "program": "${env:NVM_BIN}/../lib/node_modules/node-red/red.js",
         "cwd": "${env:HOME}",
+        "args": ["-s", "${workspaceFolder}/.vscode/settings.js"],
         "runtimeArgs": ["--preserve-symlinks", "--experimental-modules"],
         "env": {
           "NO_UPDATE_NOTIFIER": "1",
-          "DEBUG": "*",
+          // "DEBUG": "*",
           "NODE_RED_DBUS_ADDRESS": "venus.local:78"
-        }
+        },
+        "console": "integratedTerminal"
       },
       {
         "type": "node",
