@@ -41,27 +41,6 @@ const properties = {
     Connected: { type: 'd', format: (v) => v != null ? v : '', value: 1 },
     Position: { type: 'd', format: (v) => v != null ? v : '', value: 0 }
   },
-  heatpump: {
-    DHWSetpoint: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
-    INVSecondaryCurrent: { type: 'd' },
-    'Operation/BUHStep1': { type: 's' },
-    'Operation/CirculationPump': { type: 's' },
-    'Operation/Defrost': { type: 's' },
-    'Operation/PowerfullDHW': { type: 's' },
-    'Operation/Reheat': { type: 's' },
-    'Operation/SmartGridContact1': { type: 's' },
-    'Operation/SmartGridContact2': { type: 's' },
-    'Operation/Thermostat': { type: 's' },
-    'Operation/WaterFlowSwitch': { type: 's' },
-    'Operation/WaterPump': { type: 's' },
-    OperationMode: { type: 's' },
-    'Temperature/DHWTank': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
-    'Temperature/IndoorAmbient': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
-    'Temperature/InletWater': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
-    'Temperature/LeavingWaterTempAfterBUH': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
-    'Temperature/LeavingWaterTempBeforeBUH': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
-    'Temperature/OutdoorHeatExchanger': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' }
-  },
   pvinverter: {
     'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
     'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
