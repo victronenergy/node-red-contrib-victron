@@ -5,6 +5,7 @@ const debug = require('debug')('victron-virtual')
 const properties = {
   battery: {
     Capacity: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'Ah' : '' },
+    Connected: { type: 'd', format: (v) => v != null ? v : '', value: 1 },
     'Dc/0/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
     'Dc/0/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
     'Dc/0/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
