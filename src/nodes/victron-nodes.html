@@ -26,10 +26,14 @@
             <p class="enuminfo--header">Value types</p>
             <p id="enuminfo-text"></p>
         </div>
-        <div class="form-row hidden" id="initial-row">
+        <div class="form-row" id="initial-row">
             <hr />
             <label for="node-input-initial">Initial value</label>
-            <select id="node-input-initial"></select>
+            <div class="initial-value-container">
+                <select id="node-input-initial-enum" class="initial-input"></select>
+                <input type="number" id="node-input-initial-number" class="initial-input">
+                <input type="text" id="node-input-initial-string" class="initial-input">
+            </div>
             <div class="info-text">
                 The initial value is sent to the device whenever the node is deployed.
             </div>
@@ -58,14 +62,14 @@
                 <option value="2">2 digits</option>
                 <option value="3">3 digits</option>
             </select>
-                <div class="info-text">
+            <div class="info-text">
                 Round values to less digits.
             </div>
         </div>
         <div class="form-row hidden" id="onlyChanges">
             <label style="min-width:190px" for="node-input-onlyChanges"><i class="fa fa-bell"></i>Only changes</label>
-                <input type="checkbox" checked id="node-input-onlyChanges" style="max-width:30px">
-                <div class="info-text">
+            <input type="checkbox" checked id="node-input-onlyChanges" style="max-width:30px">
+            <div class="info-text">
                 Only send output on (initially not rounded) value changes and not every 5 seconds. 
             </div>
         </div>
@@ -156,38 +160,73 @@
 
         var updateEnums = function updateEnums() {
             var pathData = pathElem.find(':selected').data();
-
+            
             if (pathData) {
-                pathData.warning && serviceDataAvailable ? changeStatusText($('#warningmessage'), 'fa-exclamation-circle', pathData.warning) : $('#warningmessage').hide();
+                pathData.warning && serviceDataAvailable ? 
+                    changeStatusText($('#warningmessage'), 'fa-exclamation-circle', pathData.warning) : 
+                    $('#warningmessage').hide();
             }
 
-            if (pathData && pathData.type === 'enum') {
-                var valueTypesEnum = pathData.enum;
-                showEnumInfo(valueTypesEnum);
-                var selectOptions = Object.keys(valueTypesEnum).map(function (key) {
-                    return {
-                        service: key,
-                        name: "".concat(key, " - ").concat(valueTypesEnum[key])
-                    };
-                });
-                selectOptions.unshift({
-                    service: null,
-                    name: "Don't set initial value"
-                });
-                populateSelect(initialValueElem, selectOptions);
-                if (node.initial) initialValueElem.val(node.initial);
-                if (isOutputNode) $('#initial-row').show();
+            // Hide all initial value inputs first
+            $('.initial-input').hide();
+            
+            if (pathData && isOutputNode) {
+                $('#initial-row').show();
+                
+                // Show appropriate input based on path type
+                switch(pathData.type) {
+                    case 'enum':
+                        var valueTypesEnum = pathData.enum;
+                        showEnumInfo(valueTypesEnum);
+                        var selectOptions = Object.keys(valueTypesEnum).map(function(key) {
+                            return {
+                                service: key,
+                                name: `${key} - ${valueTypesEnum[key]}`
+                            };
+                        });
+                        selectOptions.unshift({
+                            service: null,
+                            name: "Don't set initial value"
+                        });
+                        
+                        var enumInput = $('#node-input-initial-enum');
+                        populateSelect(enumInput, selectOptions);
+                        enumInput.show();
+                        if (node.initial) enumInput.val(node.initial);
+                        break;
+                        
+                    case 'float':
+                    case 'integer':
+                        var numberInput = $('#node-input-initial-number');
+                        numberInput.show();
+                        if (pathData.type === 'integer') {
+                            numberInput.attr('step', '1');
+                        } else {
+                            numberInput.attr('step', 'any');
+                        }
+                        if (node.initial) numberInput.val(node.initial);
+                        break;
+                        
+                    case 'string':
+                        var stringInput = $('#node-input-initial-string');
+                        stringInput.show();
+                        if (node.initial) stringInput.val(node.initial);
+                        break;
+                    
+                    default:
+                        $('#initial-row').hide();
+                }
             } else {
                 hideEnumInfo();
-
-                // unset and hide initialValue
                 $('#initial-row').hide();
-                initialValueElem.val(null);
             }
-            if (typeof pathData !== 'undefined' && (pathData.type === 'float' || pathData.type === 'number') && !isOutputNode) {
-                $('#roundValues').show()
+            
+            if (typeof pathData !== 'undefined' && 
+                (pathData.type === 'float' || pathData.type === 'number') && 
+                !isOutputNode) {
+                $('#roundValues').show();
             } else {
-                $('#roundValues').hide()
+                $('#roundValues').hide();
             }
         };
 
@@ -307,6 +346,44 @@
         delete(node.serviceObj.paths)
         delete(node.serviceObj.deviceInstance)
         node.pathObj = $('#node-input-path').find(':selected').data();
+        
+        // Determine if this is an output node based on the node type
+        const isOutputNode = node.type.includes('-output-');
+        
+        // Only try to save initial value if we have path data and it's an output node
+        if (node.pathObj && isOutputNode) {
+            // Clear initial value by default
+            node.initial = undefined;
+            
+            switch(node.pathObj.type) {
+                case 'enum':
+                    var selectedValue = $('#node-input-initial-enum').val();
+                    // Only save if a real value is selected (not the "Don't set" option)
+                    if (selectedValue !== null && selectedValue !== '') {
+                        node.initial = selectedValue;
+                    }
+                    break;
+                    
+                case 'float':
+                case 'integer':
+                    var value = $('#node-input-initial-number').val().trim();
+                    if (value !== '') {
+                        var numValue = node.pathObj.type === 'integer' ? 
+                            parseInt(value) : parseFloat(value);
+                        if (!isNaN(numValue)) {
+                            node.initial = numValue;
+                        }
+                    }
+                    break;
+                    
+                case 'string':
+                    var value = $('#node-input-initial-string').val().trim();
+                    if (value !== '') {
+                        node.initial = value;
+                    }
+                    break;
+            }
+        }
     }
 
     function buildNodeLabel(node, nodeName) {
@@ -498,5 +575,19 @@
     }
     .victron-form .hr {
         margin: 8px 0;
+    }
+    
+    /* Initial value specific styles */
+    .victron-form .initial-value-container {
+        display: inline-block;
+        width: 300px;
+        vertical-align: top;
+    }
+    .victron-form .initial-input {
+        width: 100%;
+        display: none;
+    }
+    #node-input-name {
+        width: 300px;
     }
 </style>
