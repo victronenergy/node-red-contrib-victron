@@ -134,6 +134,7 @@ module.exports = function (RED) {
       const handlerId = this.configNode.addStatusListener(this, this.service, this.path)
 
       const setValue = (value, path) => {
+        const usedTypes = { 'string': 'string', 'float': 'number', 'enum': 'number', 'integer': 'number' }
         let writepath = this.path
         let shape = 'dot'
         if (path && path !== this.path) {
@@ -144,6 +145,11 @@ module.exports = function (RED) {
           writepath = '/' + writepath
         }
         if (!this.pathObj.disabled && this.service && writepath) {
+          if (typeof(value) !== usedTypes[this.pathObj.type]) {
+            this.node.status({ fill: 'red', shape, text: `Invalid input type ${typeof(value)}, expecting ${usedTypes[this.pathObj.type]}` })
+            return
+          }
+
           this.client.publish(this.service, writepath, value)
           let text = value
           if (this.pathObj.type === 'enum') {
