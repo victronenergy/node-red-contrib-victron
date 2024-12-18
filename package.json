@@ -4,8 +4,8 @@
     "version": "1.6.4",
     "dependencies": {
         "dbus-native-victron": "^0.4.2",
-        "dbus-victron-virtual": "^0.1.4",
-        "debug": "^4.3.7",
+        "dbus-victron-virtual": "^0.1.5",
+        "debug": "^4.4.0",
         "lodash": "^4.17.21",
         "promise-retry": "^2.0.1",
         "standard": "^17.1.2"
@@ -19,9 +19,9 @@
         "version": ">=3.0.2"
     },
     "devDependencies": {
-        "@babel/eslint-parser": "^7.25.7",
-        "csv-parse": "^5.5.6",
-        "eslint": "^9.12.0",
+        "@babel/eslint-parser": "^7.25.9",
+        "csv-parse": "^5.6.0",
+        "eslint": "^9.17.0",
         "eslint-config-google": "^0.14.0",
         "gar": "^1.0.4",
         "yargs": "^17.7.2"
