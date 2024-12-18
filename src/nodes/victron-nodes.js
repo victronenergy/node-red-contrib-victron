@@ -118,94 +118,94 @@ module.exports = function (RED) {
   }
 
   class BaseOutputNode {
-    constructor(nodeDefinition) {
-        RED.nodes.createNode(this, nodeDefinition);
+    constructor (nodeDefinition) {
+      RED.nodes.createNode(this, nodeDefinition)
 
-        this.node = this;
-        this.pathObj = nodeDefinition.pathObj;
-        this.service = nodeDefinition.service;
-        this.path = nodeDefinition.path;
-        this.initialValue = nodeDefinition.initial;
+      this.node = this
+      this.pathObj = nodeDefinition.pathObj
+      this.service = nodeDefinition.service
+      this.path = nodeDefinition.path
+      this.initialValue = nodeDefinition.initial
 
-        this.configNode = RED.nodes.getNode('victron-client-id');
-        this.client = this.configNode.client;
+      this.configNode = RED.nodes.getNode('victron-client-id')
+      this.client = this.configNode.client
 
-        const handlerId = this.configNode.addStatusListener(this, this.service, this.path);
+      const handlerId = this.configNode.addStatusListener(this, this.service, this.path)
 
-        const setValue = (value, path) => {
-            const usedTypes = {
-                'string': 'string',
-                'float': 'number',
-                'enum': 'number',
-                'integer': 'number'
-            };
-            
-            let writepath = this.path;
-            let shape = 'dot';
-            
-            if (path && path !== this.path) {
-                writepath = path;
-                shape = 'ring';
-            }
-            
-            if (!/^\/.*/.test(writepath)) {
-                writepath = '/' + writepath;
-            }
-            
-            if (!this.pathObj.disabled && this.service && writepath) {
-                // Check that the value type matches what's expected
-                const valueType = typeof value;
-                if (valueType !== usedTypes[this.pathObj.type]) {
-                    this.node.status({
-                        fill: 'red',
-                        shape,
-                        text: `Invalid input type ${valueType}, expecting ${usedTypes[this.pathObj.type]}`
-                    });
-                    return;
-                }
-                
-                // Additional validation for enum values
-                if (this.pathObj.type === 'enum' && !this.pathObj.enum.hasOwnProperty(value)) {
-                    this.node.status({
-                        fill: 'red',
-                        shape,
-                        text: 'Invalid enum value'
-                    });
-                    return;
-                }
-
-                this.client.publish(this.service, writepath, value);
-                let text = value;
-                if (this.pathObj.type === 'enum') {
-                    text = `${value} (${this.pathObj.enum[value]})`;
-                }
-                if (this.configNode && (this.configNode.showValues || typeof this.configNode.showValues === 'undefined')) {
-                    this.node.status({
-                        fill: 'green',
-                        shape,
-                        text
-                    });
-                }
-            }
-        };
-
-        // Set initial value only if it's not empty
-        if (this.initialValue !== undefined && 
-            this.initialValue !== null && 
-            this.initialValue !== '') {
-            setValue(this.initialValue);
+      const setValue = (value, path) => {
+        const usedTypes = {
+          string: 'string',
+          float: 'number',
+          enum: 'number',
+          integer: 'number'
         }
 
-        this.on('input', function(msg) {
-            setValue(msg.payload, msg.path);
-        });
+        let writepath = this.path
+        let shape = 'dot'
 
-        this.on('close', function(done) {
-            this.node.configNode.removeStatusListener(handlerId);
-            done();
-        });
+        if (path && path !== this.path) {
+          writepath = path
+          shape = 'ring'
+        }
+
+        if (!/^\/.*/.test(writepath)) {
+          writepath = '/' + writepath
+        }
+
+        if (!this.pathObj.disabled && this.service && writepath) {
+          // Check that the value type matches what's expected
+          const valueType = typeof value
+          if (valueType !== usedTypes[this.pathObj.type]) {
+            this.node.status({
+              fill: 'red',
+              shape,
+              text: `Invalid input type ${valueType}, expecting ${usedTypes[this.pathObj.type]}`
+            })
+            return
+          }
+
+          // Additional validation for enum values
+          if (this.pathObj.type === 'enum' && !Object.hasOwn(this.pathObj.enum, value)) {
+            this.node.status({
+              fill: 'red',
+              shape,
+              text: 'Invalid enum value'
+            })
+            return
+          }
+
+          this.client.publish(this.service, writepath, value)
+          let text = value
+          if (this.pathObj.type === 'enum') {
+            text = `${value} (${this.pathObj.enum[value]})`
+          }
+          if (this.configNode && (this.configNode.showValues || typeof this.configNode.showValues === 'undefined')) {
+            this.node.status({
+              fill: 'green',
+              shape,
+              text
+            })
+          }
+        }
+      }
+
+      // Set initial value only if it's not empty
+      if (this.initialValue !== undefined &&
+            this.initialValue !== null &&
+            this.initialValue !== '') {
+        setValue(this.initialValue)
+      }
+
+      this.on('input', function (msg) {
+        setValue(msg.payload, msg.path)
+      })
+
+      this.on('close', function (done) {
+        this.node.configNode.removeStatusListener(handlerId)
+        done()
+      })
     }
-}
+  }
 
   // Input nodes
   RED.nodes.registerType('victron-input-accharger', BaseInputNode)

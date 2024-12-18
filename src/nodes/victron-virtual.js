@@ -248,57 +248,23 @@ module.exports = function (RED) {
     const interfaceName = serviceName
     const objectPath = `/${serviceName.replace(/\./g, '/')}`
 
-    this.bus.requestName(serviceName, 0x4, (err, retCode) => {
-      // If there was an error, warn user and fail
-      if (err) {
-        node.warn(
-      `Could not request service name ${serviceName}, the error was: ${err}.`
-        )
-        node.status({
-          color: 'red',
-          shape: 'dot',
-          text: `${err}`
-        })
-        return
-      }
-
-      // Return code 0x1 means we successfully had the name
-      // Return code 0x3 means it already exists (which should be fine)
-      if (retCode === 1 || retCode === 3) {
-        debug(`Successfully requested service name "${serviceName}" (${retCode})`)
-        proceed(this.bus, config.device, this.id)
-      } else {
-        /* Other return codes means various errors, check here
-        (https://dbus.freedesktop.org/doc/api/html/group__DBusShared.html#ga37a9bc7c6eb11d212bf8d5e5ff3b50f9) for more
-        information */
-        node.warn(
-          `Failed to request service name "${serviceName} for ${config.device}". Check what return code "${retCode}" means.`
-        )
-        node.status({
-          color: 'red',
-          shape: 'dot',
-          text: `Dbus errorcode ${retCode}`
-        })
-      }
-    })
-
-    async function proceed (mybus, device, id) {
+    async function proceed (usedBus) {
       // First, we need to create our interface description (here we will only expose method calls)
       const ifaceDesc = {
         name: interfaceName,
         methods: {
         },
-        properties: getIfaceDesc(device),
+        properties: getIfaceDesc(config.device),
         signals: {
         }
       }
 
       // Then we need to create the interface implementation (with actual functions)
-      const iface = getIface(device)
+      const iface = getIface(config.device)
 
       iface.CustomName = config.name || `Virtual ${config.device}`
       iface.Status = 0
-      iface.Serial = id || '-'
+      iface.Serial = node.id || '-'
 
       let text = `Virtual ${config.device}`
 
@@ -432,9 +398,9 @@ module.exports = function (RED) {
       }
 
       // First we use addSettings to claim a deviceInstance
-      const settingsResult = await addSettings(mybus, [
+      const settingsResult = await addSettings(usedBus, [
         {
-          path: `/Settings/Devices/virtual_${id}/ClassAndVrmInstance`,
+          path: `/Settings/Devices/virtual_${node.id}/ClassAndVrmInstance`,
           default: `${config.device}:100`,
           type: 's'
         }
@@ -476,13 +442,46 @@ module.exports = function (RED) {
       }
 
       // Now we need to actually export our interface on our object
-      mybus.exportInterface(iface, objectPath, ifaceDesc)
+      usedBus.exportInterface(iface, objectPath, ifaceDesc)
 
-      // Then we can add the required Victron interfaces, and receive some funtions to use
+      usedBus.requestName(serviceName, 0x4, (err, retCode) => {
+        // If there was an error, warn user and fail
+        if (err) {
+          node.warn(
+        `Could not request service name ${serviceName}, the error was: ${err}.`
+          )
+          node.status({
+            color: 'red',
+            shape: 'dot',
+            text: `${err}`
+          })
+          return
+        }
+
+        // Return code 0x1 means we successfully had the name
+        // Return code 0x3 means it already exists (which should be fine)
+        if (retCode === 1 || retCode === 3) {
+          debug(`Successfully requested service name "${serviceName}" (${retCode})`)
+        } else {
+          /* Other return codes means various errors, check here
+          (https://dbus.freedesktop.org/doc/api/html/group__DBusShared.html#ga37a9bc7c6eb11d212bf8d5e5ff3b50f9) for more
+          information */
+          node.warn(
+            `Failed to request service name "${serviceName} for ${config.device}". Check what return code "${retCode}" means.`
+          )
+          node.status({
+            color: 'red',
+            shape: 'dot',
+            text: `Dbus errorcode ${retCode}`
+          })
+        }
+      })
+
+      // Then we can add the required Victron interfaces, and receive some functions to use
       const {
         removeSettings,
         getValue
-      } = addVictronInterfaces(mybus, ifaceDesc, iface)
+      } = addVictronInterfaces(usedBus, ifaceDesc, iface)
 
       node.removeSettings = removeSettings
 
@@ -546,6 +545,7 @@ module.exports = function (RED) {
         }, 10000)
       }
     }
+    proceed(this.bus)
 
     node.on('input', function (msg) {
     })
