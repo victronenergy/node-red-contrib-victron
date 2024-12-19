@@ -139,8 +139,7 @@ module.exports = function (RED) {
           enum: 'number',
           integer: 'number',
           object: typeof value,
-          number: 'number',
-          string: 'string'
+          number: 'number'
         }
 
         let writepath = this.path
