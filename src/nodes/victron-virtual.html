@@ -54,7 +54,7 @@
             include_tank_battery: { value: false },
             include_tank_temperature: {value: false},
             tank_battery_voltage: { value: 3.3 },
-            tank_capacity: {value:10, required:false,
+            tank_capacity: {value:0.2, required:false,
                 validate: v => v === '' || v === undefined || Number(v) > 0},
             // temperature
             temperature_type: {value: 2, required: false},
@@ -130,7 +130,7 @@
         </div>
 
         <div class="form-row" id="tank-capacity">
-            <label for="node-input-tank_capacity"><i class="fa fa-flask"></i> Tank Capacity</label>
+            <label for="node-input-tank_capacity"><i class="fa fa-flask"></i> Tank Capacity (m<sup>3</sup>)</label>
             <input type="number" id="node-input-tank_capacity" min="0">
         </div>
 

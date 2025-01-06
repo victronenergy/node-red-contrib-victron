@@ -107,7 +107,7 @@ const properties = {
     'Alarms/Low/Enable': { type: 'd' },
     'Alarms/Low/Restore': { type: 'd' },
     'Alarms/Low/State': { type: 'd' },
-    Capacity: { type: 'd' },
+    Capacity: { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'm3' : '' },
     FluidType: {
       type: 'i',
       format: (v) => ({
@@ -367,7 +367,6 @@ module.exports = function (RED) {
           }
           if (config.default_values) {
             iface.Level = 50
-            iface.Remaining = 50
             iface.Temperature = 25
           }
           text = `Virtual ${properties.tank.FluidType.format(iface.FluidType).toLowerCase()} tank sensor`
