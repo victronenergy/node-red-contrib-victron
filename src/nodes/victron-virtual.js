@@ -36,11 +36,9 @@ const properties = {
     'Ac/Frequency': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'Hz' : '' },
     'Ac/N/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
     'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
-    'Ac/PENVoltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
     NrOfPhases: { type: 'd', format: (v) => v != null ? v : '', value: 1 },
     ErrorCode: { type: 'd', format: (v) => v != null ? v : '', value: 0 },
-    Connected: { type: 'd', format: (v) => v != null ? v : '', value: 1 },
-    Position: { type: 'd', format: (v) => v != null ? v : '', value: 0 }
+    Connected: { type: 'd', format: (v) => v != null ? v : '', value: 1 }
   },
   pvinverter: {
     'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
@@ -309,7 +307,6 @@ module.exports = function (RED) {
             iface['Ac/Power'] = 0
             iface['Ac/Frequency'] = 50
             iface['Ac/N/Current'] = 0
-            iface['Ac/PENVoltage'] = 230
           }
           text = `Virtual ${iface.NrOfPhases}-phase grid meter`
           break
