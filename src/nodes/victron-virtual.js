@@ -43,18 +43,6 @@ const properties = {
   pvinverter: {
     'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
     'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
-    'Ac/L1/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
-    'Ac/L1/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
-    'Ac/L1/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
-    'Ac/L1/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
-    'Ac/L2/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
-    'Ac/L2/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
-    'Ac/L2/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
-    'Ac/L2/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
-    'Ac/L3/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
-    'Ac/L3/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
-    'Ac/L3/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
-    'Ac/L3/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
     'Ac/MaxPower': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
     'Ac/PowerLimit': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
     ErrorCode: {
@@ -87,7 +75,8 @@ const properties = {
         9: 'Boot loading',
         10: 'Error'
       }[v] || 'unknown')
-    }
+    },
+    NrOfPhases: { type: 'd', format: (v) => v != null ? v : '', value: 1 }
   },
   meteo: {
     Irradiance: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'W/m2' : '' },
@@ -320,26 +309,35 @@ module.exports = function (RED) {
         }
         case 'pvinverter': {
           iface.Position = Number(config.position ?? 0)
+          iface.NrOfPhases = Number(config.pvinverter_nrofphases ?? 1)
+          const properties = [
+            { name: 'Current', unit: 'A' },
+            { name: 'Power', unit: 'W' },
+            { name: 'Voltage', unit: 'V' },
+            { name: 'Energy/Forward', unit: 'kWh' }
+          ]
+          for (let i = 1; i <= iface.NrOfPhases; i++) {
+            const phase = `L${i}`
+            properties.forEach(({ name, unit }) => {
+              const key = `Ac/${phase}/${name}`
+              ifaceDesc.properties[key] = {
+                type: 'd',
+                format: (v) => v != null ? v.toFixed(2) + unit : ''
+              }
+              if (config.default_values) {
+                iface[key] = 0
+              }
+            })
+          }
           if (config.default_values) {
             iface['Ac/Power'] = 0
             iface['Ac/MaxPower'] = 1000
             iface['Ac/PowerLimit'] = 1000
-            iface['Ac/L1/Power'] = 0
-            iface['Ac/L1/Current'] = 0
-            iface['Ac/L1/Voltage'] = 230
-            iface['Ac/L2/Power'] = 0
-            iface['Ac/L2/Current'] = 0
-            iface['Ac/L2/Voltage'] = 230
-            iface['Ac/L3/Power'] = 0
-            iface['Ac/L3/Current'] = 0
-            iface['Ac/L3/Voltage'] = 230
             iface['Ac/Energy/Forward'] = 0
-            iface['Ac/L1/Energy/Forward'] = 0
-            iface['Ac/L2/Energy/Forward'] = 0
-            iface['Ac/L3/Energy/Forward'] = 0
             iface.ErrorCode = 0
             iface.StatusCode = 0
           }
+          text = `Virtual ${iface.NrOfPhases}-phase pvinverter`
           break
         }
         case 'tank':
