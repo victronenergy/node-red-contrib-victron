@@ -324,9 +324,7 @@ module.exports = function (RED) {
                 type: 'd',
                 format: (v) => v != null ? v.toFixed(2) + unit : ''
               }
-              if (config.default_values) {
-                iface[key] = 0
-              }
+              iface[key] = 0
             })
           }
           if (config.default_values) {
