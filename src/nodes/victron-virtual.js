@@ -76,7 +76,8 @@ const properties = {
         10: 'Error'
       }[v] || 'unknown')
     },
-    NrOfPhases: { type: 'd', format: (v) => v != null ? v : '', value: 1 }
+    NrOfPhases: { type: 'd', format: (v) => v != null ? v : '', value: 1 },
+    Connected: { type: 'd', format: (v) => v != null ? v : '', value: 1 }
   },
   meteo: {
     Irradiance: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'W/m2' : '' },
