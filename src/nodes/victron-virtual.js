@@ -77,7 +77,7 @@ const properties = {
       }[v] || 'unknown')
     },
     NrOfPhases: { type: 'd', format: (v) => v != null ? v : '', value: 1 },
-    Connected: { type: 'd', format: (v) => v != null ? v : '', value: 1 }
+    Connected: { type: 'd', format: (v) => v != null ? v : '', value: 1 } // This path is not in the list of Measurement nor in dbus-spy
   },
   meteo: {
     Irradiance: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'W/m2' : '' },
