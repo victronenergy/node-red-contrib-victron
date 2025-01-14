@@ -114,7 +114,7 @@ const properties = {
       }[v] || 'unknown'),
       value: 0
     },
-    Level: { type: 'd' },
+    Level: { type: 'd', format: (v) => v != null ? v.toFixed(0) + '%' : '' },
     RawUnit: { type: 's' },
     RawValue: { type: 'd' },
     RawValueEmpty: { type: 'd' },
