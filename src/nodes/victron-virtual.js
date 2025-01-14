@@ -55,7 +55,7 @@ const properties = {
     Position: {
       type: 'i',
       format: (v) => ({
-        0: 'AC input 1',
+        0: 'AC input 1', // doesn't work
         1: 'AC output',
         2: 'AC input 2'
       }[v] || 'unknown')
