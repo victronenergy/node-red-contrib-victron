@@ -10,7 +10,7 @@ The easiest way to use Victron Energy nodes is through Venus OS Large, where bot
 
 2. Access Node-RED
    - Open your web browser
-   - Navigate to `http://<venus-ip>:1880`
+   - Navigate to `https://<venus-ip>:1881/` (using a self-signed certificate))
    - The Victron nodes will be available in the palette
 
 ## Option 2: Manual Installation
