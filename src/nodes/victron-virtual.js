@@ -352,7 +352,11 @@ module.exports = function (RED) {
             iface.ErrorCode = 0
             iface.StatusCode = 0
           }
-          text = `Virtual ${iface.NrOfPhases}-phase pvinverter on phase ${iface.SinglePhaseNr}`
+          if (iface.NrOfPhases == 3) {
+       	    text = `Virtual ${iface.NrOfPhases}-phase pvinverter`
+       	  } else {
+            text = `Virtual ${iface.NrOfPhases}-phase pvinverter on phase ${iface.SinglePhaseNr}`
+          }
           break
         }
         case 'tank':
