@@ -15,24 +15,30 @@
 
     function checkSelectedVirtualDevice() {
         [
-            'battery', 'grid', 'pvinverter', 'tank', 'temperature'
+            'battery', 'gps', 'grid', 'pvinverter', 'tank', 'temperature'
         ].map( x => { $('.input-'+x).hide() })
         const selected = $('select#node-input-device').val()
         $('.input-'+selected).show()
 
         if (selected === 'temperature') {
-        // Show/hide battery voltage input based on checkbox
-        $('#node-input-include-battery').off('change').on('change', function() {
-            if($(this).is(':checked')) {
-                $('#battery-voltage-row').show()
-            } else {
-                $('#battery-voltage-row').hide()
-            }
-        })
+            // Show/hide battery voltage input based on checkbox
+            $('#node-input-include-battery').off('change').on('change', function() {
+                if($(this).is(':checked')) {
+                    $('#battery-voltage-row').show()
+                } else {
+                    $('#battery-voltage-row').hide()
+                }
+            })
 
-        // Initially set battery voltage visibility
-        $('#battery-voltage-row').toggle($('#node-input-include-battery').is(':checked'))
-    }
+            // Initially set battery voltage visibility
+            $('#battery-voltage-row').toggle($('#node-input-include-battery').is(':checked'))
+        }
+
+        if (selected === 'gps') {
+            $('#node-input-default_values').prop('checked', false).prop('disabled', true)
+        } else {
+            $('#node-input-default_values').prop('disabled', false)
+        }
     }
 
     RED.nodes.registerType('victron-virtual',{
@@ -86,6 +92,7 @@
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <select id="node-input-device" required onchange="checkSelectedVirtualDevice()">
             <option value="battery">Battery</option>
+            <option value="gps">GPS</option>
             <option value="grid">Grid meter</option>
             <option value="meteo">Meteo</option>
             <option value="pvinverter">PV inverter</option>
@@ -276,6 +283,18 @@ situation. But it can help to get you started.
 
 The battery device allows for setting the capacity of the battery. The capacity
 is configured in Ah.
+
+### GPS
+
+The GPS device does not have any specific configuration options. It is used to
+send GPS data to VRM, typically used in a marine envirionment or on a camper van.
+On the VRM side, the GPS data will be used to determine the location of GX
+device, which is also used for forecasting solar yield. It won't show up on
+the device list, but can be found under the GPS menu in settings in the GUI.
+
+Setting the _initialize with default values_ is disabled for virtual GPS devices,
+as that could put your GX device unintentionally in the middle of the ocean
+and mess up solar forecast.
 
 ### Grid meter
 

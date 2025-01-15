@@ -124,6 +124,16 @@ const properties = {
     Temperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
     BatteryVoltage: { type: 'd', value: 3.3, format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
     Status: { type: 'i' }
+  },
+  gps: {
+    Altitude: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'm' : '' },
+    Fix: { type: 'd' },
+    NrOfSatellites: { type: 'd' },
+    'Position/Latitude': { type: 'd', format: (v) => v != null ? v.toFixed(6) + '°' : '' },
+    'Position/Longitude': { type: 'd', format: (v) => v != null ? v.toFixed(6) + '°' : '' },
+    Speed: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'm/s' : '' },
+    Course: { type: 'd', format: (v) => v != null ? v.toFixed(1) + '°' : '' },
+    Connected: { type: 'd', format: (v) => v != null ? v : '', value: 1 }
   }
 }
 

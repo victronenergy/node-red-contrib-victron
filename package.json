@@ -4,7 +4,7 @@
     "version": "1.6.11",
     "dependencies": {
         "dbus-native-victron": "^0.4.2",
-        "dbus-victron-virtual": "^0.1.6",
+        "dbus-victron-virtual": "^0.1.7",
         "debug": "^4.4.0",
         "lodash": "^4.17.21",
         "promise-retry": "^2.0.1",
