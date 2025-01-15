@@ -77,6 +77,7 @@ const properties = {
       }[v] || 'unknown')
     },
     NrOfPhases: { type: 'd', format: (v) => v != null ? v : '', value: 1 },
+    SinglePhaseNr: { type: 'd', format: (v) => v != null ? v : '', value: 1 },
     Connected: { type: 'd', format: (v) => v != null ? v : '', value: 1 }
   },
   meteo: {
@@ -321,6 +322,7 @@ module.exports = function (RED) {
         case 'pvinverter': {
           iface.Position = Number(config.position ?? 0)
           iface.NrOfPhases = Number(config.pvinverter_nrofphases ?? 1)
+          iface.SinglePhaseNr = Number(config.pvinverter_singlephasenr ?? 1)
           const properties = [
             { name: 'Current', unit: 'A' },
             { name: 'Power', unit: 'W' },
@@ -328,7 +330,11 @@ module.exports = function (RED) {
             { name: 'Energy/Forward', unit: 'kWh' }
           ]
           for (let i = 1; i <= iface.NrOfPhases; i++) {
-            const phase = `L${i}`
+            if (iface.NrOfPhases == 1) {
+              const phase = `L${iface.SinglePhaseNr}`
+            } else {
+              const phase = `L${i}`
+            }
             properties.forEach(({ name, unit }) => {
               const key = `Ac/${phase}/${name}`
               ifaceDesc.properties[key] = {
@@ -346,7 +352,7 @@ module.exports = function (RED) {
             iface.ErrorCode = 0
             iface.StatusCode = 0
           }
-          text = `Virtual ${iface.NrOfPhases}-phase pvinverter`
+          text = `Virtual ${iface.NrOfPhases}-phase pvinverter on phase ${iface.SinglePhaseNr}`
           break
         }
         case 'tank':
