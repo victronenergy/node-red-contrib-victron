@@ -56,6 +56,7 @@
             // pvinverter
             position: { value: 0, required: false},
             pvinverter_nrofphases: {value: 1, required: false},
+            pvinverter_singlephasenr: {value: 1, required: false},
             // tank
             fluid_type: { value: 0, required: false},
             include_tank_battery: { value: false },
@@ -179,7 +180,15 @@
                 <option value="1">1</option>
                 <option value="3">3</option>
             </select>
-        </div>        
+        </div>
+          <div class="form-row">
+            <label for="node-input-pvinverter_singlephasenr"><i class="fa fa-plug"></i> Single Phase Number</label>
+            <select id="node-input-pvinverter_singlephasenr">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
+        </div>  
     </div>
     <div class="input-temperature">
         <div class="form-row">
