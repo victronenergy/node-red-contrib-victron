@@ -331,9 +331,9 @@ module.exports = function (RED) {
           ]
           for (let i = 1; i <= iface.NrOfPhases; i++) {
             if (iface.NrOfPhases == 1) {
-              const phase = `L${iface.SinglePhaseNr}`
+              phase = `L${iface.SinglePhaseNr}`
             } else {
-              const phase = `L${i}`
+              phase = `L${i}`
             }
             properties.forEach(({ name, unit }) => {
               const key = `Ac/${phase}/${name}`
