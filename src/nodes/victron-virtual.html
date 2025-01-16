@@ -41,6 +41,13 @@
         }
     }
 
+    function checkPVInverterPhases() {
+        $('.pvinverter-singlephase').hide()
+        if ( $('select#node-input-pvinverter_nrofphases').val() === '1') {
+            $('.pvinverter-singlephase').show()
+        }
+    }
+
     RED.nodes.registerType('victron-virtual',{
         category: 'Victron Energy',
         color: '#f7ab3e',
@@ -56,7 +63,7 @@
             // pvinverter
             position: { value: 0, required: false},
             pvinverter_nrofphases: {value: 1, required: false},
-            pvinverter_singlephasenr: {value: 1, required: false},
+            pvinverter_singlephaseactivephase: {value: 1, required: false},
             // tank
             fluid_type: { value: 0, required: false},
             include_tank_battery: { value: false },
@@ -176,17 +183,17 @@
         </div>
         <div class="form-row">
             <label for="node-input-pvinverter_nrofphases"><i class="fa fa-plug"></i> Nr of phases</label>
-            <select id="node-input-pvinverter_nrofphases">
+            <select id="node-input-pvinverter_nrofphases" onchange="checkPVInverterPhases()">
                 <option value="1">1</option>
                 <option value="3">3</option>
             </select>
         </div>
-          <div class="form-row">
-            <label for="node-input-pvinverter_singlephasenr"><i class="fa fa-plug"></i> Single Phase Number</label>
-            <select id="node-input-pvinverter_singlephasenr">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
+          <div class="form-row pvinverter-singlephase">
+            <label for="node-input-pvinverter_singlephaseactivephase"><i class="fa fa-plug"></i> Active phase</label>
+            <select id="node-input-pvinverter_singlephaseactivephase">
+                <option value="1">L1</option>
+                <option value="2">L2</option>
+                <option value="3">L3</option>
             </select>
         </div>  
     </div>

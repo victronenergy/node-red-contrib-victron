@@ -322,7 +322,7 @@ module.exports = function (RED) {
         case 'pvinverter': {
           iface.Position = Number(config.position ?? 0)
           iface.NrOfPhases = Number(config.pvinverter_nrofphases ?? 1)
-          iface.SinglePhaseNr = Number(config.pvinverter_singlephasenr ?? 1)
+          iface.SinglePhaseActivePhase = Number(config.pvinverter_singlephaseactivephase ?? 1)
           const properties = [
             { name: 'Current', unit: 'A' },
             { name: 'Power', unit: 'W' },
@@ -331,7 +331,7 @@ module.exports = function (RED) {
           ]
           for (let i = 1; i <= iface.NrOfPhases; i++) {
             if (iface.NrOfPhases == 1) {
-              phase = `L${iface.SinglePhaseNr}`
+              phase = `L${iface.SinglePhaseActivePhase}`
             } else {
               phase = `L${i}`
             }
@@ -355,7 +355,9 @@ module.exports = function (RED) {
           if (iface.NrOfPhases == 3) {
        	    text = `Virtual ${iface.NrOfPhases}-phase pvinverter`
        	  } else {
-            text = `Virtual ${iface.NrOfPhases}-phase pvinverter on phase ${iface.SinglePhaseNr}`
+            ifaceDesc.properties['Ac/Phase'] = { type: 'd' }
+            iface['Ac/Phase'] = iface.SinglePhaseActivePhase
+            text = `Virtual ${iface.NrOfPhases}-phase pvinverter on phase ${iface.SinglePhaseActivePhase}`
           }
           break
         }
