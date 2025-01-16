@@ -77,7 +77,6 @@ const properties = {
       }[v] || 'unknown')
     },
     NrOfPhases: { type: 'd', format: (v) => v != null ? v : '', value: 1 },
-    SinglePhaseNr: { type: 'd', format: (v) => v != null ? v : '', value: 1 },
     Connected: { type: 'd', format: (v) => v != null ? v : '', value: 1 }
   },
   meteo: {
@@ -330,10 +329,9 @@ module.exports = function (RED) {
             { name: 'Energy/Forward', unit: 'kWh' }
           ]
           for (let i = 1; i <= iface.NrOfPhases; i++) {
+            let phase = `L${i}`
             if (iface.NrOfPhases === 1) {
               phase = `L${iface.SinglePhaseActivePhase}`
-            } else {
-              phase = `L${i}`
             }
             properties.forEach(({ name, unit }) => {
               const key = `Ac/${phase}/${name}`
