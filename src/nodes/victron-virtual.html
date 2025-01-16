@@ -64,6 +64,7 @@
             position: { value: 0, required: false},
             pvinverter_nrofphases: {value: 1, required: false},
             pvinverter_singlephaseactivephase: {value: 1, required: false},
+            pvinverter_include_powerlimit: { value: 0, required: false},
             // tank
             fluid_type: { value: 0, required: false},
             include_tank_battery: { value: false },
@@ -195,7 +196,16 @@
                 <option value="2">L2</option>
                 <option value="3">L3</option>
             </select>
-        </div>  
+        </div>
+
+        <div class="form-row">
+            <label>&nbsp;</label>
+            <label for="node-input-pvinverter_include_powerlimit" style="width:70%;">
+                <input type="checkbox" id="node-input-pvinverter_include_powerlimit" style="display:inline-block; width:22px; vertical-align:baseline;">
+                Include Power Limit (only switch this on for inverters that support it)
+            </label>
+        </div>
+
     </div>
     <div class="input-temperature">
         <div class="form-row">
