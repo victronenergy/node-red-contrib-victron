@@ -262,6 +262,9 @@ Questions can also be asked on the Victron Energy community:
 <p>This node allows for AC load monitoring. Measuring can be done by using an energy meter and assigning it the 'ac load' role.</p>
 <h3>Acload</h3>
 <dl class="message-properties">
+  <dt class="optional">AC Frequency (Hz)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/Frequency</b>
+</dd>
   <dt class="optional">L1 Current (A)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/L1/Current</b>
 </dd>
@@ -387,6 +390,9 @@ Questions can also be asked on the Victron Energy community:
   <li>1 - Warning</li>
   <li>2 - Alarm</li>
 </ul>
+</dd>
+  <dt class="optional">ESS Active SOC Limit (%)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ess/ActiveSocLimit</b>
 </dd>
   <dt class="optional">System state<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/State</b>
@@ -3465,6 +3471,9 @@ Writing a negative value to the path will de-activate the schedule.
   <dt class="optional">Total energy (kWh)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/Energy/Forward</b>
 </dd>
+  <dt class="optional">AC Frequency (Hz)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/Frequency</b>
+</dd>
   <dt class="optional">L1 Current (A)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ac/L1/Current</b>
 </dd>
@@ -4903,6 +4912,12 @@ Writing a negative value to the path will de-activate the schedule.
 <p>This node is for controlling the Multi-RS and other future inverter/chargers.</p>
 <h3>Acsystem</h3>
 <dl class="message-properties">
+  <dt class="optional">Ac input 1 current limit (A)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/In/1/CurrentLimit</b>
+</dd>
+  <dt class="optional">Ac input 2 current limit (A)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Ac/In/2/CurrentLimit</b>
+</dd>
   <dt class="optional">ESS setpoint (W)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Ess/AcPowerSetpoint</b>
 </dd>
@@ -4912,6 +4927,9 @@ Writing a negative value to the path will de-activate the schedule.
   <li>0 - Feed-in enabled</li>
   <li>1 - Feed-in disabled</li>
 </ul>
+</dd>
+  <dt class="optional">Ac current limit at grid meter (A)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/Ac/In/CurrentLimitEnergyMeter</b>
 </dd>
   <dt class="optional">ESS mode<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/Ess/Mode</b>
@@ -5701,8 +5719,14 @@ Writing a negative value to the path will de-activate the schedule.
   <dt class="optional">AC export current limit (A)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/AcExportLimit</b>
 </dd>
+  <dt class="optional">AC import limit when peakshaving<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/AcInputLimit</b>
+</dd>
   <dt class="optional">AC import current limit (A)<span class="property-type">float</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/AcImportLimit</b>
+</dd>
+  <dt class="optional">ESS control loop setpoint (W)<span class="property-type">float</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/AcPowerSetPoint</b>
 </dd>
   <dt class="optional">Mode for peakshaving<span class="property-type">enum</dt>
   <dd>Dbus path: <b>/Settings/CGwacs/AlwaysPeakShave</b>
@@ -5730,6 +5754,13 @@ Writing a negative value to the path will de-activate the schedule.
   <li>10 - BL Disabled</li>
   <li>11 - BL Disabled (Low SoC)</li>
   <li>12 - BL Disabled (Low SOC recharge)</li>
+</ul>
+</dd>
+  <dt class="optional">Grid metering<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/Settings/CGwacs/RunWithoutGridMeter</b>
+<ul>
+  <li>0 - External meter</li>
+  <li>1 - Inverter/Charger</li>
 </ul>
 </dd>
   <dt class="optional">Auto start enabled<span class="property-type">enum</dt>
