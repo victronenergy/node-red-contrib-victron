@@ -148,6 +148,11 @@
     "help": "<p>This node allows for AC load monitoring. Measuring can be done by using an energy meter and assigning it the 'ac load' role.</p>",
     "acload": [
       {
+        "path": "/Ac/Frequency",
+        "type": "float",
+        "name": "AC Frequency (Hz)"
+      },
+      {
         "path": "/Ac/L1/Current",
         "type": "float",
         "name": "L1 Current (A)"
@@ -336,6 +341,11 @@
           "1": "Warning",
           "2": "Alarm"
         }
+      },
+      {
+        "path": "/Ess/ActiveSocLimit",
+        "type": "float",
+        "name": "ESS Active SOC Limit (%)"
       },
       {
         "path": "/State",
@@ -4391,6 +4401,11 @@
         "name": "Total energy (kWh)"
       },
       {
+        "path": "/Ac/Frequency",
+        "type": "float",
+        "name": "AC Frequency (Hz)"
+      },
+      {
         "path": "/Ac/L1/Current",
         "type": "float",
         "name": "L1 Current (A)"
@@ -6297,6 +6312,18 @@
     "help": "<p>This node is for controlling the Multi-RS and other future inverter/chargers.</p>",
     "acsystem": [
       {
+        "path": "/Ac/In/1/CurrentLimit",
+        "type": "float",
+        "name": "Ac input 1 current limit (A)",
+        "writable": true
+      },
+      {
+        "path": "/Ac/In/2/CurrentLimit",
+        "type": "float",
+        "name": "Ac input 2 current limit (A)",
+        "writable": true
+      },
+      {
         "path": "/Ess/AcPowerSetpoint",
         "type": "float",
         "name": "ESS setpoint (W)",
@@ -6310,6 +6337,12 @@
           "0": "Feed-in enabled",
           "1": "Feed-in disabled"
         },
+        "writable": true
+      },
+      {
+        "path": "/Settings/Ac/In/CurrentLimitEnergyMeter",
+        "type": "float",
+        "name": "Ac current limit at grid meter (A)",
         "writable": true
       },
       {
@@ -7371,9 +7404,21 @@
         "writable": true
       },
       {
+        "path": "/Settings/CGwacs/AcInputLimit",
+        "type": "float",
+        "name": "AC import limit when peakshaving",
+        "writable": true
+      },
+      {
         "path": "/Settings/CGwacs/AcImportLimit",
         "type": "float",
         "name": "AC import current limit (A)",
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/AcPowerSetPoint",
+        "type": "float",
+        "name": "ESS control loop setpoint (W)",
         "writable": true
       },
       {
@@ -7410,6 +7455,16 @@
           "10": "BL Disabled",
           "11": "BL Disabled (Low SoC)",
           "12": "BL Disabled (Low SOC recharge)"
+        },
+        "writable": true
+      },
+      {
+        "path": "/Settings/CGwacs/RunWithoutGridMeter",
+        "type": "enum",
+        "name": "Grid metering",
+        "enum": {
+          "0": "External meter",
+          "1": "Inverter/Charger"
         },
         "writable": true
       },
