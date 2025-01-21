@@ -51,6 +51,7 @@
             default_values: {value: false, required: false},
             // battery
             battery_capacity: {value: 25, required: false},
+            include_battery_temperature: {value: false},
             // grid
             grid_nrofphases: {value: 1, required: false},
             // pvinverter
@@ -104,6 +105,14 @@
         <div class="form-row" id="battery-capacity">
             <label for="node-input-battery_capacity"><i class="fa fa-flask"></i> Battery Capacity (Ah)</label>
             <input type="number" id="node-input-battery_capacity" min="0">
+        </div>
+
+        <div class="form-row">
+            <label>&nbsp;</label>
+            <label for="node-input-include_battery_temperature" style="width:70%;">
+                <input type="checkbox" id="node-input-include_battery_temperature" style="display:inline-block; width:22px; vertical-align:baseline;">
+                Include battery temperature
+            </label>
         </div>
     </div>
     <div class="input-grid">
@@ -283,6 +292,8 @@ situation. But it can help to get you started.
 
 The battery device allows for setting the capacity of the battery. The capacity
 is configured in Ah.
+
+Including the battery temperature adds a field to write the temperature to.
 
 ### GPS
 

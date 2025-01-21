@@ -280,6 +280,10 @@ module.exports = function (RED) {
             iface['Dc/0/Temperature'] = 25
             iface.Soc = 80
           }
+          if (!config.include_battery_temperature) {
+            delete ifaceDesc.properties['Dc/0/Temperature']
+            delete iface['Dc/0/Temperature']
+          }
           text = `Virtual ${properties.battery.Capacity.format(iface.Capacity)} battery`
           break
         }
