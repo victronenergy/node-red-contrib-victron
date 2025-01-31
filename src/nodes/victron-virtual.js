@@ -10,7 +10,7 @@ const properties = {
     'Dc/0/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
     'Dc/0/Temperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
     Soc: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '' },
-    Connected: { type: 'd', format: (v) => v != null ? v : '', value: 1 }
+    Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
   },
   temperature: {
     Temperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
@@ -36,9 +36,9 @@ const properties = {
     'Ac/Frequency': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'Hz' : '' },
     'Ac/N/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
     'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
-    NrOfPhases: { type: 'd', format: (v) => v != null ? v : '', value: 1 },
-    ErrorCode: { type: 'd', format: (v) => v != null ? v : '', value: 0 },
-    Connected: { type: 'd', format: (v) => v != null ? v : '', value: 1 }
+    NrOfPhases: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
+    ErrorCode: { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+    Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
   },
   pvinverter: {
     'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
@@ -76,13 +76,13 @@ const properties = {
         10: 'Error'
       }[v] || 'unknown')
     },
-    NrOfPhases: { type: 'd', format: (v) => v != null ? v : '', value: 1 },
-    Connected: { type: 'd', format: (v) => v != null ? v : '', value: 1 }
+    NrOfPhases: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
+    Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
   },
   meteo: {
     Irradiance: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'W/m2' : '' },
     WindSpeed: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'm/s' : '' },
-    WindDirection: { type: 'd' }
+    WindDirection: { type: 'i' }
   },
   tank: {
     'Alarms/High/Active': { type: 'd' },
@@ -127,13 +127,13 @@ const properties = {
   },
   gps: {
     Altitude: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'm' : '' },
-    Fix: { type: 'd' },
-    NrOfSatellites: { type: 'd' },
+    Fix: { type: 'i' },
+    NrOfSatellites: { type: 'i' },
     'Position/Latitude': { type: 'd', format: (v) => v != null ? v.toFixed(6) + '°' : '' },
     'Position/Longitude': { type: 'd', format: (v) => v != null ? v.toFixed(6) + '°' : '' },
     Speed: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'm/s' : '' },
     Course: { type: 'd', format: (v) => v != null ? v.toFixed(1) + '°' : '' },
-    Connected: { type: 'd', format: (v) => v != null ? v : '', value: 1 }
+    Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
   }
 }
 
