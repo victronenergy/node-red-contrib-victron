@@ -1,7 +1,7 @@
 {
     "name": "@victronenergy/node-red-contrib-victron",
     "description": "Custom Node-RED Nodes for Victron Energy",
-    "version": "1.6.15",
+    "version": "1.6.16",
     "dependencies": {
         "dbus-native-victron": "^0.4.3",
         "dbus-victron-virtual": "^0.1.11",
@@ -10,10 +10,10 @@
         "promise-retry": "^2.0.1",
         "standard": "^17.1.2"
     },
-    "files" : [
-      "exxamples",
-      "src",
-      "LICENSE"
+    "files": [
+        "exxamples",
+        "src",
+        "LICENSE"
     ],
     "node-red": {
         "nodes": {
