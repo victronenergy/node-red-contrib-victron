@@ -888,8 +888,7 @@
             "enum": {
                 "0": "Open",
                 "1": "Closed"
-            },
-            "writable": true
+            }
         },
         "initial": "",
         "name": "",

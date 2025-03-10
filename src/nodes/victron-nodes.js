@@ -157,7 +157,7 @@ module.exports = function (RED) {
         if (!this.pathObj.disabled && this.service && writepath) {
 
           // If the value is null, just call. (experimental)
-          // Note: it's not ideal that we set the status before the call to dbus (via this.client.publish()) has happened.
+          // Note: i t's not ideal that we set the status before the call to dbus (via this.client.publish()) has happened.
           // Error handling and feedback might be better, if we wait for the dbus call to return, and then only
           // set the status. Or better even, set the status to something like "busy..." or "working..." while the
           // dbus call is happening.
@@ -245,6 +245,7 @@ module.exports = function (RED) {
   RED.nodes.registerType('victron-input-gps', BaseInputNode)
   RED.nodes.registerType('victron-input-gridmeter', BaseInputNode)
   RED.nodes.registerType('victron-input-inverter', BaseInputNode)
+  RED.nodes.registerType('victron-input-io-extender', BaseInputNode)
   RED.nodes.registerType('victron-input-meteo', BaseInputNode)
   RED.nodes.registerType('victron-input-motordrive', BaseInputNode)
   RED.nodes.registerType('victron-input-multi', BaseInputNode)
@@ -271,6 +272,7 @@ module.exports = function (RED) {
   RED.nodes.registerType('victron-output-evcharger', BaseOutputNode)
   RED.nodes.registerType('victron-output-generator', BaseOutputNode)
   RED.nodes.registerType('victron-output-inverter', BaseOutputNode)
+  RED.nodes.registerType('victron-output-io-extender', BaseOutputNode)
   RED.nodes.registerType('victron-output-multi', BaseOutputNode)
   RED.nodes.registerType('victron-output-pump', BaseOutputNode)
   RED.nodes.registerType('victron-output-pvinverter', BaseOutputNode)

@@ -212,8 +212,7 @@
         "pathObj": {
             "path": "/Settings/CGwacs/BatteryLife/MinimumSocLimit",
             "type": "float",
-            "name": "ESS Minimum SoC (unless grid fails) (%)",
-            "writable": true
+            "name": "ESS Minimum SoC (unless grid fails) (%)"
         },
         "name": "",
         "onlyChanges": false,

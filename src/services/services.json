@@ -3603,6 +3603,25 @@
       }
     ]
   },
+  "input-io-extender": {
+    "help": "<p>The <b>input-meteo</b> node allows for Solar Irradiance, Temperature and Wind Speed Sensors measuring.</p><p>More information and supported devices can be found in the <a href=\"https://www.victronenergy.com/media/pg/Cerbo_GX/en/installation.html#UUID-d4b7dfe9-4ee0-53bc-8959-c567ed63cebb\">manual</a>.</p>",
+    "switch": [
+      {
+        "path": "/SwitchableOutput/pwm_1/State",
+        "type": "enum",
+        "enum": {
+          "0": "Off",
+          "1": "On"
+        },
+        "name": "PWM 1 state"
+      },
+      {
+        "path": "/SwitchableOutput/pwm_1/Dimming",
+        "type": "integer",
+        "name": "PWM 1 dimming"
+      }
+    ]
+  },
   "input-meteo": {
     "help": "<p>The <b>input-meteo</b> node allows for Solar Irradiance, Temperature and Wind Speed Sensors measuring.</p><p>More information and supported devices can be found in the <a href=\"https://www.victronenergy.com/media/pg/Cerbo_GX/en/installation.html#UUID-d4b7dfe9-4ee0-53bc-8959-c567ed63cebb\">manual</a>.</p>",
     "meteo": [
@@ -6283,8 +6302,7 @@
       {
         "path": "/Ac/In/CurrentLimit",
         "type": "float",
-        "name": "AC Current limit (A)",
-        "writable": true
+        "name": "AC Current limit (A)"
       },
       {
         "path": "/Mode",
@@ -6293,8 +6311,7 @@
         "enum": {
           "1": "On",
           "4": "Off"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Relay/0/State",
@@ -6303,8 +6320,7 @@
         "enum": {
           "0": "Open",
           "1": "Closed"
-        },
-        "writable": true
+        }
       }
     ]
   },
@@ -6314,20 +6330,17 @@
       {
         "path": "/Ac/In/1/CurrentLimit",
         "type": "float",
-        "name": "Ac input 1 current limit (A)",
-        "writable": true
+        "name": "Ac input 1 current limit (A)"
       },
       {
         "path": "/Ac/In/2/CurrentLimit",
         "type": "float",
-        "name": "Ac input 2 current limit (A)",
-        "writable": true
+        "name": "Ac input 2 current limit (A)"
       },
       {
         "path": "/Ess/AcPowerSetpoint",
         "type": "float",
-        "name": "ESS setpoint (W)",
-        "writable": true
+        "name": "ESS setpoint (W)"
       },
       {
         "path": "/Ess/DisableFeedIn",
@@ -6336,14 +6349,12 @@
         "enum": {
           "0": "Feed-in enabled",
           "1": "Feed-in disabled"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/Ac/In/CurrentLimitEnergyMeter",
         "type": "float",
-        "name": "Ac current limit at grid meter (A)",
-        "writable": true
+        "name": "Ac current limit at grid meter (A)"
       },
       {
         "path": "/Settings/Ess/Mode",
@@ -6353,8 +6364,7 @@
           "1": "ESS with Phase Compensation",
           "2": "ESS without phase compensation",
           "3": "Disabled/External Control"
-        },
-        "writable": true
+        }
       }
     ]
   },
@@ -6368,8 +6378,7 @@
         "enum": {
           "3": "On",
           "252": "Standby"
-        },
-        "writable": true
+        }
       }
     ]
   },
@@ -6379,8 +6388,7 @@
       {
         "path": "/Ac/In/CurrentLimit",
         "type": "float",
-        "name": "AC Current limit (A AC)",
-        "writable": true
+        "name": "AC Current limit (A AC)"
       },
       {
         "path": "/Mode",
@@ -6389,8 +6397,7 @@
         "enum": {
           "0": "Off",
           "1": "On"
-        },
-        "writable": true
+        }
       }
     ]
   },
@@ -6404,8 +6411,7 @@
         "enum": {
           "1": "On",
           "4": "Off"
-        },
-        "writable": true
+        }
       }
     ]
   },
@@ -6415,20 +6421,17 @@
       {
         "path": "/Settings/DynamicEss/BatteryCapacity",
         "type": "float",
-        "name": "Battery capacity (kWh)",
-        "writable": true
+        "name": "Battery capacity (kWh)"
       },
       {
         "path": "/Settings/DynamicEss/FullChargeDuration",
         "type": "float",
-        "name": "Full battery charge duration (hour)",
-        "writable": true
+        "name": "Full battery charge duration (hour)"
       },
       {
         "path": "/Settings/DynamicEss/FullChargeInterval",
         "type": "float",
-        "name": "Full battery charge interval (day)",
-        "writable": true
+        "name": "Full battery charge interval (day)"
       },
       {
         "path": "/Settings/DynamicEss/Mode",
@@ -6438,8 +6441,7 @@
           "0": "Off",
           "1": "Auto",
           "4": "Node-RED"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/DynamicEss/Schedule/0/AllowGridFeedIn",
@@ -6448,14 +6450,12 @@
         "enum": {
           "0": "Not allowed",
           "1": "Allowed"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/DynamicEss/Schedule/0/Duration",
         "type": "float",
-        "name": "Duration for schedule 0 (Seconds)",
-        "writable": true
+        "name": "Duration for schedule 0 (Seconds)"
       },
       {
         "path": "/Settings/DynamicEss/Schedule/0/Restrictions",
@@ -6466,14 +6466,12 @@
           "1": "Grid to battery energy flow is restricted",
           "2": "Battery to grid energy flow is restricted",
           "3": "No energy flow between battery and grid"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/DynamicEss/Schedule/0/Soc",
         "type": "float",
-        "name": "Target SOC for schedule 0 (%)",
-        "writable": true
+        "name": "Target SOC for schedule 0 (%)"
       },
       {
         "path": "/Settings/DynamicEss/Schedule/0/Strategy",
@@ -6482,8 +6480,7 @@
         "enum": {
           "0": "Target SOC",
           "1": "Self-consumption"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/DynamicEss/Schedule/1/AllowGridFeedIn",
@@ -6492,14 +6489,12 @@
         "enum": {
           "0": "Not allowed",
           "1": "Allowed"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/DynamicEss/Schedule/1/Duration",
         "type": "float",
-        "name": "Duration for schedule 1 (Seconds)",
-        "writable": true
+        "name": "Duration for schedule 1 (Seconds)"
       },
       {
         "path": "/Settings/DynamicEss/Schedule/1/Restrictions",
@@ -6510,14 +6505,12 @@
           "1": "Grid to battery energy flow is restricted",
           "2": "Battery to grid energy flow is restricted",
           "3": "No energy flow between battery and grid"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/DynamicEss/Schedule/1/Soc",
         "type": "float",
-        "name": "Target SOC for schedule 1 (%)",
-        "writable": true
+        "name": "Target SOC for schedule 1 (%)"
       },
       {
         "path": "/Settings/DynamicEss/Schedule/1/Strategy",
@@ -6526,8 +6519,7 @@
         "enum": {
           "0": "Target SOC",
           "1": "Self-consumption"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/DynamicEss/Schedule/2/AllowGridFeedIn",
@@ -6536,14 +6528,12 @@
         "enum": {
           "0": "Not allowed",
           "1": "Allowed"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/DynamicEss/Schedule/2/Duration",
         "type": "float",
-        "name": "Duration for schedule 2 (Seconds)",
-        "writable": true
+        "name": "Duration for schedule 2 (Seconds)"
       },
       {
         "path": "/Settings/DynamicEss/Schedule/2/Restrictions",
@@ -6554,14 +6544,12 @@
           "1": "Grid to battery energy flow is restricted",
           "2": "Battery to grid energy flow is restricted",
           "3": "No energy flow between battery and grid"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/DynamicEss/Schedule/2/Soc",
         "type": "float",
-        "name": "Target SOC for schedule 2 (%)",
-        "writable": true
+        "name": "Target SOC for schedule 2 (%)"
       },
       {
         "path": "/Settings/DynamicEss/Schedule/2/Strategy",
@@ -6570,8 +6558,7 @@
         "enum": {
           "0": "Target SOC",
           "1": "Self-consumption"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/DynamicEss/Schedule/3/AllowGridFeedIn",
@@ -6580,14 +6567,12 @@
         "enum": {
           "0": "Not allowed",
           "1": "Allowed"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/DynamicEss/Schedule/3/Duration",
         "type": "float",
-        "name": "Duration for schedule 3 (Seconds)",
-        "writable": true
+        "name": "Duration for schedule 3 (Seconds)"
       },
       {
         "path": "/Settings/DynamicEss/Schedule/3/Restrictions",
@@ -6598,14 +6583,12 @@
           "1": "Grid to battery energy flow is restricted",
           "2": "Battery to grid energy flow is restricted",
           "3": "No energy flow between battery and grid"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/DynamicEss/Schedule/3/Soc",
         "type": "float",
-        "name": "Target SOC for schedule 3 (%)",
-        "writable": true
+        "name": "Target SOC for schedule 3 (%)"
       },
       {
         "path": "/Settings/DynamicEss/Schedule/3/Strategy",
@@ -6614,8 +6597,7 @@
         "enum": {
           "0": "Target SOC",
           "1": "Self-consumption"
-        },
-        "writable": true
+        }
       }
     ]
   },
@@ -6629,8 +6611,7 @@
         "enum": {
           "0": "No",
           "1": "Yes"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Hub4/DisableFeedIn",
@@ -6639,8 +6620,7 @@
         "enum": {
           "0": "No",
           "1": "Yes"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Hub4/DoNotFeedInOvervoltage",
@@ -6649,58 +6629,49 @@
         "enum": {
           "0": "Yes",
           "1": "No"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Hub4/L1/AcPowerSetpoint",
         "type": "integer",
-        "name": "AC Power L1 setpoint (W)",
-        "writable": true
+        "name": "AC Power L1 setpoint (W)"
       },
       {
         "path": "/Hub4/L1/MaxFeedInPower",
         "type": "integer",
-        "name": "Maximum overvoltage feed-in power L1 (W)",
-        "writable": true
+        "name": "Maximum overvoltage feed-in power L1 (W)"
       },
       {
         "path": "/Hub4/L2/AcPowerSetpoint",
         "type": "integer",
-        "name": "AC Power L2 setpoint (W)",
-        "writable": true
+        "name": "AC Power L2 setpoint (W)"
       },
       {
         "path": "/Hub4/L2/MaxFeedInPower",
         "type": "integer",
-        "name": "Maximum overvoltage feed-in power L2 (W)",
-        "writable": true
+        "name": "Maximum overvoltage feed-in power L2 (W)"
       },
       {
         "path": "/Hub4/L3/AcPowerSetpoint",
         "type": "integer",
-        "name": "AC Power L3 setpoint (W)",
-        "writable": true
+        "name": "AC Power L3 setpoint (W)"
       },
       {
         "path": "/Hub4/L3/MaxFeedInPower",
         "type": "integer",
-        "name": "Maximum overvoltage feed-in power L3 (W)",
-        "writable": true
+        "name": "Maximum overvoltage feed-in power L3 (W)"
       }
     ],
     "settings": [
       {
         "path": "/Settings/CGwacs/AcPowerSetPoint",
         "type": "integer",
-        "name": "Grid set-point (W)",
-        "writable": true
+        "name": "Grid set-point (W)"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/MinimumSocLimit",
         "type": "integer",
-        "name": "Minimum Discharge SOC (%)",
-        "writable": true
+        "name": "Minimum Discharge SOC (%)"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/0/AllowDischarge",
@@ -6709,8 +6680,7 @@
         "enum": {
           "0": "Yes",
           "1": "No"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Day",
@@ -6728,14 +6698,12 @@
           "8": "Weekdays",
           "9": "Weekends"
         },
-        "writable": true,
         "remarks": "<p>Writing a negative value to the path will de-activate the schedule.</p>"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Duration",
         "type": "integer",
-        "name": "Schedule 1: Duration (seconds)",
-        "writable": true
+        "name": "Schedule 1: Duration (seconds)"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Soc",
@@ -6746,8 +6714,7 @@
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Start",
         "type": "integer",
-        "name": "Schedule 1: Start (seconds after midnight)",
-        "writable": true
+        "name": "Schedule 1: Start (seconds after midnight)"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/1/AllowDischarge",
@@ -6756,8 +6723,7 @@
         "enum": {
           "0": "Yes",
           "1": "No"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Day",
@@ -6775,26 +6741,22 @@
           "8": "Weekdays",
           "9": "Weekends"
         },
-        "writable": true,
         "remarks": "<p>Writing a negative value to the path will de-activate the schedule.</p>"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Duration",
         "type": "integer",
-        "name": "Schedule 2: Duration (seconds)",
-        "writable": true
+        "name": "Schedule 2: Duration (seconds)"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Soc",
         "type": "integer",
-        "name": "Schedule 2: State of charge (%)",
-        "writable": true
+        "name": "Schedule 2: State of charge (%)"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Start",
         "type": "integer",
-        "name": "Schedule 2: Start (seconds after midnight)",
-        "writable": true
+        "name": "Schedule 2: Start (seconds after midnight)"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/2/AllowDischarge",
@@ -6803,8 +6765,7 @@
         "enum": {
           "0": "Yes",
           "1": "No"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Day",
@@ -6822,26 +6783,22 @@
           "8": "Weekdays",
           "9": "Weekends"
         },
-        "writable": true,
         "remarks": "<p>Writing a negative value to the path will de-activate the schedule.</p>"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Duration",
         "type": "integer",
-        "name": "Schedule 3: Duration (seconds)",
-        "writable": true
+        "name": "Schedule 3: Duration (seconds)"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Soc",
         "type": "integer",
-        "name": "Schedule 3: State of charge (%)",
-        "writable": true
+        "name": "Schedule 3: State of charge (%)"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Start",
         "type": "integer",
-        "name": "Schedule 3: Start (seconds after midnight)",
-        "writable": true
+        "name": "Schedule 3: Start (seconds after midnight)"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/3/AllowDischarge",
@@ -6850,8 +6807,7 @@
         "enum": {
           "0": "Yes",
           "1": "No"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Day",
@@ -6869,26 +6825,22 @@
           "8": "Weekdays",
           "9": "Weekends"
         },
-        "writable": true,
         "remarks": "<p>Writing a negative value to the path will de-activate the schedule.</p>"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Duration",
         "type": "integer",
-        "name": "Schedule 4: Duration (seconds)",
-        "writable": true
+        "name": "Schedule 4: Duration (seconds)"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Soc",
         "type": "integer",
-        "name": "Schedule 4: State of charge (%)",
-        "writable": true
+        "name": "Schedule 4: State of charge (%)"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Start",
         "type": "integer",
-        "name": "Schedule 4: Start (seconds after midnight)",
-        "writable": true
+        "name": "Schedule 4: Start (seconds after midnight)"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/4/AllowDischarge",
@@ -6897,8 +6849,7 @@
         "enum": {
           "0": "Yes",
           "1": "No"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Day",
@@ -6916,26 +6867,22 @@
           "8": "Weekdays",
           "9": "Weekends"
         },
-        "writable": true,
         "remarks": "<p>Writing a negative value to the path will de-activate the schedule.</p>"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Duration",
         "type": "integer",
-        "name": "Schedule 5: Duration (seconds)",
-        "writable": true
+        "name": "Schedule 5: Duration (seconds)"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Soc",
         "type": "integer",
-        "name": "Schedule 5: State of charge (%)",
-        "writable": true
+        "name": "Schedule 5: State of charge (%)"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Start",
         "type": "integer",
-        "name": "Schedule 5: Start (seconds after midnight)",
-        "writable": true
+        "name": "Schedule 5: Start (seconds after midnight)"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/State",
@@ -6954,8 +6901,7 @@
           "10": "Optimized mode w/o BatteryLife: self consumption, SoC at or above minimum SoC",
           "11": "Optimized mode w/o BatteryLife: self consumption, SoC is below minimum SoC",
           "12": "Optimized mode w/o BatteryLife: recharging, SoC dropped by 5% or more below minimum SoC"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/CGwacs/Hub4Mode",
@@ -6965,28 +6911,24 @@
           "1": "Optimized mode or 'keep batteries charged' and phase compensation enabled",
           "2": "Optimized mode or 'keep batteries charged' and phase compensation disabled",
           "3": "External control"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/CGwacs/MaxChargePower",
         "type": "integer",
         "name": "Max charge power (W)",
-        "writable": true,
         "remarks": "<p>Not used with DVCC.</p>"
       },
       {
         "path": "/Settings/CGwacs/MaxDischargePower",
         "type": "integer",
-        "name": "Max inverter power (W)",
-        "writable": true
+        "name": "Max inverter power (W)"
       },
       {
         "path": "/Settings/CGwacs/MaxFeedInPower",
         "type": "integer",
         "name": "Maximum System Grid Feed In (W)",
-        "remarks": "<ul><li>-1: No limit</li><li> &gt;=0: limited system feed-in</li></ul><p>Applies to DC-coupled and AC-coupled feed-in.</p>",
-        "writable": true
+        "remarks": "<ul><li>-1: No limit</li><li> &gt;=0: limited system feed-in</li></ul><p>Applies to DC-coupled and AC-coupled feed-in.</p>"
       },
       {
         "path": "/Settings/CGwacs/OvervoltageFeedIn",
@@ -6995,8 +6937,7 @@
         "enum": {
           "0": "Don’t feed excess DC-tied PV into grid",
           "1": "Feed excess DC-tied PV into the grid"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/CGwacs/PreventFeedback",
@@ -7005,8 +6946,7 @@
         "enum": {
           "0": "Feed excess AC-tied PV into grid",
           "1": "Don’t feed excess AC-tied PV into the grid"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/CGwacs/RunWithoutGridMeter",
@@ -7015,14 +6955,12 @@
         "enum": {
           "0": "External meter",
           "1": "Inverter/Charger"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/SystemSetup/MaxChargeCurrent",
         "type": "float",
-        "name": "Charge current limit (A)",
-        "writable": true
+        "name": "Charge current limit (A)"
       }
     ]
   },
@@ -7036,14 +6974,12 @@
         "enum": {
           "0": "Locked",
           "1": "Unlocked"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/MaxCurrent",
         "type": "float",
-        "name": "Maximum charge current (A)",
-        "writable": true
+        "name": "Maximum charge current (A)"
       },
       {
         "path": "/Mode",
@@ -7053,8 +6989,7 @@
           "0": "Manual",
           "1": "Auto",
           "2": "Schedule"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Position",
@@ -7064,14 +6999,12 @@
           "0": "AC input 1",
           "1": "AC output",
           "2": "AC input 2"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/SetCurrent",
         "type": "float",
-        "name": "Set charge current (manual mode) (A)",
-        "writable": true
+        "name": "Set charge current (manual mode) (A)"
       },
       {
         "path": "/StartStop",
@@ -7080,8 +7013,7 @@
         "enum": {
           "0": "Stop",
           "1": "Start"
-        },
-        "writable": true
+        }
       }
     ]
   },
@@ -7095,8 +7027,7 @@
         "enum": {
           "0": "Autostart disabled",
           "1": "Autostart enabled"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/ManualStart",
@@ -7105,20 +7036,17 @@
         "enum": {
           "0": "Stop generator",
           "1": "Start generator"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/ManualStartTimer",
         "type": "float",
-        "name": "Set it before a manual start to make the generator run for a fixed amount of seconds. Once the generator is started it indicates the seconds left until the generator is stopped",
-        "writable": true
+        "name": "Set it before a manual start to make the generator run for a fixed amount of seconds. Once the generator is started it indicates the seconds left until the generator is stopped"
       },
       {
         "path": "/ServiceCounterReset",
         "type": "float",
-        "name": "Service countdown reset (1=Reset service counter)",
-        "writable": true
+        "name": "Service countdown reset (1=Reset service counter)"
       }
     ],
     "genset": [
@@ -7129,8 +7057,7 @@
         "enum": {
           "0": "Stop",
           "1": "Start"
-        },
-        "writable": true
+        }
       }
     ],
     "dcgenset": [
@@ -7141,8 +7068,7 @@
         "enum": {
           "0": "Stop generator",
           "1": "Start generator"
-        },
-        "writable": true
+        }
       }
     ]
   },
@@ -7162,8 +7088,26 @@
           "251": "Passthrough",
           "252": "Standby",
           "253": "Hibernate"
+        }
+      }
+    ]
+  },
+  "output-io-extender": {
+    "help": "<p>This node can be used for controlling the inverter.</p>",
+    "switch": [
+      {
+        "path": "/SwitchableOutput/pwm_1/State",
+        "type": "enum",
+        "enum": {
+          "0": "Off",
+          "1": "On"
         },
-        "writable": true
+        "name": "PWM 1 state"
+      },
+      {
+        "path": "/SwitchableOutput/pwm_1/Dimming",
+        "type": "integer",
+        "name": "PWM 1 dimming"
       }
     ]
   },
@@ -7173,20 +7117,17 @@
       {
         "path": "/Ac/In/1/CurrentLimit",
         "type": "float",
-        "name": "Ac input 1 current limit (A)",
-        "writable": true
+        "name": "Ac input 1 current limit (A)"
       },
       {
         "path": "/Ac/In/2/CurrentLimit",
         "type": "float",
-        "name": "Ac input 2 current limit (A)",
-        "writable": true
+        "name": "Ac input 2 current limit (A)"
       },
       {
         "path": "/Ess/AcPowerSetpoint",
         "type": "float",
-        "name": "ESS power setpoint (W)",
-        "writable": true
+        "name": "ESS power setpoint (W)"
       },
       {
         "path": "/Ess/DisableFeedIn",
@@ -7195,8 +7136,7 @@
         "enum": {
           "0": "Feed-in enabled",
           "1": "Feed-in disabled"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Ess/DisableCharge",
@@ -7205,14 +7145,12 @@
         "enum": {
           "0": "Charge enabled",
           "1": "Charge disabled"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/Ess/MinimumSocLimit",
         "type": "float",
-        "name": "ESS Minimum SOC Limit (%)",
-        "writable": true
+        "name": "ESS Minimum SOC Limit (%)"
       },
       {
         "path": "/Mode",
@@ -7223,8 +7161,7 @@
           "2": "Inverter Only",
           "3": "On",
           "4": "Off"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/Ess/Mode",
@@ -7235,8 +7172,7 @@
           "1": "self-consumption",
           "2": "Keep charged",
           "3": "External control"
-        },
-        "writable": true
+        }
       }
     ]
   },
@@ -7250,8 +7186,7 @@
         "enum": {
           "0": "Disabled",
           "1": "Enabled"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/Pump0/Mode",
@@ -7261,20 +7196,17 @@
           "0": "Auto",
           "1": "On",
           "2": "Off"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/Pump0/StartValue",
         "type": "float",
-        "name": "Start value (%)",
-        "writable": true
+        "name": "Start value (%)"
       },
       {
         "path": "/Settings/Pump0/StopValue",
         "type": "float",
-        "name": "Stop value (%)",
-        "writable": true
+        "name": "Stop value (%)"
       }
     ]
   },
@@ -7284,8 +7216,7 @@
       {
         "path": "/Ac/PowerLimit",
         "type": "float",
-        "name": "Power limit (W)",
-        "writable": true
+        "name": "Power limit (W)"
       }
     ]
   },
@@ -7299,8 +7230,7 @@
         "enum": {
           "0": "Open",
           "1": "Closed"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Relay/1/State",
@@ -7309,8 +7239,7 @@
         "enum": {
           "0": "Open",
           "1": "Closed"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Relay/2/State",
@@ -7319,8 +7248,7 @@
         "enum": {
           "0": "Open",
           "1": "Closed"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Relay/3/State",
@@ -7329,8 +7257,7 @@
         "enum": {
           "0": "Open",
           "1": "Closed"
-        },
-        "writable": true
+        }
       }
     ],
     "battery": [
@@ -7341,8 +7268,7 @@
         "enum": {
           "0": "Open",
           "1": "Closed"
-        },
-        "writable": true
+        }
       }
     ],
     "charger": [
@@ -7353,8 +7279,7 @@
         "enum": {
           "0": "Open",
           "1": "Closed"
-        },
-        "writable": true
+        }
       }
     ],
     "inverter": [
@@ -7365,8 +7290,7 @@
         "enum": {
           "0": "Open",
           "1": "Closed"
-        },
-        "writable": true
+        }
       }
     ],
     "multi": [
@@ -7377,8 +7301,7 @@
         "enum": {
           "0": "Open",
           "1": "Closed"
-        },
-        "writable": true
+        }
       }
     ],
     "solarcharger": [
@@ -7389,8 +7312,7 @@
         "enum": {
           "0": "Open",
           "1": "Closed"
-        },
-        "writable": true
+        }
       }
     ]
   },
@@ -7400,26 +7322,22 @@
       {
         "path": "/Settings/CGwacs/AcExportLimit",
         "type": "float",
-        "name": "AC export current limit (A)",
-        "writable": true
+        "name": "AC export current limit (A)"
       },
       {
         "path": "/Settings/CGwacs/AcInputLimit",
         "type": "float",
-        "name": "AC import limit when peakshaving",
-        "writable": true
+        "name": "AC import limit when peakshaving"
       },
       {
         "path": "/Settings/CGwacs/AcImportLimit",
         "type": "float",
-        "name": "AC import current limit (A)",
-        "writable": true
+        "name": "AC import current limit (A)"
       },
       {
         "path": "/Settings/CGwacs/AcPowerSetPoint",
         "type": "float",
-        "name": "ESS control loop setpoint (W)",
-        "writable": true
+        "name": "ESS control loop setpoint (W)"
       },
       {
         "path": "/Settings/CGwacs/AlwaysPeakShave",
@@ -7428,14 +7346,12 @@
         "enum": {
           "0": "Above minimum SOC only",
           "1": "Always"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/MinimumSocLimit",
         "type": "float",
-        "name": "ESS Minimum SoC (unless grid fails) (%)",
-        "writable": true
+        "name": "ESS Minimum SoC (unless grid fails) (%)"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/State",
@@ -7455,8 +7371,7 @@
           "10": "BL Disabled",
           "11": "BL Disabled (Low SoC)",
           "12": "BL Disabled (Low SOC recharge)"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/CGwacs/RunWithoutGridMeter",
@@ -7465,8 +7380,7 @@
         "enum": {
           "0": "External meter",
           "1": "Inverter/Charger"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/Pump0/AutoStartEnabled",
@@ -7475,8 +7389,7 @@
         "enum": {
           "0": "Disabled",
           "1": "Enabled"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/Pump0/Mode",
@@ -7486,26 +7399,22 @@
           "0": "Auto",
           "1": "On",
           "2": "Off"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/Pump0/StartValue",
         "type": "float",
-        "name": "Start value (%)",
-        "writable": true
+        "name": "Start value (%)"
       },
       {
         "path": "/Settings/Pump0/StopValue",
         "type": "float",
-        "name": "Stop value (%)",
-        "writable": true
+        "name": "Stop value (%)"
       },
       {
         "path": "/Settings/SystemSetup/MaxChargeCurrent",
         "type": "float",
-        "name": "DVCC system max charge current (A DC)",
-        "writable": true
+        "name": "DVCC system max charge current (A DC)"
       },
       {
         "path": "/Settings/CGwacs/Hub4Mode",
@@ -7515,38 +7424,32 @@
           "1": "ESS with Phase Compensation",
           "2": "ESS without phase compensation",
           "3": "Disabled/External Control"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/CGwacs/MaxChargePercentage",
         "type": "float",
-        "name": "ESS max charge current (fractional) (%)",
-        "writable": true
+        "name": "ESS max charge current (fractional) (%)"
       },
       {
         "path": "/Settings/CGwacs/MaxDischargePercentage",
         "type": "float",
-        "name": "ESS max discharge current (fractional) (%)",
-        "writable": true
+        "name": "ESS max discharge current (fractional) (%)"
       },
       {
         "path": "/Settings/CGwacs/MaxChargePower",
         "type": "float",
-        "name": "ESS max charge power (W)",
-        "writable": true
+        "name": "ESS max charge power (W)"
       },
       {
         "path": "/Settings/CGwacs/MaxDischargePower",
         "type": "float",
-        "name": "ESS max discharge power (W)",
-        "writable": true
+        "name": "ESS max discharge power (W)"
       },
       {
         "path": "/Settings/CGwacs/MaxFeedInPower",
         "type": "float",
-        "name": "Maximum System Grid Feed In (W)",
-        "writable": true
+        "name": "Maximum System Grid Feed In (W)"
       },
       {
         "path": "/Settings/CGwacs/OvervoltageFeedIn",
@@ -7555,8 +7458,7 @@
         "enum": {
           "0": "Don’t feed excess DC-tied PV into grid",
           "1": "Feed excess DC-tied PV into the grid"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/CGwacs/PreventFeedback",
@@ -7565,8 +7467,7 @@
         "enum": {
           "0": "Feed excess AC-tied PV into grid",
           "1": "Don’t feed excess AC-tied PV into the grid"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/LEDs/Enable",
@@ -7575,8 +7476,7 @@
         "enum": {
           "0": "Disabled",
           "1": "Enabled"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/SystemSetup/AcInput1",
@@ -7587,8 +7487,7 @@
           "1": "Grid",
           "2": "Genset",
           "3": "Shore"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/SystemSetup/AcInput2",
@@ -7599,14 +7498,12 @@
           "1": "Grid",
           "2": "Genset",
           "3": "Shore"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/SystemSetup/MaxChargeVoltage",
         "type": "float",
-        "name": "Limit managed battery voltage (V DC)",
-        "writable": true
+        "name": "Limit managed battery voltage (V DC)"
       }
     ]
   },
@@ -7620,14 +7517,12 @@
         "enum": {
           "1": "On",
           "4": "Off"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/ChargeCurrentLimit",
         "type": "float",
-        "name": "The maximum configured (non-volatile) charge current (A). This is the same as set by VictronConnect.",
-        "writable": true
+        "name": "The maximum configured (non-volatile) charge current (A). This is the same as set by VictronConnect."
       }
     ]
   },
@@ -7637,8 +7532,7 @@
       {
         "path": "/Ac/ActiveIn/CurrentLimit",
         "type": "float",
-        "name": "Active input current limit (A)",
-        "writable": true
+        "name": "Active input current limit (A)"
       },
       {
         "path": "/Ac/Control/RemoteGeneratorSelected",
@@ -7647,20 +7541,17 @@
         "enum": {
           "0": "Generator not selected",
           "1": "Generator selected"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Ac/In/1/CurrentLimit",
         "type": "float",
-        "name": "Input 1 current limit (A)",
-        "writable": true
+        "name": "Input 1 current limit (A)"
       },
       {
         "path": "/Ac/In/2/CurrentLimit",
         "type": "float",
-        "name": "Input 2 current limit (A)",
-        "writable": true
+        "name": "Input 2 current limit (A)"
       },
       {
         "path": "/Dc/0/PreferRenewableEnergy",
@@ -7669,20 +7560,17 @@
         "enum": {
           "0": "Renewable energy not preferred",
           "1": "Renewable energy preferred"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Devices/0/Settings/AssistCurrentBoostFactor",
         "type": "float",
-        "name": "Configured boost factor for VE.Bus unit 1",
-        "writable": true
+        "name": "Configured boost factor for VE.Bus unit 1"
       },
       {
         "path": "/Devices/0/Settings/InverterOutputVoltage",
         "type": "float",
-        "name": "Configured output voltage for VE.Bus unit 1 (V AC)",
-        "writable": true
+        "name": "Configured output voltage for VE.Bus unit 1 (V AC)"
       },
       {
         "path": "/Devices/0/Settings/PowerAssistEnabled",
@@ -7691,8 +7579,7 @@
         "enum": {
           "0": "Disabled",
           "1": "Enabled"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Hub4/DisableCharge",
@@ -7701,8 +7588,7 @@
         "enum": {
           "0": "Charge allowed",
           "1": "Charge disabled"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Hub4/DisableFeedIn",
@@ -7711,8 +7597,7 @@
         "enum": {
           "0": "Feed in allowed",
           "1": "Feed in disabled"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Hub4/DoNotFeedInOvervoltage",
@@ -7721,8 +7606,7 @@
         "enum": {
           "0": "Feed in overvoltage",
           "1": "Do not feed in overvoltage"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Hub4/FixSolarOffsetTo100mV",
@@ -7731,44 +7615,37 @@
         "enum": {
           "0": "OvervoltageFeedIn uses 1V offset",
           "1": "OvervoltageFeedIn uses 0.1V offset"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Hub4/L1/AcPowerSetpoint",
         "type": "float",
-        "name": "ESS power setpoint phase 1 (W)",
-        "writable": true
+        "name": "ESS power setpoint phase 1 (W)"
       },
       {
         "path": "/Hub4/L1/MaxFeedInPower",
         "type": "float",
-        "name": "Maximum overvoltage feed-in power L1 (W)",
-        "writable": true
+        "name": "Maximum overvoltage feed-in power L1 (W)"
       },
       {
         "path": "/Hub4/L2/AcPowerSetpoint",
         "type": "float",
-        "name": "ESS power setpoint phase 2 (W)",
-        "writable": true
+        "name": "ESS power setpoint phase 2 (W)"
       },
       {
         "path": "/Hub4/L2/MaxFeedInPower",
         "type": "float",
-        "name": "Maximum overvoltage feed-in power L2 (W)",
-        "writable": true
+        "name": "Maximum overvoltage feed-in power L2 (W)"
       },
       {
         "path": "/Hub4/L3/AcPowerSetpoint",
         "type": "float",
-        "name": "ESS power setpoint phase 3 (W)",
-        "writable": true
+        "name": "ESS power setpoint phase 3 (W)"
       },
       {
         "path": "/Hub4/L3/MaxFeedInPower",
         "type": "float",
-        "name": "Maximum overvoltage feed-in power L3 (W)",
-        "writable": true
+        "name": "Maximum overvoltage feed-in power L3 (W)"
       },
       {
         "path": "/Hub4/TargetPowerIsMaxFeedIn",
@@ -7777,8 +7654,7 @@
         "enum": {
           "0": "AcPowerSetpoint interpreted normally",
           "1": "AcPowerSetpoint is OvervoltageFeedIn limit"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Mode",
@@ -7790,8 +7666,7 @@
           "2": "Inverter Only",
           "3": "On",
           "4": "Off"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/PvInverter/Disable",
@@ -7800,8 +7675,7 @@
         "enum": {
           "0": "No",
           "1": "Yes"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/RedetectSystem",
@@ -7810,14 +7684,12 @@
         "enum": {
           "0": "No action",
           "1": "Redetect system"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/AssistCurrentBoostFactor",
         "type": "float",
-        "name": "Power Assist boost factor",
-        "writable": true
+        "name": "Power Assist boost factor"
       },
       {
         "path": "/Settings/InverterOutputVoltage",
@@ -7832,8 +7704,7 @@
         "enum": {
           "0": "Disabled",
           "1": "Enabled"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Settings/UpsFunction",
@@ -7842,14 +7713,12 @@
         "enum": {
           "0": "Disabled",
           "1": "Enabled"
-        },
-        "writable": true
+        }
       },
       {
         "path": "/Soc",
         "type": "float",
-        "name": "VE.Bus state of charge (%)",
-        "writable": true
+        "name": "VE.Bus state of charge (%)"
       },
       {
         "path": "/SystemReset",
@@ -7858,8 +7727,7 @@
         "enum": {
           "0": "No",
           "1": "Yes"
-        },
-        "writable": true
+        }
       }
     ]
   }

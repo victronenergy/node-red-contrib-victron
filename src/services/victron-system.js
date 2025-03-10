@@ -48,7 +48,7 @@ class SystemConfiguration {
           const paths = servicePaths.filter(pathObj =>
             pathObj &&
                         _.has(cachedPaths, pathObj.path) &&
-                        (!isOutput || (pathObj.writable && // output nodes need a writable property
+                        (!isOutput || (
                             // if the path has corresponding /*isAdjustable path for the service, check their value
                             // If no /*isAdjustable path is present, default to showing the path
                             (pathObj.path !== '/Mode' || _.get(cachedPaths, '/ModeIsAdjustable', 1)) && // vebus
@@ -188,6 +188,7 @@ class SystemConfiguration {
       'input-gps': this.getNodeServices('input-gps'),
       'input-gridmeter': this.getNodeServices('input-gridmeter'),
       'input-inverter': this.getNodeServices('input-inverter'),
+      'input-io-extender': this.getNodeServices('input-io-extender'),
       'input-meteo': this.getNodeServices('input-meteo'),
       'input-motordrive': this.getNodeServices('input-motordrive'),
       'input-multi': this.getNodeServices('input-multi'),
@@ -213,6 +214,7 @@ class SystemConfiguration {
       'output-evcharger': this.getNodeServices('output-evcharger'),
       'output-generator': this.getNodeServices('output-generator'),
       'output-inverter': this.getNodeServices('output-inverter'),
+      'output-io-extender': this.getNodeServices('output-io-extender'),
       'output-multi': this.getNodeServices('output-multi'),
       'output-pump': this.getNodeServices('output-pump'),
       'output-pvinverter': this.getNodeServices('output-pvinverter'),

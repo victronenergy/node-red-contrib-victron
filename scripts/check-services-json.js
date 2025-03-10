@@ -109,9 +109,6 @@ workbook.xlsx.readFile(xlsFile)
               missing.enum[x[0].trim()] = x[1].trim()
             })
           }
-
-          if (row.values[8] && row.values[8] === 'yes') { missing.writable = true }
-
           console.log(JSON.stringify(missing, null, 4))
         }
       }
