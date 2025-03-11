@@ -2876,6 +2876,85 @@ Writing a negative value to the path will de-activate the schedule.
 </dl>
 </script>
 
+<script type="text/x-red" data-help-name="victron-input-io-extender">
+<h3>Details</h3>
+<p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>The measurement unit type is shown in the measurement label in brackets, e.g. Battery voltage (V). In case the data type is enumerated, an appropriate enum legend is shown below the selected option. In this case the node will also output the enumerated textual value as <tt>msg.textvalue</tt>.</p>
+<p>If the data type is <em>float</em>, a dropdown for rounding the output appears.</p>
+<p>By default the node outputs its value every five seconds. If the <em>only changes</em> is checked, the node will only output on value changes.</p>
+<p>The <b>input-io-extender</b> node is for the usb-connected I/O extender</p>
+<h3>Switch</h3>
+<dl class="message-properties">
+  <dt class="optional">Output 1 state<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/ouput_1/State</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+  <dt class="optional">PWM 1 state<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_1/State</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+  <dt class="optional">PWM 1 dimming<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_1/Dimming</b>
+</dd>
+  <dt class="optional">PWM 2 state<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_2/State</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+  <dt class="optional">PWM 3 dimming<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_3/Dimming</b>
+</dd>
+  <dt class="optional">PWM 4 state<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_4/State</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+  <dt class="optional">PWM 1 dimming<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_1/Dimming</b>
+</dd>
+  <dt class="optional">PWM 1 state<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_1/State</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+  <dt class="optional">PWM 1 dimming<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_1/Dimming</b>
+</dd>
+  <dt class="optional">Relay 1 state<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/relay_1/State</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+  <dt class="optional">Relay 2 state<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/relay_2/State</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+  <dt class="optional">Relay 3 state<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/relay_3/State</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+</dl>
+</script>
+
 <script type="text/x-red" data-help-name="victron-input-meteo">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>The measurement unit type is shown in the measurement label in brackets, e.g. Battery voltage (V). In case the data type is enumerated, an appropriate enum legend is shown below the selected option. In this case the node will also output the enumerated textual value as <tt>msg.textvalue</tt>.</p>
@@ -5523,6 +5602,83 @@ Writing a negative value to the path will de-activate the schedule.
   <li>251 - Passthrough</li>
   <li>252 - Standby</li>
   <li>253 - Hibernate</li>
+</ul>
+</dd>
+</dl>
+</script>
+
+<script type="text/x-red" data-help-name="victron-output-io-extender">
+<h3>Details</h3>
+<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p> 
+<p>This node can be used for controlling the inverter.</p>
+<h3>Switch</h3>
+<dl class="message-properties">
+  <dt class="optional">Output 1 state<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/ouput_1/State</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+  <dt class="optional">PWM 1 state<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_1/State</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+  <dt class="optional">PWM 1 dimming<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_1/Dimming</b>
+</dd>
+  <dt class="optional">PWM 2 state<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_2/State</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+  <dt class="optional">PWM 3 dimming<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_3/Dimming</b>
+</dd>
+  <dt class="optional">PWM 4 state<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_4/State</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+  <dt class="optional">PWM 1 dimming<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_1/Dimming</b>
+</dd>
+  <dt class="optional">PWM 1 state<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_1/State</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+  <dt class="optional">PWM 1 dimming<span class="property-type">integer</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_1/Dimming</b>
+</dd>
+  <dt class="optional">Relay 1 state<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/relay_1/State</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+  <dt class="optional">Relay 2 state<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/relay_2/State</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+  <dt class="optional">Relay 3 state<span class="property-type">enum</dt>
+  <dd>Dbus path: <b>/SwitchableOutput/relay_3/State</b>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
 </ul>
 </dd>
 </dl>

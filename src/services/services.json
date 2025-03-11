@@ -3604,8 +3604,17 @@
     ]
   },
   "input-io-extender": {
-    "help": "<p>The <b>input-meteo</b> node allows for Solar Irradiance, Temperature and Wind Speed Sensors measuring.</p><p>More information and supported devices can be found in the <a href=\"https://www.victronenergy.com/media/pg/Cerbo_GX/en/installation.html#UUID-d4b7dfe9-4ee0-53bc-8959-c567ed63cebb\">manual</a>.</p>",
+    "help": "<p>The <b>input-io-extender</b> node is for the usb-connected I/O extender</p>",
     "switch": [
+      {
+        "path": "/SwitchableOutput/ouput_1/State",
+        "type": "enum",
+        "enum": {
+          "0": "Off",
+          "1": "On"
+        },
+        "name": "Output 1 state"
+      },
       {
         "path": "/SwitchableOutput/pwm_1/State",
         "type": "enum",
@@ -3619,6 +3628,75 @@
         "path": "/SwitchableOutput/pwm_1/Dimming",
         "type": "integer",
         "name": "PWM 1 dimming"
+      },
+      {
+        "path": "/SwitchableOutput/pwm_2/State",
+        "type": "enum",
+        "enum": {
+          "0": "Off",
+          "1": "On"
+        },
+        "name": "PWM 2 state"
+      },
+      {
+        "path": "/SwitchableOutput/pwm_3/Dimming",
+        "type": "integer",
+        "name": "PWM 3 dimming"
+      },
+      {
+        "path": "/SwitchableOutput/pwm_4/State",
+        "type": "enum",
+        "enum": {
+          "0": "Off",
+          "1": "On"
+        },
+        "name": "PWM 4 state"
+      },
+      {
+        "path": "/SwitchableOutput/pwm_1/Dimming",
+        "type": "integer",
+        "name": "PWM 1 dimming"
+      },
+      {
+        "path": "/SwitchableOutput/pwm_1/State",
+        "type": "enum",
+        "enum": {
+          "0": "Off",
+          "1": "On"
+        },
+        "name": "PWM 1 state"
+      },
+      {
+        "path": "/SwitchableOutput/pwm_1/Dimming",
+        "type": "integer",
+        "name": "PWM 1 dimming"
+      },
+      {
+        "path": "/SwitchableOutput/relay_1/State",
+        "type": "enum",
+        "enum": {
+          "0": "Off",
+          "1": "On"
+        },
+        "name": "Relay 1 state"
+      },
+      {
+        "path": "/SwitchableOutput/relay_2/State",
+        "type": "enum",
+        "enum": {
+          "0": "Off",
+          "1": "On"
+        },
+        "name": "Relay 2 state"
+      },
+      {
+        "path": "/SwitchableOutput/relay_3/State",
+        "type": "enum",
+        "enum": {
+          "0": "Off",
+          "1": "On"
+        },
+        "name": "Relay 3 state"
       }
     ]
   },
@@ -7096,6 +7174,15 @@
     "help": "<p>This node can be used for controlling the inverter.</p>",
     "switch": [
       {
+        "path": "/SwitchableOutput/ouput_1/State",
+        "type": "enum",
+        "enum": {
+          "0": "Off",
+          "1": "On"
+        },
+        "name": "Output 1 state"
+      },
+      {
         "path": "/SwitchableOutput/pwm_1/State",
         "type": "enum",
         "enum": {
@@ -7108,6 +7195,75 @@
         "path": "/SwitchableOutput/pwm_1/Dimming",
         "type": "integer",
         "name": "PWM 1 dimming"
+      },
+      {
+        "path": "/SwitchableOutput/pwm_2/State",
+        "type": "enum",
+        "enum": {
+          "0": "Off",
+          "1": "On"
+        },
+        "name": "PWM 2 state"
+      },
+      {
+        "path": "/SwitchableOutput/pwm_3/Dimming",
+        "type": "integer",
+        "name": "PWM 3 dimming"
+      },
+      {
+        "path": "/SwitchableOutput/pwm_4/State",
+        "type": "enum",
+        "enum": {
+          "0": "Off",
+          "1": "On"
+        },
+        "name": "PWM 4 state"
+      },
+      {
+        "path": "/SwitchableOutput/pwm_1/Dimming",
+        "type": "integer",
+        "name": "PWM 1 dimming"
+      },
+      {
+        "path": "/SwitchableOutput/pwm_1/State",
+        "type": "enum",
+        "enum": {
+          "0": "Off",
+          "1": "On"
+        },
+        "name": "PWM 1 state"
+      },
+      {
+        "path": "/SwitchableOutput/pwm_1/Dimming",
+        "type": "integer",
+        "name": "PWM 1 dimming"
+      },
+      {
+        "path": "/SwitchableOutput/relay_1/State",
+        "type": "enum",
+        "enum": {
+          "0": "Off",
+          "1": "On"
+        },
+        "name": "Relay 1 state"
+      },
+      {
+        "path": "/SwitchableOutput/relay_2/State",
+        "type": "enum",
+        "enum": {
+          "0": "Off",
+          "1": "On"
+        },
+        "name": "Relay 2 state"
+      },
+      {
+        "path": "/SwitchableOutput/relay_3/State",
+        "type": "enum",
+        "enum": {
+          "0": "Off",
+          "1": "On"
+        },
+        "name": "Relay 3 state"
       }
     ]
   },
