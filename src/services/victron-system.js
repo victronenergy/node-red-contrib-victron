@@ -20,7 +20,7 @@ class SystemConfiguration {
      * Filter the dbus cache for available device services.
      */
   getNodeServices (nodeName) {
-    const servicesWhitelist = _.get(utils.SERVICES, [nodeName])
+    const servicesWhitelist = _.get(utils.SERVICES, [nodeName.replace(/^(input-|output-)/g, '')]);
     const isOutput = nodeName.startsWith('output')
 
     return Object.entries(servicesWhitelist)
@@ -44,7 +44,6 @@ class SystemConfiguration {
 
           // the cache is filtered against the desired paths in services.json
           // to only show available options per service on the node's edit form.
-
           const paths = servicePaths.filter(pathObj =>
             pathObj &&
                         _.has(cachedPaths, pathObj.path) &&
@@ -55,7 +54,12 @@ class SystemConfiguration {
                             (pathObj.path !== '/Ac/In/1/CurrentLimit' || _.get(cachedPaths, '/Ac/In/1/CurrentLimitIsAdjustable', 1)) && // vebus
                             (pathObj.path !== '/Ac/In/2/CurrentLimit' || _.get(cachedPaths, '/Ac/In/2/CurrentLimitIsAdjustable', 1)) // vebus
                         )
-                        )
+                        ) &&
+                        // Check if the path is available for the node type (input/output) based on the mode property
+                        (!pathObj.mode || // If no mode is specified, include by default
+                         pathObj.mode === 'both' || // Include if mode is both
+                         (isOutput && pathObj.mode === 'output') || // Include if output node and mode is output
+                         (!isOutput && pathObj.mode === 'input')) // Include if input node and mode is input
           )
 
           const deviceInstance = cachedPaths['/DeviceInstance'] || ''
