@@ -162,11 +162,17 @@ module.exports = function (RED) {
           // set the status. Or better even, set the status to something like "busy..." or "working..." while the
           // dbus call is happening.
           if (value === null) {
-            this.client.publish(this.service, writepath, value)
+            this.client.publish(this.service, writepath, value, (err) => {
+              this.node.status({
+                fill: err ? 'red' : 'green',
+                shape,
+                text: err ? (err.message || 'An unknown error occurred.') : 'Set to null'
+              })
+            })
             this.node.status({
-              fill: 'green',
+              fill: 'yellow',
               shape,
-              text: 'set to null'
+              text: 'Setting to null'
             })
             return
           }
