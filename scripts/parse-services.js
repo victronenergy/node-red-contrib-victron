@@ -177,9 +177,6 @@ function parseCSVData (additionalData) {
           enum: attribute.enum
         }
 
-        // add "writable": true for whitelisted output nodes
-        if (nodeName.startsWith('output')) pathObj.writable = true
-
         return pathObj
       })
     })

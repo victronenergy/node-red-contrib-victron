@@ -267,8 +267,7 @@
                 {
                     "path": "/Ac/In/1/CurrentLimit",
                     "type": "float",
-                    "name": "Input 1 current limit (A)",
-                    "writable": true
+                    "name": "Input 1 current limit (A)"
                 },
                 {
                     "path": "/Mode",
@@ -279,8 +278,7 @@
                         "2": "Inverter Only",
                         "3": "On",
                         "4": "Off"
-                    },
-                    "writable": true
+                    }
                 }
             ]
         },
@@ -293,8 +291,7 @@
                 "2": "Inverter Only",
                 "3": "On",
                 "4": "Off"
-            },
-            "writable": true
+            }
         },
         "initial": "",
         "name": "",
