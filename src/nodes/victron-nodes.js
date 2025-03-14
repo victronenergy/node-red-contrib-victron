@@ -99,7 +99,7 @@ module.exports = function (RED) {
             text = `${msg.value} (${this.node.pathObj.enum[msg.value]})`
           }
           this.node.send(outmsg)
-          if (this.configNode && (this.configNode.showValues || typeof this.configNode.showValues === 'undefined')) {
+          if (this.configNode.showValues !== false) {
             this.node.status({ fill: 'green', shape: 'dot', text })
           }
           if (!this.sentInitialValue) {
@@ -155,17 +155,20 @@ module.exports = function (RED) {
         }
 
         if (!this.pathObj.disabled && this.service && writepath) {
-          // If the value is null, just call. (experimental)
-          // Note: i t's not ideal that we set the status before the call to dbus (via this.client.publish()) has happened.
-          // Error handling and feedback might be better, if we wait for the dbus call to return, and then only
-          // set the status. Or better even, set the status to something like "busy..." or "working..." while the
-          // dbus call is happening.
+
+          // If the value is null, just call.
           if (value === null) {
-            this.client.publish(this.service, writepath, value)
+            this.client.publish(this.service, writepath, value, (err) => {
+              this.node.status({
+                fill: err ? 'red' : 'green',
+                shape,
+                text: err ? (err.message || 'An unknown error occurred.') : 'Set to null'
+              })
+            })
             this.node.status({
-              fill: 'green',
+              fill: 'yellow',
               shape,
-              text: 'Set to null'
+              text: 'Setting to null...'
             })
             return
           }
@@ -191,18 +194,19 @@ module.exports = function (RED) {
             return
           }
 
-          this.client.publish(this.service, writepath, value)
-          let text = value
-          if (this.pathObj.type === 'enum') {
-            text = `${value} (${this.pathObj.enum[value]})`
-          }
-          if (this.configNode && (this.configNode.showValues || typeof this.configNode.showValues === 'undefined')) {
+          const text = this.pathObj.type === 'enum' ? `${value} (${this.pathObj.enum[value]})` : value
+          this.client.publish(this.service, writepath, value, (err) => {
             this.node.status({
-              fill: 'green',
+              fill: err ? 'red' : 'green',
               shape,
-              text
+              text: err ? (err.message || 'An unknown error occurred') : (this.configNode.showValues === false ? undefined : text)
             })
-          }
+          })
+          this.node.status({
+            fill: 'yellow',
+            shape,
+            text: 'Setting value...'
+          })
         }
       }
 

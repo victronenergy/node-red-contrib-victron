@@ -158,12 +158,16 @@ class VictronClient {
      * @param {string} path specific path to publish to, e.g. /Relay/0/State
      * @param {string} value value to write to the given dbus service, e.g. 1
      */
-  publish (dbusInterface, path, value) {
+  publish (dbusInterface, path, value, cb) {
     if (this.client && this.client.connected) {
       debug(`[PUBLISH] ${dbusInterface} ${path} | ${value}`)
-      this.client.setValue(dbusInterface, path, value)
+      this.client.setValue(dbusInterface, path, value, cb)
+      return
     } else {
-      console.error('Not connected to dbus. Publish was unsuccessful.')
+      const message = 'Not connected to dbus. Publish was unsuccessful.'
+      console.error(message)
+      if (cb) process.nextTick(() => cb(new Error(message)))
+      return
     }
   }
 }

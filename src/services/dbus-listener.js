@@ -322,7 +322,7 @@ class VictronDbusListener {
     })
   }
 
-  setValue (destination, path, value) {
+  setValue (destination, path, value, cb) {
     let numType = 'd'
 
     // Check if we need to find the full path
@@ -343,6 +343,7 @@ class VictronDbusListener {
     },
     err => {
       if (err) console.error(`Error setting value for ${destination}, ${path}, ${value}: ${err}`)
+      if (cb) cb(err)
     }
     )
   }
