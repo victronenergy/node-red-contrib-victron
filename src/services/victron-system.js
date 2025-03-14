@@ -20,7 +20,7 @@ class SystemConfiguration {
      * Filter the dbus cache for available device services.
      */
   getNodeServices (nodeName) {
-    const servicesWhitelist = _.get(utils.SERVICES, [nodeName.replace(/^(input-|output-)/g, '')]);
+    const servicesWhitelist = _.get(utils.SERVICES, [nodeName.replace(/^(input-|output-)/g, '')])
     const isOutput = nodeName.startsWith('output')
 
     return Object.entries(servicesWhitelist)
@@ -48,9 +48,9 @@ class SystemConfiguration {
             pathObj &&
                         _.has(cachedPaths, pathObj.path) &&
                         (!isOutput || (
-                            // if the path has corresponding /*isAdjustable path for the service, check their value
-                            // If no /*isAdjustable path is present, default to showing the path
-                            (pathObj.path !== '/Mode' || _.get(cachedPaths, '/ModeIsAdjustable', 1)) && // vebus
+                        // if the path has corresponding /*isAdjustable path for the service, check their value
+                        // If no /*isAdjustable path is present, default to showing the path
+                          (pathObj.path !== '/Mode' || _.get(cachedPaths, '/ModeIsAdjustable', 1)) && // vebus
                             (pathObj.path !== '/Ac/In/1/CurrentLimit' || _.get(cachedPaths, '/Ac/In/1/CurrentLimitIsAdjustable', 1)) && // vebus
                             (pathObj.path !== '/Ac/In/2/CurrentLimit' || _.get(cachedPaths, '/Ac/In/2/CurrentLimitIsAdjustable', 1)) // vebus
                         )

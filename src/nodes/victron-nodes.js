@@ -155,7 +155,6 @@ module.exports = function (RED) {
         }
 
         if (!this.pathObj.disabled && this.service && writepath) {
-
           // If the value is null, just call. (experimental)
           // Note: i t's not ideal that we set the status before the call to dbus (via this.client.publish()) has happened.
           // Error handling and feedback might be better, if we wait for the dbus call to return, and then only

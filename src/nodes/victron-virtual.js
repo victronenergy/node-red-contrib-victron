@@ -86,7 +86,8 @@ const properties = {
   },
   switch: {
     Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
-    State: { type: 'i',
+    State: {
+      type: 'i',
       format: (v) => ({
         0: 'Off',
         1: 'On'
@@ -364,28 +365,37 @@ module.exports = function (RED) {
         }
         case 'switch': {
           const properties = [
-            { name: 'State', type: 'i', format: (v) => ({
-              0: 'Off',
-              1: 'On'
-            }[v] || 'unknown') },
-            { name: 'Status', type: 'i', format: (v) => v != null ? v : '' },
+            {
+              name: 'State',
+              type: 'i',
+              format: (v) => ({
+                0: 'Off',
+                1: 'On'
+              }[v] || 'unknown')
+            },
+            { name: 'Status', type: 'i', format: (v) => v != null ? v : '' }
           ]
-          for (let i = 1; i <=  Number(config.switch_nrofoutput ?? 0); i++) {
+          for (let i = 1; i <= Number(config.switch_nrofoutput ?? 0); i++) {
             properties.forEach(({ name, type }) => {
               const key = `SwitchableOutput/output_${i}/${name}`
               ifaceDesc.properties[key] = {
-                type: type,
+                type
               }
               iface[key] = 0
             })
           }
-          properties.push({ name: 'Dimming', min: 0, max: 100, type: 'd',
-            format: (v) => v != null ? v.toFixed(1) + '%' : '' })
-          for (let i = 1; i <=  Number(config.switch_nrofpwm ?? 0); i++) {
+          properties.push({
+            name: 'Dimming',
+            min: 0,
+            max: 100,
+            type: 'd',
+            format: (v) => v != null ? v.toFixed(1) + '%' : ''
+          })
+          for (let i = 1; i <= Number(config.switch_nrofpwm ?? 0); i++) {
             properties.forEach(({ name, type, format, min, max }) => {
               const key = `SwitchableOutput/pwm_${i}/${name}`
               ifaceDesc.properties[key] = {
-                type: type, format: format
+                type, format
               }
               if (min != null) {
                 ifaceDesc.properties[key].min = min
