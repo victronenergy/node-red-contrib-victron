@@ -162,12 +162,10 @@ class VictronClient {
     if (this.client && this.client.connected) {
       debug(`[PUBLISH] ${dbusInterface} ${path} | ${value}`)
       this.client.setValue(dbusInterface, path, value, cb)
-      return
     } else {
       const message = 'Not connected to dbus. Publish was unsuccessful.'
       console.error(message)
       if (cb) process.nextTick(() => cb(new Error(message)))
-      return
     }
   }
 }

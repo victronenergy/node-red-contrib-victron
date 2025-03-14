@@ -155,7 +155,6 @@ module.exports = function (RED) {
         }
 
         if (!this.pathObj.disabled && this.service && writepath) {
-
           // If the value is null, just call.
           if (value === null) {
             this.client.publish(this.service, writepath, value, (err) => {
