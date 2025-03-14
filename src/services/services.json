@@ -4106,6 +4106,11 @@
     },
     "meteo": [
       {
+        "path": "/BatteryVoltage",
+        "type": "float",
+        "name": "SBattery voltage (V)"
+      },
+      {
         "path": "/CellTemperature",
         "type": "float",
         "name": "Sensor cell temperature (°C)"
@@ -4121,14 +4126,34 @@
         "name": "External temperature – second sensor (Degrees celsius)"
       },
       {
+        "path": "/InstallationPower",
+        "type": "float",
+        "name": "Installation power (W)"
+      },
+      {
         "path": "/Irradiance",
         "type": "float",
         "name": "Solar Irradiance (W/m^2)"
       },
       {
+        "path": "/TimeSinceLastSun",
+        "type": "integer",
+        "name": "Minutes since sunset"
+      },
+      {
+        "path": "/TodaysYield",
+        "type": "float",
+        "name": "Todays yield (kWh)"
+      },
+      {
         "path": "/WindSpeed",
         "type": "float",
         "name": "Wind speed (m/s)"
+      },
+      {
+        "path": "/WindDirection",
+        "type": "integer",
+        "name": "Wind direction (°)"
       }
     ]
   },

@@ -3133,7 +3133,63 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 <h3>Switch</h3>
 <dl class="message-properties">
   <dt class="optional">Output 1 state<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/SwitchableOutput/ouput_1/State</b> <span class="property-mode">(Mode: both)</span>
+  <dd>Dbus path: <b>/SwitchableOutput/output_1/State</b> <span class="property-mode">(Mode: both)</span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+
+  <dt class="optional">Output 2 state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SwitchableOutput/output_2/State</b> <span class="property-mode">(Mode: both)</span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+
+  <dt class="optional">Output 3 state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SwitchableOutput/output_3/State</b> <span class="property-mode">(Mode: both)</span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+
+  <dt class="optional">Output 4 state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SwitchableOutput/output_4/State</b> <span class="property-mode">(Mode: both)</span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+
+  <dt class="optional">Output 5 state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SwitchableOutput/output_5/State</b> <span class="property-mode">(Mode: both)</span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+
+  <dt class="optional">Output 6 state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SwitchableOutput/output_6/State</b> <span class="property-mode">(Mode: both)</span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+
+  <dt class="optional">Output 7 state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SwitchableOutput/output_7/State</b> <span class="property-mode">(Mode: both)</span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+
+  <dt class="optional">Output 8 state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SwitchableOutput/output_8/State</b> <span class="property-mode">(Mode: both)</span>
 <ul>
   <li>0 - Off</li>
   <li>1 - On</li>
@@ -3159,6 +3215,17 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 </ul>
 </dd>
 
+  <dt class="optional">PWM 2 dimming<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_2/Dimming</b> <span class="property-mode">(Mode: both)</span></dd>
+
+  <dt class="optional">PWM 3 state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_3/State</b> <span class="property-mode">(Mode: both)</span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+
   <dt class="optional">PWM 3 dimming<span class="property-type">integer</span></dt>
   <dd>Dbus path: <b>/SwitchableOutput/pwm_3/Dimming</b> <span class="property-mode">(Mode: both)</span></dd>
 
@@ -3170,19 +3237,8 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 </ul>
 </dd>
 
-  <dt class="optional">PWM 1 dimming<span class="property-type">integer</span></dt>
-  <dd>Dbus path: <b>/SwitchableOutput/pwm_1/Dimming</b> <span class="property-mode">(Mode: both)</span></dd>
-
-  <dt class="optional">PWM 1 state<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/SwitchableOutput/pwm_1/State</b> <span class="property-mode">(Mode: both)</span>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - On</li>
-</ul>
-</dd>
-
-  <dt class="optional">PWM 1 dimming<span class="property-type">integer</span></dt>
-  <dd>Dbus path: <b>/SwitchableOutput/pwm_1/Dimming</b> <span class="property-mode">(Mode: both)</span></dd>
+  <dt class="optional">PWM 4 dimming<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_4/Dimming</b> <span class="property-mode">(Mode: both)</span></dd>
 
   <dt class="optional">Relay 1 state<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/SwitchableOutput/relay_1/State</b> <span class="property-mode">(Mode: both)</span>
@@ -3219,6 +3275,9 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 <p>The <b>meteo</b> node allows for Solar Irradiance, Temperature and Wind Speed Sensors measuring.</p><p>More information and supported devices can be found in the <a href="https://www.victronenergy.com/media/pg/Cerbo_GX/en/installation.html#UUID-d4b7dfe9-4ee0-53bc-8959-c567ed63cebb">manual</a>.</p>
 <h3>Meteo</h3>
 <dl class="message-properties">
+  <dt class="optional">SBattery voltage (V)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/BatteryVoltage</b></dd>
+
   <dt class="optional">Sensor cell temperature (°C)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/CellTemperature</b></dd>
 
@@ -3228,11 +3287,23 @@ Writing a negative value to the path will de-activate the schedule.</dd>
   <dt class="optional">External temperature – second sensor (Degrees celsius)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/ExternalTemperature2</b></dd>
 
+  <dt class="optional">Installation power (W)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/InstallationPower</b></dd>
+
   <dt class="optional">Solar Irradiance (W/m^2)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Irradiance</b></dd>
 
+  <dt class="optional">Minutes since sunset<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/TimeSinceLastSun</b></dd>
+
+  <dt class="optional">Todays yield (kWh)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/TodaysYield</b></dd>
+
   <dt class="optional">Wind speed (m/s)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/WindSpeed</b></dd>
+
+  <dt class="optional">Wind direction (°)<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/WindDirection</b></dd>
 
 </dl>
 </script>
@@ -7619,7 +7690,63 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 <h3>Switch</h3>
 <dl class="message-properties">
   <dt class="optional">Output 1 state<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/SwitchableOutput/ouput_1/State</b> <span class="property-mode">(Mode: both)</span>
+  <dd>Dbus path: <b>/SwitchableOutput/output_1/State</b> <span class="property-mode">(Mode: both)</span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+
+  <dt class="optional">Output 2 state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SwitchableOutput/output_2/State</b> <span class="property-mode">(Mode: both)</span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+
+  <dt class="optional">Output 3 state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SwitchableOutput/output_3/State</b> <span class="property-mode">(Mode: both)</span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+
+  <dt class="optional">Output 4 state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SwitchableOutput/output_4/State</b> <span class="property-mode">(Mode: both)</span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+
+  <dt class="optional">Output 5 state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SwitchableOutput/output_5/State</b> <span class="property-mode">(Mode: both)</span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+
+  <dt class="optional">Output 6 state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SwitchableOutput/output_6/State</b> <span class="property-mode">(Mode: both)</span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+
+  <dt class="optional">Output 7 state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SwitchableOutput/output_7/State</b> <span class="property-mode">(Mode: both)</span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+
+  <dt class="optional">Output 8 state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SwitchableOutput/output_8/State</b> <span class="property-mode">(Mode: both)</span>
 <ul>
   <li>0 - Off</li>
   <li>1 - On</li>
@@ -7645,6 +7772,17 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 </ul>
 </dd>
 
+  <dt class="optional">PWM 2 dimming<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_2/Dimming</b> <span class="property-mode">(Mode: both)</span></dd>
+
+  <dt class="optional">PWM 3 state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_3/State</b> <span class="property-mode">(Mode: both)</span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul>
+</dd>
+
   <dt class="optional">PWM 3 dimming<span class="property-type">integer</span></dt>
   <dd>Dbus path: <b>/SwitchableOutput/pwm_3/Dimming</b> <span class="property-mode">(Mode: both)</span></dd>
 
@@ -7656,19 +7794,8 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 </ul>
 </dd>
 
-  <dt class="optional">PWM 1 dimming<span class="property-type">integer</span></dt>
-  <dd>Dbus path: <b>/SwitchableOutput/pwm_1/Dimming</b> <span class="property-mode">(Mode: both)</span></dd>
-
-  <dt class="optional">PWM 1 state<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/SwitchableOutput/pwm_1/State</b> <span class="property-mode">(Mode: both)</span>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - On</li>
-</ul>
-</dd>
-
-  <dt class="optional">PWM 1 dimming<span class="property-type">integer</span></dt>
-  <dd>Dbus path: <b>/SwitchableOutput/pwm_1/Dimming</b> <span class="property-mode">(Mode: both)</span></dd>
+  <dt class="optional">PWM 4 dimming<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/SwitchableOutput/pwm_4/Dimming</b> <span class="property-mode">(Mode: both)</span></dd>
 
   <dt class="optional">Relay 1 state<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/SwitchableOutput/relay_1/State</b> <span class="property-mode">(Mode: both)</span>

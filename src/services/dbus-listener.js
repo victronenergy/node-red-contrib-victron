@@ -32,7 +32,7 @@ function searchHaystack (stack, needle, fallback) {
   for (const key in stack) {
     if (stack[key].deviceInstance === Number(needle) &&
         stack[key].name === fallback) {
-      return stack[key].name;
+      return stack[key].name
     }
   }
 
@@ -40,19 +40,19 @@ function searchHaystack (stack, needle, fallback) {
   // by checking if the service name starts with the fallback + "."
   for (const key in stack) {
     if (stack[key].deviceInstance === Number(needle) &&
-        stack[key].name.startsWith(fallback + ".")) {
-      return stack[key].name;
+        stack[key].name.startsWith(fallback + '.')) {
+      return stack[key].name
     }
   }
 
   // If no match at all, then try more loosely matching by service type
-  const serviceParts = fallback.split(".");
-  const serviceType = serviceParts[serviceParts.length - 1]; // Get the last part
+  const serviceParts = fallback.split('.')
+  const serviceType = serviceParts[serviceParts.length - 1] // Get the last part
 
   for (const key in stack) {
     if (stack[key].deviceInstance === Number(needle) &&
-        stack[key].name.includes("." + serviceType + ".")) {
-      return stack[key].name;
+        stack[key].name.includes('.' + serviceType + '.')) {
+      return stack[key].name
     }
   }
   return fallback

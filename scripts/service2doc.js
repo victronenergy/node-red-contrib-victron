@@ -3,7 +3,7 @@
 
 const fs = require('fs')
 const _ = require('lodash')
-const path = require('path')
+// const path = require('path')
 
 const argv = require('yargs/yargs')(process.argv.slice(2))
   .usage('Usage: $0 -s services.json -o [md|nodered]')
@@ -24,17 +24,17 @@ const argv = require('yargs/yargs')(process.argv.slice(2))
   .argv
 
 // Helper function to output based on format
-function output(text) {
+function output (text) {
   console.log(text)
 }
 
 // Helper function to get node name from service name
-function getNodeName(service, isOutput) {
+function getNodeName (service, isOutput) {
   return `victron-${isOutput ? 'output' : 'input'}-${service}`
 }
 
 // Helper function to get display name for node
-function getDisplayName(service, isOutput) {
+function getDisplayName (service, isOutput) {
   // Convert camelCase or hyphenated names to Title Case
   const baseName = service
     .replace(/[-_]/g, ' ')
@@ -45,14 +45,14 @@ function getDisplayName(service, isOutput) {
 }
 
 // Helper function to filter paths based on node type
-function filterPathsByMode(paths, isOutput) {
+function filterPathsByMode (paths, isOutput) {
   return Object.entries(paths).reduce((result, [key, pathObj]) => {
     // Check if path should be included based on mode
-    const includeForMode = 
+    const includeForMode =
       !pathObj.mode || // No mode specified - include by default
       pathObj.mode === 'both' || // Both input and output
       (isOutput && pathObj.mode === 'output') || // Output node and output mode
-      (!isOutput && pathObj.mode === 'input'); // Input node and input mode
+      (!isOutput && pathObj.mode === 'input') // Input node and input mode
 
     if (includeForMode) {
       result[key] = pathObj
@@ -63,7 +63,7 @@ function filterPathsByMode(paths, isOutput) {
 }
 
 // Helper function to format a path for documentation
-function formatPath(pathObj, format) {
+function formatPath (pathObj, format) {
   if (!pathObj) return ''
 
   if (format === 'md') {
@@ -120,7 +120,7 @@ function formatPath(pathObj, format) {
 }
 
 // Helper function to format help text
-function formatHelp(help, isOutput, format) {
+function formatHelp (help, isOutput, format) {
   if (!help) return ''
 
   let helpText = ''
@@ -151,7 +151,7 @@ function formatHelp(help, isOutput, format) {
 }
 
 // Main function to generate documentation
-async function generateDocs() {
+async function generateDocs () {
   try {
     // Read services.json
     const servicesData = fs.readFileSync(argv.services, 'utf8')
@@ -167,7 +167,7 @@ async function generateDocs() {
       if (serviceName.startsWith('_')) continue
 
       // Check if this service has any help information
-      const hasHelp = serviceData.help !== undefined
+      // const hasHelp = serviceData.help !== undefined
 
       // Check if service has any output-compatible paths
       let hasOutputPaths = false
@@ -364,7 +364,6 @@ async function generateDocs() {
       output('The custom nodes also have 2 selectable inputs: the (dbus) service and the (dbus) path.')
       output('This obviously comes with a risk, as not all services and paths are supposed to be written to. So only use the custom output node if you have read the documentation and know what you are doing. Also note that used services and paths might change, so there is no guarantee that a node will remain functional after a Venus firmware update.')
     }
-
   } catch (err) {
     console.error('Error:', err.message)
     process.exit(1)
