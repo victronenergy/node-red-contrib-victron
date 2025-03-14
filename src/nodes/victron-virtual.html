@@ -15,7 +15,7 @@
 
     function checkSelectedVirtualDevice() {
         [
-            'battery', 'gps', 'grid', 'pvinverter', 'tank', 'temperature'
+            'battery', 'gps', 'grid', 'pvinverter', 'switch', 'tank', 'temperature'
         ].map( x => { $('.input-'+x).hide() })
         const selected = $('select#node-input-device').val()
         $('.input-'+selected).show()
@@ -57,6 +57,9 @@
             // pvinverter
             position: { value: 0, required: false},
             pvinverter_nrofphases: {value: 1, required: false},
+            // switch
+            switch_nrofoutput: {value: 1, required: false},
+            switch_nrofpwm: {value: 1, required: false},
             // tank
             fluid_type: { value: 0, required: false},
             include_tank_battery: { value: false },
@@ -97,6 +100,7 @@
             <option value="grid">Grid meter</option>
             <option value="meteo">Meteo</option>
             <option value="pvinverter">PV inverter</option>
+            <option value="switch">Switch</option>
             <option value="tank">Tank sensor</option>
             <option value="temperature">Temperature sensor</option>
         </select>
@@ -190,6 +194,26 @@
             </select>
         </div>        
     </div>
+
+    <div class="input-switch">
+        <div class="form-row">
+            <label for="node-input-switch_nrofoutput"><i class="fa fa-plug"></i> Nr of outputs</label>
+            <select id="node-input-switch_nrofoutput">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
+        </div>
+        <div class="form-row">
+            <label for="node-input-switch_nrofpwm"><i class="fa fa-plug"></i> Nr of pwms</label>
+            <select id="node-input-switch_nrofpwm">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
+        </div>
+    </div>
+
     <div class="input-temperature">
         <div class="form-row">
             <label for="node-input-temperature_type"><i class="fa fa-thermometer-half"></i> Temperature type</label>
@@ -259,6 +283,7 @@ device type needs to be selected. At the moment the system supports:
 - Grid meter
 - Meteo
 - PV inverter
+- Switch
 - Tank sensor
 - Temperature sensor
 
@@ -334,6 +359,18 @@ For the PV inverter you can set the position of the inverter. This can be:
 You can also set the number of phases that are available on the device. Do
 note that changing this number while the device has been deployed is will not
 result in the extra phases being created. They are only created during deployment.
+
+### Switch
+
+For the switch you can set the number of outputs and the number of PWMs, which
+is just a dimmable variant output port.
+
+This follows the same logic as the actual IO Extender GX 150. You cannot set
+the port as a relay, but as that is virtually the same as an output port, you
+should use the output port for that.
+
+Which also means that you can use the I/O extender nodes to read from and control
+the virtual switch.
 
 ### Tank sensor
 

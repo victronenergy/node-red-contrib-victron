@@ -84,6 +84,15 @@ const properties = {
     WindSpeed: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'm/s' : '' },
     WindDirection: { type: 'i' }
   },
+  switch: {
+    Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
+    State: { type: 'i',
+      format: (v) => ({
+        0: 'Off',
+        1: 'On'
+      }[v] || 'unknown')
+    }
+  },
   tank: {
     'Alarms/High/Active': { type: 'd' },
     'Alarms/High/Delay': { type: 'd' },
@@ -351,6 +360,43 @@ module.exports = function (RED) {
             iface.StatusCode = 0
           }
           text = `Virtual ${iface.NrOfPhases}-phase pvinverter`
+          break
+        }
+        case 'switch': {
+          const properties = [
+            { name: 'State', type: 'i', format: (v) => ({
+              0: 'Off',
+              1: 'On'
+            }[v] || 'unknown') },
+            { name: 'Status', type: 'i', format: (v) => v != null ? v : '' },
+          ]
+          for (let i = 1; i <=  Number(config.switch_nrofoutput ?? 0); i++) {
+            properties.forEach(({ name, type }) => {
+              const key = `SwitchableOutput/output_${i}/${name}`
+              ifaceDesc.properties[key] = {
+                type: type,
+              }
+              iface[key] = 0
+            })
+          }
+          properties.push({ name: 'Dimming', min: 0, max: 100, type: 'd',
+            format: (v) => v != null ? v.toFixed(1) + '%' : '' })
+          for (let i = 1; i <=  Number(config.switch_nrofpwm ?? 0); i++) {
+            properties.forEach(({ name, type, format, min, max }) => {
+              const key = `SwitchableOutput/pwm_${i}/${name}`
+              ifaceDesc.properties[key] = {
+                type: type, format: format
+              }
+              if (min != null) {
+                ifaceDesc.properties[key].min = min
+              }
+              if (max != null) {
+                ifaceDesc.properties[key].max = max
+              }
+              iface[key] = 0
+            })
+          }
+          text = `Virtual switch ${config.switch_nrofoutput} outputs, ${config.switch_nrofpwm} PWMs`
           break
         }
         case 'tank':

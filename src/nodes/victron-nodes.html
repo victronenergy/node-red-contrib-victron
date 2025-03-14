@@ -132,6 +132,10 @@
         var buildOption = function buildOption(service) {
             var optionText = service.name;
 
+            if (service.deviceInstance) {
+                optionText += ` (${service.deviceInstance})`;
+            }
+
             if (service.value === null) {
                 optionText += " - (null)";
             }
