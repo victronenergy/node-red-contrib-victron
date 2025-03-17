@@ -3915,9 +3915,9 @@
       }
     ]
   },
-  "io-extender": {
+  "switch": {
     "help": {
-      "both": "<p>The <b>io-extender</b> node is for the usb-connected I/O extender</p>",
+      "both": "<p>The <b>switch</b> node can be used for the usb-connected I/O extender.</p>",
       "input": "",
       "output": ""
     },
