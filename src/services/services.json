@@ -4093,7 +4093,7 @@
           "0": "Off",
           "1": "On"
         },
-        "name": "Relay 3 state",
+        "name": "Solid switch state",
         "mode": "both"
       }
     ]
