@@ -365,7 +365,7 @@
                     var selectedValue = $('#node-input-initial-enum').val();
                     // Only save if a real value is selected (not the "Don't set" option)
                     if (selectedValue !== null && selectedValue !== '') {
-                        node.initial = selectedValue;
+                        node.initial = parseInt(selectedValue);
                     }
                     break;
                     
