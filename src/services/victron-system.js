@@ -80,7 +80,7 @@ class SystemConfiguration {
       const pathObjects = paths.map(p => {
         const svc = service.split('.')[2].split('/')[0] // com.victronenergy.system => system
 
-        const relayObject = _.find(_.get(utils.SERVICES, ['output-relay', svc]), { path: p })
+        const relayObject = _.find(_.get(utils.SERVICES, ['relay', svc]), { path: p })
 
         if (!relayObject) { console.error(`A relay path specification '${p}' is missing in services.json for service ${svc}.`) }
 
