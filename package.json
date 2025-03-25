@@ -11,7 +11,7 @@
         "standard": "^17.1.2"
     },
     "files": [
-        "exxamples",
+        "examples",
         "src",
         "LICENSE"
     ],
