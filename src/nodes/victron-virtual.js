@@ -27,7 +27,11 @@ const properties = {
       format: (v) => ({
         0: 'Battery',
         1: 'Fridge',
-        2: 'Generic'
+        2: 'Generic',
+        3: 'Room',
+        4: 'Outdoor',
+        5: 'WaterHeater',
+        6: 'Freezer'
       }[v] || 'unknown')
     },
     Pressure: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'hPa' : '' },

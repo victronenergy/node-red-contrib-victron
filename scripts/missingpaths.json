@@ -572,7 +572,11 @@
             "enum": {
                 "0": "battery",
                 "1": "fridge",
-                "2": "generic"
+                "2": "generic",
+                "3": "room;",
+                "4": "outdoor",
+                "5": "waterheater",
+                "6": "freezer"
             }
         }
     },
