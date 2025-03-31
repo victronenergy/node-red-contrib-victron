@@ -13,6 +13,7 @@ const properties = {
     'Info/MaxChargeVoltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
     'Info/MaxChargeCurrent': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
     'Info/MaxDischargeCurrent': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
+    'Info/ChargeRequest': { type: 'i', format: (v) => v != null ? v : '', value: 1 },
     Soc: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '' },
     Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
   },
