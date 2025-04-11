@@ -38,8 +38,8 @@
         "test": "standard --fix src/ scripts/",
         "codespell": "codespell src/ scripts/",
         "release": "git tag -d v$npm_package_version; git tag v$npm_package_version && git push --tags && git push && npm run create-release",
-        "documentation": "bash -c '( sed \"/^<!--/q\" src/nodes/config-client.html && node scripts/service2doc.js -s src/services/services.json -r src/nodes/victron-nodes.html -t nodered ) | sponge src/nodes/config-client.html'",
-        "wiki": "bash -c 'node scripts/service2doc.js -s src/services/services.json -r src/nodes/victron-nodes.html -t md | sponge ../node-red-contrib-victron.wiki/Available-nodes.md'"
+        "documentation": "bash -c '( sed \"/^<!--/q\" src/nodes/config-client.html && node scripts/service2doc.js -s src/services/services.json -r src/nodes/victron-nodes.html -o nodered ) | sponge src/nodes/config-client.html'",
+        "wiki": "bash -c 'node scripts/service2doc.js -s src/services/services.json -r src/nodes/victron-nodes.html -o md | sponge ../node-red-contrib-victron.wiki/Available-nodes.md'"
     },
     "repository": {
         "type": "git",
