@@ -95,13 +95,7 @@ const properties = {
   },
   switch: {
     Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
-    State: {
-      type: 'i',
-      format: (v) => ({
-        0: 'Off',
-        1: 'On'
-      }[v] || 'unknown')
-    }
+    State: { type: 'i', value: 0x100 }
   },
   tank: {
     'Alarms/High/Active': { type: 'd' },
