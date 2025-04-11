@@ -382,15 +382,29 @@ module.exports = function (RED) {
                 1: 'On'
               }[v] || 'unknown')
             },
-            { name: 'Status', type: 'i', format: (v) => v != null ? v : '' }
+            { name: 'Status', type: 'i', format: (v) => v != null ? v : '' },
+            { name: 'Name', type: 's', value: 'virtual' },
+            { name: 'Settings/Group', type: 's', value: '' },
+            { name: 'Settings/CustomName', type: 's', value: '' },
+            {
+              name: 'Settings/Type',
+              type: 'i',
+              format: (v) => ({
+                0: 'Momentary',
+                1: 'Latching/Relay',
+                2: 'Dimmable/PWM'
+              }[v] || 'unknown'),
+              value: 1
+            },
+            { name: 'Settings/ValidTypes', type: 'i', value: 0x3 }
           ]
           for (let i = 1; i <= Number(config.switch_nrofoutput ?? 0); i++) {
-            properties.forEach(({ name, type }) => {
+            properties.forEach(({ name, type, value }) => {
               const key = `SwitchableOutput/output_${i}/${name}`
               ifaceDesc.properties[key] = {
                 type
               }
-              iface[key] = 0
+              iface[key] = value !== undefined ? value : 0
             })
           }
           properties.push({
@@ -401,7 +415,7 @@ module.exports = function (RED) {
             format: (v) => v != null ? v.toFixed(1) + '%' : ''
           })
           for (let i = 1; i <= Number(config.switch_nrofpwm ?? 0); i++) {
-            properties.forEach(({ name, type, format, min, max }) => {
+            properties.forEach(({ name, type, value, format, min, max }) => {
               const key = `SwitchableOutput/pwm_${i}/${name}`
               ifaceDesc.properties[key] = {
                 type, format
@@ -412,7 +426,13 @@ module.exports = function (RED) {
               if (max != null) {
                 ifaceDesc.properties[key].max = max
               }
-              iface[key] = 0
+              if (name === 'Settings/ValidTypes') {
+                value = 0x4 // Only dimmable
+              }
+              if (name === 'Settings/Type') {
+                value = 2 // Set to dimmable
+              }
+              iface[key] = value !== undefined ? value : 0
             })
           }
           text = `Virtual switch ${config.switch_nrofoutput} outputs, ${config.switch_nrofpwm} PWMs`
