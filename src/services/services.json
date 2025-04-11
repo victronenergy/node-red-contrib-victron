@@ -5377,24 +5377,6 @@
         }
       },
       {
-        "path": "/Alarms/HighVoltage",
-        "type": "enum",
-        "name": "High batt. voltage alarm",
-        "enum": {
-          "0": "No alarm",
-          "1": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/LowVoltage",
-        "type": "enum",
-        "name": "Low batt. voltage alarm",
-        "enum": {
-          "0": "No alarm",
-          "1": "Alarm"
-        }
-      },
-      {
         "path": "/Dc/0/Current",
         "type": "float",
         "name": "Battery current (A)"
