@@ -377,7 +377,7 @@ module.exports = function (RED) {
               }[v] || 'unknown')
             },
             { name: 'Status', type: 'i', format: (v) => v != null ? v : '' },
-            { name: 'Name', type: 's', value: 'virtual' },
+            { name: 'Name', type: 's', value: 'Output' },
             { name: 'Settings/Group', type: 's', value: '' },
             { name: 'Settings/CustomName', type: 's', value: '' },
             {
@@ -397,6 +397,9 @@ module.exports = function (RED) {
               const key = `SwitchableOutput/output_${i}/${name}`
               ifaceDesc.properties[key] = {
                 type
+              }
+              if (name === 'Name') {
+                value += ` ${i}`
               }
               iface[key] = value !== undefined ? value : 0
             })
@@ -425,6 +428,9 @@ module.exports = function (RED) {
               }
               if (name === 'Settings/Type') {
                 value = 2 // Set to dimmable
+              }
+              if (name === 'Name') {
+                value = `PWM ${i}`
               }
               iface[key] = value !== undefined ? value : 0
             })
