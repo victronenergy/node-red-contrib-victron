@@ -1,0 +1,86 @@
+[
+    {
+        "id": "5e9a59c272c36f8d",
+        "type": "victron-output-switch",
+        "z": "fae8b195e518f84f",
+        "service": "com.victronenergy.switch/2",
+        "path": "/SwitchableOutput/pwm_1/State",
+        "serviceObj": {
+            "service": "com.victronenergy.switch/2",
+            "name": "GX IO extender 150"
+        },
+        "pathObj": {
+            "path": "/SwitchableOutput/pwm_1/State",
+            "type": "enum",
+            "enum": {
+                "0": "Off",
+                "1": "On"
+            },
+            "name": "PWM 1 state",
+            "mode": "both"
+        },
+        "name": "",
+        "onlyChanges": false,
+        "x": 420,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "89f42fe3ec66c67e",
+        "type": "inject",
+        "z": "fae8b195e518f84f",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "1",
+        "payloadType": "num",
+        "x": 110,
+        "y": 260,
+        "wires": [
+            [
+                "5e9a59c272c36f8d"
+            ]
+        ]
+    },
+    {
+        "id": "13eb6728efe9e2b1",
+        "type": "inject",
+        "z": "fae8b195e518f84f",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "0",
+        "payloadType": "num",
+        "x": 110,
+        "y": 220,
+        "wires": [
+            [
+                "5e9a59c272c36f8d"
+            ]
+        ]
+    }
+]

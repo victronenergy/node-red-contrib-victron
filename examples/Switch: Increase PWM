@@ -1,0 +1,181 @@
+[
+    {
+        "id": "5e9a59c272c36f8d",
+        "type": "victron-output-switch",
+        "z": "fae8b195e518f84f",
+        "service": "com.victronenergy.switch/2",
+        "path": "/SwitchableOutput/pwm_1/State",
+        "serviceObj": {
+            "service": "com.victronenergy.switch/2",
+            "name": "GX IO extender 150"
+        },
+        "pathObj": {
+            "path": "/SwitchableOutput/pwm_1/State",
+            "type": "enum",
+            "enum": {
+                "0": "Off",
+                "1": "On"
+            },
+            "name": "PWM 1 state",
+            "mode": "both"
+        },
+        "name": "",
+        "onlyChanges": false,
+        "x": 420,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "89f42fe3ec66c67e",
+        "type": "inject",
+        "z": "fae8b195e518f84f",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "1",
+        "payloadType": "num",
+        "x": 110,
+        "y": 260,
+        "wires": [
+            [
+                "5e9a59c272c36f8d"
+            ]
+        ]
+    },
+    {
+        "id": "13eb6728efe9e2b1",
+        "type": "inject",
+        "z": "fae8b195e518f84f",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "0",
+        "payloadType": "num",
+        "x": 110,
+        "y": 220,
+        "wires": [
+            [
+                "5e9a59c272c36f8d"
+            ]
+        ]
+    },
+    {
+        "id": "3d6eaeaf1e6c0c25",
+        "type": "victron-output-switch",
+        "z": "fae8b195e518f84f",
+        "service": "com.victronenergy.switch/2",
+        "path": "/SwitchableOutput/pwm_1/Dimming",
+        "serviceObj": {
+            "service": "com.victronenergy.switch/2",
+            "name": "GX IO extender 150"
+        },
+        "pathObj": {
+            "path": "/SwitchableOutput/pwm_1/Dimming",
+            "type": "integer",
+            "name": "PWM 1 dimming",
+            "mode": "both"
+        },
+        "name": "",
+        "onlyChanges": false,
+        "x": 590,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "19f42d277b8d9c3f",
+        "type": "inject",
+        "z": "fae8b195e518f84f",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 380,
+        "wires": [
+            [
+                "e9ab1261302c1e4c"
+            ]
+        ]
+    },
+    {
+        "id": "e9ab1261302c1e4c",
+        "type": "function",
+        "z": "fae8b195e518f84f",
+        "name": "Increase PWM",
+        "func": "const currentLevel = global.get(\"victronenergy.switch._2.SwitchableOutput.pwm_1.Dimming\") || 0;\nmsg.payload = (currentLevel + 25) % 125;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 380,
+        "wires": [
+            [
+                "3d6eaeaf1e6c0c25"
+            ]
+        ]
+    },
+    {
+        "id": "ebe119589db23d53",
+        "type": "victron-input-switch",
+        "z": "fae8b195e518f84f",
+        "service": "com.victronenergy.switch/2",
+        "path": "/SwitchableOutput/pwm_1/Dimming",
+        "serviceObj": {
+            "service": "com.victronenergy.switch/2",
+            "name": "GX IO extender 150"
+        },
+        "pathObj": {
+            "path": "/SwitchableOutput/pwm_1/Dimming",
+            "type": "integer",
+            "name": "PWM 1 dimming",
+            "mode": "both"
+        },
+        "name": "",
+        "onlyChanges": false,
+        "x": 190,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    }
+]
