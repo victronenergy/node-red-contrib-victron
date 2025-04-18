@@ -14,7 +14,7 @@ const utils = require('./utils.js')
  * @param {string} address IP address for dbus over TCP, both address and port. E.g. 127.0.0.1:78
  */
 class VictronClient {
-  constructor (address) {
+  constructor(address) {
     this.dbusAddress = address
     this.client = null
 
@@ -32,7 +32,7 @@ class VictronClient {
      *     let vc = new VictronClient()
      *     await vc.connect()
      */
-  async connect () {
+  async connect() {
     const _this = this
 
     // messageHandler gets a list of received messages as a parameter
@@ -71,19 +71,51 @@ class VictronClient {
       { eventHandler, messageHandler }
     )
 
+    // iterate over subscriptions every 5 seconds, check if callbackPeriodically is set
+    // TODO
+    // open question: how do we stop this interval? Are we listening to a disconnect somewhere? And then how do we reconnect?
+    // we can probably use this.client.connected?
+    setInterval(() => {
+      if (this.client.connected) {
+        Object.keys(this.subscriptions).forEach(topic => {
+          const topicSubscription = this.subscriptions[topic]
+          topicSubscription.forEach(sub => {
+            if (sub.options && sub.options.callbackPeriodically) {
+              debug(`[CALLBACK PERIODICALLY] ${sub.subscriptionId} | ${sub.dbusInterface} ${sub.path}`)
+              // we need to get the value from the cache
+              const data = this.system.cache[sub.dbusInterface]
+              console.log(`[CALLBACK PERIODICALLY], should callback, ${sub.subscriptionId} | ${sub.dbusInterface} ${sub.path} data: ${JSON.stringify(data)}`)
+
+              // not calling yet
+              // sub.callback({ path: sub.path, value: null })
+
+              // TODO: compare dbus-listener, we don't have a sender name
+              // return {
+              //   path: '/' + path.replace(/^\/+/, ''),
+              //   senderName: service.name.split('.').splice(0, 3).join('.'),
+              //   value: data[path],
+              //   deviceInstance,
+              //   fluidType: service.fluidType
+              // }
+            }
+          })
+        })
+      }
+    }, 5_000)
+
     promiseRetry(retry => {
       debug('Retrying dbus connection.')
       return this.client
         .connect()
         .catch(retry)
     },
-    {
-      factor: 2,
-      forever: true,
-      minTimeout: 5 * 1000,
-      maxTimeout: 60 * 1000
+      {
+        factor: 2,
+        forever: true,
+        minTimeout: 5 * 1000,
+        maxTimeout: 60 * 1000
 
-    })
+      })
       .catch(() => console.error('Unable to connect to dbus.'))
   }
 
@@ -93,7 +125,7 @@ class VictronClient {
      *
      * @param {object} msg a message object received from the dbus-listener
      */
-  saveToCache (msg) {
+  saveToCache(msg) {
     let dbusPaths = {}
 
     const trail = ('/' + (msg.deviceInstance != null ? msg.deviceInstance : '')).replace(/\/$/, '')
@@ -119,14 +151,14 @@ class VictronClient {
      * @param {string} path specific path to subscribe to, e.g. /Dc/Battery/Voltage
      * @param {function} callback a callback function which is invoked upon receiving a message that matches both the interface and path
      */
-  subscribe (dbusInterface, path, callback) {
+  subscribe(dbusInterface, path, callback, options) {
     const subscriptionId = utils.UUID()
-    const newSubscription = { callback, dbusInterface, path, subscriptionId }
+    const newSubscription = { callback, dbusInterface, path, subscriptionId, options }
 
     const msgKey = dbusInterface + ':' + path
     if (msgKey in this.subscriptions) { this.subscriptions[msgKey].push(newSubscription) } else { this.subscriptions[msgKey] = [newSubscription] }
 
-    debug(`[SUBSCRIBE] ${subscriptionId} | ${dbusInterface} ${path}`)
+    debug(`[SUBSCRIBE] ${subscriptionId} | ${dbusInterface} ${path} options=${options}`)
 
     return subscriptionId
   }
@@ -136,7 +168,7 @@ class VictronClient {
      *
      * @param {string} subscriptionId a semi-unique string identifying a single node-specific message listener
      */
-  unsubscribe (subscriptionId) {
+  unsubscribe(subscriptionId) {
     Object.keys(this.subscriptions).forEach(topic => {
       const topicSubscription = this.subscriptions[topic]
       const removed = _.remove(topicSubscription, { subscriptionId })
@@ -158,7 +190,7 @@ class VictronClient {
      * @param {string} path specific path to publish to, e.g. /Relay/0/State
      * @param {string} value value to write to the given dbus service, e.g. 1
      */
-  publish (dbusInterface, path, value, cb) {
+  publish(dbusInterface, path, value, cb) {
     if (this.client && this.client.connected) {
       debug(`[PUBLISH] ${dbusInterface} ${path} | ${value}`)
       this.client.setValue(dbusInterface, path, value, cb)

@@ -75,7 +75,7 @@ class VictronDbusListener {
     this.messageHandler = callbacks.messageHandler
 
     this.bus = null
-    this.rootPoller = null
+    this.rootPoller = null // can safely be removed as only referenced to clearInterval
 
     this.services = {}
     this.connected = false
@@ -89,6 +89,7 @@ class VictronDbusListener {
 
   connect () {
     return new Promise((resolve, reject) => {
+      // TODO: this promise never resolves. Why have a promise, then? Ah, because of the way we retry!
       if (this.address) { // Connect via TCP
         debug(`Connecting to TCP address ${this.address}.`)
         this.bus = dbus.createClient({
@@ -114,10 +115,24 @@ class VictronDbusListener {
           })
         })
 
-        this.rootPoller = setInterval(
-          () => _.values(this.services).forEach(service => this._requestRoot(service)),
-          this.pollInterval * 1000
-        )
+        if (process.env.ENABLE_POLLING !== 'false') {
+          this.rootPoller = setInterval(
+            async () => {
+              return await this._requestAllRoots()
+            },
+            this.pollInterval * 1000
+          )
+        } else {
+          console.warn('Polling is disabled. Set ENABLE_POLLING to "true" to enable it.')
+          // we request all roots once
+          this._requestAllRoots()
+          .then(() => {
+            console.log('All roots requested successfully.')
+          })
+          .catch(err => {
+            console.error('Error requesting all roots:', err)
+          })
+        }
 
         // The following callbacks should be initialized
         // only after dbus connection
@@ -169,17 +184,21 @@ class VictronDbusListener {
   }
 
   _requestRoot (service) {
-    this.bus.invoke({
-      path: '/',
-      destination: service.name,
-      interface: 'com.victronenergy.BusItem',
-      member: 'GetItems'
-    },
-    (err, res) => {
-      if (!err) {
+    return new Promise((resolve, reject) => {
+      this.bus.invoke({
+        path: '/',
+        destination: service.name,
+        interface: 'com.victronenergy.BusItem',
+        member: 'GetItems'
+      },
+      (err, res) => {
+        if (err) {
+          return reject(err)
+        }
         const data = {}
         const getTargetValue = (arr) => arr[arr.findIndex(innerArr => innerArr[0] === 'Value')]?.[1]?.[1]?.[0]
 
+        console.log('requestRoot, service.name, res.length', service.name, res.length)
         res.forEach(([path, values]) => {
           data[path] = getTargetValue(values)
         })
@@ -204,8 +223,25 @@ class VictronDbusListener {
           }
         })
         this.messageHandler(messages)
-      }
+        resolve()
+      })
     })
+
+  }
+
+  async _requestAllRoots() {
+      const start = new Date()
+      console.log('POLLING, start', start)
+      const promises = []
+      for (const key in this.services) {
+        console.log('POLLING', key)
+        await this._requestRoot(this.services[key])
+      }
+      // await Promise.all(promises)
+      const end = new Date()
+      console.log('POLLING, end', end)
+      console.log('POLLING, duration', end - start)
+      // _.values(this.services).forEach(service => this._requestRoot(service))
   }
 
   _signalRecieve (msg) {
@@ -237,6 +273,7 @@ class VictronDbusListener {
     const messages = []
     switch (msg.member) {
       case 'ItemsChanged': {
+        console.log('ItemsChanged', msg)
         msg.body[0].forEach(entry => {
           const m = { changed: true }
           m.path = entry[0]
@@ -268,6 +305,7 @@ class VictronDbusListener {
         break
       }
       case 'PropertiesChanged': {
+        console.log('PropertiesChanged', msg)
         if (msg.body[0] && msg.body[0].length === 2) {
           const m = msg
           msg.body[0].forEach(v => {

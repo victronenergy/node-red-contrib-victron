@@ -33,7 +33,7 @@ module.exports = function (RED) {
   }
 
   class BaseInputNode {
-    constructor (nodeDefinition) {
+    constructor(nodeDefinition) {
       RED.nodes.createNode(this, nodeDefinition)
 
       this.node = this
@@ -105,7 +105,7 @@ module.exports = function (RED) {
           if (!this.sentInitialValue) {
             this.sentInitialValue = true
           }
-        })
+        }, { callbackPeriodically: !this.node.onlyChanges })
       }
 
       this.on('close', function (done) {
@@ -118,7 +118,7 @@ module.exports = function (RED) {
   }
 
   class BaseOutputNode {
-    constructor (nodeDefinition) {
+    constructor(nodeDefinition) {
       RED.nodes.createNode(this, nodeDefinition)
 
       this.node = this
@@ -211,8 +211,8 @@ module.exports = function (RED) {
 
       // Set initial value only if it's not empty
       if (this.initialValue !== undefined &&
-            this.initialValue !== null &&
-            this.initialValue !== '') {
+        this.initialValue !== null &&
+        this.initialValue !== '') {
         setValue(this.initialValue)
       }
 
