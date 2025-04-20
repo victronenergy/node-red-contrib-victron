@@ -8,6 +8,8 @@ const debug = require('debug')('node-red-contrib-victron:dbus')
 const _ = require('lodash')
 
 /**
+ * TODO: this documentation comment is outdated
+ *
  * VictronDbusListener encapsulates the dbus communications
  * between Node-RED and Venus system. It establishes a dbus
  * connection and exposes relevant callbacks to its owner.
@@ -198,7 +200,7 @@ class VictronDbusListener {
         const data = {}
         const getTargetValue = (arr) => arr[arr.findIndex(innerArr => innerArr[0] === 'Value')]?.[1]?.[1]?.[0]
 
-        console.log('requestRoot, service.name, res.length', service.name, res.length)
+        debug('requestRoot, service.name, res.length', service.name, res.length)
         res.forEach(([path, values]) => {
           data[path] = getTargetValue(values)
         })
@@ -222,6 +224,7 @@ class VictronDbusListener {
             fluidType: service.fluidType
           }
         })
+        debug('requestRoot, messages', messages)
         this.messageHandler(messages)
         resolve()
       })
@@ -231,16 +234,15 @@ class VictronDbusListener {
 
   async _requestAllRoots() {
       const start = new Date()
-      console.log('POLLING, start', start)
+      debug('POLLING, start', start)
       const promises = []
       for (const key in this.services) {
-        console.log('POLLING', key)
+        debug('POLLING', key)
         await this._requestRoot(this.services[key])
       }
-      // await Promise.all(promises)
+      // await Promise.all(promises) // TODO: alternatively, we can use Promise.all to run all requests in parallel
       const end = new Date()
-      console.log('POLLING, end', end)
-      console.log('POLLING, duration', end - start)
+      debug('POLLING, duration', end - start)
       // _.values(this.services).forEach(service => this._requestRoot(service))
   }
 
@@ -273,7 +275,7 @@ class VictronDbusListener {
     const messages = []
     switch (msg.member) {
       case 'ItemsChanged': {
-        console.log('ItemsChanged', msg)
+        debug('ItemsChanged', msg)
         msg.body[0].forEach(entry => {
           const m = { changed: true }
           m.path = entry[0]
@@ -305,7 +307,7 @@ class VictronDbusListener {
         break
       }
       case 'PropertiesChanged': {
-        console.log('PropertiesChanged', msg)
+        debug('PropertiesChanged', msg)
         if (msg.body[0] && msg.body[0].length === 2) {
           const m = msg
           msg.body[0].forEach(v => {

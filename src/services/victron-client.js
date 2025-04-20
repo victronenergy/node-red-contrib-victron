@@ -42,6 +42,7 @@ class VictronClient {
         _this.saveToCache(msg)
         const trail = ('/' + (msg.deviceInstance != null ? msg.deviceInstance : '')).replace(/\/$/, '')
         const msgKey = `${msg.senderName}${trail}:${msg.path}`
+        console.log(`[MESSAGE HANDLER] ${msgKey} | ${JSON.stringify(msg, null, 2)}`)
         if (msgKey in _this.subscriptions) { _this.subscriptions[msgKey].forEach(sub => sub.callback(msg)) }
       })
     }
@@ -84,10 +85,21 @@ class VictronClient {
               debug(`[CALLBACK PERIODICALLY] ${sub.subscriptionId} | ${sub.dbusInterface} ${sub.path}`)
               // we need to get the value from the cache
               const data = this.system.cache[sub.dbusInterface]
-              console.log(`[CALLBACK PERIODICALLY], should callback, ${sub.subscriptionId} | ${sub.dbusInterface} ${sub.path} data: ${JSON.stringify(data)}`)
+              console.log(`[CALLBACK PERIODICALLY], should callback, subscriptionId=${sub.subscriptionId} | dbusInterface=${sub.dbusInterface} path=${sub.path} data: ${JSON.stringify(data)}`)
 
               // not calling yet
               // sub.callback({ path: sub.path, value: null })
+              // assemble message for callback
+              const [senderName, deviceInstance] = sub.dbusInterface.split('/')
+              const value = data[sub.path]
+              sub.callback({
+                path: sub.path,
+                senderName,
+                deviceInstance,
+                value,
+                changed: false,
+                text: `${value} (TODO, no text for periodic callback)`
+              })
 
               // TODO: compare dbus-listener, we don't have a sender name
               // return {
@@ -132,13 +144,17 @@ class VictronClient {
 
     if (this.system.cache[msg.senderName + trail]) { dbusPaths = this.system.cache[msg.senderName + trail] }
 
-    // some dbus messages are empty arrays []
+    // some dbus messages are empty arrays [], and we interpret empty arrays as null values,
+    // compare https://github.com/Chris927/dbus-native/commit/0080b9226a0ed9474be1e5ceeae58a9c78dfa046
     if (msg.value && msg.value.length === 0) { msg.value = null }
 
     // We need to update the nodes on new paths
     // e.g. in the case of system relays, which might or might not be there
     const sender = msg.senderName.split('.').splice(0, 3).join('.') + trail
+
+    // TODO: this.onStatusUpdate() is a noop, can perhaps be removed
     if (!(msg.path in dbusPaths)) { this.onStatusUpdate({ service: sender, path: msg.path }, utils.STATUS.PATH_ADD) }
+
     dbusPaths[msg.path] = msg.value
     this.system.cache[msg.senderName + trail] = dbusPaths
   }
