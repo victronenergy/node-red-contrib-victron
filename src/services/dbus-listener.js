@@ -72,12 +72,12 @@ function searchDeviceInstanceByName (stack, needle, fallback) {
 class VictronDbusListener {
   constructor (address, callbacks) {
     this.address = address
-    this.pollInterval = 5
+    this.pollInterval = 5 // seconds
     this.eventHandler = callbacks.eventHandler
     this.messageHandler = callbacks.messageHandler
 
     this.bus = null
-    this.rootPoller = null // can safely be removed as only referenced to clearInterval
+    this.rootPoller = null
 
     this.services = {}
     this.connected = false
@@ -90,8 +90,9 @@ class VictronDbusListener {
   }
 
   connect () {
-    return new Promise((resolve, reject) => {
-      // TODO: this promise never resolves. Why have a promise, then? Ah, because of the way we retry!
+    return new Promise((_resolve, reject) => {
+      // this promise never resolves. The retry mechanism depends on us rejecting when
+      // we get disconnected, see VictronClient.promiseRetry().
       if (this.address) { // Connect via TCP
         debug(`Connecting to TCP address ${this.address}.`)
         this.bus = dbus.createClient({
@@ -109,7 +110,7 @@ class VictronDbusListener {
 
       // Event callbacks
       this.bus.connection.on('connect', () => {
-        debug('Connected to D-Bus.')
+        console.log('Connected to D-Bus.')
 
         this.bus.listNames((props, args) => {
           args.forEach(name => {
@@ -129,7 +130,7 @@ class VictronDbusListener {
           // we request all roots once
           this._requestAllRoots()
           .then(() => {
-            console.log('All roots requested successfully.')
+            console.log('Polling is disabled. All roots have been requested once successfully.')
           })
           .catch(err => {
             console.error('Error requesting all roots:', err)
@@ -140,7 +141,9 @@ class VictronDbusListener {
         // only after dbus connection
         this.bus.connection.on('message', this._signalRecieve)
         this.bus.connection.on('end', () => {
-          clearInterval(this.rootPoller)
+          if (this.rootPoller) {
+            clearInterval(this.rootPoller)
+          }
           this.connected = false
           console.error('Lost connection to D-Bus.')
           reject(new Error('dbus connection end'))
@@ -233,17 +236,20 @@ class VictronDbusListener {
   }
 
   async _requestAllRoots() {
-      const start = new Date()
-      debug('POLLING, start', start)
-      const promises = []
-      for (const key in this.services) {
-        debug('POLLING', key)
-        await this._requestRoot(this.services[key])
-      }
-      // await Promise.all(promises) // TODO: alternatively, we can use Promise.all to run all requests in parallel
-      const end = new Date()
-      debug('POLLING, duration', end - start)
-      // _.values(this.services).forEach(service => this._requestRoot(service))
+    // Previously, we did this:
+    // _.values(this.services).forEach(service => this._requestRoot(service))
+    // ... but now we need to request all roots in more than one place,
+    // and we want to measure the time it takes to do so.
+    const start = new Date()
+    debug('_requestAllRoots, start', start)
+    const promises = []
+    for (const key in this.services) {
+      debug(`_requestAllRoots, key=${key}`)
+      promises.push(this._requestRoot(this.services[key]))
+    }
+    await Promise.all(promises)
+    const end = new Date()
+    debug(`_requestAllRoots, duration=${end - start} milliseconds`)
   }
 
   _signalRecieve (msg) {
