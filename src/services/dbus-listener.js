@@ -119,6 +119,7 @@ class VictronDbusListener {
         })
 
         if (process.env.ENABLE_POLLING !== 'false') {
+          console.warn('Polling is enabled. This is deprecated. Set ENABLE_POLLING to "false" to disable it.')
           this.rootPoller = setInterval(
             async () => {
               return await this._requestAllRoots()
@@ -126,8 +127,8 @@ class VictronDbusListener {
             this.pollInterval * 1000
           )
         } else {
-          console.warn('Polling is disabled. Set ENABLE_POLLING to "true" to enable it.')
-          // we request all roots once
+          console.warn('Polling is disabled, which is new behavior and a potentially breaking change. Set ENABLE_POLLING to "true" to enable it.')
+          // without polling, we request all roots once
           this._requestAllRoots()
           .then(() => {
             console.log('Polling is disabled. All roots have been requested once successfully.')
@@ -176,9 +177,11 @@ class VictronDbusListener {
       this.services[owner] = service
       if (res) {
         this.services[owner].deviceInstance = res[1]?.[0]
-        if (!this.services[owner].deviceInstance) {
-          console.error(`deviceInstance could not be assigned because res[1][0] is undefined ${owner}/${this.services[owner]} (${this.services[owner].name})`)
-          // Handle the case where res[1][0] is undefined
+        // TODO: instead of (!...) we now use (... === undefined), which allows for deviceInstance === 0 without error log output
+        // note that this does not change semantics, other than the error log output
+        if (this.services[owner].deviceInstance === undefined) {
+          console.error(`deviceInstance could not be assigned because res[1][0] is undefined owner=${owner} services[owner]=${JSON.stringify(this.services[owner])} (${this.services[owner].name})`)
+          // TODO: Handle the case where res[1][0] is undefined
         }
       }
       if (err && err.length > 0) {

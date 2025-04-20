@@ -62,6 +62,8 @@ module.exports = function (RED) {
           setTimeout(migrateSubscriptions, 1000, this)
         }
 
+        const isPollingEnabled = process.env.ENABLE_POLLING !== 'false'
+        const callbackPeriodically = !this.node.onlyChanges && !isPollingEnabled
         this.subscription = this.client.subscribe(this.service, this.path, (msg) => {
           let topic = this.defaulttopic
           if (this.node.name) {
@@ -105,7 +107,7 @@ module.exports = function (RED) {
           if (!this.sentInitialValue) {
             this.sentInitialValue = true
           }
-        }, { callbackPeriodically: !this.node.onlyChanges })
+        }, { callbackPeriodically })
       }
 
       this.on('close', function (done) {

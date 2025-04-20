@@ -42,7 +42,7 @@ class VictronClient {
         _this.saveToCache(msg)
         const trail = ('/' + (msg.deviceInstance != null ? msg.deviceInstance : '')).replace(/\/$/, '')
         const msgKey = `${msg.senderName}${trail}:${msg.path}`
-        console.log(`[MESSAGE HANDLER] ${msgKey} | ${JSON.stringify(msg, null, 2)}`)
+        debug(`[MESSAGE HANDLER] ${msgKey} | ${JSON.stringify(msg, null, 2)}`)
         if (msgKey in _this.subscriptions) { _this.subscriptions[msgKey].forEach(sub => sub.callback(msg)) }
       })
     }
