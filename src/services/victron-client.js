@@ -14,7 +14,7 @@ const utils = require('./utils.js')
  * @param {string} address IP address for dbus over TCP, both address and port. E.g. 127.0.0.1:78
  */
 class VictronClient {
-  constructor(address) {
+  constructor (address) {
     this.dbusAddress = address
     this.client = null
 
@@ -32,7 +32,7 @@ class VictronClient {
      *     let vc = new VictronClient()
      *     await vc.connect()
      */
-  async connect() {
+  async connect () {
     const _this = this
 
     // messageHandler gets a list of received messages as a parameter
@@ -75,7 +75,7 @@ class VictronClient {
     /**
      * Subscriptions with option.callbackPeriodically set to true will be called every 5 seconds.
      *
-     * This is part of replacing the polling we do in VictronDbusListener._requestRoot(): VictronDbusListener 
+     * This is part of replacing the polling we do in VictronDbusListener._requestRoot(): VictronDbusListener
      * would cause, by polling dbus every 5 seconds, that each subscription is called every 5 seconds (plus whenever we
      * receive ItemsChanged or PropertiesChanged events). Without the polling, the option.callbackPeriodically
      * is needed to get the same effect for subscriptions that need periodic updates.
@@ -93,7 +93,6 @@ class VictronClient {
           const topicSubscription = this.subscriptions[topic]
           topicSubscription.forEach(sub => {
             if (sub.options && sub.options.callbackPeriodically) {
-
               // we need to get the value from the cache
               const data = this.system.cache[sub.dbusInterface]
               debug(`[CALLBACK PERIODICALLY], about to callback, subscriptionId=${sub.subscriptionId} | dbusInterface=${sub.dbusInterface} path=${sub.path} data: ${JSON.stringify(data)}`)
@@ -109,7 +108,6 @@ class VictronClient {
                 changed: false,
                 text: `${value}` // TODO: we have no text representation in the cache
               })
-
             }
           })
         })
@@ -122,13 +120,13 @@ class VictronClient {
         .connect()
         .catch(retry)
     },
-      {
-        factor: 2,
-        forever: true,
-        minTimeout: 5 * 1000,
-        maxTimeout: 60 * 1000
+    {
+      factor: 2,
+      forever: true,
+      minTimeout: 5 * 1000,
+      maxTimeout: 60 * 1000
 
-      })
+    })
       .catch(() => console.error('Unable to connect to dbus.'))
   }
 
@@ -138,7 +136,7 @@ class VictronClient {
      *
      * @param {object} msg a message object received from the dbus-listener
      */
-  saveToCache(msg) {
+  saveToCache (msg) {
     let dbusPaths = {}
 
     const trail = ('/' + (msg.deviceInstance != null ? msg.deviceInstance : '')).replace(/\/$/, '')
@@ -168,7 +166,7 @@ class VictronClient {
      * @param {string} path specific path to subscribe to, e.g. /Dc/Battery/Voltage
      * @param {function} callback a callback function which is invoked upon receiving a message that matches both the interface and path
      */
-  subscribe(dbusInterface, path, callback, options) {
+  subscribe (dbusInterface, path, callback, options) {
     const subscriptionId = utils.UUID()
     const newSubscription = { callback, dbusInterface, path, subscriptionId, options }
 
@@ -185,7 +183,7 @@ class VictronClient {
      *
      * @param {string} subscriptionId a semi-unique string identifying a single node-specific message listener
      */
-  unsubscribe(subscriptionId) {
+  unsubscribe (subscriptionId) {
     Object.keys(this.subscriptions).forEach(topic => {
       const topicSubscription = this.subscriptions[topic]
       const removed = _.remove(topicSubscription, { subscriptionId })
@@ -207,7 +205,7 @@ class VictronClient {
      * @param {string} path specific path to publish to, e.g. /Relay/0/State
      * @param {string} value value to write to the given dbus service, e.g. 1
      */
-  publish(dbusInterface, path, value, cb) {
+  publish (dbusInterface, path, value, cb) {
     if (this.client && this.client.connected) {
       debug(`[PUBLISH] ${dbusInterface} ${path} | ${value}`)
       this.client.setValue(dbusInterface, path, value, cb)

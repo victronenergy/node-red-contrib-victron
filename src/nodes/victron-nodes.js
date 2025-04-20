@@ -33,7 +33,7 @@ module.exports = function (RED) {
   }
 
   class BaseInputNode {
-    constructor(nodeDefinition) {
+    constructor (nodeDefinition) {
       RED.nodes.createNode(this, nodeDefinition)
 
       this.node = this
@@ -120,7 +120,7 @@ module.exports = function (RED) {
   }
 
   class BaseOutputNode {
-    constructor(nodeDefinition) {
+    constructor (nodeDefinition) {
       RED.nodes.createNode(this, nodeDefinition)
 
       this.node = this

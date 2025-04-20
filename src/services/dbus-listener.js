@@ -130,12 +130,12 @@ class VictronDbusListener {
           console.warn('Polling is disabled, which is new behavior and a potentially breaking change. Set ENABLE_POLLING to "true" to enable it.')
           // without polling, we request all roots once
           this._requestAllRoots()
-          .then(() => {
-            console.log('Polling is disabled. All roots have been requested once successfully.')
-          })
-          .catch(err => {
-            console.error('Error requesting all roots:', err)
-          })
+            .then(() => {
+              console.log('Polling is disabled. All roots have been requested once successfully.')
+            })
+            .catch(err => {
+              console.error('Error requesting all roots:', err)
+            })
         }
 
         // The following callbacks should be initialized
@@ -235,10 +235,9 @@ class VictronDbusListener {
         resolve()
       })
     })
-
   }
 
-  async _requestAllRoots() {
+  async _requestAllRoots () {
     // Previously, we did this:
     // _.values(this.services).forEach(service => this._requestRoot(service))
     // ... but now we need to request all roots in more than one place,
