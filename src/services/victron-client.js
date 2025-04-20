@@ -72,24 +72,33 @@ class VictronClient {
       { eventHandler, messageHandler }
     )
 
-    // iterate over subscriptions every 5 seconds, check if callbackPeriodically is set
+    /**
+     * Subscriptions with option.callbackPeriodically set to true will be called every 5 seconds.
+     *
+     * This is part of replacing the polling we do in VictronDbusListener._requestRoot(): VictronDbusListener 
+     * would cause, by polling dbus every 5 seconds, that each subscription is called every 5 seconds (plus whenever we
+     * receive ItemsChanged or PropertiesChanged events). Without the polling, the option.callbackPeriodically
+     * is needed to get the same effect for subscriptions that need periodic updates.
+     */
     // TODO
     // open question: how do we stop this interval? Are we listening to a disconnect somewhere? And then how do we reconnect?
     // we can probably use this.client.connected?
     setInterval(() => {
+      // TODO: we never stop this interval. This may be okay, as there is no mechanism to
+      // disconnect from dbus. In other words, once an instance of VictronClient is created,
+      // it will always be connected (or try to be connected) to dbus. Thus, we can run the
+      // interval indefinitely.
       if (this.client.connected) {
         Object.keys(this.subscriptions).forEach(topic => {
           const topicSubscription = this.subscriptions[topic]
           topicSubscription.forEach(sub => {
             if (sub.options && sub.options.callbackPeriodically) {
-              debug(`[CALLBACK PERIODICALLY] ${sub.subscriptionId} | ${sub.dbusInterface} ${sub.path}`)
+
               // we need to get the value from the cache
               const data = this.system.cache[sub.dbusInterface]
-              console.log(`[CALLBACK PERIODICALLY], should callback, subscriptionId=${sub.subscriptionId} | dbusInterface=${sub.dbusInterface} path=${sub.path} data: ${JSON.stringify(data)}`)
+              debug(`[CALLBACK PERIODICALLY], about to callback, subscriptionId=${sub.subscriptionId} | dbusInterface=${sub.dbusInterface} path=${sub.path} data: ${JSON.stringify(data)}`)
 
-              // not calling yet
-              // sub.callback({ path: sub.path, value: null })
-              // assemble message for callback
+              // we call the callback with the data from the cache
               const [senderName, deviceInstance] = sub.dbusInterface.split('/')
               const value = data[sub.path]
               sub.callback({
@@ -98,17 +107,9 @@ class VictronClient {
                 deviceInstance,
                 value,
                 changed: false,
-                text: `${value} (TODO, no text for periodic callback)`
+                text: `${value}` // TODO: we have no text representation in the cache
               })
 
-              // TODO: compare dbus-listener, we don't have a sender name
-              // return {
-              //   path: '/' + path.replace(/^\/+/, ''),
-              //   senderName: service.name.split('.').splice(0, 3).join('.'),
-              //   value: data[path],
-              //   deviceInstance,
-              //   fluidType: service.fluidType
-              // }
             }
           })
         })
