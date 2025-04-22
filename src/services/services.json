@@ -2865,7 +2865,7 @@
   },
   "generator": {
     "help": {
-      "output": "<p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the (remote) console first.<br />The <strong>Generator start/stop<strong> dropdown is for the generic generator. It can activate a relay, but also, in case of Fischer panda, a generator directly via D-Bus.<br />The other option(s) are for generator data like voltages, RPM, oil pressure etcetera.<br />Also see <a href=\"https://github.com/victronenergy/venus/wiki/dbus#generator-data\">here</a> for more information.</p>",
+      "both": "<p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the (remote) console first.<br />The <strong>Generator start/stop<strong> dropdown is for the generic generator. It can activate a relay, but also, in case of Fischer panda, a generator directly via D-Bus.<br />The other option(s) are for generator data like voltages, RPM, oil pressure etcetera.<br />Also see <a href=\"https://github.com/victronenergy/venus/wiki/dbus#generator-data\">here</a> for more information.</p>",
       "input": "",
       "output": ""
     },
