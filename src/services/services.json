@@ -1812,7 +1812,9 @@
         "name": "Used strategy for current time slot",
         "enum": {
           "0": "Target SOC",
-          "1": "Self-consumption"
+          "1": "Self-consumption",
+          "2": "Pro battery",
+          "3": "Pro grid"
         }
       },
       {
@@ -1924,7 +1926,9 @@
         "name": "Used strategy for schedule 0",
         "enum": {
           "0": "Target SOC",
-          "1": "Self-consumption"
+          "1": "Self-consumption",
+          "2": "Pro battery",
+          "3": "Pro grid"
         },
         "mode": "both"
       },
@@ -1968,7 +1972,9 @@
         "name": "Used strategy for schedule 1",
         "enum": {
           "0": "Target SOC",
-          "1": "Self-consumption"
+          "1": "Self-consumption",
+          "2": "Pro battery",
+          "3": "Pro grid"
         },
         "mode": "both"
       },
@@ -2012,7 +2018,9 @@
         "name": "Used strategy for schedule 2",
         "enum": {
           "0": "Target SOC",
-          "1": "Self-consumption"
+          "1": "Self-consumption",
+          "2": "Pro battery",
+          "3": "Pro grid"
         },
         "mode": "both"
       },
@@ -2056,7 +2064,9 @@
         "name": "Used strategy for schedule 3",
         "enum": {
           "0": "Target SOC",
-          "1": "Self-consumption"
+          "1": "Self-consumption",
+          "2": "Pro battery",
+          "3": "Pro grid"
         },
         "mode": "both"
       }
