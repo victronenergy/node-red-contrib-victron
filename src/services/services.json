@@ -164,6 +164,11 @@
         "name": "AC Frequency (Hz)"
       },
       {
+        "path": "/Ac/PowerFactor",
+        "type": "float",
+        "name": "Power Factor"
+      },
+      {
         "path": "/Ac/L1/Current",
         "type": "float",
         "name": "L1 Current (A)"
@@ -177,6 +182,11 @@
         "path": "/Ac/L1/Power",
         "type": "float",
         "name": "L1 Power (W)"
+      },
+      {
+        "path": "/Ac/L1/PowerFactor",
+        "type": "float",
+        "name": "L1 Power Factor"
       },
       {
         "path": "/Ac/L1/Voltage",
@@ -199,6 +209,11 @@
         "name": "L2 Power (W)"
       },
       {
+        "path": "/Ac/L2/PowerFactor",
+        "type": "float",
+        "name": "L2 Power Factor"
+      },
+      {
         "path": "/Ac/L2/Voltage",
         "type": "float",
         "name": "L2 Voltage (V AC)"
@@ -217,6 +232,11 @@
         "path": "/Ac/L3/Power",
         "type": "float",
         "name": "L3 Power (W)"
+      },
+      {
+        "path": "/Ac/L3/PowerFactor",
+        "type": "float",
+        "name": "L3 Power Factor"
       },
       {
         "path": "/Ac/L3/Voltage",
@@ -2969,6 +2989,11 @@
         "name": "AC Frequency (Hz)"
       },
       {
+        "path": "/Ac/PowerFactor",
+        "type": "float",
+        "name": "Power Factor"
+      },
+      {
         "path": "/Ac/L1/Current",
         "type": "float",
         "name": "Phase 1 current (A AC)"
@@ -2982,6 +3007,11 @@
         "path": "/Ac/L1/Power",
         "type": "float",
         "name": "Phase 1 power (W)"
+      },
+      {
+        "path": "/Ac/L1/PowerFactor",
+        "type": "float",
+        "name": "L1 Power Factor"
       },
       {
         "path": "/Ac/L1/Voltage",
@@ -3004,6 +3034,11 @@
         "name": "Phase 2 power (W)"
       },
       {
+        "path": "/Ac/L2/PowerFactor",
+        "type": "float",
+        "name": "L2 Power Factor"
+      },
+      {
         "path": "/Ac/L2/Voltage",
         "type": "float",
         "name": "Phase 2 voltage (V AC)"
@@ -3022,6 +3057,11 @@
         "path": "/Ac/L3/Power",
         "type": "float",
         "name": "Phase 3 power (W)"
+      },
+      {
+        "path": "/Ac/L3/PowerFactor",
+        "type": "float",
+        "name": "L3 Power Factor"
       },
       {
         "path": "/Ac/L3/Voltage",
@@ -3460,6 +3500,11 @@
         "name": "Frequency (Hz)"
       },
       {
+        "path": "/Ac/PowerFactor",
+        "type": "float",
+        "name": "Power Factor"
+      },
+      {
         "path": "/Ac/Energy/Forward",
         "type": "float",
         "name": "Total Forward Energy (bought) (kWh)"
@@ -3490,6 +3535,11 @@
         "name": "L1 Power (W)"
       },
       {
+        "path": "/Ac/L1/PowerFactor",
+        "type": "float",
+        "name": "L1 Power Factor"
+      },
+      {
         "path": "/Ac/L1/Voltage",
         "type": "float",
         "name": "L1 Voltage (V)"
@@ -3515,6 +3565,11 @@
         "name": "L2 Power (W)"
       },
       {
+        "path": "/Ac/L2/PowerFactor",
+        "type": "float",
+        "name": "L2 Power Factor"
+      },
+      {
         "path": "/Ac/L2/Voltage",
         "type": "float",
         "name": "L2 Voltage (V)"
@@ -3538,6 +3593,11 @@
         "path": "/Ac/L3/Power",
         "type": "float",
         "name": "L3 Power (W)"
+      },
+      {
+        "path": "/Ac/L3/PowerFactor",
+        "type": "float",
+        "name": "L3 Power Factor"
       },
       {
         "path": "/Ac/L3/Voltage",
