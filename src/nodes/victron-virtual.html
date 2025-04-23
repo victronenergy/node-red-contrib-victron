@@ -15,10 +15,18 @@
 
     function checkSelectedVirtualDevice() {
         [
-            'battery', 'gps', 'grid', 'pvinverter', 'switch', 'tank', 'temperature'
+            'acload', 'battery', 'genset', 'gps', 'grid', 'pvinverter', 'switch', 'tank', 'temperature'
         ].map( x => { $('.input-'+x).hide() })
         const selected = $('select#node-input-device').val()
         $('.input-'+selected).show()
+
+        // acload is sneaky and uses the same input as grid
+        if (selected === 'acload' || selected === 'genset') {
+            $('.input-grid').show
+            $('#node-input-grid_nrofphases').prop('disabled', true)
+        } else {
+            $('#node-input-grid_nrofphases').prop('disabled', false)
+        }
 
         if (selected === 'temperature') {
             // Show/hide battery voltage input based on checkbox
@@ -96,8 +104,12 @@
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <select id="node-input-device" required onchange="checkSelectedVirtualDevice()">
             <option value="battery">Battery</option>
+            <optgroup label="Energy Meter">
+                <option value="acload">AC load</option>
+                <option value="genset">Genset</option>
+                <option value="grid">Grid meter</option>
+            </optgroup>
             <option value="gps">GPS</option>
-            <option value="grid">Grid meter</option>
             <option value="meteo">Meteo</option>
             <option value="pvinverter">PV inverter</option>
             <option value="switch">Switch</option>
@@ -325,17 +337,28 @@ is configured in Ah.
 
 Including the battery temperature adds a field to write the temperature to.
 
-### GPS
+### Energy meters
 
-The GPS device does not have any specific configuration options. It is used to
-send GPS data to VRM, typically used in a marine envirionment or on a camper van.
-On the VRM side, the GPS data will be used to determine the location of GX
-device, which is also used for forecasting solar yield. It won't show up on
-the device list, but can be found under the GPS menu in settings in the GUI.
+There are three types of energy meters that can be created:
+- AC load
+- Genset
+- Grid meter
+The AC load and genset devices are very similar. The only difference is that
+the AC load device is used to measure the load on the AC input, while the
+genset device is used to measure the load on the AC output. The genset device
+is typically used to measure the load on a generator, while the AC load device
+is used to measure the load on the AC input of a Victron system. But it 
+also be used to measure any other load, e.g. a heat pump or a charger.
 
-Setting the _initialize with default values_ is disabled for virtual GPS devices,
-as that could put your GX device unintentionally in the middle of the ocean
-and mess up solar forecast.
+All of the grid meter devices have the same configuration options. You can
+set the number of phases that are available on the device. The default is 1
+phase. The number of phases can be set to 1, 2 or 3. The default is 1 phase.
+
+Do not use this feature to make an ESS system with third party energy meters.
+There are multiple [officially supported
+meters](https://www.victronenergy.com/meters-and-sensors/energy-meter) that can
+be used in a Victron ESS system. Using other meters has proven too often to
+lead to issues related with stability.
 
 ### Grid meter
 
@@ -347,6 +370,18 @@ There are multiple [officially supported
 meters](https://www.victronenergy.com/meters-and-sensors/energy-meter) that can
 be used in a Victron ESS system. Using other meters has proven too often to
 lead to issues related with stability.
+
+### GPS
+
+The GPS device does not have any specific configuration options. It is used to
+send GPS data to VRM, typically used in a marine envirionment or on a camper van.
+On the VRM side, the GPS data will be used to determine the location of GX
+device, which is also used for forecasting solar yield. It won't show up on
+the device list, but can be found under the GPS menu in settings in the GUI.
+
+Setting the _initialize with default values_ is disabled for virtual GPS devices,
+as that could put your GX device unintentionally in the middle of the ocean
+and mess up solar forecast.
 
 ### Meteo
 

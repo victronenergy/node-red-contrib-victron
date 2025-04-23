@@ -149,6 +149,10 @@ const properties = {
     Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
   }
 }
+properties.acload = properties.grid;
+properties.genset = properties.grid;
+properties.acload['IsGenericEnergyMeter'] = { type: 'i', format: (v) => v != null ? v : '', value: 1, ro: true }
+properties.genset['IsGenericEnergyMeter'] = { type: 'i', format: (v) => v != null ? v : '', value: 1 }
 
 function getIfaceDesc (dev) {
   if (!properties[dev]) {
@@ -300,6 +304,8 @@ module.exports = function (RED) {
           text = `Virtual ${properties.battery.Capacity.format(iface.Capacity)} battery`
           break
         }
+        case 'acload':
+        case 'genset':
         case 'grid': {
           iface.NrOfPhases = Number(config.grid_nrofphases ?? 1)
           const properties = [
@@ -325,7 +331,7 @@ module.exports = function (RED) {
             iface['Ac/Frequency'] = 50
             iface['Ac/N/Current'] = 0
           }
-          text = `Virtual ${iface.NrOfPhases}-phase grid meter`
+          text = `Virtual ${iface.NrOfPhases}-phase ${config.device}`
           break
         }
         case 'meteo': {
