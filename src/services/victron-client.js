@@ -43,6 +43,10 @@ class VictronClient {
         const trail = ('/' + (msg.deviceInstance != null ? msg.deviceInstance : '')).replace(/\/$/, '')
         const msgKey = `${msg.senderName}${trail}:${msg.path}`
         debug(`[MESSAGE HANDLER] ${msgKey} | ${JSON.stringify(msg, null, 2)}`)
+        // we remove msg.text, as we don't use it, and removing it makes it "in line" with what
+        // we do in case of using regular callbacks from the cache, instead of polling (see
+        // option callbackPeriodically)
+        delete msg.text
         if (msgKey in _this.subscriptions) { _this.subscriptions[msgKey].forEach(sub => sub.callback(msg)) }
       })
     }
@@ -80,11 +84,8 @@ class VictronClient {
      * receive ItemsChanged or PropertiesChanged events). Without the polling, the option.callbackPeriodically
      * is needed to get the same effect for subscriptions that need periodic updates.
      */
-    // TODO
-    // open question: how do we stop this interval? Are we listening to a disconnect somewhere? And then how do we reconnect?
-    // we can probably use this.client.connected?
     setInterval(() => {
-      // TODO: we never stop this interval. This may be okay, as there is no mechanism to
+      // we never stop this interval. This may be okay, as there is no mechanism to
       // disconnect from dbus. In other words, once an instance of VictronClient is created,
       // it will always be connected (or try to be connected) to dbus. Thus, we can run the
       // interval indefinitely.
@@ -105,8 +106,7 @@ class VictronClient {
                 senderName,
                 deviceInstance,
                 value,
-                changed: false,
-                text: `${value}` // TODO: we have no text representation in the cache
+                changed: false
               })
             }
           })
