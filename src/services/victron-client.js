@@ -14,9 +14,10 @@ const utils = require('./utils.js')
  * @param {string} address IP address for dbus over TCP, both address and port. E.g. 127.0.0.1:78
  */
 class VictronClient {
-  constructor (address) {
+  constructor (address, options = {}) {
     this.dbusAddress = address
     this.client = null
+    this.enablePolling = options.enablePolling !== undefined ? options.enablePolling : false
 
     // Overwrite the onStatusUpdate to catch relevant VictronClient status updates
     this.onStatusUpdate = () => { }
@@ -73,7 +74,11 @@ class VictronClient {
 
     this.client = new VictronDbusListener(
       tcpAddress,
-      { eventHandler, messageHandler }
+      {
+        eventHandler,
+        messageHandler,
+        enablePolling: this.enablePolling
+      }
     )
 
     /**

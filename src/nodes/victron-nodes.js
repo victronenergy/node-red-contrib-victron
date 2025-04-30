@@ -3,11 +3,19 @@ module.exports = function (RED) {
   const utils = require('../services/utils.js')
 
   const migrateSubscriptions = (x) => {
-    const services = x.client.client.services
-    for (const key in services) {
-      if (services[key].name === x.service) {
-        x.deviceInstance = services[key].deviceInstance
-        break
+    // Check if client is fully initialized
+    if (!x.client || !x.client.client || !x.client.client.services) {
+      debug('Client not fully initialized for migration. Will retry in 1 second')
+      // Retry after a delay
+      setTimeout(migrateSubscriptions, 1000, x)
+      return
+    } else {
+      const services = x.client.client.services
+      for (const key in services) {
+        if (services[key].name === x.service) {
+          x.deviceInstance = services[key].deviceInstance
+          break
+        }
       }
     }
     if (typeof x.deviceInstance !== 'undefined' && x.deviceInstance.toString().match(/^\d+$/)) {
@@ -58,11 +66,17 @@ module.exports = function (RED) {
         if (!this.service.match(/\/\d+$/)) {
           this.deviceInstance = this.service.replace(/^.*\.(\d+)$/, '$1')
           this.service = this.service.replace(/\.\d+$/, '')
-          this.client.client.getValue(this.service, '/DeviceInstance')
-          setTimeout(migrateSubscriptions, 1000, this)
+          // Only call getValue if the client is initialized and connected
+          if (this.client && this.client.client && this.client.client.connected) {
+            this.client.client.getValue(this.service, '/DeviceInstance')
+          } else {
+            // Log a debug message if we can't get the value yet
+            debug('Client not connected yet, delaying getValue call for ' + this.service)
+            // We'll rely on the migrateSubscriptions function to retry
+          } setTimeout(migrateSubscriptions, 1000, this)
         }
 
-        const isPollingEnabled = process.env.ENABLE_POLLING !== 'false'
+        const isPollingEnabled = this.configNode.enablePolling || false
         const callbackPeriodically = !this.node.onlyChanges && !isPollingEnabled
         this.subscription = this.client.subscribe(this.service, this.path, (msg) => {
           let topic = this.defaulttopic

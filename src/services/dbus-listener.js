@@ -75,6 +75,7 @@ class VictronDbusListener {
     this.pollInterval = 5 // seconds
     this.eventHandler = callbacks.eventHandler
     this.messageHandler = callbacks.messageHandler
+    this.enablePolling = callbacks.enablePolling !== undefined ? callbacks.enablePolling : false
 
     this.bus = null
     this.rootPoller = null
@@ -118,8 +119,8 @@ class VictronDbusListener {
           })
         })
 
-        if (process.env.ENABLE_POLLING !== 'false') {
-          console.warn('Polling is enabled. This is deprecated. Set ENABLE_POLLING to "false" to disable it.')
+        if (this.enablePolling) {
+          console.warn('Polling is enabled. This is deprecated behavior.')
           this.rootPoller = setInterval(
             async () => {
               return await this._requestAllRoots()
@@ -127,7 +128,7 @@ class VictronDbusListener {
             this.pollInterval * 1000
           )
         } else {
-          console.warn('Polling is disabled, which is new behavior and a potentially breaking change. Set ENABLE_POLLING to "true" to enable it.')
+          console.warn('Polling is disabled. This is the recommended configuration.')
           // without polling, we request all roots once
           this._requestAllRoots()
             .then(() => {

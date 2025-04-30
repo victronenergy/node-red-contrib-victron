@@ -11,8 +11,7 @@ module.exports = function (RED) {
      * This way, deploying the flows doesn't reset the connection
      * and cache.
      */
-  const globalClient = new VictronClient(process.env.NODE_RED_DBUS_ADDRESS)
-  globalClient.connect()
+  let globalClient = null
 
   /**
      * An endpoint for nodes to request services from - returns either a single service, or
@@ -20,12 +19,14 @@ module.exports = function (RED) {
      */
 
   RED.httpNode.get('/victron/services/:service?', RED.auth.needsPermission('victron-client.read'), (req, res) => {
+    if (!globalClient) return res.status(503).send('Client not initialized')
     const serialized = JSON.stringify(globalClient.system.listAvailableServices(req.params.service))
     res.setHeader('Content-Type', 'application/json')
     return res.send(serialized)
   })
 
   RED.httpNode.get('/victron/cache', RED.auth.needsPermission('victron-client.read'), (req, res) => {
+    if (!globalClient) return res.status(503).send('Client not initialized')
     const serialized = JSON.stringify(globalClient.system.cache)
     res.setHeader('Content-Type', 'application/json')
     return res.send(serialized)
@@ -43,8 +44,18 @@ module.exports = function (RED) {
   function ConfigVictronClient (config) {
     RED.nodes.createNode(this, config)
 
+    if (!globalClient) {
+      const enablePolling = config.enablePolling || false
+      globalClient = new VictronClient(
+        process.env.NODE_RED_DBUS_ADDRESS,
+        { enablePolling }
+      )
+      globalClient.connect()
+    }
+
     this.client = globalClient
     this.showValues = config.showValues
+    this.enablePolling = config.enablePolling || false
     this.contextStore = config.contextStore
     let statusListeners = []
 
