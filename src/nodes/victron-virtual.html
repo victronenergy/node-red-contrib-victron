@@ -12,6 +12,16 @@
 </style>
 
 <script type="text/javascript">
+    function validateSwitchConfig() {
+        const outputs = parseInt($('#node-input-switch_nrofoutput').val());
+        const pwms = parseInt($('#node-input-switch_nrofpwm').val());
+
+        if (outputs === 0 && pwms === 0) {
+            $('#switch-validation-message').show();
+        } else {
+            $('#switch-validation-message').hide();
+        }
+    }
 
     function checkSelectedVirtualDevice() {
         [
@@ -39,6 +49,11 @@
         } else {
             $('#node-input-default_values').prop('disabled', false)
         }
+
+        if (selected === 'switch') {
+            validateSwitchConfig();
+            $('#node-input-switch_nrofoutput, #node-input-switch_nrofpwm').off('change').on('change', validateSwitchConfig);
+        }
     }
 
     RED.nodes.registerType('victron-virtual',{
@@ -58,8 +73,26 @@
             position: { value: 0, required: false},
             pvinverter_nrofphases: {value: 1, required: false},
             // switch
-            switch_nrofoutput: {value: 1, required: false},
-            switch_nrofpwm: {value: 1, required: false},
+            switch_nrofoutput: {value: 1, required: false,
+                validate: function(v) {
+                    if (this.device !== 'switch') return true;
+
+                    const outputs = parseInt(v);
+                    const pwms = parseInt(this.switch_nrofpwm);
+
+                    return (outputs > 0 || pwms > 0);
+                }
+            },
+            switch_nrofpwm: {value: 1, required: false,
+                validate: function(v) {
+                    if (this.device !== 'switch') return true;
+
+                    const pwms = parseInt(v);
+                    const outputs = parseInt(this.switch_nrofoutput);
+
+                    return (outputs > 0 || pwms > 0);
+                }
+            },
             // tank
             fluid_type: { value: 0, required: false},
             include_tank_battery: { value: false },
@@ -82,6 +115,17 @@
         },
         oneditprepare: function oneditprepare() {
             checkSelectedVirtualDevice()
+        },
+        oneditsave: function() {
+            if (this.device === 'switch') {
+                const outputs = parseInt($('#node-input-switch_nrofoutput').val());
+                const pwms = parseInt($('#node-input-switch_nrofpwm').val());
+
+                if (outputs === 0 && pwms === 0) {
+                    return false;
+                }
+            }
+            return true;
         }
     });
 </script>
@@ -193,25 +237,30 @@
                 <option value="1">1</option>
                 <option value="3">3</option>
             </select>
-        </div>        
+        </div>
     </div>
 
     <div class="input-switch">
         <div class="form-row">
-            <label for="node-input-switch_nrofoutput"><i class="fa fa-plug"></i> Nr of outputs</label>
+            <label for="node-input-switch_nrofoutput"><i class="fa fa-plug"></i> Nr of latching switches</label>
             <select id="node-input-switch_nrofoutput">
+                <option value="0">0</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
             </select>
         </div>
         <div class="form-row">
-            <label for="node-input-switch_nrofpwm"><i class="fa fa-plug"></i> Nr of pwms</label>
+            <label for="node-input-switch_nrofpwm"><i class="fa fa-plug"></i> Nr of PWMs</label>
             <select id="node-input-switch_nrofpwm">
+                <option value="0">0</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
             </select>
+        </div>
+        <div class="form-warning" id="switch-validation-message" style="display:none;">
+            <i class="fa fa-exclamation-triangle"></i> At least one of latching switches or PWMs must be greater than zero.
         </div>
     </div>
 
@@ -267,7 +316,7 @@
                 Initialize with default values
             </label>
             <div class="form-tips" style="margin-top:3px;">
-                Use this to make the device appear on VRM immediately. You can change these values later.
+                Use this to make the device appear on VRM and/or GUI-v2 immediately after deploying.<br />This is done by setting default values, which you can change later.
             </div>
         </div>
     </div>
@@ -367,14 +416,14 @@ result in the extra phases being created. They are only created during deploymen
 
 ### Switch
 
-For the switch you can set the number of outputs and the number of PWMs, which
-is just a dimmable variant output port.
+For the switch you can set the number of latching switches and the number of PWMs,
+which is a dimmable switch.
 
 This follows the same logic as the actual IO Extender GX 150. You cannot set
-the port as a relay, but as that is virtually the same as an output port, you
-should use the output port for that.
+the port as a relay, but as that is virtually the same as a latching switch, so
+you can use the latching switch for a virtual relay.
 
-Which also means that you can use the I/O extender nodes to read from and control
+This also means that you can use the I/O extender nodes to read from and control
 the virtual switch.
 
 ### Tank sensor
@@ -387,5 +436,17 @@ defined on the GX.
 
 Next to setting the temperature, the temperature sensor allows for setting
 humidity, pressure and battery voltage.
+
+
+## Device Visibility
+
+Depending on the created device, it might not appear immediately on the GX device or VRM portal. You will need to write some values to it first. Alternatively, you could use _Initialize with default values_ to make it appear on the GX device directly. Please note that those default values may not be appropriate for your specific situation, but it can help to get you started.
+
+Important notes about visibility:
+- Most virtual devices will appear on both the GX device GUI and the VRM portal once they have values
+- Virtual switch devices will ONLY be visible on the GX device GUI (GUI-v2) and will NOT appear on the VRM portal
+- Virtual GPS devices will not show up on the device list, but can be found under the GPS menu in settings in the GUI
+
+Also note that it might take a short while before the service on the dbus is actually created. So best practice is to wait a second before injecting data into the virtual device.
 
 </script>
