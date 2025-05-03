@@ -101,6 +101,10 @@ class VictronClient {
             if (sub.options && sub.options.callbackPeriodically) {
               // we need to get the value from the cache
               const data = this.system.cache[sub.dbusInterface]
+              if (!data) {
+                debug(`[CALLBACK PERIODICALLY], no data in cache for subscriptionId=${sub.subscriptionId} | dbusInterface=${sub.dbusInterface} path=${sub.path}`)
+                return
+              }
               debug(`[CALLBACK PERIODICALLY], about to callback, subscriptionId=${sub.subscriptionId} | dbusInterface=${sub.dbusInterface} path=${sub.path} data: ${JSON.stringify(data)}`)
 
               // we call the callback with the data from the cache
