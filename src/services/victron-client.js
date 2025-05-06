@@ -105,7 +105,7 @@ class VictronClient {
                 debug(`[CALLBACK PERIODICALLY], no data in cache for subscriptionId=${sub.subscriptionId} | dbusInterface=${sub.dbusInterface} path=${sub.path}`)
                 return
               }
-              debug(`[CALLBACK PERIODICALLY], about to callback, subscriptionId=${sub.subscriptionId} | dbusInterface=${sub.dbusInterface} path=${sub.path} data: ${JSON.stringify(data)}`)
+              debug(`[CALLBACK PERIODICALLY], about to callback, subscriptionId=${sub.subscriptionId} | dbusInterface=${sub.dbusInterface} path=${sub.path} data: ${JSON.stringify(data[sub.path])}`)
 
               // we call the callback with the data from the cache
               const [senderName, deviceInstance] = sub.dbusInterface.split('/')
