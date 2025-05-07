@@ -99,7 +99,15 @@
             include_tank_temperature: {value: false},
             tank_battery_voltage: { value: 3.3 },
             tank_capacity: {value:0.2, required:false,
-                validate: v => v === '' || v === undefined || Number(v) > 0},
+                validate: v => {
+                    if (v === '' || v === undefined) return true;
+                        const num = Number(v);
+                    if (isNaN(num) || num <= 0) return false;
+
+                    const decimalStr = v.toString().split('.')[1] || '';
+                    return decimalStr.length <= 3;
+                }
+            },
             // temperature
             temperature_type: {value: 2, required: false},
             include_humidity: { value: false },
