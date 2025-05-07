@@ -259,7 +259,7 @@
             </select>
         </div>
         <div class="form-row">
-            <label for="node-input-switch_nrofpwm"><i class="fa fa-plug"></i> Nr of PWMs</label>
+            <label for="node-input-switch_nrofpwm"><i class="fa fa-plug"></i> Nr of dimmable switches (PWM)</label>
             <select id="node-input-switch_nrofpwm">
                 <option value="0">0</option>
                 <option value="1">1</option>
@@ -268,7 +268,7 @@
             </select>
         </div>
         <div class="form-warning" id="switch-validation-message" style="display:none;">
-            <i class="fa fa-exclamation-triangle"></i> At least one of latching switches or PWMs must be greater than zero.
+            <i class="fa fa-exclamation-triangle"></i> At least one of latching switches or dimmable switches must be greater than zero.
         </div>
     </div>
 
@@ -424,8 +424,10 @@ result in the extra phases being created. They are only created during deploymen
 
 ### Switch
 
-For the switch you can set the number of latching switches and the number of PWMs,
-which is a dimmable switch.
+For the switch you can set the number of latching switches and the number of dimmable
+switches (PWM). The latching switches are the ones that are used to turn on and off
+the device. The dimmable switches are used to set the brightness of the
+device.
 
 This follows the same logic as the actual IO Extender GX 150. You cannot set
 the port as a relay, but as that is virtually the same as a latching switch, so
