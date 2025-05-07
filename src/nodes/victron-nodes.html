@@ -132,7 +132,7 @@
         var buildOption = function buildOption(service) {
             var optionText = service.name;
 
-            if (service.deviceInstance) {
+            if (service.deviceInstance && !optionText.includes(`(${service.deviceInstance})`)) {
                 optionText += ` (${service.deviceInstance})`;
             }
 
