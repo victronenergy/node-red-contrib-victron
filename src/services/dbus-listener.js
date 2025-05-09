@@ -377,24 +377,41 @@ class VictronDbusListener {
     // Check if we need to find the full path
     if (destination.split('/').length === 2) {
       const deviceInstance = destination.split('/')[1]
+
+      if (!this.services || Object.keys(this.services).length === 0) {
+        const err = new Error('No services available yet. Try again later.')
+        console.error(`Error in setValue: ${err.message}`)
+        if (cb) cb(err)
+        return
+      }
+
       destination = searchHaystack(this.services, deviceInstance, destination.split('/')[0])
     }
 
     if (Number.isInteger(value)) { numType = 'i' }
     if (typeof value === 'string') { numType = 's' }
-    this.bus.invoke({
-      path,
-      destination,
-      interface: 'com.victronenergy.BusItem',
-      member: 'SetValue',
-      body: [[numType, value]],
-      signature: 'v'
-    },
-    err => {
-      if (err) console.error(`Error setting value for ${destination}, ${path}, ${value}: ${err}`)
-      if (cb) cb(err)
+
+    try {
+      this.bus.invoke({
+        path,
+        destination,
+        interface: 'com.victronenergy.BusItem',
+        member: 'SetValue',
+        body: [[numType, value]],
+        signature: 'v'
+      },
+      err => {
+        if (err) {
+          console.error(`Error setting value for ${destination}, ${path}, ${value}: ${err}`)
+          if (cb) cb(err)
+        } else {
+          if (cb) cb(null)
+        }
+      })
+    } catch (error) {
+      console.error(`Exception in setValue: ${error.message}`)
+      if (cb) process.nextTick(() => cb(error))
     }
-    )
   }
 }
 

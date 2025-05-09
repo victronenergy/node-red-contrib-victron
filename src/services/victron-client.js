@@ -24,6 +24,10 @@ class VictronClient {
 
     this.system = new SystemConfiguration()
     this.subscriptions = {} // an array of subscription objects [{ "topic": topic, "handler": function }, ...]
+
+    process.on('unhandledRejection', (reason, promise) => {
+      console.error('Unhandled Rejection at:', promise, 'reason:', reason)
+    })
   }
 
   /**
@@ -215,9 +219,32 @@ class VictronClient {
      * @param {string} value value to write to the given dbus service, e.g. 1
      */
   publish (dbusInterface, path, value, cb) {
+    // Check if the service exists in the cache first
+    const serviceExists = !!this.system.cache[dbusInterface]
+
     if (this.client && this.client.connected) {
       debug(`[PUBLISH] ${dbusInterface} ${path} | ${value}`)
-      this.client.setValue(dbusInterface, path, value, cb)
+
+      // Wrap the setValue call in a try-catch to handle any synchronous errors
+      try {
+        if (!serviceExists) {
+          const msg = `Service ${dbusInterface} not found in cache. Publish may fail.`
+          console.warn(msg)
+          // Continue anyway, but warn - in case the cache isn't updated yet
+        }
+
+        this.client.setValue(dbusInterface, path, value, (err) => {
+          if (err) {
+            console.error(`Error setting value for ${dbusInterface} ${path}: ${err}`)
+            if (cb) cb(err)
+          } else {
+            if (cb) cb(null)
+          }
+        })
+      } catch (error) {
+        console.error(`Exception in publish: ${error.message}`)
+        if (cb) process.nextTick(() => cb(error))
+      }
     } else {
       const message = 'Not connected to dbus. Publish was unsuccessful.'
       console.error(message)
