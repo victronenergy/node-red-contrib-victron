@@ -15,7 +15,24 @@ const properties = {
     'Info/MaxDischargeCurrent': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
     'Info/ChargeRequest': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
     Soc: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '' },
-    Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
+    Soh: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '' },
+    Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
+    'Alarms/CellImbalance': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+    'Alarms/HighCellVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+    'Alarms/HighChargeCurrent': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+    'Alarms/HighCurrent': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+    'Alarms/HighDischargeCurrent': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+    'Alarms/HighTemperature': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+    'Alarms/HighVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+    'Alarms/InternalFailure': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+    'Alarms/LowCellVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+    'Alarms/LowSoc': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+    'Alarms/LowTemperature': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+    'Alarms/LowVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+    'Alarms/StateOfHealth': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+    ErrorCode: { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+    NrOfDistributors: { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+    'System/MinCellVoltage': { type: 'd', format: (v) => v != null ? v.toFixed(3) + 'V' : '' }
   },
   temperature: {
     Temperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
@@ -101,8 +118,8 @@ const properties = {
     'Coolant/Temperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
     'Motor/Temperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
     'Motor/RPM': { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'RPM' : '' },
-    'Motor/Direction': { 
-      type: 'i', 
+    'Motor/Direction': {
+      type: 'i',
       format: (v) => ({
         0: 'Neutral',
         1: 'Reverse',
@@ -311,6 +328,8 @@ module.exports = function (RED) {
             iface['Dc/0/Power'] = 0
             iface['Dc/0/Temperature'] = 25
             iface.Soc = 80
+            iface.Soh = 100
+            iface['System/MinCellVoltage'] = 3.3
           }
           if (!config.include_battery_temperature) {
             delete ifaceDesc.properties['Dc/0/Temperature']
@@ -376,12 +395,12 @@ module.exports = function (RED) {
             delete ifaceDesc.properties['Motor/Direction']
             delete iface['Motor/Direction']
           }
-          
+
           if (config.default_values) {
             iface['Dc/0/Current'] = 0
             iface['Dc/0/Voltage'] = 48
             iface['Dc/0/Power'] = 0
-            
+
             if (config.include_motor_temp) {
               iface['Motor/Temperature'] = 30
             }
@@ -398,14 +417,14 @@ module.exports = function (RED) {
               iface['Motor/Direction'] = 0 // Neutral
             }
           }
-          
-          text = `Virtual motor drive`
+
+          text = 'Virtual motor drive'
           // Add RPM and Direction to the node status text if they are enabled
           if (config.include_motor_rpm || config.include_motor_direction) {
-            text += " with"
-            if (config.include_motor_rpm) text += " RPM"
-            if (config.include_motor_rpm && config.include_motor_direction) text += " and"
-            if (config.include_motor_direction) text += " direction"
+            text += ' with'
+            if (config.include_motor_rpm) text += ' RPM'
+            if (config.include_motor_rpm && config.include_motor_direction) text += ' and'
+            if (config.include_motor_direction) text += ' direction'
           }
 
           break
