@@ -53,7 +53,60 @@
 
         if (selected === 'switch') {
             validateSwitchConfig();
-            $('#node-input-switch_nrofoutput, #node-input-switch_nrofpwm').off('change').on('change', validateSwitchConfig);
+            $('#node-input-switch_nrofoutput, #node-input-switch_nrofpwm').off('change').on('change', function() {
+                validateSwitchConfig();
+                updateSwitchInitialStateOptions();
+            });
+            updateSwitchInitialStateOptions();
+        }
+    }
+
+    function updateSwitchInitialStateOptions() {
+        // Show/hide initial state options based on number of outputs and PWMs
+        const outputs = parseInt($('#node-input-switch_nrofoutput').val());
+        const pwms = parseInt($('#node-input-switch_nrofpwm').val());
+        
+        $('.switch-initial-state-container').empty();
+        
+        // Create initial state options for regular outputs
+        for (let i = 1; i <= outputs; i++) {
+            const outputDiv = $('<div class="form-row switch-initial-state-row"></div>');
+            outputDiv.append(`<label for="node-input-switch_output_${i}_initial_state">Switch ${i}</label>`);
+            
+            const select = $(`<select id="node-input-switch_output_${i}_initial_state" data-output-index="${i}" data-output-type="output">`);
+            select.append('<option value="previous">Previous (from memory)</option>');
+            select.append('<option value="off">Off</option>');
+            select.append('<option value="on">On</option>');
+            
+            outputDiv.append(select);
+            $('.switch-initial-state-container').append(outputDiv);
+        }
+        
+        // Create initial state options for PWM outputs
+        for (let i = 1; i <= pwms; i++) {
+            const pwmDiv = $('<div class="form-row switch-initial-state-row"></div>');
+            pwmDiv.append(`<label for="node-input-switch_pwm_${i}_initial_state">Slider ${i}</label>`);
+            
+            const select = $(`<select id="node-input-switch_pwm_${i}_initial_state" data-output-index="${i}" data-output-type="pwm">`);
+            select.append('<option value="previous">Previous (from memory)</option>');
+            select.append('<option value="off">Off (0%)</option>');
+            select.append('<option value="custom">Custom Value</option>');
+            
+            pwmDiv.append(select);
+            
+            // Add custom value input field
+            const customValueDiv = $(`<div class="form-row switch-pwm-custom-value" id="node-input-switch_pwm_${i}_custom_value_container" style="display:none;">`);
+            customValueDiv.append(`<label></label><label for="node-input-switch_pwm_${i}_custom_value" style="width:auto;">Initial Value (%):</label>`);
+            customValueDiv.append(`<input type="number" id="node-input-switch_pwm_${i}_custom_value" style="width:100px;" min="0" max="100" step="1" value="50">`);
+            
+            $('.switch-initial-state-container').append(pwmDiv);
+            $('.switch-initial-state-container').append(customValueDiv);
+            
+            // Toggle custom value visibility based on selection
+            select.change(function() {
+                const showCustom = $(this).val() === 'custom';
+                $(`#node-input-switch_pwm_${i}_custom_value_container`).toggle(showCustom);
+            });
         }
     }
 
@@ -100,6 +153,8 @@
                     return (outputs > 0 || pwms > 0);
                 }
             },
+            switch_output_initial_states: {value: {}, required: false},
+            switch_pwm_initial_states: {value: {}, required: false},
             // tank
             fluid_type: { value: 0, required: false},
             include_tank_battery: { value: false },
@@ -127,6 +182,30 @@
         },
         oneditprepare: function oneditprepare() {
             checkSelectedVirtualDevice()
+                // Set values for initial states if they're previously configured
+                if (this.device === 'switch') {
+                    // Need a short delay to let the dynamic elements be created
+                    setTimeout(() => {
+                        // Set output initial states
+                        if (this.switch_output_initial_states) {
+                            for (const [index, state] of Object.entries(this.switch_output_initial_states)) {
+                                $('#node-input-switch_output_' + index + '_initial_state').val(state);
+                            }
+                        }
+                        
+                        // Set PWM initial states
+                        if (this.switch_pwm_initial_states) {
+                            for (const [index, stateObj] of Object.entries(this.switch_pwm_initial_states)) {
+                                $('#node-input-switch_pwm_' + index + '_initial_state').val(stateObj.type);
+                                if (stateObj.type === 'custom') {
+                                    $('#node-input-switch_pwm_' + index + '_custom_value').val(stateObj.value);
+                                    $('#node-input-switch_pwm_' + index + '_custom_value_container').show();
+                                }
+                            }
+                        }
+                        
+                    }, 100);
+                }
         },
         oneditsave: function() {
             if (this.device === 'switch') {
@@ -136,6 +215,22 @@
                 if (outputs === 0 && pwms === 0) {
                     return false;
                 }
+                const outputStates = {};
+                for (let i = 1; i <= outputs; i++) {
+                    outputStates[i] = $('#node-input-switch_output_' + i + '_initial_state').val();
+                }
+                this.switch_output_initial_states = outputStates;
+                
+                const pwmStates = {};
+                for (let i = 1; i <= pwms; i++) {
+                    const stateType = $('#node-input-switch_pwm_' + i + '_initial_state').val();
+                    pwmStates[i] = {
+                        type: stateType,
+                        value: stateType === 'custom' ? 
+                            parseFloat($('#node-input-switch_pwm_' + i + '_custom_value').val()) : 0
+                    };
+                }
+                this.switch_pwm_initial_states = pwmStates;
             }
             return true;
         }
@@ -303,7 +398,7 @@
 
     <div class="input-switch">
         <div class="form-row">
-            <label for="node-input-switch_nrofoutput"><i class="fa fa-plug"></i> Nr of latching switches</label>
+            <label for="node-input-switch_nrofoutput"><i class="fa fa-plug"></i> Nr of switches</label>
             <select id="node-input-switch_nrofoutput">
                 <option value="0">0</option>
                 <option value="1">1</option>
@@ -312,7 +407,7 @@
             </select>
         </div>
         <div class="form-row">
-            <label for="node-input-switch_nrofpwm"><i class="fa fa-plug"></i> Nr of dimmable switches (PWM)</label>
+            <label for="node-input-switch_nrofpwm"><i class="fa fa-plug"></i> Nr of sliders</label>
             <select id="node-input-switch_nrofpwm">
                 <option value="0">0</option>
                 <option value="1">1</option>
@@ -322,6 +417,13 @@
         </div>
         <div class="form-warning" id="switch-validation-message" style="display:none;">
             <i class="fa fa-exclamation-triangle"></i> At least one of latching switches or dimmable switches must be greater than zero.
+        </div>
+
+        <div class="form-row" id="switch-initial-states-header" style="margin-top: 10px;">
+            <label><i class="fa fa-sliders"></i> Initial States</label>
+        </div>
+        <div class="switch-initial-state-container">
+            <!-- This will be populated dynamically -->
         </div>
     </div>
 

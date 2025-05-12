@@ -12,5 +12,30 @@ module.exports = {
             metrics: false,
             audit: false
         }
+    },
+contextStorage: {
+    default: "memory",
+    memory: { module: "memory" },
+    persistent: {
+        module: "localfilesystem",
+        config: {
+            dir: process.env.HOME + "/.node-red/context",
+            flushInterval: 30,
+            sync: true
+        }
     }
+},
+    // Add this to ensure contexts are saved before shutdown
+    exitHandlers: [function() {
+        console.log("Flushing persistent context storage before exit");
+        try {
+            const storage = RED.runtime.nodes.listContextStorage();
+            if (storage && storage.persistent) {
+                storage.persistent.emit('flush');
+                console.log("Flushed persistent context storage");
+            }
+        } catch (e) {
+            console.error("Error flushing context storage", e);
+        }
+    }]
 };

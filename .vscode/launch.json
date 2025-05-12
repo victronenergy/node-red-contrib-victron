@@ -2,17 +2,21 @@
     "version": "0.2.0",
     "configurations": [
       {
-        "type": "node",
-        "request": "launch",
-        "name": "Launch Node-red",
-        "program": "${env:NVM_BIN}/../lib/node_modules/node-red/red.js",
-        "cwd": "${env:HOME}",
-        "args": ["-s", "${workspaceFolder}/.vscode/settings.js"],
-        "runtimeArgs": ["--preserve-symlinks", "--experimental-modules"],
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Node-red",
+      "runtimeExecutable": "npx", 
+      "runtimeArgs": [
+        "node-red",
+        "-s", 
+        "${workspaceFolder}/.vscode/settings.js"
+      ],
+      "cwd": "${env:HOME}",
         "env": {
           "NO_UPDATE_NOTIFIER": "1",
-          // "DEBUG": "*",
-          "NODE_RED_DBUS_ADDRESS": "${env:NODE_RED_DBUS_IP}"
+          "DEBUG": "*",
+          "NODE_RED_DBUS_ADDRESS": "10.230.1.63:78",
+          // "NODE_RED_DBUS_ADDRESS": "${env:NODE_RED_DBUS_IP}"
         },
         "envFile": "${workspaceFolder}/.env"
       },
