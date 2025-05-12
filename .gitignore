@@ -4,3 +4,4 @@ scripts/csv/*.csv
 missingpaths.template.json
 
 *.swp
+.env
