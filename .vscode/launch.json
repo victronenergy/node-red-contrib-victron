@@ -12,8 +12,9 @@
         "env": {
           "NO_UPDATE_NOTIFIER": "1",
           // "DEBUG": "*",
-          "NODE_RED_DBUS_ADDRESS": "venus.local:78"
-        }
+          "NODE_RED_DBUS_ADDRESS": "${env:NODE_RED_DBUS_IP}"
+        },
+        "envFile": "${workspaceFolder}/.env"
       },
       {
         "type": "node",
