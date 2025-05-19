@@ -65,24 +65,33 @@
         // Show/hide initial state options based on number of outputs and PWMs
         const outputs = parseInt($('#node-input-switch_nrofoutput').val());
         const pwms = parseInt($('#node-input-switch_nrofpwm').val());
-        
+
         $('.switch-initial-state-container').empty();
-        
-        // Create initial state options for regular outputs
+
         for (let i = 1; i <= outputs; i++) {
+            const switchTypeDiv = $('<div class="form-row switch-type-row"></div>');
+            switchTypeDiv.append(`<label for="node-input-switch_output_${i}_type">Switch ${i} Type</label>`);
+
+            const typeSelect = $(`<select id="node-input-switch_output_${i}_type" data-output-index="${i}" data-output-type="output">`);
+            typeSelect.append('<option value="1">Latching (On/Off)</option>');
+            typeSelect.append('<option value="0">Momentary (Pulse)</option>');
+
+            switchTypeDiv.append(typeSelect);
+            $('.switch-initial-state-container').append(switchTypeDiv);
+
             const outputDiv = $('<div class="form-row switch-initial-state-row"></div>');
-            outputDiv.append(`<label for="node-input-switch_output_${i}_initial_state">Switch ${i}</label>`);
-            
+            outputDiv.append(`<label for="node-input-switch_output_${i}_initial_state">Switch ${i} Initial State</label>`);
+
             const select = $(`<select id="node-input-switch_output_${i}_initial_state" data-output-index="${i}" data-output-type="output">`);
             select.append('<option value="previous">Previous (from memory)</option>');
             select.append('<option value="off">Off</option>');
             select.append('<option value="on">On</option>');
+            select.append('<option value="null">Don\'t set (null)</option>');
             
             outputDiv.append(select);
             $('.switch-initial-state-container').append(outputDiv);
         }
-        
-        // Create initial state options for PWM outputs
+
         for (let i = 1; i <= pwms; i++) {
             const pwmDiv = $('<div class="form-row switch-initial-state-row"></div>');
             pwmDiv.append(`<label for="node-input-switch_pwm_${i}_initial_state">Slider ${i}</label>`);
@@ -91,18 +100,17 @@
             select.append('<option value="previous">Previous (from memory)</option>');
             select.append('<option value="off">Off (0%)</option>');
             select.append('<option value="custom">Custom Value</option>');
+            select.append('<option value="null">Don\'t set (null)</option>');
             
             pwmDiv.append(select);
-            
-            // Add custom value input field
+
             const customValueDiv = $(`<div class="form-row switch-pwm-custom-value" id="node-input-switch_pwm_${i}_custom_value_container" style="display:none;">`);
             customValueDiv.append(`<label></label><label for="node-input-switch_pwm_${i}_custom_value" style="width:auto;">Initial Value (%):</label>`);
             customValueDiv.append(`<input type="number" id="node-input-switch_pwm_${i}_custom_value" style="width:100px;" min="0" max="100" step="1" value="50">`);
-            
+
             $('.switch-initial-state-container').append(pwmDiv);
             $('.switch-initial-state-container').append(customValueDiv);
-            
-            // Toggle custom value visibility based on selection
+
             select.change(function() {
                 const showCustom = $(this).val() === 'custom';
                 $(`#node-input-switch_pwm_${i}_custom_value_container`).toggle(showCustom);
@@ -143,6 +151,7 @@
                     return (outputs > 0 || pwms > 0);
                 }
             },
+            switch_output_types: {value: {}, required: false},
             switch_nrofpwm: {value: 1, required: false,
                 validate: function(v) {
                     if (this.device !== 'switch') return true;
@@ -182,32 +191,33 @@
         },
         oneditprepare: function oneditprepare() {
             checkSelectedVirtualDevice()
-                // Set values for initial states if they're previously configured
-                if (this.device === 'switch') {
-                    // Need a short delay to let the dynamic elements be created
-                    setTimeout(() => {
-                        // Set output initial states
-                        if (this.switch_output_initial_states) {
-                            for (const [index, state] of Object.entries(this.switch_output_initial_states)) {
-                                $('#node-input-switch_output_' + index + '_initial_state').val(state);
+            if (this.device === 'switch') {
+                setTimeout(() => {
+                    if (this.switch_output_types) {
+                        for (const [index, type] of Object.entries(this.switch_output_types)) {
+                            $('#node-input-switch_output_' + index + '_type').val(type);
+                        }
+                    }
+
+                    if (this.switch_output_initial_states) {
+                        for (const [index, state] of Object.entries(this.switch_output_initial_states)) {
+                            $('#node-input-switch_output_' + index + '_initial_state').val(state);
+                        }
+                    }
+
+                    if (this.switch_pwm_initial_states) {
+                        for (const [index, stateObj] of Object.entries(this.switch_pwm_initial_states)) {
+                            $('#node-input-switch_pwm_' + index + '_initial_state').val(stateObj.type);
+                            if (stateObj.type === 'custom') {
+                                $('#node-input-switch_pwm_' + index + '_custom_value').val(stateObj.value);
+                                $('#node-input-switch_pwm_' + index + '_custom_value_container').show();
                             }
                         }
-                        
-                        // Set PWM initial states
-                        if (this.switch_pwm_initial_states) {
-                            for (const [index, stateObj] of Object.entries(this.switch_pwm_initial_states)) {
-                                $('#node-input-switch_pwm_' + index + '_initial_state').val(stateObj.type);
-                                if (stateObj.type === 'custom') {
-                                    $('#node-input-switch_pwm_' + index + '_custom_value').val(stateObj.value);
-                                    $('#node-input-switch_pwm_' + index + '_custom_value_container').show();
-                                }
-                            }
-                        }
-                        
-                    }, 100);
-                }
+                    }
+                }, 100);
+            }
         },
-        oneditsave: function() {
+        oneditsave: function oneditsave() {
             if (this.device === 'switch') {
                 const outputs = parseInt($('#node-input-switch_nrofoutput').val());
                 const pwms = parseInt($('#node-input-switch_nrofpwm').val());
@@ -215,12 +225,19 @@
                 if (outputs === 0 && pwms === 0) {
                     return false;
                 }
+
+                const outputTypes = {};
+                for (let i = 1; i <= outputs; i++) {
+                    outputTypes[i] = $('#node-input-switch_output_' + i + '_type').val();
+                }
+                this.switch_output_types = outputTypes;
+
                 const outputStates = {};
                 for (let i = 1; i <= outputs; i++) {
                     outputStates[i] = $('#node-input-switch_output_' + i + '_initial_state').val();
                 }
                 this.switch_output_initial_states = outputStates;
-                
+
                 const pwmStates = {};
                 for (let i = 1; i <= pwms; i++) {
                     const stateType = $('#node-input-switch_pwm_' + i + '_initial_state').val();
@@ -596,16 +613,31 @@ result in the extra phases being created. They are only created during deploymen
 ### Switch
 
 For the switch you can set the number of latching switches and the number of dimmable
-switches (PWM). The latching switches are the ones that are used to turn on and off
-the device. The dimmable switches are used to set the brightness of the
-device.
+switches (PWM). The latching switches can be configured in two different modes:
 
-This follows the same logic as the actual IO Extender GX 150. You cannot set
-the port as a relay, but as that is virtually the same as a latching switch, so
-you can use the latching switch for a virtual relay.
+1. **Latching (On/Off)** - Stays in the state it's set to (on or off) until changed
+2. **Momentary (Pulse)** - Provides a momentary pulse, then returns to its default state
 
-This also means that you can use the I/O extender nodes to read from and control
-the virtual switch.
+The number of dimmable switches determines how many sliders are available for dimming control.
+
+This follows the same logic as the actual IO Extender GX 150. You can set
+the port as a momentary switch, latching switch or as a dimmable output (PWM).
+
+Each switch or slider can be configured with different initial states:
+
+1. **Previous (from memory)** - Restores the last state from memory when Node-RED restarts
+2. **Off** - Sets the switch to off (0) or the slider to 0% when deployed
+3. **On** - Sets the switch to on (1) when deployed (switches only)
+4. **Custom Value** - Sets the slider to a custom percentage value (sliders only)
+5. **Don't set (null)** - Doesn't change the state at all on deployment, requiring manual control
+
+The "Don't set (null)" option is useful when you want to:
+- Avoid any automatic state changes during deployment
+- Manually control the state after deployment
+- Keep the current state without modifying it on restart
+- Implement custom initialization logic in your flows
+
+You can use the I/O extender nodes to read from and control the virtual switch.
 
 ### Tank sensor
 

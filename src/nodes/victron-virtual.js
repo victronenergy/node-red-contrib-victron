@@ -306,6 +306,11 @@ function setupSwitchProperties(config, iface, ifaceDesc, switchData) {
         value += ` ${i}`;
       }
 
+      if ( name === 'Settings/Type' && config.switch_output_types) {
+        const typeVal = parseInt(config.switch_output_types[i], 10);
+        value = (typeVal === 0) ? 0 : 1;
+      }
+
       iface[key] = value !== undefined ? value : 0;
 
       if (name === 'State') {
@@ -443,25 +448,33 @@ function applySwitchSavedStates(savedData, iface, switchData, config) {
   const switchStates = savedData.switches;
   let appliedAny = false;
 
-  switchData.outputKeys.forEach((key) => {
-    if (switchStates[key] !== undefined) {
-      iface[key] = switchStates[key];
-      // console.info(`Applied saved state for output ${key}: ${switchStates[key]}`);
-      if (typeof iface.emit === 'function') {
-        iface.emit(key, switchStates[key]);
+  switchData.outputKeys.forEach((key, idx) => {
+    const outputNum = idx + 1;
+    const initialSetting = config.switch_output_initial_states && config.switch_output_initial_states[outputNum];
+    if (!initialSetting || initialSetting === 'previous') {
+      if (switchStates[key] !== undefined) {
+        iface[key] = switchStates[key];
+        // console.info(`Applied saved state for output ${key}: ${switchStates[key]}`);
+        if (typeof iface.emit === 'function') {
+          iface.emit(key, switchStates[key]);
+        }
+        appliedAny = true;
       }
-      appliedAny = true;
     }
   });
 
-  switchData.pwmKeys.forEach((key) => {
-    if (switchStates[key] !== undefined) {
-      iface[key] = switchStates[key];
-      // console.info(`Applied saved state for PWM ${key}: ${switchStates[key]}`);
-      if (typeof iface.emit === 'function') {
-        iface.emit(key, switchStates[key]);
+  switchData.pwmKeys.forEach((key, idx) => {
+    const pwmNum = idx + 1;
+    const initialSetting = config.switch_pwm_initial_states && config.switch_pwm_initial_states[pwmNum];
+    if (!initialSetting || initialSetting === 'previous') {
+      if (switchStates[key] !== undefined) {
+        iface[key] = switchStates[key];
+        // console.info(`Applied saved state for PWM ${key}: ${switchStates[key]}`);
+        if (typeof iface.emit === 'function') {
+          iface.emit(key, switchStates[key]);
+        }
+        appliedAny = true;
       }
-      appliedAny = true;
     }
   });
 
@@ -514,7 +527,7 @@ function applySwitchSavedStates(savedData, iface, switchData, config) {
 }
 
 function applySwitchConfiguredInitialStates(config, iface, switchData) {
-  // console.info('Applying configured initial states for switch');
+  console.info('Applying configured initial states for switch');
 
   if (config.switch_output_initial_states) {
     switchData.outputKeys.forEach((key, idx) => {
@@ -524,6 +537,9 @@ function applySwitchConfiguredInitialStates(config, iface, switchData) {
       if (initialSetting === 'on') {
         iface[key] = 1;
         // console.info(`Applied configured initial state for ${key}: ON (1)`);
+      } else if (initialSetting === 'null') {
+        iface[key] = null;
+        // console.info(`Applied configured initial state for ${key}: NULL`);
       } else if (initialSetting === 'off') {
         iface[key] = 0;
         // console.info(`Applied configured initial state for ${key}: OFF (0)`);
