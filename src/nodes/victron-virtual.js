@@ -234,43 +234,43 @@ function getIface (dev) {
   return result
 }
 
-function setupVirtualSwitch(config, iface, ifaceDesc, node, persistentStorage, pathsToTrack, settingsKeysToTrack) {
+function setupVirtualSwitch (config, iface, ifaceDesc, node, persistentStorage, pathsToTrack, settingsKeysToTrack) {
   const switchData = {
     outputKeys: [],
     pwmKeys: []
-  };
+  }
 
   for (let i = 1; i <= Number(config.switch_nrofoutput ?? 0); i++) {
-    settingsKeysToTrack.push(`SwitchableOutput/output_${i}/State`);
-    settingsKeysToTrack.push(`SwitchableOutput/output_${i}/Settings/CustomName`);
-    settingsKeysToTrack.push(`SwitchableOutput/output_${i}/Settings/Group`);
+    settingsKeysToTrack.push(`SwitchableOutput/output_${i}/State`)
+    settingsKeysToTrack.push(`SwitchableOutput/output_${i}/Settings/CustomName`)
+    settingsKeysToTrack.push(`SwitchableOutput/output_${i}/Settings/Group`)
   }
 
   for (let i = 1; i <= Number(config.switch_nrofpwm ?? 0); i++) {
-    settingsKeysToTrack.push(`SwitchableOutput/pwm_${i}/Dimming`);
-    settingsKeysToTrack.push(`SwitchableOutput/pwm_${i}/Settings/CustomName`);
-    settingsKeysToTrack.push(`SwitchableOutput/pwm_${i}/Settings/Group`);
+    settingsKeysToTrack.push(`SwitchableOutput/pwm_${i}/Dimming`)
+    settingsKeysToTrack.push(`SwitchableOutput/pwm_${i}/Settings/CustomName`)
+    settingsKeysToTrack.push(`SwitchableOutput/pwm_${i}/Settings/Group`)
   }
 
-  setupSwitchProperties(config, iface, ifaceDesc, switchData);
-  setupSwitchPathsToTrack(config, pathsToTrack);
+  setupSwitchProperties(config, iface, ifaceDesc, switchData)
+  setupSwitchPathsToTrack(config, pathsToTrack)
 
   if (persistentStorage) {
-    const persistenceKey = `victron-virtual-device-${node.id}`;
-    setupSwitchStateMonitoring(iface, node, persistentStorage, persistenceKey, switchData);
-    initializeSwitchState(config, iface, node, persistentStorage, switchData);
+    const persistenceKey = `victron-virtual-device-${node.id}`
+    setupSwitchStateMonitoring(iface, node, persistentStorage, persistenceKey, switchData)
+    initializeSwitchState(config, iface, node, persistentStorage, switchData)
   } else {
     // console.info('No persistence available for switch, applying initial states');
-    applySwitchConfiguredInitialStates(config, iface, switchData);
+    applySwitchConfiguredInitialStates(config, iface, switchData)
   }
 
   return {
     text: `Virtual switch: ${config.switch_nrofoutput} switch(es), ${config.switch_nrofpwm} slider(s)`,
     data: switchData
-  };
+  }
 }
 
-function setupSwitchProperties(config, iface, ifaceDesc, switchData) {
+function setupSwitchProperties (config, iface, ifaceDesc, switchData) {
   const properties = [
     {
       name: 'State',
@@ -295,28 +295,28 @@ function setupSwitchProperties(config, iface, ifaceDesc, switchData) {
       value: 1
     },
     { name: 'Settings/ValidTypes', type: 'i', value: 0x3 }
-  ];
+  ]
 
   for (let i = 1; i <= Number(config.switch_nrofoutput ?? 0); i++) {
     properties.forEach(({ name, type, value }) => {
-      const key = `SwitchableOutput/output_${i}/${name}`;
-      ifaceDesc.properties[key] = { type };
+      const key = `SwitchableOutput/output_${i}/${name}`
+      ifaceDesc.properties[key] = { type }
 
       if (name === 'Name') {
-        value += ` ${i}`;
+        value += ` ${i}`
       }
 
-      if ( name === 'Settings/Type' && config.switch_output_types) {
-        const typeVal = parseInt(config.switch_output_types[i], 10);
-        value = (typeVal === 0) ? 0 : 1;
+      if (name === 'Settings/Type' && config.switch_output_types) {
+        const typeVal = parseInt(config.switch_output_types[i], 10)
+        value = (typeVal === 0) ? 0 : 1
       }
 
-      iface[key] = value !== undefined ? value : 0;
+      iface[key] = value !== undefined ? value : 0
 
       if (name === 'State') {
-        switchData.outputKeys.push(key);
+        switchData.outputKeys.push(key)
       }
-    });
+    })
   }
 
   properties.push({
@@ -325,90 +325,90 @@ function setupSwitchProperties(config, iface, ifaceDesc, switchData) {
     max: 100,
     type: 'd',
     format: (v) => v != null ? v.toFixed(1) + '%' : ''
-  });
+  })
 
   for (let i = 1; i <= Number(config.switch_nrofpwm ?? 0); i++) {
     properties.forEach(({ name, type, value, format, min, max }) => {
-      const key = `SwitchableOutput/pwm_${i}/${name}`;
-      ifaceDesc.properties[key] = { type, format };
+      const key = `SwitchableOutput/pwm_${i}/${name}`
+      ifaceDesc.properties[key] = { type, format }
 
       if (min != null) {
-        ifaceDesc.properties[key].min = min;
+        ifaceDesc.properties[key].min = min
       }
       if (max != null) {
-        ifaceDesc.properties[key].max = max;
+        ifaceDesc.properties[key].max = max
       }
       if (name === 'Settings/ValidTypes') {
-        value = 0x4; // Only dimmable
+        value = 0x4 // Only dimmable
       }
       if (name === 'Settings/Type') {
-        value = 2; // Set to dimmable
+        value = 2 // Set to dimmable
       }
       if (name === 'Name') {
-        value = `Slider ${i}`;
+        value = `Slider ${i}`
       }
       if (name === 'Dimming') {
-        switchData.pwmKeys.push(key);
+        switchData.pwmKeys.push(key)
       }
-      iface[key] = value !== undefined ? value : 0;
-    });
+      iface[key] = value !== undefined ? value : 0
+    })
   }
 }
 
-function setupSwitchPathsToTrack(config, pathsToTrack) {
+function setupSwitchPathsToTrack (config, pathsToTrack) {
   if (config.switch_output_initial_states) {
     for (let i = 1; i <= Number(config.switch_nrofoutput ?? 0); i++) {
-      const stateKey = `SwitchableOutput/output_${i}/State`;
-      const initialSetting = config.switch_output_initial_states[i];
+      const stateKey = `SwitchableOutput/output_${i}/State`
+      const initialSetting = config.switch_output_initial_states[i]
 
       if (initialSetting === 'previous' || initialSetting === undefined) {
-        pathsToTrack.push(stateKey);
+        pathsToTrack.push(stateKey)
       }
 
-      pathsToTrack.push(`SwitchableOutput/output_${i}/Settings/CustomName`);
-      pathsToTrack.push(`SwitchableOutput/output_${i}/Settings/Group`);
+      pathsToTrack.push(`SwitchableOutput/output_${i}/Settings/CustomName`)
+      pathsToTrack.push(`SwitchableOutput/output_${i}/Settings/Group`)
     }
   } else {
     for (let i = 1; i <= Number(config.switch_nrofoutput ?? 0); i++) {
-      pathsToTrack.push(`SwitchableOutput/output_${i}/State`);
-      pathsToTrack.push(`SwitchableOutput/output_${i}/Settings/CustomName`);
-      pathsToTrack.push(`SwitchableOutput/output_${i}/Settings/Group`);
+      pathsToTrack.push(`SwitchableOutput/output_${i}/State`)
+      pathsToTrack.push(`SwitchableOutput/output_${i}/Settings/CustomName`)
+      pathsToTrack.push(`SwitchableOutput/output_${i}/Settings/Group`)
     }
   }
 
   if (config.switch_pwm_initial_states) {
     for (let i = 1; i <= Number(config.switch_nrofpwm ?? 0); i++) {
-      const dimmingKey = `SwitchableOutput/pwm_${i}/Dimming`;
-      const initialSetting = config.switch_pwm_initial_states[i];
+      const dimmingKey = `SwitchableOutput/pwm_${i}/Dimming`
+      const initialSetting = config.switch_pwm_initial_states[i]
 
       if (!initialSetting || initialSetting.type === 'previous') {
-        pathsToTrack.push(dimmingKey);
+        pathsToTrack.push(dimmingKey)
       }
 
-      pathsToTrack.push(`SwitchableOutput/pwm_${i}/Settings/CustomName`);
-      pathsToTrack.push(`SwitchableOutput/pwm_${i}/Settings/Group`);
+      pathsToTrack.push(`SwitchableOutput/pwm_${i}/Settings/CustomName`)
+      pathsToTrack.push(`SwitchableOutput/pwm_${i}/Settings/Group`)
     }
   } else {
     for (let i = 1; i <= Number(config.switch_nrofpwm ?? 0); i++) {
-      pathsToTrack.push(`SwitchableOutput/pwm_${i}/Dimming`);
-      pathsToTrack.push(`SwitchableOutput/pwm_${i}/Settings/CustomName`);
-      pathsToTrack.push(`SwitchableOutput/pwm_${i}/Settings/Group`);
+      pathsToTrack.push(`SwitchableOutput/pwm_${i}/Dimming`)
+      pathsToTrack.push(`SwitchableOutput/pwm_${i}/Settings/CustomName`)
+      pathsToTrack.push(`SwitchableOutput/pwm_${i}/Settings/Group`)
     }
   }
 }
 
-function setupSwitchStateMonitoring(iface, node, persistentStorage, persistenceKey, switchData) {
-  const originalEmit = iface.emit;
+function setupSwitchStateMonitoring (iface, node, persistentStorage, persistenceKey, switchData) {
+  const originalEmit = iface.emit
 
-  iface.emit = function(propName, newValue) {
-    const currentData = node.context().get(persistenceKey, persistentStorage) || {};
+  iface.emit = function (propName, newValue) {
+    const currentData = node.context().get(persistenceKey, persistentStorage) || {}
 
     if (!currentData.switches) {
-      currentData.switches = {};
+      currentData.switches = {}
     }
 
     if (propName === 'CustomName') {
-      currentData.CustomName = newValue;
+      currentData.CustomName = newValue
       // console.info(`Saved CustomName change: ${newValue}`);
     }
 
@@ -416,152 +416,152 @@ function setupSwitchStateMonitoring(iface, node, persistentStorage, persistenceK
         switchData.pwmKeys.includes(propName) ||
         propName.includes('/Settings/CustomName') ||
         propName.includes('/Settings/Group')) {
-      currentData.switches[propName] = newValue;
+      currentData.switches[propName] = newValue
       // console.info(`Saved state change: ${propName} = ${newValue}`);
     }
 
-    node.context().set(persistenceKey, currentData, persistentStorage);
+    node.context().set(persistenceKey, currentData, persistentStorage)
 
-    return originalEmit.apply(this, arguments);
-  };
+    return originalEmit.apply(this, arguments)
+  }
 }
 
-function initializeSwitchState(config, iface, node, persistentStorage, switchData) {
-  const persistenceKey = `victron-virtual-device-${node.id}`;
-  const savedData = node.context().get(persistenceKey, persistentStorage);
+function initializeSwitchState (config, iface, node, persistentStorage, switchData) {
+  const persistenceKey = `victron-virtual-device-${node.id}`
+  const savedData = node.context().get(persistenceKey, persistentStorage)
 
   if (!savedData || !savedData.switches || Object.keys(savedData.switches).length === 0) {
     // console.info('No saved switch data found, applying configured initial states');
-    applySwitchConfiguredInitialStates(config, iface, switchData);
+    applySwitchConfiguredInitialStates(config, iface, switchData)
   } else {
     // console.info(`Loading saved switch data: ${JSON.stringify(savedData)}`);
-    const appliedSaved = applySwitchSavedStates(savedData, iface, switchData, config);
+    const appliedSaved = applySwitchSavedStates(savedData, iface, switchData, config)
     if (!appliedSaved) {
-      applySwitchConfiguredInitialStates(config, iface, switchData);
+      applySwitchConfiguredInitialStates(config, iface, switchData)
     }
   }
 }
 
-function applySwitchSavedStates(savedData, iface, switchData, config) {
-  if (!savedData || !savedData.switches) return false;
+function applySwitchSavedStates (savedData, iface, switchData, config) {
+  if (!savedData || !savedData.switches) return false
 
-  const switchStates = savedData.switches;
-  let appliedAny = false;
+  const switchStates = savedData.switches
+  let appliedAny = false
 
   switchData.outputKeys.forEach((key, idx) => {
-    const outputNum = idx + 1;
-    const initialSetting = config.switch_output_initial_states && config.switch_output_initial_states[outputNum];
+    const outputNum = idx + 1
+    const initialSetting = config.switch_output_initial_states && config.switch_output_initial_states[outputNum]
     if (!initialSetting || initialSetting === 'previous') {
       if (switchStates[key] !== undefined) {
-        iface[key] = switchStates[key];
+        iface[key] = switchStates[key]
         // console.info(`Applied saved state for output ${key}: ${switchStates[key]}`);
         if (typeof iface.emit === 'function') {
-          iface.emit(key, switchStates[key]);
+          iface.emit(key, switchStates[key])
         }
-        appliedAny = true;
+        appliedAny = true
       }
     }
-  });
+  })
 
   switchData.pwmKeys.forEach((key, idx) => {
-    const pwmNum = idx + 1;
-    const initialSetting = config.switch_pwm_initial_states && config.switch_pwm_initial_states[pwmNum];
+    const pwmNum = idx + 1
+    const initialSetting = config.switch_pwm_initial_states && config.switch_pwm_initial_states[pwmNum]
     if (!initialSetting || initialSetting === 'previous') {
       if (switchStates[key] !== undefined) {
-        iface[key] = switchStates[key];
+        iface[key] = switchStates[key]
         // console.info(`Applied saved state for PWM ${key}: ${switchStates[key]}`);
         if (typeof iface.emit === 'function') {
-          iface.emit(key, switchStates[key]);
+          iface.emit(key, switchStates[key])
         }
-        appliedAny = true;
+        appliedAny = true
       }
     }
-  });
+  })
 
   for (let i = 1; i <= Number(config.switch_nrofoutput ?? 0); i++) {
-    const customNameKey = `SwitchableOutput/output_${i}/Settings/CustomName`;
-    const groupKey = `SwitchableOutput/output_${i}/Settings/Group`;
+    const customNameKey = `SwitchableOutput/output_${i}/Settings/CustomName`
+    const groupKey = `SwitchableOutput/output_${i}/Settings/Group`
 
     if (switchStates[customNameKey] !== undefined) {
-      iface[customNameKey] = switchStates[customNameKey];
+      iface[customNameKey] = switchStates[customNameKey]
       // console.info(`Applied saved CustomName for output ${i}: ${switchStates[customNameKey]}`);
       if (typeof iface.emit === 'function') {
-        iface.emit(customNameKey, switchStates[customNameKey]);
+        iface.emit(customNameKey, switchStates[customNameKey])
       }
-      appliedAny = true;
+      appliedAny = true
     }
 
     if (switchStates[groupKey] !== undefined) {
-      iface[groupKey] = switchStates[groupKey];
+      iface[groupKey] = switchStates[groupKey]
       // console.info(`Applied saved Group for output ${i}: ${switchStates[groupKey]}`);
       if (typeof iface.emit === 'function') {
-        iface.emit(groupKey, switchStates[groupKey]);
+        iface.emit(groupKey, switchStates[groupKey])
       }
-      appliedAny = true;
+      appliedAny = true
     }
   }
 
   for (let i = 1; i <= Number(config.switch_nrofpwm ?? 0); i++) {
-    const customNameKey = `SwitchableOutput/pwm_${i}/Settings/CustomName`;
-    const groupKey = `SwitchableOutput/pwm_${i}/Settings/Group`;
+    const customNameKey = `SwitchableOutput/pwm_${i}/Settings/CustomName`
+    const groupKey = `SwitchableOutput/pwm_${i}/Settings/Group`
 
     if (switchStates[customNameKey] !== undefined) {
-      iface[customNameKey] = switchStates[customNameKey];
+      iface[customNameKey] = switchStates[customNameKey]
       // console.info(`Applied saved CustomName for PWM ${i}: ${switchStates[customNameKey]}`);
       if (typeof iface.emit === 'function') {
-        iface.emit(customNameKey, switchStates[customNameKey]);
+        iface.emit(customNameKey, switchStates[customNameKey])
       }
-      appliedAny = true;
+      appliedAny = true
     }
 
     if (switchStates[groupKey] !== undefined) {
-      iface[groupKey] = switchStates[groupKey];
+      iface[groupKey] = switchStates[groupKey]
       // console.info(`Applied saved Group for PWM ${i}: ${switchStates[groupKey]}`);
       if (typeof iface.emit === 'function') {
-        iface.emit(groupKey, switchStates[groupKey]);
+        iface.emit(groupKey, switchStates[groupKey])
       }
-      appliedAny = true;
+      appliedAny = true
     }
   }
-  return appliedAny;
+  return appliedAny
 }
 
-function applySwitchConfiguredInitialStates(config, iface, switchData) {
-  console.info('Applying configured initial states for switch');
+function applySwitchConfiguredInitialStates (config, iface, switchData) {
+  console.info('Applying configured initial states for switch')
 
   if (config.switch_output_initial_states) {
     switchData.outputKeys.forEach((key, idx) => {
-      const outputNum = idx + 1;
-      const initialSetting = config.switch_output_initial_states[outputNum];
+      const outputNum = idx + 1
+      const initialSetting = config.switch_output_initial_states[outputNum]
 
       if (initialSetting === 'on') {
-        iface[key] = 1;
+        iface[key] = 1
         // console.info(`Applied configured initial state for ${key}: ON (1)`);
       } else if (initialSetting === 'null') {
-        iface[key] = null;
+        iface[key] = null
         // console.info(`Applied configured initial state for ${key}: NULL`);
       } else if (initialSetting === 'off') {
-        iface[key] = 0;
+        iface[key] = 0
         // console.info(`Applied configured initial state for ${key}: OFF (0)`);
       }
-    });
+    })
   }
 
   if (config.switch_pwm_initial_states) {
     switchData.pwmKeys.forEach((key, idx) => {
-      const pwmNum = idx + 1;
-      const initialSetting = config.switch_pwm_initial_states[pwmNum];
+      const pwmNum = idx + 1
+      const initialSetting = config.switch_pwm_initial_states[pwmNum]
 
-      if (!initialSetting) return;
+      if (!initialSetting) return
 
       if (initialSetting.type === 'off') {
-        iface[key] = 0;
+        iface[key] = 0
         // console.info(`Applied configured initial state for ${key}: OFF (0%)`);
       } else if (initialSetting.type === 'custom') {
-        iface[key] = initialSetting.value || 0;
+        iface[key] = initialSetting.value || 0
         // console.info(`Applied configured initial state for ${key}: ${initialSetting.value || 0}%`);
       }
-    });
+    })
   }
 }
 
@@ -571,8 +571,6 @@ module.exports = function (RED) {
   let globalTimeoutHandle = null
   const nodeInstances = new Set()
   let settingsKeysToTrack = []
-
-  const persistenceKeyTracker = new Set()
 
   function VictronVirtualNode (config) {
     RED.nodes.createNode(this, config)
@@ -859,12 +857,9 @@ module.exports = function (RED) {
           break
         }
         case 'switch': {
-          const switchResult = setupVirtualSwitch(config, iface, ifaceDesc, node, persistentStorage, pathsToTrack, settingsKeysToTrack);
+          const switchResult = setupVirtualSwitch(config, iface, ifaceDesc, node, persistentStorage, pathsToTrack, settingsKeysToTrack)
 
-          switchOutputKeys = switchResult.data.outputKeys;
-          switchPwmKeys = switchResult.data.pwmKeys;
-
-          text = switchResult.text;
+          text = switchResult.text
           break
         }
         case 'tank':
@@ -1216,7 +1211,6 @@ module.exports = function (RED) {
         // Only end the connection when closing the last instance
         this.bus.connection.end()
         hasRunOnce = false
-        persistenceKeysInitialized = false
       }
 
       done()
