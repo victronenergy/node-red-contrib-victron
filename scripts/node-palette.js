@@ -44,18 +44,22 @@ output.nodes.push({ type: 'comment', name: 'Special nodes', id: output.id + 21, 
 let i = 1
 let p, x, y
 
-const nodes = []
+const inputnodes = []
+const outputnodes = []
+let nodes = []
 
 for (const [node] of Object.entries(services)) {
-  if (node.match(/^output-/) && p.match(/^input-/)) {
-    nodes.push('input-custom')
-    nodes.push(node)
-  } else {
-    nodes.push(node)
+  // console.log(services[node].help.both)
+  inputnodes.push(`input-${node}`)
+  if (services[node].help.output !== '') {
+    outputnodes.push(`output-${node}`)
   }
   p = node
 }
-nodes.push('output-custom')
+
+inputnodes.push('input-custom')
+outputnodes.push('output-custom')
+nodes = [...inputnodes, ...outputnodes]
 
 for (const node of nodes) {
   if (node.match(/^output-/) && p.match(/^input-/)) {

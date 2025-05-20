@@ -1185,28 +1185,6 @@ Questions can also be asked on the Victron Energy community:
 </dl>
 </script>
 
-<script type="text/x-red" data-help-name="victron-input-charger">
-<h3>Details</h3>
-<p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>The measurement unit type is shown in the measurement label in brackets, e.g. Battery voltage (V). In case the data type is enumerated, an appropriate enum legend is shown below the selected option. In this case the node will also output the enumerated textual value as <tt>msg.textvalue</tt>.</p>
-<p>If the data type is <em>float</em>, a dropdown for rounding the output appears.</p>
-<p>By default the node outputs its value every five seconds. If the <em>only changes</em> is checked, the node will only output on value changes.</p>
-
-<h3>Charger</h3>
-<dl class="message-properties">
-  <dt class="optional">AC Current limit (A AC)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Ac/In/CurrentLimit</b> <span class="property-mode">(Mode: both)</span></dd>
-
-  <dt class="optional">Charger on/off<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Mode</b> <span class="property-mode">(Mode: both)</span>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - On</li>
-</ul>
-</dd>
-
-</dl>
-</script>
-
 <script type="text/x-red" data-help-name="victron-input-dcdc">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>The measurement unit type is shown in the measurement label in brackets, e.g. Battery voltage (V). In case the data type is enumerated, an appropriate enum legend is shown below the selected option. In this case the node will also output the enumerated textual value as <tt>msg.textvalue</tt>.</p>
@@ -5524,7 +5502,7 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 <script type="text/x-red" data-help-name="victron-output-accharger">
 <h3>Details</h3>
 <p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
-<p>This node is for AC chargers.</p>
+<p>This node is for AC chargers.</p> 
 <h3>Charger</h3>
 <dl class="message-properties">
   <dt class="optional">AC Current limit (A)<span class="property-type">float</span></dt>
@@ -5643,7 +5621,7 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 <script type="text/x-red" data-help-name="victron-output-acsystem">
 <h3>Details</h3>
 <p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
-<p>Managing service for Multi-RS and other future inverter/chargers.</p>
+<p>Managing service for Multi-RS and other future inverter/chargers.</p> 
 <h3>Acsystem</h3>
 <dl class="message-properties">
   <dt class="optional">Ac input 1 current limit (A)<span class="property-type">float</span></dt>
@@ -5785,7 +5763,7 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 <script type="text/x-red" data-help-name="victron-output-battery">
 <h3>Details</h3>
 <p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
-<p>This node allows for monitoring the state of the battery.</p>
+<p>This node allows for monitoring the state of the battery.</p> 
 <h3>Battery</h3>
 <dl class="message-properties">
   <dt class="optional">Alarm<span class="property-type">enum</span></dt>
@@ -6339,30 +6317,10 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 </dl>
 </script>
 
-<script type="text/x-red" data-help-name="victron-output-charger">
-<h3>Details</h3>
-<p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
-<p>This node allows for controlling a connected charger.</p>
-<h3>Charger</h3>
-<dl class="message-properties">
-  <dt class="optional">AC Current limit (A AC)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Ac/In/CurrentLimit</b> <span class="property-mode">(Mode: both)</span></dd>
-
-  <dt class="optional">Charger on/off<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Mode</b> <span class="property-mode">(Mode: both)</span>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - On</li>
-</ul>
-</dd>
-
-</dl>
-</script>
-
 <script type="text/x-red" data-help-name="victron-output-dess">
 <h3>Details</h3>
 <p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
-<p>Dynamic ESS</p>
+<p>Dynamic ESS</p> 
 <h3>System</h3>
 <dl class="message-properties">
   <dt class="optional">Is Dynamic ESS available<span class="property-type">enum</span></dt>
@@ -6594,7 +6552,7 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 <script type="text/x-red" data-help-name="victron-output-ess">
 <h3>Details</h3>
 <p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
-<p>This node gives information on the energy storage system (ESS).</p>
+<p>This node gives information on the energy storage system (ESS).</p> 
 <h3>Battery</h3>
 <dl class="message-properties">
   <dt class="optional">Maximum battery cell temperature<span class="property-type">integer</span></dt>
@@ -6934,7 +6892,7 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 <script type="text/x-red" data-help-name="victron-output-evcharger">
 <h3>Details</h3>
 <p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
-<p>The EV charger input node is for reading from the EV Charging Station.</p><p>Also see <a href="https://github.com/victronenergy/venus/wiki/dbus#evcharger">here</a> for more information.</p>
+<p>The EV charger input node is for reading from the EV Charging Station.</p><p>Also see <a href="https://github.com/victronenergy/venus/wiki/dbus#evcharger">here</a> for more information.</p> 
 <h3>Evcharger</h3>
 <dl class="message-properties">
   <dt class="optional">Energy consumed by charger (kWh)<span class="property-type">float</span></dt>
@@ -7047,7 +7005,7 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 <script type="text/x-red" data-help-name="victron-output-generator">
 <h3>Details</h3>
 <p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
-<p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the (remote) console first.<br />The <strong>Generator start/stop<strong> dropdown is for the generic generator. It can activate a relay, but also, in case of Fischer panda, a generator directly via D-Bus.<br />The other option(s) are for generator data like voltages, RPM, oil pressure etcetera.<br />Also see <a href="https://github.com/victronenergy/venus/wiki/dbus#generator-data">here</a> for more information.</p>
+<p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the (remote) console first.<br />The <strong>Generator start/stop<strong> dropdown is for the generic generator. It can activate a relay, but also, in case of Fischer panda, a generator directly via D-Bus.<br />The other option(s) are for generator data like voltages, RPM, oil pressure etcetera.<br />Also see <a href="https://github.com/victronenergy/venus/wiki/dbus#generator-data">here</a> for more information.</p> 
 <h3>Generator</h3>
 <dl class="message-properties">
   <dt class="optional">Generator not detected at AC input alarm<span class="property-type">enum</span></dt>
@@ -7477,7 +7435,7 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 <script type="text/x-red" data-help-name="victron-output-inverter">
 <h3>Details</h3>
 <p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
-<p>This node is for reading from an inverter.</p>
+<p>This node is for reading from an inverter.</p> 
 <h3>Inverter</h3>
 <dl class="message-properties">
   <dt class="optional">Output current (A)<span class="property-type">float</span></dt>
@@ -7747,7 +7705,7 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 <script type="text/x-red" data-help-name="victron-output-switch">
 <h3>Details</h3>
 <p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
-<p>The <b>switch</b> node can be used for the usb-connected I/O extender.</p>
+<p>The <b>switch</b> node can be used for the usb-connected I/O extender.</p> 
 <h3>Switch</h3>
 <dl class="message-properties">
   <dt class="optional">Output 1 state<span class="property-type">enum</span></dt>
@@ -7888,7 +7846,7 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 <script type="text/x-red" data-help-name="victron-output-multi">
 <h3>Details</h3>
 <p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
-<p>This is the Multi RS node.</p>
+<p>This is the Multi RS node.</p> 
 <h3>Multi</h3>
 <dl class="message-properties">
   <dt class="optional">Active AC input<span class="property-type">enum</span></dt>
@@ -8382,7 +8340,7 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 <script type="text/x-red" data-help-name="victron-output-pump">
 <h3>Details</h3>
 <p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
-<p>Node for getting pump information.</p>
+<p>Node for getting pump information.</p> 
 <h3>Pump</h3>
 <dl class="message-properties">
   <dt class="optional">Pump State<span class="property-type">enum</span></dt>
@@ -8425,7 +8383,7 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 <script type="text/x-red" data-help-name="victron-output-pvinverter">
 <h3>Details</h3>
 <p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
-<p>This node is for obtaining information from the PV inverter.</p>
+<p>This node is for obtaining information from the PV inverter.</p> 
 <h3>Pvinverter</h3>
 <dl class="message-properties">
   <dt class="optional">Total energy (kWh)<span class="property-type">float</span></dt>
@@ -8523,7 +8481,7 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 <script type="text/x-red" data-help-name="victron-output-relay">
 <h3>Details</h3>
 <p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
-<p>The <b>relay</b> node reads the state of the relay(s) of the Venus device.</p>
+<p>The <b>relay</b> node reads the state of the relay(s) of the Venus device.</p> 
 <h3>System</h3>
 <dl class="message-properties">
   <dt class="optional">Venus relay 1 state<span class="property-type">enum</span></dt>
@@ -8630,7 +8588,7 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 <script type="text/x-red" data-help-name="victron-output-settings">
 <h3>Details</h3>
 <p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
-<p>With this node several settings can be read. Currently the focus is mainly on the Carlo Gavazzi Wired AC Sensors (cgwacs).</p>
+<p>With this node several settings can be read. Currently the focus is mainly on the Carlo Gavazzi Wired AC Sensors (cgwacs).</p> 
 <h3>Settings</h3>
 <dl class="message-properties">
   <dt class="optional">AC export current limit (A)<span class="property-type">float</span></dt>
@@ -8748,7 +8706,7 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 <script type="text/x-red" data-help-name="victron-output-solarcharger">
 <h3>Details</h3>
 <p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
-<p>Information from the Solar charger can be read with this node.</p>
+<p>Information from the Solar charger can be read with this node.</p> 
 <h3>Solarcharger</h3>
 <dl class="message-properties">
   <dt class="optional">Alarm<span class="property-type">enum</span></dt>
@@ -9176,7 +9134,7 @@ Writing a negative value to the path will de-activate the schedule.</dd>
 <script type="text/x-red" data-help-name="victron-output-vebus">
 <h3>Details</h3>
 <p><strong>Output nodes</strong> have the same options available as input nodes, but the selectable measurement only lists writable services. Additionally, the user can set an initial value to the service, which is sent whenever the flow is deployed.</p> <ul> <li><em>Device select</em> - lists all available devices</li> <li><em>Measurement select</em> - lists all available device-specific measurements</li> <li><em>Initial value input field</em> - lists all available device-specific measurements</li> <li><em>Node label input field</em> - sets a custom label for the node</li> </ul> <p>All output nodes should have the control value set in its incoming messages <code>msg.payload</code> property.</p>
-<p>Information from VE.Bus connected devices can be obtained with this node.</p>
+<p>Information from VE.Bus connected devices can be obtained with this node.</p> 
 <h3>Vebus</h3>
 <dl class="message-properties">
   <dt class="optional">Active input<span class="property-type">enum</span></dt>

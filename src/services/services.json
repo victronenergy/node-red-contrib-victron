@@ -3,7 +3,7 @@
     "help": {
       "both": "<p>This node is for AC chargers.</p>",
       "input": "",
-      "output": ""
+      "output": " "
     },
     "charger": [
       {
@@ -254,7 +254,7 @@
     "help": {
       "both": "<p>Managing service for Multi-RS and other future inverter/chargers.</p>",
       "input": "",
-      "output": ""
+      "output": " "
     },
     "acsystem": [
       {
@@ -637,7 +637,7 @@
     "help": {
       "both": "<p>This node allows for monitoring the state of the battery.</p>",
       "input": "",
-      "output": ""
+      "output": " "
     },
     "battery": [
       {
@@ -1361,36 +1361,11 @@
       }
     ]
   },
-  "charger": {
-    "help": {
-      "both": "",
-      "input": "",
-      "output": "<p>This node allows for controlling a connected charger.</p>"
-    },
-    "charger": [
-      {
-        "path": "/Ac/In/CurrentLimit",
-        "type": "float",
-        "name": "AC Current limit (A AC)",
-        "mode": "both"
-      },
-      {
-        "path": "/Mode",
-        "type": "enum",
-        "name": "Charger on/off",
-        "enum": {
-          "0": "Off",
-          "1": "On"
-        },
-        "mode": "both"
-      }
-    ]
-  },
   "dcdc": {
     "help": {
       "both": "<p>This node allows for monitoring the state of an Orion XS.</p>",
       "input": "",
-      "output": ""
+      "output": " "
     },
     "dcdc": [
       {
@@ -1770,7 +1745,7 @@
     "help": {
       "both": "<p>Dynamic ESS</p>",
       "input": "<p>Dynamic ESS input node.</p>",
-      "output": ""
+      "output": " "
     },
     "system": [
       {
@@ -2150,7 +2125,7 @@
     "help": {
       "both": "<p>This node gives information on the energy storage system (ESS).</p>",
       "input": "",
-      "output": ""
+      "output": " "
     },
     "battery": [
       {
@@ -2633,7 +2608,7 @@
     "help": {
        "both": "<p>The EV charger input node is for reading from the EV Charging Station.</p><p>Also see <a href=\"https://github.com/victronenergy/venus/wiki/dbus#evcharger\">here</a> for more information.</p>",
        "input": "",
-       "output": ""
+       "output": " "
     },
     "evcharger": [
       {
@@ -2877,7 +2852,7 @@
     "help": {
       "both": "<p>Generator input node for relay controlled and Fischer Panda generators.<br />In order to use the relay for controlling a generator, make sure to set the relay to <i>Generator</i> via the (remote) console first.<br />The <strong>Generator start/stop<strong> dropdown is for the generic generator. It can activate a relay, but also, in case of Fischer panda, a generator directly via D-Bus.<br />The other option(s) are for generator data like voltages, RPM, oil pressure etcetera.<br />Also see <a href=\"https://github.com/victronenergy/venus/wiki/dbus#generator-data\">here</a> for more information.</p>",
       "input": "",
-      "output": ""
+      "output": " "
     },
     "generator": [
       {
@@ -3630,7 +3605,7 @@
     "help": {
        "both": "<p>This node is for reading from an inverter.</p>",
       "input": "",
-      "output": ""
+      "output": " "
     },
     "inverter": [
       {
@@ -3989,7 +3964,7 @@
     "help": {
       "both": "<p>The <b>switch</b> node can be used for the usb-connected I/O extender.</p>",
       "input": "",
-      "output": ""
+      "output": " "
     },
     "switch": [
       {
@@ -4270,7 +4245,7 @@
     "help": {
        "both": "<p>This is the Multi RS node.</p>",
        "input": "",
-       "output": ""
+       "output": " "
     },
     "multi": [
       {
@@ -4965,7 +4940,7 @@
     "help": {
        "both": "<p>Node for getting pump information.</p>",
       "input": "",
-      "output": ""
+      "output": " "
     },
     "pump": [
       {
@@ -5018,7 +4993,7 @@
     "help": {
        "both": "<p>This node is for obtaining information from the PV inverter.</p>",
       "input": "",
-      "output": ""
+      "output": " "
     },
     "pvinverter": [
       {
@@ -5156,7 +5131,7 @@
     "help": {
        "both": "<p>The <b>relay</b> node reads the state of the relay(s) of the Venus device.</p>",
       "input": "",
-      "output": ""
+      "output": " "
     },
     "system": [
       {
@@ -5277,7 +5252,7 @@
     "help": {
       "both": "<p>With this node several settings can be read. Currently the focus is mainly on the Carlo Gavazzi Wired AC Sensors (cgwacs).</p>",
       "input": "",
-      "output" : ""
+      "output" : " "
     },
     "settings": [
       {
@@ -5434,7 +5409,7 @@
     "help": {
        "both": "<p>Information from the Solar charger can be read with this node.</p>",
        "input": "",
-       "output": ""
+       "output": " "
     },
     "solarcharger": [
       {
@@ -6294,7 +6269,7 @@
     "help": {
        "both": "<p>Information from VE.Bus connected devices can be obtained with this node.</p>",
        "input": "",
-       "output": ""
+       "output": " "
     },
     "vebus": [
       {
