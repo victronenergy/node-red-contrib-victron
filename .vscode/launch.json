@@ -2,23 +2,22 @@
     "version": "0.2.0",
     "configurations": [
       {
-      "type": "node",
-      "request": "launch",
-      "name": "Launch Node-red",
-      "runtimeExecutable": "npx", 
-      "runtimeArgs": [
-        "node-red",
-        "-s", 
-        "${workspaceFolder}/.vscode/settings.js"
-      ],
-      "cwd": "${env:HOME}",
+        "type": "node",
+        "request": "launch",
+        "name": "Launch Node-red",
+        "runtimeExecutable": "npx",
+        "runtimeArgs": [
+          "node-red",
+          "-s",
+          "${workspaceFolder}/.vscode/settings.js"
+        ],
+        "cwd": "${env:HOME}",
+        "outputCapture": "std",
         "env": {
           "NO_UPDATE_NOTIFIER": "1",
-          "DEBUG": "*",
-          "NODE_RED_DBUS_ADDRESS": "10.230.1.63:78",
-          // "NODE_RED_DBUS_ADDRESS": "${env:NODE_RED_DBUS_IP}"
-        },
-        "envFile": "${workspaceFolder}/.env"
+          "DEBUG": "victron-virtual",
+          "NODE_RED_DBUS_ADDRESS": "venus.local:78"
+        }
       },
       {
         "type": "node",
