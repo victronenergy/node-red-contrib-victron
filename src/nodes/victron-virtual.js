@@ -210,10 +210,10 @@ function getIfaceDesc (dev) {
 
 function getIface (dev) {
   if (!properties[dev]) {
-    return { emit: function () {} }
+    return { emit: function () { } }
   }
 
-  const result = { emit: function () {} }
+  const result = { emit: function () { } }
 
   for (const key in properties[dev]) {
     const propertyValue = JSON.parse(JSON.stringify(properties[dev][key]))
@@ -413,9 +413,9 @@ function setupSwitchStateMonitoring (iface, node, persistentStorage, persistence
     }
 
     if (switchData.outputKeys.includes(propName) ||
-        switchData.pwmKeys.includes(propName) ||
-        propName.includes('/Settings/CustomName') ||
-        propName.includes('/Settings/Group')) {
+      switchData.pwmKeys.includes(propName) ||
+      propName.includes('/Settings/CustomName') ||
+      propName.includes('/Settings/Group')) {
       currentData.switches[propName] = newValue
       // console.info(`Saved state change: ${propName} = ${newValue}`);
     }
@@ -600,29 +600,61 @@ module.exports = function (RED) {
       this.address = `tcp:host=${address[0]},port=${address[1]}`
     }
 
-    // Connnect to the dbus
-    if (this.address) {
-      debug(`Connecting to TCP address ${this.address}.`)
-      this.bus = dbus.createClient({
-        busAddress: this.address,
-        authMethods: ['ANONYMOUS']
+    function instantiateDbus (self) {
+      // Connect to the dbus
+      if (self.address) {
+        debug(`Connecting to TCP address ${self.address}.`)
+        self.bus = dbus.createClient({
+          busAddress: self.address,
+          authMethods: ['ANONYMOUS']
+        })
+      } else {
+        self.bus = process.env.DBUS_SESSION_BUS_ADDRESS
+          ? dbus.sessionBus()
+          : dbus.systemBus()
+      }
+      if (!self.bus) {
+        node.warn(
+          'Could not connect to the DBus session bus.'
+        )
+        node.status({
+          color: 'red',
+          shape: 'dot',
+          text: 'Could not initialize DBus.'
+        })
+        return
+      }
+      // TODO: we are not really connected yet
+      console.log('connected to dbus, address:', self.address, 'device:', config.device)
+
+      self.bus.connection.on('end', () => {
+        node.status({
+          color: 'red',
+          shape: 'dot',
+          text: 'DBus connection closed'
+        })
+
+        // TODO: same wait logic as below
+        new Promise(resolve => setTimeout(resolve, 1000)).then(() => {
+          console.warn('trying to re-instantiate dbus...')
+          instantiateDbus(self)
+        })
       })
-    } else {
-      this.bus = process.env.DBUS_SESSION_BUS_ADDRESS
-        ? dbus.sessionBus()
-        : dbus.systemBus()
-    }
-    if (!this.bus) {
-      node.warn(
-        'Could not connect to the DBus session bus.'
-      )
-      node.status({
-        color: 'red',
-        shape: 'dot',
-        text: 'Could not connect to the DBus session bus.'
+      self.bus.connection.on('error', (err) => {
+        console.error('DBus connection error:', err)
+        node.status({
+          color: 'red',
+          shape: 'dot',
+          text: 'DBus connection error'
+        })
+        new Promise(resolve => setTimeout(resolve, 1000)).then(() => {
+          console.warn('trying to re-instantiate dbus...')
+          instantiateDbus(self)
+        })
       })
-      return
     }
+
+    instantiateDbus(this)
 
     if (!config.device || config.device === '') {
       node.warn(
@@ -645,6 +677,7 @@ module.exports = function (RED) {
     const interfaceName = serviceName
     const objectPath = `/${serviceName.replace(/\./g, '/')}`
 
+    // here we need to change stuff
     async function proceed (usedBus) {
       function loadPersistentData () {
         if (!persistentStorage) return false
@@ -978,7 +1011,7 @@ module.exports = function (RED) {
             return { loaded: false }
           }
 
-          // console.warn(`Loading saved data for ${config.device}: ${JSON.stringify(savedData)}`)
+          console.warn(`Loading saved data for ${config.device}: ${JSON.stringify(savedData)}`)
           applyConfiguredInitialStates()
 
           Object.entries(savedData).forEach(([key, value]) => {
@@ -1068,7 +1101,7 @@ module.exports = function (RED) {
         // If there was an error, warn user and fail
         if (err) {
           node.warn(
-        `Could not request service name ${serviceName}, the error was: ${err}.`
+            `Could not request service name ${serviceName}, the error was: ${err}.`
           )
           node.status({
             color: 'red',
@@ -1102,6 +1135,10 @@ module.exports = function (RED) {
         removeSettings,
         getValue
       } = addVictronInterfaces(usedBus, ifaceDesc, iface)
+
+      console.log(`added interface ${ifaceDesc.name} to ${objectPath}`)
+
+      usedBus.connection.on('end', () => console.warn(`DBus connection ended, should re-add interface ${ifaceDesc.name} to ${objectPath}`))
 
       if (persistentStorage) {
         const devicePersistenceKey = `victron-virtual-device-${node.id}`
@@ -1145,8 +1182,8 @@ module.exports = function (RED) {
               .filter(entry => {
                 const path = entry[0]
                 return typeof path === 'string' &&
-                             path.includes('virtual_') &&
-                             path.includes('ClassAndVrmInstance')
+                  path.includes('virtual_') &&
+                  path.includes('ClassAndVrmInstance')
               })
               .map(entry => entry[0].split('/')[0])
 
