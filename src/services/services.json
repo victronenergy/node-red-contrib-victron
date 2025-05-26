@@ -646,6 +646,7 @@
         "name": "Alarm",
         "enum": {
           "0": "No alarm",
+          "1": "Alarm active",
           "2": "Alarm"
         }
       },
