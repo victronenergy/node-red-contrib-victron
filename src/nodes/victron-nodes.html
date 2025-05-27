@@ -174,9 +174,10 @@
 
             // Hide all initial value inputs first
             $('.initial-input').hide();
+            hideEnumInfo();
             
-            if (pathData && isOutputNode) {
-                $('#initial-row').show();
+            if (pathData) {
+                $('#initial-row').hide();
                 
                 // Show appropriate input based on path type
                 switch(pathData.type) {
@@ -221,8 +222,10 @@
                     default:
                         $('#initial-row').hide();
                 }
+                if (isOutputNode) {
+                    $('#initial-row').show();
+                }
             } else {
-                hideEnumInfo();
                 $('#initial-row').hide();
             }
             
