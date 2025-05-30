@@ -284,7 +284,7 @@ module.exports = function (RED) {
 
       let retrying = false
 
-      function delayedRetry () {
+      function retryConnectionDelayed () {
         if (retrying) {
           debugConnection('Already retrying DBus connection, skipping this retry.')
           return
@@ -311,7 +311,7 @@ module.exports = function (RED) {
           text: 'DBus connection closed'
         })
         debugConnection('DBus connection closed, retrying...')
-        delayedRetry()
+        retryConnectionDelayed()
       })
 
       self.bus.connection.on('error', (err) => {
@@ -322,7 +322,7 @@ module.exports = function (RED) {
           shape: 'dot',
           text: 'DBus error'
         })
-        delayedRetry()
+        retryConnectionDelayed()
       })
 
       if (!config.device || config.device === '') {
