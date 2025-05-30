@@ -23,12 +23,7 @@ class SystemConfiguration {
     const servicesWhitelist = _.get(utils.SERVICES, [nodeName.replace(/^(input-|output-)/g, '')])
     const isOutput = nodeName.startsWith('output')
 
-    if (!servicesWhitelist) {
-      console.error(`No services found for node type: ${nodeName}`)
-      return []
-    }
-
-    return Object.entries(servicesWhitelist)
+    return Object.entries(servicesWhitelist || {})
       .reduce((acc, [dbusService, servicePaths]) => {
         // get the already cached dbus paths
         const cachedService = _.pickBy(this.cache, (val, key) => key.startsWith(`com.victronenergy.${dbusService}`))

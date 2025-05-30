@@ -646,6 +646,7 @@
         "name": "Alarm",
         "enum": {
           "0": "No alarm",
+          "1": "Alarm active",
           "2": "Alarm"
         }
       },
@@ -2283,6 +2284,7 @@
         "type": "enum",
         "name": "Schedule 1: Day",
         "enum": {
+          "-1": "Disabled",
           "0": "Sunday",
           "1": "Monday",
           "2": "Tuesday",
@@ -2292,7 +2294,8 @@
           "6": "Saturday",
           "7": "Every day",
           "8": "Weekdays",
-          "9": "Weekends"
+          "9": "Weekends",
+          "11": "Monthly"
         },
         "remarks": "<p>A negative value means that the schedule has been de-activated.</p>",
        "mode": "both"
@@ -2330,6 +2333,7 @@
         "type": "enum",
         "name": "Schedule 2: Day",
         "enum": {
+          "-1": "Disabled",
           "0": "Sunday",
           "1": "Monday",
           "2": "Tuesday",
@@ -2339,7 +2343,8 @@
           "6": "Saturday",
           "7": "Every day",
           "8": "Weekdays",
-          "9": "Weekends"
+          "9": "Weekends",
+          "11": "Monthly"
         },
         "remarks": "<p>A negative value means that the schedule has been de-activated.</p>",
        "mode": "both"
@@ -2377,6 +2382,7 @@
         "type": "enum",
         "name": "Schedule 3: Day",
         "enum": {
+          "-1": "Disabled",
           "0": "Sunday",
           "1": "Monday",
           "2": "Tuesday",
@@ -2386,7 +2392,8 @@
           "6": "Saturday",
           "7": "Every day",
           "8": "Weekdays",
-          "9": "Weekends"
+          "9": "Weekends",
+          "11": "Monthly"
         },
         "remarks": "<p>A negative value means that the schedule has been de-activated.</p>",
        "mode": "both"
@@ -2424,6 +2431,7 @@
         "type": "enum",
         "name": "Schedule 4: Day",
         "enum": {
+          "-1": "Disabled",
           "0": "Sunday",
           "1": "Monday",
           "2": "Tuesday",
@@ -2433,7 +2441,8 @@
           "6": "Saturday",
           "7": "Every day",
           "8": "Weekdays",
-          "9": "Weekends"
+          "9": "Weekends",
+          "11": "Monthly"
         },
         "remarks": "<p>A negative value means that the schedule has been de-activated.</p>",
        "mode": "both"
@@ -2471,6 +2480,7 @@
         "type": "enum",
         "name": "Schedule 5: Day",
         "enum": {
+          "-1": "Disabled",
           "0": "Sunday",
           "1": "Monday",
           "2": "Tuesday",
@@ -2480,7 +2490,8 @@
           "6": "Saturday",
           "7": "Every day",
           "8": "Weekdays",
-          "9": "Weekends"
+          "9": "Weekends",
+          "11": "Monthly"
         },
         "remarks": "Writing a negative value to the path will de-activate the schedule.",
        "mode": "both"

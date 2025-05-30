@@ -1,6 +1,7 @@
 const { addVictronInterfaces, addSettings } = require('dbus-victron-virtual')
 const dbus = require('dbus-native-victron')
 const debug = require('debug')('victron-virtual')
+const debugConnection = require('debug')('victron-virtual:connection')
 
 const properties = {
   battery: {
@@ -129,10 +130,6 @@ const properties = {
     },
     Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
   },
-  switch: {
-    Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
-    State: { type: 'i', value: 0x100 }
-  },
   tank: {
     'Alarms/High/Active': { type: 'd' },
     'Alarms/High/Delay': { type: 'd' },
@@ -234,364 +231,15 @@ function getIface (dev) {
   return result
 }
 
-function setupVirtualSwitch (config, iface, ifaceDesc, node, persistentStorage, pathsToTrack, settingsKeysToTrack) {
-  const switchData = {
-    outputKeys: [],
-    pwmKeys: []
-  }
-
-  for (let i = 1; i <= Number(config.switch_nrofoutput ?? 0); i++) {
-    settingsKeysToTrack.push(`SwitchableOutput/output_${i}/State`)
-    settingsKeysToTrack.push(`SwitchableOutput/output_${i}/Settings/CustomName`)
-    settingsKeysToTrack.push(`SwitchableOutput/output_${i}/Settings/Group`)
-  }
-
-  for (let i = 1; i <= Number(config.switch_nrofpwm ?? 0); i++) {
-    settingsKeysToTrack.push(`SwitchableOutput/pwm_${i}/Dimming`)
-    settingsKeysToTrack.push(`SwitchableOutput/pwm_${i}/Settings/CustomName`)
-    settingsKeysToTrack.push(`SwitchableOutput/pwm_${i}/Settings/Group`)
-  }
-
-  setupSwitchProperties(config, iface, ifaceDesc, switchData)
-  setupSwitchPathsToTrack(config, pathsToTrack)
-
-  if (persistentStorage) {
-    const persistenceKey = `victron-virtual-device-${node.id}`
-    setupSwitchStateMonitoring(iface, node, persistentStorage, persistenceKey, switchData)
-    initializeSwitchState(config, iface, node, persistentStorage, switchData)
-  } else {
-    // console.info('No persistence available for switch, applying initial states');
-    applySwitchConfiguredInitialStates(config, iface, switchData)
-  }
-
-  return {
-    text: `Virtual switch: ${config.switch_nrofoutput} switch(es), ${config.switch_nrofpwm} slider(s)`,
-    data: switchData
-  }
-}
-
-function setupSwitchProperties (config, iface, ifaceDesc, switchData) {
-  const properties = [
-    {
-      name: 'State',
-      type: 'i',
-      format: (v) => ({
-        0: 'Off',
-        1: 'On'
-      }[v] || 'unknown')
-    },
-    { name: 'Status', type: 'i', format: (v) => v != null ? v : '' },
-    { name: 'Name', type: 's', value: 'Output' },
-    { name: 'Settings/Group', type: 's', value: '' },
-    { name: 'Settings/CustomName', type: 's', value: '' },
-    {
-      name: 'Settings/Type',
-      type: 'i',
-      format: (v) => ({
-        0: 'Momentary',
-        1: 'Latching/Relay',
-        2: 'Dimmable/PWM'
-      }[v] || 'unknown'),
-      value: 1
-    },
-    { name: 'Settings/ValidTypes', type: 'i', value: 0x3 }
-  ]
-
-  for (let i = 1; i <= Number(config.switch_nrofoutput ?? 0); i++) {
-    properties.forEach(({ name, type, value }) => {
-      const key = `SwitchableOutput/output_${i}/${name}`
-      ifaceDesc.properties[key] = { type }
-
-      if (name === 'Name') {
-        value += ` ${i}`
-      }
-
-      if (name === 'Settings/Type' && config.switch_output_types) {
-        const typeVal = parseInt(config.switch_output_types[i], 10)
-        value = (typeVal === 0) ? 0 : 1
-      }
-
-      iface[key] = value !== undefined ? value : 0
-
-      if (name === 'State') {
-        switchData.outputKeys.push(key)
-      }
-    })
-  }
-
-  properties.push({
-    name: 'Dimming',
-    min: 0,
-    max: 100,
-    type: 'd',
-    format: (v) => v != null ? v.toFixed(1) + '%' : ''
-  })
-
-  for (let i = 1; i <= Number(config.switch_nrofpwm ?? 0); i++) {
-    properties.forEach(({ name, type, value, format, min, max }) => {
-      const key = `SwitchableOutput/pwm_${i}/${name}`
-      ifaceDesc.properties[key] = { type, format }
-
-      if (min != null) {
-        ifaceDesc.properties[key].min = min
-      }
-      if (max != null) {
-        ifaceDesc.properties[key].max = max
-      }
-      if (name === 'Settings/ValidTypes') {
-        value = 0x4 // Only dimmable
-      }
-      if (name === 'Settings/Type') {
-        value = 2 // Set to dimmable
-      }
-      if (name === 'Name') {
-        value = `Slider ${i}`
-      }
-      if (name === 'Dimming') {
-        switchData.pwmKeys.push(key)
-      }
-      iface[key] = value !== undefined ? value : 0
-    })
-  }
-}
-
-function setupSwitchPathsToTrack (config, pathsToTrack) {
-  if (config.switch_output_initial_states) {
-    for (let i = 1; i <= Number(config.switch_nrofoutput ?? 0); i++) {
-      const stateKey = `SwitchableOutput/output_${i}/State`
-      const initialSetting = config.switch_output_initial_states[i]
-
-      if (initialSetting === 'previous' || initialSetting === undefined) {
-        pathsToTrack.push(stateKey)
-      }
-
-      pathsToTrack.push(`SwitchableOutput/output_${i}/Settings/CustomName`)
-      pathsToTrack.push(`SwitchableOutput/output_${i}/Settings/Group`)
-    }
-  } else {
-    for (let i = 1; i <= Number(config.switch_nrofoutput ?? 0); i++) {
-      pathsToTrack.push(`SwitchableOutput/output_${i}/State`)
-      pathsToTrack.push(`SwitchableOutput/output_${i}/Settings/CustomName`)
-      pathsToTrack.push(`SwitchableOutput/output_${i}/Settings/Group`)
-    }
-  }
-
-  if (config.switch_pwm_initial_states) {
-    for (let i = 1; i <= Number(config.switch_nrofpwm ?? 0); i++) {
-      const dimmingKey = `SwitchableOutput/pwm_${i}/Dimming`
-      const initialSetting = config.switch_pwm_initial_states[i]
-
-      if (!initialSetting || initialSetting.type === 'previous') {
-        pathsToTrack.push(dimmingKey)
-      }
-
-      pathsToTrack.push(`SwitchableOutput/pwm_${i}/Settings/CustomName`)
-      pathsToTrack.push(`SwitchableOutput/pwm_${i}/Settings/Group`)
-    }
-  } else {
-    for (let i = 1; i <= Number(config.switch_nrofpwm ?? 0); i++) {
-      pathsToTrack.push(`SwitchableOutput/pwm_${i}/Dimming`)
-      pathsToTrack.push(`SwitchableOutput/pwm_${i}/Settings/CustomName`)
-      pathsToTrack.push(`SwitchableOutput/pwm_${i}/Settings/Group`)
-    }
-  }
-}
-
-function setupSwitchStateMonitoring (iface, node, persistentStorage, persistenceKey, switchData) {
-  const originalEmit = iface.emit
-
-  iface.emit = function (propName, newValue) {
-    const currentData = node.context().get(persistenceKey, persistentStorage) || {}
-
-    if (!currentData.switches) {
-      currentData.switches = {}
-    }
-
-    if (propName === 'CustomName') {
-      currentData.CustomName = newValue
-      // console.info(`Saved CustomName change: ${newValue}`);
-    }
-
-    if (switchData.outputKeys.includes(propName) ||
-      switchData.pwmKeys.includes(propName) ||
-      propName.includes('/Settings/CustomName') ||
-      propName.includes('/Settings/Group')) {
-      currentData.switches[propName] = newValue
-      // console.info(`Saved state change: ${propName} = ${newValue}`);
-    }
-
-    node.context().set(persistenceKey, currentData, persistentStorage)
-
-    return originalEmit.apply(this, arguments)
-  }
-}
-
-function initializeSwitchState (config, iface, node, persistentStorage, switchData) {
-  const persistenceKey = `victron-virtual-device-${node.id}`
-  const savedData = node.context().get(persistenceKey, persistentStorage)
-
-  if (!savedData || !savedData.switches || Object.keys(savedData.switches).length === 0) {
-    // console.info('No saved switch data found, applying configured initial states');
-    applySwitchConfiguredInitialStates(config, iface, switchData)
-  } else {
-    // console.info(`Loading saved switch data: ${JSON.stringify(savedData)}`);
-    const appliedSaved = applySwitchSavedStates(savedData, iface, switchData, config)
-    if (!appliedSaved) {
-      applySwitchConfiguredInitialStates(config, iface, switchData)
-    }
-  }
-}
-
-function applySwitchSavedStates (savedData, iface, switchData, config) {
-  if (!savedData || !savedData.switches) return false
-
-  const switchStates = savedData.switches
-  let appliedAny = false
-
-  switchData.outputKeys.forEach((key, idx) => {
-    const outputNum = idx + 1
-    const initialSetting = config.switch_output_initial_states && config.switch_output_initial_states[outputNum]
-    if (!initialSetting || initialSetting === 'previous') {
-      if (switchStates[key] !== undefined) {
-        iface[key] = switchStates[key]
-        // console.info(`Applied saved state for output ${key}: ${switchStates[key]}`);
-        if (typeof iface.emit === 'function') {
-          iface.emit(key, switchStates[key])
-        }
-        appliedAny = true
-      }
-    }
-  })
-
-  switchData.pwmKeys.forEach((key, idx) => {
-    const pwmNum = idx + 1
-    const initialSetting = config.switch_pwm_initial_states && config.switch_pwm_initial_states[pwmNum]
-    if (!initialSetting || initialSetting === 'previous') {
-      if (switchStates[key] !== undefined) {
-        iface[key] = switchStates[key]
-        // console.info(`Applied saved state for PWM ${key}: ${switchStates[key]}`);
-        if (typeof iface.emit === 'function') {
-          iface.emit(key, switchStates[key])
-        }
-        appliedAny = true
-      }
-    }
-  })
-
-  for (let i = 1; i <= Number(config.switch_nrofoutput ?? 0); i++) {
-    const customNameKey = `SwitchableOutput/output_${i}/Settings/CustomName`
-    const groupKey = `SwitchableOutput/output_${i}/Settings/Group`
-
-    if (switchStates[customNameKey] !== undefined) {
-      iface[customNameKey] = switchStates[customNameKey]
-      // console.info(`Applied saved CustomName for output ${i}: ${switchStates[customNameKey]}`);
-      if (typeof iface.emit === 'function') {
-        iface.emit(customNameKey, switchStates[customNameKey])
-      }
-      appliedAny = true
-    }
-
-    if (switchStates[groupKey] !== undefined) {
-      iface[groupKey] = switchStates[groupKey]
-      // console.info(`Applied saved Group for output ${i}: ${switchStates[groupKey]}`);
-      if (typeof iface.emit === 'function') {
-        iface.emit(groupKey, switchStates[groupKey])
-      }
-      appliedAny = true
-    }
-  }
-
-  for (let i = 1; i <= Number(config.switch_nrofpwm ?? 0); i++) {
-    const customNameKey = `SwitchableOutput/pwm_${i}/Settings/CustomName`
-    const groupKey = `SwitchableOutput/pwm_${i}/Settings/Group`
-
-    if (switchStates[customNameKey] !== undefined) {
-      iface[customNameKey] = switchStates[customNameKey]
-      // console.info(`Applied saved CustomName for PWM ${i}: ${switchStates[customNameKey]}`);
-      if (typeof iface.emit === 'function') {
-        iface.emit(customNameKey, switchStates[customNameKey])
-      }
-      appliedAny = true
-    }
-
-    if (switchStates[groupKey] !== undefined) {
-      iface[groupKey] = switchStates[groupKey]
-      // console.info(`Applied saved Group for PWM ${i}: ${switchStates[groupKey]}`);
-      if (typeof iface.emit === 'function') {
-        iface.emit(groupKey, switchStates[groupKey])
-      }
-      appliedAny = true
-    }
-  }
-  return appliedAny
-}
-
-function applySwitchConfiguredInitialStates (config, iface, switchData) {
-  console.info('Applying configured initial states for switch')
-
-  if (config.switch_output_initial_states) {
-    switchData.outputKeys.forEach((key, idx) => {
-      const outputNum = idx + 1
-      const initialSetting = config.switch_output_initial_states[outputNum]
-
-      if (initialSetting === 'on') {
-        iface[key] = 1
-        // console.info(`Applied configured initial state for ${key}: ON (1)`);
-      } else if (initialSetting === 'null') {
-        iface[key] = null
-        // console.info(`Applied configured initial state for ${key}: NULL`);
-      } else if (initialSetting === 'off') {
-        iface[key] = 0
-        // console.info(`Applied configured initial state for ${key}: OFF (0)`);
-      }
-    })
-  }
-
-  if (config.switch_pwm_initial_states) {
-    switchData.pwmKeys.forEach((key, idx) => {
-      const pwmNum = idx + 1
-      const initialSetting = config.switch_pwm_initial_states[pwmNum]
-
-      if (!initialSetting) return
-
-      if (initialSetting.type === 'off') {
-        iface[key] = 0
-        // console.info(`Applied configured initial state for ${key}: OFF (0%)`);
-      } else if (initialSetting.type === 'custom') {
-        iface[key] = initialSetting.value || 0
-        // console.info(`Applied configured initial state for ${key}: ${initialSetting.value || 0}%`);
-      }
-    })
-  }
-}
-
 module.exports = function (RED) {
   // Shared state across all instances
   let hasRunOnce = false
   let globalTimeoutHandle = null
   const nodeInstances = new Set()
-  let settingsKeysToTrack = []
 
   function VictronVirtualNode (config) {
     RED.nodes.createNode(this, config)
     const node = this
-
-    let persistentStorage = null
-    const availableStorageModules = RED.settings.contextStorage || {}
-    const fileStorageKey = Object.keys(availableStorageModules).find(
-      key => availableStorageModules[key].module === 'localfilesystem'
-    )
-
-    if (fileStorageKey) {
-      persistentStorage = fileStorageKey
-      console.info(`Using persistent context storage: ${persistentStorage}`)
-    } else {
-      console.info('No file-based context storage found in settings.js. Device states will not persist across restarts.')
-    }
-
-    // Default paths to track for all devices
-    const pathsToTrack = ['CustomName']
-    settingsKeysToTrack = ['CustomName'] // Track CustomName for all devices
 
     const address = process.env.NODE_RED_DBUS_ADDRESS
       ? process.env.NODE_RED_DBUS_ADDRESS.split(':')
@@ -620,50 +268,7 @@ module.exports = function (RED) {
         node.status({
           color: 'red',
           shape: 'dot',
-          text: 'Could not initialize DBus.'
-        })
-        return
-      }
-      // TODO: we are not really connected yet
-      console.log('connected to dbus, address:', self.address, 'device:', config.device)
-
-      self.bus.connection.on('end', () => {
-        node.status({
-          color: 'red',
-          shape: 'dot',
-          text: 'DBus connection closed'
-        })
-
-        // TODO: same wait logic as below
-        new Promise(resolve => setTimeout(resolve, 1000)).then(() => {
-          console.warn('trying to re-instantiate dbus...')
-          instantiateDbus(self)
-        })
-      })
-      self.bus.connection.on('error', (err) => {
-        console.error('DBus connection error:', err)
-        node.status({
-          color: 'red',
-          shape: 'dot',
-          text: 'DBus connection error'
-        })
-        new Promise(resolve => setTimeout(resolve, 1000)).then(() => {
-          console.warn('trying to re-instantiate dbus...')
-          instantiateDbus(self)
-        })
-      })
-
-      // TODO: experimental: We did the below (until the end of instantiateDbus())
-      // exactly once before, now we do it on every connect.
-
-      if (!config.device || config.device === '') {
-        node.warn(
-          'No device configured'
-        )
-        node.status({
-          color: 'red',
-          shape: 'dot',
-          text: 'No device configured'
+          text: 'Could not connect to the DBus session bus.'
         })
         return
       }
@@ -677,39 +282,62 @@ module.exports = function (RED) {
       const interfaceName = serviceName
       const objectPath = `/${serviceName.replace(/\./g, '/')}`
 
-      // here we need to change stuff
-      async function proceed (usedBus) {
-        function loadPersistentData () {
-          if (!persistentStorage) return false
+      let retrying = false
 
-          const persistenceKey = `victron-virtual-device-${node.id}`
-          const savedData = node.context().get(persistenceKey, persistentStorage)
-
-          if (!savedData) return false
-
-          if (savedData.CustomName) {
-            iface.CustomName = savedData.CustomName
-            // console.warn(`Loaded saved CustomName: ${savedData.CustomName}`)
-          }
-
-          if (config.device === 'switch') {
-            if (savedData.switches) {
-              Object.entries(savedData.switches).forEach(([key, value]) => {
-                if (key in iface) {
-                  iface[key] = value
-                  // console.warn(`Applied saved value for ${key}: ${value}`)
-                  if (typeof iface.emit === 'function') {
-                    iface.emit(key, value)
-                  }
-                }
-              })
-              return true
-            }
-          }
-
-          return !!savedData
+      function delayedRetry () {
+        if (retrying) {
+          debugConnection('Already retrying DBus connection, skipping this retry.')
+          return
         }
+        retrying = true
+        new Promise(resolve => setTimeout(resolve, 1000)).then(() => {
+          debug('Retrying DBus connection...')
+          instantiateDbus(self)
+        }).finally(() => {
+          retrying = false
+        })
+      }
 
+      self.bus.connection.on('connect', () => {
+        debugConnection('DBus connection established for interface', interfaceName)
+        self.connected = true
+      })
+
+      self.bus.connection.on('end', () => {
+        self.connected = false
+        node.status({
+          color: 'red',
+          shape: 'dot',
+          text: 'DBus connection closed'
+        })
+        debugConnection('DBus connection closed, retrying...')
+        delayedRetry()
+      })
+
+      self.bus.connection.on('error', (err) => {
+        console.error(`DBus error: ${err}`)
+        debugConnection('DBus connection error:', err)
+        node.status({
+          color: 'red',
+          shape: 'dot',
+          text: 'DBus error'
+        })
+        delayedRetry()
+      })
+
+      if (!config.device || config.device === '') {
+        node.warn(
+          'No device configured'
+        )
+        node.status({
+          color: 'red',
+          shape: 'dot',
+          text: 'No device configured'
+        })
+        return
+      }
+
+      async function proceed (usedBus) {
         // First, we need to create our interface description (here we will only expose method calls)
         const ifaceDesc = {
           name: interfaceName,
@@ -728,21 +356,6 @@ module.exports = function (RED) {
         iface.Serial = node.id || '-'
 
         let text = `Virtual ${config.device}`
-
-        if (config.device === 'switch') {
-          // Find available file-based storage modules
-          const availableStorageModules = RED.settings.contextStorage || {}
-          const fileStorageKey = Object.keys(availableStorageModules).find(
-            key => availableStorageModules[key].module === 'localfilesystem'
-          )
-
-          if (fileStorageKey) {
-            persistentStorage = fileStorageKey
-            // console.warn(`Using persistent context storage: ${persistentStorage}`)
-          } else {
-            console.warn('No file-based context storage found in settings.js. Switch states will not persist across restarts.')
-          }
-        }
 
         // Device specific configuration
         switch (config.device) {
@@ -889,12 +502,6 @@ module.exports = function (RED) {
             text = `Virtual ${iface.NrOfPhases}-phase pvinverter`
             break
           }
-          case 'switch': {
-            const switchResult = setupVirtualSwitch(config, iface, ifaceDesc, node, persistentStorage, pathsToTrack, settingsKeysToTrack)
-
-            text = switchResult.text
-            break
-          }
           case 'tank':
             iface.FluidType = Number(config.fluid_type ?? 1) // Fresh water
             if (!config.include_tank_battery) {
@@ -947,99 +554,6 @@ module.exports = function (RED) {
             break
         }
 
-        function applyConfiguredInitialStates () {
-          // console.warn('Applying configured initial states')
-
-          if (config.device === 'switch') {
-            if (config.switch_output_initial_states) {
-              for (let i = 1; i <= Number(config.switch_nrofoutput ?? 0); i++) {
-                const stateKey = `SwitchableOutput/output_${i}/State`
-                const initialSetting = config.switch_output_initial_states[i]
-
-                if (initialSetting === 'on') {
-                  iface[stateKey] = 1
-                  // console.warn(`Applied configured initial state for ${stateKey}: ON`)
-                } else if (initialSetting === 'off') {
-                  iface[stateKey] = 0
-                  // console.warn(`Applied configured initial state for ${stateKey}: OFF`)
-                }
-              }
-            }
-
-            if (config.switch_pwm_initial_states) {
-              for (let i = 1; i <= Number(config.switch_nrofpwm ?? 0); i++) {
-                const dimmingKey = `SwitchableOutput/pwm_${i}/Dimming`
-                const initialSetting = config.switch_pwm_initial_states[i]
-
-                if (!initialSetting) continue
-
-                if (initialSetting.type === 'off') {
-                  iface[dimmingKey] = 0
-                  // console.warn(`Applied configured initial state for ${dimmingKey}: 0%`)
-                } else if (initialSetting.type === 'custom') {
-                  iface[dimmingKey] = initialSetting.value || 0
-                  // console.warn(`Applied configured initial state for ${dimmingKey}: ${initialSetting.value || 0}%`)
-                }
-              }
-            }
-          }
-        }
-
-        if (persistentStorage) {
-          const persistenceKey = `victron-virtual-device-${node.id}`
-
-          function setupPersistence () {
-            const originalEmit = iface.emit
-
-            iface.emit = function (propName, newValue) {
-              if (pathsToTrack.includes(propName)) {
-                const currentData = node.context().get(persistenceKey, persistentStorage) || {}
-                currentData[propName] = newValue
-                node.context().set(persistenceKey, currentData, persistentStorage)
-                // console.warn(`Saved state change: ${propName} = ${newValue}`)
-              }
-
-              return originalEmit.apply(self, arguments)
-            }
-          }
-
-          function loadSavedData () {
-            const savedData = node.context().get(persistenceKey, persistentStorage)
-            if (!savedData || Object.keys(savedData).length === 0) {
-              console.info('No saved data found, applying configured initial states')
-              applyConfiguredInitialStates()
-              return { loaded: false }
-            }
-
-            console.warn(`Loading saved data for ${config.device}: ${JSON.stringify(savedData)}`)
-            applyConfiguredInitialStates()
-
-            Object.entries(savedData).forEach(([key, value]) => {
-              if (key in iface && pathsToTrack.includes(key)) {
-                iface[key] = value
-                // console.warn(`Applied saved value for ${key}: ${value}`)
-                if (typeof iface.emit === 'function') {
-                  iface.emit(key, value)
-                }
-              }
-            })
-
-            return { loaded: true, data: savedData }
-          }
-
-          setupPersistence()
-
-          const result = loadSavedData()
-
-          if (!result.loaded || !result.data.CustomName) {
-            iface.CustomName = config.name || `Virtual ${config.device}`
-          }
-        } else {
-          console.info('No persistence available, applying initial states')
-          applyConfiguredInitialStates()
-          iface.CustomName = config.name || `Virtual ${config.device}`
-        }
-
         // First we use addSettings to claim a deviceInstance
         const settingsResult = await addSettings(usedBus, [
           {
@@ -1080,12 +594,7 @@ module.exports = function (RED) {
           return null
         }
         iface.DeviceInstance = getDeviceInstance(settingsResult)
-
-        // Try to load persistent data for CustomName or set default
-        const loadedData = loadPersistentData()
-        if (!loadedData) {
-          iface.CustomName = config.name || `Virtual ${config.device}`
-        }
+        iface.CustomName = config.name || `Virtual ${config.device}`
 
         if (iface.deviceInstance === null) {
           return // Exit early if we couldn't get a valid device instance
@@ -1135,25 +644,6 @@ module.exports = function (RED) {
           removeSettings,
           getValue
         } = addVictronInterfaces(usedBus, ifaceDesc, iface)
-
-        console.log(`added interface ${ifaceDesc.name} to ${objectPath}`)
-
-        usedBus.connection.on('end', () => console.warn(`DBus connection ended, should re-add interface ${ifaceDesc.name} to ${objectPath}`))
-
-        if (persistentStorage) {
-          const devicePersistenceKey = `victron-virtual-device-${node.id}`
-          const originalEmit = iface.emit
-
-          iface.emit = function (propName, newValue) {
-            if (propName === 'CustomName') {
-              const currentData = node.context().get(devicePersistenceKey, persistentStorage) || {}
-              currentData.CustomName = newValue
-              node.context().set(devicePersistenceKey, currentData, persistentStorage)
-              // console.warn(`Saved CustomName change: ${newValue}`)
-            }
-            return originalEmit.apply(self, arguments)
-          }
-        }
 
         node.removeSettings = removeSettings
 
@@ -1226,20 +716,6 @@ module.exports = function (RED) {
     })
 
     node.on('close', function (done) {
-      if (persistentStorage && node.iface) {
-        const persistenceKey = `victron-virtual-device-${node.id}`
-        const deviceData = {}
-
-        pathsToTrack.forEach(path => {
-          if (path in node.iface) {
-            deviceData[path] = node.iface[path]
-          }
-        })
-
-        node.context().set(persistenceKey, deviceData, persistentStorage)
-        console.info(`Saved device data on close: ${JSON.stringify(deviceData)}`)
-      }
-
       nodeInstances.delete(node)
 
       // If this was the last instance and the timeout is still pending

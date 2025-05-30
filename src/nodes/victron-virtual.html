@@ -12,21 +12,10 @@
 </style>
 
 <script type="text/javascript">
-    function validateSwitchConfig() {
-        const outputs = parseInt($('#node-input-switch_nrofoutput').val());
-        const pwms = parseInt($('#node-input-switch_nrofpwm').val());
-
-        if (outputs === 0 && pwms === 0) {
-            $('#switch-validation-message').show();
-        } else {
-            $('#switch-validation-message').hide();
-        }
-    }
-
     function checkSelectedVirtualDevice() {
         [
             'battery', 'gps', 'grid', 'motordrive', 'pvinverter',
-            'switch', 'tank', 'temperature'
+            'tank', 'temperature'
         ].map( x => { $('.input-'+x).hide() })
         const selected = $('select#node-input-device').val()
         $('.input-'+selected).show()
@@ -49,72 +38,6 @@
             $('#node-input-default_values').prop('checked', false).prop('disabled', true)
         } else {
             $('#node-input-default_values').prop('disabled', false)
-        }
-
-        if (selected === 'switch') {
-            validateSwitchConfig();
-            $('#node-input-switch_nrofoutput, #node-input-switch_nrofpwm').off('change').on('change', function() {
-                validateSwitchConfig();
-                updateSwitchInitialStateOptions();
-            });
-            updateSwitchInitialStateOptions();
-        }
-    }
-
-    function updateSwitchInitialStateOptions() {
-        // Show/hide initial state options based on number of outputs and PWMs
-        const outputs = parseInt($('#node-input-switch_nrofoutput').val());
-        const pwms = parseInt($('#node-input-switch_nrofpwm').val());
-
-        $('.switch-initial-state-container').empty();
-
-        for (let i = 1; i <= outputs; i++) {
-            const switchTypeDiv = $('<div class="form-row switch-type-row"></div>');
-            switchTypeDiv.append(`<label for="node-input-switch_output_${i}_type">Switch ${i} Type</label>`);
-
-            const typeSelect = $(`<select id="node-input-switch_output_${i}_type" data-output-index="${i}" data-output-type="output">`);
-            typeSelect.append('<option value="1">Latching (On/Off)</option>');
-            typeSelect.append('<option value="0">Momentary (Pulse)</option>');
-
-            switchTypeDiv.append(typeSelect);
-            $('.switch-initial-state-container').append(switchTypeDiv);
-
-            const outputDiv = $('<div class="form-row switch-initial-state-row"></div>');
-            outputDiv.append(`<label for="node-input-switch_output_${i}_initial_state">Switch ${i} Initial State</label>`);
-
-            const select = $(`<select id="node-input-switch_output_${i}_initial_state" data-output-index="${i}" data-output-type="output">`);
-            select.append('<option value="previous">Previous (from memory)</option>');
-            select.append('<option value="off">Off</option>');
-            select.append('<option value="on">On</option>');
-            select.append('<option value="null">Don\'t set (null)</option>');
-            
-            outputDiv.append(select);
-            $('.switch-initial-state-container').append(outputDiv);
-        }
-
-        for (let i = 1; i <= pwms; i++) {
-            const pwmDiv = $('<div class="form-row switch-initial-state-row"></div>');
-            pwmDiv.append(`<label for="node-input-switch_pwm_${i}_initial_state">Slider ${i}</label>`);
-            
-            const select = $(`<select id="node-input-switch_pwm_${i}_initial_state" data-output-index="${i}" data-output-type="pwm">`);
-            select.append('<option value="previous">Previous (from memory)</option>');
-            select.append('<option value="off">Off (0%)</option>');
-            select.append('<option value="custom">Custom Value</option>');
-            select.append('<option value="null">Don\'t set (null)</option>');
-            
-            pwmDiv.append(select);
-
-            const customValueDiv = $(`<div class="form-row switch-pwm-custom-value" id="node-input-switch_pwm_${i}_custom_value_container" style="display:none;">`);
-            customValueDiv.append(`<label></label><label for="node-input-switch_pwm_${i}_custom_value" style="width:auto;">Initial Value (%):</label>`);
-            customValueDiv.append(`<input type="number" id="node-input-switch_pwm_${i}_custom_value" style="width:100px;" min="0" max="100" step="1" value="50">`);
-
-            $('.switch-initial-state-container').append(pwmDiv);
-            $('.switch-initial-state-container').append(customValueDiv);
-
-            select.change(function() {
-                const showCustom = $(this).val() === 'custom';
-                $(`#node-input-switch_pwm_${i}_custom_value_container`).toggle(showCustom);
-            });
         }
     }
 
@@ -140,30 +63,6 @@
             // pvinverter
             position: { value: 0, required: false},
             pvinverter_nrofphases: {value: 1, required: false},
-            // switch
-            switch_nrofoutput: {value: 1, required: false,
-                validate: function(v) {
-                    if (this.device !== 'switch') return true;
-
-                    const outputs = parseInt(v);
-                    const pwms = parseInt(this.switch_nrofpwm);
-
-                    return (outputs > 0 || pwms > 0);
-                }
-            },
-            switch_output_types: {value: {}, required: false},
-            switch_nrofpwm: {value: 1, required: false,
-                validate: function(v) {
-                    if (this.device !== 'switch') return true;
-
-                    const pwms = parseInt(v);
-                    const outputs = parseInt(this.switch_nrofoutput);
-
-                    return (outputs > 0 || pwms > 0);
-                }
-            },
-            switch_output_initial_states: {value: {}, required: false},
-            switch_pwm_initial_states: {value: {}, required: false},
             // tank
             fluid_type: { value: 0, required: false},
             include_tank_battery: { value: false },
@@ -191,64 +90,8 @@
         },
         oneditprepare: function oneditprepare() {
             checkSelectedVirtualDevice()
-            if (this.device === 'switch') {
-                setTimeout(() => {
-                    if (this.switch_output_types) {
-                        for (const [index, type] of Object.entries(this.switch_output_types)) {
-                            $('#node-input-switch_output_' + index + '_type').val(type);
-                        }
-                    }
-
-                    if (this.switch_output_initial_states) {
-                        for (const [index, state] of Object.entries(this.switch_output_initial_states)) {
-                            $('#node-input-switch_output_' + index + '_initial_state').val(state);
-                        }
-                    }
-
-                    if (this.switch_pwm_initial_states) {
-                        for (const [index, stateObj] of Object.entries(this.switch_pwm_initial_states)) {
-                            $('#node-input-switch_pwm_' + index + '_initial_state').val(stateObj.type);
-                            if (stateObj.type === 'custom') {
-                                $('#node-input-switch_pwm_' + index + '_custom_value').val(stateObj.value);
-                                $('#node-input-switch_pwm_' + index + '_custom_value_container').show();
-                            }
-                        }
-                    }
-                }, 100);
-            }
         },
         oneditsave: function oneditsave() {
-            if (this.device === 'switch') {
-                const outputs = parseInt($('#node-input-switch_nrofoutput').val());
-                const pwms = parseInt($('#node-input-switch_nrofpwm').val());
-
-                if (outputs === 0 && pwms === 0) {
-                    return false;
-                }
-
-                const outputTypes = {};
-                for (let i = 1; i <= outputs; i++) {
-                    outputTypes[i] = $('#node-input-switch_output_' + i + '_type').val();
-                }
-                this.switch_output_types = outputTypes;
-
-                const outputStates = {};
-                for (let i = 1; i <= outputs; i++) {
-                    outputStates[i] = $('#node-input-switch_output_' + i + '_initial_state').val();
-                }
-                this.switch_output_initial_states = outputStates;
-
-                const pwmStates = {};
-                for (let i = 1; i <= pwms; i++) {
-                    const stateType = $('#node-input-switch_pwm_' + i + '_initial_state').val();
-                    pwmStates[i] = {
-                        type: stateType,
-                        value: stateType === 'custom' ? 
-                            parseFloat($('#node-input-switch_pwm_' + i + '_custom_value').val()) : 0
-                    };
-                }
-                this.switch_pwm_initial_states = pwmStates;
-            }
             return true;
         }
     });
@@ -269,7 +112,6 @@
             <option value="meteo">Meteo</option>
             <option value="motordrive">Motor drive</option>
             <option value="pvinverter">PV inverter</option>
-            <option value="switch">Switch</option>
             <option value="tank">Tank sensor</option>
             <option value="temperature">Temperature sensor</option>
         </select>
@@ -413,37 +255,6 @@
         </div>
     </div>
 
-    <div class="input-switch">
-        <div class="form-row">
-            <label for="node-input-switch_nrofoutput"><i class="fa fa-plug"></i> Nr of switches</label>
-            <select id="node-input-switch_nrofoutput">
-                <option value="0">0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-            </select>
-        </div>
-        <div class="form-row">
-            <label for="node-input-switch_nrofpwm"><i class="fa fa-plug"></i> Nr of sliders</label>
-            <select id="node-input-switch_nrofpwm">
-                <option value="0">0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-            </select>
-        </div>
-        <div class="form-warning" id="switch-validation-message" style="display:none;">
-            <i class="fa fa-exclamation-triangle"></i> At least one of latching switches or dimmable switches must be greater than zero.
-        </div>
-
-        <div class="form-row" id="switch-initial-states-header" style="margin-top: 10px;">
-            <label><i class="fa fa-sliders"></i> Initial States</label>
-        </div>
-        <div class="switch-initial-state-container">
-            <!-- This will be populated dynamically -->
-        </div>
-    </div>
-
     <div class="input-temperature">
         <div class="form-row">
             <label for="node-input-temperature_type"><i class="fa fa-thermometer-half"></i> Temperature type</label>
@@ -518,7 +329,6 @@ device type needs to be selected. At the moment the system supports:
 - Meteo
 - Motor drive
 - PV inverter
-- Switch
 - Tank sensor
 - Temperature sensor
 
@@ -609,35 +419,6 @@ For the PV inverter you can set the position of the inverter. This can be:
 You can also set the number of phases that are available on the device. Do
 note that changing this number while the device has been deployed is will not
 result in the extra phases being created. They are only created during deployment.
-
-### Switch
-
-For the switch you can set the number of latching switches and the number of dimmable
-switches (PWM). The latching switches can be configured in two different modes:
-
-1. **Latching (On/Off)** - Stays in the state it's set to (on or off) until changed
-2. **Momentary (Pulse)** - Provides a momentary pulse, then returns to its default state
-
-The number of dimmable switches determines how many sliders are available for dimming control.
-
-This follows the same logic as the actual GX IO-Extender 150. You can set
-the port as a momentary switch, latching switch or as a dimmable output (PWM).
-
-Each switch or slider can be configured with different initial states:
-
-1. **Previous (from memory)** - Restores the last state from memory when Node-RED restarts
-2. **Off** - Sets the switch to off (0) or the slider to 0% when deployed
-3. **On** - Sets the switch to on (1) when deployed (switches only)
-4. **Custom Value** - Sets the slider to a custom percentage value (sliders only)
-5. **Don't set (null)** - Doesn't change the state at all on deployment, requiring manual control
-
-The "Don't set (null)" option is useful when you want to:
-- Avoid any automatic state changes during deployment
-- Manually control the state after deployment
-- Keep the current state without modifying it on restart
-- Implement custom initialization logic in your flows
-
-You can use the switch nodes to read from and control the virtual switch.
 
 ### Tank sensor
 
