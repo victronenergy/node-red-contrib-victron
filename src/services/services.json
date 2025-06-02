@@ -2297,7 +2297,6 @@
           "9": "Weekends",
           "11": "Monthly"
         },
-        "remarks": "<p>A negative value means that the schedule has been de-activated.</p>",
        "mode": "both"
       },
       {
@@ -2346,7 +2345,6 @@
           "9": "Weekends",
           "11": "Monthly"
         },
-        "remarks": "<p>A negative value means that the schedule has been de-activated.</p>",
        "mode": "both"
       },
       {
@@ -2395,7 +2393,6 @@
           "9": "Weekends",
           "11": "Monthly"
         },
-        "remarks": "<p>A negative value means that the schedule has been de-activated.</p>",
        "mode": "both"
       },
       {
@@ -2444,7 +2441,6 @@
           "9": "Weekends",
           "11": "Monthly"
         },
-        "remarks": "<p>A negative value means that the schedule has been de-activated.</p>",
        "mode": "both"
       },
       {
