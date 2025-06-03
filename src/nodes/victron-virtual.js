@@ -62,6 +62,7 @@ const properties = {
     'Ac/Frequency': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'Hz' : '' },
     'Ac/N/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
     'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
+    'Role': { type: 's' },
     NrOfPhases: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
     ErrorCode: { type: 'i', format: (v) => v != null ? v : '', value: 0 },
     Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
