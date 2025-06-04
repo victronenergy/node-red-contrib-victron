@@ -202,6 +202,11 @@ class VictronDbusListener {
       },
       (err, res) => {
         if (err) {
+          const matchIfVirtual = service.name.match(/^com\.victronenergy\.(\w+)\.virtual_*/)
+          if (matchIfVirtual) {
+            console.warn(`Unable to request root for virtual service ${service.name}, this is fine when reconnecting.`)
+            return resolve()
+          }
           return reject(err)
         }
         const data = {}
