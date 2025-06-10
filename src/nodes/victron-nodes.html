@@ -300,6 +300,12 @@
 
             // in case any services are available, populate the service and path dropdowns
             if (data.length !== 0) {
+                if (isCustomNode && isOutputNode) {
+                    data = data.filter(function (s) {
+                        return s.service !== 'com.victronenergy.system/0';
+                    });
+                }
+
                 populateSelect(serviceElem, data);
 
                 function containsDuplicates(array) {
