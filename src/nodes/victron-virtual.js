@@ -1,4 +1,5 @@
 const { addVictronInterfaces, addSettings } = require('dbus-victron-virtual')
+const { needsPersistedState, hasPersistedState, loadPersistedState, savePersistedState } = require('./persist')
 const dbus = require('dbus-native-victron')
 const debug = require('debug')('victron-virtual')
 const debugConnection = require('debug')('victron-virtual:connection')
@@ -15,7 +16,7 @@ const properties = {
     'Info/MaxChargeCurrent': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
     'Info/MaxDischargeCurrent': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
     'Info/ChargeRequest': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    Soc: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '' },
+    Soc: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: 5 /* persist, but throttled to 5 seconds */ },
     Soh: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '' },
     Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
     'Alarms/CellImbalance': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
@@ -36,7 +37,7 @@ const properties = {
     'System/MinCellVoltage': { type: 'd', format: (v) => v != null ? v.toFixed(3) + 'V' : '' }
   },
   temperature: {
-    Temperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
+    Temperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', persist: 60 /* persist, but throttled to 60 seconds */ },
     TemperatureType: {
       type: 'i',
       value: 2,
@@ -55,7 +56,7 @@ const properties = {
     Pressure: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'hPa' : '' },
     Humidity: { type: 'd', format: (v) => v != null ? v.toFixed(1) + '%' : '' },
     BatteryVoltage: { type: 'd', value: 3.3, format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
-    Status: { type: 'i' }
+    Status: { type: 'i', persist: true /* persist on every state change */ }
   },
   grid: {
     'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', value: 0 },
@@ -351,7 +352,6 @@ module.exports = function (RED) {
         // Then we need to create the interface implementation (with actual functions)
         const iface = getIface(config.device)
 
-        // Note: We'll set CustomName after trying to load persistent data
         iface.Status = 0
         iface.Serial = node.id || '-'
 
@@ -554,6 +554,19 @@ module.exports = function (RED) {
             break
         }
 
+        if (hasPersistedState(self.id)) {
+          console.log(`Virtual device ${config.device} (${self.id}) has persisted state, loading it.`)
+          await loadPersistedState(self.id, iface, ifaceDesc)
+        } else if (needsPersistedState(ifaceDesc)) {
+          console.log(`Virtual device ${config.device} (${self.id}) needs persisted state, but no state found. Initializing with defaults.`)
+          await savePersistedState(self.id, iface, ifaceDesc)
+        }
+
+        // setInterval(() => {
+        //   // log values of interface on console
+        //   console.log(`Virtual device ${config.device} (${self.id}) initialized with properties:`, iface)
+        // }, 2_000)
+
         // First we use addSettings to claim a deviceInstance
         const settingsResult = await addSettings(usedBus, [
           {
@@ -605,6 +618,24 @@ module.exports = function (RED) {
 
         // Now we need to actually export our interface on our object
         usedBus.exportInterface(iface, objectPath, ifaceDesc)
+
+        const originalEmit = iface.emit
+        iface.emit = function (name, value) {
+          // log
+          console.log(`Virtual device ${config.device} (${self.id}) emitted:`, name, value)
+          originalEmit.apply(this, arguments)
+        }
+
+        self.bus.connection.on('message', (message) => {
+          // console.log(`Received message on bus, id=${self.id}, device=${config.device}, interfaceName=${interfaceName}:`, message)
+          const { path, interface: ifaceName, member, destination, body } = message
+          if (destination === interfaceName) {
+            // console.log(`Message received for interface ${ifaceName} on path ${path}:`, message)
+            if (member === 'SetValue') {
+              console.log(`SetValue received, need to possibly persist, new value is ${body[0][1][0]}`, path, ifaceName, message, JSON.stringify(body, null, 2))
+            }
+          }
+        })
 
         usedBus.requestName(serviceName, 0x4, (err, retCode) => {
           // If there was an error, warn user and fail

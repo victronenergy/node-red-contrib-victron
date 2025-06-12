@@ -33,7 +33,7 @@ function searchHaystack (stack, needle, fallback) {
   // First try to find exact match with device instance
   for (const key in stack) {
     if (stack[key].deviceInstance === Number(needle) &&
-        stack[key].name === fallback) {
+      stack[key].name === fallback) {
       return stack[key].name
     }
   }
@@ -42,7 +42,7 @@ function searchHaystack (stack, needle, fallback) {
   // by checking if the service name starts with the fallback + "."
   for (const key in stack) {
     if (stack[key].deviceInstance === Number(needle) &&
-        stack[key].name.startsWith(fallback + '.')) {
+      stack[key].name.startsWith(fallback + '.')) {
       return stack[key].name
     }
   }
@@ -53,7 +53,7 @@ function searchHaystack (stack, needle, fallback) {
 
   for (const key in stack) {
     if (stack[key].deviceInstance === Number(needle) &&
-        stack[key].name.includes('.' + serviceType + '.')) {
+      stack[key].name.includes('.' + serviceType + '.')) {
       return stack[key].name
     }
   }
@@ -115,6 +115,7 @@ class VictronDbusListener {
 
         this.bus.listNames((props, args) => {
           args.forEach(name => {
+            debug(`listNames, found service: ${name}`)
             if (name.startsWith('com.victronenergy')) { this.bus.getNameOwner(name, (props, args) => this._initService(args, name)) }
           })
         })
@@ -168,6 +169,7 @@ class VictronDbusListener {
 
   _initService (owner, name) {
     const service = { name }
+    console.warn(`_initService, owner=${owner}, name=${name}`)
     this.bus.invoke({
       path: '/DeviceInstance',
       destination: name,
@@ -250,6 +252,7 @@ class VictronDbusListener {
     // and we want to measure the time it takes to do so.
     const start = new Date()
     debug('_requestAllRoots, start', start)
+
     const promises = []
     for (const key in this.services) {
       debug(`_requestAllRoots, key=${key}`)
@@ -263,7 +266,7 @@ class VictronDbusListener {
   _signalRecieve (msg) {
     if (msg.interface !== 'com.victronenergy.BusItem') {
       if (msg.interface === 'org.freedesktop.DBus' &&
-                msg.member === 'NameOwnerChanged') {
+        msg.member === 'NameOwnerChanged') {
         const name = msg.body[0]
 
         if (name.startsWith('com.victronenergy')) {
