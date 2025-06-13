@@ -3,6 +3,15 @@ const dbus = require('dbus-native-victron')
 const debug = require('debug')('victron-virtual')
 
 const commonGeneratorProperties = {
+  'Start': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+  'RemoteStartModeEnabled': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+  'EnableRemoteStartMode': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+  'Engine/CoolantTemperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
+  'Engine/ExhaustTemperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
+  'Engine/OilTemperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
+  'Engine/OilPressure': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'bar' : '' },
+  'Engine/WindingTemperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
+  'Engine/Starts': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
   'Engine/Load': { type: 'd', format: (v) => v != null ? v.toFixed(1) + '%' : '' },
   'Engine/Speed': { type: 'i', format: (v) => v != null ? v + 'RPM' : '' },
   'Engine/OperatingHours': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'h' : '' },
@@ -112,7 +121,6 @@ const properties = {
     'Dc/0/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
     'Dc/0/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
     'Dc/0/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
-    'Dc/0/Temperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
     'History/EnergyOut': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' }
   },
   grid: {
