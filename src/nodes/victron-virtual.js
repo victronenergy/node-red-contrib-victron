@@ -17,7 +17,7 @@ const properties = {
     'Info/MaxDischargeCurrent': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
     'Info/ChargeRequest': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
     Soc: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: 5 /* persist, but throttled to 5 seconds */ },
-    Soh: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '' },
+    Soh: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: 15 /* persist, but throttled to 15 seconds */ },
     Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
     'Alarms/CellImbalance': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
     'Alarms/HighCellVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
@@ -208,10 +208,16 @@ function getIfaceDesc (dev) {
 
 function getIface (dev) {
   if (!properties[dev]) {
-    return { emit: function () { } }
+    return {
+      emit: function () {
+      }
+    }
   }
 
-  const result = { emit: function () { } }
+  const result = {
+    emit: function () {
+    }
+  }
 
   for (const key in properties[dev]) {
     const propertyValue = JSON.parse(JSON.stringify(properties[dev][key]))
@@ -619,24 +625,6 @@ module.exports = function (RED) {
         // Now we need to actually export our interface on our object
         usedBus.exportInterface(iface, objectPath, ifaceDesc)
 
-        const originalEmit = iface.emit
-        iface.emit = function (name, value) {
-          // log
-          console.log(`Virtual device ${config.device} (${self.id}) emitted:`, name, value)
-          originalEmit.apply(this, arguments)
-        }
-
-        self.bus.connection.on('message', (message) => {
-          // console.log(`Received message on bus, id=${self.id}, device=${config.device}, interfaceName=${interfaceName}:`, message)
-          const { path, interface: ifaceName, member, destination, body } = message
-          if (destination === interfaceName) {
-            // console.log(`Message received for interface ${ifaceName} on path ${path}:`, message)
-            if (member === 'SetValue') {
-              console.log(`SetValue received, need to possibly persist, new value is ${body[0][1][0]}`, path, ifaceName, message, JSON.stringify(body, null, 2))
-            }
-          }
-        })
-
         usedBus.requestName(serviceName, 0x4, (err, retCode) => {
           // If there was an error, warn user and fail
           if (err) {
@@ -670,11 +658,32 @@ module.exports = function (RED) {
           }
         })
 
+        function emitCallback (event, data) {
+          console.log(`Virtual device ${config.device} (${self.id}) emitted event (2):`, event, JSON.stringify(data))
+          if (event !== 'ItemsChanged') {
+            return
+          }
+          const propName = data[0][0].substring(1) // Remove the leading slash
+          const value = data[0][1][0][1][1] // TODO: could the value be an array? Some other more obscure value?
+
+          // we may not need the value: We may just persist the whole iface object.
+
+          // check if we need to persist this property
+          if (ifaceDesc.properties[propName] && ifaceDesc.properties[propName].persist) {
+            console.log('MUST PERSIST (but not honoring throttling yet)', propName, value, iface)
+            savePersistedState(self.id, iface, ifaceDesc).then(() => {
+              debug(`Persisted state for virtual device ${config.device} (${self.id}), because ${propName} changed to ${value}`)
+            }).catch(err => {
+              console.error(`Failed to persist state for ${propName}:`, err)
+            })
+          }
+        }
+
         // Then we can add the required Victron interfaces, and receive some functions to use
         const {
           removeSettings,
           getValue
-        } = addVictronInterfaces(usedBus, ifaceDesc, iface)
+        } = addVictronInterfaces(usedBus, ifaceDesc, iface, /* add_defaults */ true, emitCallback)
 
         node.removeSettings = removeSettings
 
@@ -742,9 +751,6 @@ module.exports = function (RED) {
     }
 
     instantiateDbus(this)
-
-    node.on('input', function (msg) {
-    })
 
     node.on('close', function (done) {
       nodeInstances.delete(node)
