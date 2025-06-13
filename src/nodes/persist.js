@@ -1,4 +1,4 @@
-import fs from 'fs'
+const fs = require('fs')
 
 const FS_LOCATION = process.env.PERSISTED_STATE_LOCATION || '/data/home/nodered/.victron'
 
@@ -123,7 +123,7 @@ async function savePersistedState (id, iface, ifaceDesc, propName) {
   }
 }
 
-export {
+module.exports = {
   hasPersistedState,
   needsPersistedState,
   loadPersistedState,
