@@ -6,7 +6,7 @@ const debugConnection = require('debug')('victron-virtual:connection')
 
 const properties = {
   battery: {
-    Capacity: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'Ah' : '' },
+    Capacity: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'Ah' : '', persist: true },
     'Dc/0/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
     'Dc/0/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
     'Dc/0/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
@@ -660,19 +660,21 @@ module.exports = function (RED) {
 
         function emitCallback (event, data) {
           console.log(`Virtual device ${config.device} (${self.id}) emitted event (2):`, event, JSON.stringify(data))
+
           if (event !== 'ItemsChanged') {
             return
           }
+
           const propName = data[0][0].substring(1) // Remove the leading slash
-          const value = data[0][1][0][1][1] // TODO: could the value be an array? Some other more obscure value?
 
           // we may not need the value: We may just persist the whole iface object.
+          const value = data[0][1][0][1][1] // TODO: could the value be an array? Some other more obscure value?
 
           // check if we need to persist this property
           if (ifaceDesc.properties[propName] && ifaceDesc.properties[propName].persist) {
-            console.log('MUST PERSIST (but not honoring throttling yet)', propName, value, iface)
-            savePersistedState(self.id, iface, ifaceDesc).then(() => {
-              debug(`Persisted state for virtual device ${config.device} (${self.id}), because ${propName} changed to ${value}`)
+            console.log('MUST PERSIST', propName, value)
+            savePersistedState(self.id, iface, ifaceDesc, propName).then(() => {
+              debug(`Saved state for virtual device ${config.device} (${self.id}), because ${propName} changed to ${value}`)
             }).catch(err => {
               console.error(`Failed to persist state for ${propName}:`, err)
             })
