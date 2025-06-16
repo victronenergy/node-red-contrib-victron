@@ -131,6 +131,10 @@ const properties = {
     },
     Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
   },
+  switch: {
+    Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
+    State: { type: 'i', value: 0x100 }
+  },
   tank: {
     'Alarms/High/Active': { type: 'd' },
     'Alarms/High/Delay': { type: 'd' },
@@ -200,8 +204,8 @@ function getIfaceDesc (dev) {
   }
 
   result.DeviceInstance = { type: 'i' }
-  result.CustomName = { type: 's' }
-  result.Serial = { type: 's' }
+  result.CustomName = { type: 's', persist: true }
+  result.Serial = { type: 's', persist: true }
 
   return result
 }
@@ -506,6 +510,81 @@ module.exports = function (RED) {
               iface.StatusCode = 0
             }
             text = `Virtual ${iface.NrOfPhases}-phase pvinverter`
+            break
+          }
+          case 'switch': {
+            const properties = [
+              {
+                name: 'State',
+                type: 'i',
+                format: (v) => ({
+                  0: 'Off',
+                  1: 'On'
+                }[v] || 'unknown'),
+                persist: true
+              },
+              { name: 'Status', type: 'i', format: (v) => v != null ? v : '' },
+              { name: 'Name', type: 's', value: 'Output', persist: true },
+              { name: 'Settings/Group', type: 's', value: '', persist: true },
+              { name: 'Settings/CustomName', type: 's', value: '', persist: true },
+              {
+                name: 'Settings/Type',
+                type: 'i',
+                format: (v) => ({
+                  0: 'Momentary',
+                  1: 'Latching/Relay',
+                  2: 'Dimmable/PWM'
+                }[v] || 'unknown'),
+                value: 1,
+                persist: true
+              },
+              { name: 'Settings/ValidTypes', type: 'i', value: 0x3 }
+            ]
+            for (let i = 1; i <= Number(config.switch_nrofoutput ?? 0); i++) {
+              properties.forEach(({ name, type, value, format, persist }) => {
+                const key = `SwitchableOutput/output_${i}/${name}`
+                ifaceDesc.properties[key] = {
+                  type, format, persist
+                }
+                if (name === 'Name') {
+                  value += ` ${i}`
+                }
+                iface[key] = value !== undefined ? value : 0
+              })
+            }
+            properties.push({
+              name: 'Dimming',
+              min: 0,
+              max: 100,
+              type: 'd',
+              format: (v) => v != null ? v.toFixed(1) + '%' : '',
+              persist: true
+            })
+            for (let i = 1; i <= Number(config.switch_nrofpwm ?? 0); i++) {
+              properties.forEach(({ name, type, value, format, min, max, persist }) => {
+                const key = `SwitchableOutput/pwm_${i}/${name}`
+                ifaceDesc.properties[key] = {
+                  type, format, persist
+                }
+                if (min != null) {
+                  ifaceDesc.properties[key].min = min
+                }
+                if (max != null) {
+                  ifaceDesc.properties[key].max = max
+                }
+                if (name === 'Settings/ValidTypes') {
+                  value = 0x4 // Only dimmable
+                }
+                if (name === 'Settings/Type') {
+                  value = 2 // Set to dimmable
+                }
+                if (name === 'Name') {
+                  value = `PWM ${i}`
+                }
+                iface[key] = value !== undefined ? value : 0
+              })
+            }
+            text = `Virtual switch ${config.switch_nrofoutput} outputs, ${config.switch_nrofpwm} PWMs`
             break
           }
           case 'tank':
