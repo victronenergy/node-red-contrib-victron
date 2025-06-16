@@ -4,6 +4,20 @@ const dbus = require('dbus-native-victron')
 const debug = require('debug')('victron-virtual')
 const debugConnection = require('debug')('victron-virtual:connection')
 
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('=== UNHANDLED REJECTION (PREVENTING CRASH) ===')
+  console.error('Promise:', promise)
+  console.error('Reason:', reason)
+  console.error('Reason type:', typeof reason)
+  console.error('Is array:', Array.isArray(reason))
+  if (Array.isArray(reason)) {
+    console.error('Array contents:', JSON.stringify(reason, null, 2))
+  }
+  console.error('Stack trace:')
+  console.trace()
+  console.error('=== END DEBUG ===')
+})
+
 const properties = {
   battery: {
     Capacity: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'Ah' : '', persist: true },
@@ -348,6 +362,37 @@ module.exports = function (RED) {
         return
       }
 
+      async function callAddSettingsWithRetry (bus, settings, maxRetries = 10) {
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
+          try {
+            const result = await addSettings(bus, settings)
+            return result
+          } catch (error) {
+            let errorMessage = ''
+            if (Array.isArray(error)) {
+              errorMessage = error.join(', ')
+            } else if (error && error.message) {
+              errorMessage = error.message
+            } else {
+              errorMessage = String(error)
+            }
+            const isServiceUnavailable =
+              errorMessage.includes('org.freedesktop.DBus.Error.ServiceUnknown') ||
+              errorMessage.includes('com.victronenergy.settings') ||
+              errorMessage.includes('No such service') ||
+              errorMessage.includes('was not provided by any .service files')
+
+            if (!isServiceUnavailable || attempt === maxRetries - 1) {
+              throw error
+            }
+
+            const delay = Math.min(1000 * Math.pow(2, attempt), 10000) // Exponential backoff, max 10s
+            debug(`Settings service unavailable, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`)
+            await new Promise(resolve => setTimeout(resolve, delay))
+          }
+        }
+      }
+
       async function proceed (usedBus) {
         // First, we need to create our interface description (here we will only expose method calls)
         const ifaceDesc = {
@@ -648,13 +693,28 @@ module.exports = function (RED) {
         }
 
         // First we use addSettings to claim a deviceInstance
-        const settingsResult = await addSettings(usedBus, [
-          {
-            path: `/Settings/Devices/virtual_${node.id}/ClassAndVrmInstance`,
-            default: `${config.device}:100`,
-            type: 's'
-          }
-        ])
+        let settingsResult = null
+        try {
+          // First we use addSettings to claim a deviceInstance
+          settingsResult = await callAddSettingsWithRetry(usedBus, [
+            {
+              path: `/Settings/Devices/virtual_${node.id}/ClassAndVrmInstance`,
+              default: `${config.device}:100`,
+              type: 's'
+            }
+          ])
+        } catch (error) {
+          console.error('Error in virtual device setup:', error)
+
+          node.status({
+            color: 'red',
+            shape: 'dot',
+            text: `Setup failed: ${error.message || 'Unknown error'}`
+          })
+
+          node.error('Virtual device setup failed', error)
+          return
+        }
 
         // It looks like there are a few possibilities here:
         // 1. We claimed this deviceInstance before, and we get the same one
