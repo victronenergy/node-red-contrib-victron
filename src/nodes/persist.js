@@ -1,4 +1,5 @@
 const fs = require('fs')
+const debug = require('debug')('victron-virtual:persistence')
 
 const FS_DEFAULT_LOCATION = process.env.PERSISTED_STATE_LOCATION || '/data/home/nodered/.victron'
 
@@ -74,13 +75,13 @@ function setupToWriteLater (RED, id, iface, ifaceDesc, propName) {
     const millis = propDesc.persist * 1_000
 
     if (!lastSaveAt[id] || (now - lastSaveAt[id]) >= millis) {
-      console.log(`Writing immediately, last save was more than ${millis} ms ago, lastSavedAt=${lastSaveAt[id]}, now=${now}, id=${id}, property ${propName}`)
+      debug(`Writing immediately, last save was more than ${millis} ms ago, lastSavedAt=${lastSaveAt[id]}, now=${now}, id=${id}, property ${propName}`)
       return false // write now, we wrote more than millis ago
     }
 
     if (timers[id] && timers[id].at < lastSaveAt[id] + millis) {
       // we leave the timer in place.
-      console.log(`Writing now, last save was at ${lastSaveAt[id]}, millis=${millis}, id=${id}, property ${propName}`)
+      debug(`Writing now, last save was at ${lastSaveAt[id]}, millis=${millis}, id=${id}, property ${propName}`)
       return true
     } else {
       // clear the existing timer, and setup new one
@@ -91,7 +92,7 @@ function setupToWriteLater (RED, id, iface, ifaceDesc, propName) {
       timers[id] = {
         timeout: setTimeout(() => {
           delete timers[id] // Clear the timer after it runs
-          console.log(`Writing persisted state for ${id} after a delay of ${at - now} millis, property ${propName}`)
+          debug(`Writing persisted state for ${id} after a delay of ${at - now} millis, property ${propName}`)
           savePersistedState(RED, id, iface, ifaceDesc)
         }, at - now),
         at
@@ -99,7 +100,7 @@ function setupToWriteLater (RED, id, iface, ifaceDesc, propName) {
       return true
     }
   } else {
-    console.log(`No delayed persist set for property ${propName}, id=${id}`)
+    debug(`No delayed persist set for property ${propName}, id=${id}`)
     return false // Not writing later, we write immediately
   }
 }
@@ -110,13 +111,13 @@ async function savePersistedState (RED, id, iface, ifaceDesc, propName) {
   const state = {}
 
   if (setupToWriteLater(RED, id, iface, ifaceDesc, propName)) {
-    console.log(`Not writing now, will write later, id=${id}, property ${propName}`)
+    debug(`Not writing now, will write later, id=${id}, property ${propName}`)
     return
   }
 
   for (const key in ifaceDesc.properties) {
     if (iface[key] !== undefined && ifaceDesc.properties[key].persist) {
-      console.log('save property to persisted state', key, iface[key])
+      debug('save property to persisted state', key, iface[key])
       state[key] = iface[key]
     }
   }
@@ -124,7 +125,7 @@ async function savePersistedState (RED, id, iface, ifaceDesc, propName) {
   try {
     fs.writeFileSync(fname + '.tmp', JSON.stringify({ state }, null, 2), 'utf8')
     fs.renameSync(fname + '.tmp', fname)
-    console.log(`Persisted state for ${id} saved to ${fname}`)
+    debug(`Persisted state for ${id} saved to ${fname}`)
     lastSaveAt[id] = Date.now() // Update last save time
   } catch (error) {
     console.error(`Error saving persisted state for ${id}:`, error)
