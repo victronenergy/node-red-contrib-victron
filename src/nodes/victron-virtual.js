@@ -122,6 +122,8 @@ const properties = {
     Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
   },
   meteo: {
+    CellTemperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
+    ExternalTemperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
     Irradiance: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'W/m2' : '' },
     WindSpeed: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'm/s' : '' },
     WindDirection: { type: 'i' }
