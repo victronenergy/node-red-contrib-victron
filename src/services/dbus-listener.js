@@ -169,7 +169,6 @@ class VictronDbusListener {
 
   _initService (owner, name) {
     const service = { name }
-    console.warn(`_initService, owner=${owner}, name=${name}`)
     this.bus.invoke({
       path: '/DeviceInstance',
       destination: name,

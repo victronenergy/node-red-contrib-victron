@@ -4,8 +4,8 @@ const debug = require('debug')('victron-virtual:persistence')
 const FS_DEFAULT_LOCATION = process.env.PERSISTED_STATE_LOCATION || '/data/home/nodered/.victron'
 
 function getFsLocation (RED) {
-  if (RED.settings && RED.settings.victronPersistence && RED.settings.victronPersistence.location) {
-    return RED.settings.victronPersistence.location
+  if (RED.settings && RED.settings.victronVirtual && RED.settings.victronVirtual.persistLocation) {
+    return RED.settings.victronVirtual.persistLocation
   }
   return FS_DEFAULT_LOCATION
 }
