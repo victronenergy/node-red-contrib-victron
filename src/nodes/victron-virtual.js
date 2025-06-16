@@ -801,13 +801,10 @@ module.exports = function (RED) {
 
           const propName = data[0][0].substring(1) // Remove the leading slash
 
-          // we may not need the value: We may just persist the whole iface object.
-          const value = data[0][1][0][1][1] // TODO: could the value be an array? Some other more obscure value?
-
           // check if we need to persist this property
           if (ifaceDesc.properties[propName] && ifaceDesc.properties[propName].persist) {
             savePersistedState(RED, self.id, iface, ifaceDesc, propName).then(() => {
-              debug(`Saved state for virtual device ${config.device} (${self.id}), because ${propName} changed to ${value}`)
+              debug(`Saved state for virtual device ${config.device} (${self.id}), because ${propName} changed to ${iface[propName]}`)
             }).catch(err => {
               console.error(`Failed to persist state for ${propName}:`, err)
             })
