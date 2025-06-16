@@ -3,8 +3,9 @@ const dbus = require('dbus-native-victron')
 const debug = require('debug')('victron-virtual')
 
 const commonGeneratorProperties = {
+  'AutoStart': { type: 'i', format: (v) => v != null ? v : '', value: 1 },
   'Start': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  'RemoteStartModeEnabled': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+  'RemoteStartModeEnabled': { type: 'i', format: (v) => v != null ? v : '', value: 1 },
   'EnableRemoteStartMode': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
   'Engine/CoolantTemperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
   'Engine/ExhaustTemperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
@@ -43,16 +44,10 @@ const commonGeneratorProperties = {
     }[v] || 'unknown'),
     value: 0
   },
-  State: {
-    type: 'i',
-    format: (v) => ({
-      0: 'Stopped',
-      1: 'Running'
-    }[v] || 'unknown'),
-    value: 0
-  },
   ErrorCode: { type: 'i', format: (v) => v != null ? v : '', value: 0 },
   'StarterVoltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
+  'FirmwareVersion': { type: 's', format: (v) => v != null ? v : '' },
+  'Model': { type: 's', format: (v) => v != null ? v : '' },
   Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
 }
 
@@ -114,6 +109,7 @@ const properties = {
     ...commonGeneratorProperties,
     'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
     'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
+    'Ac/Frequency': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'Hz' : '' },
     NrOfPhases: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
   },
   dcgenset: {
@@ -121,7 +117,15 @@ const properties = {
     'Dc/0/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
     'Dc/0/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
     'Dc/0/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
-    'History/EnergyOut': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' }
+    'History/EnergyOut': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
+    State: {
+      type: 'i',
+      format: (v) => ({
+        0: 'Stopped',
+        1: 'Running'
+      }[v] || 'unknown'),
+      value: 0
+    },
   },
   grid: {
     'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', value: 0 },
@@ -416,8 +420,7 @@ module.exports = function (RED) {
             const properties = [
               { name: 'Current', unit: 'A' },
               { name: 'Power', unit: 'W' },
-              { name: 'Voltage', unit: 'V' },
-              { name: 'Energy/Forward', unit: 'kWh' }
+              { name: 'Voltage', unit: 'V' }
             ]
 
             for (let i = 1; i <= nrOfPhases; i++) {
