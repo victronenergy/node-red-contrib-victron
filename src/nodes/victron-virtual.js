@@ -16,8 +16,8 @@ const properties = {
     'Info/MaxChargeCurrent': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
     'Info/MaxDischargeCurrent': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
     'Info/ChargeRequest': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    Soc: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: 5 /* persist, but throttled to 5 seconds */ },
-    Soh: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: 15 /* persist, but throttled to 15 seconds */ },
+    Soc: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: 15 /* persist, but throttled to 15 seconds */ },
+    Soh: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: 60 /* persist, but throttled to 60 seconds */ },
     Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
     'Alarms/CellImbalance': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
     'Alarms/HighCellVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
@@ -640,17 +640,12 @@ module.exports = function (RED) {
         }
 
         if (hasPersistedState(RED, self.id)) {
-          console.log(`Virtual device ${config.device} (${self.id}) has persisted state, loading it.`)
+          debug(`Virtual device ${config.device} (${self.id}) has persisted state, loading it.`)
           await loadPersistedState(RED, self.id, iface, ifaceDesc)
         } else if (needsPersistedState(ifaceDesc)) {
-          console.log(`Virtual device ${config.device} (${self.id}) needs persisted state, but no state found. Initializing with defaults.`)
+          debug(`Virtual device ${config.device} (${self.id}) needs persisted state, but no state found. Initializing with defaults.`)
           await savePersistedState(RED, self.id, iface, ifaceDesc)
         }
-
-        // setInterval(() => {
-        //   // log values of interface on console
-        //   console.log(`Virtual device ${config.device} (${self.id}) initialized with properties:`, iface)
-        // }, 2_000)
 
         // First we use addSettings to claim a deviceInstance
         const settingsResult = await addSettings(usedBus, [
@@ -738,8 +733,6 @@ module.exports = function (RED) {
         })
 
         function emitCallback (event, data) {
-          console.log(`Virtual device ${config.device} (${self.id}) emitted event (2):`, event, JSON.stringify(data))
-
           if (event !== 'ItemsChanged') {
             return
           }
@@ -751,7 +744,6 @@ module.exports = function (RED) {
 
           // check if we need to persist this property
           if (ifaceDesc.properties[propName] && ifaceDesc.properties[propName].persist) {
-            console.log('MUST PERSIST', propName, value)
             savePersistedState(RED, self.id, iface, ifaceDesc, propName).then(() => {
               debug(`Saved state for virtual device ${config.device} (${self.id}), because ${propName} changed to ${value}`)
             }).catch(err => {
