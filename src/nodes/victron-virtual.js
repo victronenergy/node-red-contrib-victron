@@ -639,12 +639,12 @@ module.exports = function (RED) {
             break
         }
 
-        if (hasPersistedState(self.id)) {
+        if (hasPersistedState(RED, self.id)) {
           console.log(`Virtual device ${config.device} (${self.id}) has persisted state, loading it.`)
-          await loadPersistedState(self.id, iface, ifaceDesc)
+          await loadPersistedState(RED, self.id, iface, ifaceDesc)
         } else if (needsPersistedState(ifaceDesc)) {
           console.log(`Virtual device ${config.device} (${self.id}) needs persisted state, but no state found. Initializing with defaults.`)
-          await savePersistedState(self.id, iface, ifaceDesc)
+          await savePersistedState(RED, self.id, iface, ifaceDesc)
         }
 
         // setInterval(() => {
@@ -752,7 +752,7 @@ module.exports = function (RED) {
           // check if we need to persist this property
           if (ifaceDesc.properties[propName] && ifaceDesc.properties[propName].persist) {
             console.log('MUST PERSIST', propName, value)
-            savePersistedState(self.id, iface, ifaceDesc, propName).then(() => {
+            savePersistedState(RED, self.id, iface, ifaceDesc, propName).then(() => {
               debug(`Saved state for virtual device ${config.device} (${self.id}), because ${propName} changed to ${value}`)
             }).catch(err => {
               console.error(`Failed to persist state for ${propName}:`, err)

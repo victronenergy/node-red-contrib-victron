@@ -1,6 +1,13 @@
 const fs = require('fs')
 
-const FS_LOCATION = process.env.PERSISTED_STATE_LOCATION || '/data/home/nodered/.victron'
+const FS_DEFAULT_LOCATION = process.env.PERSISTED_STATE_LOCATION || '/data/home/nodered/.victron'
+
+function getFsLocation (RED) {
+  if (RED.settings && RED.settings.victronPersistence && RED.settings.victronPersistence.location) {
+    return RED.settings.victronPersistence.location
+  }
+  return FS_DEFAULT_LOCATION
+}
 
 function needsPersistedState (ifaceDesc) {
   if (!ifaceDesc || !ifaceDesc.properties) {
@@ -14,18 +21,19 @@ function needsPersistedState (ifaceDesc) {
   return false
 }
 
-function hasPersistedState (id) {
+function hasPersistedState (RED, id) {
   // ensure the directory exists
-  if (!fs.existsSync(FS_LOCATION)) {
-    fs.mkdirSync(FS_LOCATION, { recursive: true })
+  const location = getFsLocation(RED)
+  if (!fs.existsSync(location)) {
+    fs.mkdirSync(location, { recursive: true })
   }
 
-  const fname = `${FS_LOCATION}/${id}.json`
+  const fname = `${location}/${id}.json`
   return fs.existsSync(fname)
 }
 
-async function loadPersistedState (id, iface, ifaceDesc) {
-  const fname = `${FS_LOCATION}/${id}.json`
+async function loadPersistedState (RED, id, iface, ifaceDesc) {
+  const fname = `${getFsLocation(RED)}/${id}.json`
 
   if (!fs.existsSync(fname)) {
     throw new Error(`Persisted state file for ${id} does not exist at ${fname}`)
@@ -53,7 +61,7 @@ const lastSaveAt = {} // we keep track of the last save time for each id
   * Sets up a timer to write the persisted state later if needed.
   * If we do write later, we return true, false otherwise.
   */
-function setupToWriteLater (id, iface, ifaceDesc, propName) {
+function setupToWriteLater (RED, id, iface, ifaceDesc, propName) {
   if (!propName) {
     return false // No debounce if no property name is provided, we always write immediately
   }
@@ -84,7 +92,7 @@ function setupToWriteLater (id, iface, ifaceDesc, propName) {
         timeout: setTimeout(() => {
           delete timers[id] // Clear the timer after it runs
           console.log(`Writing persisted state for ${id} after a delay of ${at - now} millis, property ${propName}`)
-          savePersistedState(id, iface, ifaceDesc)
+          savePersistedState(RED, id, iface, ifaceDesc)
         }, at - now),
         at
       }
@@ -96,12 +104,12 @@ function setupToWriteLater (id, iface, ifaceDesc, propName) {
   }
 }
 
-async function savePersistedState (id, iface, ifaceDesc, propName) {
-  const fname = `${FS_LOCATION}/${id}.json`
+async function savePersistedState (RED, id, iface, ifaceDesc, propName) {
+  const fname = `${getFsLocation(RED)}/${id}.json`
 
   const state = {}
 
-  if (setupToWriteLater(id, iface, ifaceDesc, propName)) {
+  if (setupToWriteLater(RED, id, iface, ifaceDesc, propName)) {
     console.log(`Not writing now, will write later, id=${id}, property ${propName}`)
     return
   }
