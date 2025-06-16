@@ -105,15 +105,59 @@ function setupToWriteLater (RED, id, iface, ifaceDesc, propName) {
   }
 }
 
+const savedStateCache = {} // Cache for saved state to avoid redundant writes, indexed by id
+
+function isSaveNeeded (id, iface, ifaceDesc, propName) {
+  if (savedStateCache[id] === undefined) {
+    debug(`No saved state cached for id ${id}, will save.`)
+    return true
+  }
+
+  const cached = savedStateCache[id]
+
+  if (cached[propName] !== iface[propName]) {
+    debug(`Property ${propName} for id ${id} has changed, need to save.`)
+    return true
+  }
+
+  debug(`Property ${propName} for id ${id} has not changed, no need to save.`)
+  return false
+}
+
+function isNullChange (id, iface, propName) {
+  if (!propName) {
+    return false
+  }
+
+  const cached = savedStateCache[id]
+  if (cached === undefined) {
+    return false
+  }
+
+  const oldValue = cached[propName]
+  const newValue = iface[propName]
+  if ((oldValue === null && newValue !== null) ||
+    (oldValue !== null && newValue === null)) {
+    debug(`Property ${propName} for id ${id} has changed from/to null, need to save.`)
+    return true
+  }
+
+  return false
+}
+
 async function savePersistedState (RED, id, iface, ifaceDesc, propName) {
   const fname = `${getFsLocation(RED)}/${id}.json`
 
-  const state = {}
+  if (propName && !isSaveNeeded(id, iface, ifaceDesc, propName)) {
+    return
+  }
 
-  if (setupToWriteLater(RED, id, iface, ifaceDesc, propName)) {
+  if (!isNullChange(id, iface, propName) && setupToWriteLater(RED, id, iface, ifaceDesc, propName)) {
     debug(`Not writing now, will write later, id=${id}, property ${propName}`)
     return
   }
+
+  const state = {}
 
   for (const key in ifaceDesc.properties) {
     if (iface[key] !== undefined && ifaceDesc.properties[key].persist) {
@@ -127,6 +171,7 @@ async function savePersistedState (RED, id, iface, ifaceDesc, propName) {
     fs.renameSync(fname + '.tmp', fname)
     debug(`Persisted state for ${id} saved to ${fname}`)
     lastSaveAt[id] = Date.now() // Update last save time
+    savedStateCache[id] = state
   } catch (error) {
     console.error(`Error saving persisted state for ${id}:`, error)
   }

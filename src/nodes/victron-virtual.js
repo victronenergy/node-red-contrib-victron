@@ -803,9 +803,7 @@ module.exports = function (RED) {
 
           // check if we need to persist this property
           if (ifaceDesc.properties[propName] && ifaceDesc.properties[propName].persist) {
-            savePersistedState(RED, self.id, iface, ifaceDesc, propName).then(() => {
-              debug(`Saved state for virtual device ${config.device} (${self.id}), because ${propName} changed to ${iface[propName]}`)
-            }).catch(err => {
+            savePersistedState(RED, self.id, iface, ifaceDesc, propName).catch(err => {
               console.error(`Failed to persist state for ${propName}:`, err)
             })
           }
