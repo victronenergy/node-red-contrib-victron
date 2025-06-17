@@ -1,11 +1,26 @@
 const { addVictronInterfaces, addSettings } = require('dbus-victron-virtual')
+const { needsPersistedState, hasPersistedState, loadPersistedState, savePersistedState } = require('./persist')
 const dbus = require('dbus-native-victron')
 const debug = require('debug')('victron-virtual')
 const debugConnection = require('debug')('victron-virtual:connection')
 
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('=== UNHANDLED REJECTION (PREVENTING CRASH) ===')
+  console.error('Promise:', promise)
+  console.error('Reason:', reason)
+  console.error('Reason type:', typeof reason)
+  console.error('Is array:', Array.isArray(reason))
+  if (Array.isArray(reason)) {
+    console.error('Array contents:', JSON.stringify(reason, null, 2))
+  }
+  console.error('Stack trace:')
+  console.trace()
+  console.error('=== END DEBUG ===')
+})
+
 const properties = {
   battery: {
-    Capacity: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'Ah' : '' },
+    Capacity: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'Ah' : '', persist: true },
     'Dc/0/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
     'Dc/0/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
     'Dc/0/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
@@ -15,8 +30,8 @@ const properties = {
     'Info/MaxChargeCurrent': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
     'Info/MaxDischargeCurrent': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
     'Info/ChargeRequest': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    Soc: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '' },
-    Soh: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '' },
+    Soc: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: 15 /* persist, but throttled to 15 seconds */ },
+    Soh: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: 60 /* persist, but throttled to 60 seconds */ },
     Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
     'Alarms/CellImbalance': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
     'Alarms/HighCellVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
@@ -36,7 +51,7 @@ const properties = {
     'System/MinCellVoltage': { type: 'd', format: (v) => v != null ? v.toFixed(3) + 'V' : '' }
   },
   temperature: {
-    Temperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
+    Temperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', persist: 60 /* persist, but throttled to 60 seconds */ },
     TemperatureType: {
       type: 'i',
       value: 2,
@@ -55,7 +70,7 @@ const properties = {
     Pressure: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'hPa' : '' },
     Humidity: { type: 'd', format: (v) => v != null ? v.toFixed(1) + '%' : '' },
     BatteryVoltage: { type: 'd', value: 3.3, format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
-    Status: { type: 'i' }
+    Status: { type: 'i', persist: true /* persist on every state change */ }
   },
   grid: {
     'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', value: 0 },
@@ -132,6 +147,10 @@ const properties = {
     },
     Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
   },
+  switch: {
+    Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
+    State: { type: 'i', value: 0x100 }
+  },
   tank: {
     'Alarms/High/Active': { type: 'd' },
     'Alarms/High/Delay': { type: 'd' },
@@ -201,18 +220,24 @@ function getIfaceDesc (dev) {
   }
 
   result.DeviceInstance = { type: 'i' }
-  result.CustomName = { type: 's' }
-  result.Serial = { type: 's' }
+  result.CustomName = { type: 's', persist: true }
+  result.Serial = { type: 's', persist: true }
 
   return result
 }
 
 function getIface (dev) {
   if (!properties[dev]) {
-    return { emit: function () { } }
+    return {
+      emit: function () {
+      }
+    }
   }
 
-  const result = { emit: function () { } }
+  const result = {
+    emit: function () {
+    }
+  }
 
   for (const key in properties[dev]) {
     const propertyValue = JSON.parse(JSON.stringify(properties[dev][key]))
@@ -339,6 +364,37 @@ module.exports = function (RED) {
         return
       }
 
+      async function callAddSettingsWithRetry (bus, settings, maxRetries = 10) {
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
+          try {
+            const result = await addSettings(bus, settings)
+            return result
+          } catch (error) {
+            let errorMessage = ''
+            if (Array.isArray(error)) {
+              errorMessage = error.join(', ')
+            } else if (error && error.message) {
+              errorMessage = error.message
+            } else {
+              errorMessage = String(error)
+            }
+            const isServiceUnavailable =
+              errorMessage.includes('org.freedesktop.DBus.Error.ServiceUnknown') ||
+              errorMessage.includes('com.victronenergy.settings') ||
+              errorMessage.includes('No such service') ||
+              errorMessage.includes('was not provided by any .service files')
+
+            if (!isServiceUnavailable || attempt === maxRetries - 1) {
+              throw error
+            }
+
+            const delay = Math.min(1000 * Math.pow(2, attempt), 10000) // Exponential backoff, max 10s
+            debug(`Settings service unavailable, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`)
+            await new Promise(resolve => setTimeout(resolve, delay))
+          }
+        }
+      }
+
       async function proceed (usedBus) {
         // First, we need to create our interface description (here we will only expose method calls)
         const ifaceDesc = {
@@ -353,7 +409,6 @@ module.exports = function (RED) {
         // Then we need to create the interface implementation (with actual functions)
         const iface = getIface(config.device)
 
-        // Note: We'll set CustomName after trying to load persistent data
         iface.Status = 0
         iface.Serial = node.id || '-'
 
@@ -504,6 +559,81 @@ module.exports = function (RED) {
             text = `Virtual ${iface.NrOfPhases}-phase pvinverter`
             break
           }
+          case 'switch': {
+            const properties = [
+              {
+                name: 'State',
+                type: 'i',
+                format: (v) => ({
+                  0: 'Off',
+                  1: 'On'
+                }[v] || 'unknown'),
+                persist: true
+              },
+              { name: 'Status', type: 'i', format: (v) => v != null ? v : '' },
+              { name: 'Name', type: 's', value: 'Output', persist: true },
+              { name: 'Settings/Group', type: 's', value: '', persist: true },
+              { name: 'Settings/CustomName', type: 's', value: '', persist: true },
+              {
+                name: 'Settings/Type',
+                type: 'i',
+                format: (v) => ({
+                  0: 'Momentary',
+                  1: 'Latching/Relay',
+                  2: 'Dimmable/PWM'
+                }[v] || 'unknown'),
+                value: 1,
+                persist: true
+              },
+              { name: 'Settings/ValidTypes', type: 'i', value: 0x3 }
+            ]
+            for (let i = 1; i <= Number(config.switch_nrofoutput ?? 0); i++) {
+              properties.forEach(({ name, type, value, format, persist }) => {
+                const key = `SwitchableOutput/output_${i}/${name}`
+                ifaceDesc.properties[key] = {
+                  type, format, persist
+                }
+                if (name === 'Name') {
+                  value += ` ${i}`
+                }
+                iface[key] = value !== undefined ? value : 0
+              })
+            }
+            properties.push({
+              name: 'Dimming',
+              min: 0,
+              max: 100,
+              type: 'd',
+              format: (v) => v != null ? v.toFixed(1) + '%' : '',
+              persist: true
+            })
+            for (let i = 1; i <= Number(config.switch_nrofpwm ?? 0); i++) {
+              properties.forEach(({ name, type, value, format, min, max, persist }) => {
+                const key = `SwitchableOutput/pwm_${i}/${name}`
+                ifaceDesc.properties[key] = {
+                  type, format, persist
+                }
+                if (min != null) {
+                  ifaceDesc.properties[key].min = min
+                }
+                if (max != null) {
+                  ifaceDesc.properties[key].max = max
+                }
+                if (name === 'Settings/ValidTypes') {
+                  value = 0x4 // Only dimmable
+                }
+                if (name === 'Settings/Type') {
+                  value = 2 // Set to dimmable
+                }
+                if (name === 'Name') {
+                  value = `PWM ${i}`
+                }
+                iface[key] = value !== undefined ? value : 0
+              })
+            }
+            text = `Virtual switch ${config.switch_nrofoutput} outputs, ${config.switch_nrofpwm} PWMs`
+            break
+          }
           case 'tank':
             iface.FluidType = Number(config.fluid_type ?? 1) // Fresh water
             if (!config.include_tank_battery) {
@@ -556,14 +686,37 @@ module.exports = function (RED) {
             break
         }
 
+        if (hasPersistedState(RED, self.id)) {
+          debug(`Virtual device ${config.device} (${self.id}) has persisted state, loading it.`)
+          await loadPersistedState(RED, self.id, iface, ifaceDesc)
+        } else if (needsPersistedState(ifaceDesc)) {
+          debug(`Virtual device ${config.device} (${self.id}) needs persisted state, but no state found. Initializing with defaults.`)
+          await savePersistedState(RED, self.id, iface, ifaceDesc)
+        }
+
         // First we use addSettings to claim a deviceInstance
-        const settingsResult = await addSettings(usedBus, [
-          {
-            path: `/Settings/Devices/virtual_${node.id}/ClassAndVrmInstance`,
-            default: `${config.device}:100`,
-            type: 's'
-          }
-        ])
+        let settingsResult = null
+        try {
+          // First we use addSettings to claim a deviceInstance
+          settingsResult = await callAddSettingsWithRetry(usedBus, [
+            {
+              path: `/Settings/Devices/virtual_${node.id}/ClassAndVrmInstance`,
+              default: `${config.device}:100`,
+              type: 's'
+            }
+          ])
+        } catch (error) {
+          console.error('Error in virtual device setup:', error)
+
+          node.status({
+            color: 'red',
+            shape: 'dot',
+            text: `Setup failed: ${error.message || 'Unknown error'}`
+          })
+
+          node.error('Virtual device setup failed', error)
+          return
+        }
 
         // It looks like there are a few possibilities here:
         // 1. We claimed this deviceInstance before, and we get the same one
@@ -641,11 +794,26 @@ module.exports = function (RED) {
           }
         })
 
+        function emitCallback (event, data) {
+          if (event !== 'ItemsChanged') {
+            return
+          }
+
+          const propName = data[0][0].substring(1) // Remove the leading slash
+
+          // check if we need to persist this property
+          if (ifaceDesc.properties[propName] && ifaceDesc.properties[propName].persist) {
+            savePersistedState(RED, self.id, iface, ifaceDesc, propName).catch(err => {
+              console.error(`Failed to persist state for ${propName}:`, err)
+            })
+          }
+        }
+
         // Then we can add the required Victron interfaces, and receive some functions to use
         const {
           removeSettings,
           getValue
-        } = addVictronInterfaces(usedBus, ifaceDesc, iface)
+        } = addVictronInterfaces(usedBus, ifaceDesc, iface, /* add_defaults */ true, emitCallback)
 
         node.removeSettings = removeSettings
 
@@ -713,9 +881,6 @@ module.exports = function (RED) {
     }
 
     instantiateDbus(this)
-
-    node.on('input', function (msg) {
-    })
 
     node.on('close', function (done) {
       nodeInstances.delete(node)
