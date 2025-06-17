@@ -35,8 +35,14 @@ Output nodes let you control Victron devices:
 
 ### Virtual Devices
 Create simulated Victron devices on the dbus:
+- Battery
+- Generator
+- GPS
 - Grid meter
 - Meteo
+- Motor drive
+- PV inverter
+- Switch
 - Tank sensor
 - Temperature sensor
 

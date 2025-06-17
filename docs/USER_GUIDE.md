@@ -36,7 +36,8 @@ Virtual devices create simulated Victron devices on the system, which
 will appear on VRM.
 
 At the moment there are several different virtual devices available,
-including grid meter, temperature sensor, pv inverter and meteo.
+including battery, grid meter, temperature sensor, pv inverter switch
+and meteo.
 Check the documentation of the node itself for more info.
 
 #### Virtual Device Usage
