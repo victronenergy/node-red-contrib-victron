@@ -136,8 +136,8 @@ class VictronClient {
     {
       factor: 2,
       forever: true,
-      minTimeout: 5 * 1000,
-      maxTimeout: 60 * 1000
+      minTimeout: 5 * 100,
+      maxTimeout: 60 * 100
 
     })
       .catch(() => console.error('Unable to connect to dbus.'))

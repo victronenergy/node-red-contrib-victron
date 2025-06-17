@@ -12,10 +12,21 @@
 </style>
 
 <script type="text/javascript">
+    function validateSwitchConfig() {
+        const outputs = parseInt($('#node-input-switch_nrofoutput').val());
+        const pwms = parseInt($('#node-input-switch_nrofpwm').val());
+
+        if (outputs === 0 && pwms === 0) {
+            $('#switch-validation-message').show();
+        } else {
+            $('#switch-validation-message').hide();
+        }
+    }
+
     function checkSelectedVirtualDevice() {
         [
             'battery', 'gps', 'grid', 'motordrive', 'pvinverter',
-            'tank', 'temperature'
+            'switch', 'tank', 'temperature'
         ].map( x => { $('.input-'+x).hide() })
         const selected = $('select#node-input-device').val()
         $('.input-'+selected).show()
@@ -38,6 +49,11 @@
             $('#node-input-default_values').prop('checked', false).prop('disabled', true)
         } else {
             $('#node-input-default_values').prop('disabled', false)
+        }
+
+        if (selected === 'switch') {
+            validateSwitchConfig();
+            $('#node-input-switch_nrofoutput, #node-input-switch_nrofpwm').off('change').on('change', validateSwitchConfig);
         }
     }
 
@@ -63,6 +79,27 @@
             // pvinverter
             position: { value: 0, required: false},
             pvinverter_nrofphases: {value: 1, required: false},
+            // switch
+            switch_nrofoutput: {value: 1, required: false,
+                validate: function(v) {
+                    if (this.device !== 'switch') return true;
+
+                    const outputs = parseInt(v);
+                    const pwms = parseInt(this.switch_nrofpwm);
+
+                    return (outputs > 0 || pwms > 0);
+                }
+            },
+            switch_nrofpwm: {value: 1, required: false,
+                validate: function(v) {
+                    if (this.device !== 'switch') return true;
+
+                    const pwms = parseInt(v);
+                    const outputs = parseInt(this.switch_nrofoutput);
+
+                    return (outputs > 0 || pwms > 0);
+                }
+            },
             // tank
             fluid_type: { value: 0, required: false},
             include_tank_battery: { value: false },
@@ -91,7 +128,15 @@
         oneditprepare: function oneditprepare() {
             checkSelectedVirtualDevice()
         },
-        oneditsave: function oneditsave() {
+        oneditsave: function() {
+            if (this.device === 'switch') {
+                const outputs = parseInt($('#node-input-switch_nrofoutput').val());
+                const pwms = parseInt($('#node-input-switch_nrofpwm').val());
+
+                if (outputs === 0 && pwms === 0) {
+                    return false;
+                }
+            }
             return true;
         }
     });
@@ -112,6 +157,7 @@
             <option value="meteo">Meteo</option>
             <option value="motordrive">Motor drive</option>
             <option value="pvinverter">PV inverter</option>
+            <option value="switch">Switch</option>
             <option value="tank">Tank sensor</option>
             <option value="temperature">Temperature sensor</option>
         </select>
@@ -150,6 +196,31 @@
             </select>
         </div>
     </div>
+
+    <div class="input-switch">
+        <div class="form-row">
+            <label for="node-input-switch_nrofoutput"><i class="fa fa-plug"></i> Nr of latching switches</label>
+            <select id="node-input-switch_nrofoutput">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
+        </div>
+        <div class="form-row">
+            <label for="node-input-switch_nrofpwm"><i class="fa fa-plug"></i> Nr of dimmable switches (PWM)</label>
+            <select id="node-input-switch_nrofpwm">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
+        </div>
+        <div class="form-warning" id="switch-validation-message" style="display:none;">
+            <i class="fa fa-exclamation-triangle"></i> At least one of latching switches or dimmable switches must be greater than zero.
+        </div>
+    </div>
+
     <div class="input-tank">
         <div class="form-row">
             <label for="node-input-fluid_type"><i class="fa fa-tint"></i> Fluid type</label>
