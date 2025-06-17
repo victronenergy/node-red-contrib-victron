@@ -67,9 +67,9 @@ const properties = {
         6: 'Freezer'
       }[v] || 'unknown')
     },
-    Pressure: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'hPa' : '' },
-    Humidity: { type: 'd', format: (v) => v != null ? v.toFixed(1) + '%' : '' },
-    BatteryVoltage: { type: 'd', value: 3.3, format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
+    Pressure: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'hPa' : '', persist: 60 },
+    Humidity: { type: 'd', format: (v) => v != null ? v.toFixed(1) + '%' : '', persist: 60 },
+    BatteryVoltage: { type: 'd', value: 3.3, format: (v) => v != null ? v.toFixed(2) + 'V' : '', persist: 300 },
     Status: { type: 'i', persist: true /* persist on every state change */ }
   },
   grid: {
@@ -122,11 +122,11 @@ const properties = {
     Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
   },
   meteo: {
-    CellTemperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
-    ExternalTemperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
-    Irradiance: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'W/m2' : '' },
-    WindSpeed: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'm/s' : '' },
-    WindDirection: { type: 'i' }
+    CellTemperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', persist: 300 },
+    ExternalTemperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', persist: 300 },
+    Irradiance: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'W/m2' : '', persist: 300 },
+    WindSpeed: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'm/s' : '', persist: 300 },
+    WindDirection: { type: 'i', persist: 300 }
   },
   motordrive: {
     'Dc/0/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
@@ -143,7 +143,8 @@ const properties = {
         1: 'Reverse',
         2: 'Forward'
       }[v] || 'unknown'),
-      value: 0
+      value: 0,
+      persist: true
     },
     Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
   },
@@ -179,16 +180,17 @@ const properties = {
         10: 'Hydraulic oil',
         11: 'Raw water'
       }[v] || 'unknown'),
-      value: 0
+      value: 0,
+      persist: true
     },
-    Level: { type: 'd', format: (v) => v != null ? v.toFixed(0) + '%' : '' },
-    RawUnit: { type: 's' },
+    Level: { type: 'd', format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: 60 },
+    RawUnit: { type: 's', persist: true },
     RawValue: { type: 'd' },
-    RawValueEmpty: { type: 'd' },
-    RawValueFull: { type: 'd' },
+    RawValueEmpty: { type: 'd', persist: true },
+    RawValueFull: { type: 'd', persist: true },
     Remaining: { type: 'd' },
-    Shape: { type: 's' },
-    Temperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
+    Shape: { type: 's', persist: true },
+    Temperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', persist: 60 },
     BatteryVoltage: { type: 'd', value: 3.3, format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
     Status: { type: 'i' }
   },
@@ -196,8 +198,8 @@ const properties = {
     Altitude: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'm' : '' },
     Fix: { type: 'i' },
     NrOfSatellites: { type: 'i' },
-    'Position/Latitude': { type: 'd', format: (v) => v != null ? v.toFixed(6) + '°' : '' },
-    'Position/Longitude': { type: 'd', format: (v) => v != null ? v.toFixed(6) + '°' : '' },
+    'Position/Latitude': { type: 'd', format: (v) => v != null ? v.toFixed(6) + '°' : '', persist: 300 },
+    'Position/Longitude': { type: 'd', format: (v) => v != null ? v.toFixed(6) + '°' : '', persist: 300 },
     Speed: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'm/s' : '' },
     Course: { type: 'd', format: (v) => v != null ? v.toFixed(1) + '°' : '' },
     Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
