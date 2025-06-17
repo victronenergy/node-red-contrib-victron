@@ -12,6 +12,17 @@
 </style>
 
 <script type="text/javascript">
+    function checkGeneratorType() {
+        const generatorType = $('select#node-input-generator_type').val()
+        if (generatorType === 'dc') {
+            $('.dc-generator-only').show()
+            $('.ac-generator-only').hide()
+        } else {
+            $('.dc-generator-only').hide()
+            $('.ac-generator-only').show()
+        }
+    }
+
     function validateSwitchConfig() {
         const outputs = parseInt($('#node-input-switch_nrofoutput').val());
         const pwms = parseInt($('#node-input-switch_nrofpwm').val());
@@ -25,7 +36,7 @@
 
     function checkSelectedVirtualDevice() {
         [
-            'battery', 'gps', 'grid', 'motordrive', 'pvinverter',
+            'battery', 'generator', 'gps', 'grid', 'motordrive', 'pvinverter',
             'switch', 'tank', 'temperature'
         ].map( x => { $('.input-'+x).hide() })
         const selected = $('select#node-input-device').val()
@@ -43,6 +54,10 @@
 
             // Initially set battery voltage visibility
             $('#battery-voltage-row').toggle($('#node-input-include-battery').is(':checked'))
+        }
+
+        if (selected === 'generator') {
+            checkGeneratorType()
         }
 
         if (selected === 'gps') {
@@ -68,6 +83,12 @@
             // battery
             battery_capacity: {value: 25, required: false},
             include_battery_temperature: {value: false},
+            // generator
+            generator_type: {value: "ac", required: false},
+            generator_nrofphases: {value: 1, required: false},
+            include_engine_hours: {value: false},
+            include_starter_voltage: {value: false},
+            include_history_energy: {value: false},
             // grid
             grid_nrofphases: {value: 1, required: false},
             // motordrive
@@ -152,6 +173,7 @@
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <select id="node-input-device" required onchange="checkSelectedVirtualDevice()">
             <option value="battery">Battery</option>
+            <option value="generator">Generator</option>
             <option value="gps">GPS</option>
             <option value="grid">Grid meter</option>
             <option value="meteo">Meteo</option>
@@ -183,6 +205,45 @@
             </div>
         </div>
     </div>
+
+    <div class="input-generator">
+        <div class="form-row">
+            <label for="node-input-generator_type"><i class="fa fa-cog"></i> Generator type</label>
+            <select id="node-input-generator_type" onchange="checkGeneratorType()">
+                <option value="ac">AC Generator (genset)</option>
+                <option value="dc">DC Generator (dcgenset)</option>
+            </select>
+        </div>
+        <div class="form-row ac-generator-only">
+            <label for="node-input-generator_nrofphases"><i class="fa fa-plug"></i> Nr of phases</label>
+            <select id="node-input-generator_nrofphases">
+                <option value="1">1</option>
+                <option value="3">3</option>
+            </select>
+        </div>
+        <div class="form-row">
+            <label>&nbsp;</label>
+            <label for="node-input-include_engine_hours" style="width:70%;">
+                <input type="checkbox" id="node-input-include_engine_hours" style="display:inline-block; width:22px; vertical-align:baseline;">
+                Include engine hours
+            </label>
+        </div>
+        <div class="form-row">
+            <label>&nbsp;</label>
+            <label for="node-input-include_starter_voltage" style="width:70%;">
+                <input type="checkbox" id="node-input-include_starter_voltage" style="display:inline-block; width:22px; vertical-align:baseline;">
+                Include starter battery voltage
+            </label>
+        </div>
+        <div class="form-row dc-generator-only">
+            <label>&nbsp;</label>
+            <label for="node-input-include_history_energy" style="width:70%;">
+                <input type="checkbox" id="node-input-include_history_energy" style="display:inline-block; width:22px; vertical-align:baseline;">
+                Include energy history
+            </label>
+        </div>
+    </div>
+
     <div class="input-grid">
         <div class="form-tips" style="display: block;">
             <p><strong>Note:</strong> Do not use this feature to make an ESS system with third party energy meters. There are multiple <a href="https://www.victronenergy.com/meters-and-sensors/energy-meter" class="blue-link">officially supported meters</a> that can be used in a Victron ESS system. Using other meters has proven too often to lead to issues related with stability.</p>
@@ -435,6 +496,18 @@ The battery device allows for setting the capacity of the battery. The capacity
 is configured in Ah.
 
 Including the battery temperature adds a field to write the temperature to.
+
+### Generator
+
+The generator device can be configured as either an AC generator (`genset`) or DC generator (`dcgenset`), which you can select using the secondary dropdown menu.
+
+Optional monitoring parameters include:
+- The number of phases (AC generators only)
+- Engine operating hours - tracks total runtime of the generator
+- Starter battery voltage - monitors the voltage of the battery used to start the generator
+- Energy history (DC generators only) - tracks cumulative energy output
+
+The device includes alarm monitoring for temperature, oil pressure, coolant level, fuel level, and other critical parameters. Status codes indicate the current operational state from standby through startup phases to running or error conditions.
 
 ### GPS
 
