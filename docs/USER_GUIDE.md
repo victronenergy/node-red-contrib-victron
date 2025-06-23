@@ -46,6 +46,42 @@ Check the documentation of the node itself for more info.
 3. Deploy the flow
 4. Use standard input/output nodes to interact with the virtual device
 
+#### Virtual Device Persistence
+
+Virtual devices automatically persist their latest values to disk to maintain state across Node-RED restarts. The system stores the most recent values of D-Bus paths in JSON files on the underlying storage.
+
+##### Configuration
+
+You can configure the persistence location in three ways (listed in order of precedence):
+
+###### 1. Configuration File
+Set the location in your configuration file under `victronVirtual` → `persistLocation`:
+
+```javascript
+victronVirtual: {
+    persistLocation: '/data/home/nodered/.node-red/.victron'
+}
+```
+
+###### 2. Environment Variable
+If not set in the configuration file, the system checks for the `PERSISTED_STATE_LOCATION` environment variable.
+
+###### 3. Default Location
+If neither option above is configured, the system falls back to Node-RED's settings `userDir` appended with `/.victron`.
+
+##### How It Works
+
+- Each virtual device node creates its own JSON file in the configured directory
+- State values are automatically saved when they change
+- On Node-RED startup or restart, these files are read and the stored values are restored to the D-Bus
+
+This ensures your virtual devices maintain their last known state even after system restarts or power cycles.
+
+##### Disk Wear Protection
+
+To prevent excessive wear on the underlying disk, some values use a threshold-based storage system. Instead of writing to disk on every change, these values are only persisted once per x seconds, reducing the frequency of disk writes while still maintaining state persistence.
+This ensures your virtual devices maintain their last known state even after system restarts or power cycles.
+
 ## Best Practices
 
 1. **Node Naming**
