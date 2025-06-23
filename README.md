@@ -51,7 +51,7 @@ For detailed examples, visit our [Example Flows](https://github.com/victronenerg
 ## Support
 
 This library is community-supported. For help:
-- Visit [Victron Community](https://community.victronenergy.com)
+- Visit [Victron Community](https://community.victronenergy.com/c/node-red/28)
 - Check our [Wiki](https://github.com/victronenergy/node-red-contrib-victron/wiki)
 - File issues on [GitHub](https://github.com/victronenergy/node-red-contrib-victron/issues)
 

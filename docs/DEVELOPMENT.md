@@ -226,6 +226,6 @@ dbus-monitor "type='signal',sender='com.victronenergy.battery.ttyO1'"
 - [Victron Modbus-TCP Register List](https://www.victronenergy.com/support-and-downloads/technical-information)
 
 ### Community
-- [Victron Community Forum](https://community.victronenergy.com)
+- [Victron Community Forum](https://community.victronenergy.com/c/node-red/28)
 - [GitHub Issues](https://github.com/victronenergy/node-red-contrib-victron/issues)
 - [Developer Mailing List](mailto:dev@victronenergy.com)

@@ -143,6 +143,6 @@ export DEBUG=node-red-contrib-victron:dbus
 
 For installation help:
 1. Check [Troubleshooting](#troubleshooting) section
-2. Visit [Victron Community](https://community.victronenergy.com)
+2. Visit [Victron Community](https://community.victronenergy.com/c/node-red/28)
 3. Review [GitHub Issues](https://github.com/victronenergy/node-red-contrib-victron/issues)
 4. Contact your Victron dealer for Venus OS support

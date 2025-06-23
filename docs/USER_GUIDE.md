@@ -127,7 +127,7 @@ This ensures your virtual devices maintain their last known state even after sys
 If you encounter issues:
 1. Check the debug tab in Node-RED
 2. Review the Venus OS logs
-3. Visit the [Victron Community Forum](https://community.victronenergy.com)
+3. Visit the [Victron Community Forum](https://community.victronenergy.com/c/node-red/28)
 4. Submit an issue on GitHub
 
 ## Additional Resources
