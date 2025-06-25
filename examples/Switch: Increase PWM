@@ -7,7 +7,7 @@
         "path": "/SwitchableOutput/pwm_1/State",
         "serviceObj": {
             "service": "com.victronenergy.switch/2",
-            "name": "GX IO extender 150"
+            "name": "Virtual Switch"
         },
         "pathObj": {
             "path": "/SwitchableOutput/pwm_1/State",
@@ -91,7 +91,7 @@
         "path": "/SwitchableOutput/pwm_1/Dimming",
         "serviceObj": {
             "service": "com.victronenergy.switch/2",
-            "name": "GX IO extender 150"
+            "name": "Virtual Switch"
         },
         "pathObj": {
             "path": "/SwitchableOutput/pwm_1/Dimming",
@@ -162,7 +162,7 @@
         "path": "/SwitchableOutput/pwm_1/Dimming",
         "serviceObj": {
             "service": "com.victronenergy.switch/2",
-            "name": "GX IO extender 150"
+            "name": "Virtual Switch"
         },
         "pathObj": {
             "path": "/SwitchableOutput/pwm_1/Dimming",
