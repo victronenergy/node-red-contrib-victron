@@ -242,6 +242,9 @@
             serviceElem.attr('disabled', 'disabled');
             pathElem.attr('disabled', 'disabled');
             initialValueElem.attr('disabled', 'disabled');
+
+            $('#initial-row').hide();
+
             changeStatusText($('#statusmessage'), 'fa-exclamation-circle', msg);
         };
 
@@ -349,8 +352,14 @@
                 }
                 $('#onlyChanges').show()
             }
-        }).fail(function () {
-            return showStatusMessage("Unable to access the service endpoint:" + serviceRoot + serviceUrl);
+        }).fail(function (jqXHR) {
+            let errorMsg = "Unable to access the service endpoint: " + serviceRoot + serviceUrl;
+
+            if (jqXHR.status === 503 || serviceRoot.includes('/victron/services/')) {
+                errorMsg = "Venus Configuration client not available yet. Please deploy the flow once (even with this error), then edit this node again to configure devices.";
+            }
+
+            return showStatusMessage(errorMsg);
         });
     }
 
@@ -470,7 +479,8 @@
                         type: "victron-client",
                         users: [],
                         "showValues": true,
-                        "contextStore": true
+                        "contextStore": true,
+                        "enablePolling": false
                     };
                     RED.nodes.add(victronClientNode);
                     RED.nodes.dirty(true);
