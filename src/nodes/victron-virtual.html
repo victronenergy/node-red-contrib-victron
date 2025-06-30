@@ -23,14 +23,29 @@
         }
     }
 
-    function validateSwitchConfig() {
-        const outputs = parseInt($('#node-input-switch_nrofoutput').val());
-        const pwms = parseInt($('#node-input-switch_nrofpwm').val());
+    function updateSwitchConfig() {
+        const count = parseInt($('#node-input-switch_count').val()) || 1;
+        const container = $('#switch-config-container');
+        container.empty();
 
-        if (outputs === 0 && pwms === 0) {
-            $('#switch-validation-message').show();
-        } else {
-            $('#switch-validation-message').hide();
+        if ($('select#node-input-device').val() !== 'switch') {
+            return;
+        }
+        for (let i = 1; i <= count; i++) {
+            const switchRow = $(`
+                <div class="form-row">
+                    <label for="node-input-switch_${i}_type"><i class="fa fa-toggle-on"></i> Switch ${i} type</label>
+                    <select id="node-input-switch_${i}_type" data-switch-index="${i}">
+                        <option value="0">Momentary</option>
+                        <option value="1">Toggle</option>
+                        <option value="2">Dimmable</option>
+                    </select>
+                </div>
+            `);
+            container.append(switchRow);
+
+            const savedValue = this[`switch_${i}_type`] !== undefined ? this[`switch_${i}_type`] : 1;
+            $(`#node-input-switch_${i}_type`).val(String(savedValue));
         }
     }
 
@@ -39,6 +54,7 @@
             'battery', 'generator', 'gps', 'grid', 'motordrive', 'pvinverter',
             'switch', 'tank', 'temperature'
         ].map( x => { $('.input-'+x).hide() })
+
         const selected = $('select#node-input-device').val()
         $('.input-'+selected).show()
 
@@ -67,8 +83,11 @@
         }
 
         if (selected === 'switch') {
-            validateSwitchConfig();
-            $('#node-input-switch_nrofoutput, #node-input-switch_nrofpwm').off('change').on('change', validateSwitchConfig);
+            updateSwitchConfig.call(this);
+
+            $('#node-input-switch_count').off('change.switch-config').on('change.switch-config', () => {
+                updateSwitchConfig.call(this);
+            });
         }
     }
 
@@ -101,26 +120,11 @@
             position: { value: 0, required: false},
             pvinverter_nrofphases: {value: 1, required: false},
             // switch
-            switch_nrofoutput: {value: 1, required: false,
-                validate: function(v) {
-                    if (this.device !== 'switch') return true;
-
-                    const outputs = parseInt(v);
-                    const pwms = parseInt(this.switch_nrofpwm);
-
-                    return (outputs > 0 || pwms > 0);
-                }
-            },
-            switch_nrofpwm: {value: 1, required: false,
-                validate: function(v) {
-                    if (this.device !== 'switch') return true;
-
-                    const pwms = parseInt(v);
-                    const outputs = parseInt(this.switch_nrofoutput);
-
-                    return (outputs > 0 || pwms > 0);
-                }
-            },
+            switch_count: {value: 1, required: false},
+            switch_1_type: {value: 1, required: false},
+            switch_2_type: {value: 1, required: false},
+            switch_3_type: {value: 1, required: false},
+            switch_4_type: {value: 1, required: false},
             // tank
             fluid_type: { value: 0, required: false},
             include_tank_battery: { value: false },
@@ -147,15 +151,20 @@
             return (this.name||"Virtual "+this.device)
         },
         oneditprepare: function oneditprepare() {
-            checkSelectedVirtualDevice()
+            $('#node-input-device').on('change', () => {
+                checkSelectedVirtualDevice.call(this);
+            });
+            checkSelectedVirtualDevice.call(this);
         },
         oneditsave: function() {
             if (this.device === 'switch') {
-                const outputs = parseInt($('#node-input-switch_nrofoutput').val());
-                const pwms = parseInt($('#node-input-switch_nrofpwm').val());
+                const switchCount = parseInt($('#node-input-switch_count').val());
 
-                if (outputs === 0 && pwms === 0) {
-                    return false;
+                for (let i = 1; i <= 4; i++) {
+                    const switchTypeInput = $(`#node-input-switch_${i}_type`);
+                    if (switchTypeInput.length) {
+                        this[`switch_${i}_type`] = parseInt(switchTypeInput.val());
+                    }
                 }
             }
             return true;
@@ -171,7 +180,7 @@
     <input type="hidden" id="node-input-instance">
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
-        <select id="node-input-device" required onchange="checkSelectedVirtualDevice()">
+        <select id="node-input-device" required>
             <option value="battery">Battery</option>
             <option value="generator">Generator</option>
             <option value="gps">GPS</option>
@@ -260,25 +269,16 @@
 
     <div class="input-switch">
         <div class="form-row">
-            <label for="node-input-switch_nrofoutput"><i class="fa fa-plug"></i> Nr of latching switches</label>
-            <select id="node-input-switch_nrofoutput">
-                <option value="0">0</option>
+            <label for="node-input-switch_count"><i class="fa fa-plug"></i> Number of switches</label>
+            <select id="node-input-switch_count">
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
+                <option value="4">4</option>
             </select>
         </div>
-        <div class="form-row">
-            <label for="node-input-switch_nrofpwm"><i class="fa fa-plug"></i> Nr of dimmable switches (PWM)</label>
-            <select id="node-input-switch_nrofpwm">
-                <option value="0">0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-            </select>
-        </div>
-        <div class="form-warning" id="switch-validation-message" style="display:none;">
-            <i class="fa fa-exclamation-triangle"></i> At least one of latching switches or dimmable switches must be greater than zero.
+        <div id="switch-config-container">
+            <!-- Dynamic switch configuration will be added here -->
         </div>
     </div>
 
@@ -461,6 +461,7 @@ device type needs to be selected. At the moment the system supports:
 - Meteo
 - Motor drive
 - PV inverter
+- Switch
 - Tank sensor
 - Temperature sensor
 
@@ -552,6 +553,30 @@ Additionally, you can enable optional monitoring parameters:
 - Coolant temperature
 
 These additional parameters can help monitor the performance and status of your electric drive system.
+
+### Virtual switch
+
+The virtual switch creates a switch device on the dbus that can be controlled and
+monitored remotely. There are three types of switches available:
+
+- **Momentary**: Acts like a push button - automatically returns to off state
+- **Toggle**: Standard on/off switch that maintains its state
+- **Dimmable**: PWM-controlled switch with adjustable brightness from 0-100%
+
+You can configure up to 4 switches, and each switch can be individually set to any
+of the three types. This allows mixing different switch types in a single virtual
+device (e.g., toggle switches for lights and dimmable switches for fans).
+
+The switch types correspond to the Venus OS dbus switch specification:
+- Type 0: Momentary
+- Type 1: Toggle
+- Type 2: Dimmable
+
+For dimmable switches, an additional "Dimming" property is available that accepts
+values from 0-100 representing the PWM duty cycle percentage.
+
+**Important**: Virtual switch devices will ONLY be visible on the GX device GUI
+(GUI-v2) and will NOT appear on the VRM portal.
 
 ### PV inverter
 
