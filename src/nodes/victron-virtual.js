@@ -351,6 +351,7 @@ module.exports = function (RED) {
     }
 
     function instantiateDbus (self) {
+      console.log('instantiateDbus called for node', self.id, nodeInstances)
       // Connect to the dbus
       if (self.address) {
         debug(`Connecting to TCP address ${self.address}.`)
@@ -929,8 +930,11 @@ module.exports = function (RED) {
         // Then we can add the required Victron interfaces, and receive some functions to use
         const {
           removeSettings,
-          getValue
+          getValue,
+          setValuesLocally
         } = addVictronInterfaces(usedBus, ifaceDesc, iface, /* add_defaults */ true, emitCallback)
+
+        node.setValuesLocally = setValuesLocally
 
         node.removeSettings = removeSettings
 
@@ -999,8 +1003,32 @@ module.exports = function (RED) {
 
     instantiateDbus(this)
 
+    this.on('input', async function (msg, _send, done) {
+      try {
+        // change values locally, which will emit 'itemsChanged' signal for all properties that were actually changed
+        node.setValuesLocally(msg.payload)
+
+        node.status({
+          fill: 'green',
+          shape: 'dot',
+          text: `Updated values for ${config.device} (${node.iface.DeviceInstance}) to ${JSON.stringify(msg.payload)}`
+        })
+        done()
+      } catch (err) {
+        node.error(`Failed to set values locally: ${err.message}`, msg)
+        node.status({
+          color: 'red',
+          shape: 'dot',
+          text: `Failed to set values: ${err.message}`
+        })
+        done(err)
+      }
+    })
+
     node.on('close', function (done) {
       nodeInstances.delete(node)
+
+      this.bus.connection.end()
 
       // If this was the last instance and the timeout is still pending
       if (nodeInstances.size === 0) {
@@ -1008,8 +1036,6 @@ module.exports = function (RED) {
           clearTimeout(globalTimeoutHandle)
           globalTimeoutHandle = null
         }
-        // Only end the connection when closing the last instance
-        this.bus.connection.end()
         hasRunOnce = false
       }
 
