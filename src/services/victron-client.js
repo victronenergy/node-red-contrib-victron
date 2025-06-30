@@ -38,6 +38,8 @@ class VictronClient {
      *     await vc.connect()
      */
   async connect () {
+    debug('VictronClient.connect() called with address:', this.dbusAddress)
+
     const _this = this
 
     // messageHandler gets a list of received messages as a parameter

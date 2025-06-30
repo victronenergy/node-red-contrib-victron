@@ -1,5 +1,5 @@
 module.exports = function (RED) {
-  const debug = require('debug')('node-red-contrib-victron:victron-client')
+  const debug = require('debug')('node-red-contrib-victron:victron-nodes')
   const utils = require('../services/utils.js')
 
   const migrateSubscriptions = (x) => {

@@ -3,6 +3,7 @@ module.exports = function (RED) {
 
   const utils = require('../services/utils.js')
   const _ = require('lodash')
+  const debug = require('debug')('node-red-contrib-victron:config-client')
 
   const VictronClient = require('../services/victron-client.js')
 
@@ -19,10 +20,27 @@ module.exports = function (RED) {
      */
 
   RED.httpNode.get('/victron/services/:service?', RED.auth.needsPermission('victron-client.read'), (req, res) => {
-    if (!globalClient) return res.status(503).send('Client not initialized')
-    const serialized = JSON.stringify(globalClient.system.listAvailableServices(req.params.service))
-    res.setHeader('Content-Type', 'application/json')
-    return res.send(serialized)
+    debug('Services endpoint hit, globalClient exists:', !!globalClient)
+    debug('globalClient type:', typeof globalClient)
+    if (globalClient) {
+      debug('globalClient.system exists:', !!globalClient.system)
+    }
+
+    if (!globalClient) {
+      debug('Returning 503 - Client not initialized')
+      return res.status(503).send('Client not initialized')
+    }
+
+    try {
+      const services = globalClient.system.listAvailableServices(req.params.service)
+      debug('Found services:', services.length)
+      const serialized = JSON.stringify(services)
+      res.setHeader('Content-Type', 'application/json')
+      return res.send(serialized)
+    } catch (error) {
+      debug('Error getting services:', error)
+      return res.status(500).send('Error getting services')
+    }
   })
 
   RED.httpNode.get('/victron/cache', RED.auth.needsPermission('victron-client.read'), (req, res) => {
@@ -42,9 +60,13 @@ module.exports = function (RED) {
      * listening nodes' status in the UI accordingly.
      */
   function ConfigVictronClient (config) {
+    debug('ConfigVictronClient constructor called')
+    debug('NODE_RED_DBUS_ADDRESS:', process.env.NODE_RED_DBUS_ADDRESS)
+
     RED.nodes.createNode(this, config)
 
     if (!globalClient) {
+      console.log('Creating new VictronClient')
       const enablePolling = config.enablePolling || false
       globalClient = new VictronClient(
         process.env.NODE_RED_DBUS_ADDRESS,

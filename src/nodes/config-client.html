@@ -78,10 +78,10 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
         label: function label() {
             return "Victron Energy Client";
         },
-        hasUsers: false,
+        hasUsers: true,
         onpaletteremove: function onpaletteremove() {
             RED.nodes.eachConfig(function (n) {
-                if (n.id === 'victron-client') RED.nodes.remove(n.id);
+                if (n.id === 'victron-client-id') RED.nodes.remove(n.id);
             });
             RED.nodes.dirty(true);
         }

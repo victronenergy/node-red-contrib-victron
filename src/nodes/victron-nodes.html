@@ -349,16 +349,25 @@
                 }
                 $('#onlyChanges').show()
             }
-        }).fail(function () {
-            return showStatusMessage("Unable to access the service endpoint:" + serviceRoot + serviceUrl);
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            $('#initial-row').hide();
+            if (jqXHR.status === 503) {
+                return showStatusMessage("Please deploy the flow once and re-open this edit panel.");
+            } else if (jqXHR.status === 0) {
+                return showStatusMessage("Unable to connect to Node-RED service endpoint. Check your network connection.");
+            } else {
+                return showStatusMessage("Unable to access the service endpoint: " + serviceRoot + serviceUrl + " (Status: " + jqXHR.status + " - " + errorThrown + ")");
+            }
         });
     }
 
     function saveEditPanel(node) {
         // save the current service and path objects
         node.serviceObj = $('#node-input-service').find(':selected').data();
-        delete(node.serviceObj.paths)
-        delete(node.serviceObj.deviceInstance)
+        if (node.serviceObj) {
+            delete(node.serviceObj.paths);
+            delete(node.serviceObj.deviceInstance);
+        }
         node.pathObj = $('#node-input-path').find(':selected').data();
         
         // Determine if this is an output node based on the node type
@@ -382,7 +391,7 @@
                 case 'integer':
                     var value = $('#node-input-initial-number').val().trim();
                     if (value !== '') {
-                        var numValue = node.pathObj.type === 'integer' ? 
+                        var numValue = node.pathObj.type === 'integer' ?
                             parseInt(value) : parseFloat(value);
                         if (!isNaN(numValue)) {
                             node.initial = numValue;
@@ -470,7 +479,8 @@
                         type: "victron-client",
                         users: [],
                         "showValues": true,
-                        "contextStore": true
+                        "contextStore": true,
+                        valid: true
                     };
                     RED.nodes.add(victronClientNode);
                     RED.nodes.dirty(true);
