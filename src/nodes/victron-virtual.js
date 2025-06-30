@@ -19,10 +19,10 @@ process.on('unhandledRejection', (reason, promise) => {
 })
 
 const commonGeneratorProperties = {
-  'AutoStart': { type: 'i', format: (v) => v != null ? v : '', value: 1, persist: true },
-  'Start': { type: 'i', format: (v) => v != null ? v : '', value: 0, persist: true },
-  'RemoteStartModeEnabled': { type: 'i', format: (v) => v != null ? v : '', value: 1, persist: true },
-  'EnableRemoteStartMode': { type: 'i', format: (v) => v != null ? v : '', value: 0, persist: true },
+  AutoStart: { type: 'i', format: (v) => v != null ? v : '', value: 1, persist: true },
+  Start: { type: 'i', format: (v) => v != null ? v : '', value: 0, persist: true },
+  RemoteStartModeEnabled: { type: 'i', format: (v) => v != null ? v : '', value: 1, persist: true },
+  EnableRemoteStartMode: { type: 'i', format: (v) => v != null ? v : '', value: 0, persist: true },
   'Engine/CoolantTemperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
   'Engine/ExhaustTemperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
   'Engine/OilTemperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
@@ -61,9 +61,9 @@ const commonGeneratorProperties = {
     value: 0
   },
   ErrorCode: { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  'StarterVoltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '', persist: true },
-  'FirmwareVersion': { type: 's', format: (v) => v != null ? v : '', persist: true },
-  'Model': { type: 's', format: (v) => v != null ? v : '', persist: true },
+  StarterVoltage: { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '', persist: true },
+  FirmwareVersion: { type: 's', format: (v) => v != null ? v : '', persist: true },
+  Model: { type: 's', format: (v) => v != null ? v : '', persist: true },
   Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
 }
 
@@ -141,7 +141,7 @@ const properties = {
         1: 'Running'
       }[v] || 'unknown'),
       value: 0
-    },
+    }
   },
   grid: {
     'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', value: 0 },
@@ -379,7 +379,7 @@ module.exports = function (RED) {
         ? (config.generator_type === 'dc' ? 'dcgenset' : 'genset')
         : config.device
 
-      let serviceName = `com.victronenergy.${actualDeviceType}.virtual_${self.id}`
+      const serviceName = `com.victronenergy.${actualDeviceType}.virtual_${self.id}`
       const interfaceName = serviceName
       const objectPath = `/${serviceName.replace(/\./g, '/')}`
 
@@ -512,81 +512,81 @@ module.exports = function (RED) {
             break
           }
 
-        case 'generator': {
-          const generatorType = config.generator_type === 'dc' ? 'dcgenset' : 'genset'
-          const nrOfPhases = Number(config.generator_nrofphases ?? 1)
+          case 'generator': {
+            const generatorType = config.generator_type === 'dc' ? 'dcgenset' : 'genset'
+            const nrOfPhases = Number(config.generator_nrofphases ?? 1)
 
-          if (generatorType === 'genset') {
-            const properties = [
-              { name: 'Current', unit: 'A' },
-              { name: 'Power', unit: 'W' },
-              { name: 'Voltage', unit: 'V' }
-            ]
+            if (generatorType === 'genset') {
+              const properties = [
+                { name: 'Current', unit: 'A' },
+                { name: 'Power', unit: 'W' },
+                { name: 'Voltage', unit: 'V' }
+              ]
 
-            for (let i = 1; i <= nrOfPhases; i++) {
-              const phase = `L${i}`
-              properties.forEach(({ name, unit }) => {
-                const key = `Ac/${phase}/${name}`
-                ifaceDesc.properties[key] = {
-                  type: 'd',
-                  format: (v) => v != null ? v.toFixed(2) + unit : ''
-                }
-                iface[key] = 0
-              })
-            }
-
-            iface.NrOfPhases = nrOfPhases
-          }
-
-          if (!config.include_engine_hours) {
-            delete ifaceDesc.properties['Engine/OperatingHours']
-            delete iface['Engine/OperatingHours']
-          }
-          if (!config.include_starter_voltage) {
-            delete ifaceDesc.properties.StarterVoltage
-            delete iface.StarterVoltage
-            delete ifaceDesc.properties['Alarms/LowStarterVoltage']
-            delete iface['Alarms/LowStarterVoltage']
-            delete ifaceDesc.properties['Alarms/HighStarterVoltage']
-            delete iface['Alarms/HighStarterVoltage']
-          }
-          if (generatorType === 'dcgenset' && !config.include_history_energy) {
-            delete ifaceDesc.properties['History/EnergyOut']
-            delete iface['History/EnergyOut']
-          }
-
-          if (config.default_values) {
-            iface['Engine/Load'] = 0
-            iface['Engine/Speed'] = 0
-            iface.StatusCode = 0
-            iface.State = 0
-
-            if (generatorType === 'dcgenset') {
-              iface['Dc/0/Current'] = 0
-              iface['Dc/0/Voltage'] = 48
-              iface['Dc/0/Power'] = 0
-              iface['Dc/0/Temperature'] = 25
-              if (config.include_history_energy) {
-                iface['History/EnergyOut'] = 0
+              for (let i = 1; i <= nrOfPhases; i++) {
+                const phase = `L${i}`
+                properties.forEach(({ name, unit }) => {
+                  const key = `Ac/${phase}/${name}`
+                  ifaceDesc.properties[key] = {
+                    type: 'd',
+                    format: (v) => v != null ? v.toFixed(2) + unit : ''
+                  }
+                  iface[key] = 0
+                })
               }
-            } else {
-              iface['Ac/Power'] = 0
-              iface['Ac/Energy/Forward'] = 0
+
+              iface.NrOfPhases = nrOfPhases
             }
 
-            if (config.include_engine_hours) {
-              iface['Engine/OperatingHours'] = 0
+            if (!config.include_engine_hours) {
+              delete ifaceDesc.properties['Engine/OperatingHours']
+              delete iface['Engine/OperatingHours']
             }
-            if (config.include_starter_voltage) {
-              iface.StarterVoltage = 12
+            if (!config.include_starter_voltage) {
+              delete ifaceDesc.properties.StarterVoltage
+              delete iface.StarterVoltage
+              delete ifaceDesc.properties['Alarms/LowStarterVoltage']
+              delete iface['Alarms/LowStarterVoltage']
+              delete ifaceDesc.properties['Alarms/HighStarterVoltage']
+              delete iface['Alarms/HighStarterVoltage']
             }
+            if (generatorType === 'dcgenset' && !config.include_history_energy) {
+              delete ifaceDesc.properties['History/EnergyOut']
+              delete iface['History/EnergyOut']
+            }
+
+            if (config.default_values) {
+              iface['Engine/Load'] = 0
+              iface['Engine/Speed'] = 0
+              iface.StatusCode = 0
+              iface.State = 0
+
+              if (generatorType === 'dcgenset') {
+                iface['Dc/0/Current'] = 0
+                iface['Dc/0/Voltage'] = 48
+                iface['Dc/0/Power'] = 0
+                iface['Dc/0/Temperature'] = 25
+                if (config.include_history_energy) {
+                  iface['History/EnergyOut'] = 0
+                }
+              } else {
+                iface['Ac/Power'] = 0
+                iface['Ac/Energy/Forward'] = 0
+              }
+
+              if (config.include_engine_hours) {
+                iface['Engine/OperatingHours'] = 0
+              }
+              if (config.include_starter_voltage) {
+                iface.StarterVoltage = 12
+              }
+            }
+
+            text = `Virtual ${generatorType === 'dcgenset' ? 'DC' : `${nrOfPhases}-phase AC`} generator`
+            break
           }
 
-          text = `Virtual ${generatorType === 'dcgenset' ? 'DC' : `${nrOfPhases}-phase AC`} generator`
-          break
-        }
-
-        case 'grid': {
+          case 'grid': {
             iface.NrOfPhases = Number(config.grid_nrofphases ?? 1)
             const properties = [
               { name: 'Current', unit: 'A' },
