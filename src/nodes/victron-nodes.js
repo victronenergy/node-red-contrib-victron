@@ -83,7 +83,7 @@ module.exports = function (RED) {
           if (this.node.name) {
             topic = this.node.name
           }
-          if (this.node.onlyChanges && !msg.changed && this.sentInitialValue) {
+          if (this.node.onlyChanges && msg.changed === false && this.sentInitialValue) {
             return
           }
           if ((Number(this.node.roundValues) >= 0) && (typeof (msg.value) === 'number')) {
