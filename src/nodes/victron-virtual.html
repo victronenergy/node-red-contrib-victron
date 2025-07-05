@@ -538,8 +538,7 @@ The device includes alarm monitoring for temperature, oil pressure, coolant leve
 The GPS device does not have any specific configuration options. It is used to
 send GPS data to VRM, typically used in a marine envirionment or on a camper van.
 On the VRM side, the GPS data will be used to determine the location of GX
-device, which is also used for forecasting solar yield. It won't show up on
-the device list, but can be found under the GPS menu in settings in the GUI.
+device, which is also used for forecasting solar yield.
 
 Setting the _initialize with default values_ is disabled for virtual GPS devices,
 as that could put your GX device unintentionally in the middle of the ocean
@@ -598,9 +597,6 @@ The switch types correspond to the Venus OS dbus switch specification:
 For dimmable switches, an additional "Dimming" property is available that accepts
 values from 0-100 representing the PWM duty cycle percentage.
 
-**Important**: Virtual switch devices will ONLY be visible on the GX device GUI
-(GUI-v2) and will NOT appear on the VRM portal.
-
 ### PV inverter
 
 For the PV inverter you can set the position of the inverter. This can be:
@@ -627,11 +623,6 @@ humidity, pressure and battery voltage.
 ## Device Visibility
 
 Depending on the created device, it might not appear immediately on the GX device or VRM portal. You will need to write some values to it first. Alternatively, you could use _Initialize with default values_ to make it appear on the GX device directly. Please note that those default values may not be appropriate for your specific situation, but it can help to get you started.
-
-Important notes about visibility:
-- Most virtual devices will appear on both the GX device GUI and the VRM portal once they have values
-- Virtual switch devices will ONLY be visible on the GX device GUI (GUI-v2) and will NOT appear on the VRM portal
-- Virtual GPS devices will not show up on the device list, but can be found under the GPS menu in settings in the GUI
 
 Also note that it might take a short while before the service on the dbus is actually created. So best practice is to wait a second before injecting data into the virtual device.
 
