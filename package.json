@@ -29,14 +29,19 @@
         "eslint": "^9.26.0",
         "eslint-config-google": "^0.14.0",
         "gar": "^1.0.4",
+        "jest": "^29.7.0",
         "yargs": "^17.7.2"
     },
     "keywords": [
         "node-red"
     ],
     "scripts": {
-        "test": "standard --fix src/ scripts/",
-        "codespell": "codespell src/ scripts/",
+        "test": "npm run lint && npm run test:unit",
+        "test:unit": "jest",
+        "test:coverage": "jest --coverage",
+        "lint": "standard --fix src/ scripts/",
+        "verify": "npm test",
+        "prerelease": "npm run verify",
         "release": "git tag -d v$npm_package_version; git tag v$npm_package_version && git push --tags && git push && npm run create-release",
         "documentation": "bash -c '( sed \"/^<!--/q\" src/nodes/config-client.html && node scripts/service2doc.js -s src/services/services.json -r src/nodes/victron-nodes.html -o nodered ) | sponge src/nodes/config-client.html'",
         "wiki": "bash -c 'node scripts/service2doc.js -s src/services/services.json -r src/nodes/victron-nodes.html -o md | sponge ../node-red-contrib-victron.wiki/Available-nodes.md'"
@@ -48,5 +53,12 @@
     "engines": {
         "node": ">=14.17.4"
     },
-    "license": "MIT"
+    "license": "MIT",
+    "jest": {
+        "testEnvironment": "node",
+        "testMatch": ["**/test/**/*.test.js"],
+        "collectCoverage": true,
+        "coverageDirectory": "coverage",
+        "coverageReporters": ["text", "lcov"]
+    }
 }

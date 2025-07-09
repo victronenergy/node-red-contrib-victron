@@ -2,6 +2,7 @@
 node_modules
 scripts/csv/*.csv
 missingpaths.template.json
+coverage/
 
 *.swp
 .env
