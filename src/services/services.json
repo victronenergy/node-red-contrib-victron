@@ -42,49 +42,19 @@
         }
       },
       {
-        "path": "/Dc/0/Current",
+        "path": "/Dc/{output}/Current",
         "type": "float",
-        "name": "Output 1 - current (A)"
+        "name": "Output {output} - current (A)"
       },
       {
-        "path": "/Dc/0/Temperature",
+        "path": "/Dc/{output}/Temperature",
         "type": "float",
-        "name": "Output 1 - temperature (°C)"
+        "name": "Output {output} - temperature (°C)"
       },
       {
-        "path": "/Dc/0/Voltage",
+        "path": "/Dc/{output}/Voltage",
         "type": "float",
-        "name": "Output 1 - voltage (V)"
-      },
-      {
-        "path": "/Dc/1/Current",
-        "type": "float",
-        "name": "Output 2 - current (A)"
-      },
-      {
-        "path": "/Dc/1/Temperature",
-        "type": "float",
-        "name": "Battery 1 temperature (°C)"
-      },
-      {
-        "path": "/Dc/1/Voltage",
-        "type": "float",
-        "name": "Output 2 - voltage (V)"
-      },
-      {
-        "path": "/Dc/2/Current",
-        "type": "float",
-        "name": "Output 3 - current (A)"
-      },
-      {
-        "path": "/Dc/2/Temperature",
-        "type": "float",
-        "name": "Battery 2 temperature (°C)"
-      },
-      {
-        "path": "/Dc/2/Voltage",
-        "type": "float",
-        "name": "Output 3 - voltage (V)"
+        "name": "Output {output} - voltage (V)"
       },
       {
         "path": "/ErrorCode",
@@ -169,79 +139,29 @@
         "name": "Power Factor"
       },
       {
-        "path": "/Ac/L1/Current",
+        "path": "/Ac/{line}/Current",
         "type": "float",
-        "name": "L1 Current (A)"
+        "name": "{line} Current (A)"
       },
       {
-        "path": "/Ac/L1/Energy/Forward",
+        "path": "/Ac/{line}/Energy/Forward",
         "type": "float",
-        "name": "L1 Energy (kWh)"
+        "name": "{line} Energy (kWh)"
       },
       {
-        "path": "/Ac/L1/Power",
+        "path": "/Ac/{line}/Power",
         "type": "float",
-        "name": "L1 Power (W)"
+        "name": "{line} Power (W)"
       },
       {
-        "path": "/Ac/L1/PowerFactor",
+        "path": "/Ac/{line}/PowerFactor",
         "type": "float",
-        "name": "L1 Power Factor"
+        "name": "{line} Power Factor"
       },
       {
-        "path": "/Ac/L1/Voltage",
+        "path": "/Ac/{line}/Voltage",
         "type": "float",
-        "name": "L1 Voltage (V AC)"
-      },
-      {
-        "path": "/Ac/L2/Current",
-        "type": "float",
-        "name": "L2 Current (A)"
-      },
-      {
-        "path": "/Ac/L2/Energy/Forward",
-        "type": "float",
-        "name": "L2 Energy (kWh)"
-      },
-      {
-        "path": "/Ac/L2/Power",
-        "type": "float",
-        "name": "L2 Power (W)"
-      },
-      {
-        "path": "/Ac/L2/PowerFactor",
-        "type": "float",
-        "name": "L2 Power Factor"
-      },
-      {
-        "path": "/Ac/L2/Voltage",
-        "type": "float",
-        "name": "L2 Voltage (V AC)"
-      },
-      {
-        "path": "/Ac/L3/Current",
-        "type": "float",
-        "name": "L3 Current (A)"
-      },
-      {
-        "path": "/Ac/L3/Energy/Forward",
-        "type": "float",
-        "name": "L3 Energy (kWh)"
-      },
-      {
-        "path": "/Ac/L3/Power",
-        "type": "float",
-        "name": "L3 Power (W)"
-      },
-      {
-        "path": "/Ac/L3/PowerFactor",
-        "type": "float",
-        "name": "L3 Power Factor"
-      },
-      {
-        "path": "/Ac/L3/Voltage",
-        "type": "float",
-        "name": "L3 Voltage (V AC)"
+        "name": "{line} Voltage (V AC)"
       },
       {
         "path": "/Serial",
@@ -258,32 +178,20 @@
     },
     "acsystem": [
       {
-        "path": "/Ac/In/1/CurrentLimit",
+        "path": "/Ac/In/{phase}/CurrentLimit",
         "type": "float",
-        "name": "Ac input 1 current limit (A)",
+        "name": "Ac input {phase} current limit (A)",
         "mode": "both"
       },
       {
-        "path": "/Ac/In/2/CurrentLimit",
+        "path": "/Ac/In/1/{phase}/V",
         "type": "float",
-        "name": "Ac input 2 current limit (A)",
-        "mode": "both"
+        "name": "Input voltage {phase} (V AC)"
       },
       {
-        "path": "/Ac/In/3/CurrentLimit",
+        "path": "/Ac/In/1/{phase}/V",
         "type": "float",
-        "name": "Ac input 3 current limit (A)",
-        "mode": "both"
-      },
-      {
-        "path": "/Ac/In/1/L1/V",
-        "type": "float",
-        "name": "Input voltage phase 1 (V AC)"
-      },
-      {
-        "path": "/Ac/In/1/L2/V",
-        "type": "float",
-        "name": "Input voltage phase 2 (V AC)"
+        "name": "Input voltage {phase} (V AC)"
       },
       {
         "path": "/Ac/In/1/L3/V",
@@ -291,34 +199,14 @@
         "name": "Input voltage phase 3 (V AC)"
       },
       {
-        "path": "/Ac/In/1/L1/I",
+        "path": "/Ac/In/1/{phase}/I",
         "type": "float",
-        "name": "Input current phase 1 (A AC)"
+        "name": "Input current {phase} 1 (A AC)"
       },
       {
-        "path": "/Ac/In/1/L2/I",
+        "path": "/Ac/In/1/{phase}/P",
         "type": "float",
-        "name": "Input current phase 2 (A AC)"
-      },
-      {
-        "path": "/Ac/In/1/L3/I",
-        "type": "float",
-        "name": "Input current phase 3 (A AC)"
-      },
-      {
-        "path": "/Ac/In/1/L1/P",
-        "type": "float",
-        "name": "Input power phase 1 (W)"
-      },
-      {
-        "path": "/Ac/In/1/L2/P",
-        "type": "float",
-        "name": "Input power phase 2 (W)"
-      },
-      {
-        "path": "/Ac/In/1/L3/P",
-        "type": "float",
-        "name": "Input power phase 3 (W)"
+        "name": "Input power {phase} (W)"
       },
       {
         "path": "/Ac/In/1/L1/F",
@@ -326,49 +214,19 @@
         "name": "Input frequency (Hz)"
       },
       {
-        "path": "/Ac/Out/L1/V",
+        "path": "/Ac/Out/{phase}}/V",
         "type": "float",
-        "name": "Output voltage phase 1 (V AC)"
+        "name": "Output voltage {phase} (V AC)"
       },
       {
-        "path": "/Ac/Out/L2/V",
+        "path": "/Ac/Out/{phase}/I",
         "type": "float",
-        "name": "Output voltage phase 2 (V AC)"
+        "name": "Output current {phase} (A AC)"
       },
       {
-        "path": "/Ac/Out/L3/V",
+        "path": "/Ac/Out/{phase}/P",
         "type": "float",
-        "name": "Output voltage phase 3 (V AC)"
-      },
-      {
-        "path": "/Ac/Out/L1/I",
-        "type": "float",
-        "name": "Output current phase 1 (A AC)"
-      },
-      {
-        "path": "/Ac/Out/L2/I",
-        "type": "float",
-        "name": "Output current phase 2 (A AC)"
-      },
-      {
-        "path": "/Ac/Out/L3/I",
-        "type": "float",
-        "name": "Output current phase 3 (A AC)"
-      },
-      {
-        "path": "/Ac/Out/L1/P",
-        "type": "float",
-        "name": "Output power phase 1 (W)"
-      },
-      {
-        "path": "/Ac/Out/L2/P",
-        "type": "float",
-        "name": "Output power phase 2 (W)"
-      },
-      {
-        "path": "/Ac/Out/L3/P",
-        "type": "float",
-        "name": "Output power phase 3 (W)"
+        "name": "Output power {phase} (W)"
       },
       {
         "path": "/Ac/Out/L1/F",
@@ -523,24 +381,19 @@
         }
       },
       {
-        "path": "/Dc/0/Current",
+        "path": "/Dc/{channel}/Current",
         "type": "float",
-        "name": "Battery current (A)"
+        "name": "Battery current {channel} (A)"
       },
       {
-        "path": "/Dc/0/Temperature",
+        "path": "/Dc/{channel}/Temperature",
         "type": "float",
-        "name": "Battery temperature (°C)"
+        "name": "Battery temperature {channel} (°C)"
       },
       {
-        "path": "/Dc/0/Voltage",
+        "path": "/Dc/{channel}/Voltage",
         "type": "float",
-        "name": "Battery voltage (V)"
-      },
-      {
-        "path": "/Dc/1/Voltage",
-        "type": "float",
-        "name": "Auxiliary voltage (V DC)"
+        "name": "Battery voltage {channel} (V)"
       },
       {
         "path": "/Dc/In/V",
@@ -899,9 +752,9 @@
         "name": "Starter battery voltage (V)"
       },
       {
-        "path": "/Diagnostics/LastErrors/1/Error",
+        "path": "/Diagnostics/LastErrors/{index}/Error",
         "type": "enum",
-        "name": "Diagnostics; 1st last error",
+        "name": "Diagnostics; error {index}",
         "enum": {
           "0": "No error",
           "1": "Battery initialization error",
@@ -942,39 +795,9 @@
         }
       },
       {
-        "path": "/Diagnostics/LastErrors/1/Time",
+        "path": "/Diagnostics/LastErrors/{index}/Time",
         "type": "float",
-        "name": "Diagnostics; 1st last error timestamp"
-      },
-      {
-        "path": "/Diagnostics/LastErrors/2/Error",
-        "type": "float",
-        "name": "Diagnostics; 2nd last error"
-      },
-      {
-        "path": "/Diagnostics/LastErrors/2/Time",
-        "type": "float",
-        "name": "Diagnostics; 2nd last error timestamp"
-      },
-      {
-        "path": "/Diagnostics/LastErrors/3/Error",
-        "type": "float",
-        "name": "Diagnostics; 3rd last error"
-      },
-      {
-        "path": "/Diagnostics/LastErrors/3/Time",
-        "type": "float",
-        "name": "Diagnostics; 3rd last error timestamp"
-      },
-      {
-        "path": "/Diagnostics/LastErrors/4/Error",
-        "type": "float",
-        "name": "Diagnostics; 4th last error"
-      },
-      {
-        "path": "/Diagnostics/LastErrors/4/Time",
-        "type": "float",
-        "name": "Diagnostics; 4th last error timestamp"
+        "name": "Diagnostics; error {index} timestamp"
       },
       {
         "path": "/Diagnostics/ShutDownsDueError",
@@ -1863,9 +1686,9 @@
         "mode": "both"
       },
       {
-        "path": "/Settings/DynamicEss/Schedule/0/AllowGridFeedIn",
+        "path": "/Settings/DynamicEss/Schedule/{index}/AllowGridFeedIn",
         "type": "enum",
-        "name": "Allow grid feed-in during schedule 0",
+        "name": "Allow grid feed-in during schedule {index}",
         "enum": {
           "0": "Not allowed",
           "1": "Allowed"
@@ -1873,15 +1696,15 @@
         "mode": "both"
       },
       {
-        "path": "/Settings/DynamicEss/Schedule/0/Duration",
+        "path": "/Settings/DynamicEss/Schedule/{index}/Duration",
         "type": "float",
-        "name": "Duration for schedule 0 (Seconds)",
+        "name": "Duration for schedule {index} (Seconds)",
         "mode": "both"
       },
       {
-        "path": "/Settings/DynamicEss/Schedule/0/Restrictions",
+        "path": "/Settings/DynamicEss/Schedule/{index}/Restrictions",
         "type": "enum",
-        "name": "Active restrictions for schedule 0",
+        "name": "Active restrictions for schedule {index}",
         "enum": {
           "0": "No restrictions between battery and the grid",
           "1": "Grid to battery energy flow is restricted",
@@ -1891,153 +1714,15 @@
         "mode": "both"
       },
       {
-        "path": "/Settings/DynamicEss/Schedule/0/Soc",
+        "path": "/Settings/DynamicEss/Schedule/{index}/Soc",
         "type": "float",
-        "name": "Target SOC for schedule 0 (%)",
+        "name": "Target SOC for schedule {index} (%)",
         "mode": "both"
       },
       {
-        "path": "/Settings/DynamicEss/Schedule/0/Strategy",
+        "path": "/Settings/DynamicEss/Schedule/{index}/Strategy",
         "type": "enum",
-        "name": "Used strategy for schedule 0",
-        "enum": {
-          "0": "Target SOC",
-          "1": "Self-consumption",
-          "2": "Pro battery",
-          "3": "Pro grid"
-        },
-        "mode": "both"
-      },
-      {
-        "path": "/Settings/DynamicEss/Schedule/1/AllowGridFeedIn",
-        "type": "enum",
-        "name": "Allow grid feed-in during schedule 1",
-        "enum": {
-          "0": "Not allowed",
-          "1": "Allowed"
-        },
-        "mode": "both"
-      },
-      {
-        "path": "/Settings/DynamicEss/Schedule/1/Duration",
-        "type": "float",
-        "name": "Duration for schedule 1 (Seconds)",
-        "mode": "both"
-      },
-      {
-        "path": "/Settings/DynamicEss/Schedule/1/Restrictions",
-        "type": "enum",
-        "name": "Active restrictions for schedule 1",
-        "enum": {
-          "0": "No restrictions between battery and the grid",
-          "1": "Grid to battery energy flow is restricted",
-          "2": "Battery to grid energy flow is restricted",
-          "3": "No energy flow between battery and grid"
-        },
-        "mode": "both"
-      },
-      {
-        "path": "/Settings/DynamicEss/Schedule/1/Soc",
-        "type": "float",
-        "name": "Target SOC for schedule 1 (%)",
-        "mode": "both"
-      },
-      {
-        "path": "/Settings/DynamicEss/Schedule/1/Strategy",
-        "type": "enum",
-        "name": "Used strategy for schedule 1",
-        "enum": {
-          "0": "Target SOC",
-          "1": "Self-consumption",
-          "2": "Pro battery",
-          "3": "Pro grid"
-        },
-        "mode": "both"
-      },
-      {
-        "path": "/Settings/DynamicEss/Schedule/2/AllowGridFeedIn",
-        "type": "enum",
-        "name": "Allow grid feed-in during schedule 2",
-        "enum": {
-          "0": "Not allowed",
-          "1": "Allowed"
-        },
-        "mode": "both"
-      },
-      {
-        "path": "/Settings/DynamicEss/Schedule/2/Duration",
-        "type": "float",
-        "name": "Duration for schedule 2 (Seconds)",
-        "mode": "both"
-      },
-      {
-        "path": "/Settings/DynamicEss/Schedule/2/Restrictions",
-        "type": "enum",
-        "name": "Active restrictions for schedule 2",
-        "enum": {
-          "0": "No restrictions between battery and the grid",
-          "1": "Grid to battery energy flow is restricted",
-          "2": "Battery to grid energy flow is restricted",
-          "3": "No energy flow between battery and grid"
-        },
-        "mode": "both"
-      },
-      {
-        "path": "/Settings/DynamicEss/Schedule/2/Soc",
-        "type": "float",
-        "name": "Target SOC for schedule 2 (%)",
-        "mode": "both"
-      },
-      {
-        "path": "/Settings/DynamicEss/Schedule/2/Strategy",
-        "type": "enum",
-        "name": "Used strategy for schedule 2",
-        "enum": {
-          "0": "Target SOC",
-          "1": "Self-consumption",
-          "2": "Pro battery",
-          "3": "Pro grid"
-        },
-        "mode": "both"
-      },
-      {
-        "path": "/Settings/DynamicEss/Schedule/3/AllowGridFeedIn",
-        "type": "enum",
-        "name": "Allow grid feed-in during schedule 3",
-        "enum": {
-          "0": "Not allowed",
-          "1": "Allowed"
-        },
-        "mode": "both"
-      },
-      {
-        "path": "/Settings/DynamicEss/Schedule/3/Duration",
-        "type": "float",
-        "name": "Duration for schedule 3 (Seconds)",
-        "mode": "both"
-      },
-      {
-        "path": "/Settings/DynamicEss/Schedule/3/Restrictions",
-        "type": "enum",
-        "name": "Active restrictions for schedule 3",
-        "enum": {
-          "0": "No restrictions between battery and the grid",
-          "1": "Grid to battery energy flow is restricted",
-          "2": "Battery to grid energy flow is restricted",
-          "3": "No energy flow between battery and grid"
-        },
-        "mode": "both"
-      },
-      {
-        "path": "/Settings/DynamicEss/Schedule/3/Soc",
-        "type": "float",
-        "name": "Target SOC for schedule 3 (%)",
-        "mode": "both"
-      },
-      {
-        "path": "/Settings/DynamicEss/Schedule/3/Strategy",
-        "type": "enum",
-        "name": "Used strategy for schedule 3",
+        "name": "Used strategy for schedule {index}",
         "enum": {
           "0": "Target SOC",
           "1": "Self-consumption",
@@ -2202,39 +1887,15 @@
        "mode": "both"
       },
       {
-        "path": "/Hub4/L1/AcPowerSetpoint",
+        "path": "/Hub4/{line}}/AcPowerSetpoint",
         "type": "integer",
-        "name": "AC Power L1 setpoint (W)",
+        "name": "AC Power {line} setpoint (W)",
        "mode": "both"
       },
       {
-        "path": "/Hub4/L1/MaxFeedInPower",
+        "path": "/Hub4/{line}}/MaxFeedInPower",
         "type": "integer",
-        "name": "Maximum overvoltage feed-in power L1 (W)",
-       "mode": "both"
-      },
-      {
-        "path": "/Hub4/L2/AcPowerSetpoint",
-        "type": "integer",
-        "name": "AC Power L2 setpoint (W)",
-       "mode": "both"
-      },
-      {
-        "path": "/Hub4/L2/MaxFeedInPower",
-        "type": "integer",
-        "name": "Maximum overvoltage feed-in power L2 (W)",
-       "mode": "both"
-      },
-      {
-        "path": "/Hub4/L3/MaxFeedInPower",
-        "type": "integer",
-        "name": "Maximum overvoltage feed-in power L3 (W)",
-       "mode": "both"
-      },
-      {
-        "path": "/Hub4/L3/AcPowerSetpoint",
-        "type": "integer",
-        "name": "AC Power L3 setpoint (W)",
+        "name": "Maximum overvoltage feed-in power {line}} (W)",
        "mode": "both"
       },
       {
@@ -2270,9 +1931,9 @@
        "mode": "both"
       },
       {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/0/AllowDischarge",
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/{schedule}/AllowDischarge",
         "type": "enum",
-        "name": "Schedule 1: Self-consumption above limit",
+        "name": "Schedule {schedule}: Self-consumption above limit",
         "enum": {
           "0": "Yes",
           "1": "No"
@@ -2280,9 +1941,9 @@
        "mode": "both"
       },
       {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Day",
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/{schedule}/Day",
         "type": "enum",
-        "name": "Schedule 1: Day",
+        "name": "Schedule {schedule}: Day",
         "enum": {
           "-1": "Disabled",
           "0": "Sunday",
@@ -2300,214 +1961,21 @@
        "mode": "both"
       },
       {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Duration",
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/{schedule}/Duration",
         "type": "integer",
-        "name": "Schedule 1: Duration (seconds)",
+        "name": "Schedule {schedule}: Duration (seconds)",
        "mode": "both"
       },
       {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Soc",
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/{schedule}/Soc",
         "type": "integer",
-        "name": "Schedule 1: State of charge (%)",
+        "name": "Schedule {schedule}: State of charge (%)",
        "mode": "both"
       },
       {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/0/Start",
+        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/{schedule}/Start",
         "type": "integer",
-        "name": "Schedule 1: Start (seconds after midnight)",
-       "mode": "both"
-      },
-      {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/1/AllowDischarge",
-        "type": "enum",
-        "name": "Schedule 2: Self-consumption above limit",
-        "enum": {
-          "0": "Yes",
-          "1": "No"
-        },
-       "mode": "both"
-      },
-      {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Day",
-        "type": "enum",
-        "name": "Schedule 2: Day",
-        "enum": {
-          "-1": "Disabled",
-          "0": "Sunday",
-          "1": "Monday",
-          "2": "Tuesday",
-          "3": "Wednesday",
-          "4": "Thursday",
-          "5": "Friday",
-          "6": "Saturday",
-          "7": "Every day",
-          "8": "Weekdays",
-          "9": "Weekends",
-          "11": "Monthly"
-        },
-       "mode": "both"
-      },
-      {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Duration",
-        "type": "integer",
-        "name": "Schedule 2: Duration (seconds)",
-       "mode": "both"
-      },
-      {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Soc",
-        "type": "integer",
-        "name": "Schedule 2: State of charge (%)",
-       "mode": "both"
-      },
-      {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/1/Start",
-        "type": "integer",
-        "name": "Schedule 2: Start (seconds after midnight)",
-       "mode": "both"
-      },
-      {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/2/AllowDischarge",
-        "type": "enum",
-        "name": "Schedule 3: Self-consumption above limit",
-        "enum": {
-          "0": "Yes",
-          "1": "No"
-        },
-       "mode": "both"
-      },
-      {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Day",
-        "type": "enum",
-        "name": "Schedule 3: Day",
-        "enum": {
-          "-1": "Disabled",
-          "0": "Sunday",
-          "1": "Monday",
-          "2": "Tuesday",
-          "3": "Wednesday",
-          "4": "Thursday",
-          "5": "Friday",
-          "6": "Saturday",
-          "7": "Every day",
-          "8": "Weekdays",
-          "9": "Weekends",
-          "11": "Monthly"
-        },
-       "mode": "both"
-      },
-      {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Duration",
-        "type": "integer",
-        "name": "Schedule 3: Duration (seconds)",
-       "mode": "both"
-      },
-      {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Soc",
-        "type": "integer",
-        "name": "Schedule 3: State of charge (%)",
-       "mode": "both"
-      },
-      {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/2/Start",
-        "type": "integer",
-        "name": "Schedule 3: Start (seconds after midnight)",
-       "mode": "both"
-      },
-      {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/3/AllowDischarge",
-        "type": "enum",
-        "name": "Schedule 4: Self-consumption above limit",
-        "enum": {
-          "0": "Yes",
-          "1": "No"
-        },
-       "mode": "both"
-      },
-      {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Day",
-        "type": "enum",
-        "name": "Schedule 4: Day",
-        "enum": {
-          "-1": "Disabled",
-          "0": "Sunday",
-          "1": "Monday",
-          "2": "Tuesday",
-          "3": "Wednesday",
-          "4": "Thursday",
-          "5": "Friday",
-          "6": "Saturday",
-          "7": "Every day",
-          "8": "Weekdays",
-          "9": "Weekends",
-          "11": "Monthly"
-        },
-       "mode": "both"
-      },
-      {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Duration",
-        "type": "integer",
-        "name": "Schedule 4: Duration (seconds)",
-       "mode": "both"
-      },
-      {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Soc",
-        "type": "integer",
-        "name": "Schedule 4: State of charge (%)",
-       "mode": "both"
-      },
-      {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/3/Start",
-        "type": "integer",
-        "name": "Schedule 4: Start (seconds after midnight)",
-       "mode": "both"
-      },
-      {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/4/AllowDischarge",
-        "type": "enum",
-        "name": "Schedule 5: Self-consumption above limit",
-        "enum": {
-          "0": "Yes",
-          "1": "No"
-        },
-       "mode": "both"
-      },
-      {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Day",
-        "type": "enum",
-        "name": "Schedule 5: Day",
-        "enum": {
-          "-1": "Disabled",
-          "0": "Sunday",
-          "1": "Monday",
-          "2": "Tuesday",
-          "3": "Wednesday",
-          "4": "Thursday",
-          "5": "Friday",
-          "6": "Saturday",
-          "7": "Every day",
-          "8": "Weekdays",
-          "9": "Weekends",
-          "11": "Monthly"
-        },
-        "remarks": "Writing a negative value to the path will de-activate the schedule.",
-       "mode": "both"
-      },
-      {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Duration",
-        "type": "integer",
-        "name": "Schedule 5: Duration (seconds)",
-       "mode": "both"
-      },
-      {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Soc",
-        "type": "integer",
-        "name": "Schedule 5: State of charge (%)",
-       "mode": "both"
-      },
-      {
-        "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/4/Start",
-        "type": "integer",
-        "name": "Schedule 5: Start (seconds after midnight)",
+        "name": "Schedule {schedule}: Start (seconds after midnight)",
        "mode": "both"
       },
       {
@@ -2624,19 +2092,9 @@
         "name": "Energy consumed by charger (kWh)"
       },
       {
-        "path": "/Ac/L1/Power",
+        "path": "/Ac/{phase}/Power",
         "type": "float",
-        "name": "L1 Power (W)"
-      },
-      {
-        "path": "/Ac/L2/Power",
-        "type": "float",
-        "name": "L2 Power (W)"
-      },
-      {
-        "path": "/Ac/L3/Power",
-        "type": "float",
-        "name": "L3 Power (W)"
+        "name": "{phase} Power (W)"
       },
       {
         "path": "/Ac/Power",
@@ -2986,79 +2444,29 @@
         "name": "Power Factor"
       },
       {
-        "path": "/Ac/L1/Current",
+        "path": "/Ac/{phase}/Current",
         "type": "float",
-        "name": "Phase 1 current (A AC)"
+        "name": "Phase {phase} current (A AC)"
       },
       {
-        "path": "/Ac/L1/Frequency",
+        "path": "/Ac/{phase}/Frequency",
         "type": "float",
-        "name": "Phase 1 frequency (Hz)"
+        "name": "Phase {phase} frequency (Hz)"
       },
       {
-        "path": "/Ac/L1/Power",
+        "path": "/Ac/{phase}/Power",
         "type": "float",
-        "name": "Phase 1 power (W)"
+        "name": "Phase {phase} power (W)"
       },
       {
-        "path": "/Ac/L1/PowerFactor",
+        "path": "/Ac/{phase}/PowerFactor",
         "type": "float",
-        "name": "L1 Power Factor"
+        "name": "{phase} Power Factor"
       },
       {
-        "path": "/Ac/L1/Voltage",
+        "path": "/Ac/{phase}/Voltage",
         "type": "float",
-        "name": "Phase 1 voltage (V AC)"
-      },
-      {
-        "path": "/Ac/L2/Current",
-        "type": "float",
-        "name": "Phase 2 current (A AC)"
-      },
-      {
-        "path": "/Ac/L2/Frequency",
-        "type": "float",
-        "name": "Phase 2 frequency (Hz)"
-      },
-      {
-        "path": "/Ac/L2/Power",
-        "type": "float",
-        "name": "Phase 2 power (W)"
-      },
-      {
-        "path": "/Ac/L2/PowerFactor",
-        "type": "float",
-        "name": "L2 Power Factor"
-      },
-      {
-        "path": "/Ac/L2/Voltage",
-        "type": "float",
-        "name": "Phase 2 voltage (V AC)"
-      },
-      {
-        "path": "/Ac/L3/Current",
-        "type": "float",
-        "name": "Phase 3 current (A AC)"
-      },
-      {
-        "path": "/Ac/L3/Frequency",
-        "type": "float",
-        "name": "Phase 3 frequency (Hz)"
-      },
-      {
-        "path": "/Ac/L3/Power",
-        "type": "float",
-        "name": "Phase 3 power (W)"
-      },
-      {
-        "path": "/Ac/L3/PowerFactor",
-        "type": "float",
-        "name": "L3 Power Factor"
-      },
-      {
-        "path": "/Ac/L3/Voltage",
-        "type": "float",
-        "name": "Phase 3 voltage (V AC)"
+        "name": "Phase {phase} voltage (V AC)"
       },
       {
         "path": "/NrOfPhases",
@@ -3135,44 +2543,9 @@
         "name": "Engine winding temperature (°C)"
       },
       {
-        "path": "/Error/0/Id",
+        "path": "/Error/{index}/Id",
         "type": "string",
-        "name": "Generator specific error code 0"
-      },
-      {
-        "path": "/Error/1/Id",
-        "type": "string",
-        "name": "Generator specific error code 1"
-      },
-      {
-        "path": "/Error/2/Id",
-        "type": "string",
-        "name": "Generator specific error code 2"
-      },
-      {
-        "path": "/Error/3/Id",
-        "type": "string",
-        "name": "Generator specific error code 3"
-      },
-      {
-        "path": "/Error/4/Id",
-        "type": "string",
-        "name": "Generator specific error code 4"
-      },
-      {
-        "path": "/Error/5/Id",
-        "type": "string",
-        "name": "Generator specific error code 5"
-      },
-      {
-        "path": "/Error/6/Id",
-        "type": "string",
-        "name": "Generator specific error code 6"
-      },
-      {
-        "path": "/Error/7/Id",
-        "type": "string",
-        "name": "Generator specific error code 7"
+        "name": "Generator specific error code {index}"
       },
       {
         "path": "/ErrorCode",
@@ -3329,11 +2702,6 @@
         "name": "DC current (DC A)"
       },
       {
-        "path": "/Dc/0/Current",
-        "type": "float",
-        "name": "DC current (DC A)"
-      },
-      {
         "path": "/Engine/CoolantTemperature",
         "type": "float",
         "name": "Engine coolant temperature (Degrees celsius)"
@@ -3374,44 +2742,9 @@
         "name": "Internal winding temperature (Degrees celsius)"
       },
       {
-        "path": "/Error/0/Id",
+        "path": "/Error/{index}/Id",
         "type": "string",
-        "name": "Generator specific error code 0"
-      },
-      {
-        "path": "/Error/1/Id",
-        "type": "string",
-        "name": "Generator specific error code 1"
-      },
-      {
-        "path": "/Error/2/Id",
-        "type": "string",
-        "name": "Generator specific error code 2"
-      },
-      {
-        "path": "/Error/3/Id",
-        "type": "string",
-        "name": "Generator specific error code 3"
-      },
-      {
-        "path": "/Error/4/Id",
-        "type": "string",
-        "name": "Generator specific error code 4"
-      },
-      {
-        "path": "/Error/5/Id",
-        "type": "string",
-        "name": "Generator specific error code 5"
-      },
-      {
-        "path": "/Error/6/Id",
-        "type": "string",
-        "name": "Generator specific error code 6"
-      },
-      {
-        "path": "/Error/7/Id",
-        "type": "string",
-        "name": "Generator specific error code 7"
+        "name": "Generator specific error code {index}"
       },
       {
         "path": "/HeatsinkTemperature",
@@ -3507,94 +2840,34 @@
         "name": "Total Reverse Energy (sold) (kWh)"
       },
       {
-        "path": "/Ac/L1/Current",
+        "path": "/Ac/{line}/Current",
         "type": "float",
-        "name": "L1 Current (A)"
+        "name": "{line} Current (A)"
       },
       {
-        "path": "/Ac/L1/Energy/Forward",
+        "path": "/Ac/{line}/Energy/Forward",
         "type": "float",
-        "name": "L1 Forward energy (bought) (kWh)"
+        "name": "{line} Forward energy (bought) (kWh)"
       },
       {
-        "path": "/Ac/L1/Energy/Reverse",
+        "path": "/Ac/{line}/Energy/Reverse",
         "type": "float",
-        "name": "L1 Reverse energy (sold) (kWh)"
+        "name": "{line} Reverse energy (sold) (kWh)"
       },
       {
-        "path": "/Ac/L1/Power",
+        "path": "/Ac/{line}/Power",
         "type": "float",
-        "name": "L1 Power (W)"
+        "name": "{line} Power (W)"
       },
       {
-        "path": "/Ac/L1/PowerFactor",
+        "path": "/Ac/{line}/PowerFactor",
         "type": "float",
-        "name": "L1 Power Factor"
+        "name": "{line} Power Factor"
       },
       {
-        "path": "/Ac/L1/Voltage",
+        "path": "/Ac/{line}/Voltage",
         "type": "float",
-        "name": "L1 Voltage (V)"
-      },
-      {
-        "path": "/Ac/L2/Current",
-        "type": "float",
-        "name": "L2 Current (A)"
-      },
-      {
-        "path": "/Ac/L2/Energy/Forward",
-        "type": "float",
-        "name": "L2 Forward energy (bought) (kWh)"
-      },
-      {
-        "path": "/Ac/L2/Energy/Reverse",
-        "type": "float",
-        "name": "L2 Reverse energy (sold) (kWh)"
-      },
-      {
-        "path": "/Ac/L2/Power",
-        "type": "float",
-        "name": "L2 Power (W)"
-      },
-      {
-        "path": "/Ac/L2/PowerFactor",
-        "type": "float",
-        "name": "L2 Power Factor"
-      },
-      {
-        "path": "/Ac/L2/Voltage",
-        "type": "float",
-        "name": "L2 Voltage (V)"
-      },
-      {
-        "path": "/Ac/L3/Current",
-        "type": "float",
-        "name": "L3 Current (A)"
-      },
-      {
-        "path": "/Ac/L3/Energy/Forward",
-        "type": "float",
-        "name": "L3 Forward energy (bought) (kWh)"
-      },
-      {
-        "path": "/Ac/L3/Energy/Reverse",
-        "type": "float",
-        "name": "L3 Reverse energy (sold) (kWh)"
-      },
-      {
-        "path": "/Ac/L3/Power",
-        "type": "float",
-        "name": "L3 Power (W)"
-      },
-      {
-        "path": "/Ac/L3/PowerFactor",
-        "type": "float",
-        "name": "L3 Power Factor"
-      },
-      {
-        "path": "/Ac/L3/Voltage",
-        "type": "float",
-        "name": "L3 Voltage (V)"
+        "name": "{line} Voltage (V)"
       },
       {
         "path": "/Ac/Power",
@@ -3756,84 +3029,24 @@
         "name": "Firmware version"
       },
       {
-        "path": "/History/Daily/0/Pv/0/MaxPower",
+        "path": "/History/Daily/0/Pv/{tracker}/MaxPower",
         "type": "float",
-        "name": "Maximum power for today on tracker 0 (W)"
+        "name": "Maximum power for today on tracker {tracker} (W)"
       },
       {
-        "path": "/History/Daily/0/Pv/0/Yield",
+        "path": "/History/Daily/0/Pv/{tracker}/Yield",
         "type": "float",
-        "name": "Yield today for today on tracker 0 (kWh)"
+        "name": "Yield today for today on tracker {tracker} (kWh)"
       },
       {
-        "path": "/History/Daily/0/Pv/1/MaxPower",
+        "path": "/History/Daily/1/Pv/{tracker}/MaxPower",
         "type": "float",
-        "name": "Maximum power for today on tracker 1 (W)"
+        "name": "Maximum power for yesterday on tracker {tracker} (W)"
       },
       {
-        "path": "/History/Daily/0/Pv/1/Yield",
+        "path": "/History/Daily/1/Pv/{tracker}/Yield",
         "type": "float",
-        "name": "Yield today for today on tracker 1 (kWh)"
-      },
-      {
-        "path": "/History/Daily/0/Pv/2/MaxPower",
-        "type": "float",
-        "name": "Maximum power for today on tracker 2 (W)"
-      },
-      {
-        "path": "/History/Daily/0/Pv/2/Yield",
-        "type": "float",
-        "name": "Yield today for today on tracker 2 (kWh)"
-      },
-      {
-        "path": "/History/Daily/0/Pv/3/MaxPower",
-        "type": "float",
-        "name": "Maximum power for today on tracker 3 (W)"
-      },
-      {
-        "path": "/History/Daily/0/Pv/3/Yield",
-        "type": "float",
-        "name": "Yield today for today on tracker 3 (kWh)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/0/MaxPower",
-        "type": "float",
-        "name": "Maximum power for yesterday on tracker 0 (W)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/0/Yield",
-        "type": "float",
-        "name": "Yield today for yesterday on tracker 0 (kWh)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/1/MaxPower",
-        "type": "float",
-        "name": "Maximum power for yesterday on tracker 1 (W)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/1/Yield",
-        "type": "float",
-        "name": "Yield today for yesterday on tracker 1 (kWh)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/2/MaxPower",
-        "type": "float",
-        "name": "Maximum power for yesterday on tracker 2 (W)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/2/Yield",
-        "type": "float",
-        "name": "Yield today for yesterday on tracker 2 (kWh)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/3/MaxPower",
-        "type": "float",
-        "name": "Maximum power for yesterday on tracker 3 (W)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/3/Yield",
-        "type": "float",
-        "name": "Yield today for yesterday on tracker 3 (kWh)"
+        "name": "Yield today for yesterday on tracker {tracker} (kWh)"
       },
       {
         "path": "/Mode",
@@ -3857,9 +3070,9 @@
         "name": "Inverter model"
       },
       {
-        "path": "/Pv/0/MppOperationMode",
+        "path": "/Pv/{tracker}/MppOperationMode",
         "type": "enum",
-        "name": "MPP operation mode tracker 1",
+        "name": "MPP operation mode tracker {tracker}",
         "enum": {
           "0": "Off",
           "1": "Voltage/current limited",
@@ -3868,14 +3081,14 @@
         }
       },
       {
-        "path": "/Pv/0/P",
+        "path": "/Pv/{tracker}/P",
         "type": "float",
-        "name": "PV power for tracker 0 (W)"
+        "name": "PV power for tracker {tracker| (W)"
       },
       {
-        "path": "/Pv/0/V",
+        "path": "/Pv/{tracker}/V",
         "type": "float",
-        "name": "PV voltage for tracker 0 (V DC)"
+        "name": "PV voltage for tracker {tracker} (V DC)"
       },
       {
         "path": "/Pv/1/MppOperationMode",
@@ -3887,58 +3100,6 @@
           "2": "MPPT active",
           "255": "Not available"
         }
-      },
-      {
-        "path": "/Pv/1/P",
-        "type": "float",
-        "name": "PV power for tracker 1 (W)"
-      },
-      {
-        "path": "/Pv/1/V",
-        "type": "float",
-        "name": "PV voltage for tracker 1 (V DC)"
-      },
-      {
-        "path": "/Pv/2/MppOperationMode",
-        "type": "enum",
-        "name": "MPP operation mode tracker 3",
-        "enum": {
-          "0": "Off",
-          "1": "Voltage/current limited",
-          "2": "MPPT active",
-          "255": "Not available"
-        }
-      },
-      {
-        "path": "/Pv/2/P",
-        "type": "float",
-        "name": "PV power for tracker 2 (W)"
-      },
-      {
-        "path": "/Pv/2/V",
-        "type": "float",
-        "name": "PV voltage for tracker 2 (V DC)"
-      },
-      {
-        "path": "/Pv/3/MppOperationMode",
-        "type": "enum",
-        "name": "MPP operation mode tracker 4",
-        "enum": {
-          "0": "Off",
-          "1": "Voltage/current limited",
-          "2": "MPPT active",
-          "255": "Not available"
-        }
-      },
-      {
-        "path": "/Pv/3/P",
-        "type": "float",
-        "name": "PV power for tracker 3 (W)"
-      },
-      {
-        "path": "/Pv/3/V",
-        "type": "float",
-        "name": "PV voltage for tracker 3 (V DC)"
       },
       {
         "path": "/Pv/V",
@@ -3975,177 +3136,19 @@
     },
     "switch": [
       {
-        "path": "/SwitchableOutput/output_1/State",
+        "path": "/SwitchableOutput/{type}/State",
         "type": "enum",
         "enum": {
           "0": "Off",
           "1": "On"
         },
-        "name": "Output 1 state",
+        "name": "{type} state",
         "mode": "both"
       },
       {
-        "path": "/SwitchableOutput/output_2/State",
-        "type": "enum",
-        "enum": {
-          "0": "Off",
-          "1": "On"
-        },
-        "name": "Output 2 state",
-        "mode": "both"
-      },
-      {
-        "path": "/SwitchableOutput/output_3/State",
-        "type": "enum",
-        "enum": {
-          "0": "Off",
-          "1": "On"
-        },
-        "name": "Output 3 state",
-        "mode": "both"
-      },
-      {
-        "path": "/SwitchableOutput/output_4/State",
-        "type": "enum",
-        "enum": {
-          "0": "Off",
-          "1": "On"
-        },
-        "name": "Output 4 state",
-        "mode": "both"
-      },
-      {
-        "path": "/SwitchableOutput/output_5/State",
-        "type": "enum",
-        "enum": {
-          "0": "Off",
-          "1": "On"
-        },
-        "name": "Output 5 state",
-        "mode": "both"
-      },
-      {
-        "path": "/SwitchableOutput/output_6/State",
-        "type": "enum",
-        "enum": {
-          "0": "Off",
-          "1": "On"
-        },
-        "name": "Output 6 state",
-        "mode": "both"
-      },
-      {
-        "path": "/SwitchableOutput/output_7/State",
-        "type": "enum",
-        "enum": {
-          "0": "Off",
-          "1": "On"
-        },
-        "name": "Output 7 state",
-        "mode": "both"
-      },
-      {
-        "path": "/SwitchableOutput/output_8/State",
-        "type": "enum",
-        "enum": {
-          "0": "Off",
-          "1": "On"
-        },
-        "name": "Output 8 state",
-        "mode": "both"
-      },
-      {
-        "path": "/SwitchableOutput/pwm_1/State",
-        "type": "enum",
-        "enum": {
-          "0": "Off",
-          "1": "On"
-        },
-        "name": "PWM 1 state",
-        "mode": "both"
-      },
-      {
-        "path": "/SwitchableOutput/pwm_1/Dimming",
+        "path": "/SwitchableOutput/{type}/Dimming",
         "type": "integer",
-        "name": "PWM 1 dimming",
-        "mode": "both"
-      },
-      {
-        "path": "/SwitchableOutput/pwm_2/State",
-        "type": "enum",
-        "enum": {
-          "0": "Off",
-          "1": "On"
-        },
-        "name": "PWM 2 state",
-        "mode": "both"
-      },
-      {
-        "path": "/SwitchableOutput/pwm_2/Dimming",
-        "type": "integer",
-        "name": "PWM 2 dimming",
-        "mode": "both"
-      },
-      {
-        "path": "/SwitchableOutput/pwm_3/State",
-        "type": "enum",
-        "enum": {
-          "0": "Off",
-          "1": "On"
-        },
-        "name": "PWM 3 state",
-        "mode": "both"
-      },
-      {
-        "path": "/SwitchableOutput/pwm_3/Dimming",
-        "type": "integer",
-        "name": "PWM 3 dimming",
-        "mode": "both"
-      },
-      {
-        "path": "/SwitchableOutput/pwm_4/State",
-        "type": "enum",
-        "enum": {
-          "0": "Off",
-          "1": "On"
-        },
-        "name": "PWM 4 state",
-        "mode": "both"
-      },
-      {
-        "path": "/SwitchableOutput/pwm_4/Dimming",
-        "type": "integer",
-        "name": "PWM 4 dimming",
-        "mode": "both"
-      },
-      {
-        "path": "/SwitchableOutput/relay_1/State",
-        "type": "enum",
-        "enum": {
-          "0": "Off",
-          "1": "On"
-        },
-        "name": "Relay 1 state",
-        "mode": "both"
-      },
-      {
-        "path": "/SwitchableOutput/relay_2/State",
-        "type": "enum",
-        "enum": {
-          "0": "Off",
-          "1": "On"
-        },
-        "name": "Relay 2 state",
-        "mode": "both"
-      },
-      {
-        "path": "/SwitchableOutput/relay_3/State",
-        "type": "enum",
-        "enum": {
-          "0": "Off",
-          "1": "On"
-        },
-        "name": "Solid switch state",
+        "name": "{type} dimming",
         "mode": "both"
       }
     ]
@@ -4266,82 +3269,35 @@
         }
       },
       {
-        "path": "/Ac/In/1/CurrentLimit",
+        "path": "/Ac/In/{index}/CurrentLimit",
         "type": "float",
-        "name": "Ac input 1 current limit (A)",
+        "name": "Ac input {index} current limit (A)",
         "mode": "both"
       },
       {
-        "path": "/Ac/In/1/L1/F",
+        "path": "/Ac/In/{index}/{phase}/F",
         "type": "float",
-        "name": "Input frequency phase 1 (Hz)"
+        "name": "Input {index} frequency phase {phase} (Hz)"
       },
       {
-        "path": "/Ac/In/1/L1/I",
+        "path": "/Ac/In/{index}/{phase}/I",
         "type": "float",
-        "name": "Input current phase 1 (A AC)"
+        "name": "Input {index} current phase {phase} (A AC)"
       },
       {
-        "path": "/Ac/In/1/L1/P",
+        "path": "/Ac/In/{index}/{phase}/P",
         "type": "float",
-        "name": "Input power phase 1 (W)"
+        "name": "Input {index} power phase {phase} (W)"
       },
       {
-        "path": "/Ac/In/1/L1/V",
+        "path": "/Ac/In/{index}/{phase}/V",
         "type": "float",
-        "name": "Input voltage phase 1 (V AC)"
+        "name": "Input {index} voltage phase {phase} (V AC)"
       },
       {
-        "path": "/Ac/In/1/L2/I",
-        "type": "float",
-        "name": "Input current phase 2 (A AC)"
-      },
-      {
-        "path": "/Ac/In/1/L2/P",
-        "type": "float",
-        "name": "Input power phase 2 (W)"
-      },
-      {
-        "path": "/Ac/In/1/L2/V",
-        "type": "float",
-        "name": "Input voltage phase 2 (V AC)"
-      },
-      {
-        "path": "/Ac/In/1/L3/I",
-        "type": "float",
-        "name": "Input current phase 3 (A AC)"
-      },
-      {
-        "path": "/Ac/In/1/L3/P",
-        "type": "float",
-        "name": "Input power phase 3 (W)"
-      },
-      {
-        "path": "/Ac/In/1/L3/V",
-        "type": "float",
-        "name": "Input voltage phase 3 (V AC)"
-      },
-      {
-        "path": "/Ac/In/1/Type",
+        "path": "/Ac/In/{index}/Type",
         "type": "enum",
-        "name": "AC input 1 source type",
-        "enum": {
-          "0": "Unused",
-          "1": "Grid",
-          "2": "Genset",
-          "3": "Shore"
-        }
-      },
-      {
-        "path": "/Ac/In/2/CurrentLimit",
-        "type": "float",
-        "name": "Ac input 2 current limit (A)",
-        "mode": "both"
-      },
-      {
-        "path": "/Ac/In/2/Type",
-        "type": "enum",
-        "name": "AC input 2 source type",
+        "name": "AC input {index} source type",
         "enum": {
           "0": "Unused",
           "1": "Grid",
@@ -4355,149 +3311,29 @@
         "name": "Phase count (count)"
       },
       {
-        "path": "/Ac/Out/L1/F",
+        "path": "/Ac/Out/{phase}/F",
         "type": "float",
-        "name": "Output frequency phase 1 (Hz)"
+        "name": "Output frequency phase {phase} (Hz)"
       },
       {
-        "path": "/Ac/Out/L1/I",
+        "path": "/Ac/Out/{phase}/I",
         "type": "float",
-        "name": "Output current phase 1 (A AC)"
+        "name": "Output current phase {phase} (A AC)"
       },
       {
-        "path": "/Ac/Out/L1/P",
+        "path": "/Ac/Out/{phase}/P",
         "type": "float",
-        "name": "Output power phase 1 (W)"
+        "name": "Output power phase {phase} (W)"
       },
       {
-        "path": "/Ac/Out/L1/V",
+        "path": "/Ac/Out/{phase}/V",
         "type": "float",
-        "name": "Output voltage phase 1 (V AC)"
+        "name": "Output voltage phase {phase} (V AC)"
       },
       {
-        "path": "/Ac/Out/L2/I",
-        "type": "float",
-        "name": "Output current phase 2 (A AC)"
-      },
-      {
-        "path": "/Ac/Out/L2/P",
-        "type": "float",
-        "name": "Output power phase 2 (W)"
-      },
-      {
-        "path": "/Ac/Out/L2/V",
-        "type": "float",
-        "name": "Output voltage phase 2 (V AC)"
-      },
-      {
-        "path": "/Ac/Out/L3/I",
-        "type": "float",
-        "name": "Output current phase 3 (A AC)"
-      },
-      {
-        "path": "/Ac/Out/L3/P",
-        "type": "float",
-        "name": "Output power phase 3 (W)"
-      },
-      {
-        "path": "/Ac/Out/L3/V",
-        "type": "float",
-        "name": "Output voltage phase 3 (V AC)"
-      },
-      {
-        "path": "/Alarms/HighTemperature",
+        "path": "/Alarms/{alarm}",
         "type": "enum",
-        "name": "Temperature alarm",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/HighVoltage",
-        "type": "enum",
-        "name": "High voltage alarm",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/HighVoltageAcOut",
-        "type": "enum",
-        "name": "High AC-Out voltage alarm",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/LowSoc",
-        "type": "enum",
-        "name": "Low SOC alarm",
-        "enum": {
-          "0": "No alarm",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/LowTemperature",
-        "type": "enum",
-        "name": "Low battery temperature alarm",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/LowVoltage",
-        "type": "enum",
-        "name": "Low voltage alarm",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/LowVoltageAcOut",
-        "type": "enum",
-        "name": "Low AC-Out voltage alarm",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/Overload",
-        "type": "enum",
-        "name": "Overload alarm",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/Ripple",
-        "type": "enum",
-        "name": "High DC ripple alarm",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/ShortCircuit",
-        "type": "enum",
-        "name": "Short Circuit Alarm",
+        "name": "{alarm}",
         "enum": {
           "0": "Ok",
           "1": "Warning",
@@ -4520,74 +3356,9 @@
         "name": "Battery voltage (V DC)"
       },
       {
-        "path": "/Energy/AcIn1ToAcOut",
+        "path": "/Energy/{energy}",
         "type": "float",
-        "name": "Energy from AC-in-1 to AC-out (kWh)"
-      },
-      {
-        "path": "/Energy/AcIn1ToInverter",
-        "type": "float",
-        "name": "Energy from AC-in-1 to battery (kWh)"
-      },
-      {
-        "path": "/Energy/AcIn2ToAcOut",
-        "type": "float",
-        "name": "Energy from AC-in-2 to AC-out (kWh)"
-      },
-      {
-        "path": "/Energy/AcIn2ToInverter",
-        "type": "float",
-        "name": "Energy from AC-in-2 to battery (kWh)"
-      },
-      {
-        "path": "/Energy/AcOutToAcIn1",
-        "type": "float",
-        "name": "Energy from AC-out to AC-in-1 (kWh)"
-      },
-      {
-        "path": "/Energy/AcOutToAcIn2",
-        "type": "float",
-        "name": "Energy from AC-out to AC-in-2 (kWh)"
-      },
-      {
-        "path": "/Energy/InverterToAcIn1",
-        "type": "float",
-        "name": "Energy from battery to AC-in-1 (kWh)"
-      },
-      {
-        "path": "/Energy/InverterToAcIn2",
-        "type": "float",
-        "name": "Energy from battery to AC-in-2 (kWh)"
-      },
-      {
-        "path": "/Energy/InverterToAcOut",
-        "type": "float",
-        "name": "Energy from battery to AC-out (kWh)"
-      },
-      {
-        "path": "/Energy/OutToInverter",
-        "type": "float",
-        "name": "Energy from AC-out to battery (kWh)"
-      },
-      {
-        "path": "/Energy/SolarToAcIn1",
-        "type": "float",
-        "name": "Energy from solar to AC-in-1 (kWh)"
-      },
-      {
-        "path": "/Energy/SolarToAcIn2",
-        "type": "float",
-        "name": "Energy from solar to AC-in-2 (kWh)"
-      },
-      {
-        "path": "/Energy/SolarToAcOut",
-        "type": "float",
-        "name": "Energy from solar to AC-out (kWh)"
-      },
-      {
-        "path": "/Energy/SolarToBattery",
-        "type": "float",
-        "name": "Energy from solar to battery (kWh)"
+        "name": "{energy}"
       },
       {
         "path": "/ErrorCode",
@@ -4649,104 +3420,24 @@
         }
       },
       {
-        "path": "/History/Daily/0/MaxPower",
+        "path": "/History/Daily/{historyDay}/MaxPower",
         "type": "float",
-        "name": "Maximum charge power today (W)"
+        "name": "Maximum charge power {historyDay} (W)"
       },
       {
-        "path": "/History/Daily/0/Pv/0/MaxPower",
+        "path": "/History/Daily/{historyDay}/Yield", 
         "type": "float",
-        "name": "Maximum charge power today for tracker 0 (W)"
+        "name": "Yield {historyDay} (kWh)"
       },
       {
-        "path": "/History/Daily/0/Pv/0/Yield",
-        "type": "float",
-        "name": "Yield today for tracker 0 (kWh)"
+        "path": "/History/Daily/{historyDay}/Pv/{index}/MaxPower",
+        "type": "float", 
+        "name": "Maximum charge power {historyDay} for tracker {index} (W)"
       },
       {
-        "path": "/History/Daily/0/Pv/1/MaxPower",
+        "path": "/History/Daily/{historyDay}/Pv/{index}/Yield",
         "type": "float",
-        "name": "Maximum charge power today for tracker 1 (W)"
-      },
-      {
-        "path": "/History/Daily/0/Pv/1/Yield",
-        "type": "float",
-        "name": "Yield today for tracker 1 (kWh)"
-      },
-      {
-        "path": "/History/Daily/0/Pv/2/MaxPower",
-        "type": "float",
-        "name": "Maximum charge power today for tracker 2 (W)"
-      },
-      {
-        "path": "/History/Daily/0/Pv/2/Yield",
-        "type": "float",
-        "name": "Yield today for tracker 2 (kWh)"
-      },
-      {
-        "path": "/History/Daily/0/Pv/3/Yield",
-        "type": "float",
-        "name": "Yield today for tracker 3 (kWh)"
-      },
-      {
-        "path": "/History/Daily/0/Pv/3/MaxPower",
-        "type": "float",
-        "name": "Maximum charge power today for tracker 3 (W)"
-      },
-      {
-        "path": "/History/Daily/0/Yield",
-        "type": "float",
-        "name": "Yield today (kWh)"
-      },
-      {
-        "path": "/History/Daily/1/MaxPower",
-        "type": "float",
-        "name": "Maximum charge power yesterday (W)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/0/MaxPower",
-        "type": "float",
-        "name": "Maximum charge power yesterday tracker 0 (W)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/0/Yield",
-        "type": "float",
-        "name": "Yield yesterday for tracker 0 (kWh)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/1/MaxPower",
-        "type": "float",
-        "name": "Maximum charge power yesterday tracker 1 (W)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/1/Yield",
-        "type": "float",
-        "name": "Yield yesterday for tracker 1 (kWh)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/2/MaxPower",
-        "type": "float",
-        "name": "Maximum charge power yesterday tracker 2 (W)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/2/Yield",
-        "type": "float",
-        "name": "Yield yesterday for tracker 2 (kWh)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/3/MaxPower",
-        "type": "float",
-        "name": "Maximum charge power yesterday tracker 3 (W)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/3/Yield",
-        "type": "float",
-        "name": "Yield yesterday for tracker 3 (kWh)"
-      },
-      {
-        "path": "/History/Daily/1/Yield",
-        "type": "float",
-        "name": "Yield yesterday (kWh)"
+        "name": "Yield {historyDay} for tracker {index} (kWh)"
       },
       {
         "path": "/MppOperationMode",
@@ -5014,70 +3705,30 @@
         "name": "AC Frequency (Hz)"
       },
       {
-        "path": "/Ac/L1/Current",
+        "path": "/Ac/{line}/Current",
         "type": "float",
-        "name": "L1 Current (A)"
+        "name": "{line} Current (A)"
       },
       {
-        "path": "/Ac/L1/Energy/Forward",
+        "path": "/Ac/{line}/Energy/Forward",
         "type": "float",
-        "name": "L1 Energy (kWh)"
+        "name": "{line} Energy (kWh)"
       },
       {
-        "path": "/Ac/L1/Power",
+        "path": "/Ac/{line}/Power",
         "type": "float",
-        "name": "L1 Power (W)"
+        "name": "{line} Power (W)"
+      },
+      {
+        "path": "/Ac/{line}/Voltage",
+        "type": "float",
+        "name": "{line} Voltage (V)"
       },
       {
         "path": "/Ac/PowerLimit",
         "type": "float",
         "name": "Power limit (W)",
         "mode": "both"
-      },
-      {
-        "path": "/Ac/L1/Voltage",
-        "type": "float",
-        "name": "L1 Voltage (V)"
-      },
-      {
-        "path": "/Ac/L2/Current",
-        "type": "float",
-        "name": "L2 Current (A)"
-      },
-      {
-        "path": "/Ac/L2/Energy/Forward",
-        "type": "float",
-        "name": "L2 Energy (kWh)"
-      },
-      {
-        "path": "/Ac/L2/Power",
-        "type": "float",
-        "name": "L2 Power (W)"
-      },
-      {
-        "path": "/Ac/L2/Voltage",
-        "type": "float",
-        "name": "L2 Voltage (V)"
-      },
-      {
-        "path": "/Ac/L3/Current",
-        "type": "float",
-        "name": "L3 Current (A)"
-      },
-      {
-        "path": "/Ac/L3/Energy/Forward",
-        "type": "float",
-        "name": "L3 Energy (kWh)"
-      },
-      {
-        "path": "/Ac/L3/Power",
-        "type": "float",
-        "name": "L3 Power (W)"
-      },
-      {
-        "path": "/Ac/L3/Voltage",
-        "type": "float",
-        "name": "L3 Voltage (V)"
       },
       {
         "path": "/Ac/MaxPower",
@@ -5142,39 +3793,9 @@
     },
     "system": [
       {
-        "path": "/Relay/0/State",
+        "path": "/Relay/{relay}/State",
         "type": "enum",
-        "name": "Venus relay 1 state",
-        "enum": {
-          "0": "Open",
-          "1": "Closed"
-        },
-        "mode": "both"
-      },
-      {
-        "path": "/Relay/1/State",
-        "type": "enum",
-        "name": "Venus relay 2 state",
-        "enum": {
-          "0": "Open",
-          "1": "Closed"
-        },
-        "mode": "both"
-      },
-      {
-        "path": "/Relay/2/State",
-        "type": "enum",
-        "name": "Venus relay 3 state",
-        "enum": {
-          "0": "Open",
-          "1": "Closed"
-        },
-        "mode": "both"
-      },
-      {
-        "path": "/Relay/3/State",
-        "type": "enum",
-        "name": "Venus relay 4 state",
+        "name": "Venus relay {relay} state",
         "enum": {
           "0": "Open",
           "1": "Closed"
@@ -5371,20 +3992,9 @@
         "mode": "both"
       },
       {
-        "path": "/Settings/SystemSetup/AcInput1",
+        "path": "/Settings/SystemSetup/AcInput{index}",
         "type": "enum",
-        "name": "AC input 1 source (for VE.Bus inverter/chargers)",
-        "enum": {
-          "0": "Unused",
-          "1": "Grid",
-          "2": "Genset",
-          "3": "Shore"
-        }
-      },
-      {
-        "path": "/Settings/SystemSetup/AcInput2",
-        "type": "enum",
-        "name": "AC input 2 source (for VE.Bus inverter/chargers)",
+        "name": "AC input {index} source (for VE.Bus inverter/chargers)",
         "enum": {
           "0": "Unused",
           "1": "Grid",
@@ -5539,104 +4149,24 @@
         }
       },
       {
-        "path": "/History/Daily/0/MaxPower",
+        "path": "/History/Daily/{historyDay}/MaxPower",
         "type": "float",
-        "name": "Maximum charge power today (W)"
+        "name": "Maximum charge power {historyDay} (W)"
       },
       {
-        "path": "/History/Daily/0/Pv/0/MaxPower",
+        "path": "/History/Daily/{historyDay}/Yield", 
         "type": "float",
-        "name": "Maximum charge power today for tracker 0 (W)"
+        "name": "Yield {historyDay} (kWh)"
       },
       {
-        "path": "/History/Daily/0/Pv/0/Yield",
-        "type": "float",
-        "name": "Yield today for tracker 0 (kWh)"
+        "path": "/History/Daily/{historyDay}/Pv/{index}/MaxPower",
+        "type": "float", 
+        "name": "Maximum charge power {historyDay} for tracker {index} (W)"
       },
       {
-        "path": "/History/Daily/0/Pv/1/MaxPower",
+        "path": "/History/Daily/{historyDay}/Pv/{index}/Yield",
         "type": "float",
-        "name": "Maximum charge power today for tracker 1 (W)"
-      },
-      {
-        "path": "/History/Daily/0/Pv/1/Yield",
-        "type": "float",
-        "name": "Yield today for tracker 1 (kWh)"
-      },
-      {
-        "path": "/History/Daily/0/Pv/2/MaxPower",
-        "type": "float",
-        "name": "Maximum charge power today for tracker 2 (W)"
-      },
-      {
-        "path": "/History/Daily/0/Pv/2/Yield",
-        "type": "float",
-        "name": "Yield today for tracker 2 (kWh)"
-      },
-      {
-        "path": "/History/Daily/0/Pv/3/MaxPower",
-        "type": "float",
-        "name": "Maximum charge power today for tracker 3 (W)"
-      },
-      {
-        "path": "/History/Daily/0/Pv/3/Yield",
-        "type": "float",
-        "name": "Yield today for tracker 3 (kWh)"
-      },
-      {
-        "path": "/History/Daily/0/Yield",
-        "type": "float",
-        "name": "Yield today (kWh)"
-      },
-      {
-        "path": "/History/Daily/1/MaxPower",
-        "type": "float",
-        "name": "Maximum charge power yesterday (W)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/0/MaxPower",
-        "type": "float",
-        "name": "Maximum charge power yesterday tracker 0 (W)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/0/Yield",
-        "type": "float",
-        "name": "Yield yesterday for tracker 0 (kWh)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/1/MaxPower",
-        "type": "float",
-        "name": "Maximum charge power yesterday tracker 1 (W)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/1/Yield",
-        "type": "float",
-        "name": "Yield yesterday for tracker 1 (kWh)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/2/MaxPower",
-        "type": "float",
-        "name": "Maximum charge power yesterday tracker 2 (W)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/2/Yield",
-        "type": "float",
-        "name": "Yield yesterday for tracker 2 (kWh)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/3/MaxPower",
-        "type": "float",
-        "name": "Maximum charge power yesterday tracker 3 (W)"
-      },
-      {
-        "path": "/History/Daily/1/Pv/3/Yield",
-        "type": "float",
-        "name": "Yield yesterday for tracker 3 (kWh)"
-      },
-      {
-        "path": "/History/Daily/1/Yield",
-        "type": "float",
-        "name": "Yield yesterday (kWh)"
+        "name": "Yield {historyDay} for tracker {index} (kWh)"
       },
       {
         "path": "/Load/State",
@@ -5680,77 +4210,14 @@
         }
       },
       {
-        "path": "/Pv/0/P",
+        "path": "/Pv/{tracker}/P",
         "type": "float",
-        "name": "Tracker 1 power"
+        "name": "Tracker {tracker} power"
       },
       {
-        "path": "/Pv/0/V",
+        "path": "/Pv/{tracker}/V",
         "type": "float",
-        "name": "Tracker 1 voltage"
-      },
-      {
-        "path": "/Pv/1/MppOperationMode",
-        "type": "enum",
-        "name": "MPP operation mode tracker 2",
-        "enum": {
-          "0": "Off",
-          "1": "Voltage/current limited",
-          "2": "MPPT active",
-          "255": "Not available"
-        }
-      },
-      {
-        "path": "/Pv/1/P",
-        "type": "float",
-        "name": "Tracker 2 power"
-      },
-      {
-        "path": "/Pv/1/V",
-        "type": "float",
-        "name": "Tracker 2 voltage"
-      },
-      {
-        "path": "/Pv/2/MppOperationMode",
-        "type": "enum",
-        "name": "MPP operation mode tracker 3",
-        "enum": {
-          "0": "Off",
-          "1": "Voltage/current limited",
-          "2": "MPPT active",
-          "255": "Not available"
-        }
-      },
-      {
-        "path": "/Pv/2/P",
-        "type": "float",
-        "name": "Tracker 3 power"
-      },
-      {
-        "path": "/Pv/2/V",
-        "type": "float",
-        "name": "Tracker 3 voltage"
-      },
-      {
-        "path": "/Pv/3/MppOperationMode",
-        "type": "enum",
-        "name": "MPP operation mode tracker 4",
-        "enum": {
-          "0": "Off",
-          "1": "Voltage/current limited",
-          "2": "MPPT active",
-          "255": "Not available"
-        }
-      },
-      {
-        "path": "/Pv/3/P",
-        "type": "float",
-        "name": "Tracker 4 power"
-      },
-      {
-        "path": "/Pv/3/V",
-        "type": "float",
-        "name": "Tracker 4 voltage"
+        "name": "Tracker {tracker} voltage"
       },
       {
         "path": "/Pv/V",
@@ -5826,49 +4293,19 @@
         }
       },
       {
-        "path": "/Ac/Consumption/L1/Power",
+        "path": "/Ac/Consumption/{line}/Power",
         "type": "float",
-        "name": "AC Consumption L1 (W)"
+        "name": "AC Consumption {line} (W)"
       },
       {
-        "path": "/Ac/Consumption/L2/Power",
+        "path": "/Ac/ConsumptionOnInput/{line}/Power",
         "type": "float",
-        "name": "AC Consumption L2 (W)"
+        "name": "Power between meter and inverter/charger, {line} (W)"
       },
       {
-        "path": "/Ac/Consumption/L3/Power",
+        "path": "/Ac/ConsumptionOnOutput/{line}/Power",
         "type": "float",
-        "name": "AC Consumption L3 (W)"
-      },
-      {
-        "path": "/Ac/ConsumptionOnInput/L1/Power",
-        "type": "float",
-        "name": "Power between meter and inverter/charger, L1 (W)"
-      },
-      {
-        "path": "/Ac/ConsumptionOnInput/L2/Power",
-        "type": "float",
-        "name": "Power between meter and inverter/charger, L2 (W)"
-      },
-      {
-        "path": "/Ac/ConsumptionOnInput/L3/Power",
-        "type": "float",
-        "name": "Power between meter and inverter/charger, L3 (W)"
-      },
-      {
-        "path": "/Ac/ConsumptionOnOutput/L1/Power",
-        "type": "float",
-        "name": "Power on output of inverter/charger, L1 (W)"
-      },
-      {
-        "path": "/Ac/ConsumptionOnOutput/L2/Power",
-        "type": "float",
-        "name": "Power on output of inverter/charger, L2 (W)"
-      },
-      {
-        "path": "/Ac/ConsumptionOnOutput/L3/Power",
-        "type": "float",
-        "name": "Power on output of inverter/charger, L3 (W)"
+        "name": "Power on output of inverter/charger, {line} (W)"
       },
       {
         "path": "/Ac/Genset/DeviceType",
@@ -5877,19 +4314,9 @@
         "enum": {}
       },
       {
-        "path": "/Ac/Genset/L1/Power",
+        "path": "/Ac/Genset/{line}/Power",
         "type": "float",
-        "name": "Genset L1 (W)"
-      },
-      {
-        "path": "/Ac/Genset/L2/Power",
-        "type": "float",
-        "name": "Genset L2 (W)"
-      },
-      {
-        "path": "/Ac/Genset/L3/Power",
-        "type": "float",
-        "name": "Genset L3 (W)"
+        "name": "Genset {line} (W)"
       },
       {
         "path": "/Ac/Genset/NumberOfPhases",
@@ -5902,19 +4329,9 @@
         "name": "Grid Device Type"
       },
       {
-        "path": "/Ac/Grid/L1/Power",
+        "path": "/Ac/Grid/{line}/Power",
         "type": "float",
-        "name": "Grid L1 (W)"
-      },
-      {
-        "path": "/Ac/Grid/L2/Power",
-        "type": "float",
-        "name": "Grid L2 (W)"
-      },
-      {
-        "path": "/Ac/Grid/L3/Power",
-        "type": "float",
-        "name": "Grid L3 (W)"
+        "name": "Grid {line} (W)"
       },
       {
         "path": "/Ac/Grid/NumberOfPhases",
@@ -5922,19 +4339,9 @@
         "name": "Grid Number Of Phases"
       },
       {
-        "path": "/Ac/PvOnGenset/L1/Power",
+        "path": "/Ac/PvOnGenset/{line}/Power",
         "type": "float",
-        "name": "PV Power AC-tied on Generator L1"
-      },
-      {
-        "path": "/Ac/PvOnGenset/L2/Power",
-        "type": "float",
-        "name": "PV Power AC-tied on Generator L2"
-      },
-      {
-        "path": "/Ac/PvOnGenset/L3/Power",
-        "type": "float",
-        "name": "PV Power AC-tied on Generator L3"
+        "name": "PV Power AC-tied on Generator {line}"
       },
       {
         "path": "/Ac/PvOnGenset/NumberOfPhases",
@@ -5942,19 +4349,9 @@
         "name": "PV Power AC-tied on Generator Number Of Phases"
       },
       {
-        "path": "/Ac/PvOnGrid/L1/Power",
+        "path": "/Ac/PvOnGrid/{line}/Power",
         "type": "float",
-        "name": "PV - AC-coupled on input L1 (W)"
-      },
-      {
-        "path": "/Ac/PvOnGrid/L2/Power",
-        "type": "float",
-        "name": "PV - AC-coupled on input L2 (W)"
-      },
-      {
-        "path": "/Ac/PvOnGrid/L3/Power",
-        "type": "float",
-        "name": "PV - AC-coupled on input L3 (W)"
+        "name": "PV - AC-coupled on input {line} (W)"
       },
       {
         "path": "/Ac/PvOnGrid/NumberOfPhases",
@@ -5962,19 +4359,9 @@
         "name": "PV - AC-coupled on input Number Of Phases"
       },
       {
-        "path": "/Ac/PvOnOutput/L1/Power",
+        "path": "/Ac/PvOnOutput/{line}/Power",
         "type": "float",
-        "name": "PV - AC-coupled on output L1 (W)"
-      },
-      {
-        "path": "/Ac/PvOnOutput/L2/Power",
-        "type": "float",
-        "name": "PV - AC-coupled on output L2 (W)"
-      },
-      {
-        "path": "/Ac/PvOnOutput/L3/Power",
-        "type": "float",
-        "name": "PV - AC-coupled on output L3 (W)"
+        "name": "PV - AC-coupled on output {line} (W)"
       },
       {
         "path": "/Ac/PvOnOutput/NumberOfPhases",
@@ -6296,64 +4683,24 @@
         "mode": "both"
       },
       {
-        "path": "/Ac/ActiveIn/L1/F",
+        "path": "/Ac/ActiveIn/L{index}/F",
         "type": "float",
-        "name": "Input frequency phase 1 (Hz)"
+        "name": "Input frequency phase {index} (Hz)"
       },
       {
-        "path": "/Ac/ActiveIn/L1/I",
+        "path": "/Ac/ActiveIn/L{index}/I",
         "type": "float",
-        "name": "Input current phase 1 (A)"
+        "name": "Input current phase {index} (A)"
       },
       {
-        "path": "/Ac/ActiveIn/L1/P",
+        "path": "/Ac/ActiveIn/L{index}/P",
         "type": "float",
-        "name": "Input power phase 1 (W)"
+        "name": "Input power phase {index} (W)"
       },
       {
-        "path": "/Ac/ActiveIn/L1/V",
+        "path": "/Ac/ActiveIn/L{index}/V",
         "type": "float",
-        "name": "Input voltage phase 1 (VAC)"
-      },
-      {
-        "path": "/Ac/ActiveIn/L2/F",
-        "type": "float",
-        "name": "Input frequency phase 2 (Hz)"
-      },
-      {
-        "path": "/Ac/ActiveIn/L2/I",
-        "type": "float",
-        "name": "Input current phase 2 (A)"
-      },
-      {
-        "path": "/Ac/ActiveIn/L2/P",
-        "type": "float",
-        "name": "Input power phase 2 (W)"
-      },
-      {
-        "path": "/Ac/ActiveIn/L2/V",
-        "type": "float",
-        "name": "Input voltage phase 2 (VAC)"
-      },
-      {
-        "path": "/Ac/ActiveIn/L3/F",
-        "type": "float",
-        "name": "Input frequency phase 3 (Hz)"
-      },
-      {
-        "path": "/Ac/ActiveIn/L3/I",
-        "type": "float",
-        "name": "Input current phase 3 (A)"
-      },
-      {
-        "path": "/Ac/ActiveIn/L3/P",
-        "type": "float",
-        "name": "Input power phase 3 (W)"
-      },
-      {
-        "path": "/Ac/ActiveIn/L3/V",
-        "type": "float",
-        "name": "Input voltage phase 3 (VAC)"
+        "name": "Input voltage phase {index} (VAC)"
       },
       {
         "path": "/Ac/Control/RemoteGeneratorSelected",
@@ -6366,30 +4713,15 @@
         "mode": "both"
       },
       {
-        "path": "/Ac/In/1/CurrentLimit",
+        "path": "/Ac/In/{index}/CurrentLimit",
         "type": "float",
-        "name": "Input 1 current limit (A)",
+        "name": "Input {index} current limit (A)",
         "mode": "both"
       },
       {
-        "path": "/Ac/In/1/CurrentLimitIsAdjustable",
+        "path": "/Ac/In/{index}/CurrentLimitIsAdjustable",
         "type": "enum",
-        "name": "Input 1 current limit is adjustable",
-        "enum": {
-          "0": "No",
-          "1": "Yes"
-        }
-      },
-      {
-        "path": "/Ac/In/2/CurrentLimit",
-        "type": "float",
-        "name": "Input 2 current limit (A)",
-        "mode": "both"
-      },
-      {
-        "path": "/Ac/In/2/CurrentLimitIsAdjustable",
-        "type": "enum",
-        "name": "Input 2 current limit is adjustable",
+        "name": "Input {index} current limit is adjustable",
         "enum": {
           "0": "No",
           "1": "Yes"
@@ -6401,68 +4733,29 @@
         "name": "Phase count"
       },
       {
-        "path": "/Ac/Out/L1/F",
+        "path": "/Ac/Out/{phase}/F",
         "type": "float",
-        "name": "Output frequency phase 1 (Hz)"
+        "name": "Output frequency phase {phase} (Hz)"
       },
       {
-        "path": "/Ac/Out/L1/I",
+        "path": "/Ac/Out/{phase}/I",
         "type": "float",
-        "name": "Output current phase 1 (A)"
+        "name": "Output current phase {phase} (A)"
       },
       {
-        "path": "/Ac/Out/L1/P",
+        "path": "/Ac/Out/{phase}/P",
         "type": "float",
-        "name": "Output power phase 1 (W)"
+        "name": "Output power phase {phase} (W)"
       },
       {
-        "path": "/Ac/Out/L1/V",
+        "path": "/Ac/Out/{phase}/V",
         "type": "float",
-        "name": "Output voltage phase 1 (VAC)"
+        "name": "Output voltage phase {phase} (VAC)"
       },
       {
-        "path": "/Ac/Out/L2/I",
-        "type": "float",
-        "name": "Output current phase 2 (A)"
-      },
-      {
-        "path": "/Ac/Out/L2/P",
-        "type": "float",
-        "name": "Output power phase 2 (W)"
-      },
-      {
-        "path": "/Ac/Out/L2/V",
-        "type": "float",
-        "name": "Output voltage phase 2 (VAC)"
-      },
-      {
-        "path": "/Ac/Out/L3/I",
-        "type": "float",
-        "name": "Output current phase 3 (A)"
-      },
-      {
-        "path": "/Ac/Out/L3/P",
-        "type": "float",
-        "name": "Output power phase 3 (W)"
-      },
-      {
-        "path": "/Ac/Out/L3/V",
-        "type": "float",
-        "name": "Output voltage phase 3 (VAC)"
-      },
-      {
-        "path": "/Ac/State/IgnoreAcIn1",
+        "path": "/Ac/State/IgnoreAcIn{index}",
         "type": "enum",
-        "name": "AC input 1 ignored",
-        "enum": {
-          "0": "AC input not ignored",
-          "1": "AC input ignored"
-        }
-      },
-      {
-        "path": "/Ac/State/IgnoreAcIn2",
-        "type": "enum",
-        "name": "AC input 2 ignored",
+        "name": "AC input {index} ignored",
         "enum": {
           "0": "AC input not ignored",
           "1": "AC input ignored"
@@ -6478,27 +4771,9 @@
         }
       },
       {
-        "path": "/Alarms/BmsPreAlarm",
+        "path": "/Alarms/{phase}/{alarm}",
         "type": "enum",
-        "name": "Low cell voltage imminent",
-        "enum": {
-          "0": "OK",
-          "1": "Warning"
-        }
-      },
-      {
-        "path": "/Alarms/GridLost",
-        "type": "enum",
-        "name": "Grid lost alarm",
-        "enum": {
-          "0": "Ok",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/HighTemperature",
-        "type": "enum",
-        "name": "Temperature",
+        "name": "{alarm} {phase}",
         "enum": {
           "0": "Ok",
           "1": "Warning",
@@ -6506,9 +4781,9 @@
         }
       },
       {
-        "path": "/Alarms/L1/HighTemperature",
+        "path": "/Alarms/{alarm}",
         "type": "enum",
-        "name": "Temperature alarm L1",
+        "name": "{alarm}",
         "enum": {
           "0": "Ok",
           "1": "Warning",
@@ -6516,207 +4791,12 @@
         }
       },
       {
-        "path": "/Alarms/L1/LowBattery",
+        "path": "/Bms/{bms}",
         "type": "enum",
-        "name": "Low battery alarm L1",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/L1/Overload",
-        "type": "enum",
-        "name": "Overload alarm L1",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/L1/Ripple",
-        "type": "enum",
-        "name": "Ripple alarm L1",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/L2/HighTemperature",
-        "type": "enum",
-        "name": "Temperature alarm L2",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/L2/LowBattery",
-        "type": "enum",
-        "name": "Low battery alarm L2",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/L2/Overload",
-        "type": "enum",
-        "name": "Overload alarm L2",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/L2/Ripple",
-        "type": "enum",
-        "name": "Ripple alarm L2",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/L3/HighTemperature",
-        "type": "enum",
-        "name": "Temperature alarm L3",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/L3/LowBattery",
-        "type": "enum",
-        "name": "Low battery alarm L3",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/L3/Overload",
-        "type": "enum",
-        "name": "Overload alarm L3",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/L3/Ripple",
-        "type": "enum",
-        "name": "Ripple alarm L3",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/LowBattery",
-        "type": "enum",
-        "name": "Low battery",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/Overload",
-        "type": "enum",
-        "name": "Overload",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/PhaseRotation",
-        "type": "enum",
-        "name": "Phase Rotation",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning"
-        }
-      },
-      {
-        "path": "/Alarms/TemperatureSensor",
-        "type": "enum",
-        "name": "Temperature sensor alarm",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Alarms/VoltageSensor",
-        "type": "enum",
-        "name": "Voltage sensor alarm",
-        "enum": {
-          "0": "Ok",
-          "1": "Warning",
-          "2": "Alarm"
-        }
-      },
-      {
-        "path": "/Bms/AllowToCharge",
-        "type": "enum",
-        "name": "BMS allows battery to be charged",
+        "name": "{bms}",
         "enum": {
           "0": "No",
           "1": "Yes"
-        }
-      },
-      {
-        "path": "/Bms/AllowToDischarge",
-        "type": "enum",
-        "name": "BMS allows battery to be discharged",
-        "enum": {
-          "0": "No",
-          "1": "Yes"
-        }
-      },
-      {
-        "path": "/Bms/BmsExpected",
-        "type": "enum",
-        "name": "VE.Bus BMS is expected",
-        "enum": {
-          "0": "No",
-          "1": "Yes"
-        }
-      },
-      {
-        "path": "/Bms/Error",
-        "type": "enum",
-        "name": "VE.Bus BMS error",
-        "enum": {
-          "0": "No",
-          "1": "Yes"
-        }
-      },
-      {
-        "path": "/Bms/PreAlarm",
-        "type": "enum",
-        "name": "Low cell voltage imminent",
-        "enum": {
-          "0": "OK",
-          "1": "Pre-Alarm"
         }
       },
       {
@@ -6856,39 +4936,15 @@
         }
       },
       {
-        "path": "/Hub4/L1/AcPowerSetpoint",
+        "path": "/Hub4/{phase}/AcPowerSetpoint",
         "type": "float",
-        "name": "ESS power setpoint phase 1 (W)",
+        "name": "ESS power setpoint phase {phase} (W)",
         "mode": "both"
       },
       {
-        "path": "/Hub4/L1/MaxFeedInPower",
+        "path": "/Hub4/{phase}/MaxFeedInPower",
         "type": "float",
-        "name": "Maximum overvoltage feed-in power L1 (W)",
-        "mode": "both"
-      },
-      {
-        "path": "/Hub4/L2/AcPowerSetpoint",
-        "type": "float",
-        "name": "ESS power setpoint phase 2 (W)",
-        "mode": "both"
-      },
-      {
-        "path": "/Hub4/L2/MaxFeedInPower",
-        "type": "float",
-        "name": "Maximum overvoltage feed-in power L2 (W)",
-        "mode": "both"
-      },
-      {
-        "path": "/Hub4/L3/AcPowerSetpoint",
-        "type": "float",
-        "name": "ESS power setpoint phase 3 (W)",
-        "mode": "both"
-      },
-      {
-        "path": "/Hub4/L3/MaxFeedInPower",
-        "type": "float",
-        "name": "Maximum overvoltage feed-in power L3 (W)",
+        "name": "Maximum overvoltage feed-in power {phase} (W)",
         "mode": "both"
       },
       {
