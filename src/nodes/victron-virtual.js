@@ -2,6 +2,7 @@ const { addVictronInterfaces, addSettings } = require('dbus-victron-virtual')
 const { needsPersistedState, hasPersistedState, loadPersistedState, savePersistedState } = require('./persist')
 const dbus = require('dbus-native-victron')
 const debug = require('debug')('victron-virtual')
+const debugInput = require('debug')('victron-virtual:input')
 const debugConnection = require('debug')('victron-virtual:connection')
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -350,8 +351,57 @@ module.exports = function (RED) {
       this.address = `tcp:host=${address[0]},port=${address[1]}`
     }
 
+    node.pendingCallsToSetValuesLocally = []
+
+    function handleInput (msg, done) {
+      if (!msg || !msg.payload) {
+        node.warn('Received message without payload, ignoring.')
+        return
+      }
+
+      // Check if the payload is a valid object
+      if (typeof msg.payload !== 'object' || msg.payload === null) {
+        node.warn('Received invalid payload, expected an object with payload. Ignoring.')
+        return
+      }
+
+      try {
+        // Set values locally, which will emit 'itemsChanged' signal for all properties that were actually changed
+        debugInput(`Setting values locally for node ${node.id}:`, msg.payload)
+        node.setValuesLocally(msg.payload)
+
+        node.status({
+          fill: 'green',
+          shape: 'dot',
+          text: `Updated values for ${config.device} (${node.iface.DeviceInstance}) to ${JSON.stringify(msg.payload)}`
+        })
+        done()
+      } catch (err) {
+        node.error(`Failed to set values locally: ${err.message}`, msg)
+        node.status({
+          color: 'red',
+          shape: 'dot',
+          text: `Failed to set values: ${err.message}`
+        })
+        done(err)
+      }
+    }
+
+    this.on('input', function (msg, _send, done) {
+      if (!node.setValuesLocally) {
+        // we cannot call setValuesLocally yet, so we queue the message
+        node.pendingCallsToSetValuesLocally.push([msg, done])
+        debugInput(
+          `Node ${node.id} is not ready to handle input yet, queuing message. Pending calls: ${node.pendingCallsToSetValuesLocally.length}`
+        )
+        return
+      }
+
+      handleInput(msg, done)
+    })
+
     function instantiateDbus (self) {
-      console.log('instantiateDbus called for node', self.id, nodeInstances)
+      debug('instantiateDbus called for node', self.id, nodeInstances)
       // Connect to the dbus
       if (self.address) {
         debug(`Connecting to TCP address ${self.address}.`)
@@ -936,6 +986,17 @@ module.exports = function (RED) {
 
         node.setValuesLocally = setValuesLocally
 
+        // If there are pending calls, process them now
+        node.pendingCallsToSetValuesLocally.forEach(([msg, done]) => {
+          try {
+            debugInput(`Processing pending message for node ${node.id}:`, msg)
+            handleInput(msg, done)
+          } catch (err) {
+            node.error(`Failed to set values locally for pending message: ${err.message}`, msg)
+          }
+        })
+        node.pendingCallsToSetValuesLocally = []
+
         node.removeSettings = removeSettings
 
         node.status({
@@ -1002,28 +1063,6 @@ module.exports = function (RED) {
     }
 
     instantiateDbus(this)
-
-    this.on('input', async function (msg, _send, done) {
-      try {
-        // change values locally, which will emit 'itemsChanged' signal for all properties that were actually changed
-        node.setValuesLocally(msg.payload)
-
-        node.status({
-          fill: 'green',
-          shape: 'dot',
-          text: `Updated values for ${config.device} (${node.iface.DeviceInstance}) to ${JSON.stringify(msg.payload)}`
-        })
-        done()
-      } catch (err) {
-        node.error(`Failed to set values locally: ${err.message}`, msg)
-        node.status({
-          color: 'red',
-          shape: 'dot',
-          text: `Failed to set values: ${err.message}`
-        })
-        done(err)
-      }
-    })
 
     node.on('close', function (done) {
       nodeInstances.delete(node)
