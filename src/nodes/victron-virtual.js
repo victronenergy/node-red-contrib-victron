@@ -373,7 +373,7 @@ module.exports = function (RED) {
         node.status({
           fill: 'green',
           shape: 'dot',
-          text: `Updated values for ${config.device} (${node.iface.DeviceInstance}) to ${JSON.stringify(msg.payload)}`
+          text: `Updated ${Object.keys(msg.payload).length} values for ${config.device} (${node.iface.DeviceInstance})`
         })
         done()
       } catch (err) {
