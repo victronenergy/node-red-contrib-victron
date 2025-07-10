@@ -25,10 +25,8 @@ class SystemConfiguration {
 
     return Object.entries(servicesWhitelist || {})
       .reduce((acc, [dbusService, servicePaths]) => {
-        // get the already cached dbus paths
         const cachedService = _.pickBy(this.cache, (val, key) => key.startsWith(`com.victronenergy.${dbusService}`))
 
-        // construct an object that is used to render the edit form for the node
         Object.keys(cachedService).forEach((dbusInterface) => {
           const cachedPaths = cachedService[dbusInterface]
           let name = cachedPaths['/CustomName'] ||
@@ -42,29 +40,32 @@ class SystemConfiguration {
             name = 'Venus settings'
           }
 
-          // the cache is filtered against the desired paths in services.json
-          // to only show available options per service on the node's edit form.
-          const paths = servicePaths.filter(pathObj =>
-            pathObj &&
-                        _.has(cachedPaths, pathObj.path) &&
-                        (!isOutput || (
-                        // if the path has corresponding /*isAdjustable path for the service, check their value
-                        // If no /*isAdjustable path is present, default to showing the path
-                          (pathObj.path !== '/Mode' || _.get(cachedPaths, '/ModeIsAdjustable', 1)) && // vebus
-                            (pathObj.path !== '/Ac/In/1/CurrentLimit' || _.get(cachedPaths, '/Ac/In/1/CurrentLimitIsAdjustable', 1)) && // vebus
-                            (pathObj.path !== '/Ac/In/2/CurrentLimit' || _.get(cachedPaths, '/Ac/In/2/CurrentLimitIsAdjustable', 1)) // vebus
-                        )
-                        ) &&
-                        // Check if the path is available for the node type (input/output) based on the mode property
-                        (!pathObj.mode || // If no mode is specified, include by default
-                         pathObj.mode === 'both' || // Include if mode is both
-                         (isOutput && pathObj.mode === 'output') || // Include if output node and mode is output
-                         (!isOutput && pathObj.mode === 'input')) // Include if input node and mode is input
-          )
+          const expandedPaths = servicePaths.reduce((pathAcc, pathObj) => {
+            if (!pathObj) return pathAcc
+
+            const expanded = utils.expandWildcardPaths(pathObj, cachedPaths, dbusService)
+
+            const filtered = expanded.filter(expandedPathObj =>
+              (!isOutput || (
+                (expandedPathObj.path !== '/Mode' || _.get(cachedPaths, '/ModeIsAdjustable', 1)) &&
+                (expandedPathObj.path !== '/Ac/In/1/CurrentLimit' || _.get(cachedPaths, '/Ac/In/1/CurrentLimitIsAdjustable', 1)) &&
+                (expandedPathObj.path !== '/Ac/In/2/CurrentLimit' || _.get(cachedPaths, '/Ac/In/2/CurrentLimitIsAdjustable', 1))
+              )) &&
+              (!expandedPathObj.mode ||
+              expandedPathObj.mode === 'both' ||
+              (isOutput && expandedPathObj.mode === 'output') ||
+              (!isOutput && expandedPathObj.mode === 'input'))
+            )
+
+            return pathAcc.concat(filtered)
+          }, [])
+
+          expandedPaths.sort((a, b) => a.name > b.name ? 1 : -1)
 
           const deviceInstance = cachedPaths['/DeviceInstance'] || ''
-          // Only show the service if it actually has paths available
-          if (paths.length) { acc.push(utils.TEMPLATE(dbusInterface, name, deviceInstance, paths)) }
+          if (expandedPaths.length) {
+            acc.push(utils.TEMPLATE(dbusInterface, name, deviceInstance, expandedPaths))
+          }
         })
         return acc
       }, [])
