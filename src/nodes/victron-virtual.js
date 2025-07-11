@@ -2,6 +2,7 @@ const { addVictronInterfaces, addSettings } = require('dbus-victron-virtual')
 const { needsPersistedState, hasPersistedState, loadPersistedState, savePersistedState } = require('./persist')
 const dbus = require('dbus-native-victron')
 const debug = require('debug')('victron-virtual')
+const debugInput = require('debug')('victron-virtual:input')
 const debugConnection = require('debug')('victron-virtual:connection')
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -350,7 +351,57 @@ module.exports = function (RED) {
       this.address = `tcp:host=${address[0]},port=${address[1]}`
     }
 
+    node.pendingCallsToSetValuesLocally = []
+
+    function handleInput (msg, done) {
+      if (!msg || !msg.payload) {
+        node.warn('Received message without payload, ignoring.')
+        return
+      }
+
+      // Check if the payload is a valid object
+      if (typeof msg.payload !== 'object' || msg.payload === null) {
+        node.warn('Received invalid payload, expected an object with payload. Ignoring.')
+        return
+      }
+
+      try {
+        // Set values locally, which will emit 'itemsChanged' signal for all properties that were actually changed
+        debugInput(`Setting values locally for node ${node.id}:`, msg.payload)
+        node.setValuesLocally(msg.payload)
+
+        node.status({
+          fill: 'green',
+          shape: 'dot',
+          text: `Updated ${Object.keys(msg.payload).length} values for ${config.device} (${node.iface.DeviceInstance})`
+        })
+        done()
+      } catch (err) {
+        node.error(`Failed to set values locally: ${err.message}`, msg)
+        node.status({
+          color: 'red',
+          shape: 'dot',
+          text: `Failed to set values: ${err.message}`
+        })
+        done(err)
+      }
+    }
+
+    this.on('input', function (msg, _send, done) {
+      if (!node.setValuesLocally) {
+        // we cannot call setValuesLocally yet, so we queue the message
+        node.pendingCallsToSetValuesLocally.push([msg, done])
+        debugInput(
+          `Node ${node.id} is not ready to handle input yet, queuing message. Pending calls: ${node.pendingCallsToSetValuesLocally.length}`
+        )
+        return
+      }
+
+      handleInput(msg, done)
+    })
+
     function instantiateDbus (self) {
+      debug('instantiateDbus called for node', self.id, nodeInstances)
       // Connect to the dbus
       if (self.address) {
         debug(`Connecting to TCP address ${self.address}.`)
@@ -929,8 +980,22 @@ module.exports = function (RED) {
         // Then we can add the required Victron interfaces, and receive some functions to use
         const {
           removeSettings,
-          getValue
+          getValue,
+          setValuesLocally
         } = addVictronInterfaces(usedBus, ifaceDesc, iface, /* add_defaults */ true, emitCallback)
+
+        node.setValuesLocally = setValuesLocally
+
+        // If there are pending calls, process them now
+        node.pendingCallsToSetValuesLocally.forEach(([msg, done]) => {
+          try {
+            debugInput(`Processing pending message for node ${node.id}:`, msg)
+            handleInput(msg, done)
+          } catch (err) {
+            node.error(`Failed to set values locally for pending message: ${err.message}`, msg)
+          }
+        })
+        node.pendingCallsToSetValuesLocally = []
 
         node.removeSettings = removeSettings
 
@@ -1002,14 +1067,18 @@ module.exports = function (RED) {
     node.on('close', function (done) {
       nodeInstances.delete(node)
 
+      // TODO: previously, we called end() on the connection only if no nodeInstances
+      // were left. Calling end() here resolves an issue with the VictronDbusListener
+      // not responding to ItemsChanged signals any more after a redeploy here:
+      // https://github.com/victronenergy/node-red-contrib-victron/blob/5626b44b426a3ab1c7d9a6a2d36f035f72d9faa2/src/services/dbus-listener.js#L309
+      this.bus.connection.end()
+
       // If this was the last instance and the timeout is still pending
       if (nodeInstances.size === 0) {
         if (globalTimeoutHandle) {
           clearTimeout(globalTimeoutHandle)
           globalTimeoutHandle = null
         }
-        // Only end the connection when closing the last instance
-        this.bus.connection.end()
         hasRunOnce = false
       }
 

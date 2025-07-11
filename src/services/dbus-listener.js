@@ -399,6 +399,7 @@ class VictronDbusListener {
     if (typeof value === 'string') { numType = 's' }
 
     try {
+      debug(`Setting value for ${destination}, ${path}, ${value} (${numType})`)
       this.bus.invoke({
         path,
         destination,
