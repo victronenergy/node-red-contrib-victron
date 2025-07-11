@@ -44,7 +44,30 @@ Check the documentation of the node itself for more info.
 1. Add a virtual device node to your flow
 2. Configure the device type and parameters
 3. Deploy the flow
-4. Use standard input/output nodes to interact with the virtual device
+4. Set values (see below)
+
+##### Setting values
+
+The virtual device accepts input messages where you can set multiple values at once.
+Send an object containing the properties you want to update as the message payload.
+For example, to update multiple properties on a battery device simultaneously:
+
+```javascript
+msg.payload = {
+    "/Dc/0/Voltage": 12.5,
+    "/Dc/0/Current": -15.2,
+    "/Soc": 85,
+    "/ConsumedAmphours": 25.5
+};
+return msg;
+```
+
+This allows you to update several device properties in a single message, which is more
+efficient than sending individual messages for each property. The virtual device will
+update all specified properties and show the number of updated values in its status.
+
+If you want to set a single value, you can either use this way to send that single
+path + value combination (recommended) or use the _Custom Control_ node.
 
 #### Virtual Device Persistence
 
