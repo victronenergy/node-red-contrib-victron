@@ -354,7 +354,7 @@ module.exports = function (RED) {
     node.pendingCallsToSetValuesLocally = []
 
     function handleInput (msg, done) {
-      if (!msg || !msg.payload) {
+      if (!msg || msg.payload === undefined) {
         node.warn('Received message without payload, ignoring.')
         return
       }
