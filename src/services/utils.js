@@ -224,7 +224,7 @@ const TEMPLATE = (service, name, deviceInstance, paths) => {
  * Shown in the UI if the system relay mode is set to any other than 'manual'
  */
 const RELAY_MODE_WARNING = (func) =>
-    `The relays are configured for <strong>${func}</strong> function. Please navigate to Settings > Relay and change it to manual.`
+    `The relay is configured for <strong>${func}</strong> function. Please navigate to Settings > Integrations > Relays and change it to manual.`
 
 /**
  * All possible system relay functions
