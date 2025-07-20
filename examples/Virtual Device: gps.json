@@ -1,61 +1,16 @@
 [
     {
-        "id": "c9cd2b57c321101a",
+        "id": "774e520b07be29b8",
         "type": "tab",
-        "label": "Virtual GPS (boattrip)",
+        "label": "Virtual boat trip",
         "disabled": false,
         "info": "",
         "env": []
     },
     {
-        "id": "986745bac72057c2",
-        "type": "victron-virtual",
-        "z": "c9cd2b57c321101a",
-        "name": "",
-        "device": "gps",
-        "default_values": false,
-        "battery_capacity": "",
-        "grid_nrofphases": 1,
-        "fluid_type": 0,
-        "include_tank_battery": false,
-        "include_tank_temperature": false,
-        "tank_battery_voltage": 3.3,
-        "tank_capacity": 10,
-        "temperature_type": 2,
-        "include_humidity": false,
-        "include_pressure": false,
-        "include_temp_battery": false,
-        "temp_battery_voltage": 3.3,
-        "x": 280,
-        "y": 300,
-        "wires": []
-    },
-    {
-        "id": "2ef3c046e91c0fdf",
-        "type": "victron-output-custom",
-        "z": "c9cd2b57c321101a",
-        "service": "com.victronenergy.gps/100",
-        "path": "/Fix",
-        "serviceObj": {
-            "service": "com.victronenergy.gps/100",
-            "name": "Virtual gps (100)"
-        },
-        "pathObj": {
-            "path": "/Fix",
-            "name": "/Fix",
-            "type": "number",
-            "value": 1
-        },
-        "name": "",
-        "onlyChanges": false,
-        "x": 600,
-        "y": 220,
-        "wires": []
-    },
-    {
         "id": "128160fb55d6409d",
         "type": "inject",
-        "z": "c9cd2b57c321101a",
+        "z": "774e520b07be29b8",
         "name": "",
         "props": [
             {
@@ -73,8 +28,8 @@
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 170,
-        "y": 140,
+        "x": 190,
+        "y": 100,
         "wires": [
             [
                 "e4373dfeeaee8d7f"
@@ -84,17 +39,17 @@
     {
         "id": "e4373dfeeaee8d7f",
         "type": "function",
-        "z": "c9cd2b57c321101a",
+        "z": "774e520b07be29b8",
         "name": "Boattrip: Gibraltar to Florida",
-        "func": "// Route waypoints (Mediterranean -> Florida -> Mediterranean)\nconst route = [\n    { lat: 36.4072, lon: -5.1600, name: \"Gibraltar\" },      // Start/End at Gibraltar\n    { lat: 28.4698, lon: -16.2549, name: \"Canary Islands\" }, // Common Atlantic crossing point\n    { lat: 25.7617, lon: -80.1918, name: \"Miami\" },         // Florida destination\n    { lat: 24.5557, lon: -81.7826, name: \"Key West\" },      // Florida Keys\n    { lat: 25.7617, lon: -80.1918, name: \"Miami\" },         // Start return journey\n    { lat: 38.6971, lon: -27.2276, name: \"Azores\" },        // Return via Azores\n    { lat: 36.4072, lon: -5.1600, name: \"Gibraltar\" }       // Back to start\n];\n\n// Initialize state (store in context)\nif (!context.get('boatState')) {\n    context.set('boatState', {\n        currentSegment: 0,\n        progress: 0,\n        direction: 1,  // 1 for outbound, -1 for return\n        startTime: new Date().getTime(),\n        satellites: 12  // Initial satellite count\n    });\n}\n\nlet state = context.get('boatState');\n\n// Function to calculate distance between two points using Haversine formula\nfunction calculateDistance(lat1, lon1, lat2, lon2) {\n    const R = 6371; // Earth's radius in km\n    const dLat = (lat2 - lat1) * Math.PI / 180;\n    const dLon = (lon2 - lon1) * Math.PI / 180;\n    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +\n              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * \n              Math.sin(dLon/2) * Math.sin(dLon/2);\n    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));\n    return R * c;\n}\n\n// Function to interpolate between two points\nfunction interpolatePosition(start, end, progress) {\n    return {\n        lat: start.lat + (end.lat - start.lat) * progress,\n        lon: start.lon + (end.lon - start.lon) * progress\n    };\n}\n\n// Update position\nconst timeElapsed = (new Date().getTime() - state.startTime) / 1000; // seconds\nconst averageSpeed = 20; // km/h\nconst distancePerSecond = averageSpeed / 3600; // km/second\n\n// Add some speed variation (±20%)\nconst speedVariation = 0.8 + (Math.random() * 0.4);\nconst adjustedDistance = distancePerSecond * speedVariation * timeElapsed;\n\n// Get current segment points\nconst startPoint = route[state.currentSegment];\nconst endPoint = route[(state.currentSegment + 1) % route.length];\n\n// Calculate segment length\nconst segmentDistance = calculateDistance(startPoint.lat, startPoint.lon, endPoint.lat, endPoint.lon);\n\n// Update progress\nstate.progress += adjustedDistance / segmentDistance;\n\n// Update satellite count occasionally (every ~5 minutes)\nif (Math.random() < 0.01) {  // 1% chance each update\n    // Base satellite count 8-14\n    let newSatCount = 8 + Math.floor(Math.random() * 7);\n    \n    // Occasional poor reception (5% chance)\n    if (Math.random() < 0.05) {\n        newSatCount = 3 + Math.floor(Math.random() * 4); // 3-6 satellites\n    }\n    \n    state.satellites = newSatCount;\n}\n\n// Check if we've completed current segment\nif (state.progress >= 1) {\n    state.currentSegment = (state.currentSegment + 1) % route.length;\n    state.progress = 0;\n    state.startTime = new Date().getTime();\n}\n\n// Calculate current position\nconst currentPosition = interpolatePosition(startPoint, endPoint, state.progress);\n\n// Add small random variations to simulate GPS jitter (±0.0001 degrees)\nconst jitter = 0.0001;\ncurrentPosition.lat += (Math.random() - 0.5) * jitter;\ncurrentPosition.lon += (Math.random() - 0.5) * jitter;\n\n// Calculate heading based on current segment\nconst heading = Math.atan2(\n    endPoint.lon - startPoint.lon,\n    endPoint.lat - startPoint.lat\n) * 180 / Math.PI;\n\n// Calculate speed in knots (with variation)\nconst speedKnots = averageSpeed * speedVariation * 0.539957; // Convert km/h to knots\n\n// Save state\ncontext.set('boatState', state);\n\n// Prepare payload\nmsg.payload = {\n    latitude: Math.round(currentPosition.lat * 10000) / 10000,\n    longitude: Math.round(currentPosition.lon * 10000) / 10000,\n    heading: Math.round(heading * 100) / 100,\n    speed: Math.round(speedKnots * 100) / 100,\n    satellites: state.satellites,\n    segment: {\n        from: startPoint.name,\n        to: endPoint.name,\n        progress: Math.round(state.progress * 100)\n    },\n    units: {\n        speed: \"knots\",\n        heading: \"degrees\"\n    }\n};\n\nreturn msg;",
+        "func": "// Route waypoints (Mediterranean -> Florida -> Mediterranean)\nconst route = [\n    { lat: 36.4072, lon: -5.1600, name: \"Gibraltar\" },      // Start/End at Gibraltar\n    { lat: 28.4698, lon: -16.2549, name: \"Canary Islands\" }, // Common Atlantic crossing point\n    { lat: 25.7617, lon: -80.1918, name: \"Miami\" },         // Florida destination\n    { lat: 24.5557, lon: -81.7826, name: \"Key West\" },      // Florida Keys\n    { lat: 25.7617, lon: -80.1918, name: \"Miami\" },         // Start return journey\n    { lat: 38.6971, lon: -27.2276, name: \"Azores\" },        // Return via Azores\n    { lat: 36.4072, lon: -5.1600, name: \"Gibraltar\" }       // Back to start\n];\n\n// Initialize or update state\nlet state = context.get('boatState');\nif (!state) {\n    // First time - create new state and check for existing GPS position\n    const globalContext = context.global;\n    const currentLat = globalContext.get('victronenergy.gps._100.Position.Latitude');\n    const currentLon = globalContext.get('victronenergy.gps._100.Position.Longitude');\n    const currentCourse = globalContext.get('victronenergy.gps._100.Course');\n\n    let initialSegment = 0;\n    let initialProgress = 0;\n\n    // If we have a current position, find closest point on route\n    if (currentLat && currentLon) {\n        let minDistance = Infinity;\n        let bestSegment = 0;\n        let bestProgress = 0;\n\n        // Check each route segment\n        for (let i = 0; i < route.length - 1; i++) {\n            const start = route[i];\n            const end = route[i + 1];\n\n            // Find closest point on this segment\n            for (let progress = 0; progress <= 1; progress += 0.01) {\n                const testPos = interpolatePosition(start, end, progress);\n                const distance = calculateDistance(currentLat, currentLon, testPos.lat, testPos.lon);\n\n                if (distance < minDistance) {\n                    minDistance = distance;\n                    bestSegment = i;\n                    bestProgress = progress;\n                }\n            }\n        }\n\n        // Only use the found position if it's reasonably close (within 50km)\n        if (minDistance < 50) {\n            initialSegment = bestSegment;\n            initialProgress = bestProgress;\n            node.warn(`Resuming trip from segment ${bestSegment} at ${Math.round(bestProgress * 100)}% progress (${Math.round(minDistance)}km from route)`);\n        } else {\n            node.warn(`Current position too far from route (${Math.round(minDistance)}km), starting from Gibraltar`);\n        }\n    } else {\n        node.warn('No current GPS position found, starting from Gibraltar');\n    }\n\n    state = {\n        currentSegment: initialSegment,\n        progress: initialProgress,\n        direction: 1,\n        startTime: new Date().getTime(),\n        satellites: 12\n    };\n}\n\n// Function to calculate distance between two points using Haversine formula\nfunction calculateDistance(lat1, lon1, lat2, lon2) {\n    const R = 6371; // Earth's radius in km\n    const dLat = (lat2 - lat1) * Math.PI / 180;\n    const dLon = (lon2 - lon1) * Math.PI / 180;\n    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +\n        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *\n        Math.sin(dLon / 2) * Math.sin(dLon / 2);\n    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));\n    return R * c;\n}\n\n// Function to interpolate between two points\nfunction interpolatePosition(start, end, progress) {\n    return {\n        lat: start.lat + (end.lat - start.lat) * progress,\n        lon: start.lon + (end.lon - start.lon) * progress\n    };\n}\n\n// Update position\nconst timeElapsed = (new Date().getTime() - state.startTime) / 1000; // seconds\nconst averageSpeed = 8; // km/h (realistic cruising speed)\nconst distancePerSecond = averageSpeed / 3600; // km/second\n\n// Add some speed variation (±20%)\nconst speedVariation = 0.8 + (Math.random() * 0.4);\nconst adjustedDistance = distancePerSecond * speedVariation * timeElapsed;\n\n// Get current segment points\nconst startPoint = route[state.currentSegment];\nconst endPoint = route[(state.currentSegment + 1) % route.length];\n\n// Calculate segment length\nconst segmentDistance = calculateDistance(startPoint.lat, startPoint.lon, endPoint.lat, endPoint.lon);\n\n// Update progress\nstate.progress += adjustedDistance / segmentDistance;\n\n// Update satellite count occasionally (every ~5 minutes)\nif (Math.random() < 0.01) {  // 1% chance each update\n    // Base satellite count 8-14\n    let newSatCount = 8 + Math.floor(Math.random() * 7);\n\n    // Occasional poor reception (5% chance)\n    if (Math.random() < 0.05) {\n        newSatCount = 3 + Math.floor(Math.random() * 4); // 3-6 satellites\n    }\n\n    state.satellites = newSatCount;\n}\n\n// Check if we've completed current segment\nif (state.progress >= 1) {\n    state.currentSegment = (state.currentSegment + 1) % route.length;\n    state.progress = 0;\n    state.startTime = new Date().getTime();\n}\n\n// Calculate current position\nconst currentPosition = interpolatePosition(startPoint, endPoint, state.progress);\n\n// Add small random variations to simulate GPS jitter (±0.0001 degrees)\nconst jitter = 0.0001;\ncurrentPosition.lat += (Math.random() - 0.5) * jitter;\ncurrentPosition.lon += (Math.random() - 0.5) * jitter;\n\n// Calculate heading based on current segment\nconst heading = Math.atan2(\n    endPoint.lon - startPoint.lon,\n    endPoint.lat - startPoint.lat\n) * 180 / Math.PI;\n\n// Calculate speed in knots (with variation)\nconst speedKnots = averageSpeed * speedVariation * 0.539957; // Convert km/h to knots\n\n// Save state\ncontext.set('boatState', state);\n\n// Update node status\nconst progressPercent = Math.round(state.progress * 100);\nnode.status({\n    fill: \"blue\",\n    shape: \"dot\",\n    text: `${startPoint.name} → ${endPoint.name} (${progressPercent}%)`\n});\n\n// Output GPS data as JSON object with dbus paths\nmsg.payload = {\n    \"Position/Longitude\": Math.round(currentPosition.lon * 1000000) / 1000000,\n    \"Position/Latitude\": Math.round(currentPosition.lat * 1000000) / 1000000,\n    \"Speed\": Math.round(speedKnots * 100) / 100,\n    \"Course\": Math.round(heading < 0 ? heading + 360 : heading),\n    \"Altitude\": 0,\n    \"NrOfSatellites\": state.satellites,\n    \"Fix\": 1\n};\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 420,
-        "y": 140,
+        "x": 440,
+        "y": 100,
         "wires": [
             [
                 "0c0c31077c6760d2"
@@ -104,75 +59,140 @@
     {
         "id": "0c0c31077c6760d2",
         "type": "link out",
-        "z": "c9cd2b57c321101a",
+        "z": "774e520b07be29b8",
         "name": "link out 1",
         "mode": "link",
         "links": [
             "4f40f506eaf4ad25"
         ],
-        "x": 585,
-        "y": 140,
+        "x": 605,
+        "y": 100,
         "wires": []
     },
     {
         "id": "4f40f506eaf4ad25",
         "type": "link in",
-        "z": "c9cd2b57c321101a",
+        "z": "774e520b07be29b8",
         "name": "link in 1",
         "links": [
             "0c0c31077c6760d2"
         ],
-        "x": 95,
-        "y": 220,
+        "x": 115,
+        "y": 180,
         "wires": [
             [
-                "c055c41beb43ae7f"
+                "86cc5cdd90bb8420",
+                "986745bac72057c2"
             ]
         ]
     },
     {
-        "id": "c055c41beb43ae7f",
-        "type": "function",
-        "z": "c9cd2b57c321101a",
-        "name": "Map to dbus paths",
-        "func": "// Array to hold all messages\nlet messages = [];\n\n// Process position data\nmessages.push({\n    path: '/Position/Longitude',\n    payload: msg.payload.longitude\n});\n\nmessages.push({\n    path: '/Position/Latitude',\n    payload: msg.payload.latitude\n});\n\n// Process other GPS data\nmessages.push({\n    path: '/Speed',\n    payload: msg.payload.speed\n});\n\nmessages.push({\n    path: '/Course',\n    payload: msg.payload.heading\n});\n\nmessages.push({\n    path: '/Altitude',\n    payload: 0\n});\n\nmessages.push({\n    path: '/NrOfSatellites',\n    payload: msg.payload.satellites\n});\n\nmessages.push({\n    path: '/Fix',\n    payload: 1\n});\n\n// Return array of messages\nreturn [messages];",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 250,
-        "y": 220,
-        "wires": [
-            [
-                "64b472922f74e264"
-            ]
-        ]
+        "id": "86cc5cdd90bb8420",
+        "type": "debug",
+        "z": "774e520b07be29b8",
+        "name": "boat trip",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 300,
+        "y": 240,
+        "wires": []
     },
     {
-        "id": "64b472922f74e264",
-        "type": "delay",
-        "z": "c9cd2b57c321101a",
+        "id": "986745bac72057c2",
+        "type": "victron-virtual",
+        "z": "774e520b07be29b8",
         "name": "",
-        "pauseType": "delay",
-        "timeout": ".1",
-        "timeoutUnits": "seconds",
-        "rate": "1",
-        "nbRateUnits": "1",
-        "rateUnits": "second",
-        "randomFirst": "1",
-        "randomLast": "5",
-        "randomUnits": "seconds",
-        "drop": false,
-        "allowrate": false,
-        "outputs": 1,
-        "x": 420,
-        "y": 220,
+        "device": "gps",
+        "default_values": false,
+        "battery_capacity": "",
+        "grid_nrofphases": 1,
+        "fluid_type": 0,
+        "include_tank_battery": false,
+        "include_tank_temperature": false,
+        "tank_battery_voltage": 3.3,
+        "tank_capacity": 10,
+        "temperature_type": 2,
+        "include_humidity": false,
+        "include_pressure": false,
+        "include_temp_battery": false,
+        "temp_battery_voltage": 3.3,
+        "x": 470,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "6032142db3a46925",
+        "type": "victron-input-gps",
+        "z": "774e520b07be29b8",
+        "service": "com.victronenergy.gps/100",
+        "path": "/Position/Longitude",
+        "serviceObj": {
+            "service": "com.victronenergy.gps/100",
+            "name": "Virtual gps"
+        },
+        "pathObj": {
+            "path": "/Position/Longitude",
+            "type": "float",
+            "name": "Longitude (LNG)"
+        },
+        "name": "",
+        "onlyChanges": true,
+        "x": 220,
+        "y": 320,
         "wires": [
-            [
-                "2ef3c046e91c0fdf"
-            ]
+            []
+        ]
+    },
+    {
+        "id": "190a4ff6a45b57f6",
+        "type": "victron-input-gps",
+        "z": "774e520b07be29b8",
+        "service": "com.victronenergy.gps/100",
+        "path": "/Position/Latitude",
+        "serviceObj": {
+            "service": "com.victronenergy.gps/100",
+            "name": "Virtual gps"
+        },
+        "pathObj": {
+            "path": "/Position/Latitude",
+            "type": "float",
+            "name": "Latitude (LAT)"
+        },
+        "name": "",
+        "onlyChanges": true,
+        "x": 210,
+        "y": 380,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a64099f88109c043",
+        "type": "victron-input-gps",
+        "z": "774e520b07be29b8",
+        "service": "com.victronenergy.gps/100",
+        "path": "/Course",
+        "serviceObj": {
+            "service": "com.victronenergy.gps/100",
+            "name": "Virtual gps"
+        },
+        "pathObj": {
+            "path": "/Course",
+            "type": "float",
+            "name": "Course (Deg)"
+        },
+        "name": "",
+        "onlyChanges": true,
+        "x": 210,
+        "y": 440,
+        "wires": [
+            []
         ]
     }
 ]
