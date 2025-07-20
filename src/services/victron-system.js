@@ -81,12 +81,14 @@ class SystemConfiguration {
       const pathObjects = paths.map(p => {
         const svc = service.split('.')[2].split('/')[0] // com.victronenergy.system => system
 
-        const relayObject = _.find(_.get(utils.SERVICES, ['relay', svc]), { path: p })
-
-        if (!relayObject) { console.error(`A relay path specification '${p}' is missing in services.json for service ${svc}.`) }
-
+        // iterate over utils.SERVICES.relay[svc], and expand
+        try {
+          for (const wildcardedRelay of (utils.SERVICES.relay?.[svc] || [])) {
+            const expanded = utils.expandWildcardPaths(wildcardedRelay, this.cache[service], svc)
+            const relayObject = _.find(expanded, { path: p })
+            if (relayObject) {
         // special case for system relay
-        if (relayObject && service.startsWith('com.victronenergy.system') && p.startsWith('/Relay/0')) {
+              if (service.startsWith('com.victronenergy.system') && p.startsWith('/Relay/0')) {
           const systemRelayFunction = this.cache['com.victronenergy.settings']['/Settings/Relay/Function']
           if (systemRelayFunction !== 2) { // manual
             relayObject.disabled = true
@@ -97,6 +99,14 @@ class SystemConfiguration {
           }
         }
         return relayObject
+            }
+          }
+          // if nothing found, return null
+          return null
+        } catch (error) {
+          console.error(`Error expanding relay paths for service ${svc} with path ${p}:`, error)
+          return null
+        }
       })
 
       const name = service.startsWith('com.victronenergy.system')
