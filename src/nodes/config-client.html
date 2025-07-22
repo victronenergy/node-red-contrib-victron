@@ -78,7 +78,8 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
         label: function label() {
             return "Victron Energy Client";
         },
-        hasUsers: true,
+        // setting hasUsers to false means we don't get a warning on deployment, if/when there is no node referring to this config node.
+        hasUsers: false,
         onpaletteremove: function onpaletteremove() {
             RED.nodes.eachConfig(function (n) {
                 if (n.id === 'victron-client-id') RED.nodes.remove(n.id);
