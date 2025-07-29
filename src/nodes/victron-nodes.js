@@ -116,7 +116,12 @@ module.exports = function (RED) {
           }
           this.node.send(outmsg)
           if (this.configNode.showValues !== false) {
-            this.node.status({ fill: 'green', shape: 'dot', text })
+            // node-red will call toString(), without checking if it exists. If the value is null,
+            // node-red will crash trying to call toString(),
+            // see https://github.com/node-red/node-red/blob/9bf42037b5f68012a134810ea92ecfe9b6cef112/packages/node_modules/%40node-red/runtime/lib/flows/Flow.js#L512
+            // we therefore adjust the value, to ensure toString() is always available.
+            const textValue = text && text.toString ? text : text === null || text === undefined ? 'null' : `${text}`
+            this.node.status({ fill: 'green', shape: 'dot', text: textValue })
           }
           if (!this.sentInitialValue) {
             this.sentInitialValue = true
