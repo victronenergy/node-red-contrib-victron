@@ -75,7 +75,7 @@ describe('SystemConfiguration.getRelayServices wildcard expansion (PR #256)', ()
   })
 
   test('getRelayServices filters out null relay objects', () => {
-    // Create scenario where some relay objects are null (filtered out per original code)
+    // Create scenario where some relay objects are null
     utils.SERVICES = {
       ...originalServices,
       relay: {
@@ -121,7 +121,7 @@ describe('SystemConfiguration.getRelayServices wildcard expansion (PR #256)', ()
   })
 
   test('getRelayServices basic wildcard expansion scenario', () => {
-    // Mock services with wildcard pattern (what PR #256 likely adds support for)
+    // Mock services with wildcard pattern
     utils.SERVICES = {
       ...originalServices,
       relay: {
@@ -138,7 +138,6 @@ describe('SystemConfiguration.getRelayServices wildcard expansion (PR #256)', ()
     }
     
     // Test that wildcard expansion doesn't break the function
-    // (The actual expansion logic would be tested in the expandWildcardPaths tests)
     expect(() => {
       const result = systemConfig.getRelayServices()
       expect(Array.isArray(result)).toBe(true)
