@@ -22,76 +22,28 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('=== END DEBUG ===')
 })
 
-const properties = {
-
-}
-
 function getIfaceDesc (dev) {
   const actualDev = dev === 'generator' ? 'genset' : dev
-
+  
   const deviceConfig = getDeviceConfig(actualDev)
   if (deviceConfig) {
     return createIfaceDesc(actualDev, deviceConfig.properties)
   }
-
-  if (!properties[actualDev]) {
-    return {}
-  }
-
-  const result = {}
-
-  // Deep copy the properties, including format functions
-  for (const [key, value] of Object.entries(properties[dev])) {
-    result[key] = { ...value }
-    if (typeof value.format === 'function') {
-      result[key].format = value.format
-    }
-  }
-
-  result.DeviceInstance = { type: 'i' }
-  result.CustomName = { type: 's', persist: true }
-  result.Serial = { type: 's', persist: true }
-
-  return result
+  
+  return {}
 }
 
 function getIface (dev) {
   const actualDev = dev === 'generator' ? 'genset' : dev
-
+  
   const deviceConfig = getDeviceConfig(actualDev)
   if (deviceConfig) {
     return createIface(actualDev, deviceConfig.properties)
   }
-
-  if (!properties[actualDev]) {
-    return {
-      emit: function () {
-      }
-    }
+  
+  return {
+    emit: function () {}
   }
-
-  const result = {
-    emit: function () {
-    }
-  }
-
-  for (const key in properties[dev]) {
-    const propertyValue = JSON.parse(JSON.stringify(properties[dev][key]))
-
-    if (propertyValue.value !== undefined) {
-      result[key] = propertyValue.value
-    } else {
-      switch (propertyValue.type) {
-        case 's':
-          result[key] = '-'
-          break
-        default:
-          result[key] = null
-      }
-    }
-  }
-
-  return result
 }
 
 module.exports = function (RED) {

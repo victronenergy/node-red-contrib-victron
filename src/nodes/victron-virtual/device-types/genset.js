@@ -3,6 +3,12 @@
  * Supports both AC generators (genset) and DC generators (dcgenset)
  */
 
+const alarmFormat = (v) => ({
+  0: 'OK',
+  1: 'Warning', 
+  2: 'Alarm'
+}[v] || 'unknown')
+
 const commonGeneratorProperties = {
   AutoStart: { type: 'i', format: (v) => v != null ? v : '', value: 1, persist: true },
   Start: { type: 'i', format: (v) => v != null ? v : '', value: 0, persist: true },
@@ -17,16 +23,16 @@ const commonGeneratorProperties = {
   'Engine/Load': { type: 'd', format: (v) => v != null ? v.toFixed(1) + '%' : '' },
   'Engine/Speed': { type: 'i', format: (v) => v != null ? v + 'RPM' : '' },
   'Engine/OperatingHours': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'h' : '', persist: 300 },
-  'Alarms/HighTemperature': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  'Alarms/LowOilPressure': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  'Alarms/LowCoolantLevel': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  'Alarms/LowOilLevel': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  'Alarms/LowFuelLevel': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  'Alarms/LowStarterVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  'Alarms/HighStarterVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  'Alarms/EmergencyStop': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  'Alarms/ServicesNeeded': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  'Alarms/GenericAlarm': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+  'Alarms/HighTemperature': { type: 'i', format: alarmFormat, value: 0 },
+  'Alarms/LowOilPressure': { type: 'i', format: alarmFormat, value: 0 },
+  'Alarms/LowCoolantLevel': { type: 'i', format: alarmFormat, value: 0 },
+  'Alarms/LowOilLevel': { type: 'i', format: alarmFormat, value: 0 },
+  'Alarms/LowFuelLevel': { type: 'i', format: alarmFormat, value: 0 },
+  'Alarms/LowStarterVoltage': { type: 'i', format: alarmFormat, value: 0 },
+  'Alarms/HighStarterVoltage': { type: 'i', format: alarmFormat, value: 0 },
+  'Alarms/EmergencyStop': { type: 'i', format: alarmFormat, value: 0 },
+  'Alarms/ServicesNeeded': { type: 'i', format: alarmFormat, value: 0 },
+  'Alarms/GenericAlarm': { type: 'i', format: alarmFormat, value: 0 },
   StatusCode: {
     type: 'i',
     format: (v) => ({
