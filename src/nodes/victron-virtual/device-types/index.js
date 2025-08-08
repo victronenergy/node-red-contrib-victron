@@ -7,6 +7,7 @@ const batteryDevice = require('./battery')
 const gpsDevice = require('./gps')
 const meteoDevice = require('./meteo')
 const switchDevice = require('./switch')
+const tankDevice = require('./tank')
 const temperatureDevice = require('./temperature')
 
 // Device registry - maps device types to their configurations
@@ -15,6 +16,7 @@ const deviceRegistry = {
   gps: gpsDevice,
   meteo: meteoDevice,
   switch: switchDevice,
+  tank: tankDevice,
   temperature: temperatureDevice
   // Add other devices as they're extracted:
   // generator: generatorDevice,
