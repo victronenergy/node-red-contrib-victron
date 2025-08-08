@@ -5,6 +5,7 @@
 
 const batteryDevice = require('./battery')
 const gpsDevice = require('./gps')
+const gridDevice = require('./grid')
 const meteoDevice = require('./meteo')
 const switchDevice = require('./switch')
 const tankDevice = require('./tank')
@@ -14,14 +15,11 @@ const temperatureDevice = require('./temperature')
 const deviceRegistry = {
   battery: batteryDevice,
   gps: gpsDevice,
+  grid: gridDevice,
   meteo: meteoDevice,
-  switch: switchDevice,
+  'switch': switchDevice,
   tank: tankDevice,
   temperature: temperatureDevice
-  // Add other devices as they're extracted:
-  // generator: generatorDevice,
-  // grid: gridDevice,
-  // etc.
 }
 
 /**

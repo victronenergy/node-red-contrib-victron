@@ -63,12 +63,12 @@ describe('Device Registry', () => {
   describe('isDeviceSupported', () => {
     test('returns true for supported devices', () => {
       expect(isDeviceSupported('battery')).toBe(true)
+      expect(isDeviceSupported('grid')).toBe(true)
       expect(isDeviceSupported('meteo')).toBe(true)
     })
 
     test('returns false for unsupported devices', () => {
       expect(isDeviceSupported('generator')).toBe(false)
-      expect(isDeviceSupported('grid')).toBe(false)
       expect(isDeviceSupported('unknown')).toBe(false)
     })
 

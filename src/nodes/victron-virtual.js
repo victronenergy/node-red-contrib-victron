@@ -94,16 +94,6 @@ const properties = {
       value: 0
     }
   },
-  grid: {
-    'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', value: 0 },
-    'Ac/Energy/Reverse': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', value: 0 },
-    'Ac/Frequency': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'Hz' : '' },
-    'Ac/N/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
-    'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
-    NrOfPhases: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
-    ErrorCode: { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
-  },
   pvinverter: {
     'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
     'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
@@ -162,48 +152,6 @@ const properties = {
       persist: true
     },
     Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
-  },
-  tank: {
-    'Alarms/High/Active': { type: 'd' },
-    'Alarms/High/Delay': { type: 'd' },
-    'Alarms/High/Enable': { type: 'd' },
-    'Alarms/High/Restore': { type: 'd' },
-    'Alarms/High/State': { type: 'd' },
-    'Alarms/Low/Active': { type: 'd' },
-    'Alarms/Low/Delay': { type: 'd' },
-    'Alarms/Low/Enable': { type: 'd' },
-    'Alarms/Low/Restore': { type: 'd' },
-    'Alarms/Low/State': { type: 'd' },
-    Capacity: { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'm3' : '' },
-    FluidType: {
-      type: 'i',
-      format: (v) => ({
-        0: 'Fuel',
-        1: 'Fresh water',
-        2: 'Waste water',
-        3: 'Live well',
-        4: 'Oil',
-        5: 'Black water (sewage)',
-        6: 'Gasoline',
-        7: 'Diesel',
-        8: 'LPG',
-        9: 'LNG',
-        10: 'Hydraulic oil',
-        11: 'Raw water'
-      }[v] || 'unknown'),
-      value: 0,
-      persist: true
-    },
-    Level: { type: 'd', format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: 60 },
-    RawUnit: { type: 's', persist: true },
-    RawValue: { type: 'd' },
-    RawValueEmpty: { type: 'd', persist: true },
-    RawValueFull: { type: 'd', persist: true },
-    Remaining: { type: 'd' },
-    Shape: { type: 's', persist: true },
-    Temperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', persist: 60 },
-    BatteryVoltage: { type: 'd', value: 3.3, format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
-    Status: { type: 'i' }
   }
 }
 
@@ -560,35 +508,6 @@ module.exports = function (RED) {
               break
             }
 
-            case 'grid': {
-              iface.NrOfPhases = Number(config.grid_nrofphases ?? 1)
-              const properties = [
-                { name: 'Current', unit: 'A' },
-                { name: 'Power', unit: 'W' },
-                { name: 'Voltage', unit: 'V' },
-                { name: 'Energy/Forward', unit: 'kWh' },
-                { name: 'Energy/Reverse', unit: 'kWh' }
-              ]
-              for (let i = 1; i <= iface.NrOfPhases; i++) {
-                const phase = `L${i}`
-                properties.forEach(({ name, unit }) => {
-                  const key = `Ac/${phase}/${name}`
-                  ifaceDesc.properties[key] = {
-                    type: 'd',
-                    format: (v) => v != null ? v.toFixed(2) + unit : ''
-                  }
-                  iface[key] = 0
-                })
-              }
-              if (config.default_values) {
-                iface['Ac/Power'] = 0
-                iface['Ac/Frequency'] = 50
-                iface['Ac/N/Current'] = 0
-              }
-              text = `Virtual ${iface.NrOfPhases}-phase grid meter`
-              break
-            }
-
             case 'motordrive': {
               // Remove optional properties if not enabled
               if (!config.include_motor_temp) {
@@ -676,32 +595,6 @@ module.exports = function (RED) {
               text = `Virtual ${iface.NrOfPhases}-phase pvinverter`
               break
             }
-            case 'tank':
-              iface.FluidType = Number(config.fluid_type ?? 1) // Fresh water
-              if (!config.include_tank_battery) {
-                delete ifaceDesc.properties.BatteryVoltage
-                delete iface.BatteryVoltage
-              } else {
-                iface.BatteryVoltage = Number(config.tank_battery_voltage ?? 3.3)
-              }
-              if (!config.include_tank_temperature) {
-                delete ifaceDesc.properties.Temperature
-                delete iface.Temperature
-              }
-              if (config.tank_capacity !== '' && config.tank_capacity !== undefined) {
-                const capacity = Number(config.tank_capacity)
-                if (isNaN(capacity) || capacity <= 0) {
-                  node.error('Tank capacity must be greater than 0')
-                  return
-                }
-                iface.Capacity = capacity
-              }
-              if (config.default_values) {
-                iface.Level = 50
-                iface.Temperature = 25
-              }
-              text = `Virtual ${properties.tank.FluidType.format(iface.FluidType).toLowerCase()} tank sensor`
-              break
           }
         }
 
