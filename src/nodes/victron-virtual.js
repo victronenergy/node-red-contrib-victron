@@ -5,6 +5,9 @@ const debug = require('debug')('victron-virtual')
 const debugInput = require('debug')('victron-virtual:input')
 const debugConnection = require('debug')('victron-virtual:connection')
 
+const { getDeviceConfig } = require('./victron-virtual/device-types')
+const { createIfaceDesc, createIface } = require('./victron-virtual/utils')
+
 process.on('unhandledRejection', (reason, promise) => {
   console.error('=== UNHANDLED REJECTION (PREVENTING CRASH) ===')
   console.error('Promise:', promise)
@@ -69,37 +72,6 @@ const commonGeneratorProperties = {
 }
 
 const properties = {
-  battery: {
-    Capacity: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'Ah' : '', persist: true },
-    'Dc/0/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
-    'Dc/0/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
-    'Dc/0/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
-    'Dc/0/Temperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
-    'Info/BatteryLowVoltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
-    'Info/MaxChargeVoltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
-    'Info/MaxChargeCurrent': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
-    'Info/MaxDischargeCurrent': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
-    'Info/ChargeRequest': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    Soc: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: 15 /* persist, but throttled to 15 seconds */ },
-    Soh: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: 60 /* persist, but throttled to 60 seconds */ },
-    Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
-    'Alarms/CellImbalance': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/HighCellVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/HighChargeCurrent': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/HighCurrent': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/HighDischargeCurrent': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/HighTemperature': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/HighVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/InternalFailure': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/LowCellVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/LowSoc': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/LowTemperature': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/LowVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/StateOfHealth': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    ErrorCode: { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    NrOfDistributors: { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'System/MinCellVoltage': { type: 'd', format: (v) => v != null ? v.toFixed(3) + 'V' : '' }
-  },
   temperature: {
     Temperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', persist: 60 /* persist, but throttled to 60 seconds */ },
     TemperatureType: {
@@ -193,13 +165,6 @@ const properties = {
     NrOfPhases: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
     Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
   },
-  meteo: {
-    CellTemperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', persist: 300 },
-    ExternalTemperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', persist: 300 },
-    Irradiance: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'W/m2' : '', persist: 300 },
-    WindSpeed: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'm/s' : '', persist: 300 },
-    WindDirection: { type: 'i', persist: 300 }
-  },
   motordrive: {
     'Dc/0/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
     'Dc/0/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
@@ -280,6 +245,12 @@ const properties = {
 
 function getIfaceDesc (dev) {
   const actualDev = dev === 'generator' ? 'genset' : dev
+
+  const deviceConfig = getDeviceConfig(actualDev)
+  if (deviceConfig) {
+    return createIfaceDesc(actualDev, deviceConfig.properties)
+  }
+
   if (!properties[actualDev]) {
     return {}
   }
@@ -303,6 +274,12 @@ function getIfaceDesc (dev) {
 
 function getIface (dev) {
   const actualDev = dev === 'generator' ? 'genset' : dev
+
+  const deviceConfig = getDeviceConfig(actualDev)
+  if (deviceConfig) {
+    return createIface(actualDev, deviceConfig.properties)
+  }
+
   if (!properties[actualDev]) {
     return {
       emit: function () {
@@ -539,42 +516,98 @@ module.exports = function (RED) {
 
         let text = `Virtual ${config.device}`
 
-        // Device specific configuration
-        switch (config.device) {
-          case 'battery': {
-            if (config.battery_capacity != null && !isNaN(Number(config.battery_capacity))) {
-              iface.Capacity = Number(config.battery_capacity)
-            }
-            if (config.default_values) {
-              iface['Dc/0/Current'] = 0
-              iface['Dc/0/Voltage'] = 24
-              iface['Dc/0/Power'] = 0
-              iface['Dc/0/Temperature'] = 25
-              iface.Soc = 80
-              iface.Soh = 100
-              iface['System/MinCellVoltage'] = 3.3
-            }
-            if (!config.include_battery_temperature) {
-              delete ifaceDesc.properties['Dc/0/Temperature']
-              delete iface['Dc/0/Temperature']
+        const deviceConfig = getDeviceConfig(config.device)
+        if (deviceConfig) {
+          text = deviceConfig.configure(config, iface, ifaceDesc)
+        } else {
+
+          // Device specific configuration
+          switch (config.device) {
+
+            case 'generator': {
+              const generatorType = config.generator_type === 'dc' ? 'dcgenset' : 'genset'
+              const nrOfPhases = Number(config.generator_nrofphases ?? 1)
+
+              if (generatorType === 'genset') {
+                const properties = [
+                  { name: 'Current', unit: 'A' },
+                  { name: 'Power', unit: 'W' },
+                  { name: 'Voltage', unit: 'V' }
+                ]
+
+                for (let i = 1; i <= nrOfPhases; i++) {
+                  const phase = `L${i}`
+                  properties.forEach(({ name, unit }) => {
+                    const key = `Ac/${phase}/${name}`
+                    ifaceDesc.properties[key] = {
+                      type: 'd',
+                      format: (v) => v != null ? v.toFixed(2) + unit : ''
+                    }
+                    iface[key] = 0
+                  })
+                }
+
+                iface.NrOfPhases = nrOfPhases
+              }
+
+              if (!config.include_engine_hours) {
+                delete ifaceDesc.properties['Engine/OperatingHours']
+                delete iface['Engine/OperatingHours']
+              }
+              if (!config.include_starter_voltage) {
+                delete ifaceDesc.properties.StarterVoltage
+                delete iface.StarterVoltage
+                delete ifaceDesc.properties['Alarms/LowStarterVoltage']
+                delete iface['Alarms/LowStarterVoltage']
+                delete ifaceDesc.properties['Alarms/HighStarterVoltage']
+                delete iface['Alarms/HighStarterVoltage']
+              }
+              if (generatorType === 'dcgenset' && !config.include_history_energy) {
+                delete ifaceDesc.properties['History/EnergyOut']
+                delete iface['History/EnergyOut']
+              }
+
+              if (config.default_values) {
+                iface['Engine/Load'] = 0
+                iface['Engine/Speed'] = 0
+                iface.StatusCode = 0
+                iface.State = 0
+
+                if (generatorType === 'dcgenset') {
+                  iface['Dc/0/Current'] = 0
+                  iface['Dc/0/Voltage'] = 48
+                  iface['Dc/0/Power'] = 0
+                  iface['Dc/0/Temperature'] = 25
+                  if (config.include_history_energy) {
+                    iface['History/EnergyOut'] = 0
+                  }
+                } else {
+                  iface['Ac/Power'] = 0
+                  iface['Ac/Energy/Forward'] = 0
+                }
+
+                if (config.include_engine_hours) {
+                  iface['Engine/OperatingHours'] = 0
+                }
+                if (config.include_starter_voltage) {
+                  iface.StarterVoltage = 12
+                }
+              }
+
+              text = `Virtual ${generatorType === 'dcgenset' ? 'DC' : `${nrOfPhases}-phase AC`} generator`
+              break
             }
 
-            text = `Virtual ${properties.battery.Capacity.format(iface.Capacity)} battery`
-            break
-          }
-
-          case 'generator': {
-            const generatorType = config.generator_type === 'dc' ? 'dcgenset' : 'genset'
-            const nrOfPhases = Number(config.generator_nrofphases ?? 1)
-
-            if (generatorType === 'genset') {
+            case 'grid': {
+              iface.NrOfPhases = Number(config.grid_nrofphases ?? 1)
               const properties = [
                 { name: 'Current', unit: 'A' },
                 { name: 'Power', unit: 'W' },
-                { name: 'Voltage', unit: 'V' }
+                { name: 'Voltage', unit: 'V' },
+                { name: 'Energy/Forward', unit: 'kWh' },
+                { name: 'Energy/Reverse', unit: 'kWh' }
               ]
-
-              for (let i = 1; i <= nrOfPhases; i++) {
+              for (let i = 1; i <= iface.NrOfPhases; i++) {
                 const phase = `L${i}`
                 properties.forEach(({ name, unit }) => {
                   const key = `Ac/${phase}/${name}`
@@ -585,273 +618,196 @@ module.exports = function (RED) {
                   iface[key] = 0
                 })
               }
-
-              iface.NrOfPhases = nrOfPhases
+              if (config.default_values) {
+                iface['Ac/Power'] = 0
+                iface['Ac/Frequency'] = 50
+                iface['Ac/N/Current'] = 0
+              }
+              text = `Virtual ${iface.NrOfPhases}-phase grid meter`
+              break
             }
 
-            if (!config.include_engine_hours) {
-              delete ifaceDesc.properties['Engine/OperatingHours']
-              delete iface['Engine/OperatingHours']
-            }
-            if (!config.include_starter_voltage) {
-              delete ifaceDesc.properties.StarterVoltage
-              delete iface.StarterVoltage
-              delete ifaceDesc.properties['Alarms/LowStarterVoltage']
-              delete iface['Alarms/LowStarterVoltage']
-              delete ifaceDesc.properties['Alarms/HighStarterVoltage']
-              delete iface['Alarms/HighStarterVoltage']
-            }
-            if (generatorType === 'dcgenset' && !config.include_history_energy) {
-              delete ifaceDesc.properties['History/EnergyOut']
-              delete iface['History/EnergyOut']
-            }
+            case 'motordrive': {
+              // Remove optional properties if not enabled
+              if (!config.include_motor_temp) {
+                delete ifaceDesc.properties['Motor/Temperature']
+                delete iface['Motor/Temperature']
+              }
+              if (!config.include_controller_temp) {
+                delete ifaceDesc.properties['Controller/Temperature']
+                delete iface['Controller/Temperature']
+              }
+              if (!config.include_coolant_temp) {
+                delete ifaceDesc.properties['Coolant/Temperature']
+                delete iface['Coolant/Temperature']
+              }
+              if (!config.include_motor_rpm) {
+                delete ifaceDesc.properties['Motor/RPM']
+                delete iface['Motor/RPM']
+              }
+              if (!config.include_motor_direction) {
+                delete ifaceDesc.properties['Motor/Direction']
+                delete iface['Motor/Direction']
+              }
 
-            if (config.default_values) {
-              iface['Engine/Load'] = 0
-              iface['Engine/Speed'] = 0
-              iface.StatusCode = 0
-              iface.State = 0
-
-              if (generatorType === 'dcgenset') {
+              if (config.default_values) {
                 iface['Dc/0/Current'] = 0
                 iface['Dc/0/Voltage'] = 48
                 iface['Dc/0/Power'] = 0
-                iface['Dc/0/Temperature'] = 25
-                if (config.include_history_energy) {
-                  iface['History/EnergyOut'] = 0
+
+                if (config.include_motor_temp) {
+                  iface['Motor/Temperature'] = 30
                 }
-              } else {
+                if (config.include_controller_temp) {
+                  iface['Controller/Temperature'] = 35
+                }
+                if (config.include_coolant_temp) {
+                  iface['Coolant/Temperature'] = 40
+                }
+                if (config.include_motor_rpm) {
+                  iface['Motor/RPM'] = 0
+                }
+                if (config.include_motor_direction) {
+                  iface['Motor/Direction'] = 0 // Neutral
+                }
+              }
+
+              text = 'Virtual motor drive'
+              // Add RPM and Direction to the node status text if they are enabled
+              if (config.include_motor_rpm || config.include_motor_direction) {
+                text += ' with'
+                if (config.include_motor_rpm) text += ' RPM'
+                if (config.include_motor_rpm && config.include_motor_direction) text += ' and'
+                if (config.include_motor_direction) text += ' direction'
+              }
+
+              break
+            }
+            case 'pvinverter': {
+              iface.Position = Number(config.position ?? 0)
+              iface.NrOfPhases = Number(config.pvinverter_nrofphases ?? 1)
+              const properties = [
+                { name: 'Current', unit: 'A' },
+                { name: 'Power', unit: 'W' },
+                { name: 'Voltage', unit: 'V' },
+                { name: 'Energy/Forward', unit: 'kWh' }
+              ]
+              for (let i = 1; i <= iface.NrOfPhases; i++) {
+                const phase = `L${i}`
+                properties.forEach(({ name, unit }) => {
+                  const key = `Ac/${phase}/${name}`
+                  ifaceDesc.properties[key] = {
+                    type: 'd',
+                    format: (v) => v != null ? v.toFixed(2) + unit : ''
+                  }
+                  iface[key] = 0
+                })
+              }
+              if (config.default_values) {
                 iface['Ac/Power'] = 0
+                iface['Ac/MaxPower'] = 1000
+                iface['Ac/PowerLimit'] = 1000
                 iface['Ac/Energy/Forward'] = 0
+                iface.ErrorCode = 0
+                iface.StatusCode = 0
               }
-
-              if (config.include_engine_hours) {
-                iface['Engine/OperatingHours'] = 0
-              }
-              if (config.include_starter_voltage) {
-                iface.StarterVoltage = 12
-              }
+              text = `Virtual ${iface.NrOfPhases}-phase pvinverter`
+              break
             }
+            case 'switch': {
+              const switchCount = Number(config.switch_count ?? 1)
 
-            text = `Virtual ${generatorType === 'dcgenset' ? 'DC' : `${nrOfPhases}-phase AC`} generator`
-            break
-          }
+              const baseProperties = [
+                { name: 'State', type: 'i', format: (v) => ({ 0: 'Off', 1: 'On' }[v] || 'unknown'), persist: true },
+                { name: 'Status', type: 'i', format: (v) => v != null ? v : '' },
+                { name: 'Name', type: 's', persist: true },
+                { name: 'Settings/Group', type: 's', value: '', persist: true },
+                { name: 'Settings/CustomName', type: 's', value: '', persist: true },
+                { name: 'Settings/Type', type: 'i', format: (v) => ({ 0: 'Momentary', 1: 'Toggle', 2: 'Dimmable' }[v] || 'unknown'), persist: false },
+                { name: 'Settings/ValidTypes', type: 'i', value: 0x7 } // Allow all types
+              ]
 
-          case 'grid': {
-            iface.NrOfPhases = Number(config.grid_nrofphases ?? 1)
-            const properties = [
-              { name: 'Current', unit: 'A' },
-              { name: 'Power', unit: 'W' },
-              { name: 'Voltage', unit: 'V' },
-              { name: 'Energy/Forward', unit: 'kWh' },
-              { name: 'Energy/Reverse', unit: 'kWh' }
-            ]
-            for (let i = 1; i <= iface.NrOfPhases; i++) {
-              const phase = `L${i}`
-              properties.forEach(({ name, unit }) => {
-                const key = `Ac/${phase}/${name}`
-                ifaceDesc.properties[key] = {
-                  type: 'd',
-                  format: (v) => v != null ? v.toFixed(2) + unit : ''
+              for (let i = 1; i <= switchCount; i++) {
+                const switchType = Number(config[`switch_${i}_type`] ?? 1)
+
+                baseProperties.forEach(({ name, type, value, format, persist }) => {
+                  const key = `SwitchableOutput/output_${i}/${name}`
+                  ifaceDesc.properties[key] = { type, format, persist }
+
+                  let propValue = value
+                  if (name === 'Name') propValue = `Switch ${i}`
+                  if (name === 'Settings/Type') propValue = switchType
+
+                  iface[key] = propValue !== undefined ? propValue : 0
+                })
+
+                if (switchType === 2) {
+                  const dimmingKey = `SwitchableOutput/output_${i}/Dimming`
+                  ifaceDesc.properties[dimmingKey] = {
+                    type: 'd',
+                    format: (v) => v != null ? v.toFixed(1) + '%' : '',
+                    min: 0,
+                    max: 100,
+                    persist: true
+                  }
+                  iface[dimmingKey] = 0
                 }
-                iface[key] = 0
-              })
-            }
-            if (config.default_values) {
-              iface['Ac/Power'] = 0
-              iface['Ac/Frequency'] = 50
-              iface['Ac/N/Current'] = 0
-            }
-            text = `Virtual ${iface.NrOfPhases}-phase grid meter`
-            break
-          }
-          case 'meteo': {
-            if (config.default_values) {
-              iface.Irradiance = 0
-              iface.WindSpeed = 0
-            }
-            break
-          }
-          case 'motordrive': {
-            // Remove optional properties if not enabled
-            if (!config.include_motor_temp) {
-              delete ifaceDesc.properties['Motor/Temperature']
-              delete iface['Motor/Temperature']
-            }
-            if (!config.include_controller_temp) {
-              delete ifaceDesc.properties['Controller/Temperature']
-              delete iface['Controller/Temperature']
-            }
-            if (!config.include_coolant_temp) {
-              delete ifaceDesc.properties['Coolant/Temperature']
-              delete iface['Coolant/Temperature']
-            }
-            if (!config.include_motor_rpm) {
-              delete ifaceDesc.properties['Motor/RPM']
-              delete iface['Motor/RPM']
-            }
-            if (!config.include_motor_direction) {
-              delete ifaceDesc.properties['Motor/Direction']
-              delete iface['Motor/Direction']
-            }
+              }
 
-            if (config.default_values) {
-              iface['Dc/0/Current'] = 0
-              iface['Dc/0/Voltage'] = 48
-              iface['Dc/0/Power'] = 0
-
-              if (config.include_motor_temp) {
-                iface['Motor/Temperature'] = 30
-              }
-              if (config.include_controller_temp) {
-                iface['Controller/Temperature'] = 35
-              }
-              if (config.include_coolant_temp) {
-                iface['Coolant/Temperature'] = 40
-              }
-              if (config.include_motor_rpm) {
-                iface['Motor/RPM'] = 0
-              }
-              if (config.include_motor_direction) {
-                iface['Motor/Direction'] = 0 // Neutral
-              }
+              text = `Virtual switch with ${switchCount} output${switchCount > 1 ? 's' : ''}`
+              break
             }
-
-            text = 'Virtual motor drive'
-            // Add RPM and Direction to the node status text if they are enabled
-            if (config.include_motor_rpm || config.include_motor_direction) {
-              text += ' with'
-              if (config.include_motor_rpm) text += ' RPM'
-              if (config.include_motor_rpm && config.include_motor_direction) text += ' and'
-              if (config.include_motor_direction) text += ' direction'
-            }
-
-            break
-          }
-          case 'pvinverter': {
-            iface.Position = Number(config.position ?? 0)
-            iface.NrOfPhases = Number(config.pvinverter_nrofphases ?? 1)
-            const properties = [
-              { name: 'Current', unit: 'A' },
-              { name: 'Power', unit: 'W' },
-              { name: 'Voltage', unit: 'V' },
-              { name: 'Energy/Forward', unit: 'kWh' }
-            ]
-            for (let i = 1; i <= iface.NrOfPhases; i++) {
-              const phase = `L${i}`
-              properties.forEach(({ name, unit }) => {
-                const key = `Ac/${phase}/${name}`
-                ifaceDesc.properties[key] = {
-                  type: 'd',
-                  format: (v) => v != null ? v.toFixed(2) + unit : ''
+            case 'tank':
+              iface.FluidType = Number(config.fluid_type ?? 1) // Fresh water
+              if (!config.include_tank_battery) {
+                delete ifaceDesc.properties.BatteryVoltage
+                delete iface.BatteryVoltage
+              } else {
+                iface.BatteryVoltage = Number(config.tank_battery_voltage ?? 3.3)
+              }
+              if (!config.include_tank_temperature) {
+                delete ifaceDesc.properties.Temperature
+                delete iface.Temperature
+              }
+              if (config.tank_capacity !== '' && config.tank_capacity !== undefined) {
+                const capacity = Number(config.tank_capacity)
+                if (isNaN(capacity) || capacity <= 0) {
+                  node.error('Tank capacity must be greater than 0')
+                  return
                 }
-                iface[key] = 0
-              })
-            }
-            if (config.default_values) {
-              iface['Ac/Power'] = 0
-              iface['Ac/MaxPower'] = 1000
-              iface['Ac/PowerLimit'] = 1000
-              iface['Ac/Energy/Forward'] = 0
-              iface.ErrorCode = 0
-              iface.StatusCode = 0
-            }
-            text = `Virtual ${iface.NrOfPhases}-phase pvinverter`
-            break
-          }
-          case 'switch': {
-            const switchCount = Number(config.switch_count ?? 1)
-
-            const baseProperties = [
-              { name: 'State', type: 'i', format: (v) => ({ 0: 'Off', 1: 'On' }[v] || 'unknown'), persist: true },
-              { name: 'Status', type: 'i', format: (v) => v != null ? v : '' },
-              { name: 'Name', type: 's', persist: true },
-              { name: 'Settings/Group', type: 's', value: '', persist: true },
-              { name: 'Settings/CustomName', type: 's', value: '', persist: true },
-              { name: 'Settings/Type', type: 'i', format: (v) => ({ 0: 'Momentary', 1: 'Toggle', 2: 'Dimmable' }[v] || 'unknown'), persist: false },
-              { name: 'Settings/ValidTypes', type: 'i', value: 0x7 } // Allow all types
-            ]
-
-            for (let i = 1; i <= switchCount; i++) {
-              const switchType = Number(config[`switch_${i}_type`] ?? 1)
-
-              baseProperties.forEach(({ name, type, value, format, persist }) => {
-                const key = `SwitchableOutput/output_${i}/${name}`
-                ifaceDesc.properties[key] = { type, format, persist }
-
-                let propValue = value
-                if (name === 'Name') propValue = `Switch ${i}`
-                if (name === 'Settings/Type') propValue = switchType
-
-                iface[key] = propValue !== undefined ? propValue : 0
-              })
-
-              if (switchType === 2) {
-                const dimmingKey = `SwitchableOutput/output_${i}/Dimming`
-                ifaceDesc.properties[dimmingKey] = {
-                  type: 'd',
-                  format: (v) => v != null ? v.toFixed(1) + '%' : '',
-                  min: 0,
-                  max: 100,
-                  persist: true
-                }
-                iface[dimmingKey] = 0
+                iface.Capacity = capacity
               }
-            }
-
-            text = `Virtual switch with ${switchCount} output${switchCount > 1 ? 's' : ''}`
-            break
-          }
-          case 'tank':
-            iface.FluidType = Number(config.fluid_type ?? 1) // Fresh water
-            if (!config.include_tank_battery) {
-              delete ifaceDesc.properties.BatteryVoltage
-              delete iface.BatteryVoltage
-            } else {
-              iface.BatteryVoltage = Number(config.tank_battery_voltage ?? 3.3)
-            }
-            if (!config.include_tank_temperature) {
-              delete ifaceDesc.properties.Temperature
-              delete iface.Temperature
-            }
-            if (config.tank_capacity !== '' && config.tank_capacity !== undefined) {
-              const capacity = Number(config.tank_capacity)
-              if (isNaN(capacity) || capacity <= 0) {
-                node.error('Tank capacity must be greater than 0')
-                return
+              if (config.default_values) {
+                iface.Level = 50
+                iface.Temperature = 25
               }
-              iface.Capacity = capacity
-            }
-            if (config.default_values) {
-              iface.Level = 50
-              iface.Temperature = 25
-            }
-            text = `Virtual ${properties.tank.FluidType.format(iface.FluidType).toLowerCase()} tank sensor`
-            break
-          case 'temperature':
-            iface.TemperatureType = Number(config.temperature_type ?? 2) // Generic
-            // Remove optional properties if not enabled
-            if (!config.include_humidity) {
-              delete ifaceDesc.properties.Humidity
-              delete iface.Humidity
-            }
-            if (!config.include_pressure) {
-              delete ifaceDesc.properties.Pressure
-              delete iface.Pressure
-            }
-            if (!config.include_temp_battery) {
-              delete ifaceDesc.properties.BatteryVoltage
-              delete iface.BatteryVoltage
-            } else {
-              iface.BatteryVoltage = Number(config.temp_battery_voltage ?? 3.3)
-            }
-            if (config.default_values) {
-              iface.Temperature = 25
-              iface.Humidity = 50
-              iface.Pressure = 1013
-            }
-            text = `Virtual ${properties.temperature.TemperatureType.format(iface.TemperatureType).toLowerCase()} temperature sensor`
-            break
+              text = `Virtual ${properties.tank.FluidType.format(iface.FluidType).toLowerCase()} tank sensor`
+              break
+            case 'temperature':
+              iface.TemperatureType = Number(config.temperature_type ?? 2) // Generic
+              // Remove optional properties if not enabled
+              if (!config.include_humidity) {
+                delete ifaceDesc.properties.Humidity
+                delete iface.Humidity
+              }
+              if (!config.include_pressure) {
+                delete ifaceDesc.properties.Pressure
+                delete iface.Pressure
+              }
+              if (!config.include_temp_battery) {
+                delete ifaceDesc.properties.BatteryVoltage
+                delete iface.BatteryVoltage
+              } else {
+                iface.BatteryVoltage = Number(config.temp_battery_voltage ?? 3.3)
+              }
+              if (config.default_values) {
+                iface.Temperature = 25
+                iface.Humidity = 50
+                iface.Pressure = 1013
+              }
+              text = `Virtual ${properties.temperature.TemperatureType.format(iface.TemperatureType).toLowerCase()} temperature sensor`
+              break
+          }
         }
 
         if (hasPersistedState(RED, self.id)) {
