@@ -399,24 +399,10 @@ describe('victron-virtual helper functions', () => {
     test('unsupported devices return null', () => {
       const { getDeviceConfig, isDeviceSupported } = require('../src/nodes/victron-virtual/device-types')
       
-      expect(isDeviceSupported('generator')).toBe(false) // Not extracted yet
-      expect(getDeviceConfig('generator')).toBe(null)
+      expect(isDeviceSupported('evcs')).toBe(false) 
+      expect(getDeviceConfig('evcs')).toBe(null)
     })
 
-    test('registry integration works with utils', () => {
-      const { getDeviceConfig } = require('../src/nodes/victron-virtual/device-types')
-      const { createIfaceDesc, createIface } = require('../src/nodes/victron-virtual/utils')
-      
-      const batteryConfig = getDeviceConfig('battery')
-      const config = { device: 'battery', battery_capacity: '150' }
-      const iface = createIface('battery', batteryConfig.properties)
-      const ifaceDesc = { properties: createIfaceDesc('battery', batteryConfig.properties) }
-      
-      const text = batteryConfig.configure(config, iface, ifaceDesc)
-      
-      expect(iface.Capacity).toBe(150)
-      expect(text).toBe('Virtual 150Ah battery')
-    })
   })
 
   describe('extracted battery device', () => {

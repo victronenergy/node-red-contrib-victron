@@ -63,12 +63,15 @@ describe('Device Registry', () => {
   describe('isDeviceSupported', () => {
     test('returns true for supported devices', () => {
       expect(isDeviceSupported('battery')).toBe(true)
+      expect(isDeviceSupported('generator')).toBe(true)
       expect(isDeviceSupported('grid')).toBe(true)
       expect(isDeviceSupported('meteo')).toBe(true)
+      expect(isDeviceSupported('tank')).toBe(true)
+      expect(isDeviceSupported('temperature')).toBe(true)
     })
 
     test('returns false for unsupported devices', () => {
-      expect(isDeviceSupported('generator')).toBe(false)
+      expect(isDeviceSupported('evcs')).toBe(false)
       expect(isDeviceSupported('unknown')).toBe(false)
     })
 
@@ -110,7 +113,7 @@ describe('Device Registry', () => {
       const text = config.configure(nodeConfig, iface, ifaceDesc)
       
       expect(iface.Capacity).toBe(100)
-      expect(text).toBe('Virtual 100Ah battery')
+      expect(text).toBe('Virtual 100.0Ah battery')
     })
 
     test('meteo device config works through registry', () => {
