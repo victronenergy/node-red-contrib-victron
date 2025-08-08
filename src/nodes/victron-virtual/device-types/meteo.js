@@ -18,13 +18,12 @@ const meteoProperties = {
  * @returns {string} Display text for the device
  */
 function configureMeteoDevice (config, iface, ifaceDesc) {
-
   if (config.default_values) {
     iface.Irradiance = 0
     iface.WindSpeed = 0
   }
 
-  return `Virtual meteo`
+  return 'Virtual meteo'
 }
 
 module.exports = {

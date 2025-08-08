@@ -484,10 +484,8 @@ module.exports = function (RED) {
         if (deviceConfig) {
           text = deviceConfig.configure(config, iface, ifaceDesc)
         } else {
-
           // Device specific configuration
           switch (config.device) {
-
             case 'generator': {
               const generatorType = config.generator_type === 'dc' ? 'dcgenset' : 'genset'
               const nrOfPhases = Number(config.generator_nrofphases ?? 1)

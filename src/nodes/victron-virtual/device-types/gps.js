@@ -24,7 +24,7 @@ function configureGpsDevice (config, iface, ifaceDesc) {
   // GPS devices do NOT set default values to avoid putting the device
   // unintentionally in the middle of the ocean and messing up solar forecast.
   // This is explicitly mentioned in the project documentation.
-  
+
   return 'Virtual GPS'
 }
 

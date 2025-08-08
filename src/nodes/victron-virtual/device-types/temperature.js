@@ -34,7 +34,7 @@ const temperatureProperties = {
  */
 function configureTemperatureDevice (config, iface, ifaceDesc) {
   iface.TemperatureType = Number(config.temperature_type ?? 2)
-  
+
   if (config.default_values) {
     iface.Temperature = 25
     iface.Humidity = 50
