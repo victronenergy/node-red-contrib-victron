@@ -231,33 +231,27 @@ class VictronClient {
     // Check if the service exists in the cache first
     const serviceExists = !!this.system.cache[dbusInterface]
 
-    if (this.client && this.client.connected) {
-      debug(`[PUBLISH] ${dbusInterface} ${path} | ${value}`)
+    debug(`[PUBLISH] ${dbusInterface} ${path} | ${value}`)
 
-      // Wrap the setValue call in a try-catch to handle any synchronous errors
-      try {
-        if (!serviceExists) {
-          const msg = `Service ${dbusInterface} not found in cache. Publish may fail.`
-          console.warn(msg)
-          // Continue anyway, but warn - in case the cache isn't updated yet
-        }
-
-        this.client.setValue(dbusInterface, path, value, (err) => {
-          if (err) {
-            console.error(`Error setting value for ${dbusInterface} ${path}: ${err}`)
-            if (cb) cb(err)
-          } else {
-            if (cb) cb(null)
-          }
-        })
-      } catch (error) {
-        console.error(`Exception in publish: ${error.message}`)
-        if (cb) process.nextTick(() => cb(error))
+    // Wrap the setValue call in a try-catch to handle any synchronous errors
+    try {
+      if (!serviceExists) {
+        const msg = `Service ${dbusInterface} not found in cache. Publish may fail.`
+        console.warn(msg)
+        // Continue anyway, but warn - in case the cache isn't updated yet
       }
-    } else {
-      const message = 'Not connected to dbus. Publish was unsuccessful.'
-      console.error(message)
-      if (cb) process.nextTick(() => cb(new Error(message)))
+
+      this.client.setValue(dbusInterface, path, value, (err) => {
+        if (err) {
+          console.error(`Error setting value for ${dbusInterface} ${path}: ${err}`)
+          if (cb) cb(err)
+        } else {
+          if (cb) cb(null)
+        }
+      })
+    } catch (error) {
+      console.error(`Exception in publish: ${error.message}`)
+      if (cb) process.nextTick(() => cb(error))
     }
   }
 }
