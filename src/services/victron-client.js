@@ -37,7 +37,11 @@ class VictronClient {
      *     let vc = new VictronClient()
      *     await vc.connect()
      */
-  async connect () {
+  async connect (options) {
+    if (!options) {
+      options = {}
+    }
+
     debug('VictronClient.connect() called with address:', this.dbusAddress)
 
     const _this = this
@@ -78,7 +82,7 @@ class VictronClient {
       }
     }
 
-    this.client = new VictronDbusListener(
+    this.client = options.dbusClient || new VictronDbusListener(
       tcpAddress,
       {
         eventHandler,
