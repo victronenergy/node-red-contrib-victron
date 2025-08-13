@@ -129,10 +129,6 @@ module.exports = function (RED) {
         }, { callbackPeriodically })
       }
 
-      if (this.client && this.client.client && this.client.client.connected) {
-        this.client.client.getValue(this.service, this.path)
-      }
-
       this.on('close', function (done) {
         this.node.client.unsubscribe(this.node.subscription)
         this.node.configNode.removeStatusListener(handlerId)

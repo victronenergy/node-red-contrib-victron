@@ -190,6 +190,13 @@ class VictronClient {
 
     debug(`[SUBSCRIBE] ${subscriptionId} | ${dbusInterface} ${path} options=${options}`)
 
+    // check if we already have a cached value for this subscription. If so, send it.
+    const cachedValue = this.system.cache[dbusInterface]?.[path]
+    if (cachedValue) {
+      debug(`[SUBSCRIBE] ${subscriptionId} | ${dbusInterface} ${path} sending cached value`)
+      process.nextTick(() => callback({ value: cachedValue, changed: true })) // eslint-disable-line n/no-callback-literal
+    }
+
     return subscriptionId
   }
 
