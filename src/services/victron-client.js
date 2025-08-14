@@ -72,6 +72,15 @@ class VictronClient {
       }
     }
 
+    // Support dependency injection for testing
+    if (options.dbusClient) {
+      debug('Using injected dbus client for testing')
+      this.client = options.dbusClient
+      // For mocked clients, mark as connected
+      this.client.connected = true
+      return Promise.resolve()
+    }
+
     // Use dbus over TCP if an address is given,
     // otherwise, default to systembus
     let tcpAddress = null
@@ -82,7 +91,7 @@ class VictronClient {
       }
     }
 
-    this.client = options.dbusClient || new VictronDbusListener(
+    this.client = new VictronDbusListener(
       tcpAddress,
       {
         eventHandler,

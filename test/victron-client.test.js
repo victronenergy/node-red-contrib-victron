@@ -2,6 +2,15 @@ const VictronClient = require('../src/services/victron-client');
 
 describe('victron-client', () => {
 
+  beforeEach(() => {
+    jest.useFakeTimers()
+  })
+
+  afterEach(() => {
+    jest.runOnlyPendingTimers()
+    jest.useRealTimers()
+  })
+
   it('responds to publish()', async () => {
 
     const client = new VictronClient('mock-client-id', {
@@ -24,9 +33,6 @@ describe('victron-client', () => {
       }),
     }
 
-    // TODO: we get an error on the console as we try to connect. With the current
-    // implementation of a retry, we can hardly avoid this. (Note how we call
-    // promiseRetry() at the end of connect().)
     await client.connect({
       dbusClient: mockDbusClient,
     });
