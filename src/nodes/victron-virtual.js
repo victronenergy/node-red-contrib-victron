@@ -547,7 +547,6 @@ module.exports = function (RED) {
             }
             if (config.default_values) {
               iface['Dc/0/Current'] = 0
-              iface['Dc/0/Voltage'] = 24
               iface['Dc/0/Power'] = 0
               iface['Dc/0/Temperature'] = 25
               iface.Soc = 80
