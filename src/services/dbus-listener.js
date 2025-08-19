@@ -295,7 +295,7 @@ class VictronDbusListener {
         msg.body[0].forEach(entry => {
           const m = { changed: true }
           m.path = entry[0]
-          if (entry[1] && entry[1].length === 2) {
+          if (entry[1]) {
             entry[1].forEach(v => {
               switch (v[0]) {
                 case 'Value': m.value = v[1][1][0]; break
@@ -303,7 +303,7 @@ class VictronDbusListener {
               }
             })
           }
-          if (!m.path || m.value === null || !m.text) {
+          if (!m.path || m.value === null) {
             return
           }
           const service = this.services[msg.sender]
