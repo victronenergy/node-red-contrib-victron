@@ -4,6 +4,7 @@
  */
 
 const dbus = require('dbus-native-victron')
+const { processItemsChanged } = require('./core/dbus-message-processor')
 const debug = require('debug')('node-red-contrib-victron:dbus')
 const _ = require('lodash')
 
@@ -292,34 +293,8 @@ class VictronDbusListener {
     switch (msg.member) {
       case 'ItemsChanged': {
         debug('ItemsChanged', msg)
-        msg.body[0].forEach(entry => {
-          const m = { changed: true }
-          m.path = entry[0]
-          if (entry[1]) {
-            entry[1].forEach(v => {
-              switch (v[0]) {
-                case 'Value': m.value = v[1][1][0]; break
-                case 'Text': m.text = v[1][1][0]; break
-              }
-            })
-          }
-          if (!m.path || m.value === null) {
-            return
-          }
-          const service = this.services[msg.sender]
-          if (!service || !service.name) {
-            return
-          }
-          if (m.path === '/DeviceInstance') {
-            service.deviceInstance = m.value
-          }
-          m.senderName = service.name.split('.').splice(0, 3).join('.')
-          if (service.deviceInstance === null) {
-            service.deviceInstance = searchDeviceInstanceByName(this.services, m.senderName, '')
-          }
-          m.deviceInstance = service.deviceInstance
-          messages.push(m)
-        })
+        const messages = processItemsChanged(msg, this.services, searchDeviceInstanceByName, false)
+        this.messageHandler(messages)
         break
       }
       case 'PropertiesChanged': {
