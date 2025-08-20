@@ -1,9 +1,9 @@
 {
     "name": "@victronenergy/node-red-contrib-victron",
     "description": "Custom Node-RED Nodes for Victron Energy",
-    "version": "1.6.41",
+    "version": "1.6.42",
     "dependencies": {
-        "dbus-native-victron": "^0.4.4",
+        "dbus-native-victron": "^0.4.5",
         "dbus-victron-virtual": "^0.1.17",
         "debug": "^4.4.0",
         "lodash": "^4.17.21",
@@ -28,8 +28,8 @@
         "eslint": "^9.26.0",
         "eslint-config-google": "^0.14.0",
         "gar": "^1.0.4",
-        "standard": "^17.1.2",
         "jest": "^29.7.0",
+        "standard": "^17.1.2",
         "yargs": "^17.7.2"
     },
     "keywords": [
