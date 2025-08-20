@@ -332,6 +332,10 @@ class VictronDbusListener {
   }
 
   getValue (destination, path) {
+    if (destination.split('/').length === 2) {
+      const deviceInstance = destination.split('/')[1]
+      destination = searchHaystack(this.services, deviceInstance, destination.split('/')[0])
+    }
     this.bus.invoke({
       path,
       destination,
