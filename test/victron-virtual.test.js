@@ -427,3 +427,80 @@ describe('victron-virtual helper functions', () => {
     })
   })
 })
+
+// Replace the "legacy functions" describe block in victron-virtual.test.js with this:
+
+describe('Interface Creation Functions (Regression Tests)', () => {
+  test('device interface has proper dbus paths, not string character indices', () => {
+    const { createIfaceDesc } = require('../src/nodes/victron-virtual/utils')
+    const { getDeviceConfig } = require('../src/nodes/victron-virtual/device-types')
+
+    const batteryConfig = getDeviceConfig('battery')
+    const ifaceDesc = createIfaceDesc(batteryConfig.properties)
+
+    // Verify we get actual device paths, not string character indices
+    expect(ifaceDesc['Dc/0/Voltage']).toBeDefined()
+    expect(ifaceDesc['Dc/0/Current']).toBeDefined()
+    expect(ifaceDesc.Soc).toBeDefined()
+    expect(ifaceDesc.Capacity).toBeDefined()
+
+    // CRITICAL: These should NOT exist - they would indicate the bug where
+    // 'battery' string was treated as properties object
+    expect(ifaceDesc['0']).toBeUndefined()  // 'b' char at index 0
+    expect(ifaceDesc['1']).toBeUndefined()  // 'a' char at index 1 
+    expect(ifaceDesc['2']).toBeUndefined()  // 't' char at index 2
+    expect(ifaceDesc['3']).toBeUndefined()  // 't' char at index 3
+    expect(ifaceDesc['4']).toBeUndefined()  // 'e' char at index 4
+    expect(ifaceDesc['5']).toBeUndefined()  // 'r' char at index 5
+    expect(ifaceDesc['6']).toBeUndefined()  // 'y' char at index 6
+
+    // Verify structure is valid
+    expect(ifaceDesc['Dc/0/Voltage'].type).toBe('d')
+    expect(typeof ifaceDesc.Capacity.format).toBe('function')
+  })
+
+  test('device interface object has proper structure, not string characters', () => {
+    const { createIface } = require('../src/nodes/victron-virtual/utils')
+    const { getDeviceConfig } = require('../src/nodes/victron-virtual/device-types')
+
+    const batteryConfig = getDeviceConfig('battery')
+    const iface = createIface(batteryConfig.properties)
+
+    // Should have valid device properties
+    expect(iface.Connected).toBe(1)
+    expect(iface['Info/ChargeRequest']).toBe(0)
+    expect(iface.emit).toBeDefined()
+    expect(typeof iface.emit).toBe('function')
+
+    // CRITICAL: These should NOT exist - they indicate the string iteration bug
+    expect(iface['0']).toBeUndefined()
+    expect(iface['1']).toBeUndefined()
+    expect(iface['2']).toBeUndefined()
+    expect(iface['3']).toBeUndefined()
+    expect(iface['4']).toBeUndefined()
+    expect(iface['5']).toBeUndefined()
+    expect(iface['6']).toBeUndefined()
+
+    // Verify actual device paths exist
+    expect('Dc/0/Voltage' in iface).toBe(true)
+    expect('Dc/0/Current' in iface).toBe(true)
+    expect('Soc' in iface).toBe(true)
+  })
+
+  test('utility functions handle invalid string input (regression protection)', () => {
+    const { createIfaceDesc, createIface } = require('../src/nodes/victron-virtual/utils')
+
+    // Test what happens if someone accidentally passes a string instead of properties
+    // This simulates the bug that was fixed
+    const badIfaceDesc = createIfaceDesc('battery')
+    const badIface = createIface('battery')
+
+    // Should handle gracefully, not iterate over string characters
+    expect(badIfaceDesc).toEqual({})
+    expect(badIface.emit).toBeDefined()
+
+    // Should NOT have string character indices
+    expect(badIfaceDesc['0']).toBeUndefined()
+    expect(badIface['0']).toBeUndefined()
+  })
+})
