@@ -186,7 +186,7 @@ describe('Battery Device Configuration', () => {
 
   describe('Utils Functions', () => {
     test('createIfaceDesc creates proper interface description', () => {
-      const ifaceDesc = createIfaceDesc('battery', batteryProperties)
+      const ifaceDesc = createIfaceDesc(batteryProperties)
 
       expect(ifaceDesc.Capacity).toBeDefined()
       expect(ifaceDesc['Dc/0/Current']).toBeDefined()
@@ -200,7 +200,7 @@ describe('Battery Device Configuration', () => {
     })
 
     test('createIface creates proper interface with default values', () => {
-      const iface = createIface('battery', batteryProperties)
+      const iface = createIface(batteryProperties)
 
       expect(iface.emit).toBeDefined()
       expect(typeof iface.emit).toBe('function')
@@ -215,12 +215,12 @@ describe('Battery Device Configuration', () => {
     })
 
     test('createIfaceDesc handles empty properties gracefully', () => {
-      const ifaceDesc = createIfaceDesc('unknown', null)
+      const ifaceDesc = createIfaceDesc(null)
       expect(ifaceDesc).toEqual({})
     })
 
     test('createIface handles empty properties gracefully', () => {
-      const iface = createIface('unknown', null)
+      const iface = createIface(null)
       expect(iface.emit).toBeDefined()
       expect(typeof iface.emit).toBe('function')
     })
@@ -234,8 +234,8 @@ describe('Battery Device Configuration', () => {
       config = {
         device: 'battery'
       }
-      iface = createIface('battery', batteryProperties)
-      ifaceDesc = { properties: createIfaceDesc('battery', batteryProperties) }
+      iface = createIface(batteryProperties)
+      ifaceDesc = { properties: createIfaceDesc(batteryProperties) }
     })
 
     test('configures battery capacity when provided as string', () => {
@@ -459,8 +459,8 @@ describe('Battery Device Configuration', () => {
 
       testCases.forEach(({ capacity, expected, text: expectedText }) => {
         const testConfig = { battery_capacity: capacity }
-        const testIface = createIface('battery', batteryProperties)
-        const testIfaceDesc = { properties: createIfaceDesc('battery', batteryProperties) }
+        const testIface = createIface(batteryProperties)
+        const testIfaceDesc = { properties: createIfaceDesc(batteryProperties) }
         
         const result = configureBatteryDevice(testConfig, testIface, testIfaceDesc)
         

@@ -107,7 +107,7 @@ describe('Device Registry', () => {
       const { createIface } = require('../src/nodes/victron-virtual/utils')
       
       const nodeConfig = { device: 'battery', battery_capacity: '100' }
-      const iface = createIface('battery', config.properties)
+      const iface = createIface(config.properties)
       const ifaceDesc = { properties: config.properties }
       
       const text = config.configure(nodeConfig, iface, ifaceDesc)
@@ -121,7 +121,7 @@ describe('Device Registry', () => {
       const { createIface } = require('../src/nodes/victron-virtual/utils')
       
       const nodeConfig = { device: 'meteo', default_values: true }
-      const iface = createIface('meteo', config.properties)
+      const iface = createIface(config.properties)
       const ifaceDesc = { properties: config.properties }
       
       const text = config.configure(nodeConfig, iface, ifaceDesc)

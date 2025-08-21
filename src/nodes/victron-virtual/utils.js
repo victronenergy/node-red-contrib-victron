@@ -4,11 +4,10 @@
 
 /**
  * Create interface description for a device
- * @param {string} deviceType - Device type (e.g., 'battery', 'generator')
  * @param {Object} properties - Device properties object
  * @returns {Object} Interface description
  */
-function createIfaceDesc (deviceType, properties) {
+function createIfaceDesc (properties) {
   if (!properties) {
     return {}
   }
@@ -33,11 +32,10 @@ function createIfaceDesc (deviceType, properties) {
 
 /**
  * Create device interface with default values
- * @param {string} deviceType - Device type (e.g., 'battery', 'generator')
  * @param {Object} properties - Device properties object
  * @returns {Object} Device interface
  */
-function createIface (deviceType, properties) {
+function createIface (properties) {
   if (!properties) {
     return {
       emit: function () {}
