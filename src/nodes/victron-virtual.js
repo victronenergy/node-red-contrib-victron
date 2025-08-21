@@ -27,7 +27,7 @@ function getIfaceDesc (dev) {
 
   const deviceConfig = getDeviceConfig(actualDev)
   if (deviceConfig) {
-    return createIfaceDesc(actualDev, deviceConfig.properties)
+    return createIfaceDesc(deviceConfig.properties)
   }
 
   return {}
@@ -38,7 +38,7 @@ function getIface (dev) {
 
   const deviceConfig = getDeviceConfig(actualDev)
   if (deviceConfig) {
-    return createIface(actualDev, deviceConfig.properties)
+    return createIface(deviceConfig.properties)
   }
 
   return {
