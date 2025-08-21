@@ -5,7 +5,7 @@ const debug = require('debug')('victron-virtual')
 const debugInput = require('debug')('victron-virtual:input')
 const debugConnection = require('debug')('victron-virtual:connection')
 
-const { getDeviceConfig } = require('./victron-virtual/device-types')
+const { getDeviceConfig, transformDeviceName } = require('./victron-virtual/device-types')
 const { createIfaceDesc, createIface } = require('./victron-virtual/utils')
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -23,24 +23,24 @@ process.on('unhandledRejection', (reason, promise) => {
 })
 
 function getIfaceDesc (dev) {
-  const actualDev = dev === 'generator' ? 'genset' : dev
-  
+  const actualDev = transformDeviceName(dev)
+
   const deviceConfig = getDeviceConfig(actualDev)
   if (deviceConfig) {
     return createIfaceDesc(actualDev, deviceConfig.properties)
   }
-  
+
   return {}
 }
 
 function getIface (dev) {
-  const actualDev = dev === 'generator' ? 'genset' : dev
-  
+  const actualDev = transformDeviceName(dev)
+
   const deviceConfig = getDeviceConfig(actualDev)
   if (deviceConfig) {
     return createIface(actualDev, deviceConfig.properties)
   }
-  
+
   return {
     emit: function () {}
   }
