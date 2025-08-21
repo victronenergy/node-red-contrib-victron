@@ -487,3 +487,98 @@ describe('Battery Device Configuration', () => {
     })
   })
 })
+
+describe('Battery voltage selection', () => {
+  test('should use 12V when selected and default_values enabled', () => {
+    const config = {
+      default_values: true,
+      battery_voltage_preset: '12'
+    }
+    const iface = createIface(batteryProperties)
+    const ifaceDesc = { properties: { ...batteryProperties } }
+
+    configureBatteryDevice(config, iface, ifaceDesc)
+
+    expect(iface['Dc/0/Voltage']).toBe(12)
+  })
+
+  test('should use 24V when selected and default_values enabled', () => {
+    const config = {
+      default_values: true,
+      battery_voltage_preset: '24'
+    }
+    const iface = createIface(batteryProperties)
+    const ifaceDesc = { properties: { ...batteryProperties } }
+
+    configureBatteryDevice(config, iface, ifaceDesc)
+
+    expect(iface['Dc/0/Voltage']).toBe(24)
+  })
+
+  test('should use 48V when selected and default_values enabled', () => {
+    const config = {
+      default_values: true,
+      battery_voltage_preset: '48'
+    }
+    const iface = createIface(batteryProperties)
+    const ifaceDesc = { properties: { ...batteryProperties } }
+
+    configureBatteryDevice(config, iface, ifaceDesc)
+
+    expect(iface['Dc/0/Voltage']).toBe(48)
+  })
+
+  test('should use custom voltage when selected and default_values enabled', () => {
+    const config = {
+      default_values: true,
+      battery_voltage_preset: 'custom',
+      battery_voltage_custom: 36.5
+    }
+    const iface = createIface(batteryProperties)
+    const ifaceDesc = { properties: { ...batteryProperties } }
+
+    configureBatteryDevice(config, iface, ifaceDesc)
+
+    expect(iface['Dc/0/Voltage']).toBe(36.5)
+  })
+
+  test('should fallback to 24V when custom selected but no custom value provided', () => {
+    const config = {
+      default_values: true,
+      battery_voltage_preset: 'custom'
+      // battery_voltage_custom not provided
+    }
+    const iface = createIface(batteryProperties)
+    const ifaceDesc = { properties: { ...batteryProperties } }
+
+    configureBatteryDevice(config, iface, ifaceDesc)
+
+    expect(iface['Dc/0/Voltage']).toBe(24)
+  })
+
+  test('should fallback to 24V when invalid preset provided', () => {
+    const config = {
+      default_values: true,
+      battery_voltage_preset: 'invalid'
+    }
+    const iface = createIface(batteryProperties)
+    const ifaceDesc = { properties: { ...batteryProperties } }
+
+    configureBatteryDevice(config, iface, ifaceDesc)
+
+    expect(iface['Dc/0/Voltage']).toBe(24)
+  })
+
+  test('should not set voltage when default_values is false', () => {
+    const config = {
+      default_values: false,
+      battery_voltage_preset: '12'
+    }
+    const iface = createIface(batteryProperties)
+    const ifaceDesc = { properties: { ...batteryProperties } }
+
+    configureBatteryDevice(config, iface, ifaceDesc)
+
+    expect(iface['Dc/0/Voltage']).toBe(null)
+  })
+})
