@@ -23,9 +23,19 @@ const deviceRegistry = {
   meteo: meteoDevice,
   motordrive: motordriveDevice,
   pvinverter: pvinverterDevice,
-  'switch': switchDevice,
+  switch: switchDevice,
   tank: tankDevice,
   temperature: temperatureDevice
+}
+
+function transformDeviceName (dev) {
+  if (!dev || typeof dev !== 'string') {
+    throw new Error('Invalid device name provided')
+  }
+  if (dev === 'generator') {
+    return 'genset'
+  }
+  return dev
 }
 
 /**
@@ -56,6 +66,7 @@ function getSupportedDeviceTypes () {
 
 module.exports = {
   deviceRegistry,
+  transformDeviceName,
   getDeviceConfig,
   isDeviceSupported,
   getSupportedDeviceTypes
