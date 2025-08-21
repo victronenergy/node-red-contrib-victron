@@ -68,7 +68,7 @@ describe('Meteo Device Configuration', () => {
     test('createIfaceDesc creates proper interface description for meteo', () => {
       const meteoDevice = require('../src/nodes/victron-virtual/device-types/meteo')
       
-      const ifaceDesc = createIfaceDesc('meteo', meteoDevice.properties)
+      const ifaceDesc = createIfaceDesc(meteoDevice.properties)
 
       expect(ifaceDesc.Irradiance).toBeDefined()
       expect(ifaceDesc.WindSpeed).toBeDefined()
@@ -85,7 +85,7 @@ describe('Meteo Device Configuration', () => {
     test('createIface creates proper interface with default values for meteo', () => {
       const meteoDevice = require('../src/nodes/victron-virtual/device-types/meteo')
       
-      const iface = createIface('meteo', meteoDevice.properties)
+      const iface = createIface(meteoDevice.properties)
 
       expect(iface.emit).toBeDefined()
       expect(typeof iface.emit).toBe('function')
@@ -108,8 +108,8 @@ describe('Meteo Device Configuration', () => {
       }
       
       meteoDevice = require('../src/nodes/victron-virtual/device-types/meteo')
-      iface = createIface('meteo', meteoDevice.properties)
-      ifaceDesc = { properties: createIfaceDesc('meteo', meteoDevice.properties) }
+      iface = createIface(meteoDevice.properties)
+      ifaceDesc = { properties: createIfaceDesc(meteoDevice.properties) }
     })
 
     test('configures meteo device with basic setup', () => {
