@@ -4,7 +4,7 @@
 
 const alarmFormat = (v) => ({
   0: 'OK',
-  1: 'Warning', 
+  1: 'Warning',
   2: 'Alarm'
 }[v] || 'unknown')
 
@@ -50,16 +50,34 @@ const batteryProperties = {
  */
 function configureBatteryDevice (config, iface, ifaceDesc) {
   // Set battery capacity from configuration - only if valid number
-  if (config.battery_capacity != null && 
-      config.battery_capacity !== '' && 
+  if (config.battery_capacity != null &&
+      config.battery_capacity !== '' &&
       !isNaN(Number(config.battery_capacity))) {
     const capacity = Number(config.battery_capacity)
     iface.Capacity = capacity
   }
 
   if (config.default_values) {
+    let voltage = 24 // fallback
+
+    if (config.battery_voltage_preset === '12') {
+      voltage = 12
+    } else if (config.battery_voltage_preset === '24') {
+      voltage = 24
+    } else if (config.battery_voltage_preset === '48') {
+      voltage = 48
+    } else if (config.battery_voltage_preset === 'custom') {
+      if (config.battery_voltage_custom != null &&
+          config.battery_voltage_custom !== '' &&
+          !isNaN(Number(config.battery_voltage_custom))) {
+        voltage = Number(config.battery_voltage_custom)
+      }
+      // If custom is selected but no valid value provided, use default
+    }
+    // For any other invalid preset, use default
+
     iface['Dc/0/Current'] = 0
-    iface['Dc/0/Voltage'] = 24
+    iface['Dc/0/Voltage'] = voltage
     iface['Dc/0/Power'] = 0
     iface['Dc/0/Temperature'] = 25
     iface.Soc = 80

@@ -49,6 +49,18 @@
         }
     }
 
+    function updateBatteryVoltageVisibility() {
+        const defaultValues = $('#node-input-default_values').is(':checked')
+        const preset = $('#node-input-battery_voltage_preset').val()
+
+        // Show voltage row only when default values is enabled
+        $('#battery-voltage-row').toggle(defaultValues)
+
+        // Show custom input only when custom is selected
+        $('#node-input-battery_voltage_custom').toggle(preset === 'custom')
+        $('#battery-voltage-custom-label').toggle(preset === 'custom')
+    }
+
     function checkSelectedVirtualDevice() {
         [
             'battery', 'generator', 'gps', 'grid', 'motordrive', 'pvinverter',
@@ -57,6 +69,13 @@
 
         const selected = $('select#node-input-device').val()
         $('.input-'+selected).show()
+
+        if (selected === 'battery') {
+            $('#node-input-default_values').off('change.battery-voltage').on('change.battery-voltage', updateBatteryVoltageVisibility)
+            $('#node-input-battery_voltage_preset').off('change.battery-voltage').on('change.battery-voltage', updateBatteryVoltageVisibility)
+
+            updateBatteryVoltageVisibility()
+        }
 
         if (selected === 'temperature') {
             // Show/hide battery voltage input based on checkbox
@@ -101,6 +120,8 @@
             default_values: {value: false, required: false},
             // battery
             battery_capacity: {value: 25, required: false},
+            battery_voltage_preset: {value: "24", required: false},
+            battery_voltage_custom: {value: 24, required: false},
             include_battery_temperature: {value: false},
             // generator
             generator_type: {value: "ac", required: false},
@@ -212,6 +233,20 @@
             <div class="form-tips" style="display: block;">
                 <p><strong>Note:</strong> The battery will include most standard alarm and error fields required for proper integration with VRM and GX devices.</p>
             </div>
+        </div>
+
+        <!-- Battery voltage configuration (only show when default_values is enabled) -->
+        <div class="form-row input-battery" id="battery-voltage-row" style="display: none;">
+            <label for="node-input-battery_voltage_preset" style="width:auto;">Default Voltage:</label>
+            <select id="node-input-battery_voltage_preset" style="width:100px;">
+                <option value="12">12V</option>
+                <option value="24">24V</option>
+                <option value="48">48V</option>
+                <option value="custom">Custom</option>
+            </select>
+            <input type="number" id="node-input-battery_voltage_custom" style="width:80px; margin-left:10px;"
+                placeholder="V" step="0.1" min="0" max="1000">
+            <span id="battery-voltage-custom-label" style="margin-left:5px;">V</span>
         </div>
     </div>
 
