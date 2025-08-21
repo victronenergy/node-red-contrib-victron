@@ -8,7 +8,7 @@
  * @returns {Object} Interface description
  */
 function createIfaceDesc (properties) {
-  if (!properties) {
+  if (!properties || typeof properties !== 'object' || Array.isArray(properties)) {
     return {}
   }
 
@@ -36,7 +36,7 @@ function createIfaceDesc (properties) {
  * @returns {Object} Device interface
  */
 function createIface (properties) {
-  if (!properties) {
+  if (!properties || typeof properties !== 'object' || Array.isArray(properties)) {
     return {
       emit: function () {}
     }
