@@ -332,13 +332,14 @@ class VictronDbusListener {
   }
 
   getValue (destination, path) {
+    let invokeDestination = destination
     if (destination.split('/').length === 2) {
       const deviceInstance = destination.split('/')[1]
-      destination = searchHaystack(this.services, deviceInstance, destination.split('/')[0])
+      invokeDestination = searchHaystack(this.services, deviceInstance, destination.split('/')[0])
     }
     this.bus.invoke({
       path,
-      destination,
+      destination: invokeDestination,
       interface: 'com.victronenergy.BusItem',
       member: 'GetValue'
     },
