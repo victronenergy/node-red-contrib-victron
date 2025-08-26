@@ -6,3 +6,5 @@ coverage/
 
 *.swp
 .env
+test/e2e/screenshots
+test/e2e/.node-red-test
