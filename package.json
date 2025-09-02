@@ -12,6 +12,7 @@
     "files": [
         "examples",
         "src",
+        "resources",
         "LICENSE"
     ],
     "node-red": {
@@ -29,6 +30,7 @@
         "eslint-config-google": "^0.14.0",
         "gar": "^1.0.4",
         "jest": "^29.7.0",
+        "rollup": "^4.50.0",
         "standard": "^17.1.2",
         "yargs": "^17.7.2"
     },
@@ -36,7 +38,9 @@
         "node-red"
     ],
     "scripts": {
-        "test": "npm run lint && npm run test:unit",
+        "build": "rollup -c",
+        "build:test": "rollup -c rollup.test.config.mjs",
+        "test": "npm run lint && npm run build:test && npm run test:unit",
         "test:unit": "jest",
         "test:coverage": "jest --coverage",
         "lint": "standard --fix src/ scripts/",

@@ -1,0 +1,10 @@
+a.blue-link {
+  color: rgb(71, 144, 208) !important;
+}
+.form-warning, .form-info {
+  padding-bottom: 8px;
+  max-width: 450px;
+}
+.form-warning .fa {
+  color: #d6615f;
+}

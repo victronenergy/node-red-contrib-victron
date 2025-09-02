@@ -768,8 +768,24 @@ module.exports = function (RED) {
               { name: 'Name', type: 's', persist: true },
               { name: 'Settings/Group', type: 's', value: '', persist: true },
               { name: 'Settings/CustomName', type: 's', value: '', persist: true },
-              { name: 'Settings/Type', type: 'i', format: (v) => ({ 0: 'Momentary', 1: 'Toggle', 2: 'Dimmable' }[v] || 'unknown'), persist: false },
-              { name: 'Settings/ValidTypes', type: 'i', value: 0x7 } // Allow all types
+              {
+                name: 'Settings/Type',
+                type: 'i',
+                format: (v) => ({
+                  0: 'Momentary',
+                  1: 'Toggle',
+                  2: 'Dimmable',
+                  3: 'Temperature setpoint',
+                  4: 'Stepped switch',
+                  6: 'Dropdown',
+                  7: 'Basic slider',
+                  8: 'Unranged setpoint',
+                  9: 'Three-state',
+                  10: 'Bilge pump control'
+                }[v] || 'unknown'),
+                persist: false
+              },
+              { name: 'Settings/ValidTypes', type: 'i', value: 0x7 }
             ]
 
             for (let i = 1; i <= switchCount; i++) {
@@ -796,6 +812,173 @@ module.exports = function (RED) {
                   persist: true
                 }
                 iface[dimmingKey] = 0
+              }
+
+              // Temperature setpoint
+              if (switchType === 3) {
+                // Dimming value (°C)
+                const dimmingKey = `SwitchableOutput/output_${i}/Dimming`
+                ifaceDesc.properties[dimmingKey] = {
+                  type: 'd',
+                  format: (v) => v != null ? v.toFixed(1) + '°C' : '',
+                  min: Number(config[`switch_${i}_min`] ?? 0),
+                  max: Number(config[`switch_${i}_max`] ?? 100),
+                  persist: true
+                }
+                iface[dimmingKey] = Number(config[`switch_${i}_initial`] ?? 0)
+
+                // DimmingMin
+                const minKey = `SwitchableOutput/output_${i}/Settings/DimmingMin`
+                ifaceDesc.properties[minKey] = {
+                  type: 'd',
+                  format: (v) => v != null ? v.toFixed(1) + '°C' : ''
+                }
+                iface[minKey] = Number(config[`switch_${i}_min`] ?? 0)
+
+                // DimmingMax
+                const maxKey = `SwitchableOutput/output_${i}/Settings/DimmingMax`
+                ifaceDesc.properties[maxKey] = {
+                  type: 'd',
+                  format: (v) => v != null ? v.toFixed(1) + '°C' : ''
+                }
+                iface[maxKey] = Number(config[`switch_${i}_max`] ?? 100)
+
+                // StepSize
+                const stepKey = `SwitchableOutput/output_${i}/Settings/StepSize`
+                ifaceDesc.properties[stepKey] = {
+                  type: 'd',
+                  format: (v) => v != null ? v.toFixed(1) + '°C' : ''
+                }
+                iface[stepKey] = Number(config[`switch_${i}_step`] ?? 1)
+              } // Temperature setpoint
+
+              if (switchType === 4) {
+                // Stepped switch
+                // /SwitchableOutput/x/Dimming holds selected option
+                // /SwitchableOutput/x/Settings/DimmingMax defines the number of options (mandatory)
+                const dimmingKey = `SwitchableOutput/output_${i}/Dimming`
+                ifaceDesc.properties[dimmingKey] = {
+                  type: 'i',
+                  format: (v) => v != null ? `Option ${v}` : '',
+                  min: 0,
+                  max: Number(config[`switch_${i}_max`] ?? 1), // Number of options
+                  persist: true
+                }
+                iface[dimmingKey] = 0
+
+                const maxKey = `SwitchableOutput/output_${i}/Settings/DimmingMax`
+                ifaceDesc.properties[maxKey] = {
+                  type: 'i',
+                  format: (v) => v != null ? `Options: ${v}` : '',
+                  persist: true
+                }
+                iface[maxKey] = Number(config[`switch_${i}_max`] ?? 1)
+              }
+
+              // Dropdown switch (type 6)
+              if (switchType === 6) {
+                const typeKey = `SwitchableOutput/output_${i}/Settings/Type`
+                const dimmingKey = `SwitchableOutput/output_${i}/Dimming`
+                const labelsKey = `SwitchableOutput/output_${i}/Settings/Labels`
+
+                // Set type to 6 for dropdown
+                ifaceDesc.properties[typeKey] = {
+                  type: 'i',
+                  format: (v) => v,
+                  persist: true
+                }
+                iface[typeKey] = 6
+
+                // Get labels from config - should be simple key-value object
+                const labelData = config[`switch_${i}_label`] || '{}'
+                let labelsJson = '{}'
+                let firstKey = ''
+
+                try {
+                  const keyValueObj = JSON.parse(labelData)
+                  const keys = Object.keys(keyValueObj)
+                  if (keys.length > 0) {
+                    labelsJson = labelData // Use the same format
+                    firstKey = keys[0] // Default to first key
+                  }
+                } catch (e) {
+                  console.error(`Invalid JSON in switch ${i} labels:`, e)
+                }
+
+                // Dimming holds the selected key (string type)
+                ifaceDesc.properties[dimmingKey] = {
+                  type: 's',
+                  format: (v) => {
+                    // Format display using the key-value labels
+                    try {
+                      const labels = JSON.parse(iface[labelsKey] || '{}')
+                      return labels[v] || v || ''
+                    } catch (e) {
+                      return v || ''
+                    }
+                  }
+                }
+                iface[dimmingKey] = firstKey || ''
+
+                // Labels field stores the key-value JSON directly
+                ifaceDesc.properties[labelsKey] = {
+                  type: 's',
+                  format: (v) => v || '{}'
+                }
+                iface[labelsKey] = labelsJson
+              }
+
+              if (switchType === 7 || switchType === 8) { // Basic slider or unranged setpoint
+                const dimmingKey = `SwitchableOutput/output_${i}/Dimming`
+                ifaceDesc.properties[dimmingKey] = {
+                  type: 'd',
+                  format: (v) => v != null ? v.toFixed(1) : '',
+                  min: Number(config[`switch_${i}_min`] ?? 0),
+                  max: Number(config[`switch_${i}_max`] ?? 100),
+                  persist: true
+                }
+                iface[dimmingKey] = Number(config[`switch_${i}_initial`] ?? 0)
+
+                // DimmingMin
+                const minKey = `SwitchableOutput/output_${i}/Settings/DimmingMin`
+                ifaceDesc.properties[minKey] = {
+                  type: 'd',
+                  format: (v) => v != null ? v.toFixed(1) : ''
+                }
+                iface[minKey] = Number(config[`switch_${i}_min`] ?? 0)
+
+                // DimmingMax
+                const maxKey = `SwitchableOutput/output_${i}/Settings/DimmingMax`
+                ifaceDesc.properties[maxKey] = {
+                  type: 'd',
+                  format: (v) => v != null ? v.toFixed(1) : ''
+                }
+                iface[maxKey] = Number(config[`switch_${i}_max`] ?? 100)
+
+                // StepSize
+                const stepKey = `SwitchableOutput/output_${i}/Settings/StepSize`
+                ifaceDesc.properties[stepKey] = {
+                  type: 'd',
+                  format: (v) => v != null ? v.toFixed(1) + '°C' : ''
+                }
+                iface[stepKey] = Number(config[`switch_${i}_step`] ?? 1)
+
+                const unitKey = `SwitchableOutput/output_${i}/Settings/Unit`
+                ifaceDesc.properties[unitKey] = {
+                  type: 's',
+                  format: (v) => v || ''
+                }
+                iface[unitKey] = config[`switch_${i}_unit`] || ''
+              }
+
+              if (switchType === 9) { // Three-state switch
+                const autoKey = `SwitchableOutput/output_${i}/Auto`
+                ifaceDesc.properties[autoKey] = {
+                  type: 'i',
+                  format: (v) => v === 1 ? 'Auto' : 'Manual',
+                  persist: true
+                }
+                iface[autoKey] = 0
               }
             }
 
