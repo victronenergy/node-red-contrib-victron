@@ -82,6 +82,7 @@ const properties = {
     'Info/ChargeRequest': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
     Soc: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: 15 /* persist, but throttled to 15 seconds */ },
     Soh: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: 60 /* persist, but throttled to 60 seconds */ },
+    TimeToGo: { type: 'd', max: 86400, format: (v) => v != null ? v.toFixed(0) + 's' : '' },
     Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
     'Alarms/CellImbalance': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
     'Alarms/HighCellVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
@@ -546,8 +547,25 @@ module.exports = function (RED) {
               iface.Capacity = Number(config.battery_capacity)
             }
             if (config.default_values) {
+              let voltage = 24 // fallback
+
+              if (config.battery_voltage_preset === '12') {
+                voltage = 12
+              } else if (config.battery_voltage_preset === '24') {
+                voltage = 24
+              } else if (config.battery_voltage_preset === '48') {
+                voltage = 48
+              } else if (config.battery_voltage_preset === 'custom') {
+                if (config.battery_voltage_custom != null &&
+                    config.battery_voltage_custom !== '' &&
+                    !isNaN(Number(config.battery_voltage_custom))) {
+                  voltage = Number(config.battery_voltage_custom)
+                }
+                // If custom is selected but no valid value provided, use default
+              }
+              // For any other invalid preset, use default
               iface['Dc/0/Current'] = 0
-              iface['Dc/0/Voltage'] = 24
+              iface['Dc/0/Voltage'] = voltage
               iface['Dc/0/Power'] = 0
               iface['Dc/0/Temperature'] = 25
               iface.Soc = 80

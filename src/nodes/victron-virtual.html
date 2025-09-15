@@ -12,6 +12,8 @@
             // battery
             battery_capacity: {value: 25, required: false},
             include_battery_temperature: {value: false},
+            battery_voltage_preset: {value: "24", required: false},
+            battery_voltage_custom: {value: 24, required: false},
             // generator
             generator_type: {value: "ac", required: false},
             generator_nrofphases: {value: 1, required: false},
@@ -182,6 +184,20 @@
             <label for="node-input-battery_capacity"><i class="fa fa-flask"></i> Battery Capacity (Ah)</label>
             <input type="number" id="node-input-battery_capacity" min="0">
         </div>
+
+       <!-- Battery voltage configuration (only show when default_values is enabled) -->
+       <div class="form-row input-battery" id="battery-voltage-row" style="display: none;">
+           <label for="node-input-battery_voltage_preset" style="width:auto;">Default Voltage:</label>
+           <select id="node-input-battery_voltage_preset" style="width:100px;">
+               <option value="12">12V</option>
+               <option value="24">24V</option>
+               <option value="48">48V</option>
+              <option value="custom">Custom</option>
+           </select>
+           <input type="number" id="node-input-battery_voltage_custom" style="width:80px; margin-left:10px;"
+               placeholder="V" step="0.1" min="0" max="1000">
+           <span id="battery-voltage-custom-label" style="margin-left:5px;">V</span>
+       </div>
 
         <div class="form-row">
             <label>&nbsp;</label>
@@ -504,6 +520,10 @@ The battery device allows for setting the capacity of the battery. The capacity
 is configured in Ah.
 
 Including the battery temperature adds a field to write the temperature to.
+
+If the _initialize with default values_ option is selected, the battery voltage
+will be set to a default value. You can select a preset value of 12V, 24V or
+48V. Or you can select _custom_ and enter your own voltage.
 
 ### Generator
 
