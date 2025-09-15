@@ -205,6 +205,18 @@ export function updateSwitchConfig () {
   }
 }
 
+export function updateBatteryVoltageVisibility () {
+  const defaultValues = $('#node-input-default_values').is(':checked')
+  const preset = $('#node-input-battery_voltage_preset').val()
+
+  // Show voltage row only when default values is enabled
+  $('#battery-voltage-row').toggle(defaultValues)
+
+  // Show custom input only when custom is selected
+  $('#node-input-battery_voltage_custom').toggle(preset === 'custom')
+  $('#battery-voltage-custom-label').toggle(preset === 'custom')
+}
+
 export function checkSelectedVirtualDevice () {
   [
     'battery', 'generator', 'gps', 'grid', 'motordrive', 'pvinverter',
@@ -213,6 +225,13 @@ export function checkSelectedVirtualDevice () {
 
   const selected = $('select#node-input-device').val()
   $('.input-' + selected).show()
+
+  if (selected === 'battery') {
+    $('#node-input-default_values').off('change.battery-voltage').on('change.battery-voltage', updateBatteryVoltageVisibility)
+    $('#node-input-battery_voltage_preset').off('change.battery-voltage').on('change.battery-voltage', updateBatteryVoltageVisibility)
+
+    updateBatteryVoltageVisibility()
+  }
 
   if (selected === 'temperature') {
     // Show/hide battery voltage input based on checkbox

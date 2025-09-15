@@ -2,7 +2,8 @@
 const {
   checkGeneratorType,
   updateSwitchConfig,
-  checkSelectedVirtualDevice
+  checkSelectedVirtualDevice,
+  updateBatteryVoltageVisibility
 } = require('./fixtures/victron-virtual-functions.cjs')
 
 function createMockElement(customValues = {}) {
@@ -379,6 +380,140 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
 
       expect(mockContainer.empty).toHaveBeenCalled()
       expect(global.$).toHaveBeenCalledWith('#node-input-switch_count')
+    })
+  })
+
+  describe('updateBatteryVoltageVisibility', () => {
+    test('shows voltage row and hides custom fields when default values enabled and preset is standard', () => {
+      const mockDefaultValues = createMockElement({ is: true })
+      const mockBatteryVoltagePreset = createMockElement({ val: 'standard' })
+      const mockBatteryVoltageRow = createMockElement()
+      const mockBatteryVoltageCustom = createMockElement()
+      const mockBatteryVoltageCustomLabel = createMockElement()
+      
+      global.$.mockImplementation((selector) => {
+        if (selector === '#node-input-default_values') {
+          return mockDefaultValues
+        }
+        if (selector === '#node-input-battery_voltage_preset') {
+          return mockBatteryVoltagePreset
+        }
+        if (selector === '#battery-voltage-row') {
+          return mockBatteryVoltageRow
+        }
+        if (selector === '#node-input-battery_voltage_custom') {
+          return mockBatteryVoltageCustom
+        }
+        if (selector === '#battery-voltage-custom-label') {
+          return mockBatteryVoltageCustomLabel
+        }
+        return createMockElement()
+      })
+
+      updateBatteryVoltageVisibility()
+
+      expect(mockBatteryVoltageRow.toggle).toHaveBeenCalledWith(true)
+      expect(mockBatteryVoltageCustom.toggle).toHaveBeenCalledWith(false)
+      expect(mockBatteryVoltageCustomLabel.toggle).toHaveBeenCalledWith(false)
+    })
+
+    test('hides voltage row when default values disabled', () => {
+      const mockDefaultValues = createMockElement({ is: false })
+      const mockBatteryVoltagePreset = createMockElement({ val: 'standard' })
+      const mockBatteryVoltageRow = createMockElement()
+      const mockBatteryVoltageCustom = createMockElement()
+      const mockBatteryVoltageCustomLabel = createMockElement()
+      
+      global.$.mockImplementation((selector) => {
+        if (selector === '#node-input-default_values') {
+          return mockDefaultValues
+        }
+        if (selector === '#node-input-battery_voltage_preset') {
+          return mockBatteryVoltagePreset
+        }
+        if (selector === '#battery-voltage-row') {
+          return mockBatteryVoltageRow
+        }
+        if (selector === '#node-input-battery_voltage_custom') {
+          return mockBatteryVoltageCustom
+        }
+        if (selector === '#battery-voltage-custom-label') {
+          return mockBatteryVoltageCustomLabel
+        }
+        return createMockElement()
+      })
+
+      updateBatteryVoltageVisibility()
+
+      expect(mockBatteryVoltageRow.toggle).toHaveBeenCalledWith(false)
+      expect(mockBatteryVoltageCustom.toggle).toHaveBeenCalledWith(false)
+      expect(mockBatteryVoltageCustomLabel.toggle).toHaveBeenCalledWith(false)
+    })
+
+    test('shows custom fields when preset is custom', () => {
+      const mockDefaultValues = createMockElement({ is: true })
+      const mockBatteryVoltagePreset = createMockElement({ val: 'custom' })
+      const mockBatteryVoltageRow = createMockElement()
+      const mockBatteryVoltageCustom = createMockElement()
+      const mockBatteryVoltageCustomLabel = createMockElement()
+      
+      global.$.mockImplementation((selector) => {
+        if (selector === '#node-input-default_values') {
+          return mockDefaultValues
+        }
+        if (selector === '#node-input-battery_voltage_preset') {
+          return mockBatteryVoltagePreset
+        }
+        if (selector === '#battery-voltage-row') {
+          return mockBatteryVoltageRow
+        }
+        if (selector === '#node-input-battery_voltage_custom') {
+          return mockBatteryVoltageCustom
+        }
+        if (selector === '#battery-voltage-custom-label') {
+          return mockBatteryVoltageCustomLabel
+        }
+        return createMockElement()
+      })
+
+      updateBatteryVoltageVisibility()
+
+      expect(mockBatteryVoltageRow.toggle).toHaveBeenCalledWith(true)
+      expect(mockBatteryVoltageCustom.toggle).toHaveBeenCalledWith(true)
+      expect(mockBatteryVoltageCustomLabel.toggle).toHaveBeenCalledWith(true)
+    })
+
+    test('handles edge case when preset is undefined', () => {
+      const mockDefaultValues = createMockElement({ is: true })
+      const mockBatteryVoltagePreset = createMockElement({ val: undefined })
+      const mockBatteryVoltageRow = createMockElement()
+      const mockBatteryVoltageCustom = createMockElement()
+      const mockBatteryVoltageCustomLabel = createMockElement()
+      
+      global.$.mockImplementation((selector) => {
+        if (selector === '#node-input-default_values') {
+          return mockDefaultValues
+        }
+        if (selector === '#node-input-battery_voltage_preset') {
+          return mockBatteryVoltagePreset
+        }
+        if (selector === '#battery-voltage-row') {
+          return mockBatteryVoltageRow
+        }
+        if (selector === '#node-input-battery_voltage_custom') {
+          return mockBatteryVoltageCustom
+        }
+        if (selector === '#battery-voltage-custom-label') {
+          return mockBatteryVoltageCustomLabel
+        }
+        return createMockElement()
+      })
+
+      updateBatteryVoltageVisibility()
+
+      expect(mockBatteryVoltageRow.toggle).toHaveBeenCalledWith(true)
+      expect(mockBatteryVoltageCustom.toggle).toHaveBeenCalledWith(false)
+      expect(mockBatteryVoltageCustomLabel.toggle).toHaveBeenCalledWith(false)
     })
   })
 })
