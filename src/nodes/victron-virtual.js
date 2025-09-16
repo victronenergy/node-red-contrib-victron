@@ -543,18 +543,15 @@ module.exports = function (RED) {
         // Device specific configuration
         switch (config.device) {
           case 'battery': {
+            const BATTERY_DEFAULT_VOLTAGES = ['12', '24', '48'];
             if (config.battery_capacity != null && !isNaN(Number(config.battery_capacity))) {
               iface.Capacity = Number(config.battery_capacity)
             }
             if (config.default_values) {
               let voltage = 24 // fallback
 
-              if (config.battery_voltage_preset === '12') {
-                voltage = 12
-              } else if (config.battery_voltage_preset === '24') {
-                voltage = 24
-              } else if (config.battery_voltage_preset === '48') {
-                voltage = 48
+              if (BATTERY_DEFAULT_VOLTAGES.includes(config.battery_voltage_preset)) {
+                voltage = Number(config.battery_voltage_preset)
               } else if (config.battery_voltage_preset === 'custom') {
                 if (config.battery_voltage_custom != null &&
                     config.battery_voltage_custom !== '' &&
