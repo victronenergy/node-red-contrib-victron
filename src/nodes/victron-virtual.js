@@ -794,7 +794,7 @@ module.exports = function (RED) {
                   4: 'Stepped switch',
                   6: 'Dropdown',
                   7: 'Basic slider',
-                  8: 'Unranged setpoint',
+                  8: 'Numeric input box',
                   9: 'Three-state',
                   10: 'Bilge pump control'
                 }[v] || 'unknown'),
@@ -942,7 +942,7 @@ module.exports = function (RED) {
                 iface[labelsKey] = labelsJson
               }
 
-              if (switchType === 7 || switchType === 8) { // Basic slider or unranged setpoint
+              if (switchType === 7 || switchType === 8) { // Basic slider or Numeric input box
                 const dimmingKey = `SwitchableOutput/output_${i}/Dimming`
                 ifaceDesc.properties[dimmingKey] = {
                   type: 'd',

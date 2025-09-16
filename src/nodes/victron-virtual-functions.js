@@ -53,7 +53,7 @@ export const SWITCH_TYPE_CONFIGS = {
   //   ]
   // },
   8: {
-    label: 'Unranged setpoint',
+    label: 'Numeric input box',
     fields: [
       { id: 'min', type: 'number', placeholder: 'Min value', title: 'Slider minimum', style: 'width:80px;' },
       { id: 'max', type: 'number', placeholder: 'Max value', title: 'Slider maximum', style: 'width:80px;' },
