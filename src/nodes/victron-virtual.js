@@ -876,7 +876,7 @@ module.exports = function (RED) {
                   type: 'i',
                   format: (v) => v != null ? `Option ${v}` : '',
                   min: 0,
-                  max: Number(config[`switch_${i}_max`] ?? 1), // Number of options
+                  max: Number(config[`switch_${i}_max`] ?? 7),
                   persist: true
                 }
                 iface[dimmingKey] = 0
@@ -884,10 +884,9 @@ module.exports = function (RED) {
                 const maxKey = `SwitchableOutput/output_${i}/Settings/DimmingMax`
                 ifaceDesc.properties[maxKey] = {
                   type: 'i',
-                  format: (v) => v != null ? `Options: ${v}` : '',
-                  persist: true
+                  format: (v) => v != null ? `Options: ${v}` : ''
                 }
-                iface[maxKey] = Number(config[`switch_${i}_max`] ?? 1)
+                iface[maxKey] = Number(config[`switch_${i}_max`] ?? 7)
               }
 
               // Dropdown switch (type 6)
