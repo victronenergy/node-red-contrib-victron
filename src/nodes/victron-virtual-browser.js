@@ -4,7 +4,8 @@ import {
   renderSwitchConfigRow,
   updateSwitchConfig,
   checkSelectedVirtualDevice,
-  validateSwitchConfig
+  validateSwitchConfig,
+  updateBatteryVoltageVisibility
 } from './victron-virtual-functions.js'
 
 window.checkGeneratorType = checkGeneratorType
@@ -13,3 +14,4 @@ window.renderSwitchConfigRow = renderSwitchConfigRow
 window.updateSwitchConfig = updateSwitchConfig
 window.checkSelectedVirtualDevice = checkSelectedVirtualDevice
 window.validateSwitchConfig = validateSwitchConfig
+window.updateBatteryVoltageVisibility = updateBatteryVoltageVisibility

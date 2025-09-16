@@ -208,7 +208,7 @@
     }
   }
 
-  function updateBatteryVoltageVisibility() {
+  function updateBatteryVoltageVisibility () {
     const defaultValues = $('#node-input-default_values').is(':checked');
     const preset = $('#node-input-battery_voltage_preset').val();
 
@@ -332,5 +332,6 @@
   window.updateSwitchConfig = updateSwitchConfig;
   window.checkSelectedVirtualDevice = checkSelectedVirtualDevice;
   window.validateSwitchConfig = validateSwitchConfig;
+  window.updateBatteryVoltageVisibility = updateBatteryVoltageVisibility;
 
 })();
