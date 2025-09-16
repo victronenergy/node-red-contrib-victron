@@ -543,7 +543,7 @@ module.exports = function (RED) {
         // Device specific configuration
         switch (config.device) {
           case 'battery': {
-            const BATTERY_DEFAULT_VOLTAGES = ['12', '24', '48'];
+            const BATTERY_DEFAULT_VOLTAGES = ['12', '24', '48']
             if (config.battery_capacity != null && !isNaN(Number(config.battery_capacity))) {
               iface.Capacity = Number(config.battery_capacity)
             }
