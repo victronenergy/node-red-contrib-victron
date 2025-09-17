@@ -204,11 +204,16 @@ class VictronDbusListener {
       },
       (err, res) => {
         if (err) {
+          console.warn(`Unable to request root for service ${service.name}, this is fine when reconnecting.`)
           const matchIfVirtual = service.name.match(/^com\.victronenergy\.(\w+)\.virtual_*/)
           if (matchIfVirtual) {
-            console.warn(`Unable to request root for virtual service ${service.name}, this is fine when reconnecting.`)
             return resolve()
           }
+          // It looks like com.victronenergy.gps.ve_ttyUSB2 implements GetItems poorly, so we ignore the error here
+          if (service.name === 'com.victronenergy.gps.ve_ttyUSB2') {
+            return resolve()
+          }
+
           return reject(err)
         }
         const data = {}
