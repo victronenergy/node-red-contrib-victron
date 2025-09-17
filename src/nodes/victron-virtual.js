@@ -800,7 +800,8 @@ module.exports = function (RED) {
                 }[v] || 'unknown'),
                 persist: false
               },
-              { name: 'Settings/ValidTypes', type: 'i', value: 0x7 }
+              { name: 'Settings/ValidTypes', type: 'i', value: 0x7 },
+              { name: 'Settings/ShowUIControl', type: 'i', value: 1, persist: true }
             ]
 
             for (let i = 1; i <= switchCount; i++) {
