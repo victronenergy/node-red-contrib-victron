@@ -87,6 +87,12 @@
             return (this.name||"Virtual "+this.device)
         },
         oneditprepare: function oneditprepare() {
+            if (this.id) {
+                $('#node-input-device')
+                    .prop('disabled', true)
+                    .attr('title', 'Device type cannot be changed after deployment.');
+            }
+
             $('#node-input-device').on('change', () => {
                 checkSelectedVirtualDevice.call(this);
             });
