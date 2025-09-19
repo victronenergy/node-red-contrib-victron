@@ -87,7 +87,7 @@
             return (this.name||"Virtual "+this.device)
         },
         oneditprepare: function oneditprepare() {
-            if (this.id) {
+            if (this.id && this.changed === false) {
                 $('#node-input-device')
                     .prop('disabled', true)
                     .attr('title', 'Device type cannot be changed after deployment.');
