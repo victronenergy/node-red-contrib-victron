@@ -812,7 +812,15 @@ module.exports = function (RED) {
                 ifaceDesc.properties[key] = { type, format, persist }
 
                 let propValue = value
-                if (name === 'Name') propValue = `Switch ${i}`
+                if (name === 'Name') {
+                  // Find the format function for Settings/Type
+                  const typeProp = baseProperties.find(p => p.name === 'Settings/Type');
+                  let typeLabel = `Switch ${i}`;
+                  if (typeProp && typeof typeProp.format === 'function') {
+                    typeLabel = typeProp.format(switchType);
+                  }
+                  propValue = typeLabel;
+                }
                 if (name === 'Settings/Type') propValue = switchType
 
                 iface[key] = propValue !== undefined ? propValue : 0
