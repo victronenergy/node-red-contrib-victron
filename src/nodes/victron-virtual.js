@@ -814,12 +814,12 @@ module.exports = function (RED) {
                 let propValue = value
                 if (name === 'Name') {
                   // Find the format function for Settings/Type
-                  const typeProp = baseProperties.find(p => p.name === 'Settings/Type');
-                  let typeLabel = `Switch ${i}`;
+                  const typeProp = baseProperties.find(p => p.name === 'Settings/Type')
+                  let typeLabel = `Switch ${i}`
                   if (typeProp && typeof typeProp.format === 'function') {
-                    typeLabel = typeProp.format(switchType);
+                    typeLabel = typeProp.format(switchType)
                   }
-                  propValue = typeLabel;
+                  propValue = typeLabel
                 }
                 if (name === 'Settings/Type') propValue = switchType
 
