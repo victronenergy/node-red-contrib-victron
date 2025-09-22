@@ -224,7 +224,7 @@ const TEMPLATE = (service, name, deviceInstance, paths) => {
  * Shown in the UI if the system relay mode is set to any other than 'manual'
  */
 const RELAY_MODE_WARNING = (func) =>
-    `The relay is configured for <strong>${func}</strong> function. Please navigate to Settings > Integrations > Relays and change it to manual.`
+  `The relay is configured for <strong>${func}</strong> function. Please navigate to Settings > Integrations > Relays and change it to manual.`
 
 /**
  * All possible system relay functions
@@ -250,6 +250,35 @@ const STATUS = {
   SERVICE_MIGRATE: 8
 }
 
+/**
+  * Maps a cache value to a JSON-serializable value.
+  * - Strings, numbers, booleans, and null are returned as-is.
+  * - Dates are converted to ISO strings.
+  * - Objects and arrays are stringified.
+  * - Other types (e.g., functions) are converted to their string representation.
+*/
+function mapCacheValueToJsonResponseValue (value) {
+  if (value === null) return null
+  if (value instanceof Date) return value.toISOString()
+  if (typeof value === 'object') return JSON.stringify(value)
+  if (typeof value === 'function') return value.toString()
+  return value
+}
+
+/**
+  * Maps the cache (see VictronClient.system.cache) to a JSON string.
+  */
+function mapCacheToJsonResponse (cache) {
+  const result = {}
+  for (const [device, value] of Object.entries(cache)) {
+    result[device] = {}
+    for (const [path, pathValue] of Object.entries(value)) {
+      result[device][path] = mapCacheValueToJsonResponseValue(pathValue)
+    }
+  }
+  return JSON.stringify(result)
+}
+
 module.exports = {
   CONNECTED,
   DISCONNECTED,
@@ -262,5 +291,7 @@ module.exports = {
   UUID,
   DEFAULT_SERVICE_NAMES,
   WILDCARD_MAPPINGS,
-  expandWildcardPaths
+  expandWildcardPaths,
+  mapCacheValueToJsonResponseValue,
+  mapCacheToJsonResponse
 }
