@@ -824,6 +824,10 @@ module.exports = function (RED) {
                 if (name === 'Settings/Type') propValue = switchType
 
                 iface[key] = propValue !== undefined ? propValue : 0
+
+                if (name === 'Settings/ValidTypes') {
+                  iface[key] = 1 << Number(config[`switch_${i}_type`])
+                }
               })
 
               if (switchType === 2) {
