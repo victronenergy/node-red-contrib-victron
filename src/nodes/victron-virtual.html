@@ -40,6 +40,8 @@
             switch_1_label: {value: "", required: false},
             switch_1_unit: {value: "", required: false},
             switch_1_step: {value: 1, required: false},
+            switch_1_customname: {value: "", required: false},
+            switch_1_group: {value: "", required: false},
             switch_2_type: {value: 1, required: false},
             switch_2_min: {value: 0, required: false},
             switch_2_max: {value: "", required: false},
@@ -47,6 +49,8 @@
             switch_2_step: {value: 1, required: false},
             switch_2_label: {value: "", required: false},
             switch_2_unit: {value: "", required: false},
+            switch_2_customname: {value: "", required: false},
+            switch_2_group: {value: "", required: false},
             switch_3_type: {value: 1, required: false},
             switch_3_min: {value: 0, required: false},
             switch_3_max: {value: "", required: false},
@@ -54,6 +58,8 @@
             switch_3_step: {value: 1, required: false},
             switch_3_label: {value: "", required: false},
             switch_3_unit: {value: "", required: false},
+            switch_3_customname: {value: "", required: false},
+            switch_3_group: {value: "", required: false},
             switch_4_type: {value: 1, required: false},
             switch_4_min: {value: 0, required: false},
             switch_4_max: {value: "", required: false},
@@ -61,6 +67,8 @@
             switch_4_step: {value: 1, required: false},
             switch_4_label: {value: "", required: false},
             switch_4_unit: {value: "", required: false},
+            switch_4_customname: {value: "", required: false},
+            switch_4_group: {value: "", required: false},
             // tank
             fluid_type: { value: 0, required: false},
             include_tank_battery: { value: false },
@@ -142,7 +150,7 @@
                             this[`switch_${i}_label`] = JSON.stringify(keyValueObj);
                         }
 
-                        t// For type 7 (basic slider), save unit field
+                        // For type 7 (basic slider), save unit field
                         if (type === 7) {
                             this[`switch_${i}_unit`] = $(`#node-input-switch_${i}_unit`).val();
                         }

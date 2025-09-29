@@ -826,6 +826,21 @@ module.exports = function (RED) {
                 iface[key] = propValue !== undefined ? propValue : 0
               })
 
+              // Set CustomName and Group from config
+              const customNameKey = `SwitchableOutput/output_${i}/Settings/CustomName`
+              ifaceDesc.properties[customNameKey] = {
+                type: 's',
+                persist: true
+              }
+              iface[customNameKey] = config[`switch_${i}_customname`] || ''
+
+              const groupKey = `SwitchableOutput/output_${i}/Settings/Group`
+              ifaceDesc.properties[groupKey] = {
+                type: 's',
+                persist: true
+              }
+              iface[groupKey] = config[`switch_${i}_group`] || ''
+
               if (switchType === 2) {
                 const dimmingKey = `SwitchableOutput/output_${i}/Dimming`
                 ifaceDesc.properties[dimmingKey] = {

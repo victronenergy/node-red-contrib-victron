@@ -1,5 +1,10 @@
 /* global $ */
 
+const COMMON_SWITCH_FIELDS = [
+  { id: 'customname', type: 'text', placeholder: 'Output name', title: 'Custom Name', style: 'width:120px;' },
+  { id: 'group', type: 'text', placeholder: 'Group', title: 'Group', style: 'width:120px;' }
+]
+
 export function checkGeneratorType () {
   const generatorType = $('select#node-input-generator_type').val()
   if (generatorType === 'dc') {
@@ -12,12 +17,13 @@ export function checkGeneratorType () {
 }
 
 export const SWITCH_TYPE_CONFIGS = {
-  0: { label: 'Momentary', fields: [] },
-  1: { label: 'Toggle', fields: [] },
-  2: { label: 'Dimmable', fields: [] },
+  0: { label: 'Momentary', fields: [...COMMON_SWITCH_FIELDS] },
+  1: { label: 'Toggle', fields: [...COMMON_SWITCH_FIELDS] },
+  2: { label: 'Dimmable', fields: [...COMMON_SWITCH_FIELDS] },
   3: {
     label: 'Temperature setpoint',
     fields: [
+      ...COMMON_SWITCH_FIELDS,
       { id: 'min', type: 'number', placeholder: 'Min (°C)', title: 'Min (°C)', style: 'width:80px;' },
       { id: 'max', type: 'number', placeholder: 'Max (°C)', title: 'Max (°C)', style: 'width:80px;' },
       { id: 'step', type: 'number', placeholder: 'Step (°C)', title: 'Step (°C)', style: 'width:80px;' }
@@ -26,35 +32,14 @@ export const SWITCH_TYPE_CONFIGS = {
   4: {
     label: 'Stepped switch',
     fields: [
+      ...COMMON_SWITCH_FIELDS,
       { id: 'max', type: 'number', placeholder: 'Max steps', title: 'Max steps', style: 'width:80px;', min: 1, max: 7 }
     ]
   },
-  // 6: {
-  //   label: 'Dropdown',
-  //   fields: [
-  //     {
-  //       id: 'count',
-  //       type: 'number',
-  //       placeholder: 'Number of options',
-  //       title: 'Number of dropdown options',
-  //       style: 'width:100px;',
-  //       min: '2',
-  //       max: '10'
-  //     }
-  //   ]
-  // },
-  // 7: {
-  //   label: 'Basic slider',
-  //   fields: [
-  //     { id: 'min', type: 'number', placeholder: 'Min value', title: 'Slider minimum', style: 'width:80px;' },
-  //     { id: 'max', type: 'number', placeholder: 'Max value', title: 'Slider maximum', style: 'width:80px;' },
-  //     { id: 'step', type: 'number', placeholder: 'Step size', title: 'Step size', style: 'width:80px;' },
-  //     { id: 'unit', type: 'text', placeholder: 'Unit', title: 'Unit', style: 'width:80px;' }
-  //   ]
-  // },
   8: {
     label: 'Numeric input',
     fields: [
+      ...COMMON_SWITCH_FIELDS,
       { id: 'min', type: 'number', placeholder: 'Min value', title: 'Slider minimum', style: 'width:80px;' },
       { id: 'max', type: 'number', placeholder: 'Max value', title: 'Slider maximum', style: 'width:80px;' },
       { id: 'step', type: 'number', placeholder: 'Step size', title: 'Step size', style: 'width:80px;' },
@@ -63,7 +48,7 @@ export const SWITCH_TYPE_CONFIGS = {
   },
   9: {
     label: 'Three-state switch',
-    fields: [] // No extra config fields
+    fields: [...COMMON_SWITCH_FIELDS]
   }
 }
 

@@ -37,32 +37,14 @@ describe('Switch Configuration Tests', () => {
 
   describe('SWITCH_TYPE_CONFIGS', () => {
     test('has correct switch type configurations', () => {
-      expect(SWITCH_TYPE_CONFIGS[0]).toEqual({
-        label: 'Momentary',
-        fields: []
-      })
-
-      expect(SWITCH_TYPE_CONFIGS[1]).toEqual({
-        label: 'Toggle',
-        fields: []
-      })
-
-      // expect(SWITCH_TYPE_CONFIGS[6]).toBeDefined()
-      // expect(SWITCH_TYPE_CONFIGS[6].label).toBe('Dropdown')
-      // expect(SWITCH_TYPE_CONFIGS[6].fields).toHaveLength(1)
-      // expect(SWITCH_TYPE_CONFIGS[6].fields[0]).toEqual({
-      //   id: 'count',
-      //   type: 'number',
-      //   placeholder: 'Number of options',
-      //   title: 'Number of dropdown options',
-      //   style: 'width:100px;',
-      //   min: '2',
-      //   max: '10'
-      // })
+      Object.values(SWITCH_TYPE_CONFIGS).forEach(cfg => {
+        expect(cfg.fields[0].id).toBe('customname');
+        expect(cfg.fields[1].id).toBe('group');
+      });
 
       expect(SWITCH_TYPE_CONFIGS[4]).toBeDefined()
       expect(SWITCH_TYPE_CONFIGS[4].label).toBe('Stepped switch')
-      expect(SWITCH_TYPE_CONFIGS[4].fields[0].id).toBe('max')
+      expect(SWITCH_TYPE_CONFIGS[4].fields[2].id).toBe('max')
     })
   })
 
@@ -395,4 +377,13 @@ describe('Switch Configuration Tests', () => {
       expect(result).toBe(true) // Should pass when elements don't exist
     })
   })
+
+  // describe('SWITCH_TYPE_CONFIGS', () => {
+  //   test('all switch types include customname and group fields first', () => {
+  //     Object.values(SWITCH_TYPE_CONFIGS).forEach(cfg => {
+  //       expect(cfg.fields[0].id).toBe('customname');
+  //       expect(cfg.fields[1].id).toBe('group');
+  //     });
+  //   });
+  // });
 })
