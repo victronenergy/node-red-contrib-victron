@@ -67,6 +67,10 @@
     9: {
       label: 'Three-state switch',
       fields: [] // No extra config fields
+    },
+    10: {
+      label: 'Bilge pump control',
+      fields: [] // No extra config fields
     }
   };
 
