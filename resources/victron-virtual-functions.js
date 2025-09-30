@@ -42,6 +42,7 @@
     6: {
       label: 'Dropdown',
       fields: [
+        ...COMMON_SWITCH_FIELDS,
         {
           id: 'count',
           type: 'number',
@@ -56,6 +57,7 @@
     7: {
       label: 'Basic slider',
       fields: [
+        ...COMMON_SWITCH_FIELDS,
         { id: 'min', type: 'number', placeholder: 'Min value', title: 'Slider minimum', style: 'width:80px;' },
         { id: 'max', type: 'number', placeholder: 'Max value', title: 'Slider maximum', style: 'width:80px;' },
         { id: 'step', type: 'number', placeholder: 'Step size', title: 'Step size', style: 'width:80px;' },
@@ -105,18 +107,30 @@
       const cfg = SWITCH_TYPE_CONFIGS[type];
 
       if (cfg && cfg.fields.length) {
-        const fieldsHtml = cfg.fields.map(field => {
-          // Allow decimals for step size fields
+        // Split fields
+        const commonFields = cfg.fields.filter(f => COMMON_SWITCH_FIELDS.some(cf => cf.id === f.id));
+        const extraFields = cfg.fields.filter(f => !COMMON_SWITCH_FIELDS.some(cf => cf.id === f.id));
+
+        // Render common fields in one row
+        const commonFieldsHtml = commonFields.map(field => {
           const stepAttr = field.id === 'step' || field.id === 'stepsize' ? 'step="any"' : '';
           return `<input type="${field.type}" id="node-input-switch_${i}_${field.id}" placeholder="${field.placeholder}" title="${field.title}" style="${field.style}" ${field.min ? `min="${field.min}"` : ''} ${field.max ? `max="${field.max}"` : ''} ${stepAttr} required>`
         }).join('');
 
+        // Render extra fields in a new row
+        const extraFieldsHtml = extraFields.map(field => {
+          const stepAttr = field.id === 'step' || field.id === 'stepsize' ? 'step="any"' : '';
+          return `<input type="${field.type}" id="node-input-switch_${i}_${field.id}" placeholder="${field.placeholder}" title="${field.title}" style="${field.style}" ${field.min ? `min="${field.min}"` : ''} ${field.max ? `max="${field.max}"` : ''} ${stepAttr} required>`
+        }).join('');
+
+        // Build the config row with two lines
         const configRow = $(`
-                <div class="form-row" id="switch-${i}-config-row">
-                    <label>${cfg.label} Config</label>
-                    <div style="display:flex;gap:8px;">${fieldsHtml}</div>
-                </div>
-            `);
+        <div class="form-row" id="switch-${i}-config-row">
+          <label>${cfg.label} Config</label>
+          <div style="display:flex;gap:8px;">${commonFieldsHtml}</div>
+          ${extraFieldsHtml ? `<div style="display:flex;gap:8px;margin-top:8px;">${extraFieldsHtml}</div>` : ''}
+        </div>
+      `);
         $(`#node-input-switch_${i}_type`).closest('.form-row').after(configRow);
 
         // Restore saved values
