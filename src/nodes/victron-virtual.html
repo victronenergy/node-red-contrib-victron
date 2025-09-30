@@ -135,19 +135,15 @@
                         // Special handling for dropdown type (6)
                         if (type === 6) {
                             const pairCount = parseInt($(`#node-input-switch_${i}_count`).val()) || 2;
-                            const keyValueObj = {};
-                            
+                            const labelsArray = [];
                             for (let j = 0; j < pairCount; j++) {
-                                const key = $(`#node-input-switch_${i}_key_${j}`).val();
                                 const value = $(`#node-input-switch_${i}_value_${j}`).val();
-                                
-                                if (key && value) {
-                                    keyValueObj[key] = value;
+                                if (value) {
+                                    labelsArray.push(value);
                                 }
                             }
-                            
-                            // Store as simple key-value JSON object
-                            this[`switch_${i}_label`] = JSON.stringify(keyValueObj);
+                            // Store as JSON string array
+                            this[`switch_${i}_label`] = JSON.stringify(labelsArray);
                         }
 
                         // For type 7 (basic slider), save unit field
@@ -604,6 +600,7 @@ monitored remotely. There are currently seven types of switches available:
 - **Dimmable**: PWM-controlled switch with adjustable brightness from 0-100%
 - **Temperature setpoint**: Sets a target temperature value
 - **Stepped switch** : Select up to 7 discrete steps (e.g., fan speeds)
+- **Dropdown**: Select from a custom list of options defined by you. The selected value is stored in the `Dimming` field (starting at `0` for the first option).
 - **Basic slider**: A slider control for selecting a value within a defined range
 - **Numeric input**: A numeric input control with configurable minimum/maximum values, step size, and display unit that allows precise manual entry of setpoint values.
 - **Three-state switch**: Select from three states (On, Off, Auto)

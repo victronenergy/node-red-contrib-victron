@@ -36,21 +36,21 @@ export const SWITCH_TYPE_CONFIGS = {
       { id: 'max', type: 'number', placeholder: 'Max steps', title: 'Max steps', style: 'width:80px;', min: 1, max: 7 }
     ]
   },
-  // 6: {
-  //   label: 'Dropdown',
-  //   fields: [
-  //     ...COMMON_SWITCH_FIELDS,
-  //     {
-  //       id: 'count',
-  //       type: 'number',
-  //       placeholder: 'Number of options',
-  //       title: 'Number of dropdown options',
-  //       style: 'width:100px;',
-  //       min: '2',
-  //       max: '10'
-  //     }
-  //   ]
-  // },
+  6: {
+    label: 'Dropdown',
+    fields: [
+      ...COMMON_SWITCH_FIELDS,
+      {
+        id: 'count',
+        type: 'number',
+        placeholder: 'Number of options',
+        title: 'Number of dropdown options',
+        style: 'width:100px;',
+        min: '2',
+        max: '10'
+      }
+    ]
+  },
   7: {
     label: 'Basic slider',
     fields: [
@@ -145,11 +145,11 @@ export function renderSwitchConfigRow (i, context) {
           }
         }
 
-        renderDropdownPairs(i, context)
+        renderDropdownLabels(i, context)
 
         // Watch count field changes
         $(`#node-input-switch_${i}_count`).on('change', () => {
-          renderDropdownPairs(i, context)
+          renderDropdownLabels(i, context)
         })
       }
     }
@@ -159,53 +159,44 @@ export function renderSwitchConfigRow (i, context) {
   renderTypeConfig()
 }
 
-function renderDropdownPairs (i, context) {
+function renderDropdownLabels (i, context) {
   $(`#switch-${i}-pairs-row`).remove()
 
   const count = parseInt($(`#node-input-switch_${i}_count`).val()) || 2
 
-  // Create pairs container
-  const pairsContainer = $(`
+  // Create labels container
+  const labelsContainer = $(`
     <div class="form-row" id="switch-${i}-pairs-row">
         <label>Options</label>
         <div id="switch-${i}-pairs-container" style="display:flex;flex-direction:column;gap:4px;"></div>
     </div>
   `)
-  $(`#switch-${i}-config-row`).after(pairsContainer)
+  $(`#switch-${i}-config-row`).after(labelsContainer)
 
-  // Parse saved data from key-value object format
-  let savedKeyValues = {}
+  // Parse saved data from string array
+  let savedLabels = []
   const savedLabel = context[`switch_${i}_label`]
   if (savedLabel) {
     try {
-      savedKeyValues = JSON.parse(savedLabel)
+      savedLabels = JSON.parse(savedLabel)
     } catch (e) {
-      savedKeyValues = {}
+      savedLabels = []
     }
   }
 
-  // Convert to array for form rendering (preserve order as much as possible)
-  const keyValueArray = Object.entries(savedKeyValues)
-
-  // Create input pairs
+  // Create label inputs
   for (let j = 0; j < count; j++) {
-    const [key, value] = keyValueArray[j] || ['', '']
-    const pairHtml = $(`
+    const value = savedLabels[j] || ''
+    const labelHtml = $(`
       <div style="display:flex;gap:8px;align-items:center;">
         <input type="text" 
-               id="node-input-switch_${i}_key_${j}" 
-               placeholder="Key" 
-               style="width:120px;" 
-               value="${key}" required>
-        <span>=</span>
-        <input type="text" 
                id="node-input-switch_${i}_value_${j}" 
-               placeholder="Display Value" 
-               style="width:120px;" 
+               placeholder="Label"
+               style="width:180px;"
                value="${value}" required>
       </div>
     `)
-    $(`#switch-${i}-pairs-container`).append(pairHtml)
+    $(`#switch-${i}-pairs-container`).append(labelHtml)
   }
 }
 
