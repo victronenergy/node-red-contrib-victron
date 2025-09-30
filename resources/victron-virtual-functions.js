@@ -39,6 +39,29 @@
         { id: 'max', type: 'number', placeholder: 'Max steps', title: 'Max steps', style: 'width:80px;', min: 1, max: 7 }
       ]
     },
+    // 6: {
+    //   label: 'Dropdown',
+    //   fields: [
+    //     {
+    //       id: 'count',
+    //       type: 'number',
+    //       placeholder: 'Number of options',
+    //       title: 'Number of dropdown options',
+    //       style: 'width:100px;',
+    //       min: '2',
+    //       max: '10'
+    //     }
+    //   ]
+    // },
+    7: {
+      label: 'Basic slider',
+      fields: [
+        { id: 'min', type: 'number', placeholder: 'Min value', title: 'Slider minimum', style: 'width:80px;' },
+        { id: 'max', type: 'number', placeholder: 'Max value', title: 'Slider maximum', style: 'width:80px;' },
+        { id: 'step', type: 'number', placeholder: 'Step size', title: 'Step size', style: 'width:80px;' },
+        { id: 'unit', type: 'text', placeholder: 'Unit', title: 'Unit', style: 'width:80px;' }
+      ]
+    },
     8: {
       label: 'Numeric input',
       fields: [
