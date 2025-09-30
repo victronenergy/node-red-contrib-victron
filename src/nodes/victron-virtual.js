@@ -808,8 +808,8 @@ module.exports = function (RED) {
               const switchType = Number(config[`switch_${i}_type`] ?? 1)
 
               baseProperties.forEach(({ name, type, value, format, persist }) => {
-                const key = `SwitchableOutput/output_${i}/${name}`
-                ifaceDesc.properties[key] = { type, format, persist }
+                const switchOutputPropertyKey = `SwitchableOutput/output_${i}/${name}`
+                ifaceDesc.properties[switchOutputPropertyKey] = { type, format, persist }
 
                 let propValue = value
                 if (name === 'Name') {
@@ -823,10 +823,14 @@ module.exports = function (RED) {
                 }
                 if (name === 'Settings/Type') propValue = switchType
 
-                iface[key] = propValue !== undefined ? propValue : 0
+                iface[switchOutputPropertyKey] = propValue !== undefined ? propValue : 0
 
                 if (name === 'Settings/ValidTypes') {
-                  iface[key] = 1 << Number(config[`switch_${i}_type`])
+                  // Only allow the currently selected switch type in the GUI.
+                  // This sets /ValidTypes to a bitmask with only the current type allowed.
+                  // See: https://github.com/victronenergy/dbus-victron-virtual/issues/XXX
+                  // Example: If switchType is 2, then 1 << 2 = 4, so only type 2 is valid.
+                  iface[switchOutputPropertyKey] = 1 << switchType
                 }
               })
 
