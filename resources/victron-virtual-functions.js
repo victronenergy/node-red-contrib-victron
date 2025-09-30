@@ -46,15 +46,15 @@
         }
       ]
     },
-    // 7: {
-    //   label: 'Basic slider',
-    //   fields: [
-    //     { id: 'min', type: 'number', placeholder: 'Min value', title: 'Slider minimum', style: 'width:80px;' },
-    //     { id: 'max', type: 'number', placeholder: 'Max value', title: 'Slider maximum', style: 'width:80px;' },
-    //     { id: 'step', type: 'number', placeholder: 'Step size', title: 'Step size', style: 'width:80px;' },
-    //     { id: 'unit', type: 'text', placeholder: 'Unit', title: 'Unit', style: 'width:80px;' }
-    //   ]
-    // },
+    7: {
+      label: 'Basic slider',
+      fields: [
+        { id: 'min', type: 'number', placeholder: 'Min value', title: 'Slider minimum', style: 'width:80px;' },
+        { id: 'max', type: 'number', placeholder: 'Max value', title: 'Slider maximum', style: 'width:80px;' },
+        { id: 'step', type: 'number', placeholder: 'Step size', title: 'Step size', style: 'width:80px;' },
+        { id: 'unit', type: 'text', placeholder: 'Unit', title: 'Unit', style: 'width:80px;' }
+      ]
+    },
     8: {
       label: 'Numeric input',
       fields: [
