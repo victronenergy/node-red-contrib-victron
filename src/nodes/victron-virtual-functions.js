@@ -74,6 +74,10 @@ export const SWITCH_TYPE_CONFIGS = {
   9: {
     label: 'Three-state switch',
     fields: [...COMMON_SWITCH_FIELDS]
+  },
+  10: {
+    label: 'Bilge pump control',
+    fields: [...COMMON_SWITCH_FIELDS]
   }
 }
 
