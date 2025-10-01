@@ -81,26 +81,26 @@ export const SWITCH_TYPE_CONFIGS = {
   }
 }
 
-export function renderSwitchConfigRow (i, context) {
+export function renderSwitchConfigRow (context) {
   const typeOptions = Object.entries(SWITCH_TYPE_CONFIGS)
     .map(([value, cfg]) => `<option value="${value}">${cfg.label}</option>`)
     .join('')
   const switchRow = $(`
         <div class="form-row">
-            <label for="node-input-switch_${i}_type"><i class="fa fa-toggle-on"></i> Switch ${i} type</label>
-            <select id="node-input-switch_${i}_type" data-switch-index="${i}">${typeOptions}</select>
+            <label for="node-input-switch_1_type"><i class="fa fa-toggle-on"></i> Switch 1 type</label>
+            <select id="node-input-switch_1_type">${typeOptions}</select>
         </div>
     `)
   $('#switch-config-container').append(switchRow)
 
-  const savedType = context[`switch_${i}_type`] !== undefined ? context[`switch_${i}_type`] : 1
-  $(`#node-input-switch_${i}_type`).val(String(savedType))
+  const savedType = context.switch_1_type !== undefined ? context.switch_1_type : 1
+  $('#node-input-switch_1_type').val(String(savedType))
 
   function renderTypeConfig () {
-    $(`#switch-${i}-config-row`).remove()
-    $(`#switch-${i}-pairs-row`).remove()
+    $('#switch-1-config-row').remove()
+    $('#switch-1-pairs-row').remove()
 
-    const type = $(`#node-input-switch_${i}_type`).val()
+    const type = $('#node-input-switch_1_type').val()
     const cfg = SWITCH_TYPE_CONFIGS[type]
 
     if (cfg && cfg.fields.length) {
@@ -111,83 +111,88 @@ export function renderSwitchConfigRow (i, context) {
       // Render common fields in one row
       const commonFieldsHtml = commonFields.map(field => {
         const stepAttr = field.id === 'step' || field.id === 'stepsize' ? 'step="any"' : ''
-        return `<input type="${field.type}" id="node-input-switch_${i}_${field.id}" placeholder="${field.placeholder}" title="${field.title}" style="${field.style}" ${field.min ? `min="${field.min}"` : ''} ${field.max ? `max="${field.max}"` : ''} ${stepAttr} required>`
+        return `<input type="${field.type}" id="node-input-switch_1_${field.id}" placeholder="${field.placeholder}" title="${field.title}" style="${field.style}" ${field.min ? `min="${field.min}"` : ''} ${field.max ? `max="${field.max}"` : ''} ${stepAttr} required>`
       }).join('')
 
       // Render extra fields in a new row
       const extraFieldsHtml = extraFields.map(field => {
         const stepAttr = field.id === 'step' || field.id === 'stepsize' ? 'step="any"' : ''
-        return `<input type="${field.type}" id="node-input-switch_${i}_${field.id}" placeholder="${field.placeholder}" title="${field.title}" style="${field.style}" ${field.min ? `min="${field.min}"` : ''} ${field.max ? `max="${field.max}"` : ''} ${stepAttr} required>`
+        return `<input type="${field.type}" id="node-input-switch_1_${field.id}" placeholder="${field.placeholder}" title="${field.title}" style="${field.style}" ${field.min ? `min="${field.min}"` : ''} ${field.max ? `max="${field.max}"` : ''} ${stepAttr} required>`
       }).join('')
 
       // Build the config row with two lines
       const configRow = $(`
-        <div class="form-row" id="switch-${i}-config-row">
+        <div class="form-row" id="switch-1-config-row">
           <label>${cfg.label} Config</label>
           <div style="display:flex;gap:8px;">${commonFieldsHtml}</div>
           ${extraFieldsHtml ? `<div style="display:flex;gap:8px;margin-top:8px;">${extraFieldsHtml}</div>` : ''}
         </div>
       `)
-      $(`#node-input-switch_${i}_type`).closest('.form-row').after(configRow)
+      $('#node-input-switch_1_type').closest('.form-row').after(configRow)
 
       // Restore saved values
       cfg.fields.forEach(field => {
-        const val = context[`switch_${i}_${field.id}`]
+        const val = context[`switch_1_${field.id}`]
         if (typeof val !== 'undefined') {
-          $(`#node-input-switch_${i}_${field.id}`).val(val)
+          $(`#node-input-switch_1_${field.id}`).val(val)
         }
       })
 
       // Special handling for dropdown type
       if (type === '6') {
-        if (!context[`switch_${i}_count`]) {
-          const savedLabel = context[`switch_${i}_label`]
-          if (savedLabel) {
-            try {
-              const keyValueObj = JSON.parse(savedLabel)
-              const keyCount = Object.keys(keyValueObj).length
-              if (keyCount > 0) {
-                $(`#node-input-switch_${i}_count`).val(keyCount)
-              }
-            } catch (e) {
-              $(`#node-input-switch_${i}_count`).val(2) // default count
+        // Restore count for dropdown options
+        let restoredCount = 2 // default
+        const savedLabel = context.switch_1_label
+        if (!context.switch_1_count && savedLabel) {
+          try {
+            const parsed = JSON.parse(savedLabel)
+            // If legacy format (object), use its key count
+            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+              restoredCount = Object.keys(parsed).length || 2
             }
-          } else {
-            $(`#node-input-switch_${i}_count`).val(2) // default count
+            // If new format (array), use its length
+            if (Array.isArray(parsed)) {
+              restoredCount = parsed.length || 2
+            }
+          } catch (e) {
+            restoredCount = 2
           }
+          $('#node-input-switch_1_count').val(restoredCount)
+        } else if (context.switch_1_count) {
+          $('#node-input-switch_1_count').val(context.switch_1_count)
         }
 
-        renderDropdownLabels(i, context)
+        renderDropdownLabels(context)
 
         // Watch count field changes
-        $(`#node-input-switch_${i}_count`).on('change', () => {
-          renderDropdownLabels(i, context)
+        $('#node-input-switch_1_count').on('change', () => {
+          renderDropdownLabels(context)
         })
       }
     }
   }
 
-  $(`#node-input-switch_${i}_type`).on('change', renderTypeConfig)
+  $('#node-input-switch_1_type').on('change', renderTypeConfig)
   renderTypeConfig()
 }
 
-function renderDropdownLabels (i, context) {
-  $(`#switch-${i}-pairs-row`).remove()
+function renderDropdownLabels (context) {
+  $('#switch-1-pairs-row').remove()
 
-  const count = parseInt($(`#node-input-switch_${i}_count`).val()) || 2
+  const count = parseInt($('#node-input-switch_1_count').val()) || 2
 
   // Create labels container
   const labelsContainer = $(`
-    <div class="form-row" id="switch-${i}-pairs-row">
+    <div class="form-row" id="switch-1-pairs-row">
         <label>Options</label>
-        <div id="switch-${i}-pairs-container" style="display:flex;flex-direction:column;gap:4px;"></div>
+        <div id="switch-1-pairs-container" style="display:flex;flex-direction:column;gap:4px;"></div>
     </div>
   `)
-  $(`#switch-${i}-config-row`).after(labelsContainer)
+  $('#switch-1-config-row').after(labelsContainer)
 
   // Parse saved data from string array
   let savedLabels = []
-  const savedLabel = context[`switch_${i}_label`]
+  const savedLabel = context.switch_1_label
   if (savedLabel) {
     try {
       savedLabels = JSON.parse(savedLabel)
@@ -201,25 +206,22 @@ function renderDropdownLabels (i, context) {
     const value = savedLabels[j] || ''
     const labelHtml = $(`
       <div style="display:flex;gap:8px;align-items:center;">
-        <input type="text" 
-               id="node-input-switch_${i}_value_${j}" 
+        <input type="text"
+               id="node-input-switch_1_value_${j}"
                placeholder="Label"
                style="width:180px;"
                value="${value}" required>
       </div>
     `)
-    $(`#switch-${i}-pairs-container`).append(labelHtml)
+    $('#switch-1-pairs-container').append(labelHtml)
   }
 }
 
 export function updateSwitchConfig () {
-  const count = parseInt($('#node-input-switch_count').val()) || 1
   const container = $('#switch-config-container')
   container.empty()
   if ($('select#node-input-device').val() !== 'switch') return
-  for (let i = 1; i <= count; i++) {
-    renderSwitchConfigRow(i, this)
-  }
+  renderSwitchConfigRow(this)
 }
 
 export function updateBatteryVoltageVisibility () {
@@ -276,65 +278,48 @@ export function checkSelectedVirtualDevice () {
 
   if (selected === 'switch') {
     updateSwitchConfig.call(this)
-
-    $('#node-input-switch_count').off('change.switch-config').on('change.switch-config', () => {
-      updateSwitchConfig.call(this)
-    })
   }
 }
 
 export function validateSwitchConfig () {
-  const count = parseInt($('#node-input-switch_count').val()) || 1
-  for (let i = 1; i <= count; i++) {
-    const type = $(`#node-input-switch_${i}_type`).val()
-    const cfg = SWITCH_TYPE_CONFIGS[type]
+  const type = $('#node-input-switch_1_type').val()
+  const cfg = SWITCH_TYPE_CONFIGS[type]
 
-    if (cfg && cfg.fields.length) {
-      for (const field of cfg.fields) {
-        const $input = $(`#node-input-switch_${i}_${field.id}`)
-        if ($input.length && !$input.val()) {
-          $input[0].setCustomValidity('This field is required')
-          $input[0].reportValidity()
-          return false
-        } else if ($input.length) {
-          // Only validate integer for stepped switch max, not for step size
-          if (field.id === 'max' && type === '4') {
-            const maxVal = parseInt($input.val(), 10)
-            if (isNaN(maxVal) || maxVal < 1 || maxVal > 7) {
-              $input[0].setCustomValidity('Max steps must be between 1 and 7')
-              $input[0].reportValidity()
-              return false
-            } else {
-              $input[0].setCustomValidity('')
-            }
+  if (cfg && cfg.fields.length) {
+    for (const field of cfg.fields) {
+      const $input = $(`#node-input-switch_1_${field.id}`)
+      if ($input.length && !$input.val()) {
+        $input[0].setCustomValidity('This field is required')
+        $input[0].reportValidity()
+        return false
+      } else if ($input.length) {
+        if (field.id === 'max' && type === '4') {
+          const maxVal = parseInt($input.val(), 10)
+          if (isNaN(maxVal) || maxVal < 1 || maxVal > 7) {
+            $input[0].setCustomValidity('Max steps must be between 1 and 7')
+            $input[0].reportValidity()
+            return false
           } else {
             $input[0].setCustomValidity('')
           }
+        } else {
+          $input[0].setCustomValidity('')
         }
       }
     }
+  }
 
-    // Special validation for dropdown type (6)
-    if (type === '6') {
-      const pairCount = parseInt($(`#node-input-switch_${i}_count`).val()) || 2
-      for (let j = 0; j < pairCount; j++) {
-        const $key = $(`#node-input-switch_${i}_key_${j}`)
-        const $value = $(`#node-input-switch_${i}_value_${j}`)
-
-        if ($key.length && !$key.val()) {
-          $key[0].setCustomValidity('Key is required')
-          $key[0].reportValidity()
-          return false
-        }
-        if ($value.length && !$value.val()) {
-          $value[0].setCustomValidity('Value is required')
-          $value[0].reportValidity()
-          return false
-        }
-
-        if ($key.length) $key[0].setCustomValidity('')
-        if ($value.length) $value[0].setCustomValidity('')
+  // Special validation for dropdown type (6)
+  if (type === '6') {
+    const pairCount = parseInt($('#node-input-switch_1_count').val()) || 2
+    for (let j = 0; j < pairCount; j++) {
+      const $value = $(`#node-input-switch_1_value_${j}`)
+      if ($value.length && !$value.val()) {
+        $value[0].setCustomValidity('Label is required')
+        $value[0].reportValidity()
+        return false
       }
+      if ($value.length) $value[0].setCustomValidity('')
     }
   }
   return true

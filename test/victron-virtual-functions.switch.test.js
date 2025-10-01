@@ -64,7 +64,7 @@ describe('Switch Configuration Tests', () => {
       })
 
       const context = { switch_1_type: 6 }
-      renderSwitchConfigRow(1, context)
+      renderSwitchConfigRow(context)
 
       expect(mockContainer.append).toHaveBeenCalled()
       // The append call should have been made with a jQuery object, not a string
@@ -87,7 +87,7 @@ describe('Switch Configuration Tests', () => {
       })
 
       const context = {} // No switch_1_type defined
-      renderSwitchConfigRow(1, context)
+      renderSwitchConfigRow(context)
 
       expect(mockContainer.append).toHaveBeenCalled()
       expect(mockTypeSelect.val).toHaveBeenCalledWith('1') // Default type is 1
@@ -108,7 +108,7 @@ describe('Switch Configuration Tests', () => {
       })
 
       const context = { switch_1_type: 6 }
-      renderSwitchConfigRow(1, context)
+      renderSwitchConfigRow(context)
 
       expect(mockTypeSelect.on).toHaveBeenCalledWith('change', expect.any(Function))
     })
@@ -117,9 +117,6 @@ describe('Switch Configuration Tests', () => {
   describe('validateSwitchConfig', () => {
     test('returns true when no switches configured', () => {
       global.$.mockImplementation((selector) => {
-        if (selector === '#node-input-switch_count') {
-          return createMockElement({ val: '0' })
-        }
         return createMockElement({ length: 0 })
       })
 
@@ -129,9 +126,6 @@ describe('Switch Configuration Tests', () => {
 
     test('returns true for momentary switch (no fields to validate)', () => {
       global.$.mockImplementation((selector) => {
-        if (selector === '#node-input-switch_count') {
-          return createMockElement({ val: '1' })
-        }
         if (selector === '#node-input-switch_1_type') {
           return createMockElement({ val: '0' }) // Momentary type
         }
@@ -142,55 +136,10 @@ describe('Switch Configuration Tests', () => {
       expect(result).toBe(true)
     })
 
-    // test('validates dropdown count field is required', () => {
-    //   const mockCountField = createMockElement({ val: '' })
-      
-    //   global.$.mockImplementation((selector) => {
-    //     if (selector === '#node-input-switch_count') {
-    //       return createMockElement({ val: '1' })
-    //     }
-    //     if (selector === '#node-input-switch_1_type') {
-    //       return createMockElement({ val: '6' }) // Dropdown type
-    //     }
-    //     if (selector === '#node-input-switch_1_count') {
-    //       return mockCountField
-    //     }
-    //     return createMockElement({ length: 0 })
-    //   })
-
-    //   const result = validateSwitchConfig()
-    //   expect(result).toBe(false)
-    //   expect(mockCountField[0].setCustomValidity).toHaveBeenCalledWith('This field is required')
-    // })
-
-    // test('passes validation for dropdown with valid count', () => {
-    //   const mockCountField = createMockElement({ val: '3' })
-      
-    //   global.$.mockImplementation((selector) => {
-    //     if (selector === '#node-input-switch_count') {
-    //       return createMockElement({ val: '1' })
-    //     }
-    //     if (selector === '#node-input-switch_1_type') {
-    //       return createMockElement({ val: '6' })
-    //     }
-    //     if (selector === '#node-input-switch_1_count') {
-    //       return mockCountField
-    //     }
-    //     return createMockElement({ length: 0 })
-    //   })
-
-    //   const result = validateSwitchConfig()
-    //   expect(result).toBe(true)
-    //   expect(mockCountField[0].setCustomValidity).toHaveBeenCalledWith('')
-    // })
-
     test('validates stepped switch max field (type 4)', () => {
       const mockMaxField = createMockElement({ val: '' })
       
       global.$.mockImplementation((selector) => {
-        if (selector === '#node-input-switch_count') {
-          return createMockElement({ val: '1' })
-        }
         if (selector === '#node-input-switch_1_type') {
           return createMockElement({ val: '4' })
         }
@@ -209,9 +158,6 @@ describe('Switch Configuration Tests', () => {
       const mockMaxField = createMockElement({ val: '10' }) // Above max
       
       global.$.mockImplementation((selector) => {
-        if (selector === '#node-input-switch_count') {
-          return createMockElement({ val: '1' })
-        }
         if (selector === '#node-input-switch_1_type') {
           return createMockElement({ val: '4' })
         }
@@ -230,9 +176,6 @@ describe('Switch Configuration Tests', () => {
       const mockMaxField = createMockElement({ val: '5' })
       
       global.$.mockImplementation((selector) => {
-        if (selector === '#node-input-switch_count') {
-          return createMockElement({ val: '1' })
-        }
         if (selector === '#node-input-switch_1_type') {
           return createMockElement({ val: '4' })
         }
@@ -247,50 +190,16 @@ describe('Switch Configuration Tests', () => {
       expect(mockMaxField[0].setCustomValidity).toHaveBeenCalledWith('')
     })
 
-    test('validates dropdown key is required when key field exists', () => {
-      const mockKeyField = createMockElement({ val: '' })
-      const mockCountField = createMockElement({ val: '2' })
-      
-      global.$.mockImplementation((selector) => {
-        if (selector === '#node-input-switch_count') {
-          return createMockElement({ val: '1' })
-        }
-        if (selector === '#node-input-switch_1_type') {
-          return createMockElement({ val: '6' })
-        }
-        if (selector === '#node-input-switch_1_count') {
-          return mockCountField
-        }
-        if (selector === '#node-input-switch_1_key_0') {
-          return mockKeyField
-        }
-        if (selector === '#node-input-switch_1_value_0') {
-          return createMockElement({ val: 'value1' })
-        }
-        return createMockElement({ length: 0 })
-      })
-
-      const result = validateSwitchConfig()
-      expect(result).toBe(false)
-      expect(mockKeyField[0].setCustomValidity).toHaveBeenCalledWith('Key is required')
-    })
-
     test('validates dropdown value is required when value field exists', () => {
       const mockValueField = createMockElement({ val: '' })
       const mockCountField = createMockElement({ val: '2' })
       
       global.$.mockImplementation((selector) => {
-        if (selector === '#node-input-switch_count') {
-          return createMockElement({ val: '1' })
-        }
         if (selector === '#node-input-switch_1_type') {
           return createMockElement({ val: '6' })
         }
         if (selector === '#node-input-switch_1_count') {
           return mockCountField
-        }
-        if (selector === '#node-input-switch_1_key_0') {
-          return createMockElement({ val: 'key1' })
         }
         if (selector === '#node-input-switch_1_value_0') {
           return mockValueField
@@ -300,39 +209,14 @@ describe('Switch Configuration Tests', () => {
 
       const result = validateSwitchConfig()
       expect(result).toBe(false)
-      expect(mockValueField[0].setCustomValidity).toHaveBeenCalledWith('Value is required')
+      expect(mockValueField[0].setCustomValidity).toHaveBeenCalledWith('Label is required')
     })
 
-    test('validates multiple switches with mixed types', () => {
-      global.$.mockImplementation((selector) => {
-        if (selector === '#node-input-switch_count') {
-          return createMockElement({ val: '2' })
-        }
-        // Switch 1: Dropdown type with valid count
-        if (selector === '#node-input-switch_1_type') {
-          return createMockElement({ val: '6' })
-        }
-        if (selector === '#node-input-switch_1_count') {
-          return createMockElement({ val: '3' })
-        }
-        // Switch 2: Momentary type (no fields to validate)
-        if (selector === '#node-input-switch_2_type') {
-          return createMockElement({ val: '0' })
-        }
-        return createMockElement({ length: 0 })
-      })
-
-      const result = validateSwitchConfig()
-      expect(result).toBe(true)
-    })
   })
 
   describe('edge cases', () => {
     test('handles missing switch type gracefully', () => {
       global.$.mockImplementation((selector) => {
-        if (selector === '#node-input-switch_count') {
-          return createMockElement({ val: '1' })
-        }
         if (selector === '#node-input-switch_1_type') {
           return createMockElement({ val: undefined })
         }
@@ -343,23 +227,8 @@ describe('Switch Configuration Tests', () => {
       expect(result).toBe(true) // Should handle gracefully
     })
 
-    test('handles non-numeric switch count', () => {
-      global.$.mockImplementation((selector) => {
-        if (selector === '#node-input-switch_count') {
-          return createMockElement({ val: 'invalid' })
-        }
-        return createMockElement({ length: 0 })
-      })
-
-      const result = validateSwitchConfig()
-      expect(result).toBe(true) // Should default to 1 and process normally
-    })
-
     test('passes validation when key/value elements do not exist', () => {
       global.$.mockImplementation((selector) => {
-        if (selector === '#node-input-switch_count') {
-          return createMockElement({ val: '1' })
-        }
         if (selector === '#node-input-switch_1_type') {
           return createMockElement({ val: '6' })
         }
@@ -378,12 +247,4 @@ describe('Switch Configuration Tests', () => {
     })
   })
 
-  // describe('SWITCH_TYPE_CONFIGS', () => {
-  //   test('all switch types include customname and group fields first', () => {
-  //     Object.values(SWITCH_TYPE_CONFIGS).forEach(cfg => {
-  //       expect(cfg.fields[0].id).toBe('customname');
-  //       expect(cfg.fields[1].id).toBe('group');
-  //     });
-  //   });
-  // });
 })

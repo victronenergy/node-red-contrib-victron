@@ -311,16 +311,12 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
     })
 
     test('handles switch device selection with context', () => {
-      const mockSwitchCount = createMockElement()
       const mockContainer = createMockElement()
       const context = {}
 
       global.$.mockImplementation((selector) => {
         if (selector === 'select#node-input-device') {
           return createMockElement({ val: 'switch' })
-        }
-        if (selector === '#node-input-switch_count') {
-          return mockSwitchCount
         }
         if (selector === '#switch-config-container') {
           return mockContainer
@@ -333,8 +329,7 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
 
       checkSelectedVirtualDevice.call(context)
 
-      expect(mockSwitchCount.off).toHaveBeenCalledWith('change.switch-config')
-      expect(mockSwitchCount.on).toHaveBeenCalledWith('change.switch-config', expect.any(Function))
+      // Only check that the switch config container is emptied for a switch device
       expect(mockContainer.empty).toHaveBeenCalled()
     })
   })
@@ -359,28 +354,6 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       expect(mockContainer.empty).toHaveBeenCalled()
     })
 
-    test('processes switch device with valid count', () => {
-      const mockContainer = createMockElement()
-      const context = {}
-
-      global.$.mockImplementation((selector) => {
-        if (selector === 'select#node-input-device') {
-          return createMockElement({ val: 'switch' })
-        }
-        if (selector === '#node-input-switch_count') {
-          return createMockElement({ val: '2' })
-        }
-        if (selector === '#switch-config-container') {
-          return mockContainer
-        }
-        return createMockElement()
-      })
-
-      updateSwitchConfig.call(context)
-
-      expect(mockContainer.empty).toHaveBeenCalled()
-      expect(global.$).toHaveBeenCalledWith('#node-input-switch_count')
-    })
   })
 
   describe('updateBatteryVoltageVisibility', () => {
