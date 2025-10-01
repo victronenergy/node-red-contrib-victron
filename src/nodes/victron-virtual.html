@@ -32,7 +32,6 @@
             position: { value: 0, required: false},
             pvinverter_nrofphases: {value: 1, required: false},
             // switch
-            switch_count: {value: 1, required: false},
             switch_1_type: {value: 1, required: false},
             switch_1_min: {value: 0, required: false},
             switch_1_max: {value: "", required: false},
@@ -42,33 +41,6 @@
             switch_1_step: {value: 1, required: false},
             switch_1_customname: {value: "", required: false},
             switch_1_group: {value: "", required: false},
-            switch_2_type: {value: 1, required: false},
-            switch_2_min: {value: 0, required: false},
-            switch_2_max: {value: "", required: false},
-            switch_2_initial: {value: 0, required: false},
-            switch_2_step: {value: 1, required: false},
-            switch_2_label: {value: "", required: false},
-            switch_2_unit: {value: "", required: false},
-            switch_2_customname: {value: "", required: false},
-            switch_2_group: {value: "", required: false},
-            switch_3_type: {value: 1, required: false},
-            switch_3_min: {value: 0, required: false},
-            switch_3_max: {value: "", required: false},
-            switch_3_initial: {value: 0, required: false},
-            switch_3_step: {value: 1, required: false},
-            switch_3_label: {value: "", required: false},
-            switch_3_unit: {value: "", required: false},
-            switch_3_customname: {value: "", required: false},
-            switch_3_group: {value: "", required: false},
-            switch_4_type: {value: 1, required: false},
-            switch_4_min: {value: 0, required: false},
-            switch_4_max: {value: "", required: false},
-            switch_4_initial: {value: 0, required: false},
-            switch_4_step: {value: 1, required: false},
-            switch_4_label: {value: "", required: false},
-            switch_4_unit: {value: "", required: false},
-            switch_4_customname: {value: "", required: false},
-            switch_4_group: {value: "", required: false},
             // tank
             fluid_type: { value: 0, required: false},
             include_tank_battery: { value: false },
@@ -113,55 +85,53 @@
                     // Prevent save if validation fails
                     return false;
                 }
-                const switchCount = parseInt($('#node-input-switch_count').val());
-                for (let i = 1; i <= 4; i++) {
-                    const switchTypeInput = $(`#node-input-switch_${i}_type`);
-                    if (switchTypeInput.length) {
-                        const type = parseInt(switchTypeInput.val());
-                        this[`switch_${i}_type`] = type;
-                        
-                        // Save config fields for this type
-                        const cfg = SWITCH_TYPE_CONFIGS[type];
-                        if (cfg && cfg.fields.length) {
-                            cfg.fields.forEach(field => {
-                              let val = $(`#node-input-switch_${i}_${field.id}`).val()
-                              if (field.id === 'step' && val !== '') {
-                                val = parseFloat(val)
-                              }
-                              this[`switch_${i}_${field.id}`] = val
-                            });
-                        }
-                        
-                        // Special handling for dropdown type (6)
-                        if (type === 6) {
-                            const pairCount = parseInt($(`#node-input-switch_${i}_count`).val()) || 2;
-                            const labelsArray = [];
-                            for (let j = 0; j < pairCount; j++) {
-                                const value = $(`#node-input-switch_${i}_value_${j}`).val();
-                                if (value) {
-                                    labelsArray.push(value);
-                                }
+
+                const switchTypeInput = $(`#node-input-switch_1_type`);
+                if (switchTypeInput.length) {
+                    const type = parseInt(switchTypeInput.val());
+                    this[`switch_1_type`] = type;
+
+                    // Save config fields for this type
+                    const cfg = SWITCH_TYPE_CONFIGS[type];
+                    if (cfg && cfg.fields.length) {
+                        cfg.fields.forEach(field => {
+                            let val = $(`#node-input-switch_1_${field.id}`).val()
+                            if (field.id === 'step' && val !== '') {
+                            val = parseFloat(val)
                             }
-                            // Store as JSON string array
-                            this[`switch_${i}_label`] = JSON.stringify(labelsArray);
-                        }
-
-                        // For type 7 (basic slider), save unit field
-                        if (type === 7) {
-                            this[`switch_${i}_unit`] = $(`#node-input-switch_${i}_unit`).val();
-                        }
-
-                        // Clear any previously set config fields for other types
-                        Object.values(SWITCH_TYPE_CONFIGS).forEach(c => {
-                            c.fields.forEach(field => {
-                                if (cfg && cfg.fields.some(f => f.id === field.id)) {
-                                    // Keep current type's fields
-                                    return;
-                                }
-                                this[`switch_${i}_${field.id}`] = undefined;
-                            });
+                            this[`switch_1_${field.id}`] = val
                         });
                     }
+
+                    // Special handling for dropdown type (6)
+                    if (type === 6) {
+                        const pairCount = parseInt($(`#node-input-switch_1_count`).val()) || 2;
+                        const labelsArray = [];
+                        for (let j = 0; j < pairCount; j++) {
+                            const value = $(`#node-input-switch_1_value_${j}`).val();
+                            if (value) {
+                                labelsArray.push(value);
+                            }
+                        }
+                        // Store as JSON string array
+                        this[`switch_1_label`] = JSON.stringify(labelsArray);
+                    }
+
+                    // For type 7 (basic slider), save unit field
+                    if (type === 7) {
+                        this[`switch_1_unit`] = $(`#node-input-switch_1_unit`).val();
+                    }
+
+                    // Clear any previously set config fields for other types
+                    Object.values(SWITCH_TYPE_CONFIGS).forEach(c => {
+                        c.fields.forEach(field => {
+                            if (cfg && cfg.fields.some(f => f.id === field.id)) {
+                                // Keep current type's fields
+                                return;
+                            }
+                            this[`switch_1_${field.id}`] = undefined;
+                        });
+                    });
                 }
             }
         }
@@ -278,15 +248,6 @@
     </div>
 
     <div class="input-switch">
-        <div class="form-row">
-            <label for="node-input-switch_count"><i class="fa fa-plug"></i> Number of switches</label>
-            <select id="node-input-switch_count">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-            </select>
-        </div>
         <div id="switch-config-container">
             <!-- Dynamic switch configuration will be added here -->
         </div>
@@ -593,7 +554,7 @@ These additional parameters can help monitor the performance and status of your 
 ### Virtual switch
 
 The virtual switch creates a switch device on the dbus that can be controlled and
-monitored remotely. There are currently seven types of switches available:
+monitored remotely. There are several types of switches available:
 
 - **Momentary**: Acts like a push button - automatically returns to off state
 - **Toggle**: Standard on/off switch that maintains its state
@@ -606,13 +567,13 @@ monitored remotely. There are currently seven types of switches available:
 - **Three-state switch**: Select from three states (On, Off, Auto)
 - **Bilge pump control**: Special switch type for bilge pumps with automatic and manual modes (A bilge pump is a device on a boat that removes accumulated water from the lowest part of the hull, known as the bilge, and pumps it overboard).
 
-You can configure up to 4 switches within a virtual switch, and each switch can be individually set to any
-of the types. This allows mixing different switch types in a single virtual
-device (e.g., toggle switches for lights and dimmable switches for fans).
+The virtual switch can be set to any of the types mentioned above. By setting the group name of the switch, multiple switches can be grouped together, allowing them
+to be seen within a group of switches on the GX device.
 
 As the virtual switches become available on the dbus, they will also appear on the (remote)
 console and attached screen of the GX device. Settings things like name and group can be
-done from the GX device directly.
+done while setting up in the edit panel, but can also be done from the GX device directly.
+On restart of Node-RED, the stored name and group will be applied again.
 
 The switch types correspond to the Venus OS dbus switch specification, which can be found 
 [here](https://github.com/victronenergy/venus/wiki/dbus#switch).
