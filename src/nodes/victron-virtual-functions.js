@@ -1,7 +1,7 @@
 /* global $ */
 
 const COMMON_SWITCH_FIELDS = [
-  { id: 'customname', type: 'text', placeholder: 'Output name', title: 'Custom Name', style: 'width:120px;' },
+  { id: 'customname', type: 'text', placeholder: 'Name', title: 'Name', style: 'width:120px;' },
   { id: 'group', type: 'text', placeholder: 'Group', title: 'Group', style: 'width:120px;' }
 ]
 
@@ -87,7 +87,7 @@ export function renderSwitchConfigRow (context) {
     .join('')
   const switchRow = $(`
         <div class="form-row">
-            <label for="node-input-switch_1_type"><i class="fa fa-toggle-on"></i> Switch 1 type</label>
+            <label for="node-input-switch_1_type"><i class="fa fa-toggle-on"></i> Switch type</label>
             <select id="node-input-switch_1_type">${typeOptions}</select>
         </div>
     `)
@@ -104,28 +104,27 @@ export function renderSwitchConfigRow (context) {
     const cfg = SWITCH_TYPE_CONFIGS[type]
 
     if (cfg && cfg.fields.length) {
-      // Split fields
-      const commonFields = cfg.fields.filter(f => COMMON_SWITCH_FIELDS.some(cf => cf.id === f.id))
-      const extraFields = cfg.fields.filter(f => !COMMON_SWITCH_FIELDS.some(cf => cf.id === f.id))
-
-      // Render common fields in one row
-      const commonFieldsHtml = commonFields.map(field => {
+      // Render each field as a separate row
+      const fieldsHtml = cfg.fields.map(field => {
         const stepAttr = field.id === 'step' || field.id === 'stepsize' ? 'step="any"' : ''
-        return `<input type="${field.type}" id="node-input-switch_1_${field.id}" placeholder="${field.placeholder}" title="${field.title}" style="${field.style}" ${field.min ? `min="${field.min}"` : ''} ${field.max ? `max="${field.max}"` : ''} ${stepAttr} required>`
+        return `
+          <div class="form-row" style="align-items:center;">
+            <label for="node-input-switch_1_${field.id}" style="min-width:120px;">${field.title || field.placeholder}</label>
+            <input type="${field.type}" id="node-input-switch_1_${field.id}"
+                   placeholder="${field.placeholder}"
+                   style="${field.style}"
+                   ${field.min ? `min="${field.min}"` : ''}
+                   ${field.max ? `max="${field.max}"` : ''}
+                   ${stepAttr} required>
+          </div>
+        `
       }).join('')
 
-      // Render extra fields in a new row
-      const extraFieldsHtml = extraFields.map(field => {
-        const stepAttr = field.id === 'step' || field.id === 'stepsize' ? 'step="any"' : ''
-        return `<input type="${field.type}" id="node-input-switch_1_${field.id}" placeholder="${field.placeholder}" title="${field.title}" style="${field.style}" ${field.min ? `min="${field.min}"` : ''} ${field.max ? `max="${field.max}"` : ''} ${stepAttr} required>`
-      }).join('')
-
-      // Build the config row with two lines
+      // Build the config row
       const configRow = $(`
-        <div class="form-row" id="switch-1-config-row">
-          <label>${cfg.label} Config</label>
-          <div style="display:flex;gap:8px;">${commonFieldsHtml}</div>
-          ${extraFieldsHtml ? `<div style="display:flex;gap:8px;margin-top:8px;">${extraFieldsHtml}</div>` : ''}
+        <div id="switch-1-config-row">
+          <label style="font-weight:bold;">${cfg.label} configuration</label>
+          ${fieldsHtml}
         </div>
       `)
       $('#node-input-switch_1_type').closest('.form-row').after(configRow)
@@ -205,7 +204,8 @@ function renderDropdownLabels (context) {
   for (let j = 0; j < count; j++) {
     const value = savedLabels[j] || ''
     const labelHtml = $(`
-      <div style="display:flex;gap:8px;align-items:center;">
+      <div class="form-row" style="align-items:center;">
+        <label for="node-input-switch_1_value_${j}" style="min-width:120px;">Option ${j + 1}</label>
         <input type="text"
                id="node-input-switch_1_value_${j}"
                placeholder="Label"
@@ -278,6 +278,13 @@ export function checkSelectedVirtualDevice () {
 
   if (selected === 'switch') {
     updateSwitchConfig.call(this)
+    // Hide the default values checkbox and info box for switches
+    $('#node-input-default_values').closest('.form-row').hide()
+    $('#default-values-info').hide()
+  } else {
+    // Show for other device types
+    $('#node-input-default_values').closest('.form-row').show()
+    $('#default-values-info').show()
   }
 }
 
