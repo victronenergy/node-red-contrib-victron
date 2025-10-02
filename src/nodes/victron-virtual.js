@@ -554,8 +554,8 @@ module.exports = function (RED) {
                 voltage = Number(config.battery_voltage_preset)
               } else if (config.battery_voltage_preset === 'custom') {
                 if (config.battery_voltage_custom != null &&
-                    config.battery_voltage_custom !== '' &&
-                    !isNaN(Number(config.battery_voltage_custom))) {
+                  config.battery_voltage_custom !== '' &&
+                  !isNaN(Number(config.battery_voltage_custom))) {
                   voltage = Number(config.battery_voltage_custom)
                 }
                 // If custom is selected but no valid value provided, use default
@@ -778,9 +778,9 @@ module.exports = function (RED) {
             const baseProperties = [
               { name: 'State', type: 'i', format: (v) => ({ 0: 'Off', 1: 'On' }[v] || 'unknown'), persist: true },
               { name: 'Status', type: 'i', format: (v) => v != null ? v : '' },
-              { name: 'Name', type: 's', persist: true },
-              { name: 'Settings/Group', type: 's', value: '', persist: true },
-              { name: 'Settings/CustomName', type: 's', value: '', persist: true },
+              { name: 'Name', type: 's', persist: false },
+              { name: 'Settings/Group', type: 's', value: '', persist: false },
+              { name: 'Settings/CustomName', type: 's', value: '', persist: false },
               {
                 name: 'Settings/Type',
                 type: 'i',
@@ -799,7 +799,7 @@ module.exports = function (RED) {
                 persist: false
               },
               { name: 'Settings/ValidTypes', type: 'i', value: 0x7 },
-              { name: 'Settings/ShowUIControl', type: 'i', value: 1, persist: true }
+              { name: 'Settings/ShowUIControl', type: 'i', value: 1, persist: false }
             ]
 
             const switchType = Number(config.switch_1_type ?? 1)
@@ -835,14 +835,14 @@ module.exports = function (RED) {
             const customNameKey = 'SwitchableOutput/output_1/Settings/CustomName'
             ifaceDesc.properties[customNameKey] = {
               type: 's',
-              persist: true
+              persist: false
             }
             iface[customNameKey] = config.switch_1_customname || ''
 
             const groupKey = 'SwitchableOutput/output_1/Settings/Group'
             ifaceDesc.properties[groupKey] = {
               type: 's',
-              persist: true
+              persist: false
             }
             iface[groupKey] = config.switch_1_group || ''
 
@@ -928,7 +928,7 @@ module.exports = function (RED) {
               ifaceDesc.properties[typeKey] = {
                 type: 'i',
                 format: (v) => v,
-                persist: true
+                persist: false
               }
               iface[typeKey] = 6
 
