@@ -8,3 +8,30 @@ a.blue-link {
 .form-warning .fa {
   color: #d6615f;
 }
+.victron-doc-box {
+  margin-top: 12px;
+  background: #fcfcfa; /* almost white */
+  border: 1px solid #c0d4e6; /* blue border */
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-sizing: border-box;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.victron-doc-box img {
+  max-width: 320px;
+  border: none;
+  background: transparent;
+  margin-bottom: 12px;
+}
+.victron-doc-box label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8px;
+}
+.victron-doc-box .victron-doc-text {
+  font-size: 0.95em;
+  color: #444;
+  margin-bottom: 8px;
+}

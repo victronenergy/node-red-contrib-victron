@@ -84,6 +84,22 @@
     }
   };
 
+  const SWITCH_TYPE_DOCS = {
+    0: {
+      text: "Momentary: Use `/SwitchableOutput/output_1/State` to trigger the switch. The switch will return to off automatically.",
+      img: "/resources/@victronenergy/node-red-contrib-victron/docs/momentary.png"
+    },
+    1: {
+      text: "Toggle: Use `/SwitchableOutput/output_1/State` to toggle the switch on or off.",
+      img: "/resources/@victronenergy/node-red-contrib-victron/docs/toggle.png"
+    },
+    2: {
+      text: "Dimmable: Use `/SwitchableOutput/output_1/Dimming` (0-100) to set the dimming level.",
+      img: "/resources/@victronenergy/node-red-contrib-victron/docs/dimmable.png"
+    },
+    // ...add docs for other types as needed...
+  };
+
   function renderSwitchConfigRow (context) {
     const typeOptions = Object.entries(SWITCH_TYPE_CONFIGS)
       .map(([value, cfg]) => `<option value="${value}">${cfg.label}</option>`)
@@ -102,6 +118,7 @@
     function renderTypeConfig () {
       $('#switch-1-config-row').remove();
       $('#switch-1-pairs-row').remove();
+      $('#switch-1-doc-row').remove();
 
       const type = $('#node-input-switch_1_type').val();
       const cfg = SWITCH_TYPE_CONFIGS[type];
@@ -171,6 +188,19 @@
             renderDropdownLabels(context);
           });
         }
+      }
+
+      const doc = SWITCH_TYPE_DOCS[type];
+      $('#switch-1-doc-row').remove();
+      if (doc) {
+        const docRow = $(`
+        <div id="switch-1-doc-row" class="victron-doc-box">
+          <label>${cfg.label} usage</label>
+          ${doc.img ? `<img src="${doc.img}" alt="Switch type preview">` : ''}
+          <div class="victron-doc-text">${doc.text}</div>
+        </div>
+      `);
+        $('#switch-1-config-row').after(docRow);
       }
     }
 
