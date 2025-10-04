@@ -894,6 +894,15 @@ module.exports = function (RED) {
                 format: (v) => v != null ? v.toFixed(1) + '°C' : ''
               }
               iface[stepKey] = Number(config.switch_1_step ?? 1)
+
+              if (config.switch_1_include_measurement) {
+                ifaceDesc.properties['SwitchableOutput/output_1/Measurement'] = {
+                  type: 'd',
+                  format: (v) => v != null ? v.toFixed(1) + '°C' : '',
+                  persist: false
+                }
+                iface['SwitchableOutput/output_1/Measurement'] = null;
+              }
             } // Temperature setpoint
 
             if (switchType === 4) {

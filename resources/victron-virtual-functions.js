@@ -110,44 +110,96 @@
 
   const SWITCH_TYPE_DOCS = {
     [SWITCH_TYPE_MAP.MOMENTARY]: {
-      text: "Momentary: Use `/SwitchableOutput/output_1/State` to trigger the switch. The switch will return to off automatically.",
-      img: "/resources/@victronenergy/node-red-contrib-victron/docs/momentary.png"
+      text: `
+      <div>
+        <strong>Most relevant path(s):</strong>
+        <ul>
+          <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li>
+        </ul>
+      </div>
+    `,
+      img: '/resources/@victronenergy/node-red-contrib-victron/docs/momentary.png'
     },
     [SWITCH_TYPE_MAP.TOGGLE]: {
-      text: "Toggle: Use `/SwitchableOutput/output_1/State` to toggle the switch on or off.",
-      img: "/resources/@victronenergy/node-red-contrib-victron/docs/toggle.png"
+      text: `
+      <div>
+        <strong>Most relevant path(s):</strong>
+        <ul>
+          <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li>
+        </ul>
+      </div>
+    `,
+      img: '/resources/@victronenergy/node-red-contrib-victron/docs/toggle.png'
     },
     [SWITCH_TYPE_MAP.DIMMABLE]: {
-      text: "Dimmable: Use `/SwitchableOutput/output_1/Dimming` (0-100) to set the dimming level.",
-      img: "/resources/@victronenergy/node-red-contrib-victron/docs/dimmable.png"
+      text: `
+      <div>
+        <strong>Most relevant path(s):</strong>
+        <ul>
+          <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li>
+          <li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; 0 to 100%, read/write.<br>
+            <span style="font-size:0.95em;color:#666;">Optional: required only for dimmable outputs, otherwise invalid or doesn't exist.</span>
+          </li>
+        </ul>
+      </div>
+    `,
+      img: '/resources/@victronenergy/node-red-contrib-victron/docs/dimmable.png'
     },
     [SWITCH_TYPE_MAP.TEMP_SETPOINT]: {
-      text: "Temperature setpoint: Use `/SwitchableOutput/output_1/Setpoint` to set the desired temperature. Min, max, and step values are configurable.",
-      img: "/resources/@victronenergy/node-red-contrib-victron/docs/temp_setpoint.png"
+      text: `
+      <div>
+        <strong>Most relevant path(s):</strong>
+        <ul>
+          <li><code>/SwitchableOutput/x/Settings/Type</code> = 3</li>
+          <li><code>/SwitchableOutput/x/Dimming</code> &mdash; holds slider value in °C.</li>
+          <li><code>/SwitchableOutput/x/Measurement</code> &mdash; holds temperature measurement, if available.<br>
+            <span style="font-size:0.95em;color:#666;">If present, the actual value will be displayed on the control.</span>
+          </li>
+          <li><code>/SwitchableOutput/x/Temperature</code> &mdash; holds the temperature of the actual switching device.<br>
+            <span style="font-size:0.95em;color:#666;">Not to be confused with <code>Measurement</code>.</span>
+          </li>
+        </ul>
+      </div>
+    `,
+      img: '/resources/@victronenergy/node-red-contrib-victron/docs/temp_setpoint.png'
     },
     [SWITCH_TYPE_MAP.STEPPED]: {
-      text: "Stepped switch: Use `/SwitchableOutput/output_1/State` to select a step (1 to max). The max number of steps is configurable.",
-      img: "/resources/@victronenergy/node-red-contrib-victron/docs/stepped.png"
+      text: `
+      <div>
+        <strong>Most relevant path(s):</strong>
+        <ul>
+          <li><code>/SwitchableOutput/x/Settings/Type</code> = 3</li>
+          <li><code>/SwitchableOutput/x/Dimming</code> &mdash; holds slider value in °C.</li>
+          <li><code>/SwitchableOutput/x/Measurement</code> &mdash; holds temperature measurement, if available.<br>
+            <span style="font-size:0.95em;color:#666;">If present, the actual value will be displayed on the control.</span>
+          </li>
+          <li><code>/SwitchableOutput/x/Temperature</code> &mdash; holds the temperature of the actual switching device.<br>
+            <span style="font-size:0.95em;color:#666;">Not to be confused with <code>Measurement</code>.</span>
+          </li>
+        </ul>
+      </div>
+    `,
+      img: '/resources/@victronenergy/node-red-contrib-victron/docs/stepped.png'
     },
     [SWITCH_TYPE_MAP.DROPDOWN]: {
-      text: "Dropdown: Use `/SwitchableOutput/output_1/State` to select an option by index. The options are defined in the configuration.",
-      img: "/resources/@victronenergy/node-red-contrib-victron/docs/dropdown.png"
+      text: 'Dropdown: Use `/SwitchableOutput/output_1/State` to select an option by index. The options are defined in the configuration.',
+      img: '/resources/@victronenergy/node-red-contrib-victron/docs/dropdown.png'
     },
     [SWITCH_TYPE_MAP.BASIC_SLIDER]: {
-      text: "Basic slider: Use `/SwitchableOutput/output_1/Value` to set the slider position. Min, max, step, and unit are configurable.",
-      img: "/resources/@victronenergy/node-red-contrib-victron/docs/basic_slider.png"
+      text: 'Basic slider: Use `/SwitchableOutput/output_1/Value` to set the slider position. Min, max, step, and unit are configurable.',
+      img: '/resources/@victronenergy/node-red-contrib-victron/docs/basic_slider.png'
     },
     [SWITCH_TYPE_MAP.NUMERIC_INPUT]: {
-      text: "Numeric input: Use `/SwitchableOutput/output_1/Value` to set a numeric value. Min, max, step, and unit are configurable.",
-      img: "/resources/@victronenergy/node-red-contrib-victron/docs/numeric_input.png"
+      text: 'Numeric input: Use `/SwitchableOutput/output_1/Value` to set a numeric value. Min, max, step, and unit are configurable.',
+      img: '/resources/@victronenergy/node-red-contrib-victron/docs/numeric_input.png'
     },
     [SWITCH_TYPE_MAP.THREE_STATE]: {
-      text: "Three-state switch: Use `/SwitchableOutput/output_1/State` to select between three states (e.g., Off, Auto, On).",
-      img: "/resources/@victronenergy/node-red-contrib-victron/docs/three_state.png"
+      text: 'Three-state switch: Use `/SwitchableOutput/output_1/State` to select between three states (e.g., Off, Auto, On).',
+      img: '/resources/@victronenergy/node-red-contrib-victron/docs/three_state.png'
     },
     [SWITCH_TYPE_MAP.BILGE_PUMP]: {
-      text: "Bilge pump control: Use `/SwitchableOutput/output_1/State` to turn the pump on or off. Additional logic may be added for automatic control.",
-      img: "/resources/@victronenergy/node-red-contrib-victron/docs/bilge_pump.png"
+      text: 'Bilge pump control: Use `/SwitchableOutput/output_1/State` to turn the pump on or off. Additional logic may be added for automatic control.',
+      img: '/resources/@victronenergy/node-red-contrib-victron/docs/bilge_pump.png'
     }
   };
 
@@ -256,6 +308,22 @@
           $('#switch-1-pairs-row').after(docRow);
         } else {
           $('#switch-1-config-row').after(docRow);
+        }
+      }
+
+      if (Number(type) === SWITCH_TYPE_MAP.TEMP_SETPOINT) {
+        // Add checkbox for Measurement path
+        const measurementToggle = $(`
+        <div class="form-row" id="switch-1-measurement-toggle-row">
+          <label for="node-input-switch_1_include_measurement" style="min-width:120px;">Include Measurement path</label>
+          <input type="checkbox" id="node-input-switch_1_include_measurement">
+        </div>
+      `);
+        $('#switch-1-config-row').append(measurementToggle);
+
+        // Restore saved value if present
+        if (context.switch_1_include_measurement) {
+          $('#node-input-switch_1_include_measurement').prop('checked', true);
         }
       }
     }
