@@ -901,7 +901,7 @@ module.exports = function (RED) {
                   format: (v) => v != null ? v.toFixed(1) + '°C' : '',
                   persist: false
                 }
-                iface['SwitchableOutput/output_1/Measurement'] = null;
+                iface['SwitchableOutput/output_1/Measurement'] = null
               }
             } // Temperature setpoint
 

@@ -457,8 +457,9 @@
           $input[0].reportValidity();
           return false
         } else if ($input.length) {
-          if (field.id === 'max' && type === SWITCH_TYPE_MAP.STEPPED) {
-            const maxVal = parseInt($input.val(), 10);
+          if (field.id === 'max' && Number(type) === SWITCH_TYPE_STEPPED) {
+            const val = $input.val();
+            const maxVal = parseInt(val, 10);
             if (isNaN(maxVal) || maxVal < 1 || maxVal > 7) {
               $input[0].setCustomValidity('Max steps must be between 1 and 7');
               $input[0].reportValidity();
