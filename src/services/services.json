@@ -4589,14 +4589,34 @@
         "name": "Sensor battery voltage (V)"
       },
       {
+        "path": "/CO2",
+        "type": "float",
+        "name": "CO₂ concentration (ppm)"
+      },
+      {
         "path": "/Humidity",
         "type": "float",
         "name": "Humidity (%)"
       },
       {
+        "path": "/Luminosity",
+        "type": "float",
+        "name": "Luminosity (lux)"
+      },
+      {
         "path": "/Offset",
         "type": "float",
         "name": "Temperature offset"
+      },
+      {
+        "path": "/NOX",
+        "type": "float",
+        "name": "Nitrogen Oxides index"
+      },
+      {
+        "path": "/PM25",
+        "type": "float",
+        "name": "PM2.5 particulate matter concentration (µg/m³)"
       },
       {
         "path": "/Pressure",
@@ -4644,6 +4664,11 @@
           "6": "Freezer"
         },
         "mode": "both"
+      },
+      {
+        "path": "/VOC",
+        "type": "float",
+        "name": "Volatile Organic Compounds index"
       }
     ],
     "tank": [
