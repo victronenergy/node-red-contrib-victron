@@ -68,6 +68,14 @@ const commonGeneratorProperties = {
   Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
 }
 
+const s2properties = {
+  'Devices/0/S2/Phase': { type: 'i', format: (v) => v != null ? v : '', value: 0, persist: true },
+  'Devices/0/S2/OnHysteresis': { type: 'i', format: (v) => v != null ? v : '', value: 0,persist: true },
+  'Devices/0/S2/OffHysteresis': { type: 'i', format: (v) => v != null ? v : '',  value: 0, persist: true },
+  'Devices/0/S2/PowerSetting': { type: 'i', format: (v) => v != null ? v.toFixed(1) : 'W', value: 0, persist: true },
+  'Devices/0/S2/Active': { type: 'i', format: (v) => ({ 0: 'Off', 1: 'On' }[v] || 'unknown'), value: 0, persist: false },
+}
+
 const properties = {
   battery: {
     Capacity: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'Ah' : '', persist: true },
@@ -1022,6 +1030,14 @@ module.exports = function (RED) {
                 persist: true
               }
               iface[autoKey] = 0
+            }
+
+            // Add S2 support, when enabled add the paths from s2properties
+            if (config.s2_support) {
+              Object.entries(s2properties).forEach(([key, { type, format, value, persist }]) => {
+                ifaceDesc.properties[key] = { type, format, persist }
+                iface[key] = value
+              })
             }
 
             text = 'Virtual switch'

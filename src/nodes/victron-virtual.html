@@ -9,6 +9,7 @@
             name: {value:""},
             device: {value:"", required: true},
             default_values: {value: false, required: false},
+            s2_support: {value: false, required: false},
             // battery
             battery_capacity: {value: 25, required: false},
             include_battery_temperature: {value: false},
@@ -411,6 +412,16 @@
             </label>
             <div class="form-tips" style="margin-top:3px;">
                 This will make the device appear on VRM and New UI immediately after deploying.<br />The device is set up with default values which you can change later.
+            </div>
+        </div>
+        <label>&nbsp;</label>
+        <div style="width:70%">
+            <label for="node-input-s2_support" style="width:100%">
+                <input type="checkbox" id="node-input-s2_support" style="display:inline-block; width:22px; vertical-align:baseline;">
+                Initialize with S2 support
+            </label>
+            <div class="form-tips" style="margin-top:3px;">
+                This will enable S2 support for the virtual device.
             </div>
         </div>
     </div>
