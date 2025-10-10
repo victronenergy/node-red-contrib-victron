@@ -4,6 +4,7 @@ const dbus = require('dbus-native-victron')
 const debug = require('debug')('victron-virtual')
 const debugInput = require('debug')('victron-virtual:input')
 const debugConnection = require('debug')('victron-virtual:connection')
+const { SWITCH_TYPE_MAP } = require('./victron-virtual-functions')
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('=== UNHANDLED REJECTION (PREVENTING CRASH) ===')
@@ -11,9 +12,7 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('Reason:', reason)
   console.error('Reason type:', typeof reason)
   console.error('Is array:', Array.isArray(reason))
-  if (Array.isArray(reason)) {
-    console.error('Array contents:', JSON.stringify(reason, null, 2))
-  }
+  console.error('Array contents:', JSON.stringify(reason, null, 2))
   console.error('Stack trace:')
   console.trace()
   console.error('=== END DEBUG ===')
@@ -805,8 +804,8 @@ module.exports = function (RED) {
             const switchType = Number(config.switch_1_type ?? 1)
 
             baseProperties.forEach(({ name, type, value, format, persist }) => {
-              const switchOutputPropertyKey = `SwitchableOutput/output_1/${name}`
-              ifaceDesc.properties[switchOutputPropertyKey] = { type, format, persist }
+              const switchableOutputPropertyKey = `SwitchableOutput/output_1/${name}`
+              ifaceDesc.properties[switchableOutputPropertyKey] = { type, format, persist }
 
               let propValue = value
               if (name === 'Name') {
@@ -820,14 +819,14 @@ module.exports = function (RED) {
               }
               if (name === 'Settings/Type') propValue = switchType
 
-              iface[switchOutputPropertyKey] = propValue !== undefined ? propValue : 0
+              iface[switchableOutputPropertyKey] = propValue !== undefined ? propValue : 0
 
               if (name === 'Settings/ValidTypes') {
                 // Only allow the currently selected switch type in the GUI.
                 // This sets /ValidTypes to a bitmask with only the current type allowed.
                 // See: https://github.com/victronenergy/dbus-victron-virtual/issues/XXX
                 // Example: If switchType is 2, then 1 << 2 = 4, so only type 2 is valid.
-                iface[switchOutputPropertyKey] = 1 << switchType
+                iface[switchableOutputPropertyKey] = 1 << switchType
               }
             })
 
@@ -858,8 +857,7 @@ module.exports = function (RED) {
               iface[dimmingKey] = 0
             }
 
-            // Temperature setpoint
-            if (switchType === 3) {
+            if (switchType === SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) {
               // Dimming value (°C)
               const dimmingKey = 'SwitchableOutput/output_1/Dimming'
               ifaceDesc.properties[dimmingKey] = {
@@ -905,7 +903,7 @@ module.exports = function (RED) {
               }
             } // Temperature setpoint
 
-            if (switchType === 4) {
+            if (switchType === SWITCH_TYPE_MAP.STEPPED) {
               // Stepped switch
               // /SwitchableOutput/x/Dimming holds selected option
               // /SwitchableOutput/x/Settings/DimmingMax defines the number of options (mandatory)
@@ -927,8 +925,7 @@ module.exports = function (RED) {
               iface[maxKey] = Number(config.switch_1_max ?? 7)
             }
 
-            // Dropdown switch (type 6)
-            if (switchType === 6) {
+            if (switchType === SWITCH_TYPE_MAP.DROPDOWN) {
               const typeKey = 'SwitchableOutput/output_1/Settings/Type'
               const dimmingKey = 'SwitchableOutput/output_1/Dimming'
               const labelsKey = 'SwitchableOutput/output_1/Settings/Labels'
@@ -980,7 +977,7 @@ module.exports = function (RED) {
               iface[labelsKey] = labelsJson
             }
 
-            if (switchType === 7 || switchType === 8) { // Basic slider or Numeric input
+            if (switchType === SWITCH_TYPE_MAP.BASIC_SLIDER || switchType === SWITCH_TYPE_MAP.NUMERIC_INPUT) {
               const dimmingKey = 'SwitchableOutput/output_1/Dimming'
               ifaceDesc.properties[dimmingKey] = {
                 type: 'd',
@@ -1023,7 +1020,7 @@ module.exports = function (RED) {
               iface[unitKey] = config.switch_1_unit || ''
             }
 
-            if (switchType === 9) { // Three-state switch
+            if (switchType === SWITCH_TYPE_MAP.THREE_STATE) {
               const autoKey = 'SwitchableOutput/output_1/Auto'
               ifaceDesc.properties[autoKey] = {
                 type: 'i',
