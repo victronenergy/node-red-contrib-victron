@@ -7,6 +7,7 @@
         paletteLabel: "Virtual Device",
         defaults: {
             name: {value:""},
+            outputs: {value:1},
             device: {value:"", required: true},
             default_values: {value: false, required: false},
             // battery
@@ -67,7 +68,30 @@
         label: function() {
             return (this.name||"Virtual "+this.device)
         },
-        outputLabels: ["passthrough", "state", "value"],
+        outputLabels: function(index) {
+            // Inline logic since window.getOutputLabels may not be loaded yet
+            if (!this.device || this.device !== 'switch') {
+                return index === 0 ? 'passthrough' : 'output ' + (index + 1)
+            }
+            
+            const switchType = this.switch_1_type
+            const typeKey = switchType !== undefined ? parseInt(switchType, 10) : 1 // TOGGLE = 1
+            
+            // Map of third output labels
+            const thirdLabels = {
+                2: 'dimming',      // DIMMABLE
+                3: 'temperature',  // TEMPERATURE_SETPOINT
+                4: 'value',        // STEPPED
+                7: 'value',        // BASIC_SLIDER
+                8: 'value'         // NUMERIC_INPUT
+            }
+            
+            if (index === 0) return 'passthrough'
+            if (index === 1) return 'state'
+            if (index === 2) return thirdLabels[typeKey] || 'value'
+            
+            return 'output ' + (index + 1)
+        },
         oneditprepare: function oneditprepare() {
             if (this.id && this.changed === false) {
                 $('#node-input-device')
@@ -146,6 +170,7 @@
                     });
                 }
             }
+            updateOutputs(this);
         }
     });
 </script>

@@ -1,9 +1,9 @@
 /* global $ */
 
-import { SWITCH_TYPE_MAP, SWITCH_OUTPUT_CONFIG } from './victron-virtual-constants'
+import { SWITCH_TYPE_MAP, SWITCH_OUTPUT_CONFIG, SWITCH_THIRD_OUTPUT_LABEL } from './victron-virtual-constants'
 
 // Re-export for browser/test use
-export { SWITCH_TYPE_MAP, SWITCH_OUTPUT_CONFIG }
+export { SWITCH_TYPE_MAP, SWITCH_OUTPUT_CONFIG, SWITCH_THIRD_OUTPUT_LABEL }
 
 const COMMON_SWITCH_FIELDS = [
   { id: 'customname', type: 'text', placeholder: 'Name', title: 'Name', style: 'width:120px;' },
@@ -506,4 +506,33 @@ export function updateOutputs (context) {
   // Update BOTH the context AND the hidden input field
   context.outputs = outputs
   $('#node-input-outputs').val(outputs)
+}
+
+/**
+ * Get output labels for a virtual device
+ * @param {string} device - Device type (e.g., 'battery', 'switch', 'gps')
+ * @param {object} config - Device configuration object
+ * @returns {string[]} Array of output label strings
+ */
+export function getOutputLabels (device, config) {
+  // Non-switch devices only have passthrough
+  if (!device || device !== 'switch') {
+    return ['passthrough']
+  }
+
+  // For switches, build labels based on output count
+  const switchType = config?.switch_1_type
+  const typeKey = switchType !== undefined ? parseInt(switchType, 10) : SWITCH_TYPE_MAP.TOGGLE
+  const outputCount = SWITCH_OUTPUT_CONFIG[typeKey] || 2
+
+  // Start with common labels
+  const labels = ['passthrough', 'state']
+
+  // Add third label if needed
+  if (outputCount === 3) {
+    const thirdLabel = SWITCH_THIRD_OUTPUT_LABEL[typeKey] || 'value'
+    labels.push(thirdLabel)
+  }
+
+  return labels
 }

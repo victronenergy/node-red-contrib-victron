@@ -33,9 +33,19 @@
   	  [SWITCH_TYPE_MAP.BILGE_PUMP]: 2 // passthrough + state
   	};
 
+  	// Output labels configuration: third label varies by switch type
+  	const SWITCH_THIRD_OUTPUT_LABEL = {
+  	  [SWITCH_TYPE_MAP.DIMMABLE]: 'dimming',
+  	  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'temperature',
+  	  [SWITCH_TYPE_MAP.STEPPED]: 'value',
+  	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'value',
+  	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'value'
+  	};
+
   	victronVirtualConstants = {
   	  SWITCH_TYPE_MAP,
-  	  SWITCH_OUTPUT_CONFIG
+  	  SWITCH_OUTPUT_CONFIG,
+  	  SWITCH_THIRD_OUTPUT_LABEL
   	};
   	return victronVirtualConstants;
   }
@@ -553,6 +563,7 @@
   window.checkGeneratorType = checkGeneratorType;
   window.SWITCH_TYPE_CONFIGS = SWITCH_TYPE_CONFIGS;
   window.SWITCH_OUTPUT_CONFIG = victronVirtualConstantsExports.SWITCH_OUTPUT_CONFIG;
+  window.SWITCH_THIRD_OUTPUT_LABEL = victronVirtualConstantsExports.SWITCH_THIRD_OUTPUT_LABEL;
   window.renderSwitchConfigRow = renderSwitchConfigRow;
   window.updateSwitchConfig = updateSwitchConfig;
   window.checkSelectedVirtualDevice = checkSelectedVirtualDevice;

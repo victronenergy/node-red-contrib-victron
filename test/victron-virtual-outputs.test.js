@@ -1,5 +1,5 @@
 // test/victron-virtual-outputs.test.js
-const { calculateOutputs } = require('./fixtures/victron-virtual-functions.cjs')
+const { calculateOutputs, getOutputLabels } = require('./fixtures/victron-virtual-functions.cjs')
 const { SWITCH_TYPE_MAP, SWITCH_OUTPUT_CONFIG } = require('../src/nodes/victron-virtual-constants')
 
 describe('calculateOutputs', () => {
@@ -116,6 +116,95 @@ describe('calculateOutputs', () => {
         const config = { switch_1_type: typeKey }
         const outputs = calculateOutputs('switch', config)
         expect(outputs).toBe(SWITCH_OUTPUT_CONFIG[typeKey])
+      })
+    })
+  })
+})
+
+describe('getOutputLabels', () => {
+  describe('non-switch devices', () => {
+    test('battery has only passthrough label', () => {
+      expect(getOutputLabels('battery', {})).toEqual(['passthrough'])
+    })
+
+    test('gps has only passthrough label', () => {
+      expect(getOutputLabels('gps', {})).toEqual(['passthrough'])
+    })
+  })
+
+  describe('switch devices', () => {
+    test('momentary switch has passthrough and state labels', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.MOMENTARY) }
+      expect(getOutputLabels('switch', config)).toEqual(['passthrough', 'state'])
+    })
+
+    test('toggle switch has passthrough and state labels', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.TOGGLE) }
+      expect(getOutputLabels('switch', config)).toEqual(['passthrough', 'state'])
+    })
+
+    test('dimmable switch has passthrough, state, and dimming labels', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.DIMMABLE) }
+      expect(getOutputLabels('switch', config)).toEqual(['passthrough', 'state', 'dimming'])
+    })
+
+    test('temperature setpoint has passthrough, state, and temperature labels', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) }
+      expect(getOutputLabels('switch', config)).toEqual(['passthrough', 'state', 'temperature'])
+    })
+
+    test('stepped switch has passthrough, state, and value labels', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.STEPPED) }
+      expect(getOutputLabels('switch', config)).toEqual(['passthrough', 'state', 'value'])
+    })
+
+    test('dropdown has passthrough and state labels', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.DROPDOWN) }
+      expect(getOutputLabels('switch', config)).toEqual(['passthrough', 'state'])
+    })
+
+    test('basic slider has passthrough, state, and value labels', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.BASIC_SLIDER) }
+      expect(getOutputLabels('switch', config)).toEqual(['passthrough', 'state', 'value'])
+    })
+
+    test('numeric input has passthrough, state, and value labels', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.NUMERIC_INPUT) }
+      expect(getOutputLabels('switch', config)).toEqual(['passthrough', 'state', 'value'])
+    })
+
+    test('three-state switch has passthrough and state labels', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE) }
+      expect(getOutputLabels('switch', config)).toEqual(['passthrough', 'state'])
+    })
+
+    test('bilge pump has passthrough and state labels', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.BILGE_PUMP) }
+      expect(getOutputLabels('switch', config)).toEqual(['passthrough', 'state'])
+    })
+
+    test('switch without type defaults to toggle labels', () => {
+      expect(getOutputLabels('switch', {})).toEqual(['passthrough', 'state'])
+    })
+  })
+
+  describe('edge cases', () => {
+    test('handles null config', () => {
+      expect(getOutputLabels('battery', null)).toEqual(['passthrough'])
+    })
+
+    test('handles undefined device', () => {
+      expect(getOutputLabels(undefined, {})).toEqual(['passthrough'])
+    })
+  })
+
+  describe('label count matches output count', () => {
+    test('label array length equals output count for all switch types', () => {
+      Object.keys(SWITCH_OUTPUT_CONFIG).forEach(typeKey => {
+        const config = { switch_1_type: typeKey }
+        const outputs = calculateOutputs('switch', config)
+        const labels = getOutputLabels('switch', config)
+        expect(labels.length).toBe(outputs)
       })
     })
   })

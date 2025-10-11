@@ -24,7 +24,17 @@ const SWITCH_OUTPUT_CONFIG = {
   [SWITCH_TYPE_MAP.BILGE_PUMP]: 2 // passthrough + state
 }
 
+// Output labels configuration: third label varies by switch type
+const SWITCH_THIRD_OUTPUT_LABEL = {
+  [SWITCH_TYPE_MAP.DIMMABLE]: 'dimming',
+  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'temperature',
+  [SWITCH_TYPE_MAP.STEPPED]: 'value',
+  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'value',
+  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'value'
+}
+
 module.exports = {
   SWITCH_TYPE_MAP,
-  SWITCH_OUTPUT_CONFIG
+  SWITCH_OUTPUT_CONFIG,
+  SWITCH_THIRD_OUTPUT_LABEL
 }
