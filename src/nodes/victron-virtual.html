@@ -7,6 +7,7 @@
         paletteLabel: "Virtual Device",
         defaults: {
             name: {value:""},
+            outputs: {value:1},
             device: {value:"", required: true},
             default_values: {value: false, required: false},
             // battery
@@ -41,6 +42,7 @@
             switch_1_step: {value: 1, required: false},
             switch_1_customname: {value: "", required: false},
             switch_1_group: {value: "", required: false},
+            switch_1_include_measurement: {value: false, required: false},
             // tank
             fluid_type: { value: 0, required: false},
             include_tank_battery: { value: false },
@@ -62,9 +64,38 @@
         },
         icon: "victronenergy.svg",
         inputs:1,
-        outputs:0,
+        outputs:1,
         label: function() {
             return (this.name||"Virtual "+this.device)
+        },
+        outputLabels: function(index) {
+            // Inline logic since window.getOutputLabels may not be loaded yet
+            if (!this.device || this.device !== 'switch') {
+                return index === 0 ? 'Passthrough' : 'Output ' + (index + 1)
+            }
+            
+            const switchType = this.switch_1_type
+            const typeKey = switchType !== undefined ? parseInt(switchType, 10) : 1 // TOGGLE = 1
+            
+            // Map of third output labels
+            const thirdLabels = {
+                2: 'Dimming',      // DIMMABLE
+                3: 'Temperature',  // TEMPERATURE_SETPOINT
+                4: 'Value',        // STEPPED
+                7: 'Value',        // BASIC_SLIDER
+                8: 'Value'         // NUMERIC_INPUT
+            }
+            
+            if (index === 0) return 'Passthrough'
+            
+            // For dropdown (type 6), second output is 'selected' instead of 'state'
+            if (index === 1) {
+                return typeKey === 6 ? 'Selected' : 'State'
+            }
+            
+            if (index === 2) return thirdLabels[typeKey] || 'Value'
+            
+            return 'Output ' + (index + 1)
         },
         oneditprepare: function oneditprepare() {
             if (this.id && this.changed === false) {
@@ -75,7 +106,17 @@
 
             $('#node-input-device').on('change', () => {
                 checkSelectedVirtualDevice.call(this);
+                // Update outputs when device changes
+                updateOutputs(this);
             });
+
+            // Add handler for switch type changes
+            $(document).on('change', '#node-input-switch_1_type', () => {
+                updateOutputs(this);
+            });
+            
+            // Initialize outputs on load
+            updateOutputs(this);
             checkSelectedVirtualDevice.call(this);
         },
         oneditsave: function() {
@@ -134,6 +175,7 @@
                     });
                 }
             }
+            updateOutputs(this);
         }
     });
 </script>

@@ -4,6 +4,10 @@ const dbus = require('dbus-native-victron')
 const debug = require('debug')('victron-virtual')
 const debugInput = require('debug')('victron-virtual:input')
 const debugConnection = require('debug')('victron-virtual:connection')
+const {
+  SWITCH_TYPE_MAP,
+  SWITCH_THIRD_OUTPUT_LABEL
+} = require('./victron-virtual-constants')
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('=== UNHANDLED REJECTION (PREVENTING CRASH) ===')
@@ -11,9 +15,7 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('Reason:', reason)
   console.error('Reason type:', typeof reason)
   console.error('Is array:', Array.isArray(reason))
-  if (Array.isArray(reason)) {
-    console.error('Array contents:', JSON.stringify(reason, null, 2))
-  }
+  console.error('Array contents:', JSON.stringify(reason, null, 2))
   console.error('Stack trace:')
   console.trace()
   console.error('=== END DEBUG ===')
@@ -345,6 +347,8 @@ module.exports = function (RED) {
     RED.nodes.createNode(this, config)
     const node = this
 
+    node.lastSentValues = {}
+
     const address = process.env.NODE_RED_DBUS_ADDRESS
       ? process.env.NODE_RED_DBUS_ADDRESS.split(':')
       : null
@@ -355,19 +359,38 @@ module.exports = function (RED) {
     node.pendingCallsToSetValuesLocally = []
 
     function handleInput (msg, done) {
+      // Send passthrough message FIRST, before any validation
+      const outputs = [msg]
+      // Fill remaining outputs with null
+      for (let i = 1; i < config.outputs; i++) {
+        outputs.push(null)
+      }
+      node.send(outputs)
+
+      // Now do validation
       if (!msg || !msg.payload) {
         node.warn('Received message without payload, ignoring.')
+        node.status({
+          fill: 'yellow',
+          shape: 'ring',
+          text: 'No payload - passthrough only'
+        })
+        done()
         return
       }
 
-      // Check if the payload is a valid object
       if (typeof msg.payload !== 'object' || msg.payload === null) {
         node.warn('Received invalid payload, expected an object with payload. Ignoring.')
+        node.status({
+          fill: 'yellow',
+          shape: 'ring',
+          text: 'Invalid payload - passthrough only'
+        })
+        done()
         return
       }
 
       try {
-        // Set values locally, which will emit 'itemsChanged' signal for all properties that were actually changed
         debugInput(`Setting values locally for node ${node.id}:`, msg.payload)
         node.setValuesLocally(msg.payload)
 
@@ -805,8 +828,8 @@ module.exports = function (RED) {
             const switchType = Number(config.switch_1_type ?? 1)
 
             baseProperties.forEach(({ name, type, value, format, persist }) => {
-              const switchOutputPropertyKey = `SwitchableOutput/output_1/${name}`
-              ifaceDesc.properties[switchOutputPropertyKey] = { type, format, persist }
+              const switchableOutputPropertyKey = `SwitchableOutput/output_1/${name}`
+              ifaceDesc.properties[switchableOutputPropertyKey] = { type, format, persist }
 
               let propValue = value
               if (name === 'Name') {
@@ -820,14 +843,14 @@ module.exports = function (RED) {
               }
               if (name === 'Settings/Type') propValue = switchType
 
-              iface[switchOutputPropertyKey] = propValue !== undefined ? propValue : 0
+              iface[switchableOutputPropertyKey] = propValue !== undefined ? propValue : 0
 
               if (name === 'Settings/ValidTypes') {
                 // Only allow the currently selected switch type in the GUI.
                 // This sets /ValidTypes to a bitmask with only the current type allowed.
                 // See: https://github.com/victronenergy/dbus-victron-virtual/issues/XXX
                 // Example: If switchType is 2, then 1 << 2 = 4, so only type 2 is valid.
-                iface[switchOutputPropertyKey] = 1 << switchType
+                iface[switchableOutputPropertyKey] = 1 << switchType
               }
             })
 
@@ -858,8 +881,7 @@ module.exports = function (RED) {
               iface[dimmingKey] = 0
             }
 
-            // Temperature setpoint
-            if (switchType === 3) {
+            if (switchType === SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) {
               // Dimming value (°C)
               const dimmingKey = 'SwitchableOutput/output_1/Dimming'
               ifaceDesc.properties[dimmingKey] = {
@@ -894,9 +916,18 @@ module.exports = function (RED) {
                 format: (v) => v != null ? v.toFixed(1) + '°C' : ''
               }
               iface[stepKey] = Number(config.switch_1_step ?? 1)
+
+              if (config.switch_1_include_measurement) {
+                ifaceDesc.properties['SwitchableOutput/output_1/Measurement'] = {
+                  type: 'd',
+                  format: (v) => v != null ? v.toFixed(1) + '°C' : '',
+                  persist: false
+                }
+                iface['SwitchableOutput/output_1/Measurement'] = null
+              }
             } // Temperature setpoint
 
-            if (switchType === 4) {
+            if (switchType === SWITCH_TYPE_MAP.STEPPED) {
               // Stepped switch
               // /SwitchableOutput/x/Dimming holds selected option
               // /SwitchableOutput/x/Settings/DimmingMax defines the number of options (mandatory)
@@ -918,8 +949,7 @@ module.exports = function (RED) {
               iface[maxKey] = Number(config.switch_1_max ?? 7)
             }
 
-            // Dropdown switch (type 6)
-            if (switchType === 6) {
+            if (switchType === SWITCH_TYPE_MAP.DROPDOWN) {
               const typeKey = 'SwitchableOutput/output_1/Settings/Type'
               const dimmingKey = 'SwitchableOutput/output_1/Dimming'
               const labelsKey = 'SwitchableOutput/output_1/Settings/Labels'
@@ -933,16 +963,12 @@ module.exports = function (RED) {
               iface[typeKey] = 6
 
               // Get labels from config - should be simple key-value object
-              const labelData = config.switch_1_label || '{}'
-              let labelsJson = '{}'
+              const labels = JSON.parse(config.switch_1_label || '[]')
               let firstKey = ''
 
               try {
-                const keyValueObj = JSON.parse(labelData)
-                const keys = Object.keys(keyValueObj)
-                if (keys.length > 0) {
-                  labelsJson = labelData // Use the same format
-                  firstKey = keys[0] // Default to first key
+                if (labels.length > 0) {
+                  firstKey = labels[0] // Default to first key
                 }
               } catch (e) {
                 console.error('Invalid JSON in switch 1 labels:', e)
@@ -965,13 +991,13 @@ module.exports = function (RED) {
 
               // Labels field stores the key-value JSON directly
               ifaceDesc.properties[labelsKey] = {
-                type: 's',
+                type: 'as',
                 format: (v) => v || '{}'
               }
-              iface[labelsKey] = labelsJson
+              iface[labelsKey] = labels
             }
 
-            if (switchType === 7 || switchType === 8) { // Basic slider or Numeric input
+            if (switchType === SWITCH_TYPE_MAP.BASIC_SLIDER || switchType === SWITCH_TYPE_MAP.NUMERIC_INPUT) {
               const dimmingKey = 'SwitchableOutput/output_1/Dimming'
               ifaceDesc.properties[dimmingKey] = {
                 type: 'd',
@@ -1014,7 +1040,7 @@ module.exports = function (RED) {
               iface[unitKey] = config.switch_1_unit || ''
             }
 
-            if (switchType === 9) { // Three-state switch
+            if (switchType === SWITCH_TYPE_MAP.THREE_STATE) {
               const autoKey = 'SwitchableOutput/output_1/Auto'
               ifaceDesc.properties[autoKey] = {
                 type: 'i',
@@ -1024,7 +1050,21 @@ module.exports = function (RED) {
               iface[autoKey] = 0
             }
 
-            text = 'Virtual switch'
+            const switchTypeLabels = {
+              [SWITCH_TYPE_MAP.MOMENTARY]: 'Momentary',
+              [SWITCH_TYPE_MAP.TOGGLE]: 'Toggle',
+              [SWITCH_TYPE_MAP.DIMMABLE]: 'Dimmable',
+              [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'Temperature setpoint',
+              [SWITCH_TYPE_MAP.STEPPED]: 'Stepped',
+              [SWITCH_TYPE_MAP.DROPDOWN]: 'Dropdown',
+              [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Basic slider',
+              [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Numeric input',
+              [SWITCH_TYPE_MAP.THREE_STATE]: 'Three-state',
+              [SWITCH_TYPE_MAP.BILGE_PUMP]: 'Bilge pump'
+            }
+            const typeLabel = switchTypeLabels[switchType] || 'Switch'
+
+            text = `Virtual ${typeLabel} Switch`
             break
           }
           case 'tank':
@@ -1193,12 +1233,100 @@ module.exports = function (RED) {
           }
 
           const propName = data[0][0].substring(1) // Remove the leading slash
+          const propValue = data[0][1][0][1][1]
 
           // check if we need to persist this property
           if (ifaceDesc.properties[propName] && ifaceDesc.properties[propName].persist) {
             savePersistedState(RED, self.id, iface, ifaceDesc, propName).catch(err => {
               console.error(`Failed to persist state for ${propName}:`, err)
             })
+          }
+
+          if (config.device !== 'switch' || config.outputs <= 1) {
+            return
+          }
+
+          if (!node.lastSentValues) {
+            node.lastSentValues = {}
+          }
+
+          const outputMsgs = []
+          let hasChanges = false
+          const switchType = parseInt(config.switch_1_type, 10)
+
+          // Output 1: null (no passthrough on ItemsChanged)
+          outputMsgs[0] = null
+
+          // For dropdown switches, output 2 sends Dimming (selected option)
+          // For other 2-output switches (momentary, toggle, three-state, bilge), output 2 sends State
+          if (config.outputs === 2 && switchType === SWITCH_TYPE_MAP.DROPDOWN) {
+            // Dropdown: Output 2 = selected option from Dimming
+            if (propName === 'SwitchableOutput/output_1/Dimming') {
+              if (node.lastSentValues.Dimming !== propValue) {
+                node.lastSentValues.Dimming = propValue
+                outputMsgs[1] = {
+                  payload: Number(propValue),
+                  topic: `${node.name || 'Virtual ' + config.device}/selected`,
+                  path: '/SwitchableOutput/output_1/Dimming'
+                }
+                hasChanges = true
+              }
+            } else {
+              outputMsgs[1] = null
+            }
+          } else if (config.outputs === 2) {
+            // Standard 2-output switches: Output 2 = State
+            if (propName === 'SwitchableOutput/output_1/State') {
+              if (node.lastSentValues.State !== propValue) {
+                node.lastSentValues.State = propValue
+                outputMsgs[1] = {
+                  payload: propValue,
+                  topic: `${node.name || 'Virtual ' + config.device}/state`,
+                  path: '/SwitchableOutput/output_1/State'
+                }
+                hasChanges = true
+              }
+            } else {
+              outputMsgs[1] = null
+            }
+          } else if (config.outputs >= 3) {
+            // 3-output switches: Output 2 = State, Output 3 = Dimming value
+            if (propName === 'SwitchableOutput/output_1/State') {
+              if (node.lastSentValues.State !== propValue) {
+                node.lastSentValues.State = propValue
+                outputMsgs[1] = {
+                  payload: propValue,
+                  topic: `${node.name || 'Virtual ' + config.device}/state`,
+                  path: '/SwitchableOutput/output_1/State'
+                }
+                hasChanges = true
+              }
+            } else {
+              outputMsgs[1] = null
+            }
+
+            // Output 3: Value (Dimming)
+            if (propName === 'SwitchableOutput/output_1/Dimming') {
+              if (node.lastSentValues.Dimming !== propValue) {
+                node.lastSentValues.Dimming = propValue
+
+                const topicLabel = SWITCH_THIRD_OUTPUT_LABEL[switchType] || 'value'
+
+                outputMsgs[2] = {
+                  payload: propValue,
+                  topic: `${node.name || 'Virtual ' + config.device}/${topicLabel}`,
+                  path: '/SwitchableOutput/output_1/Dimming'
+                }
+                hasChanges = true
+              }
+            } else {
+              outputMsgs[2] = null
+            }
+          }
+
+          // Send outputs only if there were actual changes
+          if (hasChanges) {
+            node.send(outputMsgs)
           }
         }
 
