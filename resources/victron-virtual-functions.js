@@ -1,31 +1,35 @@
 (function () {
   'use strict';
 
+  var victronVirtualConstants;
+  var hasRequiredVictronVirtualConstants;
+
+  function requireVictronVirtualConstants () {
+  	if (hasRequiredVictronVirtualConstants) return victronVirtualConstants;
+  	hasRequiredVictronVirtualConstants = 1;
+  	const SWITCH_TYPE_MAP = {
+  	  MOMENTARY: 0,
+  	  TOGGLE: 1,
+  	  DIMMABLE: 2,
+  	  TEMPERATURE_SETPOINT: 3,
+  	  STEPPED: 4,
+  	  DROPDOWN: 6,
+  	  BASIC_SLIDER: 7,
+  	  NUMERIC_INPUT: 8,
+  	  THREE_STATE: 9,
+  	  BILGE_PUMP: 10
+  	};
+
+  	victronVirtualConstants = {
+  	  SWITCH_TYPE_MAP
+  	};
+  	return victronVirtualConstants;
+  }
+
+  var victronVirtualConstantsExports = requireVictronVirtualConstants();
+
   /* global $ */
 
-  const SWITCH_TYPE_MOMENTARY = 0;
-  const SWITCH_TYPE_TOGGLE = 1;
-  const SWITCH_TYPE_DIMMABLE = 2;
-  const SWITCH_TYPE_TEMP_SETPOINT = 3;
-  const SWITCH_TYPE_STEPPED = 4;
-  const SWITCH_TYPE_DROPDOWN = 6;
-  const SWITCH_TYPE_BASIC_SLIDER = 7;
-  const SWITCH_TYPE_NUMERIC_INPUT = 8;
-  const SWITCH_TYPE_THREE_STATE = 9;
-  const SWITCH_TYPE_BILGE_PUMP = 10;
-
-  const SWITCH_TYPE_MAP = {
-    MOMENTARY: SWITCH_TYPE_MOMENTARY,
-    TOGGLE: SWITCH_TYPE_TOGGLE,
-    DIMMABLE: SWITCH_TYPE_DIMMABLE,
-    TEMP_SETPOINT: SWITCH_TYPE_TEMP_SETPOINT,
-    STEPPED: SWITCH_TYPE_STEPPED,
-    DROPDOWN: SWITCH_TYPE_DROPDOWN,
-    BASIC_SLIDER: SWITCH_TYPE_BASIC_SLIDER,
-    NUMERIC_INPUT: SWITCH_TYPE_NUMERIC_INPUT,
-    THREE_STATE: SWITCH_TYPE_THREE_STATE,
-    BILGE_PUMP: SWITCH_TYPE_BILGE_PUMP
-  };
 
   const COMMON_SWITCH_FIELDS = [
     { id: 'customname', type: 'text', placeholder: 'Name', title: 'Name', style: 'width:120px;' },
@@ -44,10 +48,10 @@
   }
 
   const SWITCH_TYPE_CONFIGS = {
-    [SWITCH_TYPE_MAP.MOMENTARY]: { label: 'Momentary', fields: [...COMMON_SWITCH_FIELDS] },
-    [SWITCH_TYPE_MAP.TOGGLE]: { label: 'Toggle', fields: [...COMMON_SWITCH_FIELDS] },
-    [SWITCH_TYPE_MAP.DIMMABLE]: { label: 'Dimmable', fields: [...COMMON_SWITCH_FIELDS] },
-    [SWITCH_TYPE_MAP.TEMP_SETPOINT]: {
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.MOMENTARY]: { label: 'Momentary', fields: [...COMMON_SWITCH_FIELDS] },
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.TOGGLE]: { label: 'Toggle', fields: [...COMMON_SWITCH_FIELDS] },
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.DIMMABLE]: { label: 'Dimmable', fields: [...COMMON_SWITCH_FIELDS] },
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.TEMP_SETPOINT]: {
       label: 'Temperature setpoint',
       fields: [
         ...COMMON_SWITCH_FIELDS,
@@ -56,14 +60,14 @@
         { id: 'step', type: 'number', placeholder: 'Step (°C)', title: 'Step (°C)', style: 'width:80px;' }
       ]
     },
-    [SWITCH_TYPE_MAP.STEPPED]: {
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED]: {
       label: 'Stepped switch',
       fields: [
         ...COMMON_SWITCH_FIELDS,
         { id: 'max', type: 'number', placeholder: 'Max steps', title: 'Max steps', style: 'width:80px;', min: 1, max: 7 }
       ]
     },
-    [SWITCH_TYPE_MAP.DROPDOWN]: {
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN]: {
       label: 'Dropdown',
       fields: [
         ...COMMON_SWITCH_FIELDS,
@@ -78,7 +82,7 @@
         }
       ]
     },
-    [SWITCH_TYPE_MAP.BASIC_SLIDER]: {
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.BASIC_SLIDER]: {
       label: 'Basic slider',
       fields: [
         ...COMMON_SWITCH_FIELDS,
@@ -88,7 +92,7 @@
         { id: 'unit', type: 'text', placeholder: 'Unit', title: 'Unit', style: 'width:80px;' }
       ]
     },
-    [SWITCH_TYPE_MAP.NUMERIC_INPUT]: {
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.NUMERIC_INPUT]: {
       label: 'Numeric input',
       fields: [
         ...COMMON_SWITCH_FIELDS,
@@ -98,18 +102,18 @@
         { id: 'unit', type: 'text', placeholder: 'Unit', title: 'Unit (center)', style: 'width:120px;' }
       ]
     },
-    [SWITCH_TYPE_MAP.THREE_STATE]: {
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.THREE_STATE]: {
       label: 'Three-state switch',
       fields: [...COMMON_SWITCH_FIELDS]
     },
-    [SWITCH_TYPE_MAP.BILGE_PUMP]: {
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.BILGE_PUMP]: {
       label: 'Bilge pump control',
       fields: [...COMMON_SWITCH_FIELDS]
     }
   };
 
   const SWITCH_TYPE_DOCS = {
-    [SWITCH_TYPE_MAP.MOMENTARY]: {
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.MOMENTARY]: {
       text: `
       <div>
         <strong>Most relevant path(s):</strong>
@@ -120,7 +124,7 @@
     `,
       img: '/resources/@victronenergy/node-red-contrib-victron/docs/momentary.png'
     },
-    [SWITCH_TYPE_MAP.TOGGLE]: {
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.TOGGLE]: {
       text: `
       <div>
         <strong>Most relevant path(s):</strong>
@@ -131,7 +135,7 @@
     `,
       img: '/resources/@victronenergy/node-red-contrib-victron/docs/toggle.png'
     },
-    [SWITCH_TYPE_MAP.DIMMABLE]: {
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.DIMMABLE]: {
       text: `
       <div>
         <strong>Most relevant path(s):</strong>
@@ -145,7 +149,7 @@
     `,
       img: '/resources/@victronenergy/node-red-contrib-victron/docs/dimmable.png'
     },
-    [SWITCH_TYPE_MAP.TEMP_SETPOINT]: {
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.TEMP_SETPOINT]: {
       text: `
       <div>
         <strong>Most relevant path(s):</strong>
@@ -163,7 +167,7 @@
     `,
       img: '/resources/@victronenergy/node-red-contrib-victron/docs/temp_setpoint.png'
     },
-    [SWITCH_TYPE_MAP.STEPPED]: {
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED]: {
       text: `
       <div>
         <strong>Most relevant path(s):</strong>
@@ -181,23 +185,23 @@
     `,
       img: '/resources/@victronenergy/node-red-contrib-victron/docs/stepped.png'
     },
-    [SWITCH_TYPE_MAP.DROPDOWN]: {
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN]: {
       text: 'Dropdown: Use `/SwitchableOutput/output_1/State` to select an option by index. The options are defined in the configuration.',
       img: '/resources/@victronenergy/node-red-contrib-victron/docs/dropdown.png'
     },
-    [SWITCH_TYPE_MAP.BASIC_SLIDER]: {
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.BASIC_SLIDER]: {
       text: 'Basic slider: Use `/SwitchableOutput/output_1/Value` to set the slider position. Min, max, step, and unit are configurable.',
       img: '/resources/@victronenergy/node-red-contrib-victron/docs/basic_slider.png'
     },
-    [SWITCH_TYPE_MAP.NUMERIC_INPUT]: {
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.NUMERIC_INPUT]: {
       text: 'Numeric input: Use `/SwitchableOutput/output_1/Value` to set a numeric value. Min, max, step, and unit are configurable.',
       img: '/resources/@victronenergy/node-red-contrib-victron/docs/numeric_input.png'
     },
-    [SWITCH_TYPE_MAP.THREE_STATE]: {
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.THREE_STATE]: {
       text: 'Three-state switch: Use `/SwitchableOutput/output_1/State` to select between three states (e.g., Off, Auto, On).',
       img: '/resources/@victronenergy/node-red-contrib-victron/docs/three_state.png'
     },
-    [SWITCH_TYPE_MAP.BILGE_PUMP]: {
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.BILGE_PUMP]: {
       text: 'Bilge pump control: Use `/SwitchableOutput/output_1/State` to turn the pump on or off. Additional logic may be added for automatic control.',
       img: '/resources/@victronenergy/node-red-contrib-victron/docs/bilge_pump.png'
     }
@@ -215,7 +219,7 @@
     `);
     $('#switch-config-container').append(switchRow);
 
-    const savedType = context.switch_1_type !== undefined ? context.switch_1_type : SWITCH_TYPE_MAP.TOGGLE;
+    const savedType = context.switch_1_type !== undefined ? context.switch_1_type : victronVirtualConstantsExports.SWITCH_TYPE_MAP.TOGGLE;
     $('#node-input-switch_1_type').val(String(savedType));
 
     function renderTypeConfig () {
@@ -261,7 +265,7 @@
         });
 
         // Special handling for dropdown type
-        if (String(type) === String(SWITCH_TYPE_MAP.DROPDOWN)) {
+        if (String(type) === String(victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN)) {
           // Restore count for dropdown options
           let restoredCount = 2; // default
           const savedLabel = context.switch_1_label;
@@ -311,7 +315,7 @@
         }
       }
 
-      if (Number(type) === SWITCH_TYPE_MAP.TEMP_SETPOINT) {
+      if (Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.TEMP_SETPOINT) {
         // Add checkbox for Measurement path
         const measurementToggle = $(`
         <div class="form-row" id="switch-1-measurement-toggle-row">
@@ -457,7 +461,7 @@
           $input[0].reportValidity();
           return false
         } else if ($input.length) {
-          if (field.id === 'max' && Number(type) === SWITCH_TYPE_STEPPED) {
+          if (field.id === 'max' && Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED) {
             const val = $input.val();
             const maxVal = parseInt(val, 10);
             if (isNaN(maxVal) || maxVal < 1 || maxVal > 7) {
@@ -475,7 +479,7 @@
     }
 
     // Special validation for dropdown type (6)
-    if (String(type) === String(SWITCH_TYPE_MAP.DROPDOWN)) {
+    if (String(type) === String(victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN)) {
       const pairCount = parseInt($('#node-input-switch_1_count').val()) || 2;
       for (let j = 0; j < pairCount; j++) {
         const $value = $(`#node-input-switch_1_value_${j}`);

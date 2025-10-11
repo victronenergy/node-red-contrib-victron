@@ -1,28 +1,9 @@
 /* global $ */
 
-const SWITCH_TYPE_MOMENTARY = 0
-const SWITCH_TYPE_TOGGLE = 1
-const SWITCH_TYPE_DIMMABLE = 2
-const SWITCH_TYPE_TEMP_SETPOINT = 3
-const SWITCH_TYPE_STEPPED = 4
-const SWITCH_TYPE_DROPDOWN = 6
-const SWITCH_TYPE_BASIC_SLIDER = 7
-const SWITCH_TYPE_NUMERIC_INPUT = 8
-const SWITCH_TYPE_THREE_STATE = 9
-const SWITCH_TYPE_BILGE_PUMP = 10
+import { SWITCH_TYPE_MAP } from './victron-virtual-constants'
 
-export const SWITCH_TYPE_MAP = {
-  MOMENTARY: SWITCH_TYPE_MOMENTARY,
-  TOGGLE: SWITCH_TYPE_TOGGLE,
-  DIMMABLE: SWITCH_TYPE_DIMMABLE,
-  TEMP_SETPOINT: SWITCH_TYPE_TEMP_SETPOINT,
-  STEPPED: SWITCH_TYPE_STEPPED,
-  DROPDOWN: SWITCH_TYPE_DROPDOWN,
-  BASIC_SLIDER: SWITCH_TYPE_BASIC_SLIDER,
-  NUMERIC_INPUT: SWITCH_TYPE_NUMERIC_INPUT,
-  THREE_STATE: SWITCH_TYPE_THREE_STATE,
-  BILGE_PUMP: SWITCH_TYPE_BILGE_PUMP
-}
+// Re-export for browser/test use
+export { SWITCH_TYPE_MAP }
 
 const COMMON_SWITCH_FIELDS = [
   { id: 'customname', type: 'text', placeholder: 'Name', title: 'Name', style: 'width:120px;' },
@@ -454,7 +435,7 @@ export function validateSwitchConfig () {
         $input[0].reportValidity()
         return false
       } else if ($input.length) {
-        if (field.id === 'max' && Number(type) === SWITCH_TYPE_STEPPED) {
+        if (field.id === 'max' && Number(type) === SWITCH_TYPE_MAP.STEPPED) {
           const val = $input.val()
           const maxVal = parseInt(val, 10)
           if (isNaN(maxVal) || maxVal < 1 || maxVal > 7) {

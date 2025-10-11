@@ -4,7 +4,7 @@ const dbus = require('dbus-native-victron')
 const debug = require('debug')('victron-virtual')
 const debugInput = require('debug')('victron-virtual:input')
 const debugConnection = require('debug')('victron-virtual:connection')
-const { SWITCH_TYPE_MAP } = require('./victron-virtual-functions')
+const { SWITCH_TYPE_MAP } = require('./victron-virtual-constants')
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('=== UNHANDLED REJECTION (PREVENTING CRASH) ===')
