@@ -20,8 +20,22 @@
   	  BILGE_PUMP: 10
   	};
 
+  	const SWITCH_OUTPUT_CONFIG = {
+  	  [SWITCH_TYPE_MAP.MOMENTARY]: 2, // passthrough + state
+  	  [SWITCH_TYPE_MAP.TOGGLE]: 2, // passthrough + state
+  	  [SWITCH_TYPE_MAP.DIMMABLE]: 3, // passthrough + state + dimming value
+  	  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 3, // passthrough + state + temperature value
+  	  [SWITCH_TYPE_MAP.STEPPED]: 3, // passthrough + state + stepped value
+  	  [SWITCH_TYPE_MAP.DROPDOWN]: 2, // passthrough + state
+  	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 3, // passthrough + state + slider value
+  	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 3, // passthrough + state + numeric value
+  	  [SWITCH_TYPE_MAP.THREE_STATE]: 2, // passthrough + state
+  	  [SWITCH_TYPE_MAP.BILGE_PUMP]: 2 // passthrough + state
+  	};
+
   	victronVirtualConstants = {
-  	  SWITCH_TYPE_MAP
+  	  SWITCH_TYPE_MAP,
+  	  SWITCH_OUTPUT_CONFIG
   	};
   	return victronVirtualConstants;
   }
@@ -494,12 +508,57 @@
     return true
   }
 
+  /**
+   * Calculate the number of outputs for a virtual device
+   * @param {string} device - Device type (e.g., 'battery', 'switch', 'gps')
+   * @param {object} config - Device configuration object
+   * @returns {number} Number of outputs (minimum 1)
+   */
+  function calculateOutputs (device, config) {
+    // Default to 1 output (passthrough) for all non-switch devices
+    if (!device || device !== 'switch') {
+      return 1
+    }
+
+    // For switches, determine outputs based on type
+    const switchType = config?.switch_1_type;
+
+    // Parse switch type (handle both string and number)
+    const typeKey = switchType !== undefined ? parseInt(switchType, 10) : victronVirtualConstantsExports.SWITCH_TYPE_MAP.TOGGLE;
+
+    // Look up outputs from config, default to 2 (passthrough + state)
+    return victronVirtualConstantsExports.SWITCH_OUTPUT_CONFIG[typeKey] || 2
+  }
+
+  /**
+   * Update the outputs property in the Node-RED editor context
+   * This is a thin wrapper around calculateOutputs that handles DOM manipulation
+   * @param {object} context - Node-RED editor context (this)
+   */
+  function updateOutputs (context) {
+    const device = $('#node-input-device').val();
+    const config = {
+      switch_1_type: $('#node-input-switch_1_type').val()
+    };
+
+    const outputs = calculateOutputs(device, config);
+
+    // Update BOTH the context AND the hidden input field
+    context.outputs = outputs;
+    $('#node-input-outputs').val(outputs);
+  }
+
+  // src/nodes/victron-virtual-browser.js
+
   window.checkGeneratorType = checkGeneratorType;
   window.SWITCH_TYPE_CONFIGS = SWITCH_TYPE_CONFIGS;
+  window.SWITCH_OUTPUT_CONFIG = victronVirtualConstantsExports.SWITCH_OUTPUT_CONFIG;
   window.renderSwitchConfigRow = renderSwitchConfigRow;
   window.updateSwitchConfig = updateSwitchConfig;
   window.checkSelectedVirtualDevice = checkSelectedVirtualDevice;
   window.validateSwitchConfig = validateSwitchConfig;
   window.updateBatteryVoltageVisibility = updateBatteryVoltageVisibility;
+  window.calculateOutputs = calculateOutputs;
+  window.updateOutputs = updateOutputs;
 
 })();

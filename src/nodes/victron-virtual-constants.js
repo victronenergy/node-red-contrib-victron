@@ -11,6 +11,20 @@ const SWITCH_TYPE_MAP = {
   BILGE_PUMP: 10
 }
 
+const SWITCH_OUTPUT_CONFIG = {
+  [SWITCH_TYPE_MAP.MOMENTARY]: 2, // passthrough + state
+  [SWITCH_TYPE_MAP.TOGGLE]: 2, // passthrough + state
+  [SWITCH_TYPE_MAP.DIMMABLE]: 3, // passthrough + state + dimming value
+  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 3, // passthrough + state + temperature value
+  [SWITCH_TYPE_MAP.STEPPED]: 3, // passthrough + state + stepped value
+  [SWITCH_TYPE_MAP.DROPDOWN]: 2, // passthrough + state
+  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 3, // passthrough + state + slider value
+  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 3, // passthrough + state + numeric value
+  [SWITCH_TYPE_MAP.THREE_STATE]: 2, // passthrough + state
+  [SWITCH_TYPE_MAP.BILGE_PUMP]: 2 // passthrough + state
+}
+
 module.exports = {
-  SWITCH_TYPE_MAP
+  SWITCH_TYPE_MAP,
+  SWITCH_OUTPUT_CONFIG
 }

@@ -1,9 +1,9 @@
 /* global $ */
 
-import { SWITCH_TYPE_MAP } from './victron-virtual-constants'
+import { SWITCH_TYPE_MAP, SWITCH_OUTPUT_CONFIG } from './victron-virtual-constants'
 
 // Re-export for browser/test use
-export { SWITCH_TYPE_MAP }
+export { SWITCH_TYPE_MAP, SWITCH_OUTPUT_CONFIG }
 
 const COMMON_SWITCH_FIELDS = [
   { id: 'customname', type: 'text', placeholder: 'Name', title: 'Name', style: 'width:120px;' },
@@ -466,4 +466,44 @@ export function validateSwitchConfig () {
     }
   }
   return true
+}
+
+/**
+ * Calculate the number of outputs for a virtual device
+ * @param {string} device - Device type (e.g., 'battery', 'switch', 'gps')
+ * @param {object} config - Device configuration object
+ * @returns {number} Number of outputs (minimum 1)
+ */
+export function calculateOutputs (device, config) {
+  // Default to 1 output (passthrough) for all non-switch devices
+  if (!device || device !== 'switch') {
+    return 1
+  }
+
+  // For switches, determine outputs based on type
+  const switchType = config?.switch_1_type
+
+  // Parse switch type (handle both string and number)
+  const typeKey = switchType !== undefined ? parseInt(switchType, 10) : SWITCH_TYPE_MAP.TOGGLE
+
+  // Look up outputs from config, default to 2 (passthrough + state)
+  return SWITCH_OUTPUT_CONFIG[typeKey] || 2
+}
+
+/**
+ * Update the outputs property in the Node-RED editor context
+ * This is a thin wrapper around calculateOutputs that handles DOM manipulation
+ * @param {object} context - Node-RED editor context (this)
+ */
+export function updateOutputs (context) {
+  const device = $('#node-input-device').val()
+  const config = {
+    switch_1_type: $('#node-input-switch_1_type').val()
+  }
+
+  const outputs = calculateOutputs(device, config)
+
+  // Update BOTH the context AND the hidden input field
+  context.outputs = outputs
+  $('#node-input-outputs').val(outputs)
 }

@@ -6,6 +6,8 @@ const {
   updateBatteryVoltageVisibility
 } = require('./fixtures/victron-virtual-functions.cjs')
 
+const { SWITCH_TYPE_MAP } = require('../src/nodes/victron-virtual-constants')
+
 function createMockElement(customValues = {}) {
   const mockDOMElement = {
     setCustomValidity: jest.fn(),
