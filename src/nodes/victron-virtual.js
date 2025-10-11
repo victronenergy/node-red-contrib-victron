@@ -4,7 +4,10 @@ const dbus = require('dbus-native-victron')
 const debug = require('debug')('victron-virtual')
 const debugInput = require('debug')('victron-virtual:input')
 const debugConnection = require('debug')('victron-virtual:connection')
-const { SWITCH_TYPE_MAP, SWITCH_THIRD_OUTPUT_LABEL } = require('./victron-virtual-constants')
+const {
+  SWITCH_TYPE_MAP,
+  SWITCH_THIRD_OUTPUT_LABEL
+} = require('./victron-virtual-constants')
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('=== UNHANDLED REJECTION (PREVENTING CRASH) ===')
@@ -343,6 +346,8 @@ module.exports = function (RED) {
   function VictronVirtualNode (config) {
     RED.nodes.createNode(this, config)
     const node = this
+
+    node.lastSentValues = {}
 
     const address = process.env.NODE_RED_DBUS_ADDRESS
       ? process.env.NODE_RED_DBUS_ADDRESS.split(':')
@@ -1218,12 +1223,66 @@ module.exports = function (RED) {
           }
 
           const propName = data[0][0].substring(1) // Remove the leading slash
+          const propValue = data[0][1][0][1][1]
 
           // check if we need to persist this property
           if (ifaceDesc.properties[propName] && ifaceDesc.properties[propName].persist) {
             savePersistedState(RED, self.id, iface, ifaceDesc, propName).catch(err => {
               console.error(`Failed to persist state for ${propName}:`, err)
             })
+          }
+
+          if (config.device !== 'switch' || config.outputs <= 1) {
+            return
+          }
+
+          if (!node.lastSentValues) {
+            node.lastSentValues = {}
+          }
+
+          const outputMsgs = []
+          let hasChanges = false
+
+          // Output 1: null (no passthrough on ItemsChanged)
+          outputMsgs[0] = null
+
+          // Output 2: State
+          if (propName === 'SwitchableOutput/output_1/State') {
+            if (node.lastSentValues.State !== propValue) {
+              node.lastSentValues.State = propValue
+              outputMsgs[1] = {
+                payload: propValue,
+                topic: `${node.name || 'Virtual ' + config.device}/state`,
+                path: '/SwitchableOutput/output_1/State'
+              }
+              hasChanges = true
+            }
+          } else {
+            outputMsgs[1] = null
+          }
+
+          // Output 3: Value (Dimming) - only for switches with 3 outputs
+          if (config.outputs >= 3 && propName === 'SwitchableOutput/output_1/Dimming') {
+            if (node.lastSentValues.Dimming !== propValue) {
+              node.lastSentValues.Dimming = propValue
+
+              const switchType = parseInt(config.switch_1_type, 10)
+              const topicLabel = SWITCH_THIRD_OUTPUT_LABEL[switchType] || 'value'
+
+              outputMsgs[2] = {
+                payload: propValue,
+                topic: `${node.name || 'Virtual ' + config.device}/${topicLabel}`,
+                path: '/SwitchableOutput/output_1/Dimming'
+              }
+              hasChanges = true
+            }
+          } else if (config.outputs >= 3) {
+            outputMsgs[2] = null
+          }
+
+          // Send outputs only if there were actual changes
+          if (hasChanges) {
+            node.send(outputMsgs)
           }
         }
 

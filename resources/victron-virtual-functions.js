@@ -178,12 +178,11 @@
       <div>
         <strong>Most relevant path(s):</strong>
         <ul>
-          <li><code>/SwitchableOutput/x/Settings/Type</code> = 3</li>
-          <li><code>/SwitchableOutput/x/Dimming</code> &mdash; holds slider value in °C.</li>
-          <li><code>/SwitchableOutput/x/Measurement</code> &mdash; holds temperature measurement, if available.<br>
+          <li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds slider value in °C.</li>
+          <li><code>/SwitchableOutput/output_1/Measurement</code> &mdash; holds temperature measurement, if available.<br>
             <span style="font-size:0.95em;color:#666;">If present, the actual value will be displayed on the control.</span>
           </li>
-          <li><code>/SwitchableOutput/x/Temperature</code> &mdash; holds the temperature of the actual switching device.<br>
+          <li><code>/SwitchableOutput/output_1/Temperature</code> &mdash; holds the temperature of the actual switching device.<br>
             <span style="font-size:0.95em;color:#666;">Not to be confused with <code>Measurement</code>.</span>
           </li>
         </ul>
@@ -196,12 +195,11 @@
       <div>
         <strong>Most relevant path(s):</strong>
         <ul>
-          <li><code>/SwitchableOutput/x/Settings/Type</code> = 3</li>
-          <li><code>/SwitchableOutput/x/Dimming</code> &mdash; holds slider value in °C.</li>
-          <li><code>/SwitchableOutput/x/Measurement</code> &mdash; holds temperature measurement, if available.<br>
+          <li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds slider value in °C.</li>
+          <li><code>/SwitchableOutput/output_1/Measurement</code> &mdash; holds temperature measurement, if available.<br>
             <span style="font-size:0.95em;color:#666;">If present, the actual value will be displayed on the control.</span>
           </li>
-          <li><code>/SwitchableOutput/x/Temperature</code> &mdash; holds the temperature of the actual switching device.<br>
+          <li><code>/SwitchableOutput/output_1/Temperature</code> &mdash; holds the temperature of the actual switching device.<br>
             <span style="font-size:0.95em;color:#666;">Not to be confused with <code>Measurement</code>.</span>
           </li>
         </ul>

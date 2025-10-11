@@ -1,9 +1,17 @@
 /* global $ */
 
-import { SWITCH_TYPE_MAP, SWITCH_OUTPUT_CONFIG, SWITCH_THIRD_OUTPUT_LABEL } from './victron-virtual-constants'
+import {
+  SWITCH_TYPE_MAP,
+  SWITCH_OUTPUT_CONFIG,
+  SWITCH_THIRD_OUTPUT_LABEL,
+} from './victron-virtual-constants'
 
 // Re-export for browser/test use
-export { SWITCH_TYPE_MAP, SWITCH_OUTPUT_CONFIG, SWITCH_THIRD_OUTPUT_LABEL }
+export {
+  SWITCH_TYPE_MAP,
+  SWITCH_OUTPUT_CONFIG,
+  SWITCH_THIRD_OUTPUT_LABEL,
+}
 
 const COMMON_SWITCH_FIELDS = [
   { id: 'customname', type: 'text', placeholder: 'Name', title: 'Name', style: 'width:120px;' },
@@ -128,12 +136,11 @@ export const SWITCH_TYPE_DOCS = {
       <div>
         <strong>Most relevant path(s):</strong>
         <ul>
-          <li><code>/SwitchableOutput/x/Settings/Type</code> = 3</li>
-          <li><code>/SwitchableOutput/x/Dimming</code> &mdash; holds slider value in °C.</li>
-          <li><code>/SwitchableOutput/x/Measurement</code> &mdash; holds temperature measurement, if available.<br>
+          <li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds slider value in °C.</li>
+          <li><code>/SwitchableOutput/output_1/Measurement</code> &mdash; holds temperature measurement, if available.<br>
             <span style="font-size:0.95em;color:#666;">If present, the actual value will be displayed on the control.</span>
           </li>
-          <li><code>/SwitchableOutput/x/Temperature</code> &mdash; holds the temperature of the actual switching device.<br>
+          <li><code>/SwitchableOutput/output_1/Temperature</code> &mdash; holds the temperature of the actual switching device.<br>
             <span style="font-size:0.95em;color:#666;">Not to be confused with <code>Measurement</code>.</span>
           </li>
         </ul>
@@ -146,12 +153,11 @@ export const SWITCH_TYPE_DOCS = {
       <div>
         <strong>Most relevant path(s):</strong>
         <ul>
-          <li><code>/SwitchableOutput/x/Settings/Type</code> = 3</li>
-          <li><code>/SwitchableOutput/x/Dimming</code> &mdash; holds slider value in °C.</li>
-          <li><code>/SwitchableOutput/x/Measurement</code> &mdash; holds temperature measurement, if available.<br>
+          <li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds slider value in °C.</li>
+          <li><code>/SwitchableOutput/output_1/Measurement</code> &mdash; holds temperature measurement, if available.<br>
             <span style="font-size:0.95em;color:#666;">If present, the actual value will be displayed on the control.</span>
           </li>
-          <li><code>/SwitchableOutput/x/Temperature</code> &mdash; holds the temperature of the actual switching device.<br>
+          <li><code>/SwitchableOutput/output_1/Temperature</code> &mdash; holds the temperature of the actual switching device.<br>
             <span style="font-size:0.95em;color:#666;">Not to be confused with <code>Measurement</code>.</span>
           </li>
         </ul>
@@ -535,4 +541,27 @@ export function getOutputLabels (device, config) {
   }
 
   return labels
+}
+
+/**
+ * Get device status text including switch type
+ * @param {object} config - Device configuration
+ * @param {number} deviceInstance - Device instance number
+ * @returns {string} Status text
+ */
+export function getDeviceStatusText (config, deviceInstance) {
+  let deviceName = DEVICE_NAME_LABELS[config.device] || config.device
+
+  // For switches, add the switch type
+  if (config.device === 'switch') {
+    const switchType = config.switch_1_type !== undefined
+      ? parseInt(config.switch_1_type, 10)
+      : SWITCH_TYPE_MAP.TOGGLE
+
+    const typeLabel = SWITCH_TYPE_LABELS[switchType] || 'Toggle'
+    deviceName = `${typeLabel} Switch`
+  }
+
+  const instanceText = deviceInstance !== undefined ? ` (${deviceInstance})` : ''
+  return `Virtual ${deviceName}${instanceText}`
 }
