@@ -26,11 +26,11 @@ const SWITCH_OUTPUT_CONFIG = {
 
 // Output labels configuration: third label varies by switch type
 const SWITCH_THIRD_OUTPUT_LABEL = {
-  [SWITCH_TYPE_MAP.DIMMABLE]: 'dimming',
-  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'temperature',
-  [SWITCH_TYPE_MAP.STEPPED]: 'value',
-  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'value',
-  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'value'
+  [SWITCH_TYPE_MAP.DIMMABLE]: 'Dimming',
+  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'Temperature',
+  [SWITCH_TYPE_MAP.STEPPED]: 'Value',
+  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Value',
+  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Value'
 }
 
 module.exports = {

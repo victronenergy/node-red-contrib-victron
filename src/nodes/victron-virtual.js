@@ -963,16 +963,12 @@ module.exports = function (RED) {
               iface[typeKey] = 6
 
               // Get labels from config - should be simple key-value object
-              const labelData = config.switch_1_label || '{}'
-              let labelsJson = '{}'
+              const labels = JSON.parse(config.switch_1_label || '[]')
               let firstKey = ''
 
               try {
-                const keyValueObj = JSON.parse(labelData)
-                const keys = Object.keys(keyValueObj)
-                if (keys.length > 0) {
-                  labelsJson = labelData // Use the same format
-                  firstKey = keys[0] // Default to first key
+                if (labels.length > 0) {
+                  firstKey = labels[0] // Default to first key
                 }
               } catch (e) {
                 console.error('Invalid JSON in switch 1 labels:', e)
@@ -995,10 +991,10 @@ module.exports = function (RED) {
 
               // Labels field stores the key-value JSON directly
               ifaceDesc.properties[labelsKey] = {
-                type: 's',
+                type: 'as',
                 format: (v) => v || '{}'
               }
-              iface[labelsKey] = labelsJson
+              iface[labelsKey] = labels
             }
 
             if (switchType === SWITCH_TYPE_MAP.BASIC_SLIDER || switchType === SWITCH_TYPE_MAP.NUMERIC_INPUT) {
@@ -1054,7 +1050,21 @@ module.exports = function (RED) {
               iface[autoKey] = 0
             }
 
-            text = 'Virtual switch'
+            const switchTypeLabels = {
+              [SWITCH_TYPE_MAP.MOMENTARY]: 'Momentary',
+              [SWITCH_TYPE_MAP.TOGGLE]: 'Toggle',
+              [SWITCH_TYPE_MAP.DIMMABLE]: 'Dimmable',
+              [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'Temperature setpoint',
+              [SWITCH_TYPE_MAP.STEPPED]: 'Stepped',
+              [SWITCH_TYPE_MAP.DROPDOWN]: 'Dropdown',
+              [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Basic slider',
+              [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Numeric input',
+              [SWITCH_TYPE_MAP.THREE_STATE]: 'Three-state',
+              [SWITCH_TYPE_MAP.BILGE_PUMP]: 'Bilge pump'
+            }
+            const typeLabel = switchTypeLabels[switchType] || 'Switch'
+
+            text = `Virtual ${typeLabel} Switch`
             break
           }
           case 'tank':
@@ -1242,42 +1252,76 @@ module.exports = function (RED) {
 
           const outputMsgs = []
           let hasChanges = false
+          const switchType = parseInt(config.switch_1_type, 10)
 
           // Output 1: null (no passthrough on ItemsChanged)
           outputMsgs[0] = null
 
-          // Output 2: State
-          if (propName === 'SwitchableOutput/output_1/State') {
-            if (node.lastSentValues.State !== propValue) {
-              node.lastSentValues.State = propValue
-              outputMsgs[1] = {
-                payload: propValue,
-                topic: `${node.name || 'Virtual ' + config.device}/state`,
-                path: '/SwitchableOutput/output_1/State'
+          // For dropdown switches, output 2 sends Dimming (selected option)
+          // For other 2-output switches (momentary, toggle, three-state, bilge), output 2 sends State
+          if (config.outputs === 2 && switchType === SWITCH_TYPE_MAP.DROPDOWN) {
+            // Dropdown: Output 2 = selected option from Dimming
+            if (propName === 'SwitchableOutput/output_1/Dimming') {
+              if (node.lastSentValues.Dimming !== propValue) {
+                node.lastSentValues.Dimming = propValue
+                outputMsgs[1] = {
+                  payload: Number(propValue),
+                  topic: `${node.name || 'Virtual ' + config.device}/selected`,
+                  path: '/SwitchableOutput/output_1/Dimming'
+                }
+                hasChanges = true
               }
-              hasChanges = true
+            } else {
+              outputMsgs[1] = null
             }
-          } else {
-            outputMsgs[1] = null
-          }
-
-          // Output 3: Value (Dimming) - only for switches with 3 outputs
-          if (config.outputs >= 3 && propName === 'SwitchableOutput/output_1/Dimming') {
-            if (node.lastSentValues.Dimming !== propValue) {
-              node.lastSentValues.Dimming = propValue
-
-              const switchType = parseInt(config.switch_1_type, 10)
-              const topicLabel = SWITCH_THIRD_OUTPUT_LABEL[switchType] || 'value'
-
-              outputMsgs[2] = {
-                payload: propValue,
-                topic: `${node.name || 'Virtual ' + config.device}/${topicLabel}`,
-                path: '/SwitchableOutput/output_1/Dimming'
+          } else if (config.outputs === 2) {
+            // Standard 2-output switches: Output 2 = State
+            if (propName === 'SwitchableOutput/output_1/State') {
+              if (node.lastSentValues.State !== propValue) {
+                node.lastSentValues.State = propValue
+                outputMsgs[1] = {
+                  payload: propValue,
+                  topic: `${node.name || 'Virtual ' + config.device}/state`,
+                  path: '/SwitchableOutput/output_1/State'
+                }
+                hasChanges = true
               }
-              hasChanges = true
+            } else {
+              outputMsgs[1] = null
             }
           } else if (config.outputs >= 3) {
-            outputMsgs[2] = null
+            // 3-output switches: Output 2 = State, Output 3 = Dimming value
+            if (propName === 'SwitchableOutput/output_1/State') {
+              if (node.lastSentValues.State !== propValue) {
+                node.lastSentValues.State = propValue
+                outputMsgs[1] = {
+                  payload: propValue,
+                  topic: `${node.name || 'Virtual ' + config.device}/state`,
+                  path: '/SwitchableOutput/output_1/State'
+                }
+                hasChanges = true
+              }
+            } else {
+              outputMsgs[1] = null
+            }
+
+            // Output 3: Value (Dimming)
+            if (propName === 'SwitchableOutput/output_1/Dimming') {
+              if (node.lastSentValues.Dimming !== propValue) {
+                node.lastSentValues.Dimming = propValue
+
+                const topicLabel = SWITCH_THIRD_OUTPUT_LABEL[switchType] || 'value'
+
+                outputMsgs[2] = {
+                  payload: propValue,
+                  topic: `${node.name || 'Virtual ' + config.device}/${topicLabel}`,
+                  path: '/SwitchableOutput/output_1/Dimming'
+                }
+                hasChanges = true
+              }
+            } else {
+              outputMsgs[2] = null
+            }
           }
 
           // Send outputs only if there were actual changes

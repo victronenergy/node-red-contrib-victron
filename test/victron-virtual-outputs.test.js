@@ -124,77 +124,77 @@ describe('calculateOutputs', () => {
 describe('getOutputLabels', () => {
   describe('non-switch devices', () => {
     test('battery has only passthrough label', () => {
-      expect(getOutputLabels('battery', {})).toEqual(['passthrough'])
+      expect(getOutputLabels('battery', {})).toEqual(['Passthrough'])
     })
 
     test('gps has only passthrough label', () => {
-      expect(getOutputLabels('gps', {})).toEqual(['passthrough'])
+      expect(getOutputLabels('gps', {})).toEqual(['Passthrough'])
     })
   })
 
   describe('switch devices', () => {
     test('momentary switch has passthrough and state labels', () => {
       const config = { switch_1_type: String(SWITCH_TYPE_MAP.MOMENTARY) }
-      expect(getOutputLabels('switch', config)).toEqual(['passthrough', 'state'])
+      expect(getOutputLabels('switch', config)).toEqual(['Passthrough', 'State'])
     })
 
     test('toggle switch has passthrough and state labels', () => {
       const config = { switch_1_type: String(SWITCH_TYPE_MAP.TOGGLE) }
-      expect(getOutputLabels('switch', config)).toEqual(['passthrough', 'state'])
+      expect(getOutputLabels('switch', config)).toEqual(['Passthrough', 'State'])
     })
 
     test('dimmable switch has passthrough, state, and dimming labels', () => {
       const config = { switch_1_type: String(SWITCH_TYPE_MAP.DIMMABLE) }
-      expect(getOutputLabels('switch', config)).toEqual(['passthrough', 'state', 'dimming'])
+      expect(getOutputLabels('switch', config)).toEqual(['Passthrough', 'State', 'Dimming'])
     })
 
     test('temperature setpoint has passthrough, state, and temperature labels', () => {
       const config = { switch_1_type: String(SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) }
-      expect(getOutputLabels('switch', config)).toEqual(['passthrough', 'state', 'temperature'])
+      expect(getOutputLabels('switch', config)).toEqual(['Passthrough', 'State', 'Temperature'])
     })
 
     test('stepped switch has passthrough, state, and value labels', () => {
       const config = { switch_1_type: String(SWITCH_TYPE_MAP.STEPPED) }
-      expect(getOutputLabels('switch', config)).toEqual(['passthrough', 'state', 'value'])
+      expect(getOutputLabels('switch', config)).toEqual(['Passthrough', 'State', 'Value'])
     })
 
     test('dropdown has passthrough and state labels', () => {
       const config = { switch_1_type: String(SWITCH_TYPE_MAP.DROPDOWN) }
-      expect(getOutputLabels('switch', config)).toEqual(['passthrough', 'state'])
+      expect(getOutputLabels('switch', config)).toEqual(['Passthrough', 'Selected'])
     })
 
     test('basic slider has passthrough, state, and value labels', () => {
       const config = { switch_1_type: String(SWITCH_TYPE_MAP.BASIC_SLIDER) }
-      expect(getOutputLabels('switch', config)).toEqual(['passthrough', 'state', 'value'])
+      expect(getOutputLabels('switch', config)).toEqual(['Passthrough', 'State', 'Value'])
     })
 
     test('numeric input has passthrough, state, and value labels', () => {
       const config = { switch_1_type: String(SWITCH_TYPE_MAP.NUMERIC_INPUT) }
-      expect(getOutputLabels('switch', config)).toEqual(['passthrough', 'state', 'value'])
+      expect(getOutputLabels('switch', config)).toEqual(['Passthrough', 'State', 'Value'])
     })
 
     test('three-state switch has passthrough and state labels', () => {
       const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE) }
-      expect(getOutputLabels('switch', config)).toEqual(['passthrough', 'state'])
+      expect(getOutputLabels('switch', config)).toEqual(['Passthrough', 'State'])
     })
 
     test('bilge pump has passthrough and state labels', () => {
       const config = { switch_1_type: String(SWITCH_TYPE_MAP.BILGE_PUMP) }
-      expect(getOutputLabels('switch', config)).toEqual(['passthrough', 'state'])
+      expect(getOutputLabels('switch', config)).toEqual(['Passthrough', 'State'])
     })
 
     test('switch without type defaults to toggle labels', () => {
-      expect(getOutputLabels('switch', {})).toEqual(['passthrough', 'state'])
+      expect(getOutputLabels('switch', {})).toEqual(['Passthrough', 'State'])
     })
   })
 
   describe('edge cases', () => {
     test('handles null config', () => {
-      expect(getOutputLabels('battery', null)).toEqual(['passthrough'])
+      expect(getOutputLabels('battery', null)).toEqual(['Passthrough'])
     })
 
     test('handles undefined device', () => {
-      expect(getOutputLabels(undefined, {})).toEqual(['passthrough'])
+      expect(getOutputLabels(undefined, {})).toEqual(['Passthrough'])
     })
   })
 

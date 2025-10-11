@@ -71,7 +71,7 @@
         outputLabels: function(index) {
             // Inline logic since window.getOutputLabels may not be loaded yet
             if (!this.device || this.device !== 'switch') {
-                return index === 0 ? 'passthrough' : 'output ' + (index + 1)
+                return index === 0 ? 'Passthrough' : 'Output ' + (index + 1)
             }
             
             const switchType = this.switch_1_type
@@ -79,18 +79,23 @@
             
             // Map of third output labels
             const thirdLabels = {
-                2: 'dimming',      // DIMMABLE
-                3: 'temperature',  // TEMPERATURE_SETPOINT
-                4: 'value',        // STEPPED
-                7: 'value',        // BASIC_SLIDER
-                8: 'value'         // NUMERIC_INPUT
+                2: 'Dimming',      // DIMMABLE
+                3: 'Temperature',  // TEMPERATURE_SETPOINT
+                4: 'Value',        // STEPPED
+                7: 'Value',        // BASIC_SLIDER
+                8: 'Value'         // NUMERIC_INPUT
             }
             
-            if (index === 0) return 'passthrough'
-            if (index === 1) return 'state'
-            if (index === 2) return thirdLabels[typeKey] || 'value'
+            if (index === 0) return 'Passthrough'
             
-            return 'output ' + (index + 1)
+            // For dropdown (type 6), second output is 'selected' instead of 'state'
+            if (index === 1) {
+                return typeKey === 6 ? 'Selected' : 'State'
+            }
+            
+            if (index === 2) return thirdLabels[typeKey] || 'Value'
+            
+            return 'Output ' + (index + 1)
         },
         oneditprepare: function oneditprepare() {
             if (this.id && this.changed === false) {
