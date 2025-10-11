@@ -1,7 +1,20 @@
 /* global $ */
 
+import {
+  SWITCH_TYPE_MAP,
+  SWITCH_OUTPUT_CONFIG,
+  SWITCH_THIRD_OUTPUT_LABEL
+} from './victron-virtual-constants'
+
+// Re-export for browser/test use
+export {
+  SWITCH_TYPE_MAP,
+  SWITCH_OUTPUT_CONFIG,
+  SWITCH_THIRD_OUTPUT_LABEL
+}
+
 const COMMON_SWITCH_FIELDS = [
-  { id: 'customname', type: 'text', placeholder: 'Output name', title: 'Custom Name', style: 'width:120px;' },
+  { id: 'customname', type: 'text', placeholder: 'Name', title: 'Name', style: 'width:120px;' },
   { id: 'group', type: 'text', placeholder: 'Group', title: 'Group', style: 'width:120px;' }
 ]
 
@@ -17,10 +30,10 @@ export function checkGeneratorType () {
 }
 
 export const SWITCH_TYPE_CONFIGS = {
-  0: { label: 'Momentary', fields: [...COMMON_SWITCH_FIELDS] },
-  1: { label: 'Toggle', fields: [...COMMON_SWITCH_FIELDS] },
-  2: { label: 'Dimmable', fields: [...COMMON_SWITCH_FIELDS] },
-  3: {
+  [SWITCH_TYPE_MAP.MOMENTARY]: { label: 'Momentary', fields: [...COMMON_SWITCH_FIELDS] },
+  [SWITCH_TYPE_MAP.TOGGLE]: { label: 'Toggle', fields: [...COMMON_SWITCH_FIELDS] },
+  [SWITCH_TYPE_MAP.DIMMABLE]: { label: 'Dimmable', fields: [...COMMON_SWITCH_FIELDS] },
+  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: {
     label: 'Temperature setpoint',
     fields: [
       ...COMMON_SWITCH_FIELDS,
@@ -29,14 +42,14 @@ export const SWITCH_TYPE_CONFIGS = {
       { id: 'step', type: 'number', placeholder: 'Step (°C)', title: 'Step (°C)', style: 'width:80px;' }
     ]
   },
-  4: {
+  [SWITCH_TYPE_MAP.STEPPED]: {
     label: 'Stepped switch',
     fields: [
       ...COMMON_SWITCH_FIELDS,
       { id: 'max', type: 'number', placeholder: 'Max steps', title: 'Max steps', style: 'width:80px;', min: 1, max: 7 }
     ]
   },
-  6: {
+  [SWITCH_TYPE_MAP.DROPDOWN]: {
     label: 'Dropdown',
     fields: [
       ...COMMON_SWITCH_FIELDS,
@@ -51,7 +64,7 @@ export const SWITCH_TYPE_CONFIGS = {
       }
     ]
   },
-  7: {
+  [SWITCH_TYPE_MAP.BASIC_SLIDER]: {
     label: 'Basic slider',
     fields: [
       ...COMMON_SWITCH_FIELDS,
@@ -61,7 +74,7 @@ export const SWITCH_TYPE_CONFIGS = {
       { id: 'unit', type: 'text', placeholder: 'Unit', title: 'Unit', style: 'width:80px;' }
     ]
   },
-  8: {
+  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: {
     label: 'Numeric input',
     fields: [
       ...COMMON_SWITCH_FIELDS,
@@ -71,13 +84,220 @@ export const SWITCH_TYPE_CONFIGS = {
       { id: 'unit', type: 'text', placeholder: 'Unit', title: 'Unit (center)', style: 'width:120px;' }
     ]
   },
-  9: {
+  [SWITCH_TYPE_MAP.THREE_STATE]: {
     label: 'Three-state switch',
     fields: [...COMMON_SWITCH_FIELDS]
   },
-  10: {
+  [SWITCH_TYPE_MAP.BILGE_PUMP]: {
     label: 'Bilge pump control',
     fields: [...COMMON_SWITCH_FIELDS]
+  }
+}
+
+export const SWITCH_TYPE_DOCS = {
+  [SWITCH_TYPE_MAP.MOMENTARY]: {
+    text: `
+      <div>
+        <strong>Most relevant path(s):</strong>
+        <ul>
+          <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li>
+        </ul>
+      </div>
+      <div>
+        <strong>Outputs:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+          <li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li>
+        </ol>
+      </div>
+    `,
+    img: '/resources/@victronenergy/node-red-contrib-victron/docs/momentary.png'
+  },
+  [SWITCH_TYPE_MAP.TOGGLE]: {
+    text: `
+      <div>
+        <strong>Most relevant path(s):</strong>
+        <ul>
+          <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li>
+        </ul>
+      </div>
+      <div>
+        <strong>Outputs:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+          <li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the switch</li>
+        </ol>
+      </div>
+    `,
+    img: '/resources/@victronenergy/node-red-contrib-victron/docs/toggle.png'
+  },
+  [SWITCH_TYPE_MAP.DIMMABLE]: {
+    text: `
+      <div>
+        <strong>Most relevant path(s):</strong>
+        <ul>
+          <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li>
+          <li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; 0 to 100%, read/write.</li>
+        </ul>
+      </div>
+      <div>
+        <strong>Outputs:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+          <li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the switch</li>
+          <li><code>Dimming</code> &mdash; <tt>msg.payload</tt> contains the dimming value</li>
+        </ol>
+      </div>
+    `,
+    img: '/resources/@victronenergy/node-red-contrib-victron/docs/dimmable.png'
+  },
+  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: {
+    text: `
+      <div>
+        <strong>Most relevant path(s):</strong>
+        <ul>
+          <li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds slider value in °C.</li>
+          <li><code>/SwitchableOutput/output_1/Measurement</code> &mdash; holds temperature measurement, if available.<br>
+            <span style="font-size:0.95em;color:#666;">If present, the actual value will be displayed on the control.</span>
+          </li>
+          <li><code>/SwitchableOutput/x/Settings/DimmingMin</code> defines slider minimum value. 0 will be used if omitted.</li>
+          <li><code>/SwitchableOutput/x/Settings/DimmingMax</code> defines slider maximum value. 100 will be used if omitted.</li>
+          <li><code>/SwitchableOutput/x/Settings/StepSize</code> defines stepsize. Stepsize = 1°C if omitted.</li>
+        </ul>
+      </div>
+      <div>
+        <strong>Outputs:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+          <li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li>
+          <li><code>Temperature</code> &mdash; <tt>msg.payload</tt> contains the temperature value</li>
+        </ol>
+      </div>
+    `,
+    img: '/resources/@victronenergy/node-red-contrib-victron/docs/temp_setpoint.png'
+  },
+  [SWITCH_TYPE_MAP.STEPPED]: {
+    text: `
+      <div>
+        <strong>Most relevant path(s):</strong>
+        <ul>
+          <li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds selected option.</li>
+          <li><code>/SwitchableOutput/output_1/Settings/Settings/Labels</code> &mdash; defines the labels as a string array: <tt>[‘Label 1’, ‘Label 2’, ‘Label 3’]</tt>. Mandatory for this type.</li>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <strong>Outputs:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+          <li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li>
+          <li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the stepped value</li>
+       </ol>
+      </div>
+    `,
+    img: '/resources/@victronenergy/node-red-contrib-victron/docs/stepped.png'
+  },
+  [SWITCH_TYPE_MAP.DROPDOWN]: {
+    text: `
+      <div>
+        <strong>Most relevant path(s):</strong>
+        <ul>
+          <li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds selected option.</li>
+          <li><code>/SwitchableOutput/output_1/Settings/DimmingMax</code> &mdash; defines the number of options. Mandatory for this type.</li>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <strong>Outputs:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+          <li><code>Selected</code> &mdash; <tt>msg.payload</tt> contains the index of the selected option (<tt>0</tt> for the first item in the list)</li>
+        </ol>
+      </div>
+    `,
+    img: '/resources/@victronenergy/node-red-contrib-victron/docs/dropdown.png'
+  },
+  [SWITCH_TYPE_MAP.BASIC_SLIDER]: {
+    text: `
+      <div>
+        <strong>Most relevant path(s):</strong>
+        <ul>
+          <li><code>/SwitchableOutput/output_1/Value</code> &mdash; holds the current slider position.</li>
+          <li><code>/SwitchableOutput/output_1/Settings/Min</code> &mdash; defines slider minimum value. <tt>0</tt> will be used if omitted.</li>
+          <li><code>/SwitchableOutput/output_1/Settings/Max</code> &mdash; defines slider maximum value. <tt>100</tt> will be used if omitted.</li>
+          <li><code>/SwitchableOutput/output_1/Settings/StepSize</code> &mdash; defines stepsize. Stepsize = <tt>1</tt> if omitted.</li>
+        </ul>
+      </div>
+      <div>
+        <strong>Outputs:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+          <li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li>
+          <li><code>Temperature</code> &mdash; <tt>msg.payload</tt> contains the temperature value</li>
+        </ol>
+      </div>
+    `,
+    img: '/resources/@victronenergy/node-red-contrib-victron/docs/basic_slider.png'
+  },
+  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: {
+    text: `
+      <div>
+        <strong>Most relevant path(s):</strong>
+        <ul>
+          <li><code>/SwitchableOutput/output_1/Value</code> &mdash; holds the current numeric value.</li>
+          <li><code>/SwitchableOutput/output_1/Settings/Min</code> &mdash; defines the minimum value. <tt>0</tt> will be used if omitted.</li>
+          <li><code>/SwitchableOutput/output_1/Settings/Max</code> &mdash; defines the maximum value. <tt>100</tt> will be used if omitted.</li>
+          <li><code>/SwitchableOutput/output_1/Settings/StepSize</code> &mdash; defines stepsize. Stepsize = <tt>1</tt> if omitted.</li>
+        </ul>
+      </div>
+      <div>
+        <strong>Outputs:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+          <li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li>
+          <li><code>Temperature</code> &mdash; <tt>msg.payload</tt> contains the temperature value</li>
+        </ol>
+      </div>
+    `,
+    img: '/resources/@victronenergy/node-red-contrib-victron/docs/numeric_input.png'
+  },
+  [SWITCH_TYPE_MAP.THREE_STATE]: {
+    text: `
+      <div>
+        <strong>Most relevant path(s):</strong>
+        <ul>
+          <li><code>/SwitchableOutput/output_1/State</code> &mdash; holds the current state (e.g., Off, Auto, On).</li>
+        </ul>
+      </div>
+      <div>
+        <strong>Outputs:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+          <li><code>State</code> &mdash; <tt>msg.payload</tt> contains the current state</li>
+        </ol>
+      </div>
+    `,
+    img: '/resources/@victronenergy/node-red-contrib-victron/docs/three_state.png'
+  },
+  [SWITCH_TYPE_MAP.BILGE_PUMP]: {
+    text: `
+      <div>
+        <strong>Most relevant path(s):</strong>
+        <ul>
+          <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li>
+          <li><code>/SwitchableOutput/output_1/Alarm</code> &mdash; Indicates if an alarm condition is present (e.g., high water level).</li>
+          <li><code>/SwitchableOutput/output_1/Measurement</code> &mdash; If supported by the connected device, this path may provide additional measurement data, such as water level percentage.</li>
+        </ul>
+      </div>
+      <div>
+        <strong>Outputs:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+          <li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the pump</li>
+        </ol>
+      </div>
+    `,
+    img: '/resources/@victronenergy/node-red-contrib-victron/docs/bilge_pump.png'
   }
 }
 
@@ -87,45 +307,45 @@ export function renderSwitchConfigRow (context) {
     .join('')
   const switchRow = $(`
         <div class="form-row">
-            <label for="node-input-switch_1_type"><i class="fa fa-toggle-on"></i> Switch 1 type</label>
+            <label for="node-input-switch_1_type"><i class="fa fa-toggle-on"></i> Switch type</label>
             <select id="node-input-switch_1_type">${typeOptions}</select>
         </div>
     `)
   $('#switch-config-container').append(switchRow)
 
-  const savedType = context.switch_1_type !== undefined ? context.switch_1_type : 1
+  const savedType = context.switch_1_type !== undefined ? context.switch_1_type : SWITCH_TYPE_MAP.TOGGLE
   $('#node-input-switch_1_type').val(String(savedType))
 
   function renderTypeConfig () {
     $('#switch-1-config-row').remove()
     $('#switch-1-pairs-row').remove()
+    $('#switch-1-doc-row').remove()
 
     const type = $('#node-input-switch_1_type').val()
     const cfg = SWITCH_TYPE_CONFIGS[type]
 
     if (cfg && cfg.fields.length) {
-      // Split fields
-      const commonFields = cfg.fields.filter(f => COMMON_SWITCH_FIELDS.some(cf => cf.id === f.id))
-      const extraFields = cfg.fields.filter(f => !COMMON_SWITCH_FIELDS.some(cf => cf.id === f.id))
-
-      // Render common fields in one row
-      const commonFieldsHtml = commonFields.map(field => {
+      // Render each field as a separate row
+      const fieldsHtml = cfg.fields.map(field => {
         const stepAttr = field.id === 'step' || field.id === 'stepsize' ? 'step="any"' : ''
-        return `<input type="${field.type}" id="node-input-switch_1_${field.id}" placeholder="${field.placeholder}" title="${field.title}" style="${field.style}" ${field.min ? `min="${field.min}"` : ''} ${field.max ? `max="${field.max}"` : ''} ${stepAttr} required>`
+        return `
+          <div class="form-row" style="align-items:center;">
+            <label for="node-input-switch_1_${field.id}" style="min-width:120px;">${field.title || field.placeholder}</label>
+            <input type="${field.type}" id="node-input-switch_1_${field.id}"
+                   placeholder="${field.placeholder}"
+                   style="${field.style}"
+                   ${field.min ? `min="${field.min}"` : ''}
+                   ${field.max ? `max="${field.max}"` : ''}
+                   ${stepAttr} required>
+          </div>
+        `
       }).join('')
 
-      // Render extra fields in a new row
-      const extraFieldsHtml = extraFields.map(field => {
-        const stepAttr = field.id === 'step' || field.id === 'stepsize' ? 'step="any"' : ''
-        return `<input type="${field.type}" id="node-input-switch_1_${field.id}" placeholder="${field.placeholder}" title="${field.title}" style="${field.style}" ${field.min ? `min="${field.min}"` : ''} ${field.max ? `max="${field.max}"` : ''} ${stepAttr} required>`
-      }).join('')
-
-      // Build the config row with two lines
+      // Build the config row
       const configRow = $(`
-        <div class="form-row" id="switch-1-config-row">
-          <label>${cfg.label} Config</label>
-          <div style="display:flex;gap:8px;">${commonFieldsHtml}</div>
-          ${extraFieldsHtml ? `<div style="display:flex;gap:8px;margin-top:8px;">${extraFieldsHtml}</div>` : ''}
+        <div id="switch-1-config-row">
+          <label style="font-weight:bold;">${cfg.label} configuration</label>
+          ${fieldsHtml}
         </div>
       `)
       $('#node-input-switch_1_type').closest('.form-row').after(configRow)
@@ -139,7 +359,7 @@ export function renderSwitchConfigRow (context) {
       })
 
       // Special handling for dropdown type
-      if (type === '6') {
+      if (String(type) === String(SWITCH_TYPE_MAP.DROPDOWN)) {
         // Restore count for dropdown options
         let restoredCount = 2 // default
         const savedLabel = context.switch_1_label
@@ -168,6 +388,40 @@ export function renderSwitchConfigRow (context) {
         $('#node-input-switch_1_count').on('change', () => {
           renderDropdownLabels(context)
         })
+      }
+    }
+
+    const doc = SWITCH_TYPE_DOCS[type]
+    $('#switch-1-doc-row').remove()
+    if (doc) {
+      const docRow = $(`
+        <div id="switch-1-doc-row" class="victron-doc-box">
+          <label>${cfg.label} usage</label>
+          ${doc.img ? `<img src="${doc.img}" alt="Switch type preview">` : ''}
+          <div class="victron-doc-text">${doc.text}</div>
+        </div>
+      `)
+      // Append after the options row if it exists, otherwise after the config row
+      if ($('#switch-1-pairs-row').length) {
+        $('#switch-1-pairs-row').after(docRow)
+      } else {
+        $('#switch-1-config-row').after(docRow)
+      }
+    }
+
+    if (Number(type) === SWITCH_TYPE_MAP.TEMP_SETPOINT) {
+      // Add checkbox for Measurement path
+      const measurementToggle = $(`
+        <div class="form-row" id="switch-1-measurement-toggle-row">
+          <label for="node-input-switch_1_include_measurement" style="min-width:120px;">Include Measurement path</label>
+          <input type="checkbox" id="node-input-switch_1_include_measurement">
+        </div>
+      `)
+      $('#switch-1-config-row').append(measurementToggle)
+
+      // Restore saved value if present
+      if (context.switch_1_include_measurement) {
+        $('#node-input-switch_1_include_measurement').prop('checked', true)
       }
     }
   }
@@ -205,7 +459,8 @@ function renderDropdownLabels (context) {
   for (let j = 0; j < count; j++) {
     const value = savedLabels[j] || ''
     const labelHtml = $(`
-      <div style="display:flex;gap:8px;align-items:center;">
+      <div class="form-row" style="align-items:center;">
+        <label for="node-input-switch_1_value_${j}" style="min-width:120px;">Option ${j + 1}</label>
         <input type="text"
                id="node-input-switch_1_value_${j}"
                placeholder="Label"
@@ -278,6 +533,13 @@ export function checkSelectedVirtualDevice () {
 
   if (selected === 'switch') {
     updateSwitchConfig.call(this)
+    // Hide the default values checkbox and info box for switches
+    $('#node-input-default_values').closest('.form-row').hide()
+    $('#default-values-info').hide()
+  } else {
+    // Show for other device types
+    $('#node-input-default_values').closest('.form-row').show()
+    $('#default-values-info').show()
   }
 }
 
@@ -293,8 +555,9 @@ export function validateSwitchConfig () {
         $input[0].reportValidity()
         return false
       } else if ($input.length) {
-        if (field.id === 'max' && type === '4') {
-          const maxVal = parseInt($input.val(), 10)
+        if (field.id === 'max' && Number(type) === SWITCH_TYPE_MAP.STEPPED) {
+          const val = $input.val()
+          const maxVal = parseInt(val, 10)
           if (isNaN(maxVal) || maxVal < 1 || maxVal > 7) {
             $input[0].setCustomValidity('Max steps must be between 1 and 7')
             $input[0].reportValidity()
@@ -310,7 +573,7 @@ export function validateSwitchConfig () {
   }
 
   // Special validation for dropdown type (6)
-  if (type === '6') {
+  if (String(type) === String(SWITCH_TYPE_MAP.DROPDOWN)) {
     const pairCount = parseInt($('#node-input-switch_1_count').val()) || 2
     for (let j = 0; j < pairCount; j++) {
       const $value = $(`#node-input-switch_1_value_${j}`)
@@ -323,4 +586,80 @@ export function validateSwitchConfig () {
     }
   }
   return true
+}
+
+/**
+ * Calculate the number of outputs for a virtual device
+ * @param {string} device - Device type (e.g., 'battery', 'switch', 'gps')
+ * @param {object} config - Device configuration object
+ * @returns {number} Number of outputs (minimum 1)
+ */
+export function calculateOutputs (device, config) {
+  // Default to 1 output (passthrough) for all non-switch devices
+  if (!device || device !== 'switch') {
+    return 1
+  }
+
+  // For switches, determine outputs based on type
+  const switchType = config?.switch_1_type
+
+  // Parse switch type (handle both string and number)
+  const typeKey = switchType !== undefined ? parseInt(switchType, 10) : SWITCH_TYPE_MAP.TOGGLE
+
+  // Look up outputs from config, default to 2 (passthrough + state)
+  return SWITCH_OUTPUT_CONFIG[typeKey] || 2
+}
+
+/**
+ * Update the outputs property in the Node-RED editor context
+ * This is a thin wrapper around calculateOutputs that handles DOM manipulation
+ * @param {object} context - Node-RED editor context (this)
+ */
+export function updateOutputs (context) {
+  const device = $('#node-input-device').val()
+  const config = {
+    switch_1_type: $('#node-input-switch_1_type').val()
+  }
+
+  const outputs = calculateOutputs(device, config)
+
+  // Update BOTH the context AND the hidden input field
+  context.outputs = outputs
+  $('#node-input-outputs').val(outputs)
+}
+
+/**
+ * Get output labels for a virtual device
+ * @param {string} device - Device type (e.g., 'battery', 'switch', 'gps')
+ * @param {object} config - Device configuration object
+ * @returns {string[]} Array of output label strings
+ */
+export function getOutputLabels (device, config) {
+  // Non-switch devices only have passthrough
+  if (!device || device !== 'switch') {
+    return ['Passthrough']
+  }
+
+  // For switches, build labels based on output count
+  const switchType = config?.switch_1_type
+  const typeKey = switchType !== undefined ? parseInt(switchType, 10) : SWITCH_TYPE_MAP.TOGGLE
+  const outputCount = SWITCH_OUTPUT_CONFIG[typeKey] || 2
+
+  // Start with common labels
+  const labels = ['Passthrough']
+
+  // For dropdown, second output is 'Selected' instead of 'State'
+  if (outputCount === 2 && typeKey === SWITCH_TYPE_MAP.DROPDOWN) {
+    labels.push('Selected')
+  } else {
+    labels.push('State')
+  }
+
+  // Add third label if needed
+  if (outputCount === 3) {
+    const thirdLabel = SWITCH_THIRD_OUTPUT_LABEL[typeKey] || 'Value'
+    labels.push(thirdLabel)
+  }
+
+  return labels
 }

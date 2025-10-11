@@ -1,5 +1,6 @@
 // test/victron-virtual-functions.switch.test.js
 const {
+  SWITCH_TYPE_MAP,
   SWITCH_TYPE_CONFIGS,
   renderSwitchConfigRow,
   validateSwitchConfig
@@ -51,7 +52,7 @@ describe('Switch Configuration Tests', () => {
   describe('renderSwitchConfigRow', () => {
     test('renders switch row with correct HTML structure', () => {
       const mockContainer = createMockElement()
-      const mockTypeSelect = createMockElement({ val: '6' })
+      const mockTypeSelect = createMockElement({ val: String(SWITCH_TYPE_MAP.DROPDOWN) })
       
       global.$.mockImplementation((selector) => {
         if (selector === '#switch-config-container') {
@@ -63,18 +64,18 @@ describe('Switch Configuration Tests', () => {
         return createMockElement()
       })
 
-      const context = { switch_1_type: 6 }
+      const context = { switch_1_type: SWITCH_TYPE_MAP.DROPDOWN }
       renderSwitchConfigRow(context)
 
       expect(mockContainer.append).toHaveBeenCalled()
       // The append call should have been made with a jQuery object, not a string
       expect(mockContainer.append).toHaveBeenCalledWith(expect.anything())
-      expect(mockTypeSelect.val).toHaveBeenCalledWith('6')
+      expect(mockTypeSelect.val).toHaveBeenCalledWith(String(SWITCH_TYPE_MAP.DROPDOWN))
     })
 
     test('uses default type 1 when context has no switch type', () => {
       const mockContainer = createMockElement()
-      const mockTypeSelect = createMockElement({ val: '1' })
+      const mockTypeSelect = createMockElement({ val: String(SWITCH_TYPE_MAP.TOGGLE) })
       
       global.$.mockImplementation((selector) => {
         if (selector === '#switch-config-container') {
@@ -90,12 +91,12 @@ describe('Switch Configuration Tests', () => {
       renderSwitchConfigRow(context)
 
       expect(mockContainer.append).toHaveBeenCalled()
-      expect(mockTypeSelect.val).toHaveBeenCalledWith('1') // Default type is 1
+      expect(mockTypeSelect.val).toHaveBeenCalledWith(String(SWITCH_TYPE_MAP.TOGGLE)) // Default type is TOGGLE
     })
 
     test('sets up event handler for type change', () => {
       const mockContainer = createMockElement()
-      const mockTypeSelect = createMockElement({ val: '6' })
+      const mockTypeSelect = createMockElement({ val: String(SWITCH_TYPE_MAP.DROPDOWN) })
       
       global.$.mockImplementation((selector) => {
         if (selector === '#switch-config-container') {
@@ -107,7 +108,7 @@ describe('Switch Configuration Tests', () => {
         return createMockElement()
       })
 
-      const context = { switch_1_type: 6 }
+      const context = { switch_1_type: SWITCH_TYPE_MAP.DROPDOWN }
       renderSwitchConfigRow(context)
 
       expect(mockTypeSelect.on).toHaveBeenCalledWith('change', expect.any(Function))
@@ -127,7 +128,7 @@ describe('Switch Configuration Tests', () => {
     test('returns true for momentary switch (no fields to validate)', () => {
       global.$.mockImplementation((selector) => {
         if (selector === '#node-input-switch_1_type') {
-          return createMockElement({ val: '0' }) // Momentary type
+          return createMockElement({ val: String(SWITCH_TYPE_MAP.MOMENTARY) }) // Momentary type
         }
         return createMockElement({ length: 0 })
       })
@@ -136,12 +137,12 @@ describe('Switch Configuration Tests', () => {
       expect(result).toBe(true)
     })
 
-    test('validates stepped switch max field (type 4)', () => {
+    test('validates stepped switch max field (STEPPED type)', () => {
       const mockMaxField = createMockElement({ val: '' })
       
       global.$.mockImplementation((selector) => {
         if (selector === '#node-input-switch_1_type') {
-          return createMockElement({ val: '4' })
+          return createMockElement({ val: String(SWITCH_TYPE_MAP.STEPPED) })
         }
         if (selector === '#node-input-switch_1_max') {
           return mockMaxField
@@ -159,7 +160,7 @@ describe('Switch Configuration Tests', () => {
       
       global.$.mockImplementation((selector) => {
         if (selector === '#node-input-switch_1_type') {
-          return createMockElement({ val: '4' })
+          return createMockElement({ val: String(SWITCH_TYPE_MAP.STEPPED) })
         }
         if (selector === '#node-input-switch_1_max') {
           return mockMaxField
@@ -177,7 +178,7 @@ describe('Switch Configuration Tests', () => {
       
       global.$.mockImplementation((selector) => {
         if (selector === '#node-input-switch_1_type') {
-          return createMockElement({ val: '4' })
+          return createMockElement({ val: String(SWITCH_TYPE_MAP.STEPPED) })
         }
         if (selector === '#node-input-switch_1_max') {
           return mockMaxField
