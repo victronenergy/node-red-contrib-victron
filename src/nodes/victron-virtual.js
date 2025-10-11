@@ -4,7 +4,7 @@ const dbus = require('dbus-native-victron')
 const debug = require('debug')('victron-virtual')
 const debugInput = require('debug')('victron-virtual:input')
 const debugConnection = require('debug')('victron-virtual:connection')
-const { SWITCH_TYPE_MAP } = require('./victron-virtual-constants')
+const { SWITCH_TYPE_MAP, SWITCH_THIRD_OUTPUT_LABEL } = require('./victron-virtual-constants')
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('=== UNHANDLED REJECTION (PREVENTING CRASH) ===')
@@ -354,19 +354,38 @@ module.exports = function (RED) {
     node.pendingCallsToSetValuesLocally = []
 
     function handleInput (msg, done) {
+      // Send passthrough message FIRST, before any validation
+      const outputs = [msg]
+      // Fill remaining outputs with null
+      for (let i = 1; i < config.outputs; i++) {
+        outputs.push(null)
+      }
+      node.send(outputs)
+
+      // Now do validation
       if (!msg || !msg.payload) {
         node.warn('Received message without payload, ignoring.')
+        node.status({
+          fill: 'yellow',
+          shape: 'ring',
+          text: 'No payload - passthrough only'
+        })
+        done()
         return
       }
 
-      // Check if the payload is a valid object
       if (typeof msg.payload !== 'object' || msg.payload === null) {
         node.warn('Received invalid payload, expected an object with payload. Ignoring.')
+        node.status({
+          fill: 'yellow',
+          shape: 'ring',
+          text: 'Invalid payload - passthrough only'
+        })
+        done()
         return
       }
 
       try {
-        // Set values locally, which will emit 'itemsChanged' signal for all properties that were actually changed
         debugInput(`Setting values locally for node ${node.id}:`, msg.payload)
         node.setValuesLocally(msg.payload)
 
