@@ -1298,24 +1298,14 @@ module.exports = function (RED) {
       // This prevents the service from remaining registered after node deletion
       if (node.serviceName && this.bus && this.bus.invoke) {
         debug(`Releasing DBus service name: ${node.serviceName}`)
-
-        this.bus.invoke({
-          path: '/org/freedesktop/DBus',
-          destination: 'org.freedesktop.DBus',
-          interface: 'org.freedesktop.DBus',
-          member: 'ReleaseName',
-          signature: 's',
-          body: [node.serviceName],
-          type: 1 // dbus.messageType.methodCall
-        }, (err, result) => {
+        this.bus.releaseName(node.serviceName, (err, result) => {
           if (err) {
-            debug(`Error releasing service name ${node.serviceName}:`, err)
+            console.error(`Error releasing service name ${node.serviceName}:`, err)
           } else {
-            const releaseCode = result?.[0]
             // 1 = DBUS_RELEASE_NAME_REPLY_RELEASED (success)
             // 2 = DBUS_RELEASE_NAME_REPLY_NON_EXISTENT (already released)
             // 3 = DBUS_RELEASE_NAME_REPLY_NOT_OWNER (not owner)
-            debug(`Released service name ${node.serviceName}, code: ${releaseCode}`)
+            debug(`Released service name ${node.serviceName}, code: ${result}`)
           }
 
           // Continue with connection cleanup after release attempt
