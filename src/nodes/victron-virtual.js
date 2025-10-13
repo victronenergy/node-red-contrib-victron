@@ -352,6 +352,7 @@ module.exports = function (RED) {
       this.address = `tcp:host=${address[0]},port=${address[1]}`
     }
 
+    node.retryOnConnectionEnd = true
     node.pendingCallsToSetValuesLocally = []
 
     function handleInput (msg, done) {
@@ -464,7 +465,11 @@ module.exports = function (RED) {
           text: 'DBus connection closed'
         })
         debugConnection('DBus connection closed, retrying...')
-        retryConnectionDelayed()
+        if (self.retryOnConnectionEnd) {
+          retryConnectionDelayed()
+        } else {
+          debug('Not retrying DBus connection, as retryOnConnectionEnd is false.', interfaceName)
+        }
       })
 
       self.bus.connection.on('error', (err) => {
@@ -1321,6 +1326,7 @@ module.exports = function (RED) {
         // were left. Calling end() here resolves an issue with the VictronDbusListener
         // not responding to ItemsChanged signals any more after a redeploy here:
         // https://github.com/victronenergy/node-red-contrib-victron/blob/5626b44b426a3ab1c7d9a6a2d36f035f72d9faa2/src/services/dbus-listener.js#L309
+        node.retryOnConnectionEnd = false
         node.bus.connection.end()
 
         // If this was the last instance and the timeout is still pending
