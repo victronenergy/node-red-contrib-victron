@@ -356,6 +356,7 @@ module.exports = function (RED) {
       this.address = `tcp:host=${address[0]},port=${address[1]}`
     }
 
+    node.retryOnConnectionEnd = true
     node.pendingCallsToSetValuesLocally = []
 
     function handleInput (msg, done) {
@@ -487,7 +488,11 @@ module.exports = function (RED) {
           text: 'DBus connection closed'
         })
         debugConnection('DBus connection closed, retrying...')
-        retryConnectionDelayed()
+        if (self.retryOnConnectionEnd) {
+          retryConnectionDelayed()
+        } else {
+          debug('Not retrying DBus connection, as retryOnConnectionEnd is false.', interfaceName)
+        }
       })
 
       self.bus.connection.on('error', (err) => {
@@ -1212,6 +1217,8 @@ module.exports = function (RED) {
           // Return code 0x3 means it already exists (which should be fine)
           if (retCode === 1 || retCode === 3) {
             debug(`Successfully requested service name "${serviceName}" (${retCode})`)
+            // Store serviceName on node for cleanup during close
+            node.serviceName = serviceName
           } else {
             /* Other return codes means various errors, check here
             (https://dbus.freedesktop.org/doc/api/html/group__DBusShared.html#ga37a9bc7c6eb11d212bf8d5e5ff3b50f9) for more
@@ -1420,22 +1427,47 @@ module.exports = function (RED) {
     node.on('close', function (done) {
       nodeInstances.delete(node)
 
-      // TODO: previously, we called end() on the connection only if no nodeInstances
-      // were left. Calling end() here resolves an issue with the VictronDbusListener
-      // not responding to ItemsChanged signals any more after a redeploy here:
-      // https://github.com/victronenergy/node-red-contrib-victron/blob/5626b44b426a3ab1c7d9a6a2d36f035f72d9faa2/src/services/dbus-listener.js#L309
-      this.bus.connection.end()
+      // Release the DBus service name before closing connection
+      // This prevents the service from remaining registered after node deletion
+      if (node.serviceName && this.bus && this.bus.invoke) {
+        debug(`Releasing DBus service name: ${node.serviceName}`)
+        this.bus.releaseName(node.serviceName, (err, result) => {
+          if (err) {
+            console.error(`Error releasing service name ${node.serviceName}:`, err)
+          } else {
+            // 1 = DBUS_RELEASE_NAME_REPLY_RELEASED (success)
+            // 2 = DBUS_RELEASE_NAME_REPLY_NON_EXISTENT (already released)
+            // 3 = DBUS_RELEASE_NAME_REPLY_NOT_OWNER (not owner)
+            debug(`Released service name ${node.serviceName}, code: ${result}`)
+          }
 
-      // If this was the last instance and the timeout is still pending
-      if (nodeInstances.size === 0) {
-        if (globalTimeoutHandle) {
-          clearTimeout(globalTimeoutHandle)
-          globalTimeoutHandle = null
-        }
-        hasRunOnce = false
+          // Continue with connection cleanup after release attempt
+          finishClose()
+        })
+      } else {
+        // No service name to release, proceed directly
+        finishClose()
       }
 
-      done()
+      function finishClose () {
+        // TODO: previously, we called end() on the connection only if no nodeInstances
+        // were left. Calling end() here resolves an issue with the VictronDbusListener
+        // not responding to ItemsChanged signals any more after a redeploy here:
+        // https://github.com/victronenergy/node-red-contrib-victron/blob/5626b44b426a3ab1c7d9a6a2d36f035f72d9faa2/src/services/dbus-listener.js#L309
+        node.retryOnConnectionEnd = false
+        node.bus.connection.end()
+
+        // If this was the last instance and the timeout is still pending
+        if (nodeInstances.size === 0) {
+          if (globalTimeoutHandle) {
+            clearTimeout(globalTimeoutHandle)
+            globalTimeoutHandle = null
+          }
+          hasRunOnce = false
+        }
+
+        done()
+      }
     })
   }
 
