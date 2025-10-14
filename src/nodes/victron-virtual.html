@@ -104,20 +104,16 @@
                     .attr('title', 'Device type cannot be changed after deployment.');
             }
 
-            $('#node-input-device').on('change', () => {
-                checkSelectedVirtualDevice.call(this);
+            $('#node-input-device').on('change', (v) => {
+                checkSelectedVirtualDevice(this);
                 // Update outputs when device changes
-                updateOutputs(this);
-            });
-
-            // Add handler for switch type changes
-            $(document).on('change', '#node-input-switch_1_type', () => {
+                this.device = v.target.value
                 updateOutputs(this);
             });
             
             // Initialize outputs on load
             updateOutputs(this);
-            checkSelectedVirtualDevice.call(this);
+            checkSelectedVirtualDevice(this);
         },
         oneditsave: function() {
             if (this.device === 'switch') {

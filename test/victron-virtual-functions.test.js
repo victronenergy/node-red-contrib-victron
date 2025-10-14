@@ -157,7 +157,7 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       })
 
       // Call with specific context to test binding (line 247)
-      updateSwitchConfig.call(context)
+      updateSwitchConfig(context)
 
       expect(mockContainer.empty).toHaveBeenCalled()
     })
@@ -329,7 +329,7 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
         return createMockElement()
       })
 
-      checkSelectedVirtualDevice.call(context)
+      checkSelectedVirtualDevice(context)
 
       // Only check that the switch config container is emptied for a switch device
       expect(mockContainer.empty).toHaveBeenCalled()
