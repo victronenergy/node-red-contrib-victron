@@ -111,7 +111,7 @@
             });
 
             // Add handler for switch type changes
-            $(document).on('change', '#node-input-switch_1_type', () => {
+            $('#node-input-switch_1_type').on('change', () => {
                 updateOutputs(this);
             });
             

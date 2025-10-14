@@ -616,11 +616,10 @@ export function calculateOutputs (device, config) {
  * @param {object} context - Node-RED editor context (this)
  */
 export function updateOutputs (context) {
-  const device = $('#node-input-device').val()
+  const device = context.device
   const config = {
-    switch_1_type: $('#node-input-switch_1_type').val()
+    switch_1_type: context.switch_1_type
   }
-
   const outputs = calculateOutputs(device, config)
 
   // Update BOTH the context AND the hidden input field
