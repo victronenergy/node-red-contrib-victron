@@ -853,7 +853,6 @@ module.exports = function (RED) {
               if (name === 'Settings/ValidTypes') {
                 // Only allow the currently selected switch type in the GUI.
                 // This sets /ValidTypes to a bitmask with only the current type allowed.
-                // See: https://github.com/victronenergy/dbus-victron-virtual/issues/XXX
                 // Example: If switchType is 2, then 1 << 2 = 4, so only type 2 is valid.
                 iface[switchableOutputPropertyKey] = 1 << switchType
               }

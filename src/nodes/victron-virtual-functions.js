@@ -334,8 +334,6 @@ export function renderSwitchConfigRow (context) {
             <input type="${field.type}" id="node-input-switch_1_${field.id}"
                    placeholder="${field.placeholder}"
                    style="${field.style}"
-                   ${field.min ? `min="${field.min}"` : ''}
-                   ${field.max ? `max="${field.max}"` : ''}
                    ${stepAttr} required>
           </div>
         `
@@ -355,6 +353,28 @@ export function renderSwitchConfigRow (context) {
         const val = context[`switch_1_${field.id}`]
         if (typeof val !== 'undefined') {
           $(`#node-input-switch_1_${field.id}`).val(val)
+        }
+
+        const $input = $(`#node-input-switch_1_${field.id}`)
+
+        // Add validation for stepped switch max field
+        if (field.id === 'max' && Number(type) === SWITCH_TYPE_MAP.STEPPED) {
+          $input.on('blur input', function () {
+            const val = $(this).val()
+            const maxVal = parseInt(val, 10)
+
+            if (!val) {
+              // Empty field - will be caught by required validation
+              this.setCustomValidity('This field is required')
+              this.reportValidity()
+            } else if (isNaN(maxVal) || maxVal < 1 || maxVal > 7) {
+              this.setCustomValidity('Max steps must be between 1 and 7')
+              this.reportValidity()
+            } else {
+              // Valid - clear any error
+              this.setCustomValidity('')
+            }
+          })
         }
       })
 
@@ -409,7 +429,7 @@ export function renderSwitchConfigRow (context) {
       }
     }
 
-    if (Number(type) === SWITCH_TYPE_MAP.TEMP_SETPOINT) {
+    if (Number(type) === SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) {
       // Add checkbox for Measurement path
       const measurementToggle = $(`
         <div class="form-row" id="switch-1-measurement-toggle-row">
@@ -472,11 +492,17 @@ function renderDropdownLabels (context) {
   }
 }
 
-export function updateSwitchConfig () {
+export function updateSwitchConfig (context) {
   const container = $('#switch-config-container')
   container.empty()
   if ($('select#node-input-device').val() !== 'switch') return
-  renderSwitchConfigRow(this)
+  renderSwitchConfigRow(context)
+
+  // Add handler for switch type changes
+  $('#node-input-switch_1_type').on('change', (v) => {
+    context.switch_1_type = v.target.value
+    updateOutputs(context)
+  })
 }
 
 export function updateBatteryVoltageVisibility () {
@@ -491,7 +517,7 @@ export function updateBatteryVoltageVisibility () {
   $('#battery-voltage-custom-label').toggle(preset === 'custom')
 }
 
-export function checkSelectedVirtualDevice () {
+export function checkSelectedVirtualDevice (context) {
   [
     'battery', 'generator', 'gps', 'grid', 'motordrive', 'pvinverter',
     'switch', 'tank', 'temperature'
@@ -532,7 +558,7 @@ export function checkSelectedVirtualDevice () {
   }
 
   if (selected === 'switch') {
-    updateSwitchConfig.call(this)
+    updateSwitchConfig(context)
     // Hide the default values checkbox and info box for switches
     $('#node-input-default_values').closest('.form-row').hide()
     $('#default-values-info').hide()
@@ -616,11 +642,10 @@ export function calculateOutputs (device, config) {
  * @param {object} context - Node-RED editor context (this)
  */
 export function updateOutputs (context) {
-  const device = $('#node-input-device').val()
+  const device = context.device
   const config = {
-    switch_1_type: $('#node-input-switch_1_type').val()
+    switch_1_type: context.switch_1_type
   }
-
   const outputs = calculateOutputs(device, config)
 
   // Update BOTH the context AND the hidden input field
