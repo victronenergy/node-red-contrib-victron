@@ -451,7 +451,7 @@
         }
       }
 
-      if (Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.TEMP_SETPOINT) {
+      if (Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) {
         // Add checkbox for Measurement path
         const measurementToggle = $(`
         <div class="form-row" id="switch-1-measurement-toggle-row">
