@@ -17,7 +17,10 @@
   	  BASIC_SLIDER: 7,
   	  NUMERIC_INPUT: 8,
   	  THREE_STATE: 9,
-  	  BILGE_PUMP: 10
+  	  BILGE_PUMP: 10,
+  	  RGB_COLOR_WHEEL: 11,
+  	  CCT_WHEEL: 12,
+  	  RGB_COLOR_WHEEL_WHITE_DIMMER: 13
   	};
 
   	const SWITCH_OUTPUT_CONFIG = {
@@ -30,7 +33,10 @@
   	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 3, // passthrough + state + slider value
   	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 3, // passthrough + state + numeric value
   	  [SWITCH_TYPE_MAP.THREE_STATE]: 2, // passthrough + state
-  	  [SWITCH_TYPE_MAP.BILGE_PUMP]: 2 // passthrough + state
+  	  [SWITCH_TYPE_MAP.BILGE_PUMP]: 2, // passthrough + state
+  	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 3, // passthrough + state + light controls
+  	  [SWITCH_TYPE_MAP.CCT_WHEEL]: 3, // passthrough + state + light controls
+  	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL_WHITE_DIMMER]: 3 // passthrough + state + light controls
   	};
 
   	// Output labels configuration: third label varies by switch type
@@ -39,7 +45,10 @@
   	  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'Temperature',
   	  [SWITCH_TYPE_MAP.STEPPED]: 'Value',
   	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Value',
-  	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Value'
+  	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Value',
+  	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 'Color',
+  	  [SWITCH_TYPE_MAP.CCT_WHEEL]: 'Color Temperature',
+  	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL_WHITE_DIMMER]: 'Color'
   	};
 
   	victronVirtualConstants = {
@@ -132,6 +141,18 @@
     },
     [victronVirtualConstantsExports.SWITCH_TYPE_MAP.BILGE_PUMP]: {
       label: 'Bilge pump control',
+      fields: [...COMMON_SWITCH_FIELDS]
+    },
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: {
+      label: 'RGB Color Wheel',
+      fields: [...COMMON_SWITCH_FIELDS]
+    },
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.CCT_WHEEL]: {
+      label: 'CCT Wheel',
+      fields: [...COMMON_SWITCH_FIELDS]
+    },
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.RGB_COLOR_WHEEL_WHITE_DIMMER]: {
+      label: 'RGB Color Wheel with White Dimmer',
       fields: [...COMMON_SWITCH_FIELDS]
     }
   };
@@ -340,6 +361,39 @@
       </div>
     `,
       img: '/resources/@victronenergy/node-red-contrib-victron/docs/bilge_pump.png'
+    },
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: {
+      text: `
+      <div>
+        <strong>Most relevant path(s):</strong>
+        <ul>
+          <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel.</li>
+        </ul>
+      </div>
+      `,
+      img: '/resources/@victronenergy/node-red-contrib-victron/docs/rgb_color_wheel.png'
+    },
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.CCT_WHEEL]: {
+      text: `
+      <div>
+        <strong>Most relevant path(s):</strong>
+        <ul>
+          <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel.</li>
+        </ul>
+      </div>
+      `,
+      img: '/resources/@victronenergy/node-red-contrib-victron/docs/cct_wheel.png'
+    },
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.RGB_COLOR_WHEEL_WHITE_DIMMER]: {
+      text: `
+      <div>
+        <strong>Most relevant path(s):</strong>
+        <ul>
+          <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel.</li>
+        </ul>
+      </div>
+      `,
+      img: '/resources/@victronenergy/node-red-contrib-victron/docs/rgb_color_wheel_white_dimmer.png'
     }
   };
 

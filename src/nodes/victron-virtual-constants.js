@@ -8,7 +8,10 @@ const SWITCH_TYPE_MAP = {
   BASIC_SLIDER: 7,
   NUMERIC_INPUT: 8,
   THREE_STATE: 9,
-  BILGE_PUMP: 10
+  BILGE_PUMP: 10,
+  RGB_COLOR_WHEEL: 11,
+  CCT_WHEEL: 12,
+  RGB_COLOR_WHEEL_WHITE_DIMMER: 13
 }
 
 const SWITCH_OUTPUT_CONFIG = {
@@ -21,7 +24,10 @@ const SWITCH_OUTPUT_CONFIG = {
   [SWITCH_TYPE_MAP.BASIC_SLIDER]: 3, // passthrough + state + slider value
   [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 3, // passthrough + state + numeric value
   [SWITCH_TYPE_MAP.THREE_STATE]: 2, // passthrough + state
-  [SWITCH_TYPE_MAP.BILGE_PUMP]: 2 // passthrough + state
+  [SWITCH_TYPE_MAP.BILGE_PUMP]: 2, // passthrough + state
+  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 3, // passthrough + state + light controls
+  [SWITCH_TYPE_MAP.CCT_WHEEL]: 3, // passthrough + state + light controls
+  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL_WHITE_DIMMER]: 3 // passthrough + state + light controls
 }
 
 // Output labels configuration: third label varies by switch type
@@ -30,7 +36,10 @@ const SWITCH_THIRD_OUTPUT_LABEL = {
   [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'Temperature',
   [SWITCH_TYPE_MAP.STEPPED]: 'Value',
   [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Value',
-  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Value'
+  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Value',
+  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 'Light controls',
+  [SWITCH_TYPE_MAP.CCT_WHEEL]: 'Light controls',
+  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL_WHITE_DIMMER]: 'Light controls'
 }
 
 module.exports = {

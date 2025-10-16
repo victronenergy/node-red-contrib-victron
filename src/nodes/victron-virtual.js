@@ -1055,6 +1055,39 @@ module.exports = function (RED) {
               iface[autoKey] = 0
             }
 
+            if (switchType === SWITCH_TYPE_MAP.RGB_COLOR_WHEEL ||
+              switchType === SWITCH_TYPE_MAP.CCT_WHEEL ||
+              switchType === SWITCH_TYPE_MAP.RGB_COLOR_WHEEL_WHITE_DIMMER) {
+              // lightControls is an array containing Hue(0-360 degrees), Saturation (0-100%), Brightness (0-100%), White (0-100%) and ColorTemperature(0-6500K)
+              // depending on the switch type
+              // Example: [120, 100, 50] is green at half brightness
+              const lightControlKey = 'SwitchableOutput/output_1/LightControls'
+              ifaceDesc.properties[lightControlKey] = {
+                type: 's',
+                format: (v) => ({
+                  toString: () => {
+                    try {
+                      const arr = JSON.parse(v)
+                      if (Array.isArray(arr)) {
+                        if (switchType === SWITCH_TYPE_MAP.RGB_COLOR_WHEEL) {
+                          return `H:${arr[0]}° S:${arr[1]}% B:${arr[2]}%`
+                        } else if (switchType === SWITCH_TYPE_MAP.CCT_WHEEL) {
+                          return `B:${arr[0]}% CT:${arr[1]}K`
+                        } else if (switchType === SWITCH_TYPE_MAP.RGB_COLOR_WHEEL_WHITE_DIMMER) {
+                          return `H:${arr[0]}° S:${arr[1]}% B:${arr[2]}% W:${arr[3]}%`
+                        }
+                      }
+                    } catch (e) {
+                      console.error('Failed to parse light controls:', e)
+                    }
+                    return v || ''
+                  }
+                }),
+                persist: true
+              }
+              iface[lightControlKey] = JSON.stringify([0, 0, 0, 0, 0]) // Default to all off
+            }
+
             const switchTypeLabels = {
               [SWITCH_TYPE_MAP.MOMENTARY]: 'Momentary',
               [SWITCH_TYPE_MAP.TOGGLE]: 'Toggle',
@@ -1065,7 +1098,10 @@ module.exports = function (RED) {
               [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Basic slider',
               [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Numeric input',
               [SWITCH_TYPE_MAP.THREE_STATE]: 'Three-state',
-              [SWITCH_TYPE_MAP.BILGE_PUMP]: 'Bilge pump'
+              [SWITCH_TYPE_MAP.BILGE_PUMP]: 'Bilge pump',
+              [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 'RGB color wheel',
+              [SWITCH_TYPE_MAP.CCT_WHEEL]: 'CCT wheel',
+              [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL_WHITE_DIMMER]: 'RGB color wheel with white dimmer'
             }
             const typeLabel = switchTypeLabels[switchType] || 'Switch'
 
