@@ -968,19 +968,10 @@ module.exports = function (RED) {
 
               // Get labels from config - should be simple key-value object
               const labels = JSON.parse(config.switch_1_label || '[]')
-              let firstKey = ''
 
-              try {
-                if (labels.length > 0) {
-                  firstKey = labels[0] // Default to first key
-                }
-              } catch (e) {
-                console.error('Invalid JSON in switch 1 labels:', e)
-              }
-
-              // Dimming holds the selected key (string type)
+              // Dimming holds the index of the selected option
               ifaceDesc.properties[dimmingKey] = {
-                type: 's',
+                type: 'i',
                 format: (v) => {
                   // Format display using the key-value labels
                   try {
@@ -991,7 +982,7 @@ module.exports = function (RED) {
                   }
                 }
               }
-              iface[dimmingKey] = firstKey || ''
+              iface[dimmingKey] = 0
 
               // Labels field stores the key-value JSON directly
               ifaceDesc.properties[labelsKey] = {
@@ -1068,7 +1059,7 @@ module.exports = function (RED) {
             }
             const typeLabel = switchTypeLabels[switchType] || 'Switch'
 
-            text = `Virtual ${typeLabel} Switch`
+            text = `${typeLabel} switch`
             break
           }
           case 'tank':
