@@ -14,8 +14,8 @@ export {
 }
 
 const COMMON_SWITCH_FIELDS = [
-  { id: 'customname', type: 'text', placeholder: 'Name', title: 'Name', style: 'width:120px;' },
-  { id: 'group', type: 'text', placeholder: 'Group', title: 'Group', style: 'width:120px;' }
+  { id: 'customname', type: 'text', placeholder: 'Name', title: 'Name', style: 'width:120px;', tooltip: 'Custom name for the switch' },
+  { id: 'group', type: 'text', placeholder: 'Group', title: 'Group', style: 'width:120px;', tooltip: 'Initial group for the switch. If the group gets changed in the gui after initial deploy, the value set there will be persisted (also on re-deploy).' }
 ]
 
 export function checkGeneratorType () {
@@ -182,7 +182,7 @@ export const SWITCH_TYPE_DOCS = {
         <strong>Most relevant path(s):</strong>
         <ul>
           <li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds selected option.</li>
-          <li><code>/SwitchableOutput/output_1/Settings/Settings/Labels</code> &mdash; defines the labels as a string array: <tt>[‘Label 1’, ‘Label 2’, ‘Label 3’]</tt>. Mandatory for this type.</li>
+          <li><code>/SwitchableOutput/output_1/Settings/DimmingMax</code> &mdash; defines the number of options. Mandatory for this type.</li>
           </li>
         </ul>
       </div>
@@ -203,8 +203,7 @@ export const SWITCH_TYPE_DOCS = {
         <strong>Most relevant path(s):</strong>
         <ul>
           <li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds selected option.</li>
-          <li><code>/SwitchableOutput/output_1/Settings/DimmingMax</code> &mdash; defines the number of options. Mandatory for this type.</li>
-          </li>
+          <li><code>/SwitchableOutput/output_1/Settings/Labels</code> &mdash; defines the labels as a string array: <tt>[‘Label 1’, ‘Label 2’, ‘Label 3’]</tt>. Mandatory for this type.</li>
         </ul>
       </div>
       <div>
@@ -301,6 +300,42 @@ export const SWITCH_TYPE_DOCS = {
   }
 }
 
+export function initializeSwitchTooltips () {
+  $('.switch-tooltip-container').remove()
+
+  $('.switch-field-tooltip-icon').off('mouseenter mouseleave')
+
+  $('.switch-field-tooltip-icon').on('mouseenter', function (e) {
+    const $icon = $(this)
+    const tooltipText = $icon.attr('data-tooltip')
+    const $tooltip = $('<div class="switch-tooltip-container"></div>').text(tooltipText)
+
+    $('body').append($tooltip)
+
+    // Position tooltip
+    const iconOffset = $icon.offset()
+    const tooltipHeight = $tooltip.outerHeight()
+    const tooltipWidth = $tooltip.outerWidth()
+
+    // Position above the icon, centered
+    $tooltip.css({
+      top: iconOffset.top - tooltipHeight - 8,
+      left: iconOffset.left - (tooltipWidth / 2) + ($icon.outerWidth() / 2)
+    })
+
+    $icon.data('tooltip-element', $tooltip)
+  })
+
+  $('.switch-field-tooltip-icon').on('mouseleave', function () {
+    const $icon = $(this)
+    const $tooltip = $icon.data('tooltip-element')
+    if ($tooltip) {
+      $tooltip.remove()
+      $icon.removeData('tooltip-element')
+    }
+  })
+}
+
 export function renderSwitchConfigRow (context) {
   const typeOptions = Object.entries(SWITCH_TYPE_CONFIGS)
     .map(([value, cfg]) => `<option value="${value}">${cfg.label}</option>`)
@@ -328,13 +363,20 @@ export function renderSwitchConfigRow (context) {
       // Render each field as a separate row
       const fieldsHtml = cfg.fields.map(field => {
         const stepAttr = field.id === 'step' || field.id === 'stepsize' ? 'step="any"' : ''
+        const tooltipHtml = field.tooltip
+          ? `<i class="fa fa-info-circle switch-field-tooltip-icon"
+                data-tooltip="${field.tooltip}"></i>`
+          : ''
+
         return `
           <div class="form-row" style="align-items:center;">
-            <label for="node-input-switch_1_${field.id}" style="min-width:120px;">${field.title || field.placeholder}</label>
+            <label for="node-input-switch_1_${field.id}" style="min-width:120px;">
+              ${field.title || field.placeholder}${tooltipHtml}
+            </label>
             <input type="${field.type}" id="node-input-switch_1_${field.id}"
-                   placeholder="${field.placeholder}"
-                   style="${field.style}"
-                   ${stepAttr} required>
+                  placeholder="${field.placeholder}"
+                  style="${field.style}"
+                  ${stepAttr} required>
           </div>
         `
       }).join('')
@@ -409,6 +451,8 @@ export function renderSwitchConfigRow (context) {
           renderDropdownLabels(context)
         })
       }
+
+      initializeSwitchTooltips()
     }
 
     const doc = SWITCH_TYPE_DOCS[type]
