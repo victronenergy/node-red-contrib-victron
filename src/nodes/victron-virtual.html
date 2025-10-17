@@ -73,28 +73,43 @@
             if (!this.device || this.device !== 'switch') {
                 return index === 0 ? 'Passthrough' : 'Output ' + (index + 1)
             }
-            
+
             const switchType = this.switch_1_type
             const typeKey = switchType !== undefined ? parseInt(switchType, 10) : 1 // TOGGLE = 1
             
-            // Map of third output labels
+            // Map of second output labels (for switches that don't have "State")
+            const secondLabels = {
+                3: 'Temperature',  // TEMPERATURE_SETPOINT
+                6: 'Selected',     // DROPDOWN
+                7: 'Value'         // BASIC_SLIDER
+            }
+
+            // Map of third output labels (only for switches with 3 outputs)
             const thirdLabels = {
                 2: 'Dimming',      // DIMMABLE
-                3: 'Temperature',  // TEMPERATURE_SETPOINT
                 4: 'Value',        // STEPPED
-                7: 'Value',        // BASIC_SLIDER
                 8: 'Value'         // NUMERIC_INPUT
             }
-            
-            if (index === 0) return 'Passthrough'
-            
-            // For dropdown (type 6), second output is 'selected' instead of 'state'
-            if (index === 1) {
-                return typeKey === 6 ? 'Selected' : 'State'
+
+            // Output count map
+            const outputCounts = {
+                0: 2, 1: 2, 2: 3, 3: 2, 4: 3, 6: 2, 7: 2, 8: 3, 9: 2, 10: 2
             }
-            
-            if (index === 2) return thirdLabels[typeKey] || 'Value'
-            
+
+            if (index === 0) return 'Passthrough'
+
+            if (index === 1) {
+                return secondLabels[typeKey] || 'State'
+            }
+
+            if (index === 2) {
+                // Only return third label if this switch type actually has 3 outputs
+                const outputCount = outputCounts[typeKey] || 2
+                if (outputCount >= 3) {
+                    return thirdLabels[typeKey] || 'Value'
+                }
+            }
+
             return 'Output ' + (index + 1)
         },
         oneditprepare: function oneditprepare() {

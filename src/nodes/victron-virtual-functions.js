@@ -3,6 +3,7 @@
 import {
   SWITCH_TYPE_MAP,
   SWITCH_OUTPUT_CONFIG,
+  SWITCH_SECOND_OUTPUT_LABEL,
   SWITCH_THIRD_OUTPUT_LABEL
 } from './victron-virtual-constants'
 
@@ -10,6 +11,7 @@ import {
 export {
   SWITCH_TYPE_MAP,
   SWITCH_OUTPUT_CONFIG,
+  SWITCH_SECOND_OUTPUT_LABEL,
   SWITCH_THIRD_OUTPUT_LABEL
 }
 
@@ -571,31 +573,23 @@ export function updateOutputs (context) {
  * @param {object} config - Device configuration object
  * @returns {string[]} Array of output label strings
  */
-export function getOutputLabels (device, config) {
-  // Non-switch devices only have passthrough
-  if (!device || device !== 'switch') {
-    return ['Passthrough']
-  }
+export function getOutputLabels (context = {}) {
+  const labels = []
+  labels.push('Passthrough')
 
-  // For switches, build labels based on output count
-  const switchType = config?.switch_1_type
-  const typeKey = switchType !== undefined ? parseInt(switchType, 10) : SWITCH_TYPE_MAP.TOGGLE
-  const outputCount = SWITCH_OUTPUT_CONFIG[typeKey] || 2
+  if (context.device === 'switch') {
+    const switchType = Number(context.switch_1_type || 1)
 
-  // Start with common labels
-  const labels = ['Passthrough']
+    // Second output label
+    const secondLabel = SWITCH_SECOND_OUTPUT_LABEL[switchType] || 'State'
+    labels.push(secondLabel)
 
-  // For dropdown, second output is 'Selected' instead of 'State'
-  if (outputCount === 2 && typeKey === SWITCH_TYPE_MAP.DROPDOWN) {
-    labels.push('Selected')
-  } else {
-    labels.push('State')
-  }
-
-  // Add third label if needed
-  if (outputCount === 3) {
-    const thirdLabel = SWITCH_THIRD_OUTPUT_LABEL[typeKey] || 'Value'
-    labels.push(thirdLabel)
+    // Third output label (only if switch has 3 outputs)
+    const outputCount = SWITCH_OUTPUT_CONFIG[switchType] || 2
+    if (outputCount >= 3) {
+      const thirdLabel = SWITCH_THIRD_OUTPUT_LABEL[switchType] || 'Value'
+      labels.push(thirdLabel)
+    }
   }
 
   return labels

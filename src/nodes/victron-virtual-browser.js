@@ -3,6 +3,7 @@ import {
   checkGeneratorType,
   SWITCH_TYPE_CONFIGS,
   SWITCH_OUTPUT_CONFIG,
+  SWITCH_SECOND_OUTPUT_LABEL,
   SWITCH_THIRD_OUTPUT_LABEL,
   renderSwitchConfigRow,
   updateSwitchConfig,
@@ -16,6 +17,7 @@ import {
 window.checkGeneratorType = checkGeneratorType
 window.SWITCH_TYPE_CONFIGS = SWITCH_TYPE_CONFIGS
 window.SWITCH_OUTPUT_CONFIG = SWITCH_OUTPUT_CONFIG
+window.SWITCH_SECOND_OUTPUT_LABEL = SWITCH_SECOND_OUTPUT_LABEL
 window.SWITCH_THIRD_OUTPUT_LABEL = SWITCH_THIRD_OUTPUT_LABEL
 window.renderSwitchConfigRow = renderSwitchConfigRow
 window.updateSwitchConfig = updateSwitchConfig

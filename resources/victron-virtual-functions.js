@@ -24,27 +24,33 @@
   	  [SWITCH_TYPE_MAP.MOMENTARY]: 2, // passthrough + state
   	  [SWITCH_TYPE_MAP.TOGGLE]: 2, // passthrough + state
   	  [SWITCH_TYPE_MAP.DIMMABLE]: 3, // passthrough + state + dimming value
-  	  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 3, // passthrough + state + temperature value
+  	  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 2, // passthrough + temperature value
   	  [SWITCH_TYPE_MAP.STEPPED]: 3, // passthrough + state + stepped value
   	  [SWITCH_TYPE_MAP.DROPDOWN]: 2, // passthrough + state
-  	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 3, // passthrough + state + slider value
+  	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 2, // passthrough + slider value
   	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 3, // passthrough + state + numeric value
   	  [SWITCH_TYPE_MAP.THREE_STATE]: 2, // passthrough + state
   	  [SWITCH_TYPE_MAP.BILGE_PUMP]: 2 // passthrough + state
   	};
 
+  	const SWITCH_SECOND_OUTPUT_LABEL = {
+  	  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'Temperature',
+  	  [SWITCH_TYPE_MAP.DROPDOWN]: 'Selected',
+  	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Value'
+  	  // All other switch types use 'State' as default
+  	};
+
   	// Output labels configuration: third label varies by switch type
   	const SWITCH_THIRD_OUTPUT_LABEL = {
   	  [SWITCH_TYPE_MAP.DIMMABLE]: 'Dimming',
-  	  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'Temperature',
   	  [SWITCH_TYPE_MAP.STEPPED]: 'Value',
-  	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Value',
   	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Value'
   	};
 
   	victronVirtualConstants = {
   	  SWITCH_TYPE_MAP,
   	  SWITCH_OUTPUT_CONFIG,
+  	  SWITCH_SECOND_OUTPUT_LABEL,
   	  SWITCH_THIRD_OUTPUT_LABEL
   	};
   	return victronVirtualConstants;
@@ -612,6 +618,7 @@
   window.checkGeneratorType = checkGeneratorType;
   window.SWITCH_TYPE_CONFIGS = SWITCH_TYPE_CONFIGS;
   window.SWITCH_OUTPUT_CONFIG = victronVirtualConstantsExports.SWITCH_OUTPUT_CONFIG;
+  window.SWITCH_SECOND_OUTPUT_LABEL = victronVirtualConstantsExports.SWITCH_SECOND_OUTPUT_LABEL;
   window.SWITCH_THIRD_OUTPUT_LABEL = victronVirtualConstantsExports.SWITCH_THIRD_OUTPUT_LABEL;
   window.renderSwitchConfigRow = renderSwitchConfigRow;
   window.updateSwitchConfig = updateSwitchConfig;

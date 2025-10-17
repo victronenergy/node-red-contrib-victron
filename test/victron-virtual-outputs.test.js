@@ -36,14 +36,14 @@ describe('calculateOutputs', () => {
       expect(calculateOutputs('switch', config)).toBe(2)
     })
 
-    test('dimmable switch has 3 outputs (passthrough + state + value)', () => {
+    test('dimmable switch has 3 outputs (passthrough + state + dimming)', () => {
       const config = { switch_1_type: String(SWITCH_TYPE_MAP.DIMMABLE) }
       expect(calculateOutputs('switch', config)).toBe(3)
     })
 
-    test('temperature setpoint switch has 3 outputs (passthrough + state + value)', () => {
+    test('temperature setpoint switch has 2 outputs (passthrough + temperature)', () => {
       const config = { switch_1_type: String(SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) }
-      expect(calculateOutputs('switch', config)).toBe(3)
+      expect(calculateOutputs('switch', config)).toBe(2)
     })
 
     test('stepped switch has 3 outputs (passthrough + state + value)', () => {
@@ -56,9 +56,9 @@ describe('calculateOutputs', () => {
       expect(calculateOutputs('switch', config)).toBe(2)
     })
 
-    test('basic slider switch has 3 outputs (passthrough + state + value)', () => {
+    test('basic slider switch has 2 outputs (passthrough + value)', () => {
       const config = { switch_1_type: String(SWITCH_TYPE_MAP.BASIC_SLIDER) }
-      expect(calculateOutputs('switch', config)).toBe(3)
+      expect(calculateOutputs('switch', config)).toBe(2)
     })
 
     test('numeric input switch has 3 outputs (passthrough + state + value)', () => {
@@ -134,57 +134,58 @@ describe('getOutputLabels', () => {
 
   describe('switch devices', () => {
     test('momentary switch has passthrough and state labels', () => {
-      const config = { switch_1_type: String(SWITCH_TYPE_MAP.MOMENTARY) }
-      expect(getOutputLabels('switch', config)).toEqual(['Passthrough', 'State'])
+      const context = { device: 'switch', switch_1_type: String(SWITCH_TYPE_MAP.MOMENTARY) }
+      expect(getOutputLabels(context)).toEqual(['Passthrough', 'State'])
     })
 
     test('toggle switch has passthrough and state labels', () => {
-      const config = { switch_1_type: String(SWITCH_TYPE_MAP.TOGGLE) }
-      expect(getOutputLabels('switch', config)).toEqual(['Passthrough', 'State'])
+      const context = { device: 'switch', switch_1_type: String(SWITCH_TYPE_MAP.TOGGLE) }
+      expect(getOutputLabels(context)).toEqual(['Passthrough', 'State'])
     })
 
     test('dimmable switch has passthrough, state, and dimming labels', () => {
-      const config = { switch_1_type: String(SWITCH_TYPE_MAP.DIMMABLE) }
-      expect(getOutputLabels('switch', config)).toEqual(['Passthrough', 'State', 'Dimming'])
+      const context = { device: 'switch', switch_1_type: String(SWITCH_TYPE_MAP.DIMMABLE) }
+      expect(getOutputLabels(context)).toEqual(['Passthrough', 'State', 'Dimming'])
     })
 
-    test('temperature setpoint has passthrough, state, and temperature labels', () => {
-      const config = { switch_1_type: String(SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) }
-      expect(getOutputLabels('switch', config)).toEqual(['Passthrough', 'State', 'Temperature'])
+    test('temperature setpoint has passthrough and temperature labels', () => {
+      const context = { device: 'switch', switch_1_type: String(SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) }
+      expect(getOutputLabels(context)).toEqual(['Passthrough', 'Temperature']) // Removed 'State'
     })
 
     test('stepped switch has passthrough, state, and value labels', () => {
-      const config = { switch_1_type: String(SWITCH_TYPE_MAP.STEPPED) }
-      expect(getOutputLabels('switch', config)).toEqual(['Passthrough', 'State', 'Value'])
+      const context = { device: 'switch', switch_1_type: String(SWITCH_TYPE_MAP.STEPPED) }
+      expect(getOutputLabels(context)).toEqual(['Passthrough', 'State', 'Value'])
     })
 
-    test('dropdown has passthrough and state labels', () => {
-      const config = { switch_1_type: String(SWITCH_TYPE_MAP.DROPDOWN) }
-      expect(getOutputLabels('switch', config)).toEqual(['Passthrough', 'Selected'])
+    test('dropdown has passthrough and selected labels', () => {
+      const context = { device: 'switch', switch_1_type: String(SWITCH_TYPE_MAP.DROPDOWN) }
+      expect(getOutputLabels(context)).toEqual(['Passthrough', 'Selected'])
     })
 
-    test('basic slider has passthrough, state, and value labels', () => {
-      const config = { switch_1_type: String(SWITCH_TYPE_MAP.BASIC_SLIDER) }
-      expect(getOutputLabels('switch', config)).toEqual(['Passthrough', 'State', 'Value'])
+    test('basic slider has passthrough and value labels', () => {
+      const context = { device: 'switch', switch_1_type: String(SWITCH_TYPE_MAP.BASIC_SLIDER) }
+      expect(getOutputLabels(context)).toEqual(['Passthrough', 'Value']) // Removed 'State'
     })
 
     test('numeric input has passthrough, state, and value labels', () => {
-      const config = { switch_1_type: String(SWITCH_TYPE_MAP.NUMERIC_INPUT) }
-      expect(getOutputLabels('switch', config)).toEqual(['Passthrough', 'State', 'Value'])
+      const context = { device: 'switch', switch_1_type: String(SWITCH_TYPE_MAP.NUMERIC_INPUT) }
+      expect(getOutputLabels(context)).toEqual(['Passthrough', 'State', 'Value'])
     })
 
     test('three-state switch has passthrough and state labels', () => {
-      const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE) }
-      expect(getOutputLabels('switch', config)).toEqual(['Passthrough', 'State'])
+      const context = { device: 'switch', switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE) }
+      expect(getOutputLabels(context)).toEqual(['Passthrough', 'State'])
     })
 
     test('bilge pump has passthrough and state labels', () => {
-      const config = { switch_1_type: String(SWITCH_TYPE_MAP.BILGE_PUMP) }
-      expect(getOutputLabels('switch', config)).toEqual(['Passthrough', 'State'])
+      const context = { device: 'switch', switch_1_type: String(SWITCH_TYPE_MAP.BILGE_PUMP) }
+      expect(getOutputLabels(context)).toEqual(['Passthrough', 'State'])
     })
 
     test('switch without type defaults to toggle labels', () => {
-      expect(getOutputLabels('switch', {})).toEqual(['Passthrough', 'State'])
+      const context = { device: 'switch' }
+      expect(getOutputLabels(context)).toEqual(['Passthrough', 'State'])
     })
   })
 
@@ -200,10 +201,10 @@ describe('getOutputLabels', () => {
 
   describe('label count matches output count', () => {
     test('label array length equals output count for all switch types', () => {
-      Object.keys(SWITCH_OUTPUT_CONFIG).forEach(typeKey => {
-        const config = { switch_1_type: typeKey }
-        const outputs = calculateOutputs('switch', config)
-        const labels = getOutputLabels('switch', config)
+      Object.values(SWITCH_TYPE_MAP).forEach(switchType => {
+        const context = { device: 'switch', switch_1_type: String(switchType) }
+        const outputs = calculateOutputs('switch', { switch_1_type: String(switchType) })
+        const labels = getOutputLabels(context)
         expect(labels.length).toBe(outputs)
       })
     })
