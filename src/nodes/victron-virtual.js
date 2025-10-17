@@ -71,6 +71,17 @@ const commonGeneratorProperties = {
 }
 
 const properties = {
+  acload: {
+    'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(3) + 'kWh' : '', value: 0 },
+    'Ac/Energy/Reverse': { type: 'd', format: (v) => v != null ? v.toFixed(3) + 'kWh' : '', value: 0 },
+    'Ac/L1/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
+    'Ac/L1/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(3) + 'kWh' : '', value: 0 },
+    'Ac/L1/Energy/Reverse': { type: 'd', format: (v) => v != null ? v.toFixed(3) + 'kWh' : '', value: 0 },
+    'Ac/L1/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
+    'Ac/L1/PowerFactor': { type: 'd', format: (v) => v != null ? v.toFixed(2) : '' },
+    'Ac/L1/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
+    'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' }
+  },
   battery: {
     Capacity: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'Ah' : '', persist: true },
     'Dc/0/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
@@ -1112,6 +1123,45 @@ module.exports = function (RED) {
             }
             text = `Virtual ${properties.temperature.TemperatureType.format(iface.TemperatureType).toLowerCase()} temperature sensor`
             break
+          case 'acload': {
+            iface.NrOfPhases = Number(config.acload_nrofphases ?? 1)
+            const properties = [
+              { name: 'Current', unit: 'A' },
+              { name: 'Power', unit: 'W' },
+              { name: 'Voltage', unit: 'V' },
+              { name: 'Energy/Forward', unit: 'kWh' },
+              { name: 'Energy/Reverse', unit: 'kWh' },
+              { name: 'PowerFactor', unit: '' }
+            ]
+
+            for (let i = 1; i <= iface.NrOfPhases; i++) {
+              const phase = `L${i}`
+              properties.forEach(({ name, unit }) => {
+                const key = `Ac/${phase}/${name}`
+                ifaceDesc.properties[key] = {
+                  type: 'd',
+                  format: (v) => v != null ? v.toFixed(2) + unit : ''
+                }
+                iface[key] = 0
+              })
+            }
+
+            if (config.default_values) {
+              iface['Ac/Power'] = 0
+              iface['Ac/Energy/Forward'] = 0
+              iface['Ac/Energy/Reverse'] = 0
+            }
+
+            // Enable S2 support if configured (TODO: implement more detailed S2 behavior)
+            if (config.enable_s2support) {
+              console.warn('S2 support for acload virtual device is not yet implemented.')
+              // What needs to be done here is add the dbus interface for com.victronenergy.s2
+              // 
+            }
+
+            text = `Virtual ${iface.NrOfPhases}-phase AC load`
+            break
+          }
         }
 
         if (hasPersistedState(RED, self.id)) {
@@ -1224,6 +1274,9 @@ module.exports = function (RED) {
           }
         })
 
+        // TODO: S2: Should we rename this? 
+        // We need to add a emitCallbackS2 for S2-related property changes 
+        // to be able to react to imocoming connection requests and messages.
         function emitCallback (event, data) {
           if (event !== 'ItemsChanged') {
             return
