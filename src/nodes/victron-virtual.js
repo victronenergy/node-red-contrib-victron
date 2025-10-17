@@ -368,24 +368,55 @@ module.exports = function (RED) {
       }
       node.send(outputs)
 
-      // Now do validation
+      // Now do validation with more helpful messages
       if (!msg || !msg.payload) {
-        node.warn('Received message without payload, ignoring.')
+        node.warn('Received message without payload. Expected: JSON object with {path: value} pairs.')
         node.status({
           fill: 'yellow',
           shape: 'ring',
-          text: 'No payload - passthrough only'
+          text: 'No payload - expected JSON object'
         })
         done()
         return
       }
 
-      if (typeof msg.payload !== 'object' || msg.payload === null) {
-        node.warn('Received invalid payload, expected an object with payload. Ignoring.')
+      // Check if payload is an object
+      if (typeof msg.payload !== 'object' || msg.payload === null || Array.isArray(msg.payload)) {
+        const receivedType = Array.isArray(msg.payload) ? 'array' : typeof msg.payload
+        node.warn(`Invalid payload type: ${receivedType}. Expected: JSON object with {path: value} pairs.`)
         node.status({
           fill: 'yellow',
           shape: 'ring',
-          text: 'Invalid payload - passthrough only'
+          text: `Invalid payload (${receivedType}) - expected JSON object`
+        })
+        done()
+        return
+      }
+
+      // Check if object is empty
+      if (Object.keys(msg.payload).length === 0) {
+        node.warn('Received empty object. Expected: JSON object with {path: value} pairs.')
+        node.status({
+          fill: 'yellow',
+          shape: 'ring',
+          text: 'Empty payload - expected {path: value} pairs'
+        })
+        done()
+        return
+      }
+
+      // Check if all values are valid types
+      const invalidEntries = Object.entries(msg.payload).filter(([key, value]) => {
+        return value !== null && typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean'
+      })
+
+      if (invalidEntries.length > 0) {
+        const invalidKeys = invalidEntries.map(([key]) => key).join(', ')
+        node.warn(`Invalid value types for keys: ${invalidKeys}. Expected: string, number, boolean, or null.`)
+        node.status({
+          fill: 'yellow',
+          shape: 'ring',
+          text: `Invalid value types for: ${invalidKeys}`
         })
         done()
         return
@@ -395,18 +426,21 @@ module.exports = function (RED) {
         debugInput(`Setting values locally for node ${node.id}:`, msg.payload)
         node.setValuesLocally(msg.payload)
 
+        const pathCount = Object.keys(msg.payload).length
+        const pathWord = pathCount === 1 ? 'path' : 'paths'
+
         node.status({
           fill: 'green',
           shape: 'dot',
-          text: `Updated ${Object.keys(msg.payload).length} values for ${config.device} (${node.iface.DeviceInstance})`
+          text: `Updated ${pathCount} ${pathWord} for ${config.device} (${node.iface.DeviceInstance})`
         })
         done()
       } catch (err) {
-        node.error(`Failed to set values locally: ${err.message}`, msg)
+        node.error(`Failed to set values: ${err.message}. Expected: JSON object with {path: value} pairs.`, msg)
         node.status({
-          color: 'red',
+          fill: 'red',
           shape: 'dot',
-          text: `Failed to set values: ${err.message}`
+          text: `Failed: ${err.message}`
         })
         done(err)
       }
