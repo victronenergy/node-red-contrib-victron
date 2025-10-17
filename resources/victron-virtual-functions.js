@@ -46,9 +46,9 @@
   	  [SWITCH_TYPE_MAP.STEPPED]: 'Value',
   	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Value',
   	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Value',
-  	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 'Color',
-  	  [SWITCH_TYPE_MAP.CCT_WHEEL]: 'Color Temperature',
-  	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL_WHITE_DIMMER]: 'Color'
+  	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 'Light controls',
+  	  [SWITCH_TYPE_MAP.CCT_WHEEL]: 'Light controls',
+  	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL_WHITE_DIMMER]: 'Light controls'
   	};
 
   	victronVirtualConstants = {
