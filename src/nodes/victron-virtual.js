@@ -6,6 +6,7 @@ const debugInput = require('debug')('victron-virtual:input')
 const debugConnection = require('debug')('victron-virtual:connection')
 const {
   SWITCH_TYPE_MAP,
+  SWITCH_SECOND_OUTPUT_LABEL,
   SWITCH_THIRD_OUTPUT_LABEL
 } = require('./victron-virtual-constants')
 
@@ -1254,37 +1255,40 @@ module.exports = function (RED) {
           // Output 1: null (no passthrough on ItemsChanged)
           outputMsgs[0] = null
 
-          // For dropdown switches, output 2 sends Dimming (selected option)
-          // For other 2-output switches (momentary, toggle, three-state, bilge), output 2 sends State
-          if (config.outputs === 2 && switchType === SWITCH_TYPE_MAP.DROPDOWN) {
-            // Dropdown: Output 2 = selected option from Dimming
-            if (propName === 'SwitchableOutput/output_1/Dimming') {
-              if (node.lastSentValues.Dimming !== propValue) {
-                node.lastSentValues.Dimming = propValue
-                outputMsgs[1] = {
-                  payload: Number(propValue),
-                  topic: `${node.name || 'Virtual ' + config.device}/selected`,
-                  path: '/SwitchableOutput/output_1/Dimming'
+          const secondOutputLabel = SWITCH_SECOND_OUTPUT_LABEL[switchType] || 'State'
+
+          if (config.outputs === 2) {
+            if (secondOutputLabel === 'Selected' || secondOutputLabel === 'Temperature') {
+              // Dropdown and Temperature Setpoint: Output 2 = Dimming value
+              if (propName === 'SwitchableOutput/output_1/Dimming') {
+                if (node.lastSentValues.Dimming !== propValue) {
+                  node.lastSentValues.Dimming = propValue
+                  const topicSuffix = secondOutputLabel.toLowerCase()
+                  outputMsgs[1] = {
+                    payload: Number(propValue),
+                    topic: `${node.name || 'Virtual ' + config.device}/${topicSuffix}`,
+                    path: '/SwitchableOutput/output_1/Dimming'
+                  }
+                  hasChanges = true
                 }
-                hasChanges = true
+              } else {
+                outputMsgs[1] = null
               }
             } else {
-              outputMsgs[1] = null
-            }
-          } else if (config.outputs === 2) {
-            // Standard 2-output switches: Output 2 = State
-            if (propName === 'SwitchableOutput/output_1/State') {
-              if (node.lastSentValues.State !== propValue) {
-                node.lastSentValues.State = propValue
-                outputMsgs[1] = {
-                  payload: propValue,
-                  topic: `${node.name || 'Virtual ' + config.device}/state`,
-                  path: '/SwitchableOutput/output_1/State'
+              // Standard 2-output switches: Output 2 = State
+              if (propName === 'SwitchableOutput/output_1/State') {
+                if (node.lastSentValues.State !== propValue) {
+                  node.lastSentValues.State = propValue
+                  outputMsgs[1] = {
+                    payload: propValue,
+                    topic: `${node.name || 'Virtual ' + config.device}/state`,
+                    path: '/SwitchableOutput/output_1/State'
+                  }
+                  hasChanges = true
                 }
-                hasChanges = true
+              } else {
+                outputMsgs[1] = null
               }
-            } else {
-              outputMsgs[1] = null
             }
           } else if (config.outputs >= 3) {
             // 3-output switches: Output 2 = State, Output 3 = Dimming value
