@@ -3,6 +3,7 @@
 import {
   SWITCH_TYPE_MAP,
   SWITCH_OUTPUT_CONFIG,
+  SWITCH_SECOND_OUTPUT_LABEL,
   SWITCH_THIRD_OUTPUT_LABEL
 } from './victron-virtual-constants'
 
@@ -10,6 +11,7 @@ import {
 export {
   SWITCH_TYPE_MAP,
   SWITCH_OUTPUT_CONFIG,
+  SWITCH_SECOND_OUTPUT_LABEL,
   SWITCH_THIRD_OUTPUT_LABEL
 }
 
@@ -169,7 +171,6 @@ export const SWITCH_TYPE_DOCS = {
         <strong>Outputs:</strong>
         <ol>
           <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
-          <li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li>
           <li><code>Temperature</code> &mdash; <tt>msg.payload</tt> contains the temperature value</li>
         </ol>
       </div>
@@ -717,11 +718,9 @@ export function getOutputLabels (device, config) {
   // Start with common labels
   const labels = ['Passthrough']
 
-  // For dropdown, second output is 'Selected' instead of 'State'
-  if (outputCount === 2 && typeKey === SWITCH_TYPE_MAP.DROPDOWN) {
-    labels.push('Selected')
-  } else {
-    labels.push('State')
+  if (outputCount >= 2) {
+    const secondLabel = SWITCH_SECOND_OUTPUT_LABEL[typeKey] || 'State'
+    labels.push(secondLabel)
   }
 
   // Add third label if needed
