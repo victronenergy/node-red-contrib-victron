@@ -368,24 +368,55 @@ module.exports = function (RED) {
       }
       node.send(outputs)
 
-      // Now do validation
+      // Now do validation with more helpful messages
       if (!msg || !msg.payload) {
-        node.warn('Received message without payload, ignoring.')
+        node.warn('Received message without payload. Expected: JSON object with {path: value} pairs.')
         node.status({
           fill: 'yellow',
           shape: 'ring',
-          text: 'No payload - passthrough only'
+          text: 'No payload - expected JSON object'
         })
         done()
         return
       }
 
-      if (typeof msg.payload !== 'object' || msg.payload === null) {
-        node.warn('Received invalid payload, expected an object with payload. Ignoring.')
+      // Check if payload is an object
+      if (typeof msg.payload !== 'object' || msg.payload === null || Array.isArray(msg.payload)) {
+        const receivedType = Array.isArray(msg.payload) ? 'array' : typeof msg.payload
+        node.warn(`Invalid payload type: ${receivedType}. Expected: JSON object with {path: value} pairs.`)
         node.status({
           fill: 'yellow',
           shape: 'ring',
-          text: 'Invalid payload - passthrough only'
+          text: `Invalid payload (${receivedType}) - expected JSON object`
+        })
+        done()
+        return
+      }
+
+      // Check if object is empty
+      if (Object.keys(msg.payload).length === 0) {
+        node.warn('Received empty object. Expected: JSON object with {path: value} pairs.')
+        node.status({
+          fill: 'yellow',
+          shape: 'ring',
+          text: 'Empty payload - expected {path: value} pairs'
+        })
+        done()
+        return
+      }
+
+      // Check if all values are valid types
+      const invalidEntries = Object.entries(msg.payload).filter(([key, value]) => {
+        return value !== null && typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean'
+      })
+
+      if (invalidEntries.length > 0) {
+        const invalidKeys = invalidEntries.map(([key]) => key).join(', ')
+        node.warn(`Invalid value types for keys: ${invalidKeys}. Expected: string, number, boolean, or null.`)
+        node.status({
+          fill: 'yellow',
+          shape: 'ring',
+          text: `Invalid value types for: ${invalidKeys}`
         })
         done()
         return
@@ -395,18 +426,21 @@ module.exports = function (RED) {
         debugInput(`Setting values locally for node ${node.id}:`, msg.payload)
         node.setValuesLocally(msg.payload)
 
+        const pathCount = Object.keys(msg.payload).length
+        const pathWord = pathCount === 1 ? 'path' : 'paths'
+
         node.status({
           fill: 'green',
           shape: 'dot',
-          text: `Updated ${Object.keys(msg.payload).length} values for ${config.device} (${node.iface.DeviceInstance})`
+          text: `Updated ${pathCount} ${pathWord} for ${config.device} (${node.iface.DeviceInstance})`
         })
         done()
       } catch (err) {
-        node.error(`Failed to set values locally: ${err.message}`, msg)
+        node.error(`Failed to set values: ${err.message}. Expected: JSON object with {path: value} pairs.`, msg)
         node.status({
-          color: 'red',
+          fill: 'red',
           shape: 'dot',
-          text: `Failed to set values: ${err.message}`
+          text: `Failed: ${err.message}`
         })
         done(err)
       }
@@ -1254,55 +1288,57 @@ module.exports = function (RED) {
           // Output 1: null (no passthrough on ItemsChanged)
           outputMsgs[0] = null
 
-          // For dropdown switches, output 2 sends Dimming (selected option)
-          // For other 2-output switches (momentary, toggle, three-state, bilge), output 2 sends State
-          if (config.outputs === 2 && switchType === SWITCH_TYPE_MAP.DROPDOWN) {
-            // Dropdown: Output 2 = selected option from Dimming
-            if (propName === 'SwitchableOutput/output_1/Dimming') {
-              if (node.lastSentValues.Dimming !== propValue) {
-                node.lastSentValues.Dimming = propValue
-                outputMsgs[1] = {
-                  payload: Number(propValue),
-                  topic: `${node.name || 'Virtual ' + config.device}/selected`,
-                  path: '/SwitchableOutput/output_1/Dimming'
-                }
-                hasChanges = true
-              }
-            } else {
-              outputMsgs[1] = null
-            }
-          } else if (config.outputs === 2) {
-            // Standard 2-output switches: Output 2 = State
-            if (propName === 'SwitchableOutput/output_1/State') {
-              if (node.lastSentValues.State !== propValue) {
-                node.lastSentValues.State = propValue
-                outputMsgs[1] = {
-                  payload: propValue,
-                  topic: `${node.name || 'Virtual ' + config.device}/state`,
-                  path: '/SwitchableOutput/output_1/State'
-                }
-                hasChanges = true
-              }
-            } else {
-              outputMsgs[1] = null
-            }
-          } else if (config.outputs >= 3) {
-            // 3-output switches: Output 2 = State, Output 3 = Dimming value
-            if (propName === 'SwitchableOutput/output_1/State') {
-              if (node.lastSentValues.State !== propValue) {
-                node.lastSentValues.State = propValue
-                outputMsgs[1] = {
-                  payload: propValue,
-                  topic: `${node.name || 'Virtual ' + config.device}/state`,
-                  path: '/SwitchableOutput/output_1/State'
-                }
-                hasChanges = true
-              }
-            } else {
-              outputMsgs[1] = null
-            }
+          // Handle output 2 based on switch type
+          if (config.outputs >= 2) {
+            // Check if this switch type has a special second output label
+            const hasSpecialSecondOutput = [
+              SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT,
+              SWITCH_TYPE_MAP.DROPDOWN,
+              SWITCH_TYPE_MAP.BASIC_SLIDER
+            ].includes(switchType)
 
-            // Output 3: Value (Dimming)
+            if (hasSpecialSecondOutput) {
+              // These switches don't have "State" - their second output is the value
+              if (propName === 'SwitchableOutput/output_1/Dimming') {
+                if (node.lastSentValues.Dimming !== propValue) {
+                  node.lastSentValues.Dimming = propValue
+
+                  let topicLabel = 'value'
+                  if (switchType === SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) topicLabel = 'temperature'
+                  else if (switchType === SWITCH_TYPE_MAP.DROPDOWN) topicLabel = 'selected'
+                  else if (switchType === SWITCH_TYPE_MAP.BASIC_SLIDER) topicLabel = 'value'
+
+                  outputMsgs[1] = {
+                    payload: propValue,
+                    topic: `${node.name || 'Virtual ' + config.device}/${topicLabel}`,
+                    path: '/SwitchableOutput/output_1/Dimming'
+                  }
+                  hasChanges = true
+                }
+              } else {
+                outputMsgs[1] = null
+              }
+            } else {
+              // Standard switches: Output 2 = State
+              if (propName === 'SwitchableOutput/output_1/State') {
+                if (node.lastSentValues.State !== propValue) {
+                  node.lastSentValues.State = propValue
+                  outputMsgs[1] = {
+                    payload: propValue,
+                    topic: `${node.name || 'Virtual ' + config.device}/state`,
+                    path: '/SwitchableOutput/output_1/State'
+                  }
+                  hasChanges = true
+                }
+              } else {
+                outputMsgs[1] = null
+              }
+            }
+          }
+
+          // Handle output 3 (only for 3-output switches)
+          if (config.outputs >= 3) {
+            // Only dimmable, stepped, and numeric input have 3 outputs
             if (propName === 'SwitchableOutput/output_1/Dimming') {
               if (node.lastSentValues.Dimming !== propValue) {
                 node.lastSentValues.Dimming = propValue
@@ -1311,7 +1347,7 @@ module.exports = function (RED) {
 
                 outputMsgs[2] = {
                   payload: propValue,
-                  topic: `${node.name || 'Virtual ' + config.device}/${topicLabel}`,
+                  topic: `${node.name || 'Virtual ' + config.device}/${topicLabel.toLowerCase()}`,
                   path: '/SwitchableOutput/output_1/Dimming'
                 }
                 hasChanges = true

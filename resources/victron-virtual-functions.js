@@ -24,27 +24,33 @@
   	  [SWITCH_TYPE_MAP.MOMENTARY]: 2, // passthrough + state
   	  [SWITCH_TYPE_MAP.TOGGLE]: 2, // passthrough + state
   	  [SWITCH_TYPE_MAP.DIMMABLE]: 3, // passthrough + state + dimming value
-  	  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 3, // passthrough + state + temperature value
+  	  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 2, // passthrough + temperature value
   	  [SWITCH_TYPE_MAP.STEPPED]: 3, // passthrough + state + stepped value
   	  [SWITCH_TYPE_MAP.DROPDOWN]: 2, // passthrough + state
-  	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 3, // passthrough + state + slider value
+  	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 2, // passthrough + slider value
   	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 3, // passthrough + state + numeric value
   	  [SWITCH_TYPE_MAP.THREE_STATE]: 2, // passthrough + state
   	  [SWITCH_TYPE_MAP.BILGE_PUMP]: 2 // passthrough + state
   	};
 
+  	const SWITCH_SECOND_OUTPUT_LABEL = {
+  	  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'Temperature',
+  	  [SWITCH_TYPE_MAP.DROPDOWN]: 'Selected',
+  	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Value'
+  	  // All other switch types use 'State' as default
+  	};
+
   	// Output labels configuration: third label varies by switch type
   	const SWITCH_THIRD_OUTPUT_LABEL = {
   	  [SWITCH_TYPE_MAP.DIMMABLE]: 'Dimming',
-  	  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'Temperature',
   	  [SWITCH_TYPE_MAP.STEPPED]: 'Value',
-  	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Value',
   	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Value'
   	};
 
   	victronVirtualConstants = {
   	  SWITCH_TYPE_MAP,
   	  SWITCH_OUTPUT_CONFIG,
+  	  SWITCH_SECOND_OUTPUT_LABEL,
   	  SWITCH_THIRD_OUTPUT_LABEL
   	};
   	return victronVirtualConstants;
@@ -136,210 +142,78 @@
     }
   };
 
+  const INPUT_DOCS = `
+  <div>
+    <strong>Input:</strong><ol><li>JSON object with <code>{path: value}</code> or <code>{path1: value1, path2: value2}</code> pairs.</li></ol>
+  </div>
+`;
+
+  const createDocTemplate = (paths, outputs, img) => ({
+    text: `
+    ${INPUT_DOCS}
+    <div style="margin-bottom: 10px;">
+      ${paths}
+    </div>
+    <div>
+      ${outputs}
+    </div>
+  `,
+    img
+  });
+
   const SWITCH_TYPE_DOCS = {
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.MOMENTARY]: {
-      text: `
-      <div>
-        <strong>Most relevant path(s):</strong>
-        <ul>
-          <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li>
-        </ul>
-      </div>
-      <div>
-        <strong>Outputs:</strong>
-        <ol>
-          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
-          <li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li>
-        </ol>
-      </div>
-    `,
-      img: '/resources/@victronenergy/node-red-contrib-victron/docs/momentary.png'
-    },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.TOGGLE]: {
-      text: `
-      <div>
-        <strong>Most relevant path(s):</strong>
-        <ul>
-          <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li>
-        </ul>
-      </div>
-      <div>
-        <strong>Outputs:</strong>
-        <ol>
-          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
-          <li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the switch</li>
-        </ol>
-      </div>
-    `,
-      img: '/resources/@victronenergy/node-red-contrib-victron/docs/toggle.png'
-    },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.DIMMABLE]: {
-      text: `
-      <div>
-        <strong>Most relevant path(s):</strong>
-        <ul>
-          <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li>
-          <li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; 0 to 100%, read/write.</li>
-        </ul>
-      </div>
-      <div>
-        <strong>Outputs:</strong>
-        <ol>
-          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
-          <li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the switch</li>
-          <li><code>Dimming</code> &mdash; <tt>msg.payload</tt> contains the dimming value</li>
-        </ol>
-      </div>
-    `,
-      img: '/resources/@victronenergy/node-red-contrib-victron/docs/dimmable.png'
-    },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: {
-      text: `
-      <div>
-        <strong>Most relevant path(s):</strong>
-        <ul>
-          <li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds slider value in °C.</li>
-          <li><code>/SwitchableOutput/output_1/Measurement</code> &mdash; holds temperature measurement, if available.<br>
-            <span style="font-size:0.95em;color:#666;">If present, the actual value will be displayed on the control.</span>
-          </li>
-          <li><code>/SwitchableOutput/x/Settings/DimmingMin</code> defines slider minimum value. 0 will be used if omitted.</li>
-          <li><code>/SwitchableOutput/x/Settings/DimmingMax</code> defines slider maximum value. 100 will be used if omitted.</li>
-          <li><code>/SwitchableOutput/x/Settings/StepSize</code> defines stepsize. Stepsize = 1°C if omitted.</li>
-        </ul>
-      </div>
-      <div>
-        <strong>Outputs:</strong>
-        <ol>
-          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
-          <li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li>
-          <li><code>Temperature</code> &mdash; <tt>msg.payload</tt> contains the temperature value</li>
-        </ol>
-      </div>
-    `,
-      img: '/resources/@victronenergy/node-red-contrib-victron/docs/temp_setpoint.png'
-    },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED]: {
-      text: `
-      <div>
-        <strong>Most relevant path(s):</strong>
-        <ul>
-          <li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds selected option.</li>
-          <li><code>/SwitchableOutput/output_1/Settings/DimmingMax</code> &mdash; defines the number of options. Mandatory for this type.</li>
-          </li>
-        </ul>
-      </div>
-      <div>
-        <strong>Outputs:</strong>
-        <ol>
-          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
-          <li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li>
-          <li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the stepped value</li>
-       </ol>
-      </div>
-    `,
-      img: '/resources/@victronenergy/node-red-contrib-victron/docs/stepped.png'
-    },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN]: {
-      text: `
-      <div>
-        <strong>Most relevant path(s):</strong>
-        <ul>
-          <li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds selected option.</li>
-          <li><code>/SwitchableOutput/output_1/Settings/Labels</code> &mdash; defines the labels as a string array: <tt>[‘Label 1’, ‘Label 2’, ‘Label 3’]</tt>. Mandatory for this type.</li>
-        </ul>
-      </div>
-      <div>
-        <strong>Outputs:</strong>
-        <ol>
-          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
-          <li><code>Selected</code> &mdash; <tt>msg.payload</tt> contains the index of the selected option (<tt>0</tt> for the first item in the list)</li>
-        </ol>
-      </div>
-    `,
-      img: '/resources/@victronenergy/node-red-contrib-victron/docs/dropdown.png'
-    },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.BASIC_SLIDER]: {
-      text: `
-      <div>
-        <strong>Most relevant path(s):</strong>
-        <ul>
-          <li><code>/SwitchableOutput/output_1/Value</code> &mdash; holds the current slider position.</li>
-          <li><code>/SwitchableOutput/output_1/Settings/Min</code> &mdash; defines slider minimum value. <tt>0</tt> will be used if omitted.</li>
-          <li><code>/SwitchableOutput/output_1/Settings/Max</code> &mdash; defines slider maximum value. <tt>100</tt> will be used if omitted.</li>
-          <li><code>/SwitchableOutput/output_1/Settings/StepSize</code> &mdash; defines stepsize. Stepsize = <tt>1</tt> if omitted.</li>
-        </ul>
-      </div>
-      <div>
-        <strong>Outputs:</strong>
-        <ol>
-          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
-          <li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li>
-          <li><code>Temperature</code> &mdash; <tt>msg.payload</tt> contains the temperature value</li>
-        </ol>
-      </div>
-    `,
-      img: '/resources/@victronenergy/node-red-contrib-victron/docs/basic_slider.png'
-    },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.NUMERIC_INPUT]: {
-      text: `
-      <div>
-        <strong>Most relevant path(s):</strong>
-        <ul>
-          <li><code>/SwitchableOutput/output_1/Value</code> &mdash; holds the current numeric value.</li>
-          <li><code>/SwitchableOutput/output_1/Settings/Min</code> &mdash; defines the minimum value. <tt>0</tt> will be used if omitted.</li>
-          <li><code>/SwitchableOutput/output_1/Settings/Max</code> &mdash; defines the maximum value. <tt>100</tt> will be used if omitted.</li>
-          <li><code>/SwitchableOutput/output_1/Settings/StepSize</code> &mdash; defines stepsize. Stepsize = <tt>1</tt> if omitted.</li>
-        </ul>
-      </div>
-      <div>
-        <strong>Outputs:</strong>
-        <ol>
-          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
-          <li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li>
-          <li><code>Temperature</code> &mdash; <tt>msg.payload</tt> contains the temperature value</li>
-        </ol>
-      </div>
-    `,
-      img: '/resources/@victronenergy/node-red-contrib-victron/docs/numeric_input.png'
-    },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.THREE_STATE]: {
-      text: `
-      <div>
-        <strong>Most relevant path(s):</strong>
-        <ul>
-          <li><code>/SwitchableOutput/output_1/State</code> &mdash; holds the current state (e.g., Off, Auto, On).</li>
-        </ul>
-      </div>
-      <div>
-        <strong>Outputs:</strong>
-        <ol>
-          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
-          <li><code>State</code> &mdash; <tt>msg.payload</tt> contains the current state</li>
-        </ol>
-      </div>
-    `,
-      img: '/resources/@victronenergy/node-red-contrib-victron/docs/three_state.png'
-    },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.BILGE_PUMP]: {
-      text: `
-      <div>
-        <strong>Most relevant path(s):</strong>
-        <ul>
-          <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li>
-          <li><code>/SwitchableOutput/output_1/Alarm</code> &mdash; Indicates if an alarm condition is present (e.g., high water level).</li>
-          <li><code>/SwitchableOutput/output_1/Measurement</code> &mdash; If supported by the connected device, this path may provide additional measurement data, such as water level percentage.</li>
-        </ul>
-      </div>
-      <div>
-        <strong>Outputs:</strong>
-        <ol>
-          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
-          <li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the pump</li>
-        </ol>
-      </div>
-    `,
-      img: '/resources/@victronenergy/node-red-contrib-victron/docs/bilge_pump.png'
-    }
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.MOMENTARY]: createDocTemplate(
+      '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li></ul></div>',
+      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the switch</li></ol></div>',
+      '/resources/@victronenergy/node-red-contrib-victron/docs/momentary.png'
+    ),
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.TOGGLE]: createDocTemplate(
+      '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li></ul></div>',
+      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the switch</li></ol></div>',
+      '/resources/@victronenergy/node-red-contrib-victron/docs/toggle.png'
+    ),
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.DIMMABLE]: createDocTemplate(
+      '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li><li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; 0 to 100%, read/write.</li></ul></div>',
+      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the switch</li><li><code>Dimming</code> &mdash; <tt>msg.payload</tt> contains the dimming value</li></ol></div>',
+      '/resources/@victronenergy/node-red-contrib-victron/docs/dimmable.png'
+    ),
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: createDocTemplate(
+      `<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds slider value in °C.</li><li><code>/SwitchableOutput/output_1/Measurement</code> &mdash; holds temperature measurement, if available.<br>
+      <span style="font-size:0.95em;color:#666;">If present, the actual value will be displayed on the control.</span>
+    </li><li><code>/SwitchableOutput/x/Settings/DimmingMin</code> defines slider minimum value. 0 will be used if omitted.</li><li><code>/SwitchableOutput/x/Settings/DimmingMax</code> defines slider maximum value. 100 will be used if omitted.</li><li><code>/SwitchableOutput/x/Settings/StepSize</code> defines stepsize. Stepsize = 1°C if omitted.</li></ul></div>`,
+      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li><li><code>Temperature</code> &mdash; <tt>msg.payload</tt> contains the temperature value</li></ol></div>',
+      '/resources/@victronenergy/node-red-contrib-victron/docs/temp_setpoint.png'
+    ),
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED]: createDocTemplate(
+      '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds selected option.</li><li><code>/SwitchableOutput/output_1/Settings/DimmingMax</code> &mdash; defines the number of options. Mandatory for this type.</li></ul></div>',
+      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li><li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the stepped value</li></ol></div>',
+      '/resources/@victronenergy/node-red-contrib-victron/docs/stepped.png'
+    ),
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN]: createDocTemplate(
+      '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds selected option.</li><li><code>/SwitchableOutput/output_1/Settings/Labels</code> &mdash; defines the labels as a string array: <tt>[‘Label 1’, ‘Label 2’, ‘Label 3’]</tt>. Mandatory for this type.</li></ul></div>',
+      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>Selected</code> &mdash; <tt>msg.payload</tt> contains the index of the selected option (<tt>0</tt> for the first item in the list)</li></ol></div>',
+      '/resources/@victronenergy/node-red-contrib-victron/docs/dropdown.png'
+    ),
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.BASIC_SLIDER]: createDocTemplate(
+      '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/Value</code> &mdash; holds the current slider position.</li><li><code>/SwitchableOutput/output_1/Settings/Min</code> &mdash; defines slider minimum value. <tt>0</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/Max</code> &mdash; defines slider maximum value. <tt>100</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/StepSize</code> &mdash; defines stepsize. Stepsize = <tt>1</tt> if omitted.</li></ul></div>',
+      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li><li><code>Temperature</code> &mdash; <tt>msg.payload</tt> contains the temperature value</li></ol></div>',
+      '/resources/@victronenergy/node-red-contrib-victron/docs/basic_slider.png'
+    ),
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.NUMERIC_INPUT]: createDocTemplate(
+      '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/Value</code> &mdash; holds the current numeric value.</li><li><code>/SwitchableOutput/output_1/Settings/Min</code> &mdash; defines the minimum value. <tt>0</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/Max</code> &mdash; defines the maximum value. <tt>100</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/StepSize</code> &mdash; defines stepsize. Stepsize = <tt>1</tt> if omitted.</li></ul></div>',
+      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li><li><code>Temperature</code> &mdash; <tt>msg.payload</tt> contains the temperature value</li></ol></div>',
+      '/resources/@victronenergy/node-red-contrib-victron/docs/numeric_input.png'
+    ),
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.THREE_STATE]: createDocTemplate(
+      '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; holds the current state (e.g., Off, Auto, On).</li></ul></div>',
+      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains the current state</li></ol></div>',
+      '/resources/@victronenergy/node-red-contrib-victron/docs/three_state.png'
+    ),
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.BILGE_PUMP]: createDocTemplate(
+      '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li><li><code>/SwitchableOutput/output_1/Alarm</code> &mdash; Indicates if an alarm condition is present (e.g., high water level).</li><li><code>/SwitchableOutput/output_1/Measurement</code> &mdash; If supported by the connected device, this path may provide additional measurement data, such as water level percentage.</li></ul></div>',
+      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the pump</li></ol></div>',
+      '/resources/@victronenergy/node-red-contrib-victron/docs/bilge_pump.png'
+    )
   };
 
   function initializeSwitchTooltips () {
@@ -744,6 +618,7 @@
   window.checkGeneratorType = checkGeneratorType;
   window.SWITCH_TYPE_CONFIGS = SWITCH_TYPE_CONFIGS;
   window.SWITCH_OUTPUT_CONFIG = victronVirtualConstantsExports.SWITCH_OUTPUT_CONFIG;
+  window.SWITCH_SECOND_OUTPUT_LABEL = victronVirtualConstantsExports.SWITCH_SECOND_OUTPUT_LABEL;
   window.SWITCH_THIRD_OUTPUT_LABEL = victronVirtualConstantsExports.SWITCH_THIRD_OUTPUT_LABEL;
   window.renderSwitchConfigRow = renderSwitchConfigRow;
   window.updateSwitchConfig = updateSwitchConfig;
