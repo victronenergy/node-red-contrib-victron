@@ -92,18 +92,10 @@ export const SWITCH_TYPE_CONFIGS = {
     label: 'Bilge pump control',
     fields: [...COMMON_SWITCH_FIELDS]
   },
-  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: {
-    label: 'RGB Color Wheel',
+  [SWITCH_TYPE_MAP.RGB_CCT_CONTROL]: {
+    label: 'RGB CCT Control',
     fields: [...COMMON_SWITCH_FIELDS]
   },
-  [SWITCH_TYPE_MAP.CCT_WHEEL]: {
-    label: 'CCT Wheel',
-    fields: [...COMMON_SWITCH_FIELDS]
-  },
-  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL_WHITE_DIMMER]: {
-    label: 'RGB Color Wheel with White Dimmer',
-    fields: [...COMMON_SWITCH_FIELDS]
-  }
 }
 
 export const SWITCH_TYPE_DOCS = {
@@ -311,38 +303,17 @@ export const SWITCH_TYPE_DOCS = {
     `,
     img: '/resources/@victronenergy/node-red-contrib-victron/docs/bilge_pump.png'
   },
-  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: {
+  [SWITCH_TYPE_MAP.RGB_CCT_CONTROL]: {
     text: `
       <div>
         <strong>Most relevant path(s):</strong>
         <ul>
           <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel.</li>
+          <li><code>/SwitchableOutput/output_1/LightControls</code> &mdash; Controls for RGB and CCT lighting.</li>
         </ul>
       </div>
       `,
-    img: '/resources/@victronenergy/node-red-contrib-victron/docs/rgb_color_wheel.png'
-  },
-  [SWITCH_TYPE_MAP.CCT_WHEEL]: {
-    text: `
-      <div>
-        <strong>Most relevant path(s):</strong>
-        <ul>
-          <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel.</li>
-        </ul>
-      </div>
-      `,
-    img: '/resources/@victronenergy/node-red-contrib-victron/docs/cct_wheel.png'
-  },
-  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL_WHITE_DIMMER]: {
-    text: `
-      <div>
-        <strong>Most relevant path(s):</strong>
-        <ul>
-          <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel.</li>
-        </ul>
-      </div>
-      `,
-    img: '/resources/@victronenergy/node-red-contrib-victron/docs/rgb_color_wheel_white_dimmer.png'
+    img: '/resources/@victronenergy/node-red-contrib-victron/docs/rgb_cct_control.png'
   }
 }
 

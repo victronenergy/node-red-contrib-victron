@@ -18,9 +18,10 @@
   	  NUMERIC_INPUT: 8,
   	  THREE_STATE: 9,
   	  BILGE_PUMP: 10,
-  	  RGB_COLOR_WHEEL: 11,
-  	  CCT_WHEEL: 12,
-  	  RGB_COLOR_WHEEL_WHITE_DIMMER: 13
+  	  RGB_CCT_CONTROL: 11, // Used for RGB_COLOR_WHEEL, CCT_WHEEL, RGB_COLOR_WHEEL_WHITE_DIMMER, depending on which type is set
+  	  // RGB_COLOR_WHEEL: 11,
+  	  // CCT_WHEEL: 12,
+  	  // RGB_COLOR_WHEEL_WHITE_DIMMER: 13
   	};
 
   	const SWITCH_OUTPUT_CONFIG = {
@@ -34,9 +35,7 @@
   	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 3, // passthrough + state + numeric value
   	  [SWITCH_TYPE_MAP.THREE_STATE]: 2, // passthrough + state
   	  [SWITCH_TYPE_MAP.BILGE_PUMP]: 2, // passthrough + state
-  	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 3, // passthrough + state + light controls
-  	  [SWITCH_TYPE_MAP.CCT_WHEEL]: 3, // passthrough + state + light controls
-  	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL_WHITE_DIMMER]: 3 // passthrough + state + light controls
+  	  [SWITCH_TYPE_MAP.RGB_CCT_CONTROL]: 2, // passthrough + state + light controls
   	};
 
   	// Output labels configuration: third label varies by switch type
@@ -46,9 +45,7 @@
   	  [SWITCH_TYPE_MAP.STEPPED]: 'Value',
   	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Value',
   	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Value',
-  	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 'Light controls',
-  	  [SWITCH_TYPE_MAP.CCT_WHEEL]: 'Light controls',
-  	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL_WHITE_DIMMER]: 'Light controls'
+  	  [SWITCH_TYPE_MAP.RGB_CCT_CONTROL]: 'Light controls'
   	};
 
   	victronVirtualConstants = {
@@ -143,18 +140,10 @@
       label: 'Bilge pump control',
       fields: [...COMMON_SWITCH_FIELDS]
     },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: {
-      label: 'RGB Color Wheel',
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.RGB_CCT_CONTROL]: {
+      label: 'RGB CCT Control',
       fields: [...COMMON_SWITCH_FIELDS]
     },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.CCT_WHEEL]: {
-      label: 'CCT Wheel',
-      fields: [...COMMON_SWITCH_FIELDS]
-    },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.RGB_COLOR_WHEEL_WHITE_DIMMER]: {
-      label: 'RGB Color Wheel with White Dimmer',
-      fields: [...COMMON_SWITCH_FIELDS]
-    }
   };
 
   const SWITCH_TYPE_DOCS = {
@@ -362,38 +351,17 @@
     `,
       img: '/resources/@victronenergy/node-red-contrib-victron/docs/bilge_pump.png'
     },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: {
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.RGB_CCT_CONTROL]: {
       text: `
       <div>
         <strong>Most relevant path(s):</strong>
         <ul>
           <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel.</li>
+          <li><code>/SwitchableOutput/output_1/LightControls</code> &mdash; Controls for RGB and CCT lighting.</li>
         </ul>
       </div>
       `,
-      img: '/resources/@victronenergy/node-red-contrib-victron/docs/rgb_color_wheel.png'
-    },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.CCT_WHEEL]: {
-      text: `
-      <div>
-        <strong>Most relevant path(s):</strong>
-        <ul>
-          <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel.</li>
-        </ul>
-      </div>
-      `,
-      img: '/resources/@victronenergy/node-red-contrib-victron/docs/cct_wheel.png'
-    },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.RGB_COLOR_WHEEL_WHITE_DIMMER]: {
-      text: `
-      <div>
-        <strong>Most relevant path(s):</strong>
-        <ul>
-          <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel.</li>
-        </ul>
-      </div>
-      `,
-      img: '/resources/@victronenergy/node-red-contrib-victron/docs/rgb_color_wheel_white_dimmer.png'
+      img: '/resources/@victronenergy/node-red-contrib-victron/docs/rgb_cct_control.png'
     }
   };
 
