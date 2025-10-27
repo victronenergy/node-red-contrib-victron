@@ -370,7 +370,7 @@ module.exports = function (RED) {
 
       // Now do validation with more helpful messages
       if (!msg || !msg.payload) {
-        node.warn('Received message without payload. Expected: JSON object with {path: value} pairs.')
+        node.warn('Received message without payload. Expected: JavaScript object with at least one property/value.')
         node.status({
           fill: 'yellow',
           shape: 'ring',
@@ -383,7 +383,7 @@ module.exports = function (RED) {
       // Check if payload is an object
       if (typeof msg.payload !== 'object' || msg.payload === null || Array.isArray(msg.payload)) {
         const receivedType = Array.isArray(msg.payload) ? 'array' : typeof msg.payload
-        node.warn(`Invalid payload type: ${receivedType}. Expected: JSON object with {path: value} pairs.`)
+        node.warn(`Invalid payload type: ${receivedType}. Expected: JavaScript object with at least one property/value.`)
         node.status({
           fill: 'yellow',
           shape: 'ring',
@@ -395,7 +395,7 @@ module.exports = function (RED) {
 
       // Check if object is empty
       if (Object.keys(msg.payload).length === 0) {
-        node.warn('Received empty object. Expected: JSON object with {path: value} pairs.')
+        node.warn('Received empty object. Expected: JavaScript object with at least one property/value.')
         node.status({
           fill: 'yellow',
           shape: 'ring',
@@ -436,7 +436,7 @@ module.exports = function (RED) {
         })
         done()
       } catch (err) {
-        node.error(`Failed to set values: ${err.message}. Expected: JSON object with {path: value} pairs.`, msg)
+        node.error(`Failed to set values: ${err.message}. Expected: JavaScript object with at least one property/value.`, msg)
         node.status({
           fill: 'red',
           shape: 'dot',

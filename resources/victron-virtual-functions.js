@@ -144,7 +144,7 @@
 
   const INPUT_DOCS = `
   <div>
-    <strong>Input:</strong><ol><li>JSON object with <code>{path: value}</code> or <code>{path1: value1, path2: value2}</code> pairs.</li></ol>
+    <strong>Input:</strong><ol><li>JavaScript object with at least one property/value. E.g. <code>{path: value}</code> or <code>{path1: value1, path2: value2}</code> pairs.</li></ol>
   </div>
 `;
 
