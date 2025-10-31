@@ -1667,7 +1667,7 @@
       {
         "path": "/Settings/DynamicEss/OperatingMode",
         "type": "enum",
-        "name": "Dynamic ESS mode",
+        "name": "Dynamic ESS operating mode",
         "enum": {
           "0": "Trade mode",
           "1": "Green mode"

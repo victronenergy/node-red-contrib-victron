@@ -6,6 +6,7 @@ const debugInput = require('debug')('victron-virtual:input')
 const debugConnection = require('debug')('victron-virtual:connection')
 const {
   SWITCH_TYPE_MAP,
+  SWITCH_SECOND_OUTPUT_LABEL,
   SWITCH_THIRD_OUTPUT_LABEL
 } = require('./victron-virtual-constants')
 
@@ -1288,29 +1289,22 @@ module.exports = function (RED) {
           // Output 1: null (no passthrough on ItemsChanged)
           outputMsgs[0] = null
 
+          const secondOutputLabel = SWITCH_SECOND_OUTPUT_LABEL[switchType] || 'State'
+
           // Handle output 2 based on switch type
           if (config.outputs >= 2) {
-            // Check if this switch type has a special second output label
-            const hasSpecialSecondOutput = [
-              SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT,
-              SWITCH_TYPE_MAP.DROPDOWN,
-              SWITCH_TYPE_MAP.BASIC_SLIDER
-            ].includes(switchType)
+            // Check if this is a switch type with special second output (not "State")
+            const hasSpecialSecondOutput = SWITCH_SECOND_OUTPUT_LABEL[switchType] !== undefined
 
-            if (hasSpecialSecondOutput) {
-              // These switches don't have "State" - their second output is the value
+            if (hasSpecialSecondOutput && secondOutputLabel !== 'State') {
+              // These switches (Temperature, Dropdown, Basic Slider) output their value directly
               if (propName === 'SwitchableOutput/output_1/Dimming') {
                 if (node.lastSentValues.Dimming !== propValue) {
                   node.lastSentValues.Dimming = propValue
-
-                  let topicLabel = 'value'
-                  if (switchType === SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) topicLabel = 'temperature'
-                  else if (switchType === SWITCH_TYPE_MAP.DROPDOWN) topicLabel = 'selected'
-                  else if (switchType === SWITCH_TYPE_MAP.BASIC_SLIDER) topicLabel = 'value'
-
+                  const topicSuffix = secondOutputLabel.toLowerCase()
                   outputMsgs[1] = {
-                    payload: propValue,
-                    topic: `${node.name || 'Virtual ' + config.device}/${topicLabel}`,
+                    payload: Number(propValue),
+                    topic: `${node.name || 'Virtual ' + config.device}/${topicSuffix}`,
                     path: '/SwitchableOutput/output_1/Dimming'
                   }
                   hasChanges = true

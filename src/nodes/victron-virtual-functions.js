@@ -135,7 +135,7 @@ export const SWITCH_TYPE_DOCS = {
     `<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds slider value in °C.</li><li><code>/SwitchableOutput/output_1/Measurement</code> &mdash; holds temperature measurement, if available.<br>
       <span style="font-size:0.95em;color:#666;">If present, the actual value will be displayed on the control.</span>
     </li><li><code>/SwitchableOutput/x/Settings/DimmingMin</code> defines slider minimum value. 0 will be used if omitted.</li><li><code>/SwitchableOutput/x/Settings/DimmingMax</code> defines slider maximum value. 100 will be used if omitted.</li><li><code>/SwitchableOutput/x/Settings/StepSize</code> defines stepsize. Stepsize = 1°C if omitted.</li></ul></div>`,
-    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li><li><code>Temperature</code> &mdash; <tt>msg.payload</tt> contains the temperature value</li></ol></div>',
+    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>Temperature</code> &mdash; <tt>msg.payload</tt> contains the temperature value</li></ol></div>',
     '/resources/@victronenergy/node-red-contrib-victron/docs/temp_setpoint.png'
   ),
   [SWITCH_TYPE_MAP.STEPPED]: createDocTemplate(
@@ -144,18 +144,18 @@ export const SWITCH_TYPE_DOCS = {
     '/resources/@victronenergy/node-red-contrib-victron/docs/stepped.png'
   ),
   [SWITCH_TYPE_MAP.DROPDOWN]: createDocTemplate(
-    '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds selected option.</li><li><code>/SwitchableOutput/output_1/Settings/Labels</code> &mdash; defines the labels as a string array: <tt>[‘Label 1’, ‘Label 2’, ‘Label 3’]</tt>. Mandatory for this type.</li></ul></div>',
+    '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds selected option.</li><li><code>/SwitchableOutput/output_1/Settings/Labels</code> &mdash; defines the labels as a string array: <tt>[\'Label 1\', \'Label 2\', \'Label 3\']</tt>. Mandatory for this type.</li></ul></div>',
     '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>Selected</code> &mdash; <tt>msg.payload</tt> contains the index of the selected option (<tt>0</tt> for the first item in the list)</li></ol></div>',
     '/resources/@victronenergy/node-red-contrib-victron/docs/dropdown.png'
   ),
   [SWITCH_TYPE_MAP.BASIC_SLIDER]: createDocTemplate(
     '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/Value</code> &mdash; holds the current slider position.</li><li><code>/SwitchableOutput/output_1/Settings/Min</code> &mdash; defines slider minimum value. <tt>0</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/Max</code> &mdash; defines slider maximum value. <tt>100</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/StepSize</code> &mdash; defines stepsize. Stepsize = <tt>1</tt> if omitted.</li></ul></div>',
-    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li><li><code>Temperature</code> &mdash; <tt>msg.payload</tt> contains the temperature value</li></ol></div>',
+    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the slider value</li></ol></div>',
     '/resources/@victronenergy/node-red-contrib-victron/docs/basic_slider.png'
   ),
   [SWITCH_TYPE_MAP.NUMERIC_INPUT]: createDocTemplate(
     '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/Value</code> &mdash; holds the current numeric value.</li><li><code>/SwitchableOutput/output_1/Settings/Min</code> &mdash; defines the minimum value. <tt>0</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/Max</code> &mdash; defines the maximum value. <tt>100</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/StepSize</code> &mdash; defines stepsize. Stepsize = <tt>1</tt> if omitted.</li></ul></div>',
-    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li><li><code>Temperature</code> &mdash; <tt>msg.payload</tt> contains the temperature value</li></ol></div>',
+    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li><li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the numeric value</li></ol></div>',
     '/resources/@victronenergy/node-red-contrib-victron/docs/numeric_input.png'
   ),
   [SWITCH_TYPE_MAP.THREE_STATE]: createDocTemplate(
@@ -579,13 +579,13 @@ export function getOutputLabels (context = {}) {
 
   if (context.device === 'switch') {
     const switchType = Number(context.switch_1_type || 1)
+    const outputCount = SWITCH_OUTPUT_CONFIG[switchType] || 2
 
     // Second output label
     const secondLabel = SWITCH_SECOND_OUTPUT_LABEL[switchType] || 'State'
     labels.push(secondLabel)
 
     // Third output label (only if switch has 3 outputs)
-    const outputCount = SWITCH_OUTPUT_CONFIG[switchType] || 2
     if (outputCount >= 3) {
       const thirdLabel = SWITCH_THIRD_OUTPUT_LABEL[switchType] || 'Value'
       labels.push(thirdLabel)

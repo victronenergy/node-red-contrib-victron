@@ -41,7 +41,7 @@ describe('calculateOutputs', () => {
       expect(calculateOutputs('switch', config)).toBe(3)
     })
 
-    test('temperature setpoint switch has 2 outputs (passthrough + temperature)', () => {
+    test('temperature setpoint switch has 2 outputs (passthrough + temperature, NO state)', () => {
       const config = { switch_1_type: String(SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) }
       expect(calculateOutputs('switch', config)).toBe(2)
     })
@@ -148,9 +148,9 @@ describe('getOutputLabels', () => {
       expect(getOutputLabels(context)).toEqual(['Passthrough', 'State', 'Dimming'])
     })
 
-    test('temperature setpoint has passthrough and temperature labels', () => {
+    test('temperature setpoint has passthrough and temperature labels (NO state)', () => {
       const context = { device: 'switch', switch_1_type: String(SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) }
-      expect(getOutputLabels(context)).toEqual(['Passthrough', 'Temperature']) // Removed 'State'
+      expect(getOutputLabels(context)).toEqual(['Passthrough', 'Temperature'])
     })
 
     test('stepped switch has passthrough, state, and value labels', () => {

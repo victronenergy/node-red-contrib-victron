@@ -24,14 +24,13 @@ const SWITCH_OUTPUT_CONFIG = {
   [SWITCH_TYPE_MAP.BILGE_PUMP]: 2 // passthrough + state
 }
 
+// Will default to 'State' if not defined here
 const SWITCH_SECOND_OUTPUT_LABEL = {
   [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'Temperature',
   [SWITCH_TYPE_MAP.DROPDOWN]: 'Selected',
   [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Value'
-  // All other switch types use 'State' as default
 }
 
-// Output labels configuration: third label varies by switch type
 const SWITCH_THIRD_OUTPUT_LABEL = {
   [SWITCH_TYPE_MAP.DIMMABLE]: 'Dimming',
   [SWITCH_TYPE_MAP.STEPPED]: 'Value',
