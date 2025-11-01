@@ -842,8 +842,8 @@ module.exports = function (RED) {
               { name: 'State', type: 'i', format: (v) => ({ 0: 'Off', 1: 'On' }[v] || 'unknown'), persist: true },
               { name: 'Status', type: 'i', format: (v) => v != null ? v : '' },
               { name: 'Name', type: 's', persist: true },
-              { name: 'Settings/Group', type: 's', value: '', persist: true },
-              { name: 'Settings/CustomName', type: 's', value: '', persist: true },
+              { name: 'Settings/Group', type: 's', value: '', persist: false },
+              { name: 'Settings/CustomName', type: 's', value: '', persist: false },
               {
                 name: 'Settings/Type',
                 type: 'i',
