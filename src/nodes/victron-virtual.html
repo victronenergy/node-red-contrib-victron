@@ -43,6 +43,11 @@
             switch_1_customname: {value: "", required: false},
             switch_1_group: {value: "", required: false},
             switch_1_include_measurement: {value: false, required: false},
+            // RGB control
+            switch_1_rgb_color_wheel: {value: false, required: false},
+            switch_1_cct_wheel: {value: false, required: false},
+            switch_1_rgb_white_dimmer: {value: false, required: false},
+            // RGB control uses switch_1_min and switch_1_step (already defined above)
             // tank
             fluid_type: { value: 0, required: false},
             include_tank_battery: { value: false },
@@ -88,12 +93,15 @@
             const thirdLabels = {
                 2: 'Dimming',      // DIMMABLE
                 4: 'Value',        // STEPPED
-                8: 'Value'         // NUMERIC_INPUT
+                8: 'Value',        // NUMERIC_INPUT
+                11: 'LightControls', // RGB_COLOR_WHEEL
+                12: 'LightControls', // CCT_WHEEL
+                13: 'LightControls'  // RGB_WHITE_DIMMER
             }
 
             // Output count map
             const outputCounts = {
-                0: 2, 1: 2, 2: 3, 3: 2, 4: 3, 6: 2, 7: 2, 8: 3, 9: 2, 10: 2
+                0: 2, 1: 2, 2: 3, 3: 2, 4: 3, 6: 2, 7: 2, 8: 3, 9: 2, 10: 2, 11: 3, 12: 3, 13: 3
             }
 
             if (index === 0) return 'Passthrough'
@@ -172,6 +180,13 @@
                     // For type 7 (basic slider), save unit field
                     if (type === 7) {
                         this[`switch_1_unit`] = $(`#node-input-switch_1_unit`).val();
+                    }
+
+                    // For RGB control types (11, 12, 13), save checkbox states
+                    if (type === 11) {
+                        this[`switch_1_rgb_color_wheel`] = $(`#node-input-switch_1_rgb_color_wheel`).is(':checked');
+                        this[`switch_1_cct_wheel`] = $(`#node-input-switch_1_cct_wheel`).is(':checked');
+                        this[`switch_1_rgb_white_dimmer`] = $(`#node-input-switch_1_rgb_white_dimmer`).is(':checked');
                     }
 
                     // Clear any previously set config fields for other types

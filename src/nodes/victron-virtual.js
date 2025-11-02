@@ -6,9 +6,12 @@ const debugInput = require('debug')('victron-virtual:input')
 const debugConnection = require('debug')('victron-virtual:connection')
 const {
   SWITCH_TYPE_MAP,
+  SWITCH_TYPE_NAMES,
+  SWITCH_TYPE_BITMASK_NAMES,
   SWITCH_SECOND_OUTPUT_LABEL,
   SWITCH_THIRD_OUTPUT_LABEL
 } = require('./victron-virtual-constants')
+const { hsbToRgb } = require('../services/color-utils')
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('=== UNHANDLED REJECTION (PREVENTING CRASH) ===')
@@ -842,26 +845,15 @@ module.exports = function (RED) {
               { name: 'State', type: 'i', format: (v) => ({ 0: 'Off', 1: 'On' }[v] || 'unknown'), persist: true },
               { name: 'Status', type: 'i', format: (v) => v != null ? v : '' },
               { name: 'Name', type: 's', persist: true },
-              { name: 'Settings/Group', type: 's', value: '', persist: true },
-              { name: 'Settings/CustomName', type: 's', value: '', persist: true },
+              { name: 'Settings/Group', type: 's', value: '', persist: false },
+              { name: 'Settings/CustomName', type: 's', value: '', persist: false },
               {
                 name: 'Settings/Type',
                 type: 'i',
-                format: (v) => ({
-                  0: 'Momentary',
-                  1: 'Toggle',
-                  2: 'Dimmable',
-                  3: 'Temperature setpoint',
-                  4: 'Stepped switch',
-                  6: 'Dropdown',
-                  7: 'Basic slider',
-                  8: 'Numeric input',
-                  9: 'Three-state',
-                  10: 'Bilge pump control'
-                }[v] || 'unknown'),
+                format: (v) => SWITCH_TYPE_NAMES[v] || 'unknown',
                 persist: false
               },
-              { name: 'Settings/ValidTypes', type: 'i', value: 0x7 },
+              { name: 'Settings/ValidTypes', type: 'i', value: 0 }, // Placeholder, overridden per switch type
               { name: 'Settings/ShowUIControl', type: 'i', value: 1, persist: true }
             ]
 
@@ -887,7 +879,7 @@ module.exports = function (RED) {
 
               if (name === 'Settings/ValidTypes') {
                 // Only allow the currently selected switch type in the GUI.
-                // This sets /ValidTypes to a bitmask with only the current type allowed.
+                // This sets /Settings/ValidTypes to a bitmask with only the current type allowed.
                 // Example: If switchType is 2, then 1 << 2 = 4, so only type 2 is valid.
                 iface[switchableOutputPropertyKey] = 1 << switchType
               }
@@ -996,8 +988,7 @@ module.exports = function (RED) {
               // Set type to 6 for dropdown
               ifaceDesc.properties[typeKey] = {
                 type: 'i',
-                format: (v) => v,
-                persist: true
+                format: (v) => v
               }
               iface[typeKey] = 6
 
@@ -1080,6 +1071,72 @@ module.exports = function (RED) {
               iface[autoKey] = 0
             }
 
+            if (switchType === SWITCH_TYPE_MAP.RGB_COLOR_WHEEL ||
+                switchType === SWITCH_TYPE_MAP.CCT_WHEEL ||
+                switchType === SWITCH_TYPE_MAP.RGB_WHITE_DIMMER) {
+              // LightControls is an array containing [Hue(0-360°), Saturation(0-100%), Brightness(0-100%), White(0-100%), ColorTemperature(0-6500K)]
+              // All types use the full 5-element array
+              const lightControlKey = 'SwitchableOutput/output_1/LightControls'
+              ifaceDesc.properties[lightControlKey] = {
+                type: 'ad', // array of doubles
+                format: (v) => {
+                  if (Array.isArray(v) && v.length >= 5) {
+                    if (switchType === SWITCH_TYPE_MAP.RGB_COLOR_WHEEL) {
+                      return `H:${v[0]}° S:${v[1]}% B:${v[2]}%`
+                    } else if (switchType === SWITCH_TYPE_MAP.CCT_WHEEL) {
+                      return `B:${v[2]}% CT:${v[4]}K`
+                    } else if (switchType === SWITCH_TYPE_MAP.RGB_WHITE_DIMMER) {
+                      return `H:${v[0]}° S:${v[1]}% B:${v[2]}% W:${v[3]}%`
+                    }
+                  }
+                  return String(v) || ''
+                },
+                persist: true
+              }
+              iface[lightControlKey] = [0, 0, 0, 0, 0] // Default: all zeros
+
+              // Calculate ValidTypes based on selected checkboxes
+              const validTypesKey = 'SwitchableOutput/output_1/Settings/ValidTypes'
+              let validTypes = 0
+              if (config.switch_1_rgb_color_wheel) validTypes |= (1 << SWITCH_TYPE_MAP.RGB_COLOR_WHEEL)
+              if (config.switch_1_cct_wheel) validTypes |= (1 << SWITCH_TYPE_MAP.CCT_WHEEL)
+              if (config.switch_1_rgb_white_dimmer) validTypes |= (1 << SWITCH_TYPE_MAP.RGB_WHITE_DIMMER)
+
+              // Determine the initial RGB type - use first enabled type
+              // Default to RGB_COLOR_WHEEL if nothing is selected (and enable it in ValidTypes)
+              let rgbSwitchType = SWITCH_TYPE_MAP.RGB_COLOR_WHEEL
+              if (config.switch_1_rgb_color_wheel) {
+                rgbSwitchType = SWITCH_TYPE_MAP.RGB_COLOR_WHEEL
+              } else if (config.switch_1_cct_wheel) {
+                rgbSwitchType = SWITCH_TYPE_MAP.CCT_WHEEL
+              } else if (config.switch_1_rgb_white_dimmer) {
+                rgbSwitchType = SWITCH_TYPE_MAP.RGB_WHITE_DIMMER
+              } else {
+                // If no checkboxes selected, default to RGB_COLOR_WHEEL and add it to ValidTypes
+                validTypes |= (1 << SWITCH_TYPE_MAP.RGB_COLOR_WHEEL)
+              }
+
+              // Override the Settings/Type to match the first enabled RGB type
+              const typeKey = 'SwitchableOutput/output_1/Settings/Type'
+              iface[typeKey] = rgbSwitchType
+
+              // Add ValidTypes property definition with formatter
+              ifaceDesc.properties[validTypesKey] = {
+                type: 'i',
+                format: (v) => {
+                  if (v == null || v === 0) return 'None'
+                  const names = []
+                  for (const [bitPosition, name] of Object.entries(SWITCH_TYPE_BITMASK_NAMES)) {
+                    if (v & (1 << bitPosition)) {
+                      names.push(name)
+                    }
+                  }
+                  return names.length > 0 ? names.join(', ') : 'None'
+                }
+              }
+              iface[validTypesKey] = validTypes
+            }
+
             const switchTypeLabels = {
               [SWITCH_TYPE_MAP.MOMENTARY]: 'Momentary',
               [SWITCH_TYPE_MAP.TOGGLE]: 'Toggle',
@@ -1090,7 +1147,10 @@ module.exports = function (RED) {
               [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Basic slider',
               [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Numeric input',
               [SWITCH_TYPE_MAP.THREE_STATE]: 'Three-state',
-              [SWITCH_TYPE_MAP.BILGE_PUMP]: 'Bilge pump'
+              [SWITCH_TYPE_MAP.BILGE_PUMP]: 'Bilge pump',
+              [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 'RGB control',
+              [SWITCH_TYPE_MAP.CCT_WHEEL]: 'RGB control',
+              [SWITCH_TYPE_MAP.RGB_WHITE_DIMMER]: 'RGB control'
             }
             const typeLabel = switchTypeLabels[switchType] || 'Switch'
 
@@ -1332,7 +1392,7 @@ module.exports = function (RED) {
 
           // Handle output 3 (only for 3-output switches)
           if (config.outputs >= 3) {
-            // Only dimmable, stepped, and numeric input have 3 outputs
+            // Handle Dimming for dimmable, stepped, and numeric input switches
             if (propName === 'SwitchableOutput/output_1/Dimming') {
               if (node.lastSentValues.Dimming !== propValue) {
                 node.lastSentValues.Dimming = propValue
@@ -1343,6 +1403,32 @@ module.exports = function (RED) {
                   payload: propValue,
                   topic: `${node.name || 'Virtual ' + config.device}/${topicLabel.toLowerCase()}`,
                   path: '/SwitchableOutput/output_1/Dimming'
+                }
+                hasChanges = true
+              }
+            } else if (propName === 'SwitchableOutput/output_1/LightControls') {
+              // Handle LightControls for RGB control types
+              // propValue is already an array of doubles from D-Bus
+              const currentValue = JSON.stringify(node.lastSentValues.LightControls)
+              const newValue = JSON.stringify(propValue)
+
+              if (currentValue !== newValue) {
+                node.lastSentValues.LightControls = propValue
+
+                const topicLabel = SWITCH_THIRD_OUTPUT_LABEL[switchType] || 'lightcontrols'
+
+                // Convert HSB to RGB for convenience
+                const [hue, saturation, brightness, white, colorTemp] = propValue
+                const rgb = hsbToRgb(hue, saturation, brightness)
+
+                outputMsgs[2] = {
+                  payload: propValue, // Send the array directly
+                  topic: `${node.name || 'Virtual ' + config.device}/${topicLabel.toLowerCase()}`,
+                  path: '/SwitchableOutput/output_1/LightControls',
+                  rgb, // RGB as #RRGGBB string
+                  hsb: { hue, saturation, brightness }, // HSB object
+                  white, // White level (0-100%)
+                  colorTemperature: colorTemp // Color temperature in Kelvin
                 }
                 hasChanges = true
               }
