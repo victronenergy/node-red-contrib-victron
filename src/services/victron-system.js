@@ -51,10 +51,9 @@ class SystemConfiguration {
                 (expandedPathObj.path !== '/Ac/In/1/CurrentLimit' || _.get(cachedPaths, '/Ac/In/1/CurrentLimitIsAdjustable', 1)) &&
                 (expandedPathObj.path !== '/Ac/In/2/CurrentLimit' || _.get(cachedPaths, '/Ac/In/2/CurrentLimitIsAdjustable', 1))
               )) &&
-              (!expandedPathObj.mode ||
-              expandedPathObj.mode === 'both' ||
+              (expandedPathObj.mode === 'both' ||
               (isOutput && expandedPathObj.mode === 'output') ||
-              (!isOutput && expandedPathObj.mode === 'input'))
+              (!isOutput && (expandedPathObj.mode === 'input' || !expandedPathObj.mode)))
             )
 
             return pathAcc.concat(filtered)
