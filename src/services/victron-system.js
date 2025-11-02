@@ -60,7 +60,7 @@ class SystemConfiguration {
             return pathAcc.concat(filtered)
           }, [])
 
-          expandedPaths.sort((a, b) => a.name > b.name ? 1 : -1)
+          expandedPaths.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
 
           const deviceInstance = cachedPaths['/DeviceInstance'] || ''
           if (expandedPaths.length) {
