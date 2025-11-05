@@ -52,6 +52,9 @@ module.exports = function (RED) {
       this.defaulttopic = nodeDefinition.serviceObj.name + ' - ' + nodeDefinition.pathObj.name
       this.onlyChanges = nodeDefinition.onlyChanges
       this.roundValues = nodeDefinition.roundValues
+      this.rateLimit = nodeDefinition.rateLimit || 0
+      this.throttleMs = this.rateLimit > 0 ? Math.floor(1000 / this.rateLimit) : 0
+      this.lastSentTime = 0
       this.sentInitialValue = false
 
       this.configNode = RED.nodes.getNode('victron-client-id')
@@ -79,6 +82,11 @@ module.exports = function (RED) {
         const isPollingEnabled = this.configNode.enablePolling || false
         const callbackPeriodically = !this.node.onlyChanges && !isPollingEnabled
         this.subscription = this.client.subscribe(this.service, this.path, (msg) => {
+          const now = Date.now()
+          if (this.node.throttleMs > 0 && this.sentInitialValue && (now - this.node.lastSentTime) < this.node.throttleMs) {
+            return
+          }
+
           let topic = this.defaulttopic
           if (this.node.name) {
             topic = this.node.name
@@ -115,6 +123,7 @@ module.exports = function (RED) {
             text = `${msg.value} (${this.node.pathObj.enum[msg.value]})`
           }
           this.node.send(outmsg)
+          this.node.lastSentTime = now
           if (this.configNode.showValues !== false) {
             // node-red will call toString(), without checking if it exists. If the value is null,
             // node-red will crash trying to call toString(),
