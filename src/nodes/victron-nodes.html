@@ -70,7 +70,22 @@
             <label style="min-width:190px" for="node-input-onlyChanges"><i class="fa fa-bell"></i>Only changes</label>
             <input type="checkbox" checked id="node-input-onlyChanges" style="max-width:30px">
             <div class="info-text">
-                Only send output on (initially not rounded) value changes and not every 5 seconds. 
+                Only send output on (initially not rounded) value changes and not every 5 seconds.
+            </div>
+        </div>
+        <div class="form-row hidden" id="rateLimit">
+            <label style="min-width:190px" for="node-input-rateLimit"><i class="fa fa-tachometer"></i>Rate limit</label>
+            <select id="node-input-rateLimit">
+                <option value="0">No limit</option>
+                <option value="10">10 msg/sec</option>
+                <option value="5">5 msg/sec</option>
+                <option value="2">2 msg/sec</option>
+                <option value="1">1 msg/sec</option>
+                <option value="0.5">1 msg per 2 sec</option>
+                <option value="0.2">1 msg per 5 sec</option>
+            </select>
+            <div class="info-text">
+                Limit the maximum rate of messages. Useful for high-frequency measurements like grid meters. Most measurements don't need rate limiting.
             </div>
         </div>
     </div>
@@ -348,6 +363,7 @@
                     $('#node-input-onlyChanges').removeAttr("checked");
                 }
                 $('#onlyChanges').show()
+                $('#rateLimit').show()
             }
         }).fail(function (jqXHR, textStatus, errorThrown) {
             $('#initial-row').hide();
@@ -450,7 +466,8 @@
                 initial: { value: undefined },
                 name: { value: "" },
                 "onlyChanges": { value: false },
-                "roundValues": { value: undefined }
+                "roundValues": { value: undefined },
+                "rateLimit": { value: 0 }
             },
             color: isCustomNode ? "#f7ab3e" : "#4790d0",
             inputs: isOutputNode ? 1 : 0,
