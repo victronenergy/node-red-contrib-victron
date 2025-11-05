@@ -113,6 +113,8 @@
             return 'Output ' + (index + 1)
         },
         oneditprepare: function oneditprepare() {
+            const { checkSelectedVirtualDevice, updateOutputs } = window.__victron;
+
             if (this.id && this.changed === false) {
                 $('#node-input-device')
                     .prop('disabled', true)
@@ -125,12 +127,14 @@
                 this.device = v.target.value
                 updateOutputs(this);
             });
-            
+
             // Initialize outputs on load
             updateOutputs(this);
             checkSelectedVirtualDevice(this);
         },
         oneditsave: function() {
+            const { validateSwitchConfig, SWITCH_TYPE_CONFIGS, updateOutputs } = window.__victron;
+
             if (this.device === 'switch') {
                 // Validate required fields before saving
                 if (typeof validateSwitchConfig === 'function' && !validateSwitchConfig()) {
@@ -251,7 +255,7 @@
     <div class="input-generator">
         <div class="form-row">
             <label for="node-input-generator_type"><i class="fa fa-cog"></i> Generator type</label>
-            <select id="node-input-generator_type" onchange="checkGeneratorType()">
+            <select id="node-input-generator_type" onchange="window.__victron.checkGeneratorType()">
                 <option value="ac">AC Generator (genset)</option>
                 <option value="dc">DC Generator (dcgenset)</option>
             </select>
