@@ -862,14 +862,29 @@ module.exports = function (RED) {
                 persist: false
               },
               { name: 'Settings/ValidTypes', type: 'i', value: 0x7 },
-              { name: 'Settings/ShowUIControl', type: 'i', value: 1, persist: true }
+              {
+                name: 'Settings/ShowUIControl',
+                type: 'i',
+                value: 1,
+                min: 0,
+                max: 6,
+                persist: true,
+                format: (v) => {
+                  if (v === 0) return 'Hidden'
+                  const parts = []
+                  if (v & 0b001) parts.push('All UIs')
+                  if (v & 0b010) parts.push('Local UI')
+                  if (v & 0b100) parts.push('Remote UIs')
+                  return parts.length > 0 ? parts.join(' + ') : 'Hidden'
+                }
+              }
             ]
 
             const switchType = Number(config.switch_1_type ?? 1)
 
-            baseProperties.forEach(({ name, type, value, format, persist }) => {
+            baseProperties.forEach(({ name, type, value, format, persist, min, max }) => {
               const switchableOutputPropertyKey = `SwitchableOutput/output_1/${name}`
-              ifaceDesc.properties[switchableOutputPropertyKey] = { type, format, persist }
+              ifaceDesc.properties[switchableOutputPropertyKey] = { type, format, persist, min, max }
 
               let propValue = value
               if (name === 'Name') {
