@@ -37,9 +37,13 @@ const SWITCH_THIRD_OUTPUT_LABEL = {
   [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Value'
 }
 
+// Default debounce delay for virtual device property writes (in milliseconds)
+const DEBOUNCE_DELAY_MS = 300
+
 module.exports = {
   SWITCH_TYPE_MAP,
   SWITCH_OUTPUT_CONFIG,
   SWITCH_SECOND_OUTPUT_LABEL,
-  SWITCH_THIRD_OUTPUT_LABEL
+  SWITCH_THIRD_OUTPUT_LABEL,
+  DEBOUNCE_DELAY_MS
 }

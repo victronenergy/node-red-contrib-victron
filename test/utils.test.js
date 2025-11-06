@@ -1,4 +1,4 @@
-const { mapCacheToJsonResponse, mapCacheValueToJsonResponseValue } = require('../src/services/utils');
+const { mapCacheToJsonResponse, mapCacheValueToJsonResponseValue, debounce } = require('../src/services/utils');
 
 describe('utils', () => {
 
@@ -101,6 +101,97 @@ describe('utils', () => {
       const func = function() { return 'test'; };
       expect(mapCacheValueToJsonResponseValue(func)).toBe(func.toString());
     });
+
+  })
+
+  describe('debounce', () => {
+
+    beforeEach(() => {
+      jest.useFakeTimers()
+    })
+
+    afterEach(() => {
+      jest.useRealTimers()
+    })
+
+    it('delays function execution until after the specified delay', () => {
+      const func = jest.fn()
+      const debounced = debounce(func, 300)
+
+      debounced(1)
+      expect(func).toHaveBeenCalledTimes(0)
+
+      jest.advanceTimersByTime(200)
+      expect(func).toHaveBeenCalledTimes(0)
+
+      jest.advanceTimersByTime(100)
+      expect(func).toHaveBeenCalledTimes(1)
+      expect(func).toHaveBeenCalledWith(1)
+    })
+
+    it('resets the timer on each new call', () => {
+      const func = jest.fn()
+      const debounced = debounce(func, 300)
+
+      debounced(1)
+      jest.advanceTimersByTime(150)
+
+      debounced(2)
+      jest.advanceTimersByTime(150)
+
+      expect(func).not.toHaveBeenCalled()
+
+      jest.advanceTimersByTime(150)
+
+      expect(func).toHaveBeenCalledTimes(1)
+      expect(func).toHaveBeenCalledWith(2)
+    })
+
+    it('uses only the last call\'s arguments', () => {
+      const func = jest.fn()
+      const debounced = debounce(func, 300)
+
+      debounced(1)
+      debounced(2)
+      debounced(3)
+
+      jest.advanceTimersByTime(300)
+
+      expect(func).toHaveBeenCalledTimes(1)
+      expect(func).toHaveBeenCalledWith(3)
+    })
+
+    it('allows subsequent calls after delay expires', () => {
+      const func = jest.fn()
+      const debounced = debounce(func, 300)
+
+      debounced(1)
+      jest.advanceTimersByTime(300)
+
+      expect(func).toHaveBeenCalledTimes(1)
+      expect(func).toHaveBeenCalledWith(1)
+
+      debounced(2)
+      jest.advanceTimersByTime(300)
+
+      expect(func).toHaveBeenCalledTimes(2)
+      expect(func).toHaveBeenCalledWith(2)
+    })
+
+    it('preserves this context', () => {
+      const context = { value: 42 }
+      const func = jest.fn(function () {
+        return this.value
+      })
+      const debounced = debounce(func, 300)
+
+      debounced.call(context)
+
+      jest.advanceTimersByTime(300)
+
+      expect(func).toHaveBeenCalledTimes(1)
+      expect(func.mock.instances[0]).toBe(context)
+    })
 
   })
 

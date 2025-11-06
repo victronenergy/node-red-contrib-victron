@@ -7,8 +7,10 @@ const debugConnection = require('debug')('victron-virtual:connection')
 const {
   SWITCH_TYPE_MAP,
   SWITCH_SECOND_OUTPUT_LABEL,
-  SWITCH_THIRD_OUTPUT_LABEL
+  SWITCH_THIRD_OUTPUT_LABEL,
+  DEBOUNCE_DELAY_MS
 } = require('./victron-virtual-constants')
+const { debounce } = require('../services/utils')
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('=== UNHANDLED REJECTION (PREVENTING CRASH) ===')
@@ -24,28 +26,28 @@ process.on('unhandledRejection', (reason, promise) => {
 
 const commonGeneratorProperties = {
   AutoStart: { type: 'i', format: (v) => v != null ? v : '', value: 1, persist: true },
-  Start: { type: 'i', format: (v) => v != null ? v : '', value: 0, persist: true },
+  Start: { type: 'i', format: (v) => v != null ? v : '', value: 0, persist: true, immediate: true },
   RemoteStartModeEnabled: { type: 'i', format: (v) => v != null ? v : '', value: 1, persist: true },
-  EnableRemoteStartMode: { type: 'i', format: (v) => v != null ? v : '', value: 0, persist: true },
-  'Engine/CoolantTemperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
-  'Engine/ExhaustTemperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
-  'Engine/OilTemperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
-  'Engine/OilPressure': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'bar' : '' },
-  'Engine/WindingTemperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
-  'Engine/Starts': { type: 'i', format: (v) => v != null ? v : '', value: 0, persist: 60 },
-  'Engine/Load': { type: 'd', format: (v) => v != null ? v.toFixed(1) + '%' : '' },
-  'Engine/Speed': { type: 'i', format: (v) => v != null ? v + 'RPM' : '' },
-  'Engine/OperatingHours': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'h' : '', persist: 300 },
-  'Alarms/HighTemperature': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  'Alarms/LowOilPressure': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  'Alarms/LowCoolantLevel': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  'Alarms/LowOilLevel': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  'Alarms/LowFuelLevel': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  'Alarms/LowStarterVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  'Alarms/HighStarterVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  'Alarms/EmergencyStop': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  'Alarms/ServicesNeeded': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  'Alarms/GenericAlarm': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+  EnableRemoteStartMode: { type: 'i', format: (v) => v != null ? v : '', value: 0, persist: true, immediate: true },
+  'Engine/CoolantTemperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', immediate: true },
+  'Engine/ExhaustTemperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', immediate: true },
+  'Engine/OilTemperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', immediate: true },
+  'Engine/OilPressure': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'bar' : '', immediate: true },
+  'Engine/WindingTemperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', immediate: true },
+  'Engine/Starts': { type: 'i', format: (v) => v != null ? v : '', value: 0, persist: 60, immediate: true },
+  'Engine/Load': { type: 'd', format: (v) => v != null ? v.toFixed(1) + '%' : '', immediate: true },
+  'Engine/Speed': { type: 'i', format: (v) => v != null ? v + 'RPM' : '', immediate: true },
+  'Engine/OperatingHours': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'h' : '', persist: 300, immediate: true },
+  'Alarms/HighTemperature': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+  'Alarms/LowOilPressure': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+  'Alarms/LowCoolantLevel': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+  'Alarms/LowOilLevel': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+  'Alarms/LowFuelLevel': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+  'Alarms/LowStarterVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+  'Alarms/HighStarterVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+  'Alarms/EmergencyStop': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+  'Alarms/ServicesNeeded': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+  'Alarms/GenericAlarm': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
   StatusCode: {
     type: 'i',
     format: (v) => ({
@@ -62,50 +64,51 @@ const commonGeneratorProperties = {
       10: 'Stopping',
       11: 'Error'
     }[v] || 'unknown'),
-    value: 0
+    value: 0,
+    immediate: true
   },
-  ErrorCode: { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  StarterVoltage: { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '', persist: true },
+  ErrorCode: { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+  StarterVoltage: { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '', persist: true, immediate: true },
   FirmwareVersion: { type: 's', format: (v) => v != null ? v : '', persist: true },
   Model: { type: 's', format: (v) => v != null ? v : '', persist: true },
-  Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
+  Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1, immediate: true }
 }
 
 const properties = {
   battery: {
     Capacity: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'Ah' : '', persist: true },
-    'Dc/0/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
-    'Dc/0/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
-    'Dc/0/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
-    'Dc/0/Temperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '' },
+    'Dc/0/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '', immediate: true },
+    'Dc/0/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '', immediate: true },
+    'Dc/0/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '', immediate: true },
+    'Dc/0/Temperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', immediate: true },
     'Info/BatteryLowVoltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
     'Info/MaxChargeVoltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
     'Info/MaxChargeCurrent': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
     'Info/MaxDischargeCurrent': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
-    'Info/ChargeRequest': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    Soc: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: 15 /* persist, but throttled to 15 seconds */ },
-    Soh: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: 60 /* persist, but throttled to 60 seconds */ },
-    TimeToGo: { type: 'd', max: 864000, format: (v) => v != null ? v.toFixed(0) + 's' : '' },
-    Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
-    'Alarms/CellImbalance': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/HighCellVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/HighChargeCurrent': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/HighCurrent': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/HighDischargeCurrent': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/HighTemperature': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/HighVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/InternalFailure': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/LowCellVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/LowSoc': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/LowTemperature': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/LowVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'Alarms/StateOfHealth': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    ErrorCode: { type: 'i', format: (v) => v != null ? v : '', value: 0 },
+    'Info/ChargeRequest': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+    Soc: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: 15 /* persist, but throttled to 15 seconds */, immediate: true },
+    Soh: { type: 'd', min: 0, max: 100, format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: 60 /* persist, but throttled to 60 seconds */, immediate: true },
+    TimeToGo: { type: 'd', max: 864000, format: (v) => v != null ? v.toFixed(0) + 's' : '', immediate: true },
+    Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1, immediate: true },
+    'Alarms/CellImbalance': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+    'Alarms/HighCellVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+    'Alarms/HighChargeCurrent': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+    'Alarms/HighCurrent': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+    'Alarms/HighDischargeCurrent': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+    'Alarms/HighTemperature': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+    'Alarms/HighVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+    'Alarms/InternalFailure': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+    'Alarms/LowCellVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+    'Alarms/LowSoc': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+    'Alarms/LowTemperature': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+    'Alarms/LowVoltage': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+    'Alarms/StateOfHealth': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+    ErrorCode: { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
     NrOfDistributors: { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-    'System/MinCellVoltage': { type: 'd', format: (v) => v != null ? v.toFixed(3) + 'V' : '' }
+    'System/MinCellVoltage': { type: 'd', format: (v) => v != null ? v.toFixed(3) + 'V' : '', immediate: true }
   },
   temperature: {
-    Temperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', persist: 60 /* persist, but throttled to 60 seconds */ },
+    Temperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', persist: 60 /* persist, but throttled to 60 seconds */, immediate: true },
     TemperatureType: {
       type: 'i',
       value: 2,
@@ -360,6 +363,30 @@ module.exports = function (RED) {
     node.retryOnConnectionEnd = true
     node.pendingCallsToSetValuesLocally = []
 
+    const debouncedSetters = new Map()
+
+    function shouldApplyImmediately (key) {
+      if (node.ifaceDesc && node.ifaceDesc.properties && node.ifaceDesc.properties[key]) {
+        return node.ifaceDesc.properties[key].immediate === true
+      }
+      return false
+    }
+
+    function getDebouncedSetter (key) {
+      if (!debouncedSetters.has(key)) {
+        const setter = debounce((value) => {
+          debugInput(`Applying debounced value for ${key}: ${value}`)
+          try {
+            node.setValuesLocally({ [key]: value })
+          } catch (err) {
+            node.error(`Failed to apply debounced value for ${key}: ${err.message}`)
+          }
+        }, DEBOUNCE_DELAY_MS)
+        debouncedSetters.set(key, setter)
+      }
+      return debouncedSetters.get(key)
+    }
+
     function handleInput (msg, done) {
       // Send passthrough message FIRST, before any validation
       const outputs = [msg]
@@ -425,7 +452,28 @@ module.exports = function (RED) {
 
       try {
         debugInput(`Setting values locally for node ${node.id}:`, msg.payload)
-        node.setValuesLocally(msg.payload)
+
+        const immediatePayload = {}
+        const debouncedPayload = {}
+
+        for (const [key, value] of Object.entries(msg.payload)) {
+          if (shouldApplyImmediately(key)) {
+            immediatePayload[key] = value
+          } else {
+            debouncedPayload[key] = value
+          }
+        }
+
+        if (Object.keys(immediatePayload).length > 0) {
+          node.setValuesLocally(immediatePayload)
+          debugInput(`Applied ${Object.keys(immediatePayload).length} immediate properties`)
+        }
+
+        for (const [key, value] of Object.entries(debouncedPayload)) {
+          const setter = getDebouncedSetter(key)
+          setter(value)
+          debugInput(`Debouncing ${key} for ${DEBOUNCE_DELAY_MS}ms`)
+        }
 
         const pathCount = Object.keys(msg.payload).length
         const pathWord = pathCount === 1 ? 'path' : 'paths'
@@ -839,8 +887,8 @@ module.exports = function (RED) {
           }
           case 'switch': {
             const baseProperties = [
-              { name: 'State', type: 'i', format: (v) => ({ 0: 'Off', 1: 'On' }[v] || 'unknown'), persist: true },
-              { name: 'Status', type: 'i', format: (v) => v != null ? v : '' },
+              { name: 'State', type: 'i', format: (v) => ({ 0: 'Off', 1: 'On' }[v] || 'unknown'), persist: true, immediate: true },
+              { name: 'Status', type: 'i', format: (v) => v != null ? v : '', immediate: true },
               { name: 'Name', type: 's', persist: true },
               { name: 'Settings/Group', type: 's', value: '', persist: false },
               { name: 'Settings/CustomName', type: 's', value: '', persist: false },
@@ -867,9 +915,9 @@ module.exports = function (RED) {
 
             const switchType = Number(config.switch_1_type ?? 1)
 
-            baseProperties.forEach(({ name, type, value, format, persist }) => {
+            baseProperties.forEach(({ name, type, value, format, persist, immediate }) => {
               const switchableOutputPropertyKey = `SwitchableOutput/output_1/${name}`
-              ifaceDesc.properties[switchableOutputPropertyKey] = { type, format, persist }
+              ifaceDesc.properties[switchableOutputPropertyKey] = { type, format, persist, immediate }
 
               let propValue = value
               if (name === 'Name') {
@@ -915,7 +963,8 @@ module.exports = function (RED) {
                 format: (v) => v != null ? v.toFixed(1) + '%' : '',
                 min: 0,
                 max: 100,
-                persist: true
+                persist: true,
+                immediate: true
               }
               iface[dimmingKey] = 0
             }
@@ -928,7 +977,8 @@ module.exports = function (RED) {
                 format: (v) => v != null ? v.toFixed(1) + '°C' : '',
                 min: Number(config.switch_1_min ?? 0),
                 max: Number(config.switch_1_max ?? 100),
-                persist: true
+                persist: true,
+                immediate: true
               }
               iface[dimmingKey] = Number(config.switch_1_initial ?? 0)
 

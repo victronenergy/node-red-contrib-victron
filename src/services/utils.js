@@ -279,6 +279,33 @@ function mapCacheToJsonResponse (cache) {
   return JSON.stringify(result)
 }
 
+/**
+ * Debounces a function so that it is called only after the specified
+ * delay has passed since the last invocation. Each new call resets the timer.
+ * If multiple calls are made, only the last call's arguments are used.
+ */
+function debounce (func, delayInMs) {
+  let timeout = null
+  let lastThis = null
+  let lastArgs = null
+
+  return function (...args) {
+    lastThis = this
+    lastArgs = args
+
+    if (timeout) {
+      clearTimeout(timeout)
+    }
+
+    timeout = setTimeout(() => {
+      func.apply(lastThis, lastArgs)
+      timeout = null
+      lastThis = null
+      lastArgs = null
+    }, delayInMs)
+  }
+}
+
 module.exports = {
   CONNECTED,
   DISCONNECTED,
@@ -293,5 +320,6 @@ module.exports = {
   WILDCARD_MAPPINGS,
   expandWildcardPaths,
   mapCacheValueToJsonResponseValue,
-  mapCacheToJsonResponse
+  mapCacheToJsonResponse,
+  debounce
 }
