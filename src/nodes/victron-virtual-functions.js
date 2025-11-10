@@ -180,7 +180,7 @@ export const SWITCH_TYPE_DOCS = {
   [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: createDocTemplate(
     `<div><strong>Most relevant path(s):</strong><ul>
       <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of the light.</li>
-      <li><code>/SwitchableOutput/output_1/LightControls</code> &mdash; Array of 5 doubles: <tt>[Hue (0-360°), Saturation (0-100%), Brightness (0-100%), White (0-100%), ColorTemperature (0-6500K)]</tt>.
+      <li><code>/SwitchableOutput/output_1/LightControls</code> &mdash; Array of 5 integers: <tt>[Hue (0-360°), Saturation (0-100%), Brightness (0-100%), White (0-100%), ColorTemperature (0-6500K)]</tt>.
         <br><span style="font-size:0.95em;color:#666;">Array elements used depend on selected control types:<br>
         • RGB color wheel: Hue, Saturation, Brightness<br>
         • CCT wheel: Brightness, ColorTemperature<br>
@@ -804,4 +804,52 @@ export function formatLightControls (value, switchType) {
   }
 
   return String(value) || ''
+}
+
+/**
+ * Validates that a payload object is valid for setting virtual device values
+ * @param {any} payload - The payload to validate
+ * @returns {{ valid: boolean, error?: string, invalidKeys?: string[] }}
+ */
+export function validateVirtualDevicePayload (payload) {
+  // Check if payload is an object
+  if (typeof payload !== 'object' || payload === null || Array.isArray(payload)) {
+    const receivedType = Array.isArray(payload) ? 'array' : typeof payload
+    return {
+      valid: false,
+      error: `Invalid payload type: ${receivedType}. Expected: JavaScript object with at least one property/value.`
+    }
+  }
+
+  // Check if object is empty
+  if (Object.keys(payload).length === 0) {
+    return {
+      valid: false,
+      error: 'Received empty object. Expected: JavaScript object with at least one property/value.'
+    }
+  }
+
+  // Check if all values are valid types (string, number, boolean, null, or array of numbers)
+  const invalidEntries = Object.entries(payload).filter(([key, value]) => {
+    if (value === null) return false
+    if (typeof value === 'string') return false
+    if (typeof value === 'number') return false
+    if (typeof value === 'boolean') return false
+    if (Array.isArray(value)) {
+      // Arrays are valid (for LightControls), but should contain only numbers
+      return !value.every(item => typeof item === 'number')
+    }
+    return true
+  })
+
+  if (invalidEntries.length > 0) {
+    const invalidKeys = invalidEntries.map(([key]) => key).join(', ')
+    return {
+      valid: false,
+      error: `Invalid value types for keys: ${invalidKeys}. Expected: string, number, boolean, null, or array of numbers.`,
+      invalidKeys: invalidEntries.map(([key]) => key)
+    }
+  }
+
+  return { valid: true }
 }

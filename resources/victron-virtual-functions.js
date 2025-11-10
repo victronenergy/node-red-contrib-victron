@@ -266,7 +266,7 @@
     [victronVirtualConstantsExports.SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: createDocTemplate(
       `<div><strong>Most relevant path(s):</strong><ul>
       <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of the light.</li>
-      <li><code>/SwitchableOutput/output_1/LightControls</code> &mdash; Array of 5 doubles: <tt>[Hue (0-360°), Saturation (0-100%), Brightness (0-100%), White (0-100%), ColorTemperature (0-6500K)]</tt>.
+      <li><code>/SwitchableOutput/output_1/LightControls</code> &mdash; Array of 5 integers: <tt>[Hue (0-360°), Saturation (0-100%), Brightness (0-100%), White (0-100%), ColorTemperature (0-6500K)]</tt>.
         <br><span style="font-size:0.95em;color:#666;">Array elements used depend on selected control types:<br>
         • RGB color wheel: Hue, Saturation, Brightness<br>
         • CCT wheel: Brightness, ColorTemperature<br>

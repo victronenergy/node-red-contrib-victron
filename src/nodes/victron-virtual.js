@@ -12,6 +12,7 @@ const {
   SWITCH_THIRD_OUTPUT_LABEL
 } = require('./victron-virtual-constants')
 const { hsbToRgb } = require('../services/color-utils')
+const { validateVirtualDevicePayload, validateLightControls } = require('../services/utils')
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('=== UNHANDLED REJECTION (PREVENTING CRASH) ===')
@@ -384,46 +385,32 @@ module.exports = function (RED) {
         return
       }
 
-      // Check if payload is an object
-      if (typeof msg.payload !== 'object' || msg.payload === null || Array.isArray(msg.payload)) {
-        const receivedType = Array.isArray(msg.payload) ? 'array' : typeof msg.payload
-        node.warn(`Invalid payload type: ${receivedType}. Expected: JavaScript object with at least one property/value.`)
+      const validation = validateVirtualDevicePayload(msg.payload)
+      if (!validation.valid) {
+        node.warn(validation.error)
         node.status({
           fill: 'yellow',
           shape: 'ring',
-          text: `Invalid payload (${receivedType}) - expected JSON object`
+          text: validation.invalidKeys
+            ? `Invalid value types for: ${validation.invalidKeys.join(', ')}`
+            : 'Invalid payload'
         })
         done()
         return
       }
 
-      // Check if object is empty
-      if (Object.keys(msg.payload).length === 0) {
-        node.warn('Received empty object. Expected: JavaScript object with at least one property/value.')
-        node.status({
-          fill: 'yellow',
-          shape: 'ring',
-          text: 'Empty payload - expected {path: value} pairs'
-        })
-        done()
-        return
-      }
-
-      // Check if all values are valid types
-      const invalidEntries = Object.entries(msg.payload).filter(([key, value]) => {
-        return value !== null && typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean'
-      })
-
-      if (invalidEntries.length > 0) {
-        const invalidKeys = invalidEntries.map(([key]) => key).join(', ')
-        node.warn(`Invalid value types for keys: ${invalidKeys}. Expected: string, number, boolean, or null.`)
-        node.status({
-          fill: 'yellow',
-          shape: 'ring',
-          text: `Invalid value types for: ${invalidKeys}`
-        })
-        done()
-        return
+      if (msg.payload['SwitchableOutput/output_1/LightControls']) {
+        const lightControlsValidation = validateLightControls(msg.payload['SwitchableOutput/output_1/LightControls'])
+        if (!lightControlsValidation.valid) {
+          node.warn(lightControlsValidation.error)
+          node.status({
+            fill: 'yellow',
+            shape: 'ring',
+            text: 'Invalid LightControls values'
+          })
+          done()
+          return
+        }
       }
 
       try {
@@ -1078,7 +1065,7 @@ module.exports = function (RED) {
               // All types use the full 5-element array
               const lightControlKey = 'SwitchableOutput/output_1/LightControls'
               ifaceDesc.properties[lightControlKey] = {
-                type: 'ad', // array of doubles
+                type: 'ai', // array of integers
                 format: (v) => {
                   if (Array.isArray(v) && v.length >= 5) {
                     if (switchType === SWITCH_TYPE_MAP.RGB_COLOR_WHEEL) {
@@ -1408,7 +1395,7 @@ module.exports = function (RED) {
               }
             } else if (propName === 'SwitchableOutput/output_1/LightControls') {
               // Handle LightControls for RGB control types
-              // propValue is already an array of doubles from D-Bus
+              // propValue is already an array of integers from D-Bus
               const currentValue = JSON.stringify(node.lastSentValues.LightControls)
               const newValue = JSON.stringify(propValue)
 
