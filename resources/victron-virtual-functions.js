@@ -89,13 +89,17 @@
   	  [SWITCH_TYPE_MAP.RGB_WHITE_DIMMER]: 'LightControls'
   	};
 
+  	// Default debounce delay for virtual device property writes (in milliseconds)
+  	const DEBOUNCE_DELAY_MS = 300;
+
   	victronVirtualConstants = {
   	  SWITCH_TYPE_MAP,
   	  SWITCH_TYPE_NAMES,
   	  SWITCH_TYPE_BITMASK_NAMES,
   	  SWITCH_OUTPUT_CONFIG,
   	  SWITCH_SECOND_OUTPUT_LABEL,
-  	  SWITCH_THIRD_OUTPUT_LABEL
+  	  SWITCH_THIRD_OUTPUT_LABEL,
+  	  DEBOUNCE_DELAY_MS
   	};
   	return victronVirtualConstants;
   }

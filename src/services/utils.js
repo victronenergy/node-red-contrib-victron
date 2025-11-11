@@ -378,6 +378,33 @@ function validateLightControls (value) {
 }
 
 /**
+ * Debounces a function so that it is called only after the specified
+ * delay has passed since the last invocation. Each new call resets the timer.
+ * If multiple calls are made, only the last call's arguments are used.
+ */
+function debounce (func, delayInMs) {
+  let timeout = null
+  let lastThis = null
+  let lastArgs = null
+
+  return function (...args) {
+    lastThis = this
+    lastArgs = args
+
+    if (timeout) {
+      clearTimeout(timeout)
+    }
+
+    timeout = setTimeout(() => {
+      func.apply(lastThis, lastArgs)
+      timeout = null
+      lastThis = null
+      lastArgs = null
+    }, delayInMs)
+  }
+}
+
+/**
  * Throttles a function so that it is called at most once
  * in the specified limitInMs interval. Calls at the trailing edge.
  * If multiple calls are made during the throttle period,
@@ -420,5 +447,6 @@ module.exports = {
   mapCacheToJsonResponse,
   validateVirtualDevicePayload,
   validateLightControls,
+  debounce,
   throttle
 }
