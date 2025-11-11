@@ -51,16 +51,15 @@ class SystemConfiguration {
                 (expandedPathObj.path !== '/Ac/In/1/CurrentLimit' || _.get(cachedPaths, '/Ac/In/1/CurrentLimitIsAdjustable', 1)) &&
                 (expandedPathObj.path !== '/Ac/In/2/CurrentLimit' || _.get(cachedPaths, '/Ac/In/2/CurrentLimitIsAdjustable', 1))
               )) &&
-              (!expandedPathObj.mode ||
-              expandedPathObj.mode === 'both' ||
+              (expandedPathObj.mode === 'both' ||
               (isOutput && expandedPathObj.mode === 'output') ||
-              (!isOutput && expandedPathObj.mode === 'input'))
+              (!isOutput && (expandedPathObj.mode === 'input' || !expandedPathObj.mode)))
             )
 
             return pathAcc.concat(filtered)
           }, [])
 
-          expandedPaths.sort((a, b) => a.name > b.name ? 1 : -1)
+          expandedPaths.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
 
           const deviceInstance = cachedPaths['/DeviceInstance'] || ''
           if (expandedPaths.length) {

@@ -20,8 +20,8 @@ export {
 }
 
 const COMMON_SWITCH_FIELDS = [
-  { id: 'customname', type: 'text', placeholder: 'Name', title: 'Name', style: 'width:120px;', tooltip: 'Custom name for the switch' },
-  { id: 'group', type: 'text', placeholder: 'Group', title: 'Group', style: 'width:120px;', tooltip: 'Initial group for the switch. If the group gets changed in the gui after initial deploy, the value set there will be persisted (also on re-deploy).' }
+  { id: 'customname', type: 'text', placeholder: 'Name', title: 'Name', style: 'width:120px;', tooltip: 'Custom name for the switch. If the custom name gets changed in the gui after initial deploy, that value will be overwritten on restart and re-deploy of Node-RED.' },
+  { id: 'group', type: 'text', placeholder: 'Group', title: 'Group', style: 'width:120px;', tooltip: 'Group name for the switch. If the group gets changed in the gui after initial deploy, that value will be overwritten on restart and re-deploy of Node-RED.' }
 ]
 
 export function checkGeneratorType () {

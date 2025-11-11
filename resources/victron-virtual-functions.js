@@ -106,8 +106,8 @@
 
 
   const COMMON_SWITCH_FIELDS = [
-    { id: 'customname', type: 'text', placeholder: 'Name', title: 'Name', style: 'width:120px;', tooltip: 'Custom name for the switch' },
-    { id: 'group', type: 'text', placeholder: 'Group', title: 'Group', style: 'width:120px;', tooltip: 'Initial group for the switch. If the group gets changed in the gui after initial deploy, the value set there will be persisted (also on re-deploy).' }
+    { id: 'customname', type: 'text', placeholder: 'Name', title: 'Name', style: 'width:120px;', tooltip: 'Custom name for the switch. If the custom name gets changed in the gui after initial deploy, that value will be overwritten on restart and re-deploy of Node-RED.' },
+    { id: 'group', type: 'text', placeholder: 'Group', title: 'Group', style: 'width:120px;', tooltip: 'Group name for the switch. If the group gets changed in the gui after initial deploy, that value will be overwritten on restart and re-deploy of Node-RED.' }
   ];
 
   function checkGeneratorType () {
@@ -774,17 +774,16 @@
 
   // src/nodes/victron-virtual-browser.js
 
-  window.checkGeneratorType = checkGeneratorType;
-  window.SWITCH_TYPE_CONFIGS = SWITCH_TYPE_CONFIGS;
-  window.SWITCH_OUTPUT_CONFIG = victronVirtualConstantsExports.SWITCH_OUTPUT_CONFIG;
-  window.SWITCH_SECOND_OUTPUT_LABEL = victronVirtualConstantsExports.SWITCH_SECOND_OUTPUT_LABEL;
-  window.SWITCH_THIRD_OUTPUT_LABEL = victronVirtualConstantsExports.SWITCH_THIRD_OUTPUT_LABEL;
-  window.renderSwitchConfigRow = renderSwitchConfigRow;
-  window.updateSwitchConfig = updateSwitchConfig;
-  window.checkSelectedVirtualDevice = checkSelectedVirtualDevice;
-  window.validateSwitchConfig = validateSwitchConfig;
-  window.updateBatteryVoltageVisibility = updateBatteryVoltageVisibility;
-  window.calculateOutputs = calculateOutputs;
-  window.updateOutputs = updateOutputs;
+  window.__victron = {
+    checkGeneratorType,
+    SWITCH_TYPE_CONFIGS,
+    renderSwitchConfigRow,
+    updateSwitchConfig,
+    checkSelectedVirtualDevice,
+    validateSwitchConfig,
+    updateBatteryVoltageVisibility,
+    calculateOutputs,
+    updateOutputs
+  };
 
 })();

@@ -150,7 +150,20 @@ module.exports = function (RED) {
       this.pathObj = nodeDefinition.pathObj
       this.service = nodeDefinition.service
       this.path = nodeDefinition.path
-      this.initialValue = nodeDefinition.initial
+
+      // Migrate string initial values to proper types
+      let initialValue = nodeDefinition.initial
+      if (initialValue !== undefined && initialValue !== null && nodeDefinition.pathObj) {
+        const pathType = nodeDefinition.pathObj.type
+        if ((pathType === 'float' || pathType === 'integer' || pathType === 'enum') && typeof initialValue === 'string') {
+          const numValue = pathType === 'integer' || pathType === 'enum' ? parseInt(initialValue) : parseFloat(initialValue)
+          if (!isNaN(numValue)) {
+            initialValue = numValue
+            debug(`Migrated initial value from string "${nodeDefinition.initial}" to number ${numValue}`)
+          }
+        }
+      }
+      this.initialValue = initialValue
 
       this.configNode = RED.nodes.getNode('victron-client-id')
       this.client = this.configNode.client
