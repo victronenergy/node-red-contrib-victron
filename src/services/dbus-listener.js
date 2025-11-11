@@ -4,6 +4,7 @@
  */
 
 const dbus = require('dbus-native-victron')
+const { processItemsChanged } = require('./core/dbus-message-processor')
 const debug = require('debug')('node-red-contrib-victron:dbus')
 const _ = require('lodash')
 
@@ -203,11 +204,16 @@ class VictronDbusListener {
       },
       (err, res) => {
         if (err) {
+          console.warn(`Unable to request root for service ${service.name}, this is fine when reconnecting.`)
           const matchIfVirtual = service.name.match(/^com\.victronenergy\.(\w+)\.virtual_*/)
           if (matchIfVirtual) {
-            console.warn(`Unable to request root for virtual service ${service.name}, this is fine when reconnecting.`)
             return resolve()
           }
+          // It looks like com.victronenergy.gps.ve_ttyUSB2 implements GetItems poorly, so we ignore the error here
+          if (service.name === 'com.victronenergy.gps.ve_ttyUSB2') {
+            return resolve()
+          }
+
           return reject(err)
         }
         const data = {}
@@ -292,34 +298,8 @@ class VictronDbusListener {
     switch (msg.member) {
       case 'ItemsChanged': {
         debug('ItemsChanged', msg)
-        msg.body[0].forEach(entry => {
-          const m = { changed: true }
-          m.path = entry[0]
-          if (entry[1] && entry[1].length === 2) {
-            entry[1].forEach(v => {
-              switch (v[0]) {
-                case 'Value': m.value = v[1][1][0]; break
-                case 'Text': m.text = v[1][1][0]; break
-              }
-            })
-          }
-          if (!m.path || m.value === null || !m.text) {
-            return
-          }
-          const service = this.services[msg.sender]
-          if (!service || !service.name) {
-            return
-          }
-          if (m.path === '/DeviceInstance') {
-            service.deviceInstance = m.value
-          }
-          m.senderName = service.name.split('.').splice(0, 3).join('.')
-          if (service.deviceInstance === null) {
-            service.deviceInstance = searchDeviceInstanceByName(this.services, m.senderName, '')
-          }
-          m.deviceInstance = service.deviceInstance
-          messages.push(m)
-        })
+        const messages = processItemsChanged(msg, this.services, searchDeviceInstanceByName, false)
+        this.messageHandler(messages)
         break
       }
       case 'PropertiesChanged': {
@@ -357,9 +337,14 @@ class VictronDbusListener {
   }
 
   getValue (destination, path) {
+    let invokeDestination = destination
+    if (destination.split('/').length === 2) {
+      const deviceInstance = destination.split('/')[1]
+      invokeDestination = searchHaystack(this.services, deviceInstance, destination.split('/')[0])
+    }
     this.bus.invoke({
       path,
-      destination,
+      destination: invokeDestination,
       interface: 'com.victronenergy.BusItem',
       member: 'GetValue'
     },

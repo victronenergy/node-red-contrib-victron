@@ -2622,7 +2622,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - Auto</li>
   <li>4 - Node-RED</li>
 </ul></dd>
-  <dt class="optional">Dynamic ESS mode<span class="property-type">enum</span></dt>
+  <dt class="optional">Dynamic ESS operating mode<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Settings/DynamicEss/OperatingMode</b><span class="property-mode"> (Mode: both)</span>
 <ul>
   <li>0 - Trade mode</li>
@@ -2708,7 +2708,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - Auto</li>
   <li>4 - Node-RED</li>
 </ul></dd>
-  <dt class="optional">Dynamic ESS mode<span class="property-type">enum</span></dt>
+  <dt class="optional">Dynamic ESS operating mode<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Settings/DynamicEss/OperatingMode</b><span class="property-mode"> (Mode: both)</span>
 <ul>
   <li>0 - Trade mode</li>
@@ -5119,12 +5119,6 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Ac input <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code> current limit (A)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/In/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code>/CurrentLimit</b><span class="property-mode"> (Mode: both)</span>
 </dd>
-  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Input <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code> current limit is adjustable<span class="property-type">enum</span></dt>
-  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/In/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code>/CurrentLimitIsAdjustable</b><span class="property-mode"></span>
-<ul>
-  <li>0 - No</li>
-  <li>1 - Yes</li>
-</ul></dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Input <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code> frequency phase <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{phase}</code> (Hz)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/In/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code>/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{phase}</code>/F</b><span class="property-mode"></span>
 </dd>
@@ -5384,12 +5378,6 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Ac input <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code> current limit (A)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/In/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code>/CurrentLimit</b><span class="property-mode"> (Mode: both)</span>
 </dd>
-  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Input <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code> current limit is adjustable<span class="property-type">enum</span></dt>
-  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/In/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code>/CurrentLimitIsAdjustable</b><span class="property-mode"></span>
-<ul>
-  <li>0 - No</li>
-  <li>1 - Yes</li>
-</ul></dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Input <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code> frequency phase <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{phase}</code> (Hz)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/In/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code>/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{phase}</code>/F</b><span class="property-mode"></span>
 </dd>
@@ -7267,11 +7255,23 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">Sensor battery voltage (V)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/BatteryVoltage</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">CO₂ concentration (ppm)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/CO2</b><span class="property-mode"></span>
+</dd>
   <dt class="optional">Humidity (%)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Humidity</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">Luminosity (lux)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Luminosity</b><span class="property-mode"></span>
+</dd>
   <dt class="optional">Temperature offset<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Offset</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Nitrogen Oxides index<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/NOX</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">PM2.5 particulate matter concentration (µg/m³)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/PM25</b><span class="property-mode"></span>
 </dd>
   <dt class="optional">Pressure (kPa)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Pressure</b><span class="property-mode"></span>
@@ -7305,6 +7305,9 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>5 - WaterHeater</li>
   <li>6 - Freezer</li>
 </ul></dd>
+  <dt class="optional">Volatile Organic Compounds index<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/VOC</b><span class="property-mode"></span>
+</dd>
 </dl>
 </script>
 
@@ -7326,11 +7329,23 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">Sensor battery voltage (V)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/BatteryVoltage</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">CO₂ concentration (ppm)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/CO2</b><span class="property-mode"></span>
+</dd>
   <dt class="optional">Humidity (%)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Humidity</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">Luminosity (lux)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Luminosity</b><span class="property-mode"></span>
+</dd>
   <dt class="optional">Temperature offset<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Offset</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Nitrogen Oxides index<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/NOX</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">PM2.5 particulate matter concentration (µg/m³)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/PM25</b><span class="property-mode"></span>
 </dd>
   <dt class="optional">Pressure (kPa)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Pressure</b><span class="property-mode"></span>
@@ -7364,6 +7379,9 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>5 - WaterHeater</li>
   <li>6 - Freezer</li>
 </ul></dd>
+  <dt class="optional">Volatile Organic Compounds index<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/VOC</b><span class="property-mode"></span>
+</dd>
 </dl>
 </script>
 
@@ -7424,6 +7442,9 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - AC Input 2</li>
   <li>240 - Disconnected</li>
 </ul></dd>
+  <dt class="optional">Active input current limit (A)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Ac/ActiveIn/CurrentLimit</b><span class="property-mode"> (Mode: both)</span>
+</dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Input frequency phase <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code> (Hz)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/ActiveIn/L<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code>/F</b><span class="property-mode"></span>
 </dd>
@@ -7736,6 +7757,9 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - AC Input 2</li>
   <li>240 - Disconnected</li>
 </ul></dd>
+  <dt class="optional">Active input current limit (A)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Ac/ActiveIn/CurrentLimit</b><span class="property-mode"> (Mode: both)</span>
+</dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Input frequency phase <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code> (Hz)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/ActiveIn/L<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code>/F</b><span class="property-mode"></span>
 </dd>

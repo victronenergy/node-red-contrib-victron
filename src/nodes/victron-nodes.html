@@ -198,9 +198,9 @@
                         var enumInput = $('#node-input-initial-enum');
                         populateSelect(enumInput, selectOptions);
                         enumInput.show();
-                        if (node.initial) enumInput.val(node.initial);
+                        if (node.initial !== undefined && node.initial !== null) enumInput.val(node.initial);
                         break;
-                        
+
                     case 'float':
                     case 'integer':
                         var numberInput = $('#node-input-initial-number');
@@ -210,13 +210,13 @@
                         } else {
                             numberInput.attr('step', 'any');
                         }
-                        if (node.initial) numberInput.val(node.initial);
+                        if (node.initial !== undefined && node.initial !== null) numberInput.val(node.initial);
                         break;
-                        
+
                     case 'string':
                         var stringInput = $('#node-input-initial-string');
                         stringInput.show();
-                        if (node.initial) stringInput.val(node.initial);
+                        if (node.initial !== undefined && node.initial !== null) stringInput.val(node.initial);
                         break;
                     
                     default:

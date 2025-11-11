@@ -1,107 +1,20 @@
-<style>
-  a.blue-link {
-    color: rgb(71, 144, 208) !important;
-  }
-  .form-warning, .form-info {
-        padding-bottom: 8px;
-        max-width: 450px;
-  }
-  .form-warning .fa {
-        color: #d6615f;
-  }
-</style>
-
+<link rel="stylesheet" href="resources/@victronenergy/node-red-contrib-victron/victron-virtual-style.css">
+<script src="resources/@victronenergy/node-red-contrib-victron/victron-virtual-functions.js"></script>
 <script type="text/javascript">
-    function checkGeneratorType() {
-        const generatorType = $('select#node-input-generator_type').val()
-        if (generatorType === 'dc') {
-            $('.dc-generator-only').show()
-            $('.ac-generator-only').hide()
-        } else {
-            $('.dc-generator-only').hide()
-            $('.ac-generator-only').show()
-        }
-    }
-
-    function updateSwitchConfig() {
-        const count = parseInt($('#node-input-switch_count').val()) || 1;
-        const container = $('#switch-config-container');
-        container.empty();
-
-        if ($('select#node-input-device').val() !== 'switch') {
-            return;
-        }
-        for (let i = 1; i <= count; i++) {
-            const switchRow = $(`
-                <div class="form-row">
-                    <label for="node-input-switch_${i}_type"><i class="fa fa-toggle-on"></i> Switch ${i} type</label>
-                    <select id="node-input-switch_${i}_type" data-switch-index="${i}">
-                        <option value="0">Momentary</option>
-                        <option value="1">Toggle</option>
-                        <option value="2">Dimmable</option>
-                    </select>
-                </div>
-            `);
-            container.append(switchRow);
-
-            const savedValue = this[`switch_${i}_type`] !== undefined ? this[`switch_${i}_type`] : 1;
-            $(`#node-input-switch_${i}_type`).val(String(savedValue));
-        }
-    }
-
-    function checkSelectedVirtualDevice() {
-        [
-            'battery', 'generator', 'gps', 'grid', 'motordrive', 'pvinverter',
-            'switch', 'tank', 'temperature'
-        ].map( x => { $('.input-'+x).hide() })
-
-        const selected = $('select#node-input-device').val()
-        $('.input-'+selected).show()
-
-        if (selected === 'temperature') {
-            // Show/hide battery voltage input based on checkbox
-            $('#node-input-include-battery').off('change').on('change', function() {
-                if($(this).is(':checked')) {
-                    $('#battery-voltage-row').show()
-                } else {
-                    $('#battery-voltage-row').hide()
-                }
-            })
-
-            // Initially set battery voltage visibility
-            $('#battery-voltage-row').toggle($('#node-input-include-battery').is(':checked'))
-        }
-
-        if (selected === 'generator') {
-            checkGeneratorType()
-        }
-
-        if (selected === 'gps') {
-            $('#node-input-default_values').prop('checked', false).prop('disabled', true)
-        } else {
-            $('#node-input-default_values').prop('disabled', false)
-        }
-
-        if (selected === 'switch') {
-            updateSwitchConfig.call(this);
-
-            $('#node-input-switch_count').off('change.switch-config').on('change.switch-config', () => {
-                updateSwitchConfig.call(this);
-            });
-        }
-    }
-
     RED.nodes.registerType('victron-virtual',{
         category: 'Victron Energy',
         color: '#f7ab3e',
         paletteLabel: "Virtual Device",
         defaults: {
             name: {value:""},
+            outputs: {value:1},
             device: {value:"", required: true},
             default_values: {value: false, required: false},
             // battery
             battery_capacity: {value: 25, required: false},
             include_battery_temperature: {value: false},
+            battery_voltage_preset: {value: "24", required: false},
+            battery_voltage_custom: {value: 24, required: false},
             // generator
             generator_type: {value: "ac", required: false},
             generator_nrofphases: {value: 1, required: false},
@@ -120,11 +33,16 @@
             position: { value: 0, required: false},
             pvinverter_nrofphases: {value: 1, required: false},
             // switch
-            switch_count: {value: 1, required: false},
             switch_1_type: {value: 1, required: false},
-            switch_2_type: {value: 1, required: false},
-            switch_3_type: {value: 1, required: false},
-            switch_4_type: {value: 1, required: false},
+            switch_1_min: {value: 0, required: false},
+            switch_1_max: {value: "", required: false},
+            switch_1_initial: {value: 0, required: false},
+            switch_1_label: {value: "", required: false},
+            switch_1_unit: {value: "", required: false},
+            switch_1_step: {value: 1, required: false},
+            switch_1_customname: {value: "", required: false},
+            switch_1_group: {value: "", required: false},
+            switch_1_include_measurement: {value: false, required: false},
             // tank
             fluid_type: { value: 0, required: false},
             include_tank_battery: { value: false },
@@ -146,28 +64,133 @@
         },
         icon: "victronenergy.svg",
         inputs:1,
-        outputs:0,
+        outputs:1,
         label: function() {
             return (this.name||"Virtual "+this.device)
         },
-        oneditprepare: function oneditprepare() {
-            $('#node-input-device').on('change', () => {
-                checkSelectedVirtualDevice.call(this);
-            });
-            checkSelectedVirtualDevice.call(this);
-        },
-        oneditsave: function() {
-            if (this.device === 'switch') {
-                const switchCount = parseInt($('#node-input-switch_count').val());
+        outputLabels: function(index) {
+            // Inline logic since window.getOutputLabels may not be loaded yet
+            if (!this.device || this.device !== 'switch') {
+                return index === 0 ? 'Passthrough' : 'Output ' + (index + 1)
+            }
 
-                for (let i = 1; i <= 4; i++) {
-                    const switchTypeInput = $(`#node-input-switch_${i}_type`);
-                    if (switchTypeInput.length) {
-                        this[`switch_${i}_type`] = parseInt(switchTypeInput.val());
-                    }
+            const switchType = this.switch_1_type
+            const typeKey = switchType !== undefined ? parseInt(switchType, 10) : 1 // TOGGLE = 1
+
+            // Map of second output labels (for switches that don't have "State")
+            const secondLabels = {
+                3: 'Temperature',  // TEMPERATURE_SETPOINT
+                6: 'Selected',     // DROPDOWN
+                7: 'Value'         // BASIC_SLIDER
+            }
+
+            // Map of third output labels (only for switches with 3 outputs)
+            const thirdLabels = {
+                2: 'Dimming',      // DIMMABLE
+                4: 'Value',        // STEPPED
+                8: 'Value'         // NUMERIC_INPUT
+            }
+
+            // Output count map
+            const outputCounts = {
+                0: 2, 1: 2, 2: 3, 3: 2, 4: 3, 6: 2, 7: 2, 8: 3, 9: 2, 10: 2
+            }
+
+            if (index === 0) return 'Passthrough'
+
+            if (index === 1) {
+                return secondLabels[typeKey] || 'State'
+            }
+
+            if (index === 2) {
+                // Only return third label if this switch type actually has 3 outputs
+                const outputCount = outputCounts[typeKey] || 2
+                if (outputCount >= 3) {
+                    return thirdLabels[typeKey] || 'Value'
                 }
             }
-            return true;
+
+            return 'Output ' + (index + 1)
+        },
+        oneditprepare: function oneditprepare() {
+            const { checkSelectedVirtualDevice, updateOutputs } = window.__victron;
+
+            if (this.id && this.changed === false) {
+                $('#node-input-device')
+                    .prop('disabled', true)
+                    .attr('title', 'Device type cannot be changed after deployment.');
+            }
+
+            $('#node-input-device').on('change', (v) => {
+                checkSelectedVirtualDevice(this);
+                // Update outputs when device changes
+                this.device = v.target.value
+                updateOutputs(this);
+            });
+
+            // Initialize outputs on load
+            updateOutputs(this);
+            checkSelectedVirtualDevice(this);
+        },
+        oneditsave: function() {
+            const { validateSwitchConfig, SWITCH_TYPE_CONFIGS, updateOutputs } = window.__victron;
+
+            if (this.device === 'switch') {
+                // Validate required fields before saving
+                if (typeof validateSwitchConfig === 'function' && !validateSwitchConfig()) {
+                    // Prevent save if validation fails
+                    return false;
+                }
+
+                const switchTypeInput = $(`#node-input-switch_1_type`);
+                if (switchTypeInput.length) {
+                    const type = parseInt(switchTypeInput.val());
+                    this[`switch_1_type`] = type;
+
+                    // Save config fields for this type
+                    const cfg = SWITCH_TYPE_CONFIGS[type];
+                    if (cfg && cfg.fields.length) {
+                        cfg.fields.forEach(field => {
+                            let val = $(`#node-input-switch_1_${field.id}`).val()
+                            if (field.id === 'step' && val !== '') {
+                            val = parseFloat(val)
+                            }
+                            this[`switch_1_${field.id}`] = val
+                        });
+                    }
+
+                    // Special handling for dropdown type (6)
+                    if (type === 6) {
+                        const pairCount = parseInt($(`#node-input-switch_1_count`).val()) || 2;
+                        const labelsArray = [];
+                        for (let j = 0; j < pairCount; j++) {
+                            const value = $(`#node-input-switch_1_value_${j}`).val();
+                            if (value) {
+                                labelsArray.push(value);
+                            }
+                        }
+                        // Store as JSON string array
+                        this[`switch_1_label`] = JSON.stringify(labelsArray);
+                    }
+
+                    // For type 7 (basic slider), save unit field
+                    if (type === 7) {
+                        this[`switch_1_unit`] = $(`#node-input-switch_1_unit`).val();
+                    }
+
+                    // Clear any previously set config fields for other types
+                    Object.values(SWITCH_TYPE_CONFIGS).forEach(c => {
+                        c.fields.forEach(field => {
+                            if (cfg && cfg.fields.some(f => f.id === field.id)) {
+                                // Keep current type's fields
+                                return;
+                            }
+                            this[`switch_1_${field.id}`] = undefined;
+                        });
+                    });
+                }
+            }
+            updateOutputs(this);
         }
     });
 </script>
@@ -199,6 +222,20 @@
             <input type="number" id="node-input-battery_capacity" min="0">
         </div>
 
+       <!-- Battery voltage configuration (only show when default_values is enabled) -->
+       <div class="form-row input-battery" id="battery-voltage-row" style="display: none;">
+           <label for="node-input-battery_voltage_preset" style="width:auto;">Default Voltage:</label>
+           <select id="node-input-battery_voltage_preset" style="width:100px;">
+               <option value="12">12V</option>
+               <option value="24">24V</option>
+               <option value="48">48V</option>
+              <option value="custom">Custom</option>
+           </select>
+           <input type="number" id="node-input-battery_voltage_custom" style="width:80px; margin-left:10px;"
+               placeholder="V" step="0.1" min="0" max="1000">
+           <span id="battery-voltage-custom-label" style="margin-left:5px;">V</span>
+       </div>
+
         <div class="form-row">
             <label>&nbsp;</label>
             <label for="node-input-include_battery_temperature" style="width:70%;">
@@ -218,7 +255,7 @@
     <div class="input-generator">
         <div class="form-row">
             <label for="node-input-generator_type"><i class="fa fa-cog"></i> Generator type</label>
-            <select id="node-input-generator_type" onchange="checkGeneratorType()">
+            <select id="node-input-generator_type" onchange="window.__victron.checkGeneratorType()">
                 <option value="ac">AC Generator (genset)</option>
                 <option value="dc">DC Generator (dcgenset)</option>
             </select>
@@ -268,15 +305,6 @@
     </div>
 
     <div class="input-switch">
-        <div class="form-row">
-            <label for="node-input-switch_count"><i class="fa fa-plug"></i> Number of switches</label>
-            <select id="node-input-switch_count">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-            </select>
-        </div>
         <div id="switch-config-container">
             <!-- Dynamic switch configuration will be added here -->
         </div>
@@ -521,6 +549,10 @@ is configured in Ah.
 
 Including the battery temperature adds a field to write the temperature to.
 
+If the _initialize with default values_ option is selected, the battery voltage
+will be set to a default value. You can select a preset value of 12V, 24V or
+48V. Or you can select _custom_ and enter your own voltage.
+
 ### Generator
 
 The generator device can be configured as either an AC generator (`genset`) or DC generator (`dcgenset`), which you can select using the secondary dropdown menu.
@@ -579,20 +611,29 @@ These additional parameters can help monitor the performance and status of your 
 ### Virtual switch
 
 The virtual switch creates a switch device on the dbus that can be controlled and
-monitored remotely. There are three types of switches available:
+monitored remotely. There are several types of switches available:
 
 - **Momentary**: Acts like a push button - automatically returns to off state
 - **Toggle**: Standard on/off switch that maintains its state
 - **Dimmable**: PWM-controlled switch with adjustable brightness from 0-100%
+- **Temperature setpoint**: Sets a target temperature value
+- **Stepped switch** : Select up to 7 discrete steps (e.g., fan speeds)
+- **Dropdown**: Select from a custom list of options defined by you. The selected value is stored in the `Dimming` field (starting at `0` for the first option).
+- **Basic slider**: A slider control for selecting a value within a defined range
+- **Numeric input**: A numeric input control with configurable minimum/maximum values, step size, and display unit that allows precise manual entry of setpoint values.
+- **Three-state switch**: Select from three states (On, Off, Auto)
+- **Bilge pump control**: Special switch type for bilge pumps with automatic and manual modes (A bilge pump is a device on a boat that removes accumulated water from the lowest part of the hull, known as the bilge, and pumps it overboard).
 
-You can configure up to 4 switches, and each switch can be individually set to any
-of the three types. This allows mixing different switch types in a single virtual
-device (e.g., toggle switches for lights and dimmable switches for fans).
+The virtual switch can be set to any of the types mentioned above. By setting the group name of the switch, multiple switches can be grouped together, allowing them
+to be seen within a group of switches on the GX device.
 
-The switch types correspond to the Venus OS dbus switch specification:
-- Type 0: Momentary
-- Type 1: Toggle
-- Type 2: Dimmable
+As the virtual switches become available on the dbus, they will also appear on the (remote)
+console and attached screen of the GX device. Settings things like name and group can be
+done while setting up in the edit panel, but can also be done from the GX device directly.
+On restart of Node-RED, the stored name and group will be applied again.
+
+The switch types correspond to the Venus OS dbus switch specification, which can be found 
+[here](https://github.com/victronenergy/venus/wiki/dbus#switch).
 
 For dimmable switches, an additional "Dimming" property is available that accepts
 values from 0-100 representing the PWM duty cycle percentage.

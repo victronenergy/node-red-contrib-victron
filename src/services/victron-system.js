@@ -51,16 +51,15 @@ class SystemConfiguration {
                 (expandedPathObj.path !== '/Ac/In/1/CurrentLimit' || _.get(cachedPaths, '/Ac/In/1/CurrentLimitIsAdjustable', 1)) &&
                 (expandedPathObj.path !== '/Ac/In/2/CurrentLimit' || _.get(cachedPaths, '/Ac/In/2/CurrentLimitIsAdjustable', 1))
               )) &&
-              (!expandedPathObj.mode ||
-              expandedPathObj.mode === 'both' ||
+              (expandedPathObj.mode === 'both' ||
               (isOutput && expandedPathObj.mode === 'output') ||
-              (!isOutput && expandedPathObj.mode === 'input'))
+              (!isOutput && (expandedPathObj.mode === 'input' || !expandedPathObj.mode)))
             )
 
             return pathAcc.concat(filtered)
           }, [])
 
-          expandedPaths.sort((a, b) => a.name > b.name ? 1 : -1)
+          expandedPaths.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
 
           const deviceInstance = cachedPaths['/DeviceInstance'] || ''
           if (expandedPaths.length) {
@@ -87,18 +86,18 @@ class SystemConfiguration {
             const expanded = utils.expandWildcardPaths(wildcardedRelay, this.cache[service], svc)
             const relayObject = _.find(expanded, { path: p })
             if (relayObject) {
-        // special case for system relay
+              // special case for system relay
               if (service.startsWith('com.victronenergy.system') && p.startsWith('/Relay/0')) {
-          const systemRelayFunction = this.cache['com.victronenergy.settings']['/Settings/Relay/Function']
-          if (systemRelayFunction !== 2) { // manual
-            relayObject.disabled = true
-            relayObject.warning = utils.RELAY_MODE_WARNING(utils.RELAY_FUNCTIONS[systemRelayFunction])
-          } else {
-            relayObject.disabled = false
-            delete (relayObject.warning)
-          }
-        }
-        return relayObject
+                const systemRelayFunction = this.cache['com.victronenergy.settings']['/Settings/Relay/Function']
+                if (systemRelayFunction !== 2) { // manual
+                  relayObject.disabled = true
+                  relayObject.warning = utils.RELAY_MODE_WARNING(utils.RELAY_FUNCTIONS[systemRelayFunction])
+                } else {
+                  relayObject.disabled = false
+                  delete (relayObject.warning)
+                }
+              }
+              return relayObject
             }
           }
           // if nothing found, return null

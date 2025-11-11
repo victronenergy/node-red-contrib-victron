@@ -1,10 +1,10 @@
 {
     "name": "@victronenergy/node-red-contrib-victron",
     "description": "Custom Node-RED Nodes for Victron Energy",
-    "version": "1.6.41",
+    "version": "1.6.52",
     "dependencies": {
-        "dbus-native-victron": "^0.4.4",
-        "dbus-victron-virtual": "^0.1.17",
+        "dbus-native-victron": "^0.4.5",
+        "dbus-victron-virtual": "^0.1.19",
         "debug": "^4.4.0",
         "lodash": "^4.17.21",
         "promise-retry": "^2.0.1"
@@ -12,6 +12,7 @@
     "files": [
         "examples",
         "src",
+        "resources",
         "LICENSE"
     ],
     "node-red": {
@@ -24,19 +25,24 @@
     },
     "devDependencies": {
         "@babel/eslint-parser": "^7.27.1",
+        "@rollup/plugin-commonjs": "^28.0.6",
+        "@rollup/plugin-node-resolve": "^16.0.2",
         "csv-parse": "^5.6.0",
         "eslint": "^9.26.0",
         "eslint-config-google": "^0.14.0",
         "gar": "^1.0.4",
-        "standard": "^17.1.2",
         "jest": "^29.7.0",
+        "rollup": "^4.50.0",
+        "standard": "^17.1.2",
         "yargs": "^17.7.2"
     },
     "keywords": [
         "node-red"
     ],
     "scripts": {
-        "test": "npm run lint && npm run test:unit",
+        "build": "rollup -c",
+        "build:test": "rollup -c rollup.test.config.mjs",
+        "test": "npm run lint && npm run build && npm run build:test && npm run test:unit",
         "test:unit": "jest",
         "test:coverage": "jest --coverage",
         "lint": "standard --fix src/ scripts/",

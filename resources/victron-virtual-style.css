@@ -1,0 +1,124 @@
+a.blue-link {
+  color: rgb(71, 144, 208) !important;
+}
+.form-warning, .form-info {
+  padding-bottom: 8px;
+  max-width: 450px;
+}
+.form-warning .fa {
+  color: #d6615f;
+}
+.victron-doc-box {
+  margin-top: 12px;
+  background: #fcfcfa; /* almost white */
+  border: 1px solid #c0d4e6; /* blue border */
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-sizing: border-box;
+  max-width: 550px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.victron-doc-box img {
+  max-width: 320px;
+  border: none;
+  background: transparent;
+  margin-bottom: 12px;
+}
+.victron-doc-box label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8px;
+}
+.victron-doc-box .victron-doc-text {
+  font-size: 0.95em;
+  color: #444;
+  margin-bottom: 8px;
+/* Virtual device documentation styling - subtle version */
+.victron-doc-box {
+  margin: 10px 0;
+  padding: 10px 12px;
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 3px;
+  border-left: 3px solid #ccc;
+}
+
+.victron-doc-box label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: block;
+  color: #555;
+  font-size: 0.95em;
+}
+
+.victron-doc-text {
+  line-height: 1.3;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.victron-doc-text div {
+  margin-bottom: 8px;
+}
+
+.victron-doc-text div:last-child {
+  margin-bottom: 0;
+}
+
+.victron-doc-text strong {
+  color: #444;
+  font-weight: 600;
+}
+
+.victron-doc-text ul, .victron-doc-text ol {
+  margin: 4px 0 0 0;
+  padding-left: 18px;
+}
+
+.victron-doc-text li {
+  margin-bottom: 2px;
+  line-height: 1.2;
+}
+
+.victron-doc-text code {
+  background-color: #f5f5f5;
+  padding: 1px 3px;
+  border-radius: 2px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.85em;
+  color: #d14;
+  border: none;
+}
+
+/* Remove the special input styling */
+.victron-input-docs {
+  background-color: inherit;
+  border-left-color: inherit;
+  margin-bottom: 4px;
+  padding: 0;
+}
+
+.victron-input-docs strong {
+  color: #444;
+}}
+.switch-tooltip-container {
+  position: absolute;
+  background: #fff;
+  color: #666;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.4;
+  max-width: 280px;
+  z-index: 10000;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  pointer-events: none;
+}
+.switch-field-tooltip-icon {
+  margin-left: 6px;
+  color: #00BCFF;
+  cursor: help;
+}
