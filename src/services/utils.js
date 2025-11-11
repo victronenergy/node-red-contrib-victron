@@ -280,6 +280,104 @@ function mapCacheToJsonResponse (cache) {
 }
 
 /**
+ * Validates that a payload object is valid for setting virtual device values
+ * @param {any} payload - The payload to validate
+ * @returns {{ valid: boolean, error?: string, invalidKeys?: string[] }}
+ */
+function validateVirtualDevicePayload (payload) {
+  // Check if payload is an object
+  if (typeof payload !== 'object' || payload === null || Array.isArray(payload)) {
+    const receivedType = Array.isArray(payload) ? 'array' : typeof payload
+    return {
+      valid: false,
+      error: `Invalid payload type: ${receivedType}. Expected: JavaScript object with at least one property/value.`
+    }
+  }
+
+  // Check if object is empty
+  if (Object.keys(payload).length === 0) {
+    return {
+      valid: false,
+      error: 'Received empty object. Expected: JavaScript object with at least one property/value.'
+    }
+  }
+
+  // Check if all values are valid types (string, number, boolean, null, or array of numbers)
+  const invalidEntries = Object.entries(payload).filter(([key, value]) => {
+    if (value === null) return false
+    if (typeof value === 'string') return false
+    if (typeof value === 'number') return false
+    if (typeof value === 'boolean') return false
+    if (Array.isArray(value)) {
+      // Arrays are valid (for LightControls), but should contain only numbers
+      return !value.every(item => typeof item === 'number')
+    }
+    return true
+  })
+
+  if (invalidEntries.length > 0) {
+    const invalidKeys = invalidEntries.map(([key]) => key).join(', ')
+    return {
+      valid: false,
+      error: `Invalid value types for keys: ${invalidKeys}. Expected: string, number, boolean, null, or array of numbers.`,
+      invalidKeys: invalidEntries.map(([key]) => key)
+    }
+  }
+
+  return { valid: true }
+}
+
+/**
+ * Validates LightControls array for RGB control types
+ * @param {any} value - The LightControls value to validate
+ * @returns {{ valid: boolean, error?: string }}
+ */
+function validateLightControls (value) {
+  // Check if value is an array
+  if (!Array.isArray(value)) {
+    return {
+      valid: false,
+      error: 'LightControls must be an array of exactly 5 integers'
+    }
+  }
+
+  // Check array length
+  if (value.length !== 5) {
+    return {
+      valid: false,
+      error: `LightControls must have exactly 5 elements, got ${value.length}`
+    }
+  }
+
+  // Validate each element: [Hue(0-360), Saturation(0-100), Brightness(0-100), White(0-100), ColorTemperature(0-6500)]
+  const [hue, saturation, brightness, white, colorTemp] = value
+  const constraints = [
+    { name: 'Hue', value: hue, min: 0, max: 360, index: 0 },
+    { name: 'Saturation', value: saturation, min: 0, max: 100, index: 1 },
+    { name: 'Brightness', value: brightness, min: 0, max: 100, index: 2 },
+    { name: 'White', value: white, min: 0, max: 100, index: 3 },
+    { name: 'ColorTemperature', value: colorTemp, min: 0, max: 6500, index: 4 }
+  ]
+
+  // Check all elements are integers and within range
+  const invalidElements = constraints.filter(c =>
+    !Number.isInteger(c.value) || c.value < c.min || c.value > c.max
+  )
+
+  if (invalidElements.length > 0) {
+    const errors = invalidElements.map(c =>
+      `${c.name}[${c.index}]=${c.value} (valid range: ${c.min}-${c.max})`
+    ).join(', ')
+    return {
+      valid: false,
+      error: `Invalid LightControls values: ${errors}`
+    }
+  }
+
+  return { valid: true }
+}
+
+/**
  * Throttles a function so that it is called at most once
  * in the specified limitInMs interval. Calls at the trailing edge.
  * If multiple calls are made during the throttle period,
@@ -320,5 +418,7 @@ module.exports = {
   expandWildcardPaths,
   mapCacheValueToJsonResponseValue,
   mapCacheToJsonResponse,
+  validateVirtualDevicePayload,
+  validateLightControls,
   throttle
 }
