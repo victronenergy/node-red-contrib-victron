@@ -279,6 +279,32 @@ function mapCacheToJsonResponse (cache) {
   return JSON.stringify(result)
 }
 
+/**
+ * Throttles a function so that it is called at most once
+ * in the specified limitInMs interval. Calls at the trailing edge.
+ * If multiple calls are made during the throttle period,
+ * only the last call's arguments are used when the period ends.
+ * Compare https://stackoverflow.com/a/73842701/748139
+ */
+function throttle (func, limitInMs) {
+  let lastThis = null
+  let lastArgs = null
+  let lastTimeout = null
+
+  return function (...args) {
+    lastThis = this
+    lastArgs = args
+    if (!lastTimeout) {
+      lastTimeout = setTimeout(() => {
+        func.apply(lastThis, lastArgs)
+        lastTimeout = null
+        lastThis = null
+        lastArgs = null
+      }, limitInMs)
+    }
+  }
+}
+
 module.exports = {
   CONNECTED,
   DISCONNECTED,
@@ -293,5 +319,6 @@ module.exports = {
   WILDCARD_MAPPINGS,
   expandWildcardPaths,
   mapCacheValueToJsonResponseValue,
-  mapCacheToJsonResponse
+  mapCacheToJsonResponse,
+  throttle
 }
