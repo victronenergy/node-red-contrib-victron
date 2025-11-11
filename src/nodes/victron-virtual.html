@@ -115,7 +115,7 @@
         oneditprepare: function oneditprepare() {
             const { checkSelectedVirtualDevice, updateOutputs } = window.__victron;
 
-            if (this.id && this.changed === false) {
+            if (this.id && this.changed === false && this.device && this.device !== '') {
                 $('#node-input-device')
                     .prop('disabled', true)
                     .attr('title', 'Device type cannot be changed after deployment.');
