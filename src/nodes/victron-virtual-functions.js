@@ -2,6 +2,8 @@
 
 import {
   SWITCH_TYPE_MAP,
+  SWITCH_TYPE_NAMES,
+  SWITCH_TYPE_BITMASK_NAMES,
   SWITCH_OUTPUT_CONFIG,
   SWITCH_SECOND_OUTPUT_LABEL,
   SWITCH_THIRD_OUTPUT_LABEL
@@ -10,6 +12,8 @@ import {
 // Re-export for browser/test use
 export {
   SWITCH_TYPE_MAP,
+  SWITCH_TYPE_NAMES,
+  SWITCH_TYPE_BITMASK_NAMES,
   SWITCH_OUTPUT_CONFIG,
   SWITCH_SECOND_OUTPUT_LABEL,
   SWITCH_THIRD_OUTPUT_LABEL
@@ -93,6 +97,11 @@ export const SWITCH_TYPE_CONFIGS = {
   [SWITCH_TYPE_MAP.BILGE_PUMP]: {
     label: 'Bilge pump control',
     fields: [...COMMON_SWITCH_FIELDS]
+  },
+  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: {
+    label: 'RGB control',
+    fields: [...COMMON_SWITCH_FIELDS],
+    isRgbControl: true
   }
 }
 
@@ -167,6 +176,19 @@ export const SWITCH_TYPE_DOCS = {
     '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li><li><code>/SwitchableOutput/output_1/Alarm</code> &mdash; Indicates if an alarm condition is present (e.g., high water level).</li><li><code>/SwitchableOutput/output_1/Measurement</code> &mdash; If supported by the connected device, this path may provide additional measurement data, such as water level percentage.</li></ul></div>',
     '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the pump</li></ol></div>',
     '/resources/@victronenergy/node-red-contrib-victron/docs/bilge_pump.png'
+  ),
+  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: createDocTemplate(
+    `<div><strong>Most relevant path(s):</strong><ul>
+      <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of the light.</li>
+      <li><code>/SwitchableOutput/output_1/LightControls</code> &mdash; Array of 5 integers: <tt>[Hue (0-360°), Saturation (0-100%), Brightness (0-100%), White (0-100%), ColorTemperature (0-6500K)]</tt>.
+        <br><span style="font-size:0.95em;color:#666;">Array elements used depend on selected control types:<br>
+        • RGB color wheel: Hue, Saturation, Brightness<br>
+        • CCT wheel: Brightness, ColorTemperature<br>
+        • RGB + white dimmer: Hue, Saturation, Brightness, White</span>
+      </li>
+    </ul></div>`,
+    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the light</li><li><code>LightControls</code> &mdash; <tt>msg.payload</tt> contains the 5-element array with color and brightness values. Additional convenience fields: <tt>msg.rgb</tt> (hex string, e.g. #FF0000), <tt>msg.hsb</tt> (object with hue, saturation, brightness), <tt>msg.white</tt> (0-100%), <tt>msg.colorTemperature</tt> (Kelvin)</li></ol></div>',
+    '/resources/@victronenergy/node-red-contrib-victron/docs/rgb_cct_control.png'
   )
 }
 
@@ -358,6 +380,81 @@ export function renderSwitchConfigRow (context) {
         $('#node-input-switch_1_include_measurement').prop('checked', true)
       }
     }
+
+    if (cfg && cfg.isRgbControl) {
+      // Add RGB control type checkboxes
+      const rgbCheckboxes = $(`
+        <div id="switch-1-rgb-checkboxes" style="margin-top:10px;">
+          <label style="font-weight:bold;">Select RGB control types (at least one required):</label>
+          <div class="form-row">
+            <label>&nbsp;</label>
+            <label for="node-input-switch_1_rgb_color_wheel" style="width:70%;">
+              <input type="checkbox" id="node-input-switch_1_rgb_color_wheel" style="display:inline-block; width:22px; vertical-align:baseline;">
+              RGB color wheel
+            </label>
+          </div>
+          <div class="form-row">
+            <label>&nbsp;</label>
+            <label for="node-input-switch_1_cct_wheel" style="width:70%;">
+              <input type="checkbox" id="node-input-switch_1_cct_wheel" style="display:inline-block; width:22px; vertical-align:baseline;">
+              CCT wheel
+            </label>
+          </div>
+          <div class="form-row">
+            <label>&nbsp;</label>
+            <label for="node-input-switch_1_rgb_white_dimmer" style="width:70%;">
+              <input type="checkbox" id="node-input-switch_1_rgb_white_dimmer" style="display:inline-block; width:22px; vertical-align:baseline;">
+              RGB color wheel + white dimmer
+            </label>
+          </div>
+        </div>
+      `)
+      $('#switch-1-config-row').append(rgbCheckboxes)
+
+      // Restore saved values or default to first checkbox
+      const hasAnySaved = context.switch_1_rgb_color_wheel || context.switch_1_cct_wheel || context.switch_1_rgb_white_dimmer
+
+      if (context.switch_1_rgb_color_wheel) {
+        $('#node-input-switch_1_rgb_color_wheel').prop('checked', true)
+      }
+      if (context.switch_1_cct_wheel) {
+        $('#node-input-switch_1_cct_wheel').prop('checked', true)
+      }
+      if (context.switch_1_rgb_white_dimmer) {
+        $('#node-input-switch_1_rgb_white_dimmer').prop('checked', true)
+      }
+
+      // If no checkboxes are saved (new node), default to first one
+      if (!hasAnySaved) {
+        $('#node-input-switch_1_rgb_color_wheel').prop('checked', true)
+      }
+
+      // Add change handlers to prevent unchecking all boxes
+      const rgbCheckboxIds = [
+        '#node-input-switch_1_rgb_color_wheel',
+        '#node-input-switch_1_cct_wheel',
+        '#node-input-switch_1_rgb_white_dimmer'
+      ]
+
+      rgbCheckboxIds.forEach(id => {
+        $(id).on('change', function () {
+          // Count how many are checked
+          const checkedCount = rgbCheckboxIds.filter(cbId => $(cbId).is(':checked')).length
+
+          // If trying to uncheck the last one, prevent it
+          if (checkedCount === 0) {
+            $(this).prop('checked', true)
+            this.setCustomValidity('At least one RGB control type must be selected')
+            this.reportValidity()
+          } else {
+            // Clear validation message when at least one is checked
+            rgbCheckboxIds.forEach(cbId => {
+              $(cbId)[0].setCustomValidity('')
+            })
+          }
+        })
+      })
+    }
   }
 
   $('#node-input-switch_1_type').on('change', renderTypeConfig)
@@ -525,6 +622,28 @@ export function validateSwitchConfig () {
       if ($value.length) $value[0].setCustomValidity('')
     }
   }
+
+  // Special validation for RGB control - at least one checkbox must be selected
+  if (cfg && cfg.isRgbControl) {
+    const rgbColorWheel = $('#node-input-switch_1_rgb_color_wheel').is(':checked')
+    const cctWheel = $('#node-input-switch_1_cct_wheel').is(':checked')
+    const rgbWhiteDimmer = $('#node-input-switch_1_rgb_white_dimmer').is(':checked')
+
+    if (!rgbColorWheel && !cctWheel && !rgbWhiteDimmer) {
+      const $checkbox = $('#node-input-switch_1_rgb_color_wheel')[0]
+      if ($checkbox) {
+        $checkbox.setCustomValidity('At least one RGB control type must be selected')
+        $checkbox.reportValidity()
+      }
+      return false
+    } else {
+      // Clear any previous validation messages on all checkboxes
+      $('#node-input-switch_1_rgb_color_wheel')[0]?.setCustomValidity('')
+      $('#node-input-switch_1_cct_wheel')[0]?.setCustomValidity('')
+      $('#node-input-switch_1_rgb_white_dimmer')[0]?.setCustomValidity('')
+    }
+  }
+
   return true
 }
 
@@ -593,4 +712,144 @@ export function getOutputLabels (context = {}) {
   }
 
   return labels
+}
+
+/**
+ * Check if a switch type is an RGB control type
+ * @param {number} switchType - Switch type value
+ * @returns {boolean} True if the type is RGB control
+ */
+export function isRgbControlType (switchType) {
+  return switchType === SWITCH_TYPE_MAP.RGB_COLOR_WHEEL ||
+         switchType === SWITCH_TYPE_MAP.CCT_WHEEL ||
+         switchType === SWITCH_TYPE_MAP.RGB_WHITE_DIMMER
+}
+
+/**
+ * Calculate ValidTypes bitmask from selected RGB control checkboxes
+ * @param {boolean} rgbColorWheel - Whether RGB color wheel is selected
+ * @param {boolean} cctWheel - Whether CCT wheel is selected
+ * @param {boolean} rgbWhiteDimmer - Whether RGB + white dimmer is selected
+ * @returns {number} ValidTypes bitmask (OR'd combination)
+ */
+export function calculateRgbValidTypes (rgbColorWheel, cctWheel, rgbWhiteDimmer) {
+  let validTypes = 0
+  if (rgbColorWheel) validTypes |= (1 << SWITCH_TYPE_MAP.RGB_COLOR_WHEEL)
+  if (cctWheel) validTypes |= (1 << SWITCH_TYPE_MAP.CCT_WHEEL)
+  if (rgbWhiteDimmer) validTypes |= (1 << SWITCH_TYPE_MAP.RGB_WHITE_DIMMER)
+  return validTypes
+}
+
+/**
+ * Get the first selected RGB control type
+ * @param {boolean} rgbColorWheel - Whether RGB color wheel is selected
+ * @param {boolean} cctWheel - Whether CCT wheel is selected
+ * @param {boolean} rgbWhiteDimmer - Whether RGB + white dimmer is selected
+ * @returns {number} The first selected type value, or RGB_COLOR_WHEEL as default
+ */
+export function getFirstRgbType (rgbColorWheel, cctWheel, rgbWhiteDimmer) {
+  if (rgbColorWheel) return SWITCH_TYPE_MAP.RGB_COLOR_WHEEL
+  if (cctWheel) return SWITCH_TYPE_MAP.CCT_WHEEL
+  if (rgbWhiteDimmer) return SWITCH_TYPE_MAP.RGB_WHITE_DIMMER
+  return SWITCH_TYPE_MAP.RGB_COLOR_WHEEL // default fallback
+}
+
+/**
+ * Format bitmask to human-readable string using name mapping
+ * @param {number} bitmask - Bitmask value
+ * @param {Object} nameMap - Mapping of bit positions to names
+ * @returns {string} Comma-separated list of set bits
+ */
+export function formatBitmask (bitmask, nameMap) {
+  if (bitmask == null || bitmask === 0) return 'None'
+
+  const names = []
+  for (const [bitPosition, name] of Object.entries(nameMap)) {
+    if (bitmask & (1 << bitPosition)) {
+      names.push(name)
+    }
+  }
+
+  return names.length > 0 ? names.join(', ') : 'None'
+}
+
+/**
+ * Format light controls array for display
+ * @param {Array|string} value - Array of light controls or JSON string
+ * @param {number} switchType - Switch type value
+ * @returns {string} Formatted display string
+ */
+export function formatLightControls (value, switchType) {
+  let arr = value
+
+  // Handle both array and JSON string input for backwards compatibility
+  if (typeof value === 'string') {
+    try {
+      arr = JSON.parse(value)
+    } catch (e) {
+      return value || ''
+    }
+  }
+
+  if (!Array.isArray(arr) || arr.length < 5) {
+    return String(value) || ''
+  }
+
+  if (switchType === SWITCH_TYPE_MAP.RGB_COLOR_WHEEL) {
+    return `H:${arr[0]}° S:${arr[1]}% B:${arr[2]}%`
+  } else if (switchType === SWITCH_TYPE_MAP.CCT_WHEEL) {
+    return `B:${arr[2]}% CT:${arr[4]}K`
+  } else if (switchType === SWITCH_TYPE_MAP.RGB_WHITE_DIMMER) {
+    return `H:${arr[0]}° S:${arr[1]}% B:${arr[2]}% W:${arr[3]}%`
+  }
+
+  return String(value) || ''
+}
+
+/**
+ * Validates that a payload object is valid for setting virtual device values
+ * @param {any} payload - The payload to validate
+ * @returns {{ valid: boolean, error?: string, invalidKeys?: string[] }}
+ */
+export function validateVirtualDevicePayload (payload) {
+  // Check if payload is an object
+  if (typeof payload !== 'object' || payload === null || Array.isArray(payload)) {
+    const receivedType = Array.isArray(payload) ? 'array' : typeof payload
+    return {
+      valid: false,
+      error: `Invalid payload type: ${receivedType}. Expected: JavaScript object with at least one property/value.`
+    }
+  }
+
+  // Check if object is empty
+  if (Object.keys(payload).length === 0) {
+    return {
+      valid: false,
+      error: 'Received empty object. Expected: JavaScript object with at least one property/value.'
+    }
+  }
+
+  // Check if all values are valid types (string, number, boolean, null, or array of numbers)
+  const invalidEntries = Object.entries(payload).filter(([key, value]) => {
+    if (value === null) return false
+    if (typeof value === 'string') return false
+    if (typeof value === 'number') return false
+    if (typeof value === 'boolean') return false
+    if (Array.isArray(value)) {
+      // Arrays are valid (for LightControls), but should contain only numbers
+      return !value.every(item => typeof item === 'number')
+    }
+    return true
+  })
+
+  if (invalidEntries.length > 0) {
+    const invalidKeys = invalidEntries.map(([key]) => key).join(', ')
+    return {
+      valid: false,
+      error: `Invalid value types for keys: ${invalidKeys}. Expected: string, number, boolean, null, or array of numbers.`,
+      invalidKeys: invalidEntries.map(([key]) => key)
+    }
+  }
+
+  return { valid: true }
 }

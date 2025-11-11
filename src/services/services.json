@@ -3275,6 +3275,15 @@
         "mode": "both"
       },
       {
+        "path": "/Ac/In/{index}/CurrentLimitIsAdjustable",
+        "type": "enum",
+        "name": "Input {index} current limit is adjustable",
+        "enum": {
+          "0": "No",
+          "1": "Yes"
+        }
+      },
+      {
         "path": "/Ac/In/{index}/{phase}/F",
         "type": "float",
         "name": "Input {index} frequency phase {phase} (Hz)"
@@ -4700,12 +4709,6 @@
           "1": "AC Input 2",
           "240": "Disconnected"
         }
-      },
-      {
-        "path": "/Ac/ActiveIn/CurrentLimit",
-        "type": "float",
-        "name": "Active input current limit (A)",
-        "mode": "both"
       },
       {
         "path": "/Ac/ActiveIn/L{index}/F",

@@ -17,7 +17,44 @@
   	  BASIC_SLIDER: 7,
   	  NUMERIC_INPUT: 8,
   	  THREE_STATE: 9,
-  	  BILGE_PUMP: 10
+  	  BILGE_PUMP: 10,
+  	  RGB_COLOR_WHEEL: 11,
+  	  CCT_WHEEL: 12,
+  	  RGB_WHITE_DIMMER: 13
+  	};
+
+  	// Switch type names for Settings/Type display - RGB types all show as "RGB control"
+  	const SWITCH_TYPE_NAMES = {
+  	  [SWITCH_TYPE_MAP.MOMENTARY]: 'Momentary',
+  	  [SWITCH_TYPE_MAP.TOGGLE]: 'Toggle',
+  	  [SWITCH_TYPE_MAP.DIMMABLE]: 'Dimmable',
+  	  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'Temperature setpoint',
+  	  [SWITCH_TYPE_MAP.STEPPED]: 'Stepped switch',
+  	  [SWITCH_TYPE_MAP.DROPDOWN]: 'Dropdown',
+  	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Basic slider',
+  	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Numeric input',
+  	  [SWITCH_TYPE_MAP.THREE_STATE]: 'Three-state switch',
+  	  [SWITCH_TYPE_MAP.BILGE_PUMP]: 'Bilge pump control',
+  	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 'RGB control',
+  	  [SWITCH_TYPE_MAP.CCT_WHEEL]: 'RGB control',
+  	  [SWITCH_TYPE_MAP.RGB_WHITE_DIMMER]: 'RGB control'
+  	};
+
+  	// Distinct names for ValidTypes bitmask display - RGB types show as distinct variants
+  	const SWITCH_TYPE_BITMASK_NAMES = {
+  	  [SWITCH_TYPE_MAP.MOMENTARY]: 'Momentary',
+  	  [SWITCH_TYPE_MAP.TOGGLE]: 'Toggle',
+  	  [SWITCH_TYPE_MAP.DIMMABLE]: 'Dimmable',
+  	  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'Temperature setpoint',
+  	  [SWITCH_TYPE_MAP.STEPPED]: 'Stepped switch',
+  	  [SWITCH_TYPE_MAP.DROPDOWN]: 'Dropdown',
+  	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Basic slider',
+  	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Numeric input',
+  	  [SWITCH_TYPE_MAP.THREE_STATE]: 'Three-state switch',
+  	  [SWITCH_TYPE_MAP.BILGE_PUMP]: 'Bilge pump control',
+  	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 'RGB wheel',
+  	  [SWITCH_TYPE_MAP.CCT_WHEEL]: 'CCT wheel',
+  	  [SWITCH_TYPE_MAP.RGB_WHITE_DIMMER]: 'RGB+W dimmer'
   	};
 
   	const SWITCH_OUTPUT_CONFIG = {
@@ -30,7 +67,10 @@
   	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 2, // passthrough + slider value
   	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 3, // passthrough + state + numeric value
   	  [SWITCH_TYPE_MAP.THREE_STATE]: 2, // passthrough + state
-  	  [SWITCH_TYPE_MAP.BILGE_PUMP]: 2 // passthrough + state
+  	  [SWITCH_TYPE_MAP.BILGE_PUMP]: 2, // passthrough + state
+  	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 3, // passthrough + state + lightcontrols
+  	  [SWITCH_TYPE_MAP.CCT_WHEEL]: 3, // passthrough + state + lightcontrols
+  	  [SWITCH_TYPE_MAP.RGB_WHITE_DIMMER]: 3 // passthrough + state + lightcontrols
   	};
 
   	// Will default to 'State' if not defined here
@@ -43,7 +83,10 @@
   	const SWITCH_THIRD_OUTPUT_LABEL = {
   	  [SWITCH_TYPE_MAP.DIMMABLE]: 'Dimming',
   	  [SWITCH_TYPE_MAP.STEPPED]: 'Value',
-  	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Value'
+  	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Value',
+  	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 'LightControls',
+  	  [SWITCH_TYPE_MAP.CCT_WHEEL]: 'LightControls',
+  	  [SWITCH_TYPE_MAP.RGB_WHITE_DIMMER]: 'LightControls'
   	};
 
   	// Default debounce delay for virtual device property writes (in milliseconds)
@@ -51,6 +94,8 @@
 
   	victronVirtualConstants = {
   	  SWITCH_TYPE_MAP,
+  	  SWITCH_TYPE_NAMES,
+  	  SWITCH_TYPE_BITMASK_NAMES,
   	  SWITCH_OUTPUT_CONFIG,
   	  SWITCH_SECOND_OUTPUT_LABEL,
   	  SWITCH_THIRD_OUTPUT_LABEL,
@@ -142,6 +187,11 @@
     [victronVirtualConstantsExports.SWITCH_TYPE_MAP.BILGE_PUMP]: {
       label: 'Bilge pump control',
       fields: [...COMMON_SWITCH_FIELDS]
+    },
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: {
+      label: 'RGB control',
+      fields: [...COMMON_SWITCH_FIELDS],
+      isRgbControl: true
     }
   };
 
@@ -216,6 +266,19 @@
       '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li><li><code>/SwitchableOutput/output_1/Alarm</code> &mdash; Indicates if an alarm condition is present (e.g., high water level).</li><li><code>/SwitchableOutput/output_1/Measurement</code> &mdash; If supported by the connected device, this path may provide additional measurement data, such as water level percentage.</li></ul></div>',
       '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the pump</li></ol></div>',
       '/resources/@victronenergy/node-red-contrib-victron/docs/bilge_pump.png'
+    ),
+    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: createDocTemplate(
+      `<div><strong>Most relevant path(s):</strong><ul>
+      <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of the light.</li>
+      <li><code>/SwitchableOutput/output_1/LightControls</code> &mdash; Array of 5 integers: <tt>[Hue (0-360°), Saturation (0-100%), Brightness (0-100%), White (0-100%), ColorTemperature (0-6500K)]</tt>.
+        <br><span style="font-size:0.95em;color:#666;">Array elements used depend on selected control types:<br>
+        • RGB color wheel: Hue, Saturation, Brightness<br>
+        • CCT wheel: Brightness, ColorTemperature<br>
+        • RGB + white dimmer: Hue, Saturation, Brightness, White</span>
+      </li>
+    </ul></div>`,
+      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the light</li><li><code>LightControls</code> &mdash; <tt>msg.payload</tt> contains the 5-element array with color and brightness values. Additional convenience fields: <tt>msg.rgb</tt> (hex string, e.g. #FF0000), <tt>msg.hsb</tt> (object with hue, saturation, brightness), <tt>msg.white</tt> (0-100%), <tt>msg.colorTemperature</tt> (Kelvin)</li></ol></div>',
+      '/resources/@victronenergy/node-red-contrib-victron/docs/rgb_cct_control.png'
     )
   };
 
@@ -407,6 +470,81 @@
           $('#node-input-switch_1_include_measurement').prop('checked', true);
         }
       }
+
+      if (cfg && cfg.isRgbControl) {
+        // Add RGB control type checkboxes
+        const rgbCheckboxes = $(`
+        <div id="switch-1-rgb-checkboxes" style="margin-top:10px;">
+          <label style="font-weight:bold;">Select RGB control types (at least one required):</label>
+          <div class="form-row">
+            <label>&nbsp;</label>
+            <label for="node-input-switch_1_rgb_color_wheel" style="width:70%;">
+              <input type="checkbox" id="node-input-switch_1_rgb_color_wheel" style="display:inline-block; width:22px; vertical-align:baseline;">
+              RGB color wheel
+            </label>
+          </div>
+          <div class="form-row">
+            <label>&nbsp;</label>
+            <label for="node-input-switch_1_cct_wheel" style="width:70%;">
+              <input type="checkbox" id="node-input-switch_1_cct_wheel" style="display:inline-block; width:22px; vertical-align:baseline;">
+              CCT wheel
+            </label>
+          </div>
+          <div class="form-row">
+            <label>&nbsp;</label>
+            <label for="node-input-switch_1_rgb_white_dimmer" style="width:70%;">
+              <input type="checkbox" id="node-input-switch_1_rgb_white_dimmer" style="display:inline-block; width:22px; vertical-align:baseline;">
+              RGB color wheel + white dimmer
+            </label>
+          </div>
+        </div>
+      `);
+        $('#switch-1-config-row').append(rgbCheckboxes);
+
+        // Restore saved values or default to first checkbox
+        const hasAnySaved = context.switch_1_rgb_color_wheel || context.switch_1_cct_wheel || context.switch_1_rgb_white_dimmer;
+
+        if (context.switch_1_rgb_color_wheel) {
+          $('#node-input-switch_1_rgb_color_wheel').prop('checked', true);
+        }
+        if (context.switch_1_cct_wheel) {
+          $('#node-input-switch_1_cct_wheel').prop('checked', true);
+        }
+        if (context.switch_1_rgb_white_dimmer) {
+          $('#node-input-switch_1_rgb_white_dimmer').prop('checked', true);
+        }
+
+        // If no checkboxes are saved (new node), default to first one
+        if (!hasAnySaved) {
+          $('#node-input-switch_1_rgb_color_wheel').prop('checked', true);
+        }
+
+        // Add change handlers to prevent unchecking all boxes
+        const rgbCheckboxIds = [
+          '#node-input-switch_1_rgb_color_wheel',
+          '#node-input-switch_1_cct_wheel',
+          '#node-input-switch_1_rgb_white_dimmer'
+        ];
+
+        rgbCheckboxIds.forEach(id => {
+          $(id).on('change', function () {
+            // Count how many are checked
+            const checkedCount = rgbCheckboxIds.filter(cbId => $(cbId).is(':checked')).length;
+
+            // If trying to uncheck the last one, prevent it
+            if (checkedCount === 0) {
+              $(this).prop('checked', true);
+              this.setCustomValidity('At least one RGB control type must be selected');
+              this.reportValidity();
+            } else {
+              // Clear validation message when at least one is checked
+              rgbCheckboxIds.forEach(cbId => {
+                $(cbId)[0].setCustomValidity('');
+              });
+            }
+          });
+        });
+      }
     }
 
     $('#node-input-switch_1_type').on('change', renderTypeConfig);
@@ -574,6 +712,28 @@
         if ($value.length) $value[0].setCustomValidity('');
       }
     }
+
+    // Special validation for RGB control - at least one checkbox must be selected
+    if (cfg && cfg.isRgbControl) {
+      const rgbColorWheel = $('#node-input-switch_1_rgb_color_wheel').is(':checked');
+      const cctWheel = $('#node-input-switch_1_cct_wheel').is(':checked');
+      const rgbWhiteDimmer = $('#node-input-switch_1_rgb_white_dimmer').is(':checked');
+
+      if (!rgbColorWheel && !cctWheel && !rgbWhiteDimmer) {
+        const $checkbox = $('#node-input-switch_1_rgb_color_wheel')[0];
+        if ($checkbox) {
+          $checkbox.setCustomValidity('At least one RGB control type must be selected');
+          $checkbox.reportValidity();
+        }
+        return false
+      } else {
+        // Clear any previous validation messages on all checkboxes
+        $('#node-input-switch_1_rgb_color_wheel')[0]?.setCustomValidity('');
+        $('#node-input-switch_1_cct_wheel')[0]?.setCustomValidity('');
+        $('#node-input-switch_1_rgb_white_dimmer')[0]?.setCustomValidity('');
+      }
+    }
+
     return true
   }
 
@@ -618,17 +778,16 @@
 
   // src/nodes/victron-virtual-browser.js
 
-  window.checkGeneratorType = checkGeneratorType;
-  window.SWITCH_TYPE_CONFIGS = SWITCH_TYPE_CONFIGS;
-  window.SWITCH_OUTPUT_CONFIG = victronVirtualConstantsExports.SWITCH_OUTPUT_CONFIG;
-  window.SWITCH_SECOND_OUTPUT_LABEL = victronVirtualConstantsExports.SWITCH_SECOND_OUTPUT_LABEL;
-  window.SWITCH_THIRD_OUTPUT_LABEL = victronVirtualConstantsExports.SWITCH_THIRD_OUTPUT_LABEL;
-  window.renderSwitchConfigRow = renderSwitchConfigRow;
-  window.updateSwitchConfig = updateSwitchConfig;
-  window.checkSelectedVirtualDevice = checkSelectedVirtualDevice;
-  window.validateSwitchConfig = validateSwitchConfig;
-  window.updateBatteryVoltageVisibility = updateBatteryVoltageVisibility;
-  window.calculateOutputs = calculateOutputs;
-  window.updateOutputs = updateOutputs;
+  window.__victron = {
+    checkGeneratorType,
+    SWITCH_TYPE_CONFIGS,
+    renderSwitchConfigRow,
+    updateSwitchConfig,
+    checkSelectedVirtualDevice,
+    validateSwitchConfig,
+    updateBatteryVoltageVisibility,
+    calculateOutputs,
+    updateOutputs
+  };
 
 })();

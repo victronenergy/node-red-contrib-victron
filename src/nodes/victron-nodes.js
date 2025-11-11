@@ -52,6 +52,7 @@ module.exports = function (RED) {
       this.defaulttopic = nodeDefinition.serviceObj.name + ' - ' + nodeDefinition.pathObj.name
       this.onlyChanges = nodeDefinition.onlyChanges
       this.roundValues = nodeDefinition.roundValues
+      this.rateLimit = nodeDefinition.rateLimit || 0
       this.sentInitialValue = false
 
       this.configNode = RED.nodes.getNode('victron-client-id')
@@ -76,9 +77,8 @@ module.exports = function (RED) {
           } setTimeout(migrateSubscriptions, 1000, this)
         }
 
-        const isPollingEnabled = this.configNode.enablePolling || false
-        const callbackPeriodically = !this.node.onlyChanges && !isPollingEnabled
-        this.subscription = this.client.subscribe(this.service, this.path, (msg) => {
+        // Message processing function
+        const processMessage = (msg) => {
           let topic = this.defaulttopic
           if (this.node.name) {
             topic = this.node.name
@@ -126,6 +126,18 @@ module.exports = function (RED) {
           if (!this.sentInitialValue) {
             this.sentInitialValue = true
           }
+        }
+
+        // Apply throttling if rate limit is set
+        const throttleMs = this.rateLimit > 0 ? Math.floor(1000 / this.rateLimit) : 0
+        const throttledProcessMessage = throttleMs > 0 ? utils.throttle(processMessage, throttleMs) : processMessage
+
+        const isPollingEnabled = this.configNode.enablePolling || false
+        const callbackPeriodically = !this.node.onlyChanges && !isPollingEnabled
+        this.subscription = this.client.subscribe(this.service, this.path, (msg) => {
+          // Always call the (possibly throttled) process function
+          // If not throttled, it runs immediately. If throttled, it schedules with latest value
+          throttledProcessMessage(msg)
         }, { callbackPeriodically })
       }
 
@@ -150,7 +162,20 @@ module.exports = function (RED) {
       this.pathObj = nodeDefinition.pathObj
       this.service = nodeDefinition.service
       this.path = nodeDefinition.path
-      this.initialValue = nodeDefinition.initial
+
+      // Migrate string initial values to proper types
+      let initialValue = nodeDefinition.initial
+      if (initialValue !== undefined && initialValue !== null && nodeDefinition.pathObj) {
+        const pathType = nodeDefinition.pathObj.type
+        if ((pathType === 'float' || pathType === 'integer' || pathType === 'enum') && typeof initialValue === 'string') {
+          const numValue = pathType === 'integer' || pathType === 'enum' ? parseInt(initialValue) : parseFloat(initialValue)
+          if (!isNaN(numValue)) {
+            initialValue = numValue
+            debug(`Migrated initial value from string "${nodeDefinition.initial}" to number ${numValue}`)
+          }
+        }
+      }
+      this.initialValue = initialValue
 
       this.configNode = RED.nodes.getNode('victron-client-id')
       this.client = this.configNode.client
