@@ -530,7 +530,7 @@ export function updateBatteryVoltageVisibility () {
 
 export function checkSelectedVirtualDevice (context) {
   [
-    'acload', 'battery', 'generator', 'gps', 'grid', 'motordrive',
+    'acload', 'battery', 'generator', 'gps', 'grid', 'e-drive',
     'pvinverter', 'switch', 'tank', 'temperature'
   ].forEach(x => { $('.input-' + x).hide() })
 

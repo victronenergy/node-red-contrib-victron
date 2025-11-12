@@ -64,8 +64,9 @@ describe('Service Documentation Generator', () => {
   })
 
   test('generates complete HTML documentation', () => {
-    const doc = generateDocumentation(testServicesData, 'nodered')
-    
+    const registeredNodes = { inputNodes: new Set(['switch']), outputNodes: new Set(['switch']) }
+    const doc = generateDocumentation(testServicesData, registeredNodes, 'nodered')
+
     expect(doc).toContain('data-help-name="victron-input-switch"')
     expect(doc).toContain('data-help-name="victron-output-switch"')
     expect(doc).toContain('Wildcard Paths')
@@ -75,8 +76,9 @@ describe('Service Documentation Generator', () => {
   })
 
   test('generates complete markdown documentation', () => {
-    const doc = generateDocumentation(testServicesData, 'md')
-    
+    const registeredNodes = { inputNodes: new Set(['switch']), outputNodes: new Set(['switch']) }
+    const doc = generateDocumentation(testServicesData, registeredNodes, 'md')
+
     expect(doc).toContain('# Available Nodes')
     expect(doc).toContain('## Switch (input)')
     expect(doc).toContain('## Switch (output)')
@@ -98,9 +100,10 @@ describe('Service Documentation Generator', () => {
         ]
       }
     }
-    
-    const doc = generateDocumentation(simpleService, 'nodered')
-    
+
+    const registeredNodes = { inputNodes: new Set(['battery']), outputNodes: new Set() }
+    const doc = generateDocumentation(simpleService, registeredNodes, 'nodered')
+
     expect(doc).toContain('Battery voltage (V DC)')
     expect(doc).toContain('/Dc/0/Voltage')
     expect(doc).not.toContain('Wildcard Paths')

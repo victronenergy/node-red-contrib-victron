@@ -5038,8 +5038,8 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-motordrive">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
-<p>This is the motordrive node. See <a href="https://bitbucket.org/oceanvolt/dbus_motordrive/src">https://bitbucket.org/oceanvolt/dbus_motordrive/src</a> for more information.</p>
-<h3>Motordrive</h3>
+<p>This is the E-drive node. See <a href="https://bitbucket.org/oceanvolt/dbus_motordrive/src">https://bitbucket.org/oceanvolt/dbus_motordrive/src</a> for more information.</p>
+<h3>E-drive</h3>
 <dl class="message-properties">
   <dt class="optional">Controller Temperature (°C)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Controller/Temperature</b><span class="property-mode"></span>
@@ -5065,8 +5065,8 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-output-motordrive">
 <h3>Details</h3>
 <p>The <strong>output nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
-<p>This is the motordrive node. See <a href="https://bitbucket.org/oceanvolt/dbus_motordrive/src">https://bitbucket.org/oceanvolt/dbus_motordrive/src</a> for more information.</p>
-<h3>Motordrive</h3>
+<p>This is the E-drive node. See <a href="https://bitbucket.org/oceanvolt/dbus_motordrive/src">https://bitbucket.org/oceanvolt/dbus_motordrive/src</a> for more information.</p>
+<h3>E-drive</h3>
 <dl class="message-properties">
   <dt class="optional">Controller Temperature (°C)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Controller/Temperature</b><span class="property-mode"></span>
@@ -5119,6 +5119,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Ac input <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code> current limit (A)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/In/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code>/CurrentLimit</b><span class="property-mode"> (Mode: both)</span>
 </dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Input <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code> current limit is adjustable<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/In/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code>/CurrentLimitIsAdjustable</b><span class="property-mode"></span>
+<ul>
+  <li>0 - No</li>
+  <li>1 - Yes</li>
+</ul></dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Input <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code> frequency phase <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{phase}</code> (Hz)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/In/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code>/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{phase}</code>/F</b><span class="property-mode"></span>
 </dd>
@@ -5378,6 +5384,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Ac input <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code> current limit (A)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/In/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code>/CurrentLimit</b><span class="property-mode"> (Mode: both)</span>
 </dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Input <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code> current limit is adjustable<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/In/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code>/CurrentLimitIsAdjustable</b><span class="property-mode"></span>
+<ul>
+  <li>0 - No</li>
+  <li>1 - Yes</li>
+</ul></dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Input <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code> frequency phase <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{phase}</code> (Hz)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/In/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code>/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{phase}</code>/F</b><span class="property-mode"></span>
 </dd>
@@ -7442,9 +7454,6 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - AC Input 2</li>
   <li>240 - Disconnected</li>
 </ul></dd>
-  <dt class="optional">Active input current limit (A)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Ac/ActiveIn/CurrentLimit</b><span class="property-mode"> (Mode: both)</span>
-</dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Input frequency phase <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code> (Hz)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/ActiveIn/L<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code>/F</b><span class="property-mode"></span>
 </dd>
@@ -7757,9 +7766,6 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - AC Input 2</li>
   <li>240 - Disconnected</li>
 </ul></dd>
-  <dt class="optional">Active input current limit (A)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Ac/ActiveIn/CurrentLimit</b><span class="property-mode"> (Mode: both)</span>
-</dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Input frequency phase <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code> (Hz)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/ActiveIn/L<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code>/F</b><span class="property-mode"></span>
 </dd>

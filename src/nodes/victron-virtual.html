@@ -126,6 +126,10 @@
         oneditprepare: function oneditprepare() {
             const { checkSelectedVirtualDevice, updateOutputs } = window.__victron;
 
+            if (this.device === 'motordrive') {
+                this.device = 'e-drive';
+            }
+
             if (this.id && this.changed === false && this.device && this.device !== '') {
                 $('#node-input-device')
                     .prop('disabled', true)
@@ -231,11 +235,11 @@
         <select id="node-input-device" required>
             <option value="acload">AC Load</option>
             <option value="battery">Battery</option>
+            <option value="e-drive">E-drive</option>
             <option value="generator">Generator</option>
             <option value="gps">GPS</option>
             <option value="grid">Grid meter</option>
             <option value="meteo">Meteo</option>
-            <option value="motordrive">Motor drive</option>
             <option value="pvinverter">PV inverter</option>
             <option value="switch">Switch</option>
             <option value="tank">Tank sensor</option>
@@ -401,7 +405,7 @@
         </div>
     </div>
 
-    <div class="input-motordrive">
+    <div class="input-e-drive">
         <div class="form-row">
             <label>&nbsp;</label>
             <label for="node-input-include_motor_rpm" style="width:70%;">
@@ -535,10 +539,11 @@ Important note: Please be aware that using virtual devices on Victron systems ma
 
 To get started, pull a virtual device to the canvas and configure it. First the
 device type needs to be selected. At the moment the system supports:
+- AC Load
 - Battery
+- E-drive
 - Grid meter
 - Meteo
-- Motor drive
 - PV inverter
 - Switch
 - Tank sensor
@@ -598,6 +603,9 @@ path + value combination (recommended) or use the _Custom Control_ node.
 The AC Load device can be configured by selecting the number of phases (1 or 3)
 that are available on the device.
 
+Note that the S2 support is experimental and subject to change. Only enable it
+if you really know what you are doing.
+
 ### Battery
 
 The battery device allows for setting the capacity of the battery. The capacity
@@ -649,11 +657,11 @@ The meteo device only supports the irradiance and windspeed. Typically you
 would use it to send data from your weather stations to both a virtual meteo
 device and a virtual temperature sensor.
 
-### Motor drive
+### E-drive
 
-The motor drive device represents an electric drive system, which can be used for various electric propulsion applications such as boats or electric vehicles.
+The E-drive device represents an electric drive system, which can be used for various electric propulsion applications such as boats or electric vehicles.
 
-The basic parameters for a motor drive are voltage, current, and power, which function similar to a battery device. The motor drive can have both positive and negative values for current and power, depending on whether the motor is consuming power or regenerating (when braking or going downhill).
+The basic parameters for an E-drive are voltage, current, and power, which function similar to a battery device. The E-drive can have both positive and negative values for current and power, depending on whether the motor is consuming power or regenerating (when braking or going downhill).
 
 Additionally, you can enable optional monitoring parameters:
 - Motor RPM
@@ -688,7 +696,7 @@ console and attached screen of the GX device. Settings things like name and grou
 done while setting up in the edit panel, but can also be done from the GX device directly.
 On restart of Node-RED, the stored name and group will be applied again.
 
-The switch types correspond to the Venus OS dbus switch specification, which can be found 
+The switch types correspond to the Venus OS dbus switch specification, which can be found
 [here](https://github.com/victronenergy/venus/wiki/dbus#switch).
 
 For dimmable switches, an additional "Dimming" property is available that accepts

@@ -3213,8 +3213,8 @@
     ]
   },
   "motordrive": {
-    "help": { 
-      "both": "<p>This is the motordrive node. See <a href=\"https://bitbucket.org/oceanvolt/dbus_motordrive/src\">https://bitbucket.org/oceanvolt/dbus_motordrive/src</a> for more information.</p>",
+    "help": {
+      "both": "<p>This is the E-drive node. See <a href=\"https://bitbucket.org/oceanvolt/dbus_motordrive/src\">https://bitbucket.org/oceanvolt/dbus_motordrive/src</a> for more information.</p>",
       "input": "",
       "output": ""
     },

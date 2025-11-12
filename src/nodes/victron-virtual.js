@@ -300,7 +300,7 @@ const properties = {
 }
 
 function getIfaceDesc (dev) {
-  const actualDev = dev === 'generator' ? 'genset' : dev
+  const actualDev = dev === 'generator' ? 'genset' : dev === 'e-drive' ? 'motordrive' : dev
   if (!properties[actualDev]) {
     return {}
   }
@@ -323,7 +323,7 @@ function getIfaceDesc (dev) {
 }
 
 function getIface (dev) {
-  const actualDev = dev === 'generator' ? 'genset' : dev
+  const actualDev = dev === 'generator' ? 'genset' : dev === 'e-drive' ? 'motordrive' : dev
   if (!properties[actualDev]) {
     return {
       emit: function () {
@@ -574,7 +574,9 @@ module.exports = function (RED) {
 
       const actualDeviceType = config.device === 'generator'
         ? (config.generator_type === 'dc' ? 'dcgenset' : 'genset')
-        : config.device
+        : config.device === 'e-drive'
+          ? 'motordrive'
+          : config.device
 
       const serviceName = `com.victronenergy.${actualDeviceType}.virtual_${self.id}`
       const interfaceName = serviceName
@@ -836,7 +838,8 @@ module.exports = function (RED) {
             }
             break
           }
-          case 'motordrive': {
+          case 'motordrive':
+          case 'e-drive': {
             // Remove optional properties if not enabled
             if (!config.include_motor_temp) {
               delete ifaceDesc.properties['Motor/Temperature']
@@ -881,7 +884,7 @@ module.exports = function (RED) {
               }
             }
 
-            text = 'Virtual motor drive'
+            text = 'Virtual E-drive'
             // Add RPM and Direction to the node status text if they are enabled
             if (config.include_motor_rpm || config.include_motor_direction) {
               text += ' with'

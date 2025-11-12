@@ -160,7 +160,7 @@ function generateServiceDoc (serviceName, serviceData, format) {
       if (relevantPaths.length === 0) continue
 
       const nodeName = `victron-${nodeType}-${serviceName}`
-      const title = serviceName.charAt(0).toUpperCase() + serviceName.slice(1)
+      const title = serviceName === 'motordrive' ? 'E-drive' : serviceName.charAt(0).toUpperCase() + serviceName.slice(1)
 
       if (format === 'md') {
         doc += `\n## ${title} (${nodeType})\n`
@@ -218,14 +218,92 @@ function generateServiceDoc (serviceName, serviceData, format) {
 }
 
 /**
+ * Parse reference HTML to get registered nodes
+ */
+function parseRegisteredNodes (referenceHtml) {
+  const inputNodes = new Set()
+  const outputNodes = new Set()
+
+  const inputRegex = /registerInputNode\('victron-input-(\w+)'/g
+  const outputRegex = /registerOutputNode\('victron-output-(\w+)'/g
+
+  let match
+  while ((match = inputRegex.exec(referenceHtml)) !== null) {
+    inputNodes.add(match[1])
+  }
+  while ((match = outputRegex.exec(referenceHtml)) !== null) {
+    outputNodes.add(match[1])
+  }
+
+  return { inputNodes, outputNodes }
+}
+
+/**
+ * Generate overview section with links to all nodes
+ */
+function generateOverview (servicesData, registeredNodes, format) {
+  if (format !== 'md') return ''
+
+  const services = Object.keys(servicesData).sort()
+
+  const inputNodesSet = new Set()
+  const outputNodesSet = new Set()
+
+  services.forEach(serviceName => {
+    const serviceData = servicesData[serviceName]
+    const title = serviceName === 'motordrive' ? 'E-drive' : serviceName.charAt(0).toUpperCase() + serviceName.slice(1)
+    const anchor = serviceName.toLowerCase()
+
+    let hasAnyInput = false
+    let hasAnyOutput = false
+
+    Object.entries(serviceData).forEach(([serviceType, serviceTypeData]) => {
+      if (serviceType === 'help') return
+
+      const paths = serviceTypeData || []
+      if (paths.length === 0) return
+
+      if (paths.some(p => !p.mode || p.mode === 'both' || p.mode === 'input')) {
+        hasAnyInput = true
+      }
+      if (paths.some(p => !p.mode || p.mode === 'both' || p.mode === 'output')) {
+        hasAnyOutput = true
+      }
+    })
+
+    if (hasAnyInput && registeredNodes.inputNodes.has(serviceName)) {
+      inputNodesSet.add(`[${title}](#${anchor}-input)`)
+    }
+    if (hasAnyOutput && registeredNodes.outputNodes.has(serviceName)) {
+      outputNodesSet.add(`[${title} Control](#${anchor}-output)`)
+    }
+  })
+
+  const inputNodesList = Array.from(inputNodesSet)
+  const outputNodesList = Array.from(outputNodesSet)
+
+  let overview = ''
+  if (inputNodesList.length > 0) {
+    overview += `**Input nodes:** ${inputNodesList.join(', ')}\n\n`
+  }
+  if (outputNodesList.length > 0) {
+    overview += `**Output nodes:** ${outputNodesList.join(', ')}\n\n`
+  }
+  overview += 'If there are services and paths not covered by the above nodes, there are also 2 [custom nodes](#custom-nodes) that allow you to read from and write to all found dbus services and paths.\n\n'
+
+  return overview
+}
+
+/**
  * Main documentation generation function
  */
-function generateDocumentation (servicesData, format) {
+function generateDocumentation (servicesData, registeredNodes, format) {
   let doc = ''
 
   if (format === 'md') {
     doc += '# Available Nodes\n\n'
     doc += 'This document lists all available Victron Energy nodes and their measurable values.\n\n'
+    doc += generateOverview(servicesData, registeredNodes, format)
   } else {
     // Add CSS for wildcard styling in Node-RED format
     doc += `
@@ -307,8 +385,18 @@ function main () {
 
     const servicesData = JSON.parse(fs.readFileSync(servicesPath, 'utf8'))
 
+    // Read reference HTML file
+    const referencePath = path.resolve(argv.reference)
+    if (!fs.existsSync(referencePath)) {
+      console.error(`Reference file not found: ${referencePath}`)
+      process.exit(1)
+    }
+
+    const referenceHtml = fs.readFileSync(referencePath, 'utf8')
+    const registeredNodes = parseRegisteredNodes(referenceHtml)
+
     // Generate documentation
-    const documentation = generateDocumentation(servicesData, argv.output)
+    const documentation = generateDocumentation(servicesData, registeredNodes, argv.output)
 
     // Output to stdout (for piping)
     process.stdout.write(documentation)
