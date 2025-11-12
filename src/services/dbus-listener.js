@@ -366,7 +366,6 @@ class VictronDbusListener {
   setValue (destination, path, value, cb) {
     let numType = 'd'
 
-    // Check if we need to find the full path
     if (destination.split('/').length === 2) {
       const deviceInstance = destination.split('/')[1]
 
@@ -380,8 +379,14 @@ class VictronDbusListener {
       destination = searchHaystack(this.services, deviceInstance, destination.split('/')[0])
     }
 
-    if (Number.isInteger(value)) { numType = 'i' }
-    if (typeof value === 'string') { numType = 's' }
+    if (Array.isArray(value)) {
+      const allIntegers = value.every(item => Number.isInteger(item))
+      numType = allIntegers ? 'ai' : 'ad'
+    } else if (Number.isInteger(value)) {
+      numType = 'i'
+    } else if (typeof value === 'string') {
+      numType = 's'
+    }
 
     try {
       debug(`Setting value for ${destination}, ${path}, ${value} (${numType})`)
