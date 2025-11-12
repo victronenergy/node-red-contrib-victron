@@ -174,6 +174,16 @@ describe('utils', () => {
       expect(result.invalidKeys).toEqual(['BadArray'])
     })
 
+    it('accepts an s2Signal payload', () => {
+      const result = validateVirtualDevicePayload({
+        s2Signal: 'Message',
+        message: {
+          hello: 'world'
+        }
+      })
+      expect(result.valid).toBe(true)
+    })
+
     it('rejects payload that is not an object (string)', () => {
       const result = validateVirtualDevicePayload('not an object')
       expect(result.valid).toBe(false)
@@ -499,7 +509,7 @@ describe('utils', () => {
 
     it('preserves this context', () => {
       const context = { value: 42 }
-      const func = jest.fn(function () {
+      const func = jest.fn(function() {
         return this.value
       })
       const debounced = debounce(func, 300)

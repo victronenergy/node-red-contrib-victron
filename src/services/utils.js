@@ -285,12 +285,17 @@ function mapCacheToJsonResponse (cache) {
  * @returns {{ valid: boolean, error?: string, invalidKeys?: string[] }}
  */
 function validateVirtualDevicePayload (payload) {
-  // Check if payload is an object
-  if (typeof payload !== 'object' || payload === null || Array.isArray(payload)) {
-    const receivedType = Array.isArray(payload) ? 'array' : typeof payload
-    return {
-      valid: false,
-      error: `Invalid payload type: ${receivedType}. Expected: JavaScript object with at least one property/value.`
+  if (payload && payload.s2Signal) {
+    // TODO: add s2Signal specific validation here
+    console.log('s2Signal validation, not implemented yet', payload)
+    return { valid: true }
+  } else {
+    if (typeof payload !== 'object' || payload === null || Array.isArray(payload)) {
+      const receivedType = Array.isArray(payload) ? 'array' : typeof payload
+      return {
+        valid: false,
+        error: `Invalid payload type: ${receivedType}. Expected: JavaScript object with at least one property/value.`
+      }
     }
   }
 

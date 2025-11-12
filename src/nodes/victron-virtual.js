@@ -78,6 +78,17 @@ const commonGeneratorProperties = {
 }
 
 const properties = {
+  acload: {
+    'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(3) + 'kWh' : '', value: 0 },
+    'Ac/Energy/Reverse': { type: 'd', format: (v) => v != null ? v.toFixed(3) + 'kWh' : '', value: 0 },
+    'Ac/L1/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
+    'Ac/L1/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(3) + 'kWh' : '', value: 0 },
+    'Ac/L1/Energy/Reverse': { type: 'd', format: (v) => v != null ? v.toFixed(3) + 'kWh' : '', value: 0 },
+    'Ac/L1/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
+    'Ac/L1/PowerFactor': { type: 'd', format: (v) => v != null ? v.toFixed(2) : '' },
+    'Ac/L1/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
+    'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' }
+  },
   battery: {
     Capacity: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'Ah' : '', persist: true },
     'Dc/0/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '', immediate: true },
@@ -439,6 +450,44 @@ module.exports = function (RED) {
         }
       }
 
+      function failAndDone (text, done) {
+        node.status({
+          fill: 'red',
+          shape: 'dot',
+          text
+        })
+        return done()
+      }
+
+      function successAndDone (text, done) {
+        node.status({
+          fill: 'green',
+          shape: 'dot',
+          text
+        })
+        return done()
+      }
+
+      if (msg.payload.s2Signal !== undefined) {
+        console.warn('About to send s2Signal', msg.payload)
+        switch (msg.payload.s2Signal) {
+          case 'Message':
+            if (!msg.payload.message) {
+              return failAndDone('s2Signal "Message" requires message', done)
+            }
+            node.emitS2Signal(msg.payload.s2Signal, [JSON.stringify(msg.payload.message)])
+            return successAndDone('Sent s2Signal "Message"', done)
+          case 'Disconnect':
+            if (!msg.payload.reason) {
+              return failAndDone('s2Signal "Disconnect" requires reason', done)
+            }
+            node.emitS2Signal(msg.payload.s2Signal, [msg.payload.reason])
+            return successAndDone('Sent s2Signal "Disconnect"', done)
+          default:
+            return failAndDone(`s2Signal "${msg.payload.s2Signal}" not implemented`, done)
+        }
+      }
+
       try {
         debugInput(`Setting values locally for node ${node.id}:`, msg.payload)
 
@@ -654,8 +703,8 @@ module.exports = function (RED) {
                 voltage = Number(config.battery_voltage_preset)
               } else if (config.battery_voltage_preset === 'custom') {
                 if (config.battery_voltage_custom != null &&
-                    config.battery_voltage_custom !== '' &&
-                    !isNaN(Number(config.battery_voltage_custom))) {
+                  config.battery_voltage_custom !== '' &&
+                  !isNaN(Number(config.battery_voltage_custom))) {
                   voltage = Number(config.battery_voltage_custom)
                 }
                 // If custom is selected but no valid value provided, use default
@@ -1123,8 +1172,8 @@ module.exports = function (RED) {
             }
 
             if (switchType === SWITCH_TYPE_MAP.RGB_COLOR_WHEEL ||
-                switchType === SWITCH_TYPE_MAP.CCT_WHEEL ||
-                switchType === SWITCH_TYPE_MAP.RGB_WHITE_DIMMER) {
+              switchType === SWITCH_TYPE_MAP.CCT_WHEEL ||
+              switchType === SWITCH_TYPE_MAP.RGB_WHITE_DIMMER) {
               // LightControls is an array containing [Hue(0-360°), Saturation(0-100%), Brightness(0-100%), White(0-100%), ColorTemperature(0-6500K)]
               // All types use the full 5-element array
               const lightControlKey = 'SwitchableOutput/output_1/LightControls'
@@ -1258,6 +1307,120 @@ module.exports = function (RED) {
             }
             text = `Virtual ${properties.temperature.TemperatureType.format(iface.TemperatureType).toLowerCase()} temperature sensor`
             break
+          case 'acload': {
+            iface.NrOfPhases = Number(config.acload_nrofphases ?? 1)
+            const properties = [
+              { name: 'Current', unit: 'A' },
+              { name: 'Power', unit: 'W' },
+              { name: 'Voltage', unit: 'V' },
+              { name: 'Energy/Forward', unit: 'kWh' },
+              { name: 'Energy/Reverse', unit: 'kWh' },
+              { name: 'PowerFactor', unit: '' }
+            ]
+
+            for (let i = 1; i <= iface.NrOfPhases; i++) {
+              const phase = `L${i}`
+              properties.forEach(({ name, unit }) => {
+                const key = `Ac/${phase}/${name}`
+                ifaceDesc.properties[key] = {
+                  type: 'd',
+                  format: (v) => v != null ? v.toFixed(2) + unit : ''
+                }
+                iface[key] = 0
+              })
+            }
+
+            if (config.default_values) {
+              iface['Ac/Power'] = 0
+              iface['Ac/Energy/Forward'] = 0
+              iface['Ac/Energy/Reverse'] = 0
+            }
+
+            // Enable S2 support if configured
+            if (config.enable_s2support) {
+              console.warn('S2 support for acload virtual device is not yet implemented.')
+
+              // additional properties
+              const additionalS2Properties = {
+                'S2/0/Active': { type: 'i' },
+                'S2/0/RmSettings/OffHysteresis': { type: 'i' },
+                'S2/0/RmSettings/OnHysteresis': { type: 'i' },
+                'S2/0/RmSettings/PowerSetting': { type: 'i' },
+                'S2/0/Priority': { type: 'i' },
+                'S2/0/Rm': { type: 's', format: (v) => v != null ? v : '' }
+              }
+
+              const s2Defaults = {
+                'S2/0/Active': 0,
+                'S2/0/RmSettings/OffHysteresis': 30,
+                'S2/0/RmSettings/OnHysteresis': 30,
+                'S2/0/RmSettings/PowerSetting': 1000,
+                'S2/0/Priority': null,
+                'S2/0/Rm': ''
+              }
+
+              Object.entries(additionalS2Properties).forEach(([key, desc]) => {
+                ifaceDesc.properties[key] = desc
+                iface[key] = s2Defaults[key]
+              })
+
+              // What needs to be done here is add the dbus interface for com.victronenergy.s2
+              ifaceDesc.__enableS2 = true
+              ifaceDesc.__s2Handlers = {
+                Connect: function (cemId, timeout) {
+                  console.log('Connect received for CEM ID:', cemId, 'timeout', timeout)
+                  node.send([
+                    null,
+                    {
+                      payload: {
+                        command: 'Connect',
+                        cemId,
+                        keepAliveInterval: timeout
+                      }
+                    }
+                  ])
+                },
+                Disconnect: function (cemId) {
+                  node.send([
+                    null,
+                    {
+                      payload: {
+                        command: 'Disconnect',
+                        cemId
+                      }
+                    }
+                  ])
+                },
+                Message: function (cemId, message) {
+                  node.send([
+                    null,
+                    {
+                      payload: {
+                        command: 'Message',
+                        cemId,
+                        message
+                      }
+                    }
+                  ])
+                },
+                KeepAlive: function (cemId) {
+                  console.log('KeepAlive received for CEM ID:', cemId)
+                  node.send([
+                    null,
+                    {
+                      payload: {
+                        command: 'KeepAlive',
+                        cemId
+                      }
+                    }
+                  ])
+                }
+              }
+            }
+
+            text = `Virtual ${iface.NrOfPhases}-phase AC load`
+            break
+          }
         }
 
         if (hasPersistedState(RED, self.id)) {
@@ -1354,6 +1517,10 @@ module.exports = function (RED) {
           if (retCode === 1 || retCode === 3) {
             debug(`Successfully requested service name "${serviceName}" (${retCode})`)
             // Store serviceName on node for cleanup during close
+            if (retCode === 3) {
+              console.warn(`Service name "${serviceName}" for ${config.device} already exists on the bus, this may result in undesired behavior.`)
+              node.warn(`Service name "${serviceName}" for ${config.device} already exists on the bus, this may result in undesired behavior.`)
+            }
             node.serviceName = serviceName
           } else {
             /* Other return codes means various errors, check here
@@ -1370,7 +1537,12 @@ module.exports = function (RED) {
           }
         })
 
+        // TODO: S2: Should we rename this?
+        // We need to add a emitCallbackS2 for S2-related property changes
+        // to be able to react to imocoming connection requests and messages.
         function emitCallback (event, data) {
+          // we could use node.context().set('bla', 42) to set (and get) state, but state disappears on redeploy
+          // for global context: node.context().global.set('bla', 43)
           if (event !== 'ItemsChanged') {
             return
           }
@@ -1498,10 +1670,12 @@ module.exports = function (RED) {
         const {
           removeSettings,
           getValue,
-          setValuesLocally
+          setValuesLocally,
+          emitS2Signal
         } = addVictronInterfaces(usedBus, ifaceDesc, iface, /* add_defaults */ true, emitCallback)
 
         node.setValuesLocally = setValuesLocally
+        node.emitS2Signal = emitS2Signal
 
         // If there are pending calls, process them now
         node.pendingCallsToSetValuesLocally.forEach(([msg, done]) => {

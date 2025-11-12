@@ -10,6 +10,9 @@
             outputs: {value:1},
             device: {value:"", required: true},
             default_values: {value: false, required: false},
+            // acload
+            acload_nrofphases: {value: 1, required: false},
+            enable_s2support: {value: false, required: false},
             // battery
             battery_capacity: {value: 25, required: false},
             include_battery_temperature: {value: false},
@@ -143,6 +146,13 @@
         oneditsave: function() {
             const { validateSwitchConfig, SWITCH_TYPE_CONFIGS, updateOutputs } = window.__victron;
 
+            if (this.device === 'acload') {
+                // Ensure number of phases is valid
+                this.acload_nrofphases = parseInt(this.acload_nrofphases) || 1;
+                if (![1, 3].includes(this.acload_nrofphases)) {
+                    this.acload_nrofphases = 1;
+                }
+            }
             if (this.device === 'switch') {
                 // Validate required fields before saving
                 if (typeof validateSwitchConfig === 'function' && !validateSwitchConfig()) {
@@ -219,6 +229,7 @@
     <div class="form-row">
         <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
         <select id="node-input-device" required>
+            <option value="acload">AC Load</option>
             <option value="battery">Battery</option>
             <option value="generator">Generator</option>
             <option value="gps">GPS</option>
@@ -230,6 +241,22 @@
             <option value="tank">Tank sensor</option>
             <option value="temperature">Temperature sensor</option>
         </select>
+    </div>
+    <div class="form-row input-acload" style="display:none;">
+        <label for="node-input-acload_nrofphases"><i class="fa fa-plug"></i> Number of phases</label>
+        <select id="node-input-acload_nrofphases" style="width:70%;">
+            <option value="1">1 phase</option>
+            <option value="3">3 phase</option>
+        </select>
+    </div>
+    <div class="form-row input-acload" style="display:none;">
+        <label for="node-input-enable_s2support">
+            <i class="fa fa-info-circle"></i> S2 support
+        </label>
+        <input type="checkbox" id="node-input-enable_s2support" style="width:auto;">
+        <span style="margin-left: 10px; color: #666; font-size: 0.9em;">
+            Enable Victron S2 protocol support for smart charging
+        </span>
     </div>
     <div class="input-battery">
         <div class="form-row" id="battery-capacity">
@@ -486,6 +513,15 @@
             </div>
         </div>
     </div>
+
+    <!-- Add acload configuration section -->
+    <div class="form-row" id="acload-config" style="display:none;">
+        <label for="node-input-acload_nrofphases"><i class="fa fa-plug"></i> Number of phases</label>
+        <select type="text" id="node-input-acload_nrofphases" style="width:70%;">
+            <option value="1">1 phase</option>
+            <option value="3">3 phase</option>
+        </select>
+    </div>
 </script>
 
 <script type="text/markdown" data-help-name="victron-virtual">
@@ -556,6 +592,11 @@ update all specified properties and show the number of updated values in its sta
 
 If you want to set a single value, you can either use this way to send that single
 path + value combination (recommended) or use the _Custom Control_ node.
+
+### AC Load
+
+The AC Load device can be configured by selecting the number of phases (1 or 3)
+that are available on the device.
 
 ### Battery
 
