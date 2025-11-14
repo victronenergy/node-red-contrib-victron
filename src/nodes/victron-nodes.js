@@ -183,7 +183,7 @@ module.exports = function (RED) {
       const handlerId = this.configNode.addStatusListener(this, this.service, this.path)
 
       const setValue = (value, path) => {
-        if (!path) {
+        if (!path && !this.path) {
           throw new Error(`Output node ${this.id} requires a path to write to, service: ${this.service}`)
         }
 
