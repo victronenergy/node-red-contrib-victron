@@ -1,6 +1,13 @@
 
 <script type="text/template" id="input-edit-template">
     <div class="victron-form">
+        <div class="form-row" id="name-row">
+            <label for="node-input-name">Name</label>
+            <input type="text" id="node-input-name">
+            <div class="info-text">
+                <i>The node can be given an arbitrary label that is shown instead of device name and service.</i>
+            </div>
+        </div>
         <div class="hidden" id="custominfo">
             <div class="info-text">
                 Note that there is no guarantee that used services and paths will remain existent with firmware updates for custom nodes.</i>
@@ -38,14 +45,6 @@
                 The initial value is sent to the device whenever the node is deployed.
             </div>
         </div>
-        <div class="form-row" id="name-row">
-            <hr />
-            <label for="node-input-name">Node label</label>
-            <input type="text" id="node-input-name">
-            <div class="info-text">
-                <i>The node can be given an arbitrary label that is shown instead of device name and service.</i>
-            </div>
-        </div>
         <div class="hidden" id="outputinfo">
             <hr />
             <div class="info-text">
@@ -53,8 +52,13 @@
                 Please refer to 'Value Types' box above for adjustable settings.</i>
             </div>
         </div>
+        <div class="form-row hidden" id="onlyChanges">
+            <label for="node-input-onlyChanges"><i class="fa fa-bell"></i>Only on change</label>
+            <input type="checkbox" checked id="node-input-onlyChanges">
+            <span class="info-text" style="padding-left: 0; padding-top: 0;">Only output on value change.</span>
+        </div>
         <div class="form-row hidden" id="roundValues">
-            <label style="min-width:190px" for="node-input-roundValues"><i class="fa fa-minus-circle"></i>Rounding</label>
+            <label for="node-input-roundValues"><i class="fa fa-minus-circle"></i>Rounding</label>
             <select id="node-input-roundValues">
                 <option value="no">Do not round</option>
                 <option value="0">Zero digits</option>
@@ -62,19 +66,9 @@
                 <option value="2">2 digits</option>
                 <option value="3">3 digits</option>
             </select>
-            <div class="info-text">
-                Round values to less digits.
-            </div>
-        </div>
-        <div class="form-row hidden" id="onlyChanges">
-            <label style="min-width:190px" for="node-input-onlyChanges"><i class="fa fa-bell"></i>Only changes</label>
-            <input type="checkbox" checked id="node-input-onlyChanges" style="max-width:30px">
-            <div class="info-text">
-                Only send output on (initially not rounded) value changes and not every 5 seconds.
-            </div>
         </div>
         <div class="form-row hidden" id="rateLimit">
-            <label style="min-width:190px" for="node-input-rateLimit"><i class="fa fa-tachometer"></i>Rate limit</label>
+            <label for="node-input-rateLimit"><i class="fa fa-tachometer"></i>Rate limit</label>
             <select id="node-input-rateLimit">
                 <option value="0">No limit</option>
                 <option value="10">10 msg/sec</option>
@@ -85,7 +79,7 @@
                 <option value="0.2">1 msg per 5 sec</option>
             </select>
             <div class="info-text">
-                Limit the maximum rate of messages. Useful for high-frequency measurements like grid meters. Most measurements don't need rate limiting.
+                Limit the rate of messages. Useful for high-frequency measurements.
             </div>
         </div>
     </div>
@@ -613,8 +607,10 @@
         min-width: 140px;
     }
     .victron-form .info-text {
-        padding: 8px 0px;
-        font-style: italic;
+        font-size: 12px;
+        color: #999;
+        padding-left: 144px;
+        padding-top: 4px;
     }
     .victron-form .hr {
         margin: 8px 0;
@@ -632,5 +628,8 @@
     }
     #node-input-name {
         width: 300px;
+    }
+    #node-input-onlyChanges input {
+        max-width: 30px;
     }
 </style>

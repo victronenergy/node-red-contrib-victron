@@ -1,0 +1,282 @@
+<script type="text/javascript">
+  RED.nodes.registerType('victron-dynamic', {
+    category: 'Victron Energy',
+    color: '#f7ab3e',
+    paletteLabel: "Dynamic service monitor",
+    defaults: {
+      name: { value: '' },
+      serviceType: { value: '', required: true },
+      paths: { value: [], required: true },
+      onlyChanges: { value: true },
+      roundValues: { value: 'no' },
+      rateLimit: { value: 0 }
+    },
+    inputs: 0,
+    outputs: 1,
+    icon: 'victronenergy.svg',
+    label: function () {
+      return this.name || `Dynamic ${this.serviceType || 'service monitor'}`
+    },
+    labelStyle: function () {
+      return this.name ? 'node_label_italic' : ''
+    },
+    oneditprepare: function () {
+      const node = this
+      const serviceTypeSelect = $('#node-input-serviceType')
+      const pathsContainer = $('#paths-container')
+      const serviceRoot = (RED.settings.httpNodeRoot || RED.settings.httpAdminRoot || '').replace(/\/$/, '')
+
+      // Load service types from the server
+      $.getJSON(serviceRoot + '/victron/service-types', function (serviceTypes) {
+        serviceTypes.forEach(type => {
+          serviceTypeSelect.append($('<option></option>')
+            .attr('value', type.value)
+            .text(type.label))
+        })
+
+        // Set current value
+        if (node.serviceType) {
+          serviceTypeSelect.val(node.serviceType)
+          loadPathsForServiceType(node.serviceType)
+        }
+      }).fail(function () {
+        pathsContainer.html('<p class="form-tips" style="color: red;">Error loading service types. Please ensure the server is connected.</p>')
+      })
+
+      // Handle service type change
+      serviceTypeSelect.on('change', function () {
+        const selectedType = $(this).val()
+        loadPathsForServiceType(selectedType)
+      })
+
+      function loadPathsForServiceType (serviceType) {
+        if (!serviceType) {
+          pathsContainer.html('<p class="form-tips">Please select a service type first</p>')
+          return
+        }
+
+        // Fetch path definitions from services.json (not from current cache)
+        $.getJSON(serviceRoot + '/victron/service-type-paths/' + serviceType, function (paths) {
+          pathsContainer.empty()
+
+          if (!paths || paths.length === 0) {
+            pathsContainer.html('<p class="form-tips">No paths available for this service type</p>')
+            return
+          }
+
+          // Sort paths alphabetically by name
+          const pathList = paths.sort((a, b) => a.name.localeCompare(b.name))
+
+          if (pathList.length === 0) {
+            pathsContainer.html('<p class="form-tips">No paths available for this service type</p>')
+            return
+          }
+
+          // Create checkboxes for each path in a compact layout
+          const pathCheckboxes = $('<div class="path-checkboxes-container"></div>')
+
+          pathList.forEach(pathObj => {
+            const pathId = 'path-' + pathObj.path.replace(/\//g, '-').replace(/[{}]/g, '')
+            const isChecked = node.paths && node.paths.includes(pathObj.path)
+
+            const checkboxRow = $('<div class="path-checkbox-row"></div>')
+
+            const checkbox = $('<input type="checkbox" class="path-checkbox">')
+              .attr('id', pathId)
+              .attr('data-path', pathObj.path)
+              .prop('checked', isChecked)
+
+            const nameSpan = $('<label class="path-name"></label>')
+              .text(pathObj.name)
+              .attr('for', pathId)
+
+            const pathSpan = $('<label class="path-path"></label>')
+              .text(pathObj.path)
+              .attr('for', pathId)
+
+            checkboxRow.append(checkbox, nameSpan, pathSpan)
+            pathCheckboxes.append(checkboxRow)
+          })
+
+          pathsContainer.append(pathCheckboxes)
+          pathsContainer.append('<p class="form-tips" style="margin-top: 6px; margin-bottom: 0;">Select one or more paths</p>')
+        }).fail(function (xhr) {
+          if (xhr.status === 404) {
+            pathsContainer.html('<p class="form-tips" style="color: red;">Service type not found in definitions.</p>')
+          } else {
+            pathsContainer.html('<p class="form-tips" style="color: red;">Error loading paths. Please ensure the server is running.</p>')
+          }
+        })
+      }
+    },
+    oneditsave: function () {
+      // Collect selected paths
+      const selectedPaths = []
+      $('#paths-container input[type="checkbox"]:checked').each(function () {
+        selectedPaths.push($(this).data('path'))
+      })
+      this.paths = selectedPaths
+    }
+  })
+</script>
+
+<script type="text/x-red" data-template-name="victron-dynamic">
+  <style>
+    .path-checkboxes-container {
+      max-width: 600px;
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 8px;
+      background: #fafafa;
+    }
+    .path-checkbox-row {
+      display: flex;
+      align-items: center;
+      padding: 3px 0;
+      border-bottom: 1px solid #eee;
+      gap: 8px; /* Spacing between columns */
+    }
+    .path-checkbox-row label {
+      cursor: pointer;
+      display: block;
+    }
+    .path-checkbox {
+      flex-basis: 20px; /* Preferred width for checkbox */
+      flex-shrink: 0; /* Prevent shrinking */
+      width: auto; /* Allow browser to determine actual width based on flex-basis */
+    }
+    .path-name {
+      font-size: 13px;
+      flex-basis: 35%; /* 35% of remaining space */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-shrink: 0;
+    }
+    .path-path {
+      color: #999;
+      font-size: 10px;
+      font-family: monospace;
+      flex-basis: 65%; /* 65% of remaining space */
+      flex-shrink: 0;
+    }
+    .info-text {
+      font-size: 12px;
+      color: #999;
+      padding-left: 104px;
+      padding-top: 4px;
+    }
+  </style>
+
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-serviceType"><i class="fa fa-sitemap"></i> Service Type</label>
+    <select id="node-input-serviceType"></select>
+  </div>
+
+  <div class="form-row">
+    <label for="paths-container"><i class="fa fa-list"></i> Paths</label>
+    <div id="paths-container">
+      <p class="form-tips">Please select a service type first</p>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <hr style="margin: 15px 0;" />
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-onlyChanges"><i class="fa fa-bell"></i> Only on change</label>
+    <input type="checkbox" checked id="node-input-onlyChanges" style="max-width:30px">
+    <span class="info-text" style="padding-left: 0; padding-top: 0;">Only output on value change.</span>
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-roundValues"><i class="fa fa-minus-circle"></i> Rounding</label>
+    <select id="node-input-roundValues">
+      <option value="no">Do not round</option>
+      <option value="0">0 digits</option>
+      <option value="1">1 digit</option>
+      <option value="2">2 digits</option>
+      <option value="3">3 digits</option>
+    </select>
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-rateLimit"><i class="fa fa-tachometer"></i> Rate limit</label>
+    <select id="node-input-rateLimit">
+      <option value="0">No limit</option>
+      <option value="10">10 msg/sec</option>
+      <option value="5">5 msg/sec</option>
+      <option value="2">2 msg/sec</option>
+      <option value="1">1 msg/sec</option>
+      <option value="0.5">1 msg per 2 sec</option>
+      <option value="0.2">1 msg per 5 sec</option>
+    </select>
+    <div class="info-text">
+      Limit the rate of messages. Useful for high-frequency measurements.
+    </div>
+  </div>
+
+  <div class="form-row">
+    <hr style="margin: 15px 0;" />
+  </div>
+
+  <div class="form-row">
+    <div class="form-tips" style="display: block;">
+      <p><strong>About this node:</strong> Automatically discovers and monitors <em>all instances</em> of a specific service type. The configuration is portable - works across different installations without modification.</p>
+    </div>
+  </div>
+</script>
+
+<script type="text/markdown" data-help-name="victron-dynamic">
+A node that automatically discovers and monitors ALL instances of a configured service type.
+
+### Details
+
+This node provides a portable configuration that works across different Venus OS installations without reconfiguration.
+It automatically discovers all D-Bus services matching the configured service type and outputs values from all discovered instances.
+
+### Configuration
+
+- **Service Type**: Select the type of service to monitor (e.g., battery, solarcharger, pvinverter)
+- **Paths**: Select one or more D-Bus paths to monitor on each discovered service instance
+
+### Outputs
+
+: payload (any) : The value from the D-Bus path
+: service (string) : The full D-Bus service name (e.g., "com.victronenergy.battery.ttyUSB0")
+: path (string) : The D-Bus path (e.g., "/Soc")
+: textValue (string) : For enum types, the textual representation of the value
+
+### Example Use Cases
+
+#### Monitor all battery SoC values
+Configure: Service Type = "battery", Paths = ["/Soc"]
+- Site A with 1 battery → outputs 1 stream
+- Site B with 3 batteries → outputs 3 streams
+- Same node configuration!
+
+#### Monitor all solar charger voltages and currents
+Configure: Service Type = "solarcharger", Paths = ["/Dc/0/Voltage", "/Dc/0/Current"]
+
+Automatically discovers all MPPT controllers and outputs voltage and current from each.
+
+### Benefits
+
+- **Portable**: Configure once, deploy to any site
+- **Auto-discovery**: No need to know device instances ahead of time
+- **Multi-instance**: Automatically handles sites with multiple devices of the same type
+- **Future-proof**: Works with devices added after deployment
+
+### References
+
+- [Venus D-Bus Documentation](https://github.com/victronenergy/venus/wiki/dbus) - Venus documentation on used dbus services and available paths
+- [GitHub Issue #213](https://github.com/victronenergy/node-red-contrib-victron/issues/213) - Original feature request
+- [Victron Community](https://community.victronenergy.com/c/node-red/28) - Node-RED space in the Victron Energy community
+</script>
