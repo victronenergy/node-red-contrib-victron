@@ -126,4 +126,187 @@ describe('victron-nodes', () => {
 
   });
 
+  it('allows output nodes to use msg.path to override configured path', () => {
+    const handleStatus = jest.fn(function(_node, message, _reportingNode, _muteStatusEvent) {
+      if (message.hasOwnProperty('text') && typeof message.text !== 'string') {
+        message.text = message.text.toString();
+      }
+    });
+
+    const registerType = jest.fn();
+    const publish = jest.fn((service, path, value, callback) => {
+      callback(null);
+    });
+
+    const createNode = function(self, config) {
+      self.name = config.name;
+      self.serviceObj = config.serviceObj;
+      self.pathObj = config.pathObj;
+      self.id = 'test-node-id';
+
+      self.on = jest.fn((event, handler) => {
+        if (event === 'input') {
+          self._inputHandler = handler;
+        }
+      });
+
+      self.status = jest.fn((message) => {
+        handleStatus(self, message, self, false);
+      });
+    }
+
+    const getNodeFn = function getNode(id) {
+      if (id === "victron-client-id") {
+        return {
+          addStatusListener: jest.fn(),
+          removeStatusListener: jest.fn(),
+          client: {
+            publish,
+          },
+          showValues: true
+        }
+      }
+      throw new Error("[mock getNode] Node not found: " + id);
+    }
+
+    const mockRED = {
+      nodes: {
+        registerType: registerType,
+        createNode: createNode,
+        getNode: getNodeFn,
+      }
+    };
+
+    victronNodesInitFunction(mockRED);
+
+    const outputRegistrations = registerType.mock.calls.filter(call => call[0].startsWith('victron-output-'));
+    const batteryOutputRegistration = outputRegistrations.find(call => call[0] === 'victron-output-battery');
+
+    expect(batteryOutputRegistration).toBeDefined();
+    const BaseOutputNode = batteryOutputRegistration[1];
+
+    const node = new BaseOutputNode({
+      name: 'Test Battery Output',
+      service: 'com.victronenergy.battery/0',
+      path: '/Dc/0/Voltage',
+      pathObj: {
+        name: "Voltage",
+        type: "float",
+        disabled: false
+      },
+      serviceObj: {
+        name: "Battery"
+      }
+    });
+
+    expect(node._inputHandler).toBeDefined();
+
+    node._inputHandler.call(node, {
+      payload: 12.5,
+      path: '/Dc/0/Current'
+    });
+
+    expect(publish).toHaveBeenCalledWith(
+      'com.victronenergy.battery/0',
+      '/Dc/0/Current',
+      12.5,
+      expect.any(Function)
+    );
+  });
+
+  it('relay output node ignores msg.path and uses configured path', () => {
+    const handleStatus = jest.fn(function(_node, message, _reportingNode, _muteStatusEvent) {
+      if (message.hasOwnProperty('text') && typeof message.text !== 'string') {
+        message.text = message.text.toString();
+      }
+    });
+
+    const registerType = jest.fn();
+    const publish = jest.fn((service, path, value, callback) => {
+      callback(null);
+    });
+
+    const createNode = function(self, config) {
+      self.name = config.name;
+      self.serviceObj = config.serviceObj;
+      self.pathObj = config.pathObj;
+      self.id = 'test-relay-node-id';
+
+      self.on = jest.fn((event, handler) => {
+        if (event === 'input') {
+          self._inputHandler = handler;
+        }
+      });
+
+      self.removeAllListeners = jest.fn(() => {
+        self._inputHandler = null;
+      });
+
+      self.status = jest.fn((message) => {
+        handleStatus(self, message, self, false);
+      });
+    }
+
+    const getNodeFn = function getNode(id) {
+      if (id === "victron-client-id") {
+        return {
+          addStatusListener: jest.fn(),
+          removeStatusListener: jest.fn(),
+          client: {
+            publish,
+          },
+          showValues: true
+        }
+      }
+      throw new Error("[mock getNode] Node not found: " + id);
+    }
+
+    const mockRED = {
+      nodes: {
+        registerType: registerType,
+        createNode: createNode,
+        getNode: getNodeFn,
+      }
+    };
+
+    victronNodesInitFunction(mockRED);
+
+    const relayOutputRegistration = registerType.mock.calls.find(call => call[0] === 'victron-output-relay');
+
+    expect(relayOutputRegistration).toBeDefined();
+    const RelayOutputNode = relayOutputRegistration[1];
+
+    const node = new RelayOutputNode({
+      name: 'Test Relay Output',
+      service: 'com.victronenergy.system',
+      path: '/Relay/0/State',
+      pathObj: {
+        name: "Relay State",
+        type: "enum",
+        disabled: false,
+        enum: {
+          0: "Open",
+          1: "Closed"
+        }
+      },
+      serviceObj: {
+        name: "Relay"
+      }
+    });
+
+    expect(node._inputHandler).toBeDefined();
+
+    node._inputHandler.call(node, {
+      payload: 1,
+      path: '/Relay/1/State'
+    });
+
+    expect(publish).toHaveBeenCalledWith(
+      'com.victronenergy.system',
+      '/Relay/0/State',
+      1,
+      expect.any(Function)
+    );
+  });
+
 });

@@ -182,7 +182,7 @@ module.exports = function (RED) {
 
       const handlerId = this.configNode.addStatusListener(this, this.service, this.path)
 
-      const setValue = (value, path) => {
+      this.setValue = (value, path) => {
         if (!path && !this.path) {
           throw new Error(`Output node ${this.id} requires a path to write to, service: ${this.service}`)
         }
@@ -209,7 +209,6 @@ module.exports = function (RED) {
         }
 
         if (!this.pathObj.disabled && this.service && writepath) {
-          // If the value is null, just call.
           if (value === null) {
             this.client.publish(this.service, writepath, value, (err) => {
               this.node.status({
@@ -226,7 +225,6 @@ module.exports = function (RED) {
             return
           }
 
-          // Check that the value type matches what's expected
           const valueType = typeof value
           if (valueType !== usedTypes[this.pathObj.type]) {
             this.node.status({
@@ -237,7 +235,6 @@ module.exports = function (RED) {
             return
           }
 
-          // Additional validation for enum values
           if (this.pathObj.type === 'enum' && !Object.hasOwn(this.pathObj.enum, value)) {
             this.node.status({
               fill: 'red',
@@ -263,20 +260,30 @@ module.exports = function (RED) {
         }
       }
 
-      // Set initial value only if it's not empty
       if (this.initialValue !== undefined &&
         this.initialValue !== null &&
         this.initialValue !== '') {
-        setValue(this.initialValue)
+        this.setValue(this.initialValue)
       }
 
       this.on('input', function (msg) {
-        setValue(msg.payload, msg.path)
+        this.setValue(msg.payload, msg.path)
       })
 
       this.on('close', function (done) {
         this.node.configNode.removeStatusListener(handlerId)
         done()
+      })
+    }
+  }
+
+  class RelayOutputNode extends BaseOutputNode {
+    constructor (nodeDefinition) {
+      super(nodeDefinition)
+
+      this.removeAllListeners('input')
+      this.on('input', function (msg) {
+        this.setValue(msg.payload)
       })
     }
   }
@@ -331,7 +338,7 @@ module.exports = function (RED) {
   RED.nodes.registerType('victron-output-multi', BaseOutputNode)
   RED.nodes.registerType('victron-output-pump', BaseOutputNode)
   RED.nodes.registerType('victron-output-pvinverter', BaseOutputNode)
-  RED.nodes.registerType('victron-output-relay', BaseOutputNode)
+  RED.nodes.registerType('victron-output-relay', RelayOutputNode)
   RED.nodes.registerType('victron-output-settings', BaseOutputNode)
   RED.nodes.registerType('victron-output-solarcharger', BaseOutputNode)
   RED.nodes.registerType('victron-output-switch', BaseOutputNode)
