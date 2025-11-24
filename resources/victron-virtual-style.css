@@ -1,47 +1,67 @@
 a.blue-link {
   color: rgb(71, 144, 208) !important;
 }
+/* Form layout - consistent widths */
+.form-row label {
+  width: 216px !important;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.form-row input[type="text"],
+.form-row input[type="number"],
+.form-row select {
+  width: 240px !important;
+  vertical-align: middle;
+}
+
+.form-row input[type="checkbox"] {
+  width: auto !important;
+}
+
 .form-warning, .form-info {
   padding-bottom: 8px;
-  max-width: 450px;
+  max-width: 480px;
 }
+
+.form-warning {
+  padding: 12px;
+  width: 430px;
+  background-color: #fff5f5;
+  border: 1px solid #f5c6c6;
+  border-radius: 3px;
+  margin-bottom: 12px;
+}
+
 .form-warning .fa {
   color: #d6615f;
 }
-.victron-doc-box {
-  margin-top: 12px;
-  background: #fcfcfa; /* almost white */
-  border: 1px solid #c0d4e6; /* blue border */
-  border-radius: 12px;
-  padding: 16px 20px;
-  box-sizing: border-box;
-  max-width: 550px;
-  margin-left: auto;
-  margin-right: auto;
+
+.form-tips {
+  padding: 16px;
+  margin-bottom: 12px;
+  width: 424px;
+  background-color: #fffbea;
+  border: 1px solid #e0d7b7;
+  border-radius: 3px;
 }
+/* Virtual device documentation box styling */
+.victron-doc-box {
+  margin: 10px 0;
+  padding: 12px 16px;
+  background-color: #fafafa;
+  border: 1px solid #e8e8e8;
+  border-radius: 3px;
+  width: 456px;
+  box-sizing: border-box;
+  font-size: 0.95em;
+}
+
 .victron-doc-box img {
   max-width: 320px;
   border: none;
   background: transparent;
   margin-bottom: 12px;
-}
-.victron-doc-box label {
-  font-weight: bold;
-  display: block;
-  margin-bottom: 8px;
-}
-.victron-doc-box .victron-doc-text {
-  font-size: 0.95em;
-  color: #444;
-  margin-bottom: 8px;
-/* Virtual device documentation styling - subtle version */
-.victron-doc-box {
-  margin: 10px 0;
-  padding: 10px 12px;
-  background-color: #f9f9f9;
-  border: 1px solid #e0e0e0;
-  border-radius: 3px;
-  border-left: 3px solid #ccc;
 }
 
 .victron-doc-box label {
@@ -101,8 +121,9 @@ a.blue-link {
 
 .victron-input-docs strong {
   color: #444;
-}}
-.switch-tooltip-container {
+}
+
+.tooltip-container, .switch-tooltip-container {
   position: absolute;
   background: #fff;
   color: #666;
@@ -117,8 +138,32 @@ a.blue-link {
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   pointer-events: none;
 }
-.switch-field-tooltip-icon {
+.tooltip-icon, .switch-field-tooltip-icon {
+  display: inline;
   margin-left: 6px;
   color: #00BCFF;
   cursor: help;
+  float: none;
+}
+
+/* Default values radio buttons */
+.default-values-radio-container {
+  display: inline-block;
+}
+
+.default-values-radio-container label {
+  width: auto !important; /* Override .form-row label width */
+  display: inline-block;
+  margin-right: 15px;
+  white-space: nowrap;
+}
+
+.default-values-radio-container label:last-child {
+  margin-right: 0;
+}
+
+.default-values-radio-container input[type="radio"] {
+  width: auto;
+  margin-right: 5px;
+  vertical-align: middle;
 }

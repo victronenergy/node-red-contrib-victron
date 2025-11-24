@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="resources/@victronenergy/node-red-contrib-victron/victron-virtual-style.css">
+<script src="resources/@victronenergy/node-red-contrib-victron/victron-common.js"></script>
 
 <script type="text/template" id="input-edit-template">
     <div class="victron-form">
@@ -12,13 +14,13 @@
             </div>
         </div>
         <div class="form-row" id="service-row">
-            <label for="node-input-service">Device</label>
-            <select id="node-input-service"></select>
+            <label for="node-input-service" style="width:216px; display:inline-block">Device</label>
+            <select id="node-input-service" style="width:240px"></select>
         </div>
         <div class="form-info hidden" id="duplicatesinfo"></div>
         <div class="form-row" id="path-row">
-            <label for="node-input-path">Measurement</label>
-            <select id="node-input-path"></select>
+            <label for="node-input-path" style="width:216px; display:inline-block">Measurement</label>
+            <select id="node-input-path" style="width:240px"></select>
         </div>
         <div class="form-warning hidden" id="warningmessage"></div>
         <div class="form-warning hidden" id="statusmessage"></div>
@@ -28,23 +30,17 @@
         </div>
         <div class="form-row" id="initial-row">
             <hr />
-            <label for="node-input-initial">Initial value</label>
-            <div class="initial-value-container">
+            <label for="node-input-initial" style="width:216px; display:inline-block">Initial value <i class="fa fa-info-circle tooltip-icon" data-tooltip="The initial value is sent to the device whenever the node is deployed."></i></label>
+            <div class="initial-value-container" style="width:240px">
                 <select id="node-input-initial-enum" class="initial-input"></select>
-                <input type="number" id="node-input-initial-number" class="initial-input">
-                <input type="text" id="node-input-initial-string" class="initial-input">
-            </div>
-            <div class="info-text">
-                The initial value is sent to the device whenever the node is deployed.
+                <input type="number" id="node-input-initial-number" class="initial-input" placeholder="Initial" >
+                <input type="text" id="node-input-initial-string" class="initial-input" placeholder="Initial">
             </div>
         </div>
         <div class="form-row" id="name-row">
             <hr />
-            <label for="node-input-name">Node label</label>
-            <input type="text" id="node-input-name">
-            <div class="info-text">
-                <i>The node can be given an arbitrary label that is shown instead of device name and service.</i>
-            </div>
+            <label style="width:216px; display:inline-block" for="node-input-name"><i class="fa fa-tag"></i> Name <i class="fa fa-info-circle tooltip-icon" data-tooltip="The node can be given an arbitrary label that is shown instead of device name and service."></i></label>
+            <input type="text" id="node-input-name" style="width:240px" placeholder="Name">
         </div>
         <div class="hidden" id="outputinfo">
             <hr />
@@ -54,28 +50,22 @@
             </div>
         </div>
         <div class="form-row hidden" id="roundValues">
-            <label style="min-width:190px" for="node-input-roundValues"><i class="fa fa-minus-circle"></i>Rounding</label>
-            <select id="node-input-roundValues">
+            <label style="width:216px; display:inline-block" for="node-input-roundValues"><i class="fa fa-minus-circle"></i> Rounding <i class="fa fa-info-circle tooltip-icon" data-tooltip="Round values to less digits."></i></label>
+            <select id="node-input-roundValues" style="width:240px">
                 <option value="no">Do not round</option>
                 <option value="0">Zero digits</option>
                 <option value="1">1 digit</option>
                 <option value="2">2 digits</option>
                 <option value="3">3 digits</option>
             </select>
-            <div class="info-text">
-                Round values to less digits.
-            </div>
         </div>
         <div class="form-row hidden" id="onlyChanges">
-            <label style="min-width:190px" for="node-input-onlyChanges"><i class="fa fa-bell"></i>Only changes</label>
+            <label style="width:216px; display:inline-block" for="node-input-onlyChanges"><i class="fa fa-bell"></i> Only changes <i class="fa fa-info-circle tooltip-icon" data-tooltip="Only send output on (initially not rounded) value changes and not every 5 seconds."></i></label>
             <input type="checkbox" checked id="node-input-onlyChanges" style="max-width:30px">
-            <div class="info-text">
-                Only send output on (initially not rounded) value changes and not every 5 seconds.
-            </div>
         </div>
         <div class="form-row hidden" id="rateLimit">
-            <label style="min-width:190px" for="node-input-rateLimit"><i class="fa fa-tachometer"></i>Rate limit</label>
-            <select id="node-input-rateLimit">
+            <label style="width:216px; display:inline-block" for="node-input-rateLimit"><i class="fa fa-tachometer"></i> Rate limit <i class="fa fa-info-circle tooltip-icon" data-tooltip="Limit the maximum rate of messages. Useful for high-frequency measurements like grid meters. Most measurements don't need rate limiting."></i></label>
+            <select id="node-input-rateLimit" style="width:240px">
                 <option value="0">No limit</option>
                 <option value="10">10 msg/sec</option>
                 <option value="5">5 msg/sec</option>
@@ -84,8 +74,12 @@
                 <option value="0.5">1 msg per 2 sec</option>
                 <option value="0.2">1 msg per 5 sec</option>
             </select>
-            <div class="info-text">
-                Limit the maximum rate of messages. Useful for high-frequency measurements like grid meters. Most measurements don't need rate limiting.
+        </div>
+        <div class="form-row" id="community-link-row" style="margin-top: 20px; display: none;">
+            <div style="width: 456px; text-align: right;">
+                <a id="community-link" href="#" target="_blank" rel="noopener noreferrer">
+                    <img src="resources/@victronenergy/node-red-contrib-victron/docs/community-link.svg" alt="Community Link" style="height: 32px; vertical-align: middle;">
+                </a>
             </div>
         </div>
     </div>
@@ -176,24 +170,37 @@
             if (serviceData && serviceData.paths) populateSelect(pathElem, serviceData.paths);
             pathElem.val($('#selectedpath').text());
             updateEnums();
+            updateCommunityLink();
+        };
+
+        var communityTag = null;  // Store communityTag at module level
+
+        var updateCommunityLink = function updateCommunityLink() {
+            if (communityTag) {
+                var url = 'https://community.victronenergy.com/c/node-red/28/'; // + communityTag;
+                $('#community-link').attr('href', url);
+                $('#community-link-row').show();
+            } else {
+                $('#community-link-row').hide();
+            }
         };
 
         var updateEnums = function updateEnums() {
             var pathData = pathElem.find(':selected').data();
-            
+
             if (pathData) {
-                pathData.warning && serviceDataAvailable ? 
-                    changeStatusText($('#warningmessage'), 'fa-exclamation-circle', pathData.warning) : 
+                pathData.warning && serviceDataAvailable ?
+                    changeStatusText($('#warningmessage'), 'fa-exclamation-circle', pathData.warning) :
                     $('#warningmessage').hide();
             }
 
             // Hide all initial value inputs first
             $('.initial-input').hide();
             hideEnumInfo();
-            
+
             if (pathData) {
                 $('#initial-row').hide();
-                
+
                 // Show appropriate input based on path type
                 switch(pathData.type) {
                     case 'enum':
@@ -209,7 +216,7 @@
                             service: null,
                             name: "Don't set initial value"
                         });
-                        
+
                         var enumInput = $('#node-input-initial-enum');
                         populateSelect(enumInput, selectOptions);
                         enumInput.show();
@@ -233,7 +240,7 @@
                         stringInput.show();
                         if (node.initial !== undefined && node.initial !== null) stringInput.val(node.initial);
                         break;
-                    
+
                     default:
                         $('#initial-row').hide();
                 }
@@ -243,9 +250,9 @@
             } else {
                 $('#initial-row').hide();
             }
-            
-            if (typeof pathData !== 'undefined' && 
-                (pathData.type === 'float' || pathData.type === 'number') && 
+
+            if (typeof pathData !== 'undefined' &&
+                (pathData.type === 'float' || pathData.type === 'number') &&
                 !isOutputNode) {
                 $('#roundValues').show();
             } else {
@@ -289,7 +296,7 @@
                 }
 
                 if (node.serviceObj && node.pathObj) {
-                    $('#stored-settings').html('Currently stored selection:<br /><ul><li>'+node.serviceObj.name+'</li><li>'+node.pathObj.name+'</li></ul><div class="hidden" id="selectedpath">'+node.pathObj.path+'</div><hr />')
+                    $('#stored-settings').html('<div style="font-size: 0.9em; color: #666; margin-bottom: 10px; font-style: italic;"><i class="fa fa-info-circle" style="color: #000; margin-right: 5px;"></i>Stored: '+node.serviceObj.name+' &gt; '+node.pathObj.name+'</div><div class="hidden" id="selectedpath">'+node.pathObj.path+'</div>')
                 }
                 serviceElem.val(node.service);
             }
@@ -310,7 +317,9 @@
                 }
             }
         })
-        .done(data => {
+        .done(response => {
+            communityTag = response.communityTag;
+            var data = response.services || [];
             serviceDataAvailable = data.length;
 
             // in case any services are available, populate the service and path dropdowns
@@ -365,6 +374,13 @@
                 $('#onlyChanges').show()
                 $('#rateLimit').show()
             }
+
+            // Initialize tooltips
+            if (window.__victronCommon && window.__victronCommon.initializeTooltips) {
+                window.__victronCommon.initializeTooltips();
+            }
+
+            updateCommunityLink();
         }).fail(function (jqXHR, textStatus, errorThrown) {
             $('#initial-row').hide();
             if (jqXHR.status === 503) {
@@ -385,15 +401,15 @@
             delete(node.serviceObj.deviceInstance);
         }
         node.pathObj = $('#node-input-path').find(':selected').data();
-        
+
         // Determine if this is an output node based on the node type
         const isOutputNode = node.type.includes('-output-');
-        
+
         // Only try to save initial value if we have path data and it's an output node
         if (node.pathObj && isOutputNode) {
             // Clear initial value by default
             node.initial = undefined;
-            
+
             switch(node.pathObj.type) {
                 case 'enum':
                     var selectedValue = $('#node-input-initial-enum').val();
@@ -402,7 +418,7 @@
                         node.initial = parseInt(selectedValue);
                     }
                     break;
-                    
+
                 case 'float':
                 case 'integer':
                     var value = $('#node-input-initial-number').val().trim();
@@ -414,7 +430,7 @@
                         }
                     }
                     break;
-                    
+
                 case 'string':
                     var value = $('#node-input-initial-string').val().trim();
                     if (value !== '') {
@@ -466,7 +482,7 @@
                 initial: { value: undefined },
                 name: { value: "" },
                 "onlyChanges": { value: false },
-                "roundValues": { value: undefined },
+                "roundValues": { value: "no" },
                 "rateLimit": { value: 0 }
             },
             color: isCustomNode ? "#f7ab3e" : "#4790d0",
@@ -574,13 +590,14 @@
 
 <style>
     .victron-form div {
-        width: 450px;
+        width: 480px;
     }
     .victron-form label, .enuminfo--header {
         font-weight: 500;
     }
     .victron-form input, select {
-        width: 300px;
+        width: 240px !important;
+        vertical-align: middle;
     }
     .victron-form .hidden {
         display: none;
@@ -588,20 +605,29 @@
     .victron-form .form-tips {
         padding: 16px;
         margin-bottom: 12px;
-        width: 410px;
+        width: 424px;
     }
-    .victron-form .form-warning, .form-info {
-        padding-bottom: 8px;
-        max-width: 450px;
+    .victron-form .form-warning {
+        padding: 12px;
+        width: 430px;
+        background-color: #fff5f5;
+        border: 1px solid #f5c6c6;
+        border-radius: 3px;
+        margin-bottom: 12px;
     }
     .victron-form .form-info {
         font-style: italic;
         padding-bottom: 8px;
-        max-width: 450px;
+        max-width: 480px;
     }
     .victron-form .fa {
         float: left;
         margin: 5px 10px 0px 0px;
+    }
+    .victron-form .tooltip-icon {
+        float: none;
+        display: inline;
+        margin: 0 0 0 6px;
     }
     .victron-form .form-info .fa {
         color: #00BCFF;
@@ -610,7 +636,9 @@
         color: #d6615f;
     }
     .victron-form .form-row label {
-        min-width: 140px;
+        width: 216px !important;
+        display: inline-block;
+        vertical-align: middle;
     }
     .victron-form .info-text {
         padding: 8px 0px;
@@ -619,11 +647,11 @@
     .victron-form .hr {
         margin: 8px 0;
     }
-    
+
     /* Initial value specific styles */
     .victron-form .initial-value-container {
         display: inline-block;
-        width: 300px;
+        width: 240px;
         vertical-align: top;
     }
     .victron-form .initial-input {
@@ -631,6 +659,6 @@
         display: none;
     }
     #node-input-name {
-        width: 300px;
+        width: 240px;
     }
 </style>

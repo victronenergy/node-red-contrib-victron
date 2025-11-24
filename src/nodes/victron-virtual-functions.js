@@ -8,6 +8,7 @@ import {
   SWITCH_SECOND_OUTPUT_LABEL,
   SWITCH_THIRD_OUTPUT_LABEL
 } from './victron-virtual-constants'
+import { initializeTooltips } from '../../resources/victron-common'
 
 // Re-export for browser/test use
 export {
@@ -20,8 +21,8 @@ export {
 }
 
 const COMMON_SWITCH_FIELDS = [
-  { id: 'customname', type: 'text', placeholder: 'Name', title: 'Name', style: 'width:120px;', tooltip: 'Custom name for the switch. If the custom name gets changed in the gui after initial deploy, that value will be overwritten on restart and re-deploy of Node-RED.' },
-  { id: 'group', type: 'text', placeholder: 'Group', title: 'Group', style: 'width:120px;', tooltip: 'Group name for the switch. If the group gets changed in the gui after initial deploy, that value will be overwritten on restart and re-deploy of Node-RED.' }
+  { id: 'customname', type: 'text', placeholder: 'Name', title: 'Name', tooltip: 'Custom name for the switch. If the custom name gets changed in the gui after initial deploy, that value will be overwritten on restart and re-deploy of Node-RED.' },
+  { id: 'group', type: 'text', placeholder: 'Group', title: 'Group', tooltip: 'Group name for the switch. If the group gets changed in the gui after initial deploy, that value will be overwritten on restart and re-deploy of Node-RED.' }
 ]
 
 export function checkGeneratorType () {
@@ -43,16 +44,16 @@ export const SWITCH_TYPE_CONFIGS = {
     label: 'Temperature setpoint',
     fields: [
       ...COMMON_SWITCH_FIELDS,
-      { id: 'min', type: 'number', placeholder: 'Min (°C)', title: 'Min (°C)', style: 'width:80px;' },
-      { id: 'max', type: 'number', placeholder: 'Max (°C)', title: 'Max (°C)', style: 'width:80px;' },
-      { id: 'step', type: 'number', placeholder: 'Step (°C)', title: 'Step (°C)', style: 'width:80px;' }
+      { id: 'min', type: 'number', placeholder: 'Min (°C)', title: 'Min (°C)' },
+      { id: 'max', type: 'number', placeholder: 'Max (°C)', title: 'Max (°C)' },
+      { id: 'step', type: 'number', placeholder: 'Step (°C)', title: 'Step (°C)' }
     ]
   },
   [SWITCH_TYPE_MAP.STEPPED]: {
     label: 'Stepped switch',
     fields: [
       ...COMMON_SWITCH_FIELDS,
-      { id: 'max', type: 'number', placeholder: 'Max steps', title: 'Max steps', style: 'width:80px;', min: 1, max: 7 }
+      { id: 'max', type: 'number', placeholder: 'Max steps', title: 'Max steps', min: 1, max: 7 }
     ]
   },
   [SWITCH_TYPE_MAP.DROPDOWN]: {
@@ -64,7 +65,6 @@ export const SWITCH_TYPE_CONFIGS = {
         type: 'number',
         placeholder: 'Number of options',
         title: 'Number of dropdown options',
-        style: 'width:100px;',
         min: '2',
         max: '10'
       }
@@ -74,20 +74,20 @@ export const SWITCH_TYPE_CONFIGS = {
     label: 'Basic slider',
     fields: [
       ...COMMON_SWITCH_FIELDS,
-      { id: 'min', type: 'number', placeholder: 'Min value', title: 'Slider minimum', style: 'width:80px;' },
-      { id: 'max', type: 'number', placeholder: 'Max value', title: 'Slider maximum', style: 'width:80px;' },
-      { id: 'step', type: 'number', placeholder: 'Step size', title: 'Step size', style: 'width:80px;' },
-      { id: 'unit', type: 'text', placeholder: 'Unit', title: 'Unit', style: 'width:80px;' }
+      { id: 'min', type: 'number', placeholder: 'Min value', title: 'Slider minimum' },
+      { id: 'max', type: 'number', placeholder: 'Max value', title: 'Slider maximum' },
+      { id: 'step', type: 'number', placeholder: 'Step size', title: 'Step size' },
+      { id: 'unit', type: 'text', placeholder: 'Unit', title: 'Unit' }
     ]
   },
   [SWITCH_TYPE_MAP.NUMERIC_INPUT]: {
     label: 'Numeric input',
     fields: [
       ...COMMON_SWITCH_FIELDS,
-      { id: 'min', type: 'number', placeholder: 'Min value', title: 'Slider minimum', style: 'width:80px;' },
-      { id: 'max', type: 'number', placeholder: 'Max value', title: 'Slider maximum', style: 'width:80px;' },
-      { id: 'step', type: 'number', placeholder: 'Step size', title: 'Step size', style: 'width:80px;' },
-      { id: 'unit', type: 'text', placeholder: 'Unit', title: 'Unit (center)', style: 'width:120px;' }
+      { id: 'min', type: 'number', placeholder: 'Min value', title: 'Slider minimum' },
+      { id: 'max', type: 'number', placeholder: 'Max value', title: 'Slider maximum' },
+      { id: 'step', type: 'number', placeholder: 'Step size', title: 'Step size' },
+      { id: 'unit', type: 'text', placeholder: 'Unit', title: 'Unit (center)' }
     ]
   },
   [SWITCH_TYPE_MAP.THREE_STATE]: {
@@ -128,54 +128,54 @@ export const SWITCH_TYPE_DOCS = {
   [SWITCH_TYPE_MAP.MOMENTARY]: createDocTemplate(
     '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li></ul></div>',
     '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the switch</li></ol></div>',
-    '/resources/@victronenergy/node-red-contrib-victron/docs/momentary.png'
+    '/resources/@victronenergy/node-red-contrib-victron/docs/momentary.svg'
   ),
   [SWITCH_TYPE_MAP.TOGGLE]: createDocTemplate(
     '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li></ul></div>',
     '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the switch</li></ol></div>',
-    '/resources/@victronenergy/node-red-contrib-victron/docs/toggle.png'
+    '/resources/@victronenergy/node-red-contrib-victron/docs/toggle.svg'
   ),
   [SWITCH_TYPE_MAP.DIMMABLE]: createDocTemplate(
     '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li><li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; 0 to 100%, read/write.</li></ul></div>',
     '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the switch</li><li><code>Dimming</code> &mdash; <tt>msg.payload</tt> contains the dimming value</li></ol></div>',
-    '/resources/@victronenergy/node-red-contrib-victron/docs/dimmable.png'
+    '/resources/@victronenergy/node-red-contrib-victron/docs/dimmable.svg'
   ),
   [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: createDocTemplate(
     `<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds slider value in °C.</li><li><code>/SwitchableOutput/output_1/Measurement</code> &mdash; holds temperature measurement, if available.<br>
       <span style="font-size:0.95em;color:#666;">If present, the actual value will be displayed on the control.</span>
     </li><li><code>/SwitchableOutput/x/Settings/DimmingMin</code> defines slider minimum value. 0 will be used if omitted.</li><li><code>/SwitchableOutput/x/Settings/DimmingMax</code> defines slider maximum value. 100 will be used if omitted.</li><li><code>/SwitchableOutput/x/Settings/StepSize</code> defines stepsize. Stepsize = 1°C if omitted.</li></ul></div>`,
     '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>Temperature</code> &mdash; <tt>msg.payload</tt> contains the temperature value</li></ol></div>',
-    '/resources/@victronenergy/node-red-contrib-victron/docs/temp_setpoint.png'
+    '/resources/@victronenergy/node-red-contrib-victron/docs/temp_setpoint.svg'
   ),
   [SWITCH_TYPE_MAP.STEPPED]: createDocTemplate(
     '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds selected option.</li><li><code>/SwitchableOutput/output_1/Settings/DimmingMax</code> &mdash; defines the number of options. Mandatory for this type.</li></ul></div>',
     '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li><li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the stepped value</li></ol></div>',
-    '/resources/@victronenergy/node-red-contrib-victron/docs/stepped.png'
+    '/resources/@victronenergy/node-red-contrib-victron/docs/stepped.svg'
   ),
   [SWITCH_TYPE_MAP.DROPDOWN]: createDocTemplate(
     '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds selected option.</li><li><code>/SwitchableOutput/output_1/Settings/Labels</code> &mdash; defines the labels as a string array: <tt>[\'Label 1\', \'Label 2\', \'Label 3\']</tt>. Mandatory for this type.</li></ul></div>',
     '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>Selected</code> &mdash; <tt>msg.payload</tt> contains the index of the selected option (<tt>0</tt> for the first item in the list)</li></ol></div>',
-    '/resources/@victronenergy/node-red-contrib-victron/docs/dropdown.png'
+    '/resources/@victronenergy/node-red-contrib-victron/docs/dropdown.svg'
   ),
   [SWITCH_TYPE_MAP.BASIC_SLIDER]: createDocTemplate(
     '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/Value</code> &mdash; holds the current slider position.</li><li><code>/SwitchableOutput/output_1/Settings/Min</code> &mdash; defines slider minimum value. <tt>0</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/Max</code> &mdash; defines slider maximum value. <tt>100</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/StepSize</code> &mdash; defines stepsize. Stepsize = <tt>1</tt> if omitted.</li></ul></div>',
     '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the slider value</li></ol></div>',
-    '/resources/@victronenergy/node-red-contrib-victron/docs/basic_slider.png'
+    '/resources/@victronenergy/node-red-contrib-victron/docs/basic_slider.svg'
   ),
   [SWITCH_TYPE_MAP.NUMERIC_INPUT]: createDocTemplate(
     '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/Value</code> &mdash; holds the current numeric value.</li><li><code>/SwitchableOutput/output_1/Settings/Min</code> &mdash; defines the minimum value. <tt>0</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/Max</code> &mdash; defines the maximum value. <tt>100</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/StepSize</code> &mdash; defines stepsize. Stepsize = <tt>1</tt> if omitted.</li></ul></div>',
     '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li><li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the numeric value</li></ol></div>',
-    '/resources/@victronenergy/node-red-contrib-victron/docs/numeric_input.png'
+    '/resources/@victronenergy/node-red-contrib-victron/docs/numeric_input.svg'
   ),
   [SWITCH_TYPE_MAP.THREE_STATE]: createDocTemplate(
     '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; holds the current state (e.g., Off, Auto, On).</li></ul></div>',
     '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains the current state</li></ol></div>',
-    '/resources/@victronenergy/node-red-contrib-victron/docs/three_state.png'
+    '/resources/@victronenergy/node-red-contrib-victron/docs/three_state.svg'
   ),
   [SWITCH_TYPE_MAP.BILGE_PUMP]: createDocTemplate(
     '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li><li><code>/SwitchableOutput/output_1/Alarm</code> &mdash; Indicates if an alarm condition is present (e.g., high water level).</li><li><code>/SwitchableOutput/output_1/Measurement</code> &mdash; If supported by the connected device, this path may provide additional measurement data, such as water level percentage.</li></ul></div>',
     '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the pump</li></ol></div>',
-    '/resources/@victronenergy/node-red-contrib-victron/docs/bilge_pump.png'
+    '/resources/@victronenergy/node-red-contrib-victron/docs/bilge_pump.svg'
   ),
   [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: createDocTemplate(
     `<div><strong>Most relevant path(s):</strong><ul>
@@ -188,45 +188,11 @@ export const SWITCH_TYPE_DOCS = {
       </li>
     </ul></div>`,
     '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the light</li><li><code>LightControls</code> &mdash; <tt>msg.payload</tt> contains the 5-element array with color and brightness values. Additional convenience fields: <tt>msg.rgb</tt> (hex string, e.g. #FF0000), <tt>msg.hsb</tt> (object with hue, saturation, brightness), <tt>msg.white</tt> (0-100%), <tt>msg.colorTemperature</tt> (Kelvin)</li></ol></div>',
-    '/resources/@victronenergy/node-red-contrib-victron/docs/rgb_cct_control.png'
+    '/resources/@victronenergy/node-red-contrib-victron/docs/rgb_cct_control.svg'
   )
 }
 
-export function initializeSwitchTooltips () {
-  $('.switch-tooltip-container').remove()
-
-  $('.switch-field-tooltip-icon').off('mouseenter mouseleave')
-
-  $('.switch-field-tooltip-icon').on('mouseenter', function (e) {
-    const $icon = $(this)
-    const tooltipText = $icon.attr('data-tooltip')
-    const $tooltip = $('<div class="switch-tooltip-container"></div>').text(tooltipText)
-
-    $('body').append($tooltip)
-
-    // Position tooltip
-    const iconOffset = $icon.offset()
-    const tooltipHeight = $tooltip.outerHeight()
-    const tooltipWidth = $tooltip.outerWidth()
-
-    // Position above the icon, centered
-    $tooltip.css({
-      top: iconOffset.top - tooltipHeight - 8,
-      left: iconOffset.left - (tooltipWidth / 2) + ($icon.outerWidth() / 2)
-    })
-
-    $icon.data('tooltip-element', $tooltip)
-  })
-
-  $('.switch-field-tooltip-icon').on('mouseleave', function () {
-    const $icon = $(this)
-    const $tooltip = $icon.data('tooltip-element')
-    if ($tooltip) {
-      $tooltip.remove()
-      $icon.removeData('tooltip-element')
-    }
-  })
-}
+export { initializeTooltips }
 
 export function renderSwitchConfigRow (context) {
   const typeOptions = Object.entries(SWITCH_TYPE_CONFIGS)
@@ -256,18 +222,17 @@ export function renderSwitchConfigRow (context) {
       const fieldsHtml = cfg.fields.map(field => {
         const stepAttr = field.id === 'step' || field.id === 'stepsize' ? 'step="any"' : ''
         const tooltipHtml = field.tooltip
-          ? `<i class="fa fa-info-circle switch-field-tooltip-icon"
+          ? `<i class="fa fa-info-circle tooltip-icon"
                 data-tooltip="${field.tooltip}"></i>`
           : ''
 
         return `
-          <div class="form-row" style="align-items:center;">
-            <label for="node-input-switch_1_${field.id}" style="min-width:120px;">
+          <div class="form-row">
+            <label for="node-input-switch_1_${field.id}">
               ${field.title || field.placeholder}${tooltipHtml}
             </label>
             <input type="${field.type}" id="node-input-switch_1_${field.id}"
                   placeholder="${field.placeholder}"
-                  style="${field.style}"
                   ${stepAttr} required>
           </div>
         `
@@ -344,7 +309,7 @@ export function renderSwitchConfigRow (context) {
         })
       }
 
-      initializeSwitchTooltips()
+      initializeTooltips()
     }
 
     const doc = SWITCH_TYPE_DOCS[type]
@@ -357,12 +322,8 @@ export function renderSwitchConfigRow (context) {
           <div class="victron-doc-text">${doc.text}</div>
         </div>
       `)
-      // Append after the options row if it exists, otherwise after the config row
-      if ($('#switch-1-pairs-row').length) {
-        $('#switch-1-pairs-row').after(docRow)
-      } else {
-        $('#switch-1-config-row').after(docRow)
-      }
+      // Append to the dedicated switch docs container (after default values)
+      $('#switch-docs-container').append(docRow)
     }
 
     if (Number(type) === SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) {
@@ -506,6 +467,8 @@ function renderDropdownLabels (context) {
 export function updateSwitchConfig (context) {
   const container = $('#switch-config-container')
   container.empty()
+  // Also clear the docs container
+  $('#switch-docs-container').empty()
   if ($('select#node-input-device').val() !== 'switch') return
   renderSwitchConfigRow(context)
 
@@ -517,7 +480,7 @@ export function updateSwitchConfig (context) {
 }
 
 export function updateBatteryVoltageVisibility () {
-  const defaultValues = $('#node-input-default_values').is(':checked')
+  const defaultValues = $('#node-input-default_values-yes').is(':checked')
   const preset = $('#node-input-battery_voltage_preset').val()
 
   // Show voltage row only when default values is enabled
@@ -538,7 +501,6 @@ export function checkSelectedVirtualDevice (context) {
   $('.input-' + selected).show()
 
   if (selected === 'acload') {
-    // Update outputs when S2 support is toggled
     $('#node-input-enable_s2support').off('change.s2support').on('change.s2support', function () {
       context.enable_s2support = $(this).is(':checked')
       updateOutputs(context)
@@ -546,24 +508,23 @@ export function checkSelectedVirtualDevice (context) {
   }
 
   if (selected === 'battery') {
-    $('#node-input-default_values').off('change.battery-voltage').on('change.battery-voltage', updateBatteryVoltageVisibility)
+    $('input[name="default_values"]').off('change.battery-voltage').on('change.battery-voltage', updateBatteryVoltageVisibility)
     $('#node-input-battery_voltage_preset').off('change.battery-voltage').on('change.battery-voltage', updateBatteryVoltageVisibility)
-
     updateBatteryVoltageVisibility()
   }
 
   if (selected === 'temperature') {
-    // Show/hide battery voltage input based on checkbox
-    $('#node-input-include-battery').off('change').on('change', function () {
-      if ($(this).is(':checked')) {
-        $('#battery-voltage-row').show()
-      } else {
-        $('#battery-voltage-row').hide()
-      }
+    $('#node-input-include_temp_battery').off('change').on('change', function () {
+      $('#battery-temp_voltage-row').toggle($(this).is(':checked'))
     })
+    $('#battery-temp_voltage-row').toggle($('#node-input-include_temp_battery').is(':checked'))
+  }
 
-    // Initially set battery voltage visibility
-    $('#battery-voltage-row').toggle($('#node-input-include-battery').is(':checked'))
+  if (selected === 'tank') {
+    $('#node-input-include_tank_battery').off('change').on('change', function () {
+      $('#tank_battery-voltage-row').toggle($(this).is(':checked'))
+    })
+    $('#tank_battery-voltage-row').toggle($('#node-input-include_tank_battery').is(':checked'))
   }
 
   if (selected === 'generator') {
@@ -571,20 +532,19 @@ export function checkSelectedVirtualDevice (context) {
   }
 
   if (selected === 'gps') {
-    $('#node-input-default_values').prop('checked', false).prop('disabled', true)
+    $('#node-input-default_values-yes').prop('checked', false)
+    $('#node-input-default_values-no').prop('checked', true).prop('disabled', true)
+    $('#node-input-default_values-yes').prop('disabled', true)
   } else {
-    $('#node-input-default_values').prop('disabled', false)
+    $('input[name="default_values"]').prop('disabled', false)
   }
 
   if (selected === 'switch') {
     updateSwitchConfig(context)
-    // Hide the default values checkbox and info box for switches
-    $('#node-input-default_values').closest('.form-row').hide()
-    $('#default-values-info').hide()
+    $('#default-values-container').hide()
   } else {
-    // Show for other device types
-    $('#node-input-default_values').closest('.form-row').show()
-    $('#default-values-info').show()
+    $('#default-values-container').show()
+    $('#switch-docs-container').empty()
   }
 }
 

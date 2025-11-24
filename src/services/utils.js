@@ -211,13 +211,17 @@ const MIGRATE = { fill: 'blue', shape: 'dot', text: 'please migrate' }
  * Constructs a node config object that is
  * used to render node-specific editable options in UI.
  */
-const TEMPLATE = (service, name, deviceInstance, paths) => {
-  return {
+const TEMPLATE = (service, name, deviceInstance, paths, communityTag) => {
+  const result = {
     service: `${service}`,
     name: `${name}`,
     deviceInstance: `${deviceInstance}`,
     paths
   }
+  if (communityTag) {
+    result.communityTag = communityTag
+  }
+  return result
 }
 
 /**

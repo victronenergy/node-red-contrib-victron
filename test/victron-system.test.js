@@ -43,7 +43,7 @@ describe('SystemConfiguration path sorting', () => {
     const result = systemConfig.getNodeServices('input-battery')
 
     // Extract the paths from the result
-    const paths = result[0].paths
+    const paths = result.services[0].paths
 
     // Verify we got all paths
     expect(paths).toHaveLength(5)
@@ -80,7 +80,7 @@ describe('SystemConfiguration path sorting', () => {
     }
 
     const result = systemConfig.getNodeServices('input-test')
-    const paths = result[0].paths
+    const paths = result.services[0].paths
 
     // Verify alphabetical ordering (case-insensitive)
     expect(paths[0].name).toBe('Temperature')
