@@ -216,15 +216,15 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
     test('handles temperature device selection with battery checkbox', () => {
       const mockBatteryCheckbox = createMockElement({ is: true })
       const mockBatteryRow = createMockElement()
-      
+
       global.$.mockImplementation((selector) => {
         if (selector === 'select#node-input-device') {
           return createMockElement({ val: 'temperature' })
         }
-        if (selector === '#node-input-include-battery') {
+        if (selector === '#node-input-include_temp_battery') {
           return mockBatteryCheckbox
         }
-        if (selector === '#battery-voltage-row') {
+        if (selector === '#battery-temp_voltage-row') {
           return mockBatteryRow
         }
         if (selector.startsWith('.input-')) {
@@ -270,14 +270,18 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
     })
 
     test('handles GPS device selection', () => {
-      const mockDefaultValues = createMockElement()
-      
+      const mockDefaultValuesYes = createMockElement()
+      const mockDefaultValuesNo = createMockElement()
+
       global.$.mockImplementation((selector) => {
         if (selector === 'select#node-input-device') {
           return createMockElement({ val: 'gps' })
         }
-        if (selector === '#node-input-default_values') {
-          return mockDefaultValues
+        if (selector === '#node-input-default_values-yes') {
+          return mockDefaultValuesYes
+        }
+        if (selector === '#node-input-default_values-no') {
+          return mockDefaultValuesNo
         }
         if (selector.startsWith('.input-')) {
           return createMockElement()
@@ -287,18 +291,19 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
 
       checkSelectedVirtualDevice()
 
-      expect(mockDefaultValues.prop).toHaveBeenCalledWith('checked', false)
-      expect(mockDefaultValues.prop).toHaveBeenCalledWith('disabled', true)
+      expect(mockDefaultValuesYes.prop).toHaveBeenCalledWith('checked', false)
+      expect(mockDefaultValuesNo.prop).toHaveBeenCalledWith('checked', true)
+      expect(mockDefaultValuesYes.prop).toHaveBeenCalledWith('disabled', true)
     })
 
     test('enables default values for non-GPS devices', () => {
       const mockDefaultValues = createMockElement()
-      
+
       global.$.mockImplementation((selector) => {
         if (selector === 'select#node-input-device') {
           return createMockElement({ val: 'battery' })
         }
-        if (selector === '#node-input-default_values') {
+        if (selector === 'input[name="default_values"]') {
           return mockDefaultValues
         }
         if (selector.startsWith('.input-')) {
@@ -367,7 +372,7 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       const mockBatteryVoltageCustomLabel = createMockElement()
       
       global.$.mockImplementation((selector) => {
-        if (selector === '#node-input-default_values') {
+        if (selector === '#node-input-default_values-yes') {
           return mockDefaultValues
         }
         if (selector === '#node-input-battery_voltage_preset') {
@@ -400,7 +405,7 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       const mockBatteryVoltageCustomLabel = createMockElement()
       
       global.$.mockImplementation((selector) => {
-        if (selector === '#node-input-default_values') {
+        if (selector === '#node-input-default_values-yes') {
           return mockDefaultValues
         }
         if (selector === '#node-input-battery_voltage_preset') {
@@ -433,7 +438,7 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       const mockBatteryVoltageCustomLabel = createMockElement()
       
       global.$.mockImplementation((selector) => {
-        if (selector === '#node-input-default_values') {
+        if (selector === '#node-input-default_values-yes') {
           return mockDefaultValues
         }
         if (selector === '#node-input-battery_voltage_preset') {
@@ -466,7 +471,7 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       const mockBatteryVoltageCustomLabel = createMockElement()
       
       global.$.mockImplementation((selector) => {
-        if (selector === '#node-input-default_values') {
+        if (selector === '#node-input-default_values-yes') {
           return mockDefaultValues
         }
         if (selector === '#node-input-battery_voltage_preset') {

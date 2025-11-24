@@ -8,7 +8,8 @@ import {
   validateSwitchConfig,
   updateBatteryVoltageVisibility,
   calculateOutputs,
-  updateOutputs
+  updateOutputs,
+  initializeTooltips
 } from './victron-virtual-functions.js'
 
 window.__victron = {
@@ -20,5 +21,6 @@ window.__victron = {
   validateSwitchConfig,
   updateBatteryVoltageVisibility,
   calculateOutputs,
-  updateOutputs
+  updateOutputs,
+  initializeTooltips
 }

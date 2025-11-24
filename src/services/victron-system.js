@@ -20,10 +20,16 @@ class SystemConfiguration {
      * Filter the dbus cache for available device services.
      */
   getNodeServices (nodeName) {
-    const servicesWhitelist = _.get(utils.SERVICES, [nodeName.replace(/^(input-|output-)/g, '')])
+    const serviceType = nodeName.replace(/^(input-|output-)/g, '')
+    const servicesWhitelist = _.get(utils.SERVICES, [serviceType])
+    const communityTag = _.get(utils.SERVICES, [serviceType, 'communityTag'])
     const isOutput = nodeName.startsWith('output')
 
-    return Object.entries(servicesWhitelist || {})
+    // Filter out meta fields like communityTag and help
+    const serviceEntries = Object.entries(servicesWhitelist || {})
+      .filter(([key]) => key !== 'communityTag' && key !== 'help')
+
+    const services = serviceEntries
       .reduce((acc, [dbusService, servicePaths]) => {
         const cachedService = _.pickBy(this.cache, (val, key) => key.startsWith(`com.victronenergy.${dbusService}`))
 
@@ -63,11 +69,16 @@ class SystemConfiguration {
 
           const deviceInstance = cachedPaths['/DeviceInstance'] || ''
           if (expandedPaths.length) {
-            acc.push(utils.TEMPLATE(dbusInterface, name, deviceInstance, expandedPaths))
+            acc.push(utils.TEMPLATE(dbusInterface, name, deviceInstance, expandedPaths, communityTag))
           }
         })
         return acc
       }, [])
+
+    return {
+      communityTag: communityTag || null,
+      services
+    }
   }
 
   /**

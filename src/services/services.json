@@ -119,7 +119,8 @@
           "248": "Battery safe"
         }
       }
-    ]
+    ],
+    "communityTag": "accharger"
   },
   "acload": {
     "help": {
@@ -168,7 +169,8 @@
         "type": "string",
         "name": "Serial number"
       }
-    ]
+    ],
+    "communityTag": "acload"
   },
   "acsystem": {
     "help": {
@@ -267,7 +269,7 @@
           "0": "Feed-in enabled",
           "1": "Feed-in disabled"
         },
-       "mode": "both"
+        "mode": "both"
       },
       {
         "path": "/Ess/ActiveSocLimit",
@@ -312,7 +314,8 @@
           "252": "External control"
         }
       }
-    ]
+    ],
+    "communityTag": "acsystem"
   },
   "alternator": {
     "help": {
@@ -484,7 +487,8 @@
           "252": "External control"
         }
       }
-    ]
+    ],
+    "communityTag": "alternator"
   },
   "battery": {
     "help": {
@@ -1183,7 +1187,8 @@
         "type": "float",
         "name": "Time to go (s)"
       }
-    ]
+    ],
+    "communityTag": "battery"
   },
   "dcdc": {
     "help": {
@@ -1270,7 +1275,8 @@
           "7": "Equalize"
         }
       }
-    ]
+    ],
+    "communityTag": "dcdc"
   },
   "dcload": {
     "help": {
@@ -1367,7 +1373,8 @@
           "1": "Closed"
         }
       }
-    ]
+    ],
+    "communityTag": "dcload"
   },
   "dcsource": {
     "help": {
@@ -1464,7 +1471,8 @@
           "1": "Closed"
         }
       }
-    ]
+    ],
+    "communityTag": "dcsource"
   },
   "dcsystem": {
     "help": {
@@ -1563,7 +1571,8 @@
         "type": "float",
         "name": "Total energy produced (kWh)"
       }
-    ]
+    ],
+    "communityTag": "dcsystem"
   },
   "dess": {
     "help": {
@@ -1731,14 +1740,14 @@
         },
         "mode": "both"
       }
-    ]
+    ],
+    "communityTag": "dess"
   },
   "digitalinput": {
     "help": {
       "both": "<p>With this node it is possible to read the digital inputs from the Venus device. The node only shows the enabled digital inputs, so first make sure to enable the input from the Venus OS GUI (<i>Settings -> I/O -> digital inputs</i>) for the desired readout.</p><p>Depending on the selected type of input, different measurements become available.</p><p>Also see the section on <a href=\"https://www.victronenergy.com/media/pg/Cerbo_GX/en/digital-inputs.html\">digital inputs</a> in the Cerbo GX manual.</p>",
       "input": "",
       "output": ""
-
     },
     "pulsemeter": [
       {
@@ -1805,7 +1814,8 @@
           "10": "Generic input"
         }
       }
-    ]
+    ],
+    "communityTag": "digitalinput"
   },
   "ess": {
     "help": {
@@ -1864,7 +1874,7 @@
           "0": "No",
           "1": "Yes"
         },
-       "mode": "both"
+        "mode": "both"
       },
       {
         "path": "/Hub4/DisableFeedIn",
@@ -1874,7 +1884,7 @@
           "0": "No",
           "1": "Yes"
         },
-       "mode": "both"
+        "mode": "both"
       },
       {
         "path": "/Hub4/DoNotFeedInOvervoltage",
@@ -1884,19 +1894,19 @@
           "0": "Yes",
           "1": "No"
         },
-       "mode": "both"
+        "mode": "both"
       },
       {
         "path": "/Hub4/{line}}/AcPowerSetpoint",
         "type": "integer",
         "name": "AC Power {line} setpoint (W)",
-       "mode": "both"
+        "mode": "both"
       },
       {
         "path": "/Hub4/{line}}/MaxFeedInPower",
         "type": "integer",
         "name": "Maximum overvoltage feed-in power {line}} (W)",
-       "mode": "both"
+        "mode": "both"
       },
       {
         "path": "/PvInverter/Disable",
@@ -1922,13 +1932,13 @@
         "path": "/Settings/CGwacs/AcPowerSetPoint",
         "type": "integer",
         "name": "Grid set-point (W)",
-       "mode": "both"
+        "mode": "both"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/MinimumSocLimit",
         "type": "integer",
         "name": "Minimum Discharge SOC (%)",
-       "mode": "both"
+        "mode": "both"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/{schedule}/AllowDischarge",
@@ -1938,14 +1948,13 @@
           "0": "Yes",
           "1": "No"
         },
-       "mode": "both"
+        "mode": "both"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/{schedule}/Day",
         "type": "enum",
         "name": "Schedule {schedule}: Day",
         "enum": {
-          "-1": "Disabled",
           "0": "Sunday",
           "1": "Monday",
           "2": "Tuesday",
@@ -1956,27 +1965,28 @@
           "7": "Every day",
           "8": "Weekdays",
           "9": "Weekends",
-          "11": "Monthly"
+          "11": "Monthly",
+          "-1": "Disabled"
         },
-       "mode": "both"
+        "mode": "both"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/{schedule}/Duration",
         "type": "integer",
         "name": "Schedule {schedule}: Duration (seconds)",
-       "mode": "both"
+        "mode": "both"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/{schedule}/Soc",
         "type": "integer",
         "name": "Schedule {schedule}: State of charge (%)",
-       "mode": "both"
+        "mode": "both"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/Schedule/Charge/{schedule}/Start",
         "type": "integer",
         "name": "Schedule {schedule}: Start (seconds after midnight)",
-       "mode": "both"
+        "mode": "both"
       },
       {
         "path": "/Settings/CGwacs/BatteryLife/State",
@@ -2006,20 +2016,20 @@
           "2": "Optimized mode or 'keep batteries charged' and phase compensation disabled",
           "3": "External control"
         },
-       "mode": "both"
+        "mode": "both"
       },
       {
         "path": "/Settings/CGwacs/MaxChargePower",
         "type": "integer",
         "name": "Max charge power (W)",
         "remarks": "<p>Not used with DVCC.</p>",
-       "mode": "both"
+        "mode": "both"
       },
       {
         "path": "/Settings/CGwacs/MaxDischargePower",
         "type": "integer",
         "name": "Max inverter power (W)",
-       "mode": "both"
+        "mode": "both"
       },
       {
         "path": "/Settings/CGwacs/MaxFeedInPower",
@@ -2036,7 +2046,7 @@
           "0": "Don’t feed excess DC-tied PV into grid",
           "1": "Feed excess DC-tied PV into the grid"
         },
-       "mode": "both"
+        "mode": "both"
       },
       {
         "path": "/Settings/CGwacs/PreventFeedback",
@@ -2077,13 +2087,14 @@
         "type": "integer",
         "name": "Active SOC limit (%)"
       }
-    ]
+    ],
+    "communityTag": "ess"
   },
   "evcharger": {
     "help": {
-       "both": "<p>The EV charger input node is for reading from the EV Charging Station.</p><p>Also see <a href=\"https://github.com/victronenergy/venus/wiki/dbus#evcharger\">here</a> for more information.</p>",
-       "input": "",
-       "output": " "
+      "both": "<p>The EV charger input node is for reading from the EV Charging Station.</p><p>Also see <a href=\"https://github.com/victronenergy/venus/wiki/dbus#evcharger\">here</a> for more information.</p>",
+      "input": "",
+      "output": " "
     },
     "evcharger": [
       {
@@ -2217,7 +2228,8 @@
           "24": "Stop charging"
         }
       }
-    ]
+    ],
+    "communityTag": "evcharger"
   },
   "fuelcell": {
     "help": {
@@ -2311,7 +2323,8 @@
         "type": "float",
         "name": "Total energy produced (kWh)"
       }
-    ]
+    ],
+    "communityTag": "fuelcell"
   },
   "generator": {
     "help": {
@@ -2337,7 +2350,7 @@
           "0": "Autostart disabled",
           "1": "Autostart enabled"
         },
-       "mode": "both"
+        "mode": "both"
       },
       {
         "path": "/Error",
@@ -2357,7 +2370,7 @@
           "0": "Stop generator",
           "1": "Start generator"
         },
-       "mode": "both"
+        "mode": "both"
       },
       {
         "path": "/ManualStartTimer",
@@ -2766,13 +2779,14 @@
         "type": "float",
         "name": "Starter battery voltage (DC V)"
       }
-    ]
+    ],
+    "communityTag": "generator"
   },
   "gps": {
     "help": {
-       "both": "<p>GPS information can be obtained with this node. For an example usage see the <a href=\"https://github.com/victronenergy/node-red-contrib-victron/wiki/Example-Flows#location-based-scheduling\">location based scheduling</a> example.</p>",
-       "input": "",
-       "output": ""
+      "both": "<p>GPS information can be obtained with this node. For an example usage see the <a href=\"https://github.com/victronenergy/node-red-contrib-victron/wiki/Example-Flows#location-based-scheduling\">location based scheduling</a> example.</p>",
+      "input": "",
+      "output": ""
     },
     "gps": [
       {
@@ -2810,7 +2824,8 @@
         "type": "float",
         "name": "Speed (m/s)"
       }
-    ]
+    ],
+    "communityTag": "gps"
   },
   "gridmeter": {
     "help": {
@@ -2879,11 +2894,12 @@
         "type": "string",
         "name": "Serial"
       }
-    ]
+    ],
+    "communityTag": "gridmeter"
   },
   "inverter": {
     "help": {
-       "both": "<p>This node is for reading from an inverter.</p>",
+      "both": "<p>This node is for reading from an inverter.</p>",
       "input": "",
       "output": " "
     },
@@ -3126,7 +3142,8 @@
           "9": "Inverting"
         }
       }
-    ]
+    ],
+    "communityTag": "inverter"
   },
   "switch": {
     "help": {
@@ -3151,11 +3168,12 @@
         "name": "{type} dimming",
         "mode": "both"
       }
-    ]
+    ],
+    "communityTag": "switch"
   },
   "meteo": {
     "help": {
-       "both": "<p>The <b>meteo</b> node allows for Solar Irradiance, Temperature and Wind Speed Sensors measuring.</p><p>More information and supported devices can be found in the <a href=\"https://www.victronenergy.com/media/pg/Cerbo_GX/en/installation.html#UUID-d4b7dfe9-4ee0-53bc-8959-c567ed63cebb\">manual</a>.</p>",
+      "both": "<p>The <b>meteo</b> node allows for Solar Irradiance, Temperature and Wind Speed Sensors measuring.</p><p>More information and supported devices can be found in the <a href=\"https://www.victronenergy.com/media/pg/Cerbo_GX/en/installation.html#UUID-d4b7dfe9-4ee0-53bc-8959-c567ed63cebb\">manual</a>.</p>",
       "input": "",
       "output": ""
     },
@@ -3210,7 +3228,8 @@
         "type": "integer",
         "name": "Wind direction (°)"
       }
-    ]
+    ],
+    "communityTag": "meteo"
   },
   "motordrive": {
     "help": {
@@ -3249,13 +3268,14 @@
         "type": "float",
         "name": "Controller DC Voltage (V DC)"
       }
-    ]
+    ],
+    "communityTag": "motordrive"
   },
   "multi": {
     "help": {
-       "both": "<p>This is the Multi RS node.</p>",
-       "input": "",
-       "output": " "
+      "both": "<p>This is the Multi RS node.</p>",
+      "input": "",
+      "output": " "
     },
     "multi": [
       {
@@ -3434,13 +3454,13 @@
         "name": "Maximum charge power {historyDay} (W)"
       },
       {
-        "path": "/History/Daily/{historyDay}/Yield", 
+        "path": "/History/Daily/{historyDay}/Yield",
         "type": "float",
         "name": "Yield {historyDay} (kWh)"
       },
       {
         "path": "/History/Daily/{historyDay}/Pv/{index}/MaxPower",
-        "type": "float", 
+        "type": "float",
         "name": "Maximum charge power {historyDay} for tracker {index} (W)"
       },
       {
@@ -3622,13 +3642,14 @@
         "type": "float",
         "name": "User yield (kWh)"
       }
-    ]
+    ],
+    "communityTag": "multi"
   },
   "pulsemeter": {
     "help": {
-       "both": "<p>This node is for obtaining information from a pulsemeter. In order to use this, set a digital input to <strong>Pulse meter</strong> first via the GUI (Under <i>I/O -> Digital inputs</i>).</p>",
-        "input": "",
-       "output": ""
+      "both": "<p>This node is for obtaining information from a pulsemeter. In order to use this, set a digital input to <strong>Pulse meter</strong> first via the GUI (Under <i>I/O -> Digital inputs</i>).</p>",
+      "input": "",
+      "output": ""
     },
     "pulsemeter": [
       {
@@ -3641,11 +3662,12 @@
         "type": "float",
         "name": "Aggregate (measured value) (m3)"
       }
-    ]
+    ],
+    "communityTag": "pulsemeter"
   },
   "pump": {
     "help": {
-       "both": "<p>Node for getting pump information.</p>",
+      "both": "<p>Node for getting pump information.</p>",
       "input": "",
       "output": " "
     },
@@ -3694,11 +3716,12 @@
         "name": "Stop value (%)",
         "mode": "both"
       }
-    ]
+    ],
+    "communityTag": "pump"
   },
   "pvinverter": {
     "help": {
-       "both": "<p>This node is for obtaining information from the PV inverter.</p>",
+      "both": "<p>This node is for obtaining information from the PV inverter.</p>",
       "input": "",
       "output": " "
     },
@@ -3792,11 +3815,12 @@
           "12": "Running (Throttled)"
         }
       }
-    ]
+    ],
+    "communityTag": "pvinverter"
   },
   "relay": {
     "help": {
-       "both": "<p>The <b>relay</b> node reads the state of the relay(s) of the Venus device.</p>",
+      "both": "<p>The <b>relay</b> node reads the state of the relay(s) of the Venus device.</p>",
       "input": "",
       "output": " "
     },
@@ -3883,13 +3907,14 @@
         },
         "mode": "both"
       }
-    ]
+    ],
+    "communityTag": "relay"
   },
   "settings": {
     "help": {
       "both": "<p>With this node several settings can be read. Currently the focus is mainly on the Carlo Gavazzi Wired AC Sensors (cgwacs).</p>",
       "input": "",
-      "output" : " "
+      "output": " "
     },
     "settings": [
       {
@@ -4029,13 +4054,14 @@
           "1": "Feed-in limiting is active"
         }
       }
-    ]
+    ],
+    "communityTag": "settings"
   },
   "solarcharger": {
     "help": {
-       "both": "<p>Information from the Solar charger can be read with this node.</p>",
-       "input": "",
-       "output": " "
+      "both": "<p>Information from the Solar charger can be read with this node.</p>",
+      "input": "",
+      "output": " "
     },
     "solarcharger": [
       {
@@ -4163,13 +4189,13 @@
         "name": "Maximum charge power {historyDay} (W)"
       },
       {
-        "path": "/History/Daily/{historyDay}/Yield", 
+        "path": "/History/Daily/{historyDay}/Yield",
         "type": "float",
         "name": "Yield {historyDay} (kWh)"
       },
       {
         "path": "/History/Daily/{historyDay}/Pv/{index}/MaxPower",
-        "type": "float", 
+        "type": "float",
         "name": "Maximum charge power {historyDay} for tracker {index} (W)"
       },
       {
@@ -4194,7 +4220,7 @@
           "1": "On",
           "4": "Off"
         },
-       "mode": "both"
+        "mode": "both"
       },
       {
         "path": "/MppOperationMode",
@@ -4246,7 +4272,7 @@
         "path": "/Settings/ChargeCurrentLimit",
         "type": "float",
         "name": "The maximum configured (non-volatile) charge current (A). This is the same as set by VictronConnect.",
-       "mode": "both"
+        "mode": "both"
       },
       {
         "path": "/State",
@@ -4280,7 +4306,8 @@
         "type": "string",
         "name": "Yield since reset (kWh)"
       }
-    ]
+    ],
+    "communityTag": "solarcharger"
   },
   "system": {
     "help": {
@@ -4506,14 +4533,15 @@
         "type": "float",
         "name": "Time inverting (s)"
       }
-    ]
+    ],
+    "communityTag": "system"
   },
   "tank": {
     "help": {
-       "both": "<p>The tank node is for retrieving tank level sensor information.</p><p>Also see the <a href=\"https://www.victronenergy.com/media/pg/Cerbo_GX/en/installation.html#UUID-e4027d37-78e0-4433-1be4-3252d3b79152\">manual</a> for more information.</p>",
-       "input": "",
-       "output": ""
-     },
+      "both": "<p>The tank node is for retrieving tank level sensor information.</p><p>Also see the <a href=\"https://www.victronenergy.com/media/pg/Cerbo_GX/en/installation.html#UUID-e4027d37-78e0-4433-1be4-3252d3b79152\">manual</a> for more information.</p>",
+      "input": "",
+      "output": ""
+    },
     "tank": [
       {
         "path": "/Capacity",
@@ -4568,13 +4596,14 @@
           "4": "Unknown"
         }
       }
-    ]
+    ],
+    "communityTag": "tank"
   },
   "temperature": {
     "help": {
       "both": "<p>Like the other nodes, the <b>temperature</b> node reads the temperate information from the dbus. This means that source of the temperature sensor can obtain its information from different sources (e.g. directly connected probe or Bluetooth connected Ruuvi tag).</p><p>See the <a href=\"https://www.victronenergy.com/media/pg/Cerbo_GX/en/installation.html#UUID-4d5df29c-761e-cfcc-9e2c-8230f126e7bb\">manual</a> for information on connecting a temperature sensor.</p><p>Tank sensors also expose temperature, so they can appear under the dropdown too.</p>",
-       "input": "",
-       "output": ""
+      "input": "",
+      "output": ""
     },
     "temperature": [
       {
@@ -4691,13 +4720,14 @@
         "type": "float",
         "name": "Temperature (°C)"
       }
-    ]
+    ],
+    "communityTag": "temperature"
   },
   "vebus": {
     "help": {
-       "both": "<p>Information from VE.Bus connected devices can be obtained with this node.</p>",
-       "input": "",
-       "output": " "
+      "both": "<p>Information from VE.Bus connected devices can be obtained with this node.</p>",
+      "input": "",
+      "output": " "
     },
     "vebus": [
       {
@@ -5159,6 +5189,7 @@
           "32": "VE.Bus Error 32"
         }
       }
-    ]
+    ],
+    "communityTag": "vebus"
   }
 }
