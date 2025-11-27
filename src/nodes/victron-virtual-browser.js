@@ -8,9 +8,9 @@ import {
   validateSwitchConfig,
   updateBatteryVoltageVisibility,
   calculateOutputs,
-  updateOutputs,
-  initializeTooltips
+  updateOutputs
 } from './victron-virtual-functions.js'
+import { initializeTooltips } from './victron-common.js'
 
 window.__victron = {
   checkGeneratorType,

@@ -8,7 +8,7 @@ import {
   SWITCH_SECOND_OUTPUT_LABEL,
   SWITCH_THIRD_OUTPUT_LABEL
 } from './victron-virtual-constants'
-import { initializeTooltips } from '../../resources/victron-common'
+import { initializeTooltips } from './victron-common'
 
 // Re-export for browser/test use
 export {
@@ -191,8 +191,6 @@ export const SWITCH_TYPE_DOCS = {
     '/resources/@victronenergy/node-red-contrib-victron/docs/rgb_cct_control.svg'
   )
 }
-
-export { initializeTooltips }
 
 export function renderSwitchConfigRow (context) {
   const typeOptions = Object.entries(SWITCH_TYPE_CONFIGS)
