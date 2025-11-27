@@ -87,7 +87,8 @@ const properties = {
     'Ac/L1/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
     'Ac/L1/PowerFactor': { type: 'd', format: (v) => v != null ? v.toFixed(2) : '' },
     'Ac/L1/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
-    'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' }
+    'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
+    Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
   },
   battery: {
     Capacity: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'Ah' : '', persist: true },
@@ -1591,7 +1592,7 @@ module.exports = function (RED) {
                   outputMsgs[1] = {
                     payload: Number(propValue),
                     topic: `${node.name || 'Virtual ' + config.device}/${topicSuffix}`,
-                    path: '/SwitchableOutput/output_1/Dimming'
+                    source_path: '/SwitchableOutput/output_1/Dimming'
                   }
                   hasChanges = true
                 }
@@ -1606,7 +1607,7 @@ module.exports = function (RED) {
                   outputMsgs[1] = {
                     payload: propValue,
                     topic: `${node.name || 'Virtual ' + config.device}/state`,
-                    path: '/SwitchableOutput/output_1/State'
+                    source_path: '/SwitchableOutput/output_1/State'
                   }
                   hasChanges = true
                 }
@@ -1628,7 +1629,7 @@ module.exports = function (RED) {
                 outputMsgs[2] = {
                   payload: propValue,
                   topic: `${node.name || 'Virtual ' + config.device}/${topicLabel.toLowerCase()}`,
-                  path: '/SwitchableOutput/output_1/Dimming'
+                  source_path: '/SwitchableOutput/output_1/Dimming'
                 }
                 hasChanges = true
               }
@@ -1650,7 +1651,7 @@ module.exports = function (RED) {
                 outputMsgs[2] = {
                   payload: propValue, // Send the array directly
                   topic: `${node.name || 'Virtual ' + config.device}/${topicLabel.toLowerCase()}`,
-                  path: '/SwitchableOutput/output_1/LightControls',
+                  source_path: '/SwitchableOutput/output_1/LightControls',
                   rgb, // RGB as #RRGGBB string
                   hsb: { hue, saturation, brightness }, // HSB object
                   white, // White level (0-100%)
