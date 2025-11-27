@@ -124,7 +124,6 @@
       const tooltipHeight = $tooltip.outerHeight();
       const tooltipWidth = $tooltip.outerWidth();
 
-      // Position above the icon, centered
       $tooltip.css({
         top: iconOffset.top - tooltipHeight - 8,
         left: iconOffset.left - (tooltipWidth / 2) + ($icon.outerWidth() / 2)
@@ -143,7 +142,6 @@
     });
   }
 
-  // For browser environments without module support
   if (typeof window !== 'undefined') {
     window.__victronCommon = window.__victronCommon || {};
     window.__victronCommon.initializeTooltips = initializeTooltips;

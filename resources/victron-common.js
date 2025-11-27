@@ -1,42 +1,49 @@
-/* global $ */
+var victronCommon = (function (exports) {
+  'use strict';
 
-export function initializeTooltips () {
-  $('.tooltip-container').remove()
+  /* global $ */
 
-  $('.tooltip-icon').off('mouseenter mouseleave')
+  function initializeTooltips () {
+    $('.tooltip-container').remove();
 
-  $('.tooltip-icon').on('mouseenter', function (e) {
-    const $icon = $(this)
-    const tooltipText = $icon.attr('data-tooltip')
-    const $tooltip = $('<div class="tooltip-container"></div>').text(tooltipText)
+    $('.tooltip-icon').off('mouseenter mouseleave');
 
-    $('body').append($tooltip)
+    $('.tooltip-icon').on('mouseenter', function (e) {
+      const $icon = $(this);
+      const tooltipText = $icon.attr('data-tooltip');
+      const $tooltip = $('<div class="tooltip-container"></div>').text(tooltipText);
 
-    const iconOffset = $icon.offset()
-    const tooltipHeight = $tooltip.outerHeight()
-    const tooltipWidth = $tooltip.outerWidth()
+      $('body').append($tooltip);
 
-    // Position above the icon, centered
-    $tooltip.css({
-      top: iconOffset.top - tooltipHeight - 8,
-      left: iconOffset.left - (tooltipWidth / 2) + ($icon.outerWidth() / 2)
-    })
+      const iconOffset = $icon.offset();
+      const tooltipHeight = $tooltip.outerHeight();
+      const tooltipWidth = $tooltip.outerWidth();
 
-    $icon.data('tooltip-element', $tooltip)
-  })
+      $tooltip.css({
+        top: iconOffset.top - tooltipHeight - 8,
+        left: iconOffset.left - (tooltipWidth / 2) + ($icon.outerWidth() / 2)
+      });
 
-  $('.tooltip-icon').on('mouseleave', function () {
-    const $icon = $(this)
-    const $tooltip = $icon.data('tooltip-element')
-    if ($tooltip) {
-      $tooltip.remove()
-      $icon.removeData('tooltip-element')
-    }
-  })
-}
+      $icon.data('tooltip-element', $tooltip);
+    });
 
-// For browser environments without module support
-if (typeof window !== 'undefined') {
-  window.__victronCommon = window.__victronCommon || {}
-  window.__victronCommon.initializeTooltips = initializeTooltips
-}
+    $('.tooltip-icon').on('mouseleave', function () {
+      const $icon = $(this);
+      const $tooltip = $icon.data('tooltip-element');
+      if ($tooltip) {
+        $tooltip.remove();
+        $icon.removeData('tooltip-element');
+      }
+    });
+  }
+
+  if (typeof window !== 'undefined') {
+    window.__victronCommon = window.__victronCommon || {};
+    window.__victronCommon.initializeTooltips = initializeTooltips;
+  }
+
+  exports.initializeTooltips = initializeTooltips;
+
+  return exports;
+
+})({});
