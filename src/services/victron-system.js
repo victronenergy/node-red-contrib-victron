@@ -179,7 +179,10 @@ class SystemConfiguration {
     })
 
     services.sort((a, b) => a.name > b.name ? 1 : -1)
-    return services
+    return {
+      communityTag: 'node-red',
+      services
+    }
   }
 
   /**

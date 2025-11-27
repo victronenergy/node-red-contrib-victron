@@ -1,26 +1,23 @@
-<link rel="stylesheet" href="resources/@victronenergy/node-red-contrib-victron/victron-virtual-style.css">
+<link rel="stylesheet" href="resources/@victronenergy/node-red-contrib-victron/victron-styles.css">
 <script src="resources/@victronenergy/node-red-contrib-victron/victron-common.js"></script>
 
 <script type="text/template" id="input-edit-template">
     <div class="victron-form">
-        <div class="hidden" id="custominfo">
-            <div class="info-text">
-                Note that there is no guarantee that used services and paths will remain existent with firmware updates for custom nodes.</i>
-            </div>
-            <hr />
+        <div class="form-info hidden" id="custominfo">
+            Note that there is no guarantee that used services and paths will remain existent with firmware updates for custom nodes.
         </div>
         <div class="form-row" id="stored-settings">
             <div class="info-text">
             </div>
         </div>
         <div class="form-row" id="service-row">
-            <label for="node-input-service" style="width:216px; display:inline-block">Device</label>
-            <select id="node-input-service" style="width:240px"></select>
+            <label for="node-input-service">Device</label>
+            <select id="node-input-service"></select>
         </div>
         <div class="form-info hidden" id="duplicatesinfo"></div>
         <div class="form-row" id="path-row">
-            <label for="node-input-path" style="width:216px; display:inline-block">Measurement</label>
-            <select id="node-input-path" style="width:240px"></select>
+            <label for="node-input-path">Measurement</label>
+            <select id="node-input-path"></select>
         </div>
         <div class="form-warning hidden" id="warningmessage"></div>
         <div class="form-warning hidden" id="statusmessage"></div>
@@ -30,8 +27,8 @@
         </div>
         <div class="form-row" id="initial-row">
             <hr />
-            <label for="node-input-initial" style="width:216px; display:inline-block">Initial value <i class="fa fa-info-circle tooltip-icon" data-tooltip="The initial value is sent to the device whenever the node is deployed."></i></label>
-            <div class="initial-value-container" style="width:240px">
+            <label for="node-input-initial"><i class="fa fa-upload"></i> Initial value <i class="fa fa-info-circle tooltip-icon" data-tooltip="The initial value is sent to the device whenever the node is deployed."></i></label>
+            <div class="initial-value-container">
                 <select id="node-input-initial-enum" class="initial-input"></select>
                 <input type="number" id="node-input-initial-number" class="initial-input" placeholder="Initial" >
                 <input type="text" id="node-input-initial-string" class="initial-input" placeholder="Initial">
@@ -39,19 +36,19 @@
         </div>
         <div class="form-row" id="name-row">
             <hr />
-            <label style="width:216px; display:inline-block" for="node-input-name"><i class="fa fa-tag"></i> Name <i class="fa fa-info-circle tooltip-icon" data-tooltip="The node can be given an arbitrary label that is shown instead of device name and service."></i></label>
-            <input type="text" id="node-input-name" style="width:240px" placeholder="Name">
+            <label for="node-input-name"><i class="fa fa-tag"></i> Name <i class="fa fa-info-circle tooltip-icon" data-tooltip="The node can be given an arbitrary label that is shown instead of device name and service."></i></label>
+            <input type="text" id="node-input-name" placeholder="Name">
         </div>
-        <div class="hidden" id="outputinfo">
-            <hr />
-            <div class="info-text">
-                The value for the controlled output should be set in incoming message's <code>msg.payload</code> property.
-                Please refer to 'Value Types' box above for adjustable settings.</i>
+        <div class="victron-doc-box hidden" id="outputinfo">
+            <div class="victron-doc-text">
+                <strong>Usage:</strong>
+                <div>The value for the controlled output should be set in the incoming message's <code>msg.payload</code> property.</div>
+                <div>If specific value types are shown above, use those values.</div>
             </div>
         </div>
         <div class="form-row hidden" id="roundValues">
-            <label style="width:216px; display:inline-block" for="node-input-roundValues"><i class="fa fa-minus-circle"></i> Rounding <i class="fa fa-info-circle tooltip-icon" data-tooltip="Round values to less digits."></i></label>
-            <select id="node-input-roundValues" style="width:240px">
+            <label for="node-input-roundValues"><i class="fa fa-minus-circle"></i> Rounding <i class="fa fa-info-circle tooltip-icon" data-tooltip="Round values to less digits."></i></label>
+            <select id="node-input-roundValues">
                 <option value="no">Do not round</option>
                 <option value="0">Zero digits</option>
                 <option value="1">1 digit</option>
@@ -60,12 +57,12 @@
             </select>
         </div>
         <div class="form-row hidden" id="onlyChanges">
-            <label style="width:216px; display:inline-block" for="node-input-onlyChanges"><i class="fa fa-bell"></i> Only changes <i class="fa fa-info-circle tooltip-icon" data-tooltip="Only send output on (initially not rounded) value changes and not every 5 seconds."></i></label>
-            <input type="checkbox" checked id="node-input-onlyChanges" style="max-width:30px">
+            <label for="node-input-onlyChanges"><i class="fa fa-bell"></i> Only changes <i class="fa fa-info-circle tooltip-icon" data-tooltip="Only send output on (initially not rounded) value changes and not every 5 seconds."></i></label>
+            <input type="checkbox" checked id="node-input-onlyChanges">
         </div>
         <div class="form-row hidden" id="rateLimit">
-            <label style="width:216px; display:inline-block" for="node-input-rateLimit"><i class="fa fa-tachometer"></i> Rate limit <i class="fa fa-info-circle tooltip-icon" data-tooltip="Limit the maximum rate of messages. Useful for high-frequency measurements like grid meters. Most measurements don't need rate limiting."></i></label>
-            <select id="node-input-rateLimit" style="width:240px">
+            <label for="node-input-rateLimit"><i class="fa fa-tachometer"></i> Rate limit <i class="fa fa-info-circle tooltip-icon" data-tooltip="Limit the maximum rate of messages. Useful for high-frequency measurements like grid meters. Most measurements don't need rate limiting."></i></label>
+            <select id="node-input-rateLimit">
                 <option value="0">No limit</option>
                 <option value="10">10 msg/sec</option>
                 <option value="5">5 msg/sec</option>
@@ -75,10 +72,10 @@
                 <option value="0.2">1 msg per 5 sec</option>
             </select>
         </div>
-        <div class="form-row" id="community-link-row" style="margin-top: 20px; display: none;">
-            <div style="width: 456px; text-align: right;">
+        <div class="form-row community-link-row hidden" id="community-link-row">
+            <div class="community-link-container">
                 <a id="community-link" href="#" target="_blank" rel="noopener noreferrer">
-                    <img src="resources/@victronenergy/node-red-contrib-victron/docs/community-link.svg" alt="Community Link" style="height: 32px; vertical-align: middle;">
+                    <img class="community-link-img" src="resources/@victronenergy/node-red-contrib-victron/docs/community-link.svg" alt="Community Link">
                 </a>
             </div>
         </div>
@@ -169,6 +166,12 @@
             var serviceData = serviceElem.find(':selected').data();
             if (serviceData && serviceData.paths) populateSelect(pathElem, serviceData.paths);
             pathElem.val($('#selectedpath').text());
+            // Show/hide status message based on whether the disconnected service is selected
+            if (serviceElem.val() === node.service && serviceElem.find(':selected').text().includes('[disconnected]')) {
+                $('#statusmessage').show();
+            } else {
+                $('#statusmessage').hide();
+            }
             updateEnums();
             updateCommunityLink();
         };
@@ -177,6 +180,8 @@
 
         var updateCommunityLink = function updateCommunityLink() {
             if (communityTag) {
+                // Currently all nodes link to the general Node-RED community page
+                // In the future, communityTag could be appended to create device-specific links
                 var url = 'https://community.victronenergy.com/c/node-red/28/'; // + communityTag;
                 $('#community-link').attr('href', url);
                 $('#community-link-row').show();
@@ -244,7 +249,7 @@
                     default:
                         $('#initial-row').hide();
                 }
-                if (isOutputNode) {
+                if (isOutputNode && !isCustomNode) {
                     $('#initial-row').show();
                 }
             } else {
@@ -296,7 +301,7 @@
                 }
 
                 if (node.serviceObj && node.pathObj) {
-                    $('#stored-settings').html('<div style="font-size: 0.9em; color: #666; margin-bottom: 10px; font-style: italic;"><i class="fa fa-info-circle" style="color: #000; margin-right: 5px;"></i>Stored: '+node.serviceObj.name+' &gt; '+node.pathObj.name+'</div><div class="hidden" id="selectedpath">'+node.pathObj.path+'</div>')
+                    $('#stored-settings').html('<div class="stored-settings-display"><i class="fa fa-save stored-settings-icon"></i>Stored: '+node.serviceObj.name+' &gt; '+node.pathObj.name+'</div><div class="hidden" id="selectedpath">'+node.pathObj.path+'</div>')
                 }
                 serviceElem.val(node.service);
             }
@@ -587,78 +592,3 @@
     registerNode('victron-output-custom', 'Custom', 'custom', true, true);
 
 </script>
-
-<style>
-    .victron-form div {
-        width: 480px;
-    }
-    .victron-form label, .enuminfo--header {
-        font-weight: 500;
-    }
-    .victron-form input, select {
-        width: 240px !important;
-        vertical-align: middle;
-    }
-    .victron-form .hidden {
-        display: none;
-    }
-    .victron-form .form-tips {
-        padding: 16px;
-        margin-bottom: 12px;
-        width: 424px;
-    }
-    .victron-form .form-warning {
-        padding: 12px;
-        width: 430px;
-        background-color: #fff5f5;
-        border: 1px solid #f5c6c6;
-        border-radius: 3px;
-        margin-bottom: 12px;
-    }
-    .victron-form .form-info {
-        font-style: italic;
-        padding-bottom: 8px;
-        max-width: 480px;
-    }
-    .victron-form .fa {
-        float: left;
-        margin: 5px 10px 0px 0px;
-    }
-    .victron-form .tooltip-icon {
-        float: none;
-        display: inline;
-        margin: 0 0 0 6px;
-    }
-    .victron-form .form-info .fa {
-        color: #00BCFF;
-    }
-    .victron-form .form-warning .fa {
-        color: #d6615f;
-    }
-    .victron-form .form-row label {
-        width: 216px !important;
-        display: inline-block;
-        vertical-align: middle;
-    }
-    .victron-form .info-text {
-        padding: 8px 0px;
-        font-style: italic;
-    }
-    .victron-form .hr {
-        margin: 8px 0;
-    }
-
-    /* Initial value specific styles */
-    .victron-form .initial-value-container {
-        display: inline-block;
-        width: 240px;
-        vertical-align: top;
-    }
-    .victron-form .initial-input {
-        width: 100%;
-        display: none;
-    }
-    #node-input-name {
-        width: 240px;
-    }
-</style>
