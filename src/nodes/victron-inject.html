@@ -1,0 +1,153 @@
+<link rel="stylesheet" href="resources/@victronenergy/node-red-contrib-victron/victron-styles.css">
+<script src="resources/@victronenergy/node-red-contrib-victron/victron-common.js"></script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('victron-inject', {
+        category: 'Victron Energy',
+        color: '#f7ab3e',
+        paletteLabel: "Inject Notification",
+        defaults: {
+            name: {value: ""},
+            notificationType: {value: 2, required: true},
+            notificationTitle: {value: "", required: true}
+        },
+        icon: "victronenergy.svg",
+        inputs: 1,
+        outputs: 1,
+        label: function() {
+            return this.name || "Inject Notification";
+        },
+        oneditprepare: function() {
+            // Initialize tooltips
+            if (window.__victronCommon && typeof window.__victronCommon.initializeTooltips === 'function') {
+                window.__victronCommon.initializeTooltips();
+            }
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="victron-inject">
+    <div class="victron-form">
+        <div class="form-row">
+            <label for="node-input-name">
+                <i class="fa fa-tag"></i> Name
+            </label>
+            <input type="text" id="node-input-name" placeholder="Name">
+        </div>
+
+        <div class="form-row">
+            <label for="node-input-notificationType">
+                <i class="fa fa-exclamation-triangle"></i> Type
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Notification type: Warning, Alarm, or Information. Can be overridden by msg.type"></i>
+            </label>
+            <select id="node-input-notificationType">
+                <option value="0">Warning</option>
+                <option value="1">Alarm</option>
+                <option value="2">Information</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <label for="node-input-notificationTitle">
+                <i class="fa fa-header"></i> Title
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Notification title. Can be overridden by msg.title"></i>
+            </label>
+            <input type="text" id="node-input-notificationTitle" placeholder="Notification Title" required>
+        </div>
+
+        <div class="victron-doc-box">
+            <div class="victron-doc-text">
+                <strong>Usage:</strong>
+                <p>Send the notification message in <code>msg.payload</code>.</p>
+                <p>Optionally override the configured type with <code>msg.type</code> (number: 0/1/2 or string: "warning"/"alarm"/"info").</p>
+                <p>Optionally override the configured title with <code>msg.title</code>.</p>
+                <p>The output includes <code>msg.notification</code> with injected notification details.</p>
+                <p>Status displays "Title: message" with color-coded dot (yellow=Warning, red=Alarm, blue=Information).</p>
+            </div>
+        </div>
+
+        <div class="form-row community-link-row" id="community-link-row">
+            <div class="community-link-container">
+                <a href="https://community.victronenergy.com/c/node-red/28" target="_blank" rel="noopener noreferrer">
+                    <img class="community-link-img" src="resources/@victronenergy/node-red-contrib-victron/docs/community-link.svg" alt="Community Link">
+                </a>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/markdown" data-help-name="victron-inject">
+
+The _Inject Notification_ node allows you to inject notifications into the Venus GUI notification center.
+
+## Configuration
+
+### Type
+Select the notification type:
+- **Warning** (0): Warning notifications - displayed with yellow status
+- **Alarm** (1): Alarm notifications - displayed with red status
+- **Information** (2): Information notifications - displayed with blue status
+
+The type can be overridden by setting `msg.type` in the incoming message.
+
+### Title
+The notification title that will be displayed. This can be overridden by setting `msg.title` in the incoming message.
+
+## Usage
+
+Send a message with the notification text in `msg.payload`:
+
+```javascript
+msg.payload = "Battery voltage is low";
+return msg;
+```
+
+### Overriding Configuration
+
+You can override the configured type and title by setting properties on the incoming message. The type can be specified as either a number (0, 1, 2) or a string ("warning", "alarm", "info"/"information"):
+
+```javascript
+msg.payload = "Critical temperature alert";
+msg.type = 1;  // Override to Alarm (number)
+msg.title = "Temperature Alert";  // Override title
+return msg;
+```
+
+```javascript
+msg.payload = "Critical temperature alert";
+msg.type = "alarm";  // Override to Alarm (string, case-insensitive)
+msg.title = "Temperature Alert";  // Override title
+return msg;
+```
+
+The node will inject the notification into the dbus at `com.victronenergy.platform /Notifications/Inject` with the format `"type\ttitle\tmessage"`.
+
+## Output
+
+The node passes through the original message and adds a `msg.notification` object containing:
+- `type`: The type number used (0, 1, or 2)
+- `title`: The title string used
+- `message`: The message string used
+- `timestamp`: ISO timestamp of when the notification was injected
+
+```javascript
+{
+    payload: "Battery voltage is low",
+    notification: {
+        type: 0,
+        title: "Battery Alert",
+        message: "Battery voltage is low",
+        timestamp: "2025-11-28T10:30:00.000Z"
+    }
+}
+```
+
+## Node Status
+
+The node status displays the most recently injected notification in the format "Title: message" with a color-coded status indicator:
+- **Yellow dot**: Warning notification
+- **Red dot**: Alarm notification
+- **Blue dot**: Information notification
+- **Red ring**: Error occurred during injection
+
+</script>

@@ -19,7 +19,8 @@
         "nodes": {
             "victron-client": "./src/nodes/config-client.js",
             "victron-nodes": "./src/nodes/victron-nodes.js",
-            "victron-virtual": "./src/nodes/victron-virtual.js"
+            "victron-virtual": "./src/nodes/victron-virtual.js",
+            "victron-inject": "./src/nodes/victron-inject.js"
         },
         "version": ">=3.0.2"
     },
