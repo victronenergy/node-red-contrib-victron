@@ -15,7 +15,7 @@ a.blue-link {
   vertical-align: middle;
 }
 
-.form-row input[type="checkbox"] {
+.victron-form .form-row input[type="checkbox"] {
   width: auto !important;
 }
 
