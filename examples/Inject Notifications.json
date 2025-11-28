@@ -1,0 +1,168 @@
+[
+    {
+        "id": "a1b2c3d4e5f6g7h8",
+        "type": "comment",
+        "z": "example-flow-id",
+        "name": "Example: Inject Notifications to Venus GUI",
+        "info": "This example demonstrates how to use the Inject Notification node to send notifications to the Venus GUI.\n\nThe example shows:\n1. Basic notification with configured values\n2. Overriding notification type and title via msg properties\n3. Conditional notifications based on battery SOC",
+        "x": 270,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "inject-basic-example",
+        "type": "inject",
+        "z": "example-flow-id",
+        "name": "Send basic notification",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "This is a test information message",
+        "payloadType": "str",
+        "x": 190,
+        "y": 180,
+        "wires": [
+            [
+                "notification-basic"
+            ]
+        ]
+    },
+    {
+        "id": "notification-basic",
+        "type": "victron-inject",
+        "z": "example-flow-id",
+        "name": "System Info",
+        "notificationType": "2",
+        "notificationTitle": "System Information",
+        "x": 460,
+        "y": 180,
+        "wires": [
+            [
+                "debug-output"
+            ]
+        ]
+    },
+    {
+        "id": "function-override-example",
+        "type": "function",
+        "z": "example-flow-id",
+        "name": "Override type and title",
+        "func": "msg.payload = \"Battery voltage is getting low\";\nmsg.type = \"warning\";\nmsg.title = \"Battery Warning\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 220,
+        "y": 240,
+        "wires": [
+            [
+                "notification-basic"
+            ]
+        ]
+    },
+    {
+        "id": "inject-override-trigger",
+        "type": "inject",
+        "z": "example-flow-id",
+        "name": "Trigger override example",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 200,
+        "y": 200,
+        "wires": [
+            [
+                "function-override-example"
+            ]
+        ]
+    },
+    {
+        "id": "battery-monitor",
+        "type": "victron-input-battery",
+        "z": "example-flow-id",
+        "service": "com.victronenergy.battery.ttyUSB0",
+        "path": "/Soc",
+        "serviceObj": {
+            "service": "com.victronenergy.battery.ttyUSB0",
+            "name": "Battery Monitor"
+        },
+        "pathObj": {
+            "path": "/Soc",
+            "type": "float",
+            "name": "State of charge (%)"
+        },
+        "name": "",
+        "onlyChanges": true,
+        "x": 180,
+        "y": 340,
+        "wires": [
+            [
+                "check-soc"
+            ]
+        ]
+    },
+    {
+        "id": "check-soc",
+        "type": "function",
+        "z": "example-flow-id",
+        "name": "Check SOC threshold",
+        "func": "const soc = msg.payload;\n\nif (soc < 20) {\n    msg.payload = `Battery state of charge is critically low: ${soc}%`;\n    msg.type = \"alarm\"; // Alarm (can also use 1)\n    msg.title = \"Battery Critical\";\n    return msg;\n} else if (soc < 30) {\n    msg.payload = `Battery state of charge is low: ${soc}%`;\n    msg.type = \"warning\"; // Warning (can also use 0)\n    msg.title = \"Battery Low\";\n    return msg;\n}\n\n// Don't send notification if SOC is OK\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 340,
+        "wires": [
+            [
+                "notification-conditional"
+            ]
+        ]
+    },
+    {
+        "id": "notification-conditional",
+        "type": "victron-inject",
+        "z": "example-flow-id",
+        "name": "Battery Alert",
+        "notificationType": "2",
+        "notificationTitle": "Battery Status",
+        "x": 660,
+        "y": 340,
+        "wires": [
+            [
+                "debug-output"
+            ]
+        ]
+    },
+    {
+        "id": "debug-output",
+        "type": "debug",
+        "z": "example-flow-id",
+        "name": "Notification result",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "notification",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 890,
+        "y": 260,
+        "wires": []
+    }
+]
