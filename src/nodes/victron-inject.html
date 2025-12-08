@@ -62,6 +62,7 @@
                 <p>Optionally override the configured type with <code>msg.type</code> (number: 0/1/2 or string: "warning"/"alarm"/"info").</p>
                 <p>Optionally override the configured title with <code>msg.title</code>.</p>
                 <p>The output includes <code>msg.notification</code> with injected notification details.</p>
+                <p>Title and message are automatically truncated to 100 and 500 characters respectively.</p>
                 <p>Status displays "Title: message" with color-coded dot (yellow=Warning, red=Alarm, blue=Information).</p>
             </div>
         </div>
@@ -126,9 +127,8 @@ The node will inject the notification into the dbus at `com.victronenergy.platfo
 
 The node passes through the original message and adds a `msg.notification` object containing:
 - `type`: The type number used (0, 1, or 2)
-- `title`: The title string used
-- `message`: The message string used
-- `timestamp`: ISO timestamp of when the notification was injected
+- `title`: The title string used (truncated to 100 characters if longer)
+- `message`: The message string used (truncated to 500 characters if longer)
 
 ```javascript
 {
@@ -136,8 +136,7 @@ The node passes through the original message and adds a `msg.notification` objec
     notification: {
         type: 0,
         title: "Battery Alert",
-        message: "Battery voltage is low",
-        timestamp: "2025-11-28T10:30:00.000Z"
+        message: "Battery voltage is low"
     }
 }
 ```

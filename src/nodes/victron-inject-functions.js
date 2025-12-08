@@ -45,20 +45,10 @@ function validateNotificationInput (payload, type, title) {
 
   const MAX_TITLE_LENGTH = 100
   const MAX_MESSAGE_LENGTH = 500
+  const TYPE_ERROR = 'Type must be "warning", "alarm", "info"/"information", or 0-2'
 
-  if (String(title).length > MAX_TITLE_LENGTH) {
-    return {
-      valid: false,
-      error: `Title too long (max ${MAX_TITLE_LENGTH} chars)`
-    }
-  }
-
-  if (message.length > MAX_MESSAGE_LENGTH) {
-    return {
-      valid: false,
-      error: `Message too long (max ${MAX_MESSAGE_LENGTH} chars)`
-    }
-  }
+  const truncatedTitle = String(title).substring(0, MAX_TITLE_LENGTH)
+  const truncatedMessage = message.substring(0, MAX_MESSAGE_LENGTH)
 
   let typeNum
   if (typeof type === 'string') {
@@ -74,29 +64,29 @@ function validateNotificationInput (payload, type, title) {
     } else {
       return {
         valid: false,
-        error: 'Type must be "warning", "alarm", "info"/"information", or 0-2'
+        error: TYPE_ERROR
       }
     }
   } else if (typeof type === 'number') {
     if (!Number.isInteger(type) || type < 0 || type > 2) {
       return {
         valid: false,
-        error: 'Type must be "warning", "alarm", "info"/"information", or 0-2'
+        error: TYPE_ERROR
       }
     }
     typeNum = type
   } else {
     return {
       valid: false,
-      error: 'Type must be "warning", "alarm", "info"/"information", or 0-2'
+      error: TYPE_ERROR
     }
   }
 
   return {
     valid: true,
     type: typeNum,
-    title: String(title),
-    message
+    title: truncatedTitle,
+    message: truncatedMessage
   }
 }
 

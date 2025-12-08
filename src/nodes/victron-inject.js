@@ -77,8 +77,7 @@ module.exports = function (RED) {
               msg.notification = {
                 type,
                 title,
-                message,
-                timestamp: new Date().toISOString()
+                message
               }
 
               this.node.send(msg)
