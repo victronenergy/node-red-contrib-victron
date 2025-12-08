@@ -49,18 +49,44 @@ module.exports = function (RED) {
       this.service = nodeDefinition.service
       this.path = nodeDefinition.path
       this.pathObj = nodeDefinition.pathObj
-      this.defaulttopic = nodeDefinition.serviceObj.name + ' - ' + nodeDefinition.pathObj.name
+      this.defaulttopic = (nodeDefinition.serviceObj && nodeDefinition.pathObj)
+        ? nodeDefinition.serviceObj.name + ' - ' + nodeDefinition.pathObj.name
+        : 'unknown'
       this.onlyChanges = nodeDefinition.onlyChanges
       this.roundValues = nodeDefinition.roundValues
       this.rateLimit = nodeDefinition.rateLimit || 0
       this.sentInitialValue = false
 
+      // Conditional mode configuration
+      this.conditionalMode = nodeDefinition.conditionalMode || false
+      this.condition1Operator = nodeDefinition.condition1Operator
+      this.condition1Threshold = nodeDefinition.condition1Threshold
+      this.condition2Enabled = nodeDefinition.condition2Enabled || false
+      this.condition2Service = nodeDefinition.condition2Service
+      this.condition2Path = nodeDefinition.condition2Path
+      this.condition2Operator = nodeDefinition.condition2Operator
+      this.condition2Threshold = nodeDefinition.condition2Threshold
+      this.logicOperator = nodeDefinition.logicOperator || 'AND'
+      this.outputTrue = nodeDefinition.outputTrue
+      this.outputFalse = nodeDefinition.outputFalse
+      // Always enforce output-on-change for conditional mode (only send when result changes)
+      this.outputOnChange = this.conditionalMode ? true : (nodeDefinition.outputOnChange !== undefined ? nodeDefinition.outputOnChange : false)
+      this.debounce = nodeDefinition.debounce || 0
+
+      // Conditional mode state
+      this.condition1CurrentValue = null
+      this.condition2CurrentValue = null
+      this.lastConditionalResult = null
+      this.debounceTimer = null
+
       this.configNode = RED.nodes.getNode('victron-client-id')
       this.client = this.configNode.client
 
       this.subscription = null
+      this.subscription2 = null
 
       const handlerId = this.configNode.addStatusListener(this, this.service, this.path)
+      let handlerId2 = null
 
       if (this.service && this.path) {
         // The following is for migration purposes
@@ -77,12 +103,55 @@ module.exports = function (RED) {
           } setTimeout(migrateSubscriptions, 1000, this)
         }
 
+        // Helper function to evaluate a condition
+        const evaluateCondition = (currentValue, operator, threshold) => {
+          if (currentValue === null || currentValue === undefined || isNaN(currentValue)) {
+            return null
+          }
+          const current = Number(currentValue)
+          const thresholdNum = Number(threshold)
+          if (isNaN(thresholdNum)) return null
+
+          const getEpsilon = (a, b) => {
+            const absMax = Math.max(Math.abs(a), Math.abs(b))
+            return absMax === 0 ? 1e-10 : absMax * 1e-10
+          }
+
+          switch (operator) {
+            case '>': return current > thresholdNum
+            case '>=': return current >= thresholdNum
+            case '<': return current < thresholdNum
+            case '<=': return current <= thresholdNum
+            case '==': return Math.abs(current - thresholdNum) < getEpsilon(current, thresholdNum)
+            case '!=': return Math.abs(current - thresholdNum) >= getEpsilon(current, thresholdNum)
+            default: return null
+          }
+        }
+
+        // Helper function to parse output value (JSON or literal)
+        const parseOutputValue = (configValue, defaultValue) => {
+          if (!configValue || configValue.trim() === '') {
+            return defaultValue
+          }
+          try {
+            return JSON.parse(configValue)
+          } catch (e) {
+            return configValue
+          }
+        }
+
         // Message processing function
         const processMessage = (msg) => {
           let topic = this.defaulttopic
           if (this.node.name) {
             topic = this.node.name
           }
+
+          // Store value for conditional evaluation
+          if (this.conditionalMode) {
+            this.condition1CurrentValue = msg.value
+          }
+
           if (this.node.onlyChanges && msg.changed === false && this.sentInitialValue) {
             return
           }
@@ -105,6 +174,8 @@ module.exports = function (RED) {
             globalContext.set(transform(`${this.service}${this.path}`), msg.value)
           }
           this.node.previousvalue = msg.value
+
+          // Prepare raw value message
           const outmsg = {
             payload: msg.value,
             topic
@@ -114,17 +185,150 @@ module.exports = function (RED) {
             outmsg.textvalue = this.node.pathObj.enum[msg.value] || ''
             text = `${msg.value} (${this.node.pathObj.enum[msg.value]})`
           }
-          this.node.send(outmsg)
-          if (this.configNode.showValues !== false) {
-            // node-red will call toString(), without checking if it exists. If the value is null,
-            // node-red will crash trying to call toString(),
-            // see https://github.com/node-red/node-red/blob/9bf42037b5f68012a134810ea92ecfe9b6cef112/packages/node_modules/%40node-red/runtime/lib/flows/Flow.js#L512
-            // we therefore adjust the value, to ensure toString() is always available.
-            const textValue = text && text.toString ? text : text === null || text === undefined ? 'null' : `${text}`
-            this.node.status({ fill: 'green', shape: 'dot', text: textValue })
+
+          // If conditional mode is enabled, send raw value to output 1 and evaluate for output 2
+          if (this.conditionalMode) {
+            this.node.send([outmsg, null]) // Send to output 1 only
+            this.evaluateAndSendConditional(topic, msg.value)
+          } else {
+            // Normal mode: send raw value to single output
+            this.node.send(outmsg)
+            if (this.configNode.showValues !== false) {
+              const textValue = text && text.toString ? text : text === null || text === undefined ? 'null' : `${text}`
+              this.node.status({ fill: 'green', shape: 'dot', text: textValue })
+            }
           }
+
           if (!this.sentInitialValue) {
             this.sentInitialValue = true
+          }
+        }
+
+        // Evaluate conditions and send conditional output
+        this.evaluateAndSendConditional = (topic, primaryValue) => {
+          const result1 = evaluateCondition(
+            this.condition1CurrentValue,
+            this.condition1Operator,
+            this.condition1Threshold
+          )
+
+          if (result1 === null) {
+            if (this.configNode.showValues !== false) {
+              const valueText = this.condition1CurrentValue !== null && this.condition1CurrentValue !== undefined
+                ? this.condition1CurrentValue.toString()
+                : 'null'
+              this.node.status({ fill: 'yellow', shape: 'ring', text: `${valueText} | waiting` })
+            }
+            return
+          }
+
+          let result2 = null
+          if (this.condition2Enabled) {
+            result2 = evaluateCondition(
+              this.condition2CurrentValue,
+              this.condition2Operator,
+              this.condition2Threshold
+            )
+
+            if (result2 === null) {
+              if (this.configNode.showValues !== false) {
+                const valueText = this.condition1CurrentValue !== null && this.condition1CurrentValue !== undefined
+                  ? this.condition1CurrentValue.toString()
+                  : 'null'
+                this.node.status({ fill: 'yellow', shape: 'ring', text: `${valueText} | waiting C2` })
+              }
+              return
+            }
+          }
+
+          // Calculate final result
+          let finalResult = result1
+          if (this.condition2Enabled && result2 !== null) {
+            if (this.logicOperator === 'AND') {
+              finalResult = result1 && result2
+            } else if (this.logicOperator === 'OR') {
+              finalResult = result1 || result2
+            }
+          }
+
+          // Check if result changed
+          const resultChanged = this.lastConditionalResult !== finalResult
+
+          // Handle debounce
+          if (this.debounce > 0 && resultChanged) {
+            if (this.debounceTimer) {
+              clearTimeout(this.debounceTimer)
+            }
+            this.debounceTimer = setTimeout(() => {
+              this.sendConditionalOutput(finalResult, resultChanged, topic, result1, result2, primaryValue)
+            }, this.debounce)
+          } else {
+            this.sendConditionalOutput(finalResult, resultChanged, topic, result1, result2, primaryValue)
+          }
+        }
+
+        // Send conditional output
+        this.sendConditionalOutput = (result, resultChanged, topic, result1, result2, primaryValue) => {
+          // Check if we should send based on outputOnChange setting
+          if (this.outputOnChange && !resultChanged && this.lastConditionalResult !== null) {
+            debug('Output on change only: result unchanged, not sending')
+            if (this.configNode.showValues !== false) {
+              const valueText = this.condition1CurrentValue !== null && this.condition1CurrentValue !== undefined
+                ? this.condition1CurrentValue.toString()
+                : 'null'
+              const statusText = `${valueText} | ${result ? 'true' : 'false'}`
+              this.node.status({ fill: result ? 'green' : 'red', shape: 'dot', text: statusText })
+            }
+            return
+          }
+
+          this.lastConditionalResult = result
+
+          // Parse output values
+          const payload = result
+            ? parseOutputValue(this.outputTrue, true)
+            : parseOutputValue(this.outputFalse, false)
+
+          // Build diagnostic info
+          const info = {
+            condition1: {
+              value: this.condition1CurrentValue,
+              operator: this.condition1Operator,
+              threshold: this.condition1Threshold,
+              result: result1
+            }
+          }
+
+          if (this.condition2Enabled) {
+            info.condition2 = {
+              service: this.condition2Service,
+              path: this.condition2Path,
+              value: this.condition2CurrentValue,
+              operator: this.condition2Operator,
+              threshold: this.condition2Threshold,
+              result: result2
+            }
+            info.logicOperator = this.logicOperator
+          }
+
+          info.finalResult = result
+
+          const outmsg = {
+            payload,
+            topic,
+            info
+          }
+
+          // Send to output 2 (index 1) only
+          this.node.send([null, outmsg])
+
+          // Update status - show value and conditional result
+          if (this.configNode.showValues !== false) {
+            const valueText = this.condition1CurrentValue !== null && this.condition1CurrentValue !== undefined
+              ? this.condition1CurrentValue.toString()
+              : 'null'
+            const statusText = `${valueText} | ${result ? 'true' : 'false'}`
+            this.node.status({ fill: result ? 'green' : 'red', shape: 'dot', text: statusText })
           }
         }
 
@@ -139,6 +343,37 @@ module.exports = function (RED) {
           // If not throttled, it runs immediately. If throttled, it schedules with latest value
           throttledProcessMessage(msg)
         }, { callbackPeriodically })
+
+        // Subscribe to condition 2 if enabled
+        if (this.conditionalMode && this.condition2Enabled && this.condition2Service && this.condition2Path) {
+          handlerId2 = this.configNode.addStatusListener(this, this.condition2Service, this.condition2Path)
+
+          this.subscription2 = this.client.subscribe(this.condition2Service, this.condition2Path, (msg) => {
+            try {
+              if (!msg || msg.value === undefined) {
+                debug('Received invalid message for condition 2:', msg)
+                return
+              }
+              this.condition2CurrentValue = msg.value
+              debug(`Condition 2 value updated: ${this.condition2CurrentValue}`)
+              // Trigger evaluation
+              let topic = this.defaulttopic
+              if (this.node.name) {
+                topic = this.node.name
+              }
+              this.evaluateAndSendConditional(topic, this.condition1CurrentValue)
+            } catch (error) {
+              this.node.error(`Error processing condition 2 update: ${error.message}`, msg)
+              if (this.configNode.showValues !== false) {
+                this.node.status({ fill: 'red', shape: 'ring', text: 'Error: ' + error.message })
+              }
+            }
+          })
+
+          if (this.client && this.client.client && this.client.client.connected) {
+            this.client.client.getValue(this.condition2Service, this.condition2Path)
+          }
+        }
       }
 
       if (this.client && this.client.client && this.client.client.connected) {
@@ -146,8 +381,30 @@ module.exports = function (RED) {
       }
 
       this.on('close', function (done) {
-        this.node.client.unsubscribe(this.node.subscription)
+        // Clear debounce timer
+        if (this.node.debounceTimer) {
+          clearTimeout(this.node.debounceTimer)
+          this.node.debounceTimer = null
+        }
+
+        // Unsubscribe from primary subscription
+        if (this.node.subscription) {
+          this.node.client.unsubscribe(this.node.subscription)
+          this.node.subscription = null
+        }
+
+        // Unsubscribe from condition 2 subscription
+        if (this.node.subscription2) {
+          this.node.client.unsubscribe(this.node.subscription2)
+          this.node.subscription2 = null
+        }
+
+        // Remove status listeners
         this.node.configNode.removeStatusListener(handlerId)
+        if (handlerId2) {
+          this.node.configNode.removeStatusListener(handlerId2)
+        }
+
         this.sentInitialValue = false
         done()
       })
