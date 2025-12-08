@@ -140,6 +140,34 @@ describe('victron-inject-functions', () => {
         expect(result.valid).toBe(true)
         expect(result.title).toBe('123')
       })
+
+      it('should accept message exactly 500 characters', () => {
+        const maxMessage = 'a'.repeat(500)
+        const result = validateNotificationInput(maxMessage, 0, 'Title')
+        expect(result.valid).toBe(true)
+      })
+
+      it('should truncate message longer than 500 characters', () => {
+        const longMessage = 'a'.repeat(501)
+        const result = validateNotificationInput(longMessage, 0, 'Title')
+        expect(result.valid).toBe(true)
+        expect(result.message).toBe('a'.repeat(500))
+        expect(result.message.length).toBe(500)
+      })
+
+      it('should accept title exactly 100 characters', () => {
+        const maxTitle = 'a'.repeat(100)
+        const result = validateNotificationInput('Message', 0, maxTitle)
+        expect(result.valid).toBe(true)
+      })
+
+      it('should truncate title longer than 100 characters', () => {
+        const longTitle = 'a'.repeat(101)
+        const result = validateNotificationInput('Message', 0, longTitle)
+        expect(result.valid).toBe(true)
+        expect(result.title).toBe('a'.repeat(100))
+        expect(result.title.length).toBe(100)
+      })
     })
 
     describe('invalid inputs - payload', () => {
@@ -160,19 +188,6 @@ describe('victron-inject-functions', () => {
         expect(result.valid).toBe(false)
         expect(result.error).toBe('Message payload is required')
       })
-
-      it('should reject message longer than 500 characters', () => {
-        const longMessage = 'a'.repeat(501)
-        const result = validateNotificationInput(longMessage, 0, 'Title')
-        expect(result.valid).toBe(false)
-        expect(result.error).toBe('Message too long (max 500 chars)')
-      })
-
-      it('should accept message exactly 500 characters', () => {
-        const maxMessage = 'a'.repeat(500)
-        const result = validateNotificationInput(maxMessage, 0, 'Title')
-        expect(result.valid).toBe(true)
-      })
     })
 
     describe('invalid inputs - title', () => {
@@ -192,19 +207,6 @@ describe('victron-inject-functions', () => {
         const result = validateNotificationInput('Message', 0, undefined)
         expect(result.valid).toBe(false)
         expect(result.error).toBe('Notification title is required')
-      })
-
-      it('should reject title longer than 100 characters', () => {
-        const longTitle = 'a'.repeat(101)
-        const result = validateNotificationInput('Message', 0, longTitle)
-        expect(result.valid).toBe(false)
-        expect(result.error).toBe('Title too long (max 100 chars)')
-      })
-
-      it('should accept title exactly 100 characters', () => {
-        const maxTitle = 'a'.repeat(100)
-        const result = validateNotificationInput('Message', 0, maxTitle)
-        expect(result.valid).toBe(true)
       })
     })
 
@@ -265,18 +267,20 @@ describe('victron-inject-functions', () => {
     })
 
     describe('edge cases', () => {
-      it('should reject very long message', () => {
+      it('should truncate very long message', () => {
         const longMessage = 'a'.repeat(10000)
         const result = validateNotificationInput(longMessage, 0, 'Title')
-        expect(result.valid).toBe(false)
-        expect(result.error).toBe('Message too long (max 500 chars)')
+        expect(result.valid).toBe(true)
+        expect(result.message).toBe('a'.repeat(500))
+        expect(result.message.length).toBe(500)
       })
 
-      it('should reject very long title', () => {
+      it('should truncate very long title', () => {
         const longTitle = 'Title '.repeat(1000)
         const result = validateNotificationInput('Message', 0, longTitle)
-        expect(result.valid).toBe(false)
-        expect(result.error).toBe('Title too long (max 100 chars)')
+        expect(result.valid).toBe(true)
+        expect(result.title.length).toBe(100)
+        expect(result.title).toBe(longTitle.substring(0, 100))
       })
 
       it('should handle special unicode characters', () => {
