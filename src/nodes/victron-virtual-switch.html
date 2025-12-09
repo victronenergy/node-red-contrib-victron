@@ -1,0 +1,251 @@
+<link rel="stylesheet" href="resources/@victronenergy/node-red-contrib-victron/victron-virtual-style.css">
+<script src="resources/@victronenergy/node-red-contrib-victron/victron-common.js"></script>
+<script src="resources/@victronenergy/node-red-contrib-victron/victron-virtual-functions.js"></script>
+<script type="text/javascript">
+    RED.nodes.registerType('victron-virtual-switch',{
+        category: 'Victron Energy',
+        color: '#f7ab3e',
+        paletteLabel: "Virtual Switch",
+        defaults: {
+            name: {value:""},
+            outputs: {value:2},
+            switch_1_type: {value: 1, required: true},
+            switch_1_min: {value: 0, required: false},
+            switch_1_max: {value: "", required: false},
+            switch_1_initial: {value: 0, required: false},
+            switch_1_label: {value: "", required: false},
+            switch_1_unit: {value: "", required: false},
+            switch_1_step: {value: 1, required: false},
+            switch_1_customname: {value: "", required: false},
+            switch_1_group: {value: "", required: false},
+            switch_1_include_measurement: {value: false, required: false},
+            switch_1_rgb_color_wheel: {value: false, required: false},
+            switch_1_cct_wheel: {value: false, required: false},
+            switch_1_rgb_white_dimmer: {value: false, required: false}
+        },
+        icon: "victronenergy.svg",
+        inputs:1,
+        outputs:2,
+        label: function() {
+            return this.name || "Virtual Switch"
+        },
+        outputLabels: function(index) {
+            const switchType = this.switch_1_type
+            const typeKey = switchType !== undefined ? parseInt(switchType, 10) : 1
+
+            const secondLabels = {
+                3: 'Temperature',  // TEMPERATURE_SETPOINT
+                6: 'Selected',     // DROPDOWN
+                7: 'Value'         // BASIC_SLIDER
+            }
+
+            const thirdLabels = {
+                2: 'Dimming',      // DIMMABLE
+                4: 'Value',        // STEPPED
+                8: 'Value',        // NUMERIC_INPUT
+                11: 'LightControls', // RGB_COLOR_WHEEL
+                12: 'LightControls', // CCT_WHEEL
+                13: 'LightControls'  // RGB_WHITE_DIMMER
+            }
+
+            const outputCounts = {
+                0: 2, 1: 2, 2: 3, 3: 2, 4: 3, 6: 2, 7: 2, 8: 3, 9: 2, 10: 2, 11: 3, 12: 3, 13: 3
+            }
+
+            if (index === 0) return 'Passthrough'
+
+            if (index === 1) {
+                return secondLabels[typeKey] || 'State'
+            }
+
+            if (index === 2) {
+                const outputCount = outputCounts[typeKey] || 2
+                if (outputCount >= 3) {
+                    return thirdLabels[typeKey] || 'Value'
+                }
+            }
+
+            return 'Output ' + (index + 1)
+        },
+        oneditprepare: function oneditprepare() {
+            const { renderSwitchConfigRow, updateOutputs, initializeTooltips } = window.__victron;
+
+            this.device = 'switch';
+            renderSwitchConfigRow(this);
+
+            $('#node-input-switch_1_type').on('change', (v) => {
+                this.switch_1_type = v.target.value;
+                updateOutputs(this);
+            });
+
+            updateOutputs(this);
+
+            if (typeof initializeTooltips === 'function') {
+                initializeTooltips();
+            }
+        },
+        oneditsave: function() {
+            const { validateSwitchConfig, SWITCH_TYPE_CONFIGS, updateOutputs } = window.__victron;
+
+            this.device = 'switch';
+
+            if (typeof validateSwitchConfig === 'function' && !validateSwitchConfig()) {
+                return false;
+            }
+
+            const switchTypeInput = $(`#node-input-switch_1_type`);
+            if (switchTypeInput.length) {
+                const type = parseInt(switchTypeInput.val());
+                this[`switch_1_type`] = type;
+
+                const cfg = SWITCH_TYPE_CONFIGS[type];
+                if (cfg && cfg.fields.length) {
+                    cfg.fields.forEach(field => {
+                        let val = $(`#node-input-switch_1_${field.id}`).val()
+                        if (field.id === 'step' && val !== '') {
+                            val = parseFloat(val)
+                        }
+                        this[`switch_1_${field.id}`] = val
+                    });
+                }
+
+                if (type === 6) {
+                    const pairCount = parseInt($(`#node-input-switch_1_count`).val()) || 2;
+                    const labelsArray = [];
+                    for (let j = 0; j < pairCount; j++) {
+                        const value = $(`#node-input-switch_1_value_${j}`).val();
+                        if (value) {
+                            labelsArray.push(value);
+                        }
+                    }
+                    this[`switch_1_label`] = JSON.stringify(labelsArray);
+                }
+
+                if (type === 7) {
+                    this[`switch_1_unit`] = $(`#node-input-switch_1_unit`).val();
+                }
+
+                // For RGB control types (11, 12, 13), save checkbox states
+                if (type === 11) {
+                    this[`switch_1_rgb_color_wheel`] = $(`#node-input-switch_1_rgb_color_wheel`).is(':checked');
+                    this[`switch_1_cct_wheel`] = $(`#node-input-switch_1_cct_wheel`).is(':checked');
+                    this[`switch_1_rgb_white_dimmer`] = $(`#node-input-switch_1_rgb_white_dimmer`).is(':checked');
+                }
+
+                Object.values(SWITCH_TYPE_CONFIGS).forEach(c => {
+                    c.fields.forEach(field => {
+                        if (cfg && cfg.fields.some(f => f.id === field.id)) {
+                            return;
+                        }
+                        this[`switch_1_${field.id}`] = undefined;
+                    });
+                });
+            }
+            updateOutputs(this);
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="victron-virtual-switch">
+    <div class="victron-form">
+        <div class="form-row">
+            <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+            <input type="text" id="node-input-name" placeholder="Name">
+        </div>
+
+        <div id="switch-config-container">
+            <!-- Dynamic switch configuration will be added here -->
+        </div>
+
+        <div id="switch-docs-container">
+            <!-- Dynamic switch documentation will be added here -->
+        </div>
+
+        <div class="form-row" style="margin-top: 20px;">
+            <div style="width: 456px; text-align: right;">
+                <a href="https://community.victronenergy.com/c/node-red/28" target="_blank" rel="noopener noreferrer">
+                    <img src="resources/@victronenergy/node-red-contrib-victron/docs/community-link.svg" alt="Community Link" style="height: 32px; vertical-align: middle;">
+                </a>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/markdown" data-help-name="victron-virtual-switch">
+
+The _Virtual Switch_ node creates a dedicated virtual switch device on the underlying `dbus`, which allows for controlling and monitoring switches remotely. The virtual switch will also show up on the GX device display.
+
+This is a streamlined node focused solely on switch functionality.
+
+## Switch Types
+
+There are several types of switches available:
+
+- **Momentary**: Acts like a push button - automatically returns to off state
+- **Toggle**: Standard on/off switch that maintains its state
+- **Dimmable**: PWM-controlled switch with adjustable brightness from 0-100%
+- **Temperature setpoint**: Sets a target temperature value
+- **Stepped switch**: Select up to 7 discrete steps (e.g., fan speeds)
+- **Dropdown**: Select from a custom list of options defined by you. The selected value is stored in the `Dimming` field (starting at `0` for the first option).
+- **Basic slider**: A slider control for selecting a value within a defined range
+- **Numeric input**: A numeric input control with configurable minimum/maximum values, step size, and display unit that allows precise manual entry of setpoint values.
+- **Three-state switch**: Select from three states (On, Off, Auto)
+- **Bilge pump control**: Special switch type for bilge pumps with automatic and manual modes (A bilge pump is a device on a boat that removes accumulated water from the lowest part of the hull, known as the bilge, and pumps it overboard).
+- **RGB Color Wheel**: Control RGB lighting with hue, saturation, and brightness
+- **CCT Wheel**: Control color temperature and brightness
+- **RGB + White Dimmer**: Control RGBW lighting with independent white channel
+
+## Configuration
+
+After selecting the switch type, configure the type-specific options:
+
+- **Custom Name**: Display name for the switch
+- **Group**: Group multiple switches together on the GX device display
+- **Min/Max/Step**: For numeric controls (temperature setpoints, sliders, numeric inputs)
+- **Unit**: Display unit for basic sliders (e.g., "°C", "%", "RPM")
+- **Options**: Labels for dropdown switches
+
+## Setting Values
+
+The virtual switch accepts input messages where you can set multiple values at once.
+Send an object containing the properties you want to update as the message payload.
+
+For example, to turn on a toggle switch and set dimming level:
+
+```javascript
+msg.payload = {
+    "SwitchableOutput/output_1/State": 1,
+    "SwitchableOutput/output_1/Dimming": 75
+};
+return msg;
+```
+
+For RGB switches:
+
+```javascript
+// LightControls is an array: [Hue(0-360), Saturation(0-100), Brightness(0-100), White(0-100), ColorTemp(0-6500)]
+msg.payload = {
+    "SwitchableOutput/output_1/LightControls": [180, 100, 75, 0, 0]  // Cyan at 75% brightness
+};
+return msg;
+```
+
+## Outputs
+
+The switch has multiple outputs depending on the switch type:
+
+- **Output 1 (Passthrough)**: Forwards the input message unchanged
+- **Output 2**:
+  - For most switches: Sends the switch State (0 or 1) when changed from the GX device
+  - For Temperature/Dropdown/Basic Slider: Sends the selected value
+- **Output 3** (if applicable):
+  - For Dimmable/Stepped/Numeric Input: Sends the dimming/value when changed
+  - For RGB controls: Sends the LightControls array with additional RGB/HSB properties
+
+## GX Device Display
+
+As the virtual switches become available on the dbus, they will appear on the (remote) console and attached screen of the GX device. Settings like name and group can be configured in Node-RED or directly on the GX device. On restart of Node-RED, the stored name and group will be applied again.
+
+The switch types correspond to the Venus OS dbus switch specification, which can be found [here](https://github.com/victronenergy/venus/wiki/dbus#switch).
+
+</script>

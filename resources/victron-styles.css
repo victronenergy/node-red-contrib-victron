@@ -174,6 +174,80 @@
   margin-bottom: 12px;
 }
 
+/* Standalone deprecation notice for Virtual Device (no .victron-form wrapper) */
+.deprecation-notice {
+  padding: 12px;
+  width: 430px;
+  background-color: #f0f7ff;
+  border: 1px solid #c5dff8;
+  border-radius: 3px;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+.deprecation-notice .fa {
+  margin-right: 12px;
+}
+
+/* RGB control checkboxes spacing */
+#switch-1-rgb-checkboxes input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+/* Virtual Device checkbox inputs */
+.checkbox-input {
+  display: inline-block;
+  width: 22px;
+  vertical-align: baseline;
+}
+
+/* Virtual Device wide labels for checkboxes */
+.checkbox-label {
+  width: 70%;
+}
+
+/* Virtual Device form utilities */
+.hidden-row {
+  display: none;
+}
+
+.form-tips-visible {
+  display: block;
+}
+
+/* Virtual Device specific inputs */
+.voltage-preset-select {
+  width: 100px;
+}
+
+.voltage-custom-input {
+  width: 80px;
+  margin-left: 10px;
+}
+
+.voltage-custom-label {
+  margin-left: 5px;
+}
+
+.s2-checkbox {
+  width: auto;
+}
+
+/* Community link container */
+.community-link-container {
+  margin-top: 20px;
+}
+
+.community-link-wrapper {
+  width: 456px;
+  text-align: right;
+}
+
+.community-link-img {
+  height: 32px;
+  vertical-align: middle;
+}
+
 /* Tip boxes - yellow theme */
 .victron-form .form-tips {
   padding: 16px;
