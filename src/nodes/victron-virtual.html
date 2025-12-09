@@ -127,6 +127,15 @@
         oneditprepare: function oneditprepare() {
             const { checkSelectedVirtualDevice, updateOutputs, initializeTooltips } = window.__victron;
 
+            if (this.device === 'switch') {
+                $('#node-input-device').after(
+                    '<div class="deprecation-notice">' +
+                    '<i class="fa fa-info-circle fa-2x"></i>' +
+                    '<i>The "Switch" device type has been deprecated from the "Virtual Device" node and thus removed from the device selection list. Please use the dedicated "Virtual Switch" node instead for creating new switch devices. Existing Virtual Device (switch) nodes will continue to function as before.</i>' +
+                    '</div>'
+                );
+            }
+
             if (this.device === 'motordrive') {
                 this.device = 'e-drive';
             }
@@ -254,24 +263,26 @@
             <option value="grid">Grid meter</option>
             <option value="meteo">Meteo</option>
             <option value="pvinverter">PV inverter</option>
-            <option value="switch">Switch</option>
+            <option value="switch" disabled>Switch (use Virtual Switch node)</option>
             <option value="tank">Tank sensor</option>
             <option value="temperature">Temperature sensor</option>
         </select>
     </div>
-    <div class="form-row input-acload" style="display:none;">
+    <!-- Note: "Switch" option removed - use dedicated "Virtual Switch" node instead.
+         Switch support remains in backend for existing Virtual Device (switch) nodes. -->
+    <div class="form-row input-acload" class="hidden-row">
         <label for="node-input-acload_nrofphases"><i class="fa fa-plug"></i> Number of phases</label>
         <select id="node-input-acload_nrofphases">
             <option value="1">1 phase</option>
             <option value="3">3 phase</option>
         </select>
     </div>
-    <div class="form-row input-acload" style="display:none;">
+    <div class="form-row input-acload" class="hidden-row">
         <label for="node-input-enable_s2support">
             S2 support
             <i class="fa fa-info-circle tooltip-icon" data-tooltip="Enable Victron S2 protocol support for smart charging"></i>
         </label>
-        <input type="checkbox" id="node-input-enable_s2support" style="width:auto;">
+        <input type="checkbox" id="node-input-enable_s2support" class="s2-checkbox">
     </div>
     <div class="input-battery">
         <div class="form-row" id="battery-capacity">
@@ -280,30 +291,30 @@
         </div>
 
        <!-- Battery voltage configuration (only show when default_values is enabled) -->
-       <div class="form-row input-battery" id="battery-voltage-row" style="display: none;">
-           <label for="node-input-battery_voltage_preset" style="width:auto;">Default Voltage:</label>
-           <select id="node-input-battery_voltage_preset" style="width:100px;">
+       <div class="form-row input-battery" id="battery-voltage-row" class="hidden-row">
+           <label for="node-input-battery_voltage_preset" class="s2-checkbox">Default Voltage:</label>
+           <select id="node-input-battery_voltage_preset" class="voltage-preset-select">
                <option value="12">12V</option>
                <option value="24">24V</option>
                <option value="48">48V</option>
               <option value="custom">Custom</option>
            </select>
-           <input type="number" id="node-input-battery_voltage_custom" style="width:80px; margin-left:10px;"
+           <input type="number" id="node-input-battery_voltage_custom" class="voltage-custom-input"
                placeholder="V" step="0.1" min="0" max="1000">
-           <span id="battery-voltage-custom-label" style="margin-left:5px;">V</span>
+           <span id="battery-voltage-custom-label" class="voltage-custom-label">V</span>
        </div>
 
         <div class="form-row">
             <label>&nbsp;</label>
-            <label for="node-input-include_battery_temperature" style="width:70%;">
-                <input type="checkbox" id="node-input-include_battery_temperature" style="display:inline-block; width:22px; vertical-align:baseline;">
+            <label for="node-input-include_battery_temperature" class="checkbox-label">
+                <input type="checkbox" id="node-input-include_battery_temperature" class="checkbox-input">
                 Include battery temperature
             </label>
         </div>
 
         <div class="form-row">
             <label>&nbsp;</label>
-            <div class="form-tips" style="display: block;">
+            <div class="form-tips form-tips-visible">
                 <p><strong>Note:</strong> The battery will include most standard alarm and error fields required for proper integration with VRM and GX devices.</p>
             </div>
         </div>
@@ -326,29 +337,29 @@
         </div>
         <div class="form-row">
             <label>&nbsp;</label>
-            <label for="node-input-include_engine_hours" style="width:70%;">
-                <input type="checkbox" id="node-input-include_engine_hours" style="display:inline-block; width:22px; vertical-align:baseline;">
+            <label for="node-input-include_engine_hours" class="checkbox-label">
+                <input type="checkbox" id="node-input-include_engine_hours" class="checkbox-input">
                 Include engine hours
             </label>
         </div>
         <div class="form-row">
             <label>&nbsp;</label>
-            <label for="node-input-include_starter_voltage" style="width:70%;">
-                <input type="checkbox" id="node-input-include_starter_voltage" style="display:inline-block; width:22px; vertical-align:baseline;">
+            <label for="node-input-include_starter_voltage" class="checkbox-label">
+                <input type="checkbox" id="node-input-include_starter_voltage" class="checkbox-input">
                 Include starter battery voltage
             </label>
         </div>
         <div class="form-row dc-generator-only">
             <label>&nbsp;</label>
-            <label for="node-input-include_history_energy" style="width:70%;">
-                <input type="checkbox" id="node-input-include_history_energy" style="display:inline-block; width:22px; vertical-align:baseline;">
+            <label for="node-input-include_history_energy" class="checkbox-label">
+                <input type="checkbox" id="node-input-include_history_energy" class="checkbox-input">
                 Include energy history
             </label>
         </div>
     </div>
 
     <div class="input-grid">
-        <div class="form-tips" style="display: block;">
+        <div class="form-tips form-tips-visible">
             <p><strong>Note:</strong> Do not use this feature to make an ESS system with third party energy meters. There are multiple <a href="https://www.victronenergy.com/meters-and-sensors/energy-meter" class="blue-link">officially supported meters</a> that can be used in a Victron ESS system. Using other meters has proven too often to lead to issues related with stability.</p>
         </div>
         <div class="form-row">
@@ -362,9 +373,7 @@
     </div>
 
     <div class="input-switch">
-        <div id="switch-config-container">
-            <!-- Dynamic switch configuration will be added here -->
-        </div>
+        <div id="switch-config-container"></div>
     </div>
 
     <div class="input-tank">
@@ -395,21 +404,21 @@
         </div>
         <div class="form-row">
             <label>&nbsp;</label>
-            <label for="node-input-include_tank_temperature" style="width:70%;">
-                <input type="checkbox" id="node-input-include_tank_temperature" style="display:inline-block; width:22px; vertical-align:baseline;">
+            <label for="node-input-include_tank_temperature" class="checkbox-label">
+                <input type="checkbox" id="node-input-include_tank_temperature" class="checkbox-input">
                 Include temperature
             </label>
         </div>
 
         <div class="form-row">
             <label>&nbsp;</label>
-            <label for="node-input-include_tank_battery" style="width:70%;">
-                <input type="checkbox" id="node-input-include_tank_battery" style="display:inline-block; width:22px; vertical-align:baseline;">
+            <label for="node-input-include_tank_battery" class="checkbox-label">
+                <input type="checkbox" id="node-input-include_tank_battery" class="checkbox-input">
                 Include Battery Voltage
             </label>
         </div>
 
-        <div class="form-row" id="tank_battery-voltage-row" style="display:none;">
+        <div class="form-row" id="tank_battery-voltage-row" class="hidden-row">
             <label for="node-input-tank_battery_voltage"><i class="fa fa-battery-full"></i> Battery Voltage (V)</label>
             <input type="number" id="node-input-tank_battery_voltage" value="3.3" step="0.1" min="0">
         </div>
@@ -418,36 +427,36 @@
     <div class="input-e-drive">
         <div class="form-row">
             <label>&nbsp;</label>
-            <label for="node-input-include_motor_rpm" style="width:70%;">
-                <input type="checkbox" id="node-input-include_motor_rpm" style="display:inline-block; width:22px; vertical-align:baseline;" checked>
+            <label for="node-input-include_motor_rpm" class="checkbox-label">
+                <input type="checkbox" id="node-input-include_motor_rpm" class="checkbox-input" checked>
                 Include motor RPM
             </label>
         </div>
         <div class="form-row">
             <label>&nbsp;</label>
-            <label for="node-input-include_motor_direction" style="width:70%;">
-                <input type="checkbox" id="node-input-include_motor_direction" style="display:inline-block; width:22px; vertical-align:baseline;" checked>
+            <label for="node-input-include_motor_direction" class="checkbox-label">
+                <input type="checkbox" id="node-input-include_motor_direction" class="checkbox-input" checked>
                 Include motor direction
             </label>
         </div>
         <div class="form-row">
             <label>&nbsp;</label>
-            <label for="node-input-include_motor_temp" style="width:70%;">
-                <input type="checkbox" id="node-input-include_motor_temp" style="display:inline-block; width:22px; vertical-align:baseline;">
+            <label for="node-input-include_motor_temp" class="checkbox-label">
+                <input type="checkbox" id="node-input-include_motor_temp" class="checkbox-input">
                 Include motor temperature
             </label>
         </div>
         <div class="form-row">
             <label>&nbsp;</label>
-            <label for="node-input-include_controller_temp" style="width:70%;">
-                <input type="checkbox" id="node-input-include_controller_temp" style="display:inline-block; width:22px; vertical-align:baseline;">
+            <label for="node-input-include_controller_temp" class="checkbox-label">
+                <input type="checkbox" id="node-input-include_controller_temp" class="checkbox-input">
                 Include controller temperature
             </label>
         </div>
         <div class="form-row">
             <label>&nbsp;</label>
-            <label for="node-input-include_coolant_temp" style="width:70%;">
-                <input type="checkbox" id="node-input-include_coolant_temp" style="display:inline-block; width:22px; vertical-align:baseline;">
+            <label for="node-input-include_coolant_temp" class="checkbox-label">
+                <input type="checkbox" id="node-input-include_coolant_temp" class="checkbox-input">
                 Include coolant temperature
             </label>
         </div>
@@ -487,29 +496,29 @@
 
         <div class="form-row">
             <label>&nbsp;</label>
-            <label for="node-input-include_humidity" style="width:70%;">
-                <input type="checkbox" id="node-input-include_humidity" style="display:inline-block; width:22px; vertical-align:baseline;">
+            <label for="node-input-include_humidity" class="checkbox-label">
+                <input type="checkbox" id="node-input-include_humidity" class="checkbox-input">
                 Include Humidity Sensor
             </label>
         </div>
 
         <div class="form-row">
             <label>&nbsp;</label>
-            <label for="node-input-include_pressure" style="width:70%;">
-                <input type="checkbox" id="node-input-include_pressure" style="display:inline-block; width:22px; vertical-align:baseline;">
+            <label for="node-input-include_pressure" class="checkbox-label">
+                <input type="checkbox" id="node-input-include_pressure" class="checkbox-input">
                 Include Pressure Sensor
             </label>
         </div>
 
         <div class="form-row">
             <label>&nbsp;</label>
-            <label for="node-input-include_temp_battery" style="width:70%;">
-                <input type="checkbox" id="node-input-include_temp_battery" style="display:inline-block; width:22px; vertical-align:baseline;">
+            <label for="node-input-include_temp_battery" class="checkbox-label">
+                <input type="checkbox" id="node-input-include_temp_battery" class="checkbox-input">
                 Include Battery Voltage
             </label>
         </div>
 
-        <div class="form-row" id="battery-temp_voltage-row" style="display:none;">
+        <div class="form-row" id="battery-temp_voltage-row" class="hidden-row">
             <label for="node-input-temp_battery_voltage"><i class="fa fa-battery-full"></i> Battery Voltage (V)</label>
             <input type="number" id="node-input-temp_battery_voltage" value="3.3" step="0.1" min="0">
         </div>
@@ -526,13 +535,8 @@
         </div>
     </div>
 
-    <!-- Switch documentation container (appears after default values) -->
-    <div id="switch-docs-container">
-        <!-- Dynamic switch documentation will be added here -->
-    </div>
-
-    <!-- Add acload configuration section -->
-    <div class="form-row" id="acload-config" style="display:none;">
+    <div id="switch-docs-container"></div>
+    <div class="form-row" id="acload-config" class="hidden-row">
         <label for="node-input-acload_nrofphases"><i class="fa fa-plug"></i> Number of phases</label>
         <select type="text" id="node-input-acload_nrofphases">
             <option value="1">1 phase</option>
@@ -540,10 +544,10 @@
         </select>
     </div>
 
-    <div class="form-row" style="margin-top: 20px;">
-        <div style="width: 456px; text-align: right;">
+    <div class="form-row community-link-container">
+        <div class="community-link-wrapper">
             <a href="https://community.victronenergy.com/c/node-red/28" target="_blank" rel="noopener noreferrer">
-                <img src="resources/@victronenergy/node-red-contrib-victron/docs/community-link.svg" alt="Community Link" style="height: 32px; vertical-align: middle;">
+                <img src="resources/@victronenergy/node-red-contrib-victron/docs/community-link.svg" alt="Community Link" class="community-link-img">
             </a>
         </div>
     </div>
@@ -697,33 +701,7 @@ These additional parameters can help monitor the performance and status of your 
 
 ### Virtual switch
 
-The virtual switch creates a switch device on the dbus that can be controlled and
-monitored remotely. There are several types of switches available:
-
-- **Momentary**: Acts like a push button - automatically returns to off state
-- **Toggle**: Standard on/off switch that maintains its state
-- **Dimmable**: PWM-controlled switch with adjustable brightness from 0-100%
-- **Temperature setpoint**: Sets a target temperature value
-- **Stepped switch** : Select up to 7 discrete steps (e.g., fan speeds)
-- **Dropdown**: Select from a custom list of options defined by you. The selected value is stored in the `Dimming` field (starting at `0` for the first option).
-- **Basic slider**: A slider control for selecting a value within a defined range
-- **Numeric input**: A numeric input control with configurable minimum/maximum values, step size, and display unit that allows precise manual entry of setpoint values.
-- **Three-state switch**: Select from three states (On, Off, Auto)
-- **Bilge pump control**: Special switch type for bilge pumps with automatic and manual modes (A bilge pump is a device on a boat that removes accumulated water from the lowest part of the hull, known as the bilge, and pumps it overboard).
-
-The virtual switch can be set to any of the types mentioned above. By setting the group name of the switch, multiple switches can be grouped together, allowing them
-to be seen within a group of switches on the GX device.
-
-As the virtual switches become available on the dbus, they will also appear on the (remote)
-console and attached screen of the GX device. Settings things like name and group can be
-done while setting up in the edit panel, but can also be done from the GX device directly.
-On restart of Node-RED, the stored name and group will be applied again.
-
-The switch types correspond to the Venus OS dbus switch specification, which can be found
-[here](https://github.com/victronenergy/venus/wiki/dbus#switch).
-
-For dimmable switches, an additional "Dimming" property is available that accepts
-values from 0-100 representing the PWM duty cycle percentage.
+The virtual switch device has been deprecated from the "Virtual Device" node. Please use the dedicated "Virtual Switch" node instead for creating new switch devices. Existing Virtual Device (switch) nodes will continue to function as before.
 
 ### PV inverter
 
