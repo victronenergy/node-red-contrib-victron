@@ -350,14 +350,19 @@ class VictronDbusListener {
     },
     (err, res) => {
       if (!err) {
+        const value = res[1][0]
+        if (value === null) {
+          console.warn(`getValue returned null for ${destination}, ${path}, response: ${JSON.stringify(res)}`)
+        }
+
         destination = destination.split('.').splice(0, 3).join('.')
         if (path === '/DeviceInstance') {
-          destination += '/' + res[1][0]
+          destination += '/' + value
         }
         this.messageHandler([{
           path,
           senderName: destination,
-          value: res[1][0]
+          value
         }])
       }
     })
