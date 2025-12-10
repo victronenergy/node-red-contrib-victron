@@ -1,22 +1,173 @@
 a.blue-link {
   color: rgb(71, 144, 208) !important;
 }
-/* Form layout - consistent widths */
-.form-row label {
+
+.form-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  min-height: 34px;
+}
+
+.form-row > label:not(.victron-checkbox label) {
   width: 216px !important;
-  display: inline-block;
-  vertical-align: middle;
+  margin-right: 8px;
+  margin-bottom: 0 !important;
+  flex-shrink: 0;
 }
 
-.form-row input[type="text"],
-.form-row input[type="number"],
-.form-row select {
+.form-row > input[type="text"],
+.form-row > input[type="number"],
+.form-row > select {
   width: 240px !important;
-  vertical-align: middle;
+  margin: 0 !important;
+  flex-shrink: 0;
 }
 
-.victron-form .form-row input[type="checkbox"] {
+.form-row.victron-checkbox {
+    display: flex;
+    align-items: center;
+}
+
+.form-row.victron-checkbox::before {
+    content: '';
+    display: block;
+    width: 224px;
+    flex-shrink: 0;
+}
+
+.victron-checkbox input[type="checkbox"] {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.victron-checkbox label {
+  position: relative;
+  padding-left: 28px;
+  cursor: pointer;
+  font-weight: normal !important;
   width: auto !important;
+  margin: 0 !important;
+  line-height: 20px;
+  color: #333;
+  display: inline-flex;
+  align-items: center;
+}
+
+.victron-checkbox label::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  border-radius: 3px;
+}
+
+.victron-checkbox input[type="checkbox"]:checked + label::before {
+  background-color: #4a9eff;
+  border-color: #4a9eff;
+}
+
+.victron-checkbox label::after {
+  content: '';
+  position: absolute;
+  display: none;
+}
+
+.victron-checkbox input[type="checkbox"]:checked + label::after {
+  display: block;
+  left: 7px;
+  top: 3px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.form-row-stacked {
+  margin-bottom: 8px;
+  display: block;
+}
+
+.form-row-stacked > label {
+  display: block;
+  width: 216px !important;
+  margin-right: 8px;
+  margin-bottom: 8px !important;
+  flex-shrink: 0;
+}
+
+.form-row-stacked .control-group {
+    display: flex;
+}
+
+.form-row-stacked .control-group::before {
+    content: '';
+    display: block;
+    width: 224px;
+    flex-shrink: 0;
+}
+
+.victron-radio-group {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding-top: 4px;
+}
+
+.victron-radio-group input[type="radio"] {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.victron-radio-group label {
+    position: relative;
+    padding-left: 28px;
+    cursor: pointer;
+    font-weight: normal !important;
+    width: auto !important;
+    margin: 0 !important;
+    line-height: 20px;
+    color: #333;
+    display: inline-flex;
+    align-items: center;
+}
+
+.victron-radio-group label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 18px;
+    height: 18px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    border-radius: 50%;
+}
+
+.victron-radio-group input[type="radio"]:checked + label::before {
+    border-color: #4a9eff;
+    border-width: 2px;
+}
+
+.victron-radio-group input[type="radio"]:checked + label::after {
+    content: '';
+    position: absolute;
+    display: none;
+    top: 5px;
+    left: 5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #4a9eff;
 }
 
 .form-warning, .form-info {
@@ -45,14 +196,15 @@ a.blue-link {
   border: 1px solid #e0d7b7;
   border-radius: 3px;
 }
-/* Virtual device documentation box styling */
+
 .victron-doc-box {
   margin: 10px 0;
   padding: 12px 16px;
   background-color: #fafafa;
   border: 1px solid #e8e8e8;
   border-radius: 3px;
-  width: 456px;
+  width: 100%;
+  max-width: 480px;
   box-sizing: border-box;
   font-size: 0.95em;
 }
@@ -70,12 +222,6 @@ a.blue-link {
   display: block;
   color: #555;
   font-size: 0.95em;
-}
-
-.victron-doc-text {
-  line-height: 1.3;
-  font-size: 0.9em;
-  color: #666;
 }
 
 .victron-doc-text div {
@@ -111,7 +257,6 @@ a.blue-link {
   border: none;
 }
 
-/* Remove the special input styling */
 .victron-input-docs {
   background-color: inherit;
   border-left-color: inherit;
@@ -146,24 +291,71 @@ a.blue-link {
   float: none;
 }
 
-/* Default values radio buttons */
-.default-values-radio-container {
-  display: inline-block;
+.deprecation-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  margin: 12px 0;
+  width: 100%;
+  max-width: 430px;
+  background-color: #f0f7ff;
+  border: 1px solid #c5dff8;
+  border-radius: 3px;
+  font-size: 0.95em;
+  line-height: 1.5;
+  box-sizing: border-box;
 }
 
-.default-values-radio-container label {
-  width: auto !important; /* Override .form-row label width */
-  display: inline-block;
-  margin-right: 15px;
-  white-space: nowrap;
+.deprecation-notice .fa {
+  color: #4a9eff;
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
-.default-values-radio-container label:last-child {
-  margin-right: 0;
+.deprecation-notice i:not(.fa) {
+  color: #333;
+  font-style: normal;
 }
 
-.default-values-radio-container input[type="radio"] {
-  width: auto;
-  margin-right: 5px;
-  vertical-align: middle;
+.switch-config-heading {
+  font-weight: bold;
+  margin: 12px 0 8px 0;
+  font-size: 13px;
+  color: #333;
+}
+
+#switch-1-config-row .form-row,
+#switch-2-config-row .form-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+#switch-1-config-row .form-row > label,
+#switch-2-config-row .form-row > label {
+  width: 216px !important;
+  margin-right: 8px;
+  margin-bottom: 0 !important;
+  flex-shrink: 0;
+}
+
+#switch-1-config-row .form-row > input[type="text"],
+#switch-1-config-row .form-row > input[type="number"],
+#switch-2-config-row .form-row > input[type="text"],
+#switch-2-config-row .form-row > input[type="number"] {
+  width: 240px !important;
+  margin: 0 !important;
+  flex-shrink: 0;
+}
+
+.form-row label .tooltip-icon {
+  margin-left: 4px;
+  font-size: 12px;
+  color: #999;
+  cursor: help;
+}
+
+.form-row label .tooltip-icon:hover {
+  color: #666;
 }

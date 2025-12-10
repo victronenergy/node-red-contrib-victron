@@ -214,6 +214,7 @@ export function renderSwitchConfigRow (context) {
 
     const type = $('#node-input-switch_1_type').val()
     const cfg = SWITCH_TYPE_CONFIGS[type]
+    const doc = SWITCH_TYPE_DOCS[type]
 
     if (cfg && cfg.fields.length) {
       // Render each field as a separate row
@@ -310,14 +311,15 @@ export function renderSwitchConfigRow (context) {
       initializeTooltips()
     }
 
-    const doc = SWITCH_TYPE_DOCS[type]
-    $('#switch-1-doc-row').remove()
     if (doc) {
       const docRow = $(`
-        <div id="switch-1-doc-row" class="victron-doc-box">
-          <label>${cfg.label} usage</label>
-          ${doc.img ? `<img src="${doc.img}" alt="Switch type preview">` : ''}
-          <div class="victron-doc-text">${doc.text}</div>
+        <div class="form-row">
+          <label>&nbsp;</label>
+          <div id="switch-1-doc-row" class="victron-doc-box">
+            <label>${cfg.label} usage</label>
+            ${doc.img ? `<img src="${doc.img}" alt="Switch type preview">` : ''}
+            <div class="victron-doc-text">${doc.text}</div>
+          </div>
         </div>
       `)
       // Append to the dedicated switch docs container (after default values)
@@ -327,9 +329,9 @@ export function renderSwitchConfigRow (context) {
     if (Number(type) === SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) {
       // Add checkbox for Measurement path
       const measurementToggle = $(`
-        <div class="form-row" id="switch-1-measurement-toggle-row">
-          <label for="node-input-switch_1_include_measurement" style="min-width:120px;">Include Measurement path</label>
+        <div class="form-row victron-checkbox" id="switch-1-measurement-toggle-row">
           <input type="checkbox" id="node-input-switch_1_include_measurement">
+          <label for="node-input-switch_1_include_measurement">Include Measurement path</label>
         </div>
       `)
       $('#switch-1-config-row').append(measurementToggle)
@@ -345,26 +347,17 @@ export function renderSwitchConfigRow (context) {
       const rgbCheckboxes = $(`
         <div id="switch-1-rgb-checkboxes" style="margin-top:10px;">
           <label style="font-weight:bold;">Select RGB control types (at least one required):</label>
-          <div class="form-row">
-            <label>&nbsp;</label>
-            <label for="node-input-switch_1_rgb_color_wheel" style="width:70%;">
-              <input type="checkbox" id="node-input-switch_1_rgb_color_wheel" style="display:inline-block; width:22px; vertical-align:baseline;">
-              RGB color wheel
-            </label>
+          <div class="form-row victron-checkbox">
+            <input type="checkbox" id="node-input-switch_1_rgb_color_wheel">
+            <label for="node-input-switch_1_rgb_color_wheel">RGB color wheel</label>
           </div>
-          <div class="form-row">
-            <label>&nbsp;</label>
-            <label for="node-input-switch_1_cct_wheel" style="width:70%;">
-              <input type="checkbox" id="node-input-switch_1_cct_wheel" style="display:inline-block; width:22px; vertical-align:baseline;">
-              CCT wheel
-            </label>
+          <div class="form-row victron-checkbox">
+            <input type="checkbox" id="node-input-switch_1_cct_wheel">
+            <label for="node-input-switch_1_cct_wheel">CCT wheel</label>
           </div>
-          <div class="form-row">
-            <label>&nbsp;</label>
-            <label for="node-input-switch_1_rgb_white_dimmer" style="width:70%;">
-              <input type="checkbox" id="node-input-switch_1_rgb_white_dimmer" style="display:inline-block; width:22px; vertical-align:baseline;">
-              RGB color wheel + white dimmer
-            </label>
+          <div class="form-row victron-checkbox">
+            <input type="checkbox" id="node-input-switch_1_rgb_white_dimmer">
+            <label for="node-input-switch_1_rgb_white_dimmer">RGB color wheel + white dimmer</label>
           </div>
         </div>
       `)
