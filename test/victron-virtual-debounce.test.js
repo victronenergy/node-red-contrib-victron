@@ -94,8 +94,8 @@ describe('victron-virtual debouncing logic', () => {
       // At this point, no values should have been applied yet (all debounced)
       expect(mockSetValuesLocally).not.toHaveBeenCalled()
 
-      // After 300ms from the last message, only the final value should be applied
-      jest.advanceTimersByTime(300)
+      // After 100ms from the last message, only the final value should be applied
+      jest.advanceTimersByTime(100)
 
       expect(mockSetValuesLocally).toHaveBeenCalledTimes(1)
       expect(mockSetValuesLocally).toHaveBeenCalledWith({
@@ -118,8 +118,8 @@ describe('victron-virtual debouncing logic', () => {
       // Should not be called immediately
       expect(mockSetValuesLocally).not.toHaveBeenCalled()
 
-      // After 300ms, should be applied
-      jest.advanceTimersByTime(300)
+      // After 100ms, should be applied
+      jest.advanceTimersByTime(100)
 
       expect(mockSetValuesLocally).toHaveBeenCalledTimes(1)
       expect(mockSetValuesLocally).toHaveBeenCalledWith({
@@ -212,8 +212,8 @@ describe('victron-virtual debouncing logic', () => {
         'SwitchableOutput/output_1/State': 1
       })
 
-      // After 300ms, Settings/Type should be applied
-      jest.advanceTimersByTime(300)
+      // After 100ms, Settings/Type should be applied
+      jest.advanceTimersByTime(100)
 
       expect(mockSetValuesLocally).toHaveBeenCalledTimes(2)
       expect(mockSetValuesLocally).toHaveBeenNthCalledWith(2, {
@@ -237,19 +237,19 @@ describe('victron-virtual debouncing logic', () => {
       simulateInput(node, { 'SwitchableOutput/output_1/Settings/Type': 1 })
 
       // Advance time partway through debounce period
-      jest.advanceTimersByTime(150)
+      jest.advanceTimersByTime(50)
 
       // Send second message (should clear first timer)
       simulateInput(node, { 'SwitchableOutput/output_1/Settings/Type': 2 })
 
-      // Advance another 150ms (total 300ms from first message, 150ms from second)
-      jest.advanceTimersByTime(150)
+      // Advance another 50ms (total 100ms from first message, 150ms from second)
+      jest.advanceTimersByTime(50)
 
       // Should not have been called yet (timer was reset)
       expect(mockSetValuesLocally).not.toHaveBeenCalled()
 
-      // Advance another 150ms (300ms from second message)
-      jest.advanceTimersByTime(150)
+      // Advance another 50ms (100ms from second message)
+      jest.advanceTimersByTime(50)
 
       // Should now be called with the second value
       expect(mockSetValuesLocally).toHaveBeenCalledTimes(1)
