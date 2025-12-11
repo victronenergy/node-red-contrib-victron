@@ -90,7 +90,7 @@
   	};
 
   	// Default debounce delay for virtual device property writes (in milliseconds)
-  	const DEBOUNCE_DELAY_MS = 300;
+  	const DEBOUNCE_DELAY_MS = 100;
 
   	victronVirtualConstants = {
   	  SWITCH_TYPE_MAP,

@@ -991,14 +991,14 @@ module.exports = function (RED) {
             const customNameKey = 'SwitchableOutput/output_1/Settings/CustomName'
             ifaceDesc.properties[customNameKey] = {
               type: 's',
-              persist: true
+              persist: false
             }
             iface[customNameKey] = config.switch_1_customname || ''
 
             const groupKey = 'SwitchableOutput/output_1/Settings/Group'
             ifaceDesc.properties[groupKey] = {
               type: 's',
-              persist: true
+              persist: false
             }
             iface[groupKey] = config.switch_1_group || ''
 
