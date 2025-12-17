@@ -253,271 +253,273 @@
 </script>
 
 <script type="text/html" data-template-name="victron-virtual">
-    <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
-    </div>
-    <input type="hidden" id="node-input-instance">
-    <div class="form-row">
-        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
-        <select id="node-input-device" required>
-            <option value="acload">AC Load</option>
-            <option value="battery">Battery</option>
-            <option value="e-drive">E-drive</option>
-            <option value="generator">Generator</option>
-            <option value="gps">GPS</option>
-            <option value="grid">Grid meter</option>
-            <option value="meteo">Meteo</option>
-            <option value="pvinverter">PV inverter</option>
-            <option value="switch">Switch (deprecated)</option>
-            <option value="tank">Tank sensor</option>
-            <option value="temperature">Temperature sensor</option>
-        </select>
-    </div>
-    <div class="form-row" id="switch-deprecation-notice-row" style="display: none;">
-        <div class="deprecation-notice">
-            <i class="fa fa-info-circle fa-2x"></i>
-            <div>
-                <strong>Deprecation Notice:</strong> The "Switch" device type is deprecated in the "Virtual Device" node.
-                Please use the dedicated <strong>"Virtual Switch"</strong> node for new switch configurations.
-                This Virtual Device will continue to work for now, but we recommend migrating to the new node.
+    <div class="victron-form">
+        <div class="form-row">
+            <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+            <input type="text" id="node-input-name" placeholder="Name">
+        </div>
+        <input type="hidden" id="node-input-instance">
+        <div class="form-row">
+            <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+            <select id="node-input-device" required>
+                <option value="acload">AC Load</option>
+                <option value="battery">Battery</option>
+                <option value="e-drive">E-drive</option>
+                <option value="generator">Generator</option>
+                <option value="gps">GPS</option>
+                <option value="grid">Grid meter</option>
+                <option value="meteo">Meteo</option>
+                <option value="pvinverter">PV inverter</option>
+                <option value="switch">Switch (deprecated)</option>
+                <option value="tank">Tank sensor</option>
+                <option value="temperature">Temperature sensor</option>
+            </select>
+        </div>
+        <div class="form-row" id="switch-deprecation-notice-row" style="display: none;">
+            <div class="deprecation-notice">
+                <i class="fa fa-info-circle fa-2x"></i>
+                <div>
+                    <strong>Deprecation Notice:</strong> The "Switch" device type is deprecated in the "Virtual Device" node.
+                    Please use the dedicated <strong>"Virtual Switch"</strong> node for new switch configurations.
+                    This Virtual Device will continue to work for now, but we recommend migrating to the new node.
+                </div>
             </div>
         </div>
-    </div>
-    <div class="form-row input-acload" class="hidden-row">
-        <label for="node-input-acload_nrofphases"><i class="fa fa-plug"></i> Number of phases</label>
-        <select id="node-input-acload_nrofphases">
-            <option value="1">1 phase</option>
-            <option value="3">3 phase</option>
-        </select>
-    </div>
-    <div class="form-row input-acload victron-checkbox" class="hidden-row">
-        <input type="checkbox" id="node-input-enable_s2support" class="s2-checkbox">
-        <label for="node-input-enable_s2support">
-            S2 support
-            <i class="fa fa-info-circle tooltip-icon" data-tooltip="Enable Victron S2 protocol support for smart charging"></i>
-        </label>
-    </div>
-    <div class="input-battery">
-        <div class="form-row" id="battery-capacity">
-            <label for="node-input-battery_capacity"><i class="fa fa-flask"></i> Battery Capacity (Ah)</label>
-            <input type="number" id="node-input-battery_capacity" min="0">
+        <div class="form-row input-acload" class="hidden-row">
+            <label for="node-input-acload_nrofphases"><i class="fa fa-plug"></i> Number of phases</label>
+            <select id="node-input-acload_nrofphases">
+                <option value="1">1 phase</option>
+                <option value="3">3 phase</option>
+            </select>
+        </div>
+        <div class="form-row input-acload victron-checkbox" class="hidden-row">
+            <input type="checkbox" id="node-input-enable_s2support" class="s2-checkbox">
+            <label for="node-input-enable_s2support">
+                S2 support
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Enable Victron S2 protocol support for smart charging"></i>
+            </label>
+        </div>
+        <div class="input-battery">
+            <div class="form-row" id="battery-capacity">
+                <label for="node-input-battery_capacity"><i class="fa fa-flask"></i> Battery Capacity (Ah)</label>
+                <input type="number" id="node-input-battery_capacity" min="0">
+            </div>
+
+        <!-- Battery voltage configuration (only show when default_values is enabled) -->
+        <div class="form-row input-battery" id="battery-voltage-row" class="hidden-row">
+            <label for="node-input-battery_voltage_preset" class="s2-checkbox">Default Voltage:</label>
+            <select id="node-input-battery_voltage_preset" class="voltage-preset-select">
+                <option value="12">12V</option>
+                <option value="24">24V</option>
+                <option value="48">48V</option>
+                <option value="custom">Custom</option>
+            </select>
+            <input type="number" id="node-input-battery_voltage_custom" class="voltage-custom-input"
+                placeholder="V" step="0.1" min="0" max="1000">
+            <span id="battery-voltage-custom-label" class="voltage-custom-label">V</span>
         </div>
 
-       <!-- Battery voltage configuration (only show when default_values is enabled) -->
-       <div class="form-row input-battery" id="battery-voltage-row" class="hidden-row">
-           <label for="node-input-battery_voltage_preset" class="s2-checkbox">Default Voltage:</label>
-           <select id="node-input-battery_voltage_preset" class="voltage-preset-select">
-               <option value="12">12V</option>
-               <option value="24">24V</option>
-               <option value="48">48V</option>
-              <option value="custom">Custom</option>
-           </select>
-           <input type="number" id="node-input-battery_voltage_custom" class="voltage-custom-input"
-               placeholder="V" step="0.1" min="0" max="1000">
-           <span id="battery-voltage-custom-label" class="voltage-custom-label">V</span>
-       </div>
+            <div class="form-row victron-checkbox">
+                <input type="checkbox" id="node-input-include_battery_temperature">
+                <label for="node-input-include_battery_temperature">Include battery temperature</label>
+            </div>
 
-        <div class="form-row victron-checkbox">
-            <input type="checkbox" id="node-input-include_battery_temperature">
-            <label for="node-input-include_battery_temperature">Include battery temperature</label>
+            <div class="form-row">
+                <label>&nbsp;</label>
+                <div class="form-tips form-tips-visible">
+                    <p><strong>Note:</strong> The battery will include most standard alarm and error fields required for proper integration with VRM and GX devices.</p>
+                </div>
+            </div>
         </div>
 
-        <div class="form-row">
-            <label>&nbsp;</label>
+        <div class="input-generator">
+            <div class="form-row">
+                <label for="node-input-generator_type"><i class="fa fa-cog"></i> Generator type</label>
+                <select id="node-input-generator_type" onchange="window.__victron.checkGeneratorType()">
+                    <option value="ac">AC Generator (genset)</option>
+                    <option value="dc">DC Generator (dcgenset)</option>
+                </select>
+            </div>
+            <div class="form-row ac-generator-only">
+                <label for="node-input-generator_nrofphases"><i class="fa fa-plug"></i> Nr of phases</label>
+                <select id="node-input-generator_nrofphases">
+                    <option value="1">1</option>
+                    <option value="3">3</option>
+                </select>
+            </div>
+            <div class="form-row victron-checkbox">
+                <input type="checkbox" id="node-input-include_engine_hours">
+                <label for="node-input-include_engine_hours">Include engine hours</label>
+            </div>
+            <div class="form-row victron-checkbox">
+                <input type="checkbox" id="node-input-include_starter_voltage">
+                <label for="node-input-include_starter_voltage">Include starter battery voltage</label>
+            </div>
+            <div class="form-row victron-checkbox dc-generator-only">
+                <input type="checkbox" id="node-input-include_history_energy">
+                <label for="node-input-include_history_energy">Include energy history</label>
+            </div>
+        </div>
+
+        <div class="input-grid">
             <div class="form-tips form-tips-visible">
-                <p><strong>Note:</strong> The battery will include most standard alarm and error fields required for proper integration with VRM and GX devices.</p>
+                <p><strong>Note:</strong> Do not use this feature to make an ESS system with third party energy meters. There are multiple <a href="https://www.victronenergy.com/meters-and-sensors/energy-meter" class="blue-link">officially supported meters</a> that can be used in a Victron ESS system. Using other meters has proven too often to lead to issues related with stability.</p>
+            </div>
+            <div class="form-row">
+                <label for="node-input-grid_nrofphases"><i class="fa fa-plug"></i> Nr of phases</label>
+                <select id="node-input-grid_nrofphases">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
             </div>
         </div>
-    </div>
 
-    <div class="input-generator">
-        <div class="form-row">
-            <label for="node-input-generator_type"><i class="fa fa-cog"></i> Generator type</label>
-            <select id="node-input-generator_type" onchange="window.__victron.checkGeneratorType()">
-                <option value="ac">AC Generator (genset)</option>
-                <option value="dc">DC Generator (dcgenset)</option>
-            </select>
-        </div>
-        <div class="form-row ac-generator-only">
-            <label for="node-input-generator_nrofphases"><i class="fa fa-plug"></i> Nr of phases</label>
-            <select id="node-input-generator_nrofphases">
-                <option value="1">1</option>
-                <option value="3">3</option>
-            </select>
-        </div>
-        <div class="form-row victron-checkbox">
-            <input type="checkbox" id="node-input-include_engine_hours">
-            <label for="node-input-include_engine_hours">Include engine hours</label>
-        </div>
-        <div class="form-row victron-checkbox">
-            <input type="checkbox" id="node-input-include_starter_voltage">
-            <label for="node-input-include_starter_voltage">Include starter battery voltage</label>
-        </div>
-        <div class="form-row victron-checkbox dc-generator-only">
-            <input type="checkbox" id="node-input-include_history_energy">
-            <label for="node-input-include_history_energy">Include energy history</label>
-        </div>
-    </div>
-
-    <div class="input-grid">
-        <div class="form-tips form-tips-visible">
-            <p><strong>Note:</strong> Do not use this feature to make an ESS system with third party energy meters. There are multiple <a href="https://www.victronenergy.com/meters-and-sensors/energy-meter" class="blue-link">officially supported meters</a> that can be used in a Victron ESS system. Using other meters has proven too often to lead to issues related with stability.</p>
-        </div>
-        <div class="form-row">
-            <label for="node-input-grid_nrofphases"><i class="fa fa-plug"></i> Nr of phases</label>
-            <select id="node-input-grid_nrofphases">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-            </select>
-        </div>
-    </div>
-
-    <div class="input-switch">
-        <div id="switch-config-container"></div>
-    </div>
-
-    <div class="input-tank">
-        <div class="form-row">
-            <label for="node-input-fluid_type"><i class="fa fa-tint"></i> Fluid type</label>
-            <select id="node-input-fluid_type">
-                <option value="0">Fuel</option>
-                <option value="1">Fresh water</option>
-                <option value="2">Waste water</option>
-                <option value="3">Live well</option>
-                <option value="4">Oil</option>
-                <option value="5">Black water (sewage)</option>
-                <option value="6">Gasoline</option>
-                <option value="7">Diesel</option>
-                <option value="8">LPG</option>
-                <option value="9">LNG</option>
-                <option value="10">Hydraulic oil</option>
-                <option value="11">Raw water</option>
-            </select>
+        <div class="input-switch">
+            <div id="switch-config-container"></div>
         </div>
 
-        <div class="form-row" id="tank-capacity">
-            <label for="node-input-tank_capacity"><i class="fa fa-flask"></i> Tank Capacity (m<sup>3</sup>)</label>
-            <input type="text" id="node-input-tank_capacity"
-            pattern="^(?:[0-9]+(?:\.[0-9]{0,3})?|\.[0-9]{1,3})$"
-            value="0.2"
-            title="Enter a positive number with up to 3 decimal places">
-        </div>
-        <div class="form-row victron-checkbox">
-            <input type="checkbox" id="node-input-include_tank_temperature">
-            <label for="node-input-include_tank_temperature">Include temperature</label>
-        </div>
+        <div class="input-tank">
+            <div class="form-row">
+                <label for="node-input-fluid_type"><i class="fa fa-tint"></i> Fluid type</label>
+                <select id="node-input-fluid_type">
+                    <option value="0">Fuel</option>
+                    <option value="1">Fresh water</option>
+                    <option value="2">Waste water</option>
+                    <option value="3">Live well</option>
+                    <option value="4">Oil</option>
+                    <option value="5">Black water (sewage)</option>
+                    <option value="6">Gasoline</option>
+                    <option value="7">Diesel</option>
+                    <option value="8">LPG</option>
+                    <option value="9">LNG</option>
+                    <option value="10">Hydraulic oil</option>
+                    <option value="11">Raw water</option>
+                </select>
+            </div>
 
-        <div class="form-row victron-checkbox">
-            <input type="checkbox" id="node-input-include_tank_battery">
-            <label for="node-input-include_tank_battery">Include Battery Voltage</label>
-        </div>
+            <div class="form-row" id="tank-capacity">
+                <label for="node-input-tank_capacity"><i class="fa fa-flask"></i> Tank Capacity (m<sup>3</sup>)</label>
+                <input type="text" id="node-input-tank_capacity"
+                pattern="^(?:[0-9]+(?:\.[0-9]{0,3})?|\.[0-9]{1,3})$"
+                value="0.2"
+                title="Enter a positive number with up to 3 decimal places">
+            </div>
+            <div class="form-row victron-checkbox">
+                <input type="checkbox" id="node-input-include_tank_temperature">
+                <label for="node-input-include_tank_temperature">Include temperature</label>
+            </div>
 
-        <div class="form-row" id="tank_battery-voltage-row" class="hidden-row">
-            <label for="node-input-tank_battery_voltage"><i class="fa fa-battery-full"></i> Battery Voltage (V)</label>
-            <input type="number" id="node-input-tank_battery_voltage" value="3.3" step="0.1" min="0">
-        </div>
-    </div>
+            <div class="form-row victron-checkbox">
+                <input type="checkbox" id="node-input-include_tank_battery">
+                <label for="node-input-include_tank_battery">Include Battery Voltage</label>
+            </div>
 
-    <div class="input-e-drive">
-        <div class="form-row victron-checkbox">
-            <input type="checkbox" id="node-input-include_motor_rpm" checked>
-            <label for="node-input-include_motor_rpm">Include motor RPM</label>
-        </div>
-        <div class="form-row victron-checkbox">
-            <input type="checkbox" id="node-input-include_motor_direction" checked>
-            <label for="node-input-include_motor_direction">Include motor direction</label>
-        </div>
-        <div class="form-row victron-checkbox">
-            <input type="checkbox" id="node-input-include_motor_temp">
-            <label for="node-input-include_motor_temp">Include motor temperature</label>
-        </div>
-        <div class="form-row victron-checkbox">
-            <input type="checkbox" id="node-input-include_controller_temp">
-            <label for="node-input-include_controller_temp">Include controller temperature</label>
-        </div>
-        <div class="form-row victron-checkbox">
-            <input type="checkbox" id="node-input-include_coolant_temp">
-            <label for="node-input-include_coolant_temp">Include coolant temperature</label>
-        </div>
-    </div>
-
-    <div class="input-pvinverter">
-        <div class="form-row">
-            <label for="node-input-position"><i class="fa fa-sliders"></i> Position</label>
-            <select id="node-input-position">
-                <option value="0">AC input 1</option>
-                <option value="1">AC output</option>
-                <option value="2">AC input 2</option>
-            </select>
-        </div>
-        <div class="form-row">
-            <label for="node-input-pvinverter_nrofphases"><i class="fa fa-plug"></i> Nr of phases</label>
-            <select id="node-input-pvinverter_nrofphases">
-                <option value="1">1</option>
-                <option value="3">3</option>
-            </select>
-        </div>
-    </div>
-
-    <div class="input-temperature">
-        <div class="form-row">
-            <label for="node-input-temperature_type"><i class="fa fa-thermometer-half"></i> Temperature type</label>
-            <select id="node-input-temperature_type">
-                <option value="0">Battery</option>
-                <option value="1">Fridge</option>
-                <option value="2">Generic</option>
-                <option value="3">Room</option>
-                <option value="4">Outdoor</option>
-                <option value="5">WaterHeater</option>
-                <option value="6">Freezer</option>
-            </select>
-        </div>
-
-        <div class="form-row victron-checkbox">
-            <input type="checkbox" id="node-input-include_humidity">
-            <label for="node-input-include_humidity">Include Humidity Sensor</label>
-        </div>
-
-        <div class="form-row victron-checkbox">
-            <input type="checkbox" id="node-input-include_pressure">
-            <label for="node-input-include_pressure">Include Pressure Sensor</label>
-        </div>
-
-        <div class="form-row victron-checkbox">
-            <input type="checkbox" id="node-input-include_temp_battery">
-            <label for="node-input-include_temp_battery">Include Battery Voltage</label>
-        </div>
-
-        <div class="form-row" id="battery-temp_voltage-row" class="hidden-row">
-            <label for="node-input-temp_battery_voltage"><i class="fa fa-battery-full"></i> Battery Voltage (V)</label>
-            <input type="number" id="node-input-temp_battery_voltage" value="3.3" step="0.1" min="0">
-        </div>
-    </div>
-
-    <div class="form-row-stacked" id="default-values-container">
-        <label>
-            <i class="fa fa-upload"></i> Initialize with defaults
-            <i class="fa fa-info-circle tooltip-icon" data-tooltip="When enabled, the device will appear on VRM and New UI immediately after deploying. The device is set up with default values which you can change later."></i>
-        </label>
-        <div class="control-group">
-            <div class="victron-radio-group">
-                <input type="radio" name="default_values" id="node-input-default_values-yes" value="yes">
-                <label for="node-input-default_values-yes">Yes</label>
-                <input type="radio" name="default_values" id="node-input-default_values-no" value="no" checked>
-                <label for="node-input-default_values-no">No</label>
+            <div class="form-row" id="tank_battery-voltage-row" class="hidden-row">
+                <label for="node-input-tank_battery_voltage"><i class="fa fa-battery-full"></i> Battery Voltage (V)</label>
+                <input type="number" id="node-input-tank_battery_voltage" value="3.3" step="0.1" min="0">
             </div>
         </div>
-    </div>
 
-    <div id="switch-docs-container"></div>
+        <div class="input-e-drive">
+            <div class="form-row victron-checkbox">
+                <input type="checkbox" id="node-input-include_motor_rpm" checked>
+                <label for="node-input-include_motor_rpm">Include motor RPM</label>
+            </div>
+            <div class="form-row victron-checkbox">
+                <input type="checkbox" id="node-input-include_motor_direction" checked>
+                <label for="node-input-include_motor_direction">Include motor direction</label>
+            </div>
+            <div class="form-row victron-checkbox">
+                <input type="checkbox" id="node-input-include_motor_temp">
+                <label for="node-input-include_motor_temp">Include motor temperature</label>
+            </div>
+            <div class="form-row victron-checkbox">
+                <input type="checkbox" id="node-input-include_controller_temp">
+                <label for="node-input-include_controller_temp">Include controller temperature</label>
+            </div>
+            <div class="form-row victron-checkbox">
+                <input type="checkbox" id="node-input-include_coolant_temp">
+                <label for="node-input-include_coolant_temp">Include coolant temperature</label>
+            </div>
+        </div>
 
-    <div class="form-row community-link-container">
-        <div class="community-link-wrapper">
-            <a href="https://community.victronenergy.com/c/node-red/28" target="_blank" rel="noopener noreferrer">
-                <img src="resources/@victronenergy/node-red-contrib-victron/docs/community-link.svg" alt="Community Link" class="community-link-img">
-            </a>
+        <div class="input-pvinverter">
+            <div class="form-row">
+                <label for="node-input-position"><i class="fa fa-sliders"></i> Position</label>
+                <select id="node-input-position">
+                    <option value="0">AC input 1</option>
+                    <option value="1">AC output</option>
+                    <option value="2">AC input 2</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="node-input-pvinverter_nrofphases"><i class="fa fa-plug"></i> Nr of phases</label>
+                <select id="node-input-pvinverter_nrofphases">
+                    <option value="1">1</option>
+                    <option value="3">3</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="input-temperature">
+            <div class="form-row">
+                <label for="node-input-temperature_type"><i class="fa fa-thermometer-half"></i> Temperature type</label>
+                <select id="node-input-temperature_type">
+                    <option value="0">Battery</option>
+                    <option value="1">Fridge</option>
+                    <option value="2">Generic</option>
+                    <option value="3">Room</option>
+                    <option value="4">Outdoor</option>
+                    <option value="5">WaterHeater</option>
+                    <option value="6">Freezer</option>
+                </select>
+            </div>
+
+            <div class="form-row victron-checkbox">
+                <input type="checkbox" id="node-input-include_humidity">
+                <label for="node-input-include_humidity">Include Humidity Sensor</label>
+            </div>
+
+            <div class="form-row victron-checkbox">
+                <input type="checkbox" id="node-input-include_pressure">
+                <label for="node-input-include_pressure">Include Pressure Sensor</label>
+            </div>
+
+            <div class="form-row victron-checkbox">
+                <input type="checkbox" id="node-input-include_temp_battery">
+                <label for="node-input-include_temp_battery">Include Battery Voltage</label>
+            </div>
+
+            <div class="form-row" id="battery-temp_voltage-row" class="hidden-row">
+                <label for="node-input-temp_battery_voltage"><i class="fa fa-battery-full"></i> Battery Voltage (V)</label>
+                <input type="number" id="node-input-temp_battery_voltage" value="3.3" step="0.1" min="0">
+            </div>
+        </div>
+
+        <div class="form-row-stacked" id="default-values-container">
+            <label>
+                <i class="fa fa-upload"></i> Initialize with defaults
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="When enabled, the device will appear on VRM and New UI immediately after deploying. The device is set up with default values which you can change later."></i>
+            </label>
+            <div class="control-group">
+                <div class="victron-radio-group">
+                    <input type="radio" name="default_values" id="node-input-default_values-yes" value="yes">
+                    <label for="node-input-default_values-yes">Yes</label>
+                    <input type="radio" name="default_values" id="node-input-default_values-no" value="no" checked>
+                    <label for="node-input-default_values-no">No</label>
+                </div>
+            </div>
+        </div>
+
+        <div id="switch-docs-container"></div>
+
+        <div class="form-row community-link-container">
+            <div class="community-link-wrapper">
+                <a href="https://community.victronenergy.com/c/node-red/28" target="_blank" rel="noopener noreferrer">
+                    <img src="resources/@victronenergy/node-red-contrib-victron/docs/community-link.svg" alt="Community Link" class="community-link-img">
+                </a>
+            </div>
         </div>
     </div>
 </script>
