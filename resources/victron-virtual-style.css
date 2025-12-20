@@ -297,33 +297,6 @@ a.blue-link {
     float: none;
   }
 
-  .deprecation-notice {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 12px;
-    margin: 12px 0;
-    width: 100%;
-    max-width: 430px;
-    background-color: #f0f7ff;
-    border: 1px solid #c5dff8;
-    border-radius: 3px;
-    font-size: 0.95em;
-    line-height: 1.5;
-    box-sizing: border-box;
-  }
-
-  .deprecation-notice .fa {
-    color: #4a9eff;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  .deprecation-notice i:not(.fa) {
-    color: #333;
-    font-style: normal;
-  }
-
   .switch-config-heading {
     font-weight: bold;
     margin: 12px 0 8px 0;
