@@ -420,7 +420,6 @@ function renderDropdownLabels (context) {
   // Create labels container
   const labelsContainer = $(`
     <div class="form-row" id="switch-1-pairs-row">
-        <label>Options</label>
         <div id="switch-1-pairs-container" style="display:flex;flex-direction:column;gap:4px;"></div>
     </div>
   `)
