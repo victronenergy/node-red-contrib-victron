@@ -110,15 +110,13 @@
 
   function initializeTooltips () {
     $('.tooltip-container').remove();
-
     $('.tooltip-icon').off('mouseenter mouseleave');
-
-    $('.tooltip-icon').on('mouseenter', function (e) {
+    $('.tooltip-icon').on('mouseenter', function () {
       const $icon = $(this);
       const tooltipText = $icon.attr('data-tooltip');
       const $tooltip = $('<div class="tooltip-container"></div>').text(tooltipText);
 
-      $('body').append($tooltip);
+      $('body').append($('<div class="victron-form"></div>').html($tooltip));
 
       const iconOffset = $icon.offset();
       const tooltipHeight = $tooltip.outerHeight();
@@ -444,7 +442,6 @@
       if (doc) {
         const docRow = $(`
         <div class="form-row">
-          <label>&nbsp;</label>
           <div id="switch-1-doc-row" class="victron-doc-box">
             <label>${cfg.label} usage</label>
             ${doc.img ? `<img src="${doc.img}" alt="Switch type preview">` : ''}
@@ -551,7 +548,6 @@
     // Create labels container
     const labelsContainer = $(`
     <div class="form-row" id="switch-1-pairs-row">
-        <label>Options</label>
         <div id="switch-1-pairs-container" style="display:flex;flex-direction:column;gap:4px;"></div>
     </div>
   `);
