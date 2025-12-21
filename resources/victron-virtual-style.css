@@ -3,10 +3,6 @@ a.blue-link {
 }
 
 @scope (.victron-form) {
-  label {
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-  }
 
   .form-row {
     display: flex;
