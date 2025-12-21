@@ -98,26 +98,21 @@ a.blue-link {
 
   .form-row-stacked {
     margin-bottom: 8px;
-    display: block;
+    display: flex;
+    align-items: center;
   }
 
-  .form-row-stacked > label {
+  .form-row-stacked > .label {
     display: block;
     width: 216px !important;
     margin-right: 8px;
-    margin-bottom: 8px !important;
+    margin-bottom: 0px !important;
     flex-shrink: 0;
   }
 
   .form-row-stacked .control-group {
     display: flex;
-  }
-
-  .form-row-stacked .control-group::before {
-    content: '';
-    display: block;
-    width: 224px;
-    flex-shrink: 0;
+    margin-bottom: 0 !important;
   }
 
   .victron-radio-group {
