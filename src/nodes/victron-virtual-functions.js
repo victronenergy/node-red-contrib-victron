@@ -314,7 +314,6 @@ export function renderSwitchConfigRow (context) {
     if (doc) {
       const docRow = $(`
         <div class="form-row">
-          <label>&nbsp;</label>
           <div id="switch-1-doc-row" class="victron-doc-box">
             <label>${cfg.label} usage</label>
             ${doc.img ? `<img src="${doc.img}" alt="Switch type preview">` : ''}
@@ -692,8 +691,8 @@ export function getOutputLabels (context = {}) {
  */
 export function isRgbControlType (switchType) {
   return switchType === SWITCH_TYPE_MAP.RGB_COLOR_WHEEL ||
-         switchType === SWITCH_TYPE_MAP.CCT_WHEEL ||
-         switchType === SWITCH_TYPE_MAP.RGB_WHITE_DIMMER
+    switchType === SWITCH_TYPE_MAP.CCT_WHEEL ||
+    switchType === SWITCH_TYPE_MAP.RGB_WHITE_DIMMER
 }
 
 /**

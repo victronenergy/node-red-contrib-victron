@@ -1,10 +1,9 @@
 /* global $ */
 
-export function initializeTooltips() {
-
+export function initializeTooltips () {
   $('.tooltip-container').remove()
   $('.tooltip-icon').off('mouseenter mouseleave')
-  $('.tooltip-icon').on('mouseenter', function() {
+  $('.tooltip-icon').on('mouseenter', function () {
     const $icon = $(this)
     const tooltipText = $icon.attr('data-tooltip')
     const $tooltip = $('<div class="tooltip-container"></div>').text(tooltipText)
@@ -23,7 +22,7 @@ export function initializeTooltips() {
     $icon.data('tooltip-element', $tooltip)
   })
 
-  $('.tooltip-icon').on('mouseleave', function() {
+  $('.tooltip-icon').on('mouseleave', function () {
     const $icon = $(this)
     const $tooltip = $icon.data('tooltip-element')
     if ($tooltip) {
