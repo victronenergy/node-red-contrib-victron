@@ -2778,6 +2778,11 @@
         "path": "/StarterVoltage",
         "type": "float",
         "name": "Starter battery voltage (DC V)"
+      },
+      {
+        "path": "/History/EnergyOut",
+        "type": "float",
+        "name": "Total energy produced (kWh)"
       }
     ],
     "communityTag": "generator"

@@ -147,10 +147,10 @@ function generateServiceDoc (serviceName, serviceData, format) {
 
   // Process each service type within the service
   Object.entries(serviceData).forEach(([serviceType, serviceTypeData]) => {
-    if (serviceType === 'help') return // Skip help section
+    if (serviceType === 'help' || serviceType === 'communityTag') return // Skip help section and communityTag
 
     const paths = serviceTypeData || []
-    if (paths.length === 0) return
+    if (!Array.isArray(paths) || paths.length === 0) return
 
     for (const nodeType of nodeTypes) {
       const relevantPaths = paths.filter(pathObj =>
