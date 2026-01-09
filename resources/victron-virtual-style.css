@@ -112,34 +112,32 @@ a.blue-link {
   }
 
   .victron-radio-group {
-    padding-top: 4px;
+    display: flex;
   }
 
   .victron-radio-group div {
-    display: inline-block;
+    display: flex;
+    align-items: center;
     margin-right: 16px;
   }
 
   .victron-radio-group div input[type="radio"] {
-    background-color: #f1f1f1;
     width: auto !important;
+    margin: 0 !important;
+    margin-right: 6px !important;
   }
 
   .victron-radio-group div label {
-    background-color: #f3c0c0;
+    margin-bottom: 0 !important;
   }
 
   .victron-radio-group div label::before {
-    background-color: #c0f3c0;
   }
 
-  .victron-radio-group div input[type="radio"]:checked + label::before {
-    border-color: #4a9eff;
-    border-width: 2px;
-  }
-
-  .victron-radio-group div input[type="radio"]:checked + label::after {
-    background-color: #401010;
+  .victron-radio-group div input[type="radio"]:checked {
+    border-color: #4a9eff !important;
+    color: #4a9eff !important;
+    accent-color: #4a9eff;
   }
 
   .form-warning, .form-info {
