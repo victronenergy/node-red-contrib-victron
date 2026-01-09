@@ -112,59 +112,34 @@ a.blue-link {
   }
 
   .victron-radio-group {
-    display: flex;
-    align-items: center;
-    gap: 24px;
     padding-top: 4px;
   }
 
-  .victron-radio-group input[type="radio"] {
-    opacity: 0;
-    width: 0;
-    height: 0;
-    position: absolute;
+  .victron-radio-group div {
+    display: inline-block;
+    margin-right: 16px;
   }
 
-  .victron-radio-group label {
-    position: relative;
-    padding-left: 28px;
-    cursor: pointer;
-    font-weight: normal !important;
+  .victron-radio-group div input[type="radio"] {
+    background-color: #f1f1f1;
     width: auto !important;
-    margin: 0 !important;
-    line-height: 20px;
-    color: #333;
-    display: inline-flex;
-    align-items: center;
   }
 
-  .victron-radio-group label::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 18px;
-    height: 18px;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    border-radius: 50%;
+  .victron-radio-group div label {
+    background-color: #f3c0c0;
   }
 
-  .victron-radio-group input[type="radio"]:checked + label::before {
+  .victron-radio-group div label::before {
+    background-color: #c0f3c0;
+  }
+
+  .victron-radio-group div input[type="radio"]:checked + label::before {
     border-color: #4a9eff;
     border-width: 2px;
   }
 
-  .victron-radio-group input[type="radio"]:checked + label::after {
-    content: '';
-    position: absolute;
-    display: none;
-    top: 5px;
-    left: 5px;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #4a9eff;
+  .victron-radio-group div input[type="radio"]:checked + label::after {
+    background-color: #401010;
   }
 
   .form-warning, .form-info {
