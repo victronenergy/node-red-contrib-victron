@@ -338,7 +338,7 @@
     function renderTypeConfig () {
       $('#switch-1-config-row').remove();
       $('#switch-1-pairs-row').remove();
-      $('#switch-1-doc-row').remove();
+      $('#switch-docs-container').empty();
 
       const type = $('#node-input-switch_1_type').val();
       const cfg = SWITCH_TYPE_CONFIGS[type];
