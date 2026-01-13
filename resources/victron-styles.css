@@ -174,19 +174,36 @@
   margin-bottom: 12px;
 }
 
-/* Standalone deprecation notice for Virtual Device (no .victron-form wrapper) */
-.deprecation-notice {
-  padding: 12px;
-  width: 430px;
-  background-color: #f0f7ff;
-  border: 1px solid #c5dff8;
-  border-radius: 3px;
-  margin-top: 12px;
-  margin-bottom: 12px;
-}
+/* Standalone deprecation notice, used for Virtual Device for now */
 
-.deprecation-notice .fa {
-  margin-right: 12px;
+@scope (.victron-form) {
+  .deprecation-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    margin: 12px 0;
+    width: 100%;
+    max-width: 468px;
+    background-color: #f0f7ff;
+    border: 1px solid #c5dff8;
+    border-radius: 3px;
+    font-size: 0.95em;
+    line-height: 1.5;
+    box-sizing: border-box;
+  }
+
+  .deprecation-notice .fa {
+    color: #4a9eff;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .deprecation-notice i:not(.fa) {
+    color: #333;
+    font-style: normal;
+  }
+
 }
 
 /* RGB control checkboxes spacing */
@@ -268,7 +285,7 @@
   background-color: #fafafa;
   border: 1px solid #e8e8e8;
   border-radius: 3px;
-  width: 456px;
+  width: 468px;
   box-sizing: border-box;
   font-size: 0.95em;
 }

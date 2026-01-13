@@ -2,15 +2,13 @@
 
 export function initializeTooltips () {
   $('.tooltip-container').remove()
-
   $('.tooltip-icon').off('mouseenter mouseleave')
-
-  $('.tooltip-icon').on('mouseenter', function (e) {
+  $('.tooltip-icon').on('mouseenter', function () {
     const $icon = $(this)
     const tooltipText = $icon.attr('data-tooltip')
     const $tooltip = $('<div class="tooltip-container"></div>').text(tooltipText)
 
-    $('body').append($tooltip)
+    $('body').append($('<div class="victron-form"></div>').html($tooltip))
 
     const iconOffset = $icon.offset()
     const tooltipHeight = $tooltip.outerHeight()

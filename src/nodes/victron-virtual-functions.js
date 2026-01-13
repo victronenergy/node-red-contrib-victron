@@ -210,7 +210,7 @@ export function renderSwitchConfigRow (context) {
   function renderTypeConfig () {
     $('#switch-1-config-row').remove()
     $('#switch-1-pairs-row').remove()
-    $('#switch-1-doc-row').remove()
+    $('#switch-docs-container').empty()
 
     const type = $('#node-input-switch_1_type').val()
     const cfg = SWITCH_TYPE_CONFIGS[type]
@@ -314,7 +314,6 @@ export function renderSwitchConfigRow (context) {
     if (doc) {
       const docRow = $(`
         <div class="form-row">
-          <label>&nbsp;</label>
           <div id="switch-1-doc-row" class="victron-doc-box">
             <label>${cfg.label} usage</label>
             ${doc.img ? `<img src="${doc.img}" alt="Switch type preview">` : ''}
@@ -421,7 +420,6 @@ function renderDropdownLabels (context) {
   // Create labels container
   const labelsContainer = $(`
     <div class="form-row" id="switch-1-pairs-row">
-        <label>Options</label>
         <div id="switch-1-pairs-container" style="display:flex;flex-direction:column;gap:4px;"></div>
     </div>
   `)
@@ -692,8 +690,8 @@ export function getOutputLabels (context = {}) {
  */
 export function isRgbControlType (switchType) {
   return switchType === SWITCH_TYPE_MAP.RGB_COLOR_WHEEL ||
-         switchType === SWITCH_TYPE_MAP.CCT_WHEEL ||
-         switchType === SWITCH_TYPE_MAP.RGB_WHITE_DIMMER
+    switchType === SWITCH_TYPE_MAP.CCT_WHEEL ||
+    switchType === SWITCH_TYPE_MAP.RGB_WHITE_DIMMER
 }
 
 /**

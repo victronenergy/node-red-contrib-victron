@@ -60,6 +60,13 @@ function createSwitchProperties (config, ifaceDesc, iface) {
 
   const switchType = Number(config.switch_1_type ?? 1)
 
+  // TODO:: without having CustomName as property, the custom name won't show in dbus-spy, this also
+  // seems to conflict with SwitchableOutoutput/output_x/Settings/CustomName
+  ifaceDesc.properties.CustomName = {
+    type: 's',
+    persist: true
+  }
+
   // Add base properties for all switch types
   baseProperties.forEach(({ name, type, value, format, persist, immediate, min, max }) => {
     const switchableOutputPropertyKey = `SwitchableOutput/output_1/${name}`
