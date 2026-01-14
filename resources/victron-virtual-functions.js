@@ -242,7 +242,7 @@
   const createDocTemplate = (paths, outputs, img) => ({
     text: `
     ${INPUT_DOCS}
-    <div style="margin-bottom: 10px;">
+    <div>
       ${paths}
     </div>
     <div>
@@ -318,6 +318,299 @@
       '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the light</li><li><code>LightControls</code> &mdash; <tt>msg.payload</tt> contains the 5-element array with color and brightness values. Additional convenience fields: <tt>msg.rgb</tt> (hex string, e.g. #FF0000), <tt>msg.hsb</tt> (object with hue, saturation, brightness), <tt>msg.white</tt> (0-100%), <tt>msg.colorTemperature</tt> (Kelvin)</li></ol></div>',
       '/resources/@victronenergy/node-red-contrib-victron/docs/rgb_cct_control.svg'
     )
+  };
+
+  // Device type documentation
+  const DEVICE_TYPE_DOCS = {
+    acload: {
+      label: 'AC Load',
+      text: `
+    ${INPUT_DOCS}
+    <div>
+      <div><strong>Most relevant paths:</strong>
+        <ul>
+          <li><code>/Ac/{line}/Power</code> &mdash; Power per phase in watts, where <code>{line}</code> is <code>L1</code>, <code>L2</code>, or <code>L3</code>.</li>
+          <li><code>/Ac/{line}/Voltage</code> &mdash; Voltage per phase in volts.</li>
+          <li><code>/Ac/{line}/Current</code> &mdash; Current per phase in amperes.</li>
+          <li><code>/Ac/{line}/Energy/Forward</code> &mdash; Energy consumed per phase in kWh.</li>
+          <li><code>/Ac/Frequency</code> &mdash; AC frequency in Hz.</li>
+          <li><code>/Ac/PowerFactor</code> &mdash; Overall power factor.</li>
+          <li><code>/Ac/{line}/PowerFactor</code> &mdash; Power factor per phase.</li>
+        </ul>
+        <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
+      </div>
+    </div>
+    <div>
+      <div><strong>Output:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+        </ol>
+      </div>
+    </div>
+  `,
+      img: null
+    },
+    battery: {
+      label: 'Battery',
+      text: `
+    ${INPUT_DOCS}
+    <div>
+      <div><strong>Most relevant paths:</strong>
+        <ul>
+          <li><code>/Dc/0/Voltage</code> &mdash; Battery voltage in volts.</li>
+          <li><code>/Dc/0/Current</code> &mdash; Battery current in amperes. Positive values indicate charging, negative values indicate discharging.</li>
+          <li><code>/Dc/0/Power</code> &mdash; Battery power in watts.</li>
+          <li><code>/Soc</code> &mdash; State of charge as a percentage (0-100%).</li>
+          <li><code>/Capacity</code> &mdash; Battery capacity in Ah.</li>
+          <li><code>/ConsumedAmphours</code> &mdash; Consumed amp-hours in Ah.</li>
+          <li><code>/TimeToGo</code> &mdash; Estimated time remaining in seconds.</li>
+          <li><code>/Dc/0/Temperature</code> &mdash; Battery temperature in °C (if temperature sensor is enabled).</li>
+        </ul>
+        <p><strong>Note:</strong> The battery device includes numerous alarm paths for monitoring conditions such as high/low voltage, temperature, cell imbalance, and more. Use the <strong>Custom Control</strong> node to discover all available paths on your deployed device, or see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a> for the complete list.</p>
+      </div>
+    </div>
+    <div>
+      <div><strong>Output:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+        </ol>
+      </div>
+    </div>
+  `,
+      img: null
+    },
+    'e-drive': {
+      label: 'E-drive',
+      text: `
+    ${INPUT_DOCS}
+    <div>
+      <div><strong>Most relevant paths:</strong>
+        <ul>
+          <li><code>/Dc/0/Voltage</code> &mdash; Controller DC voltage in volts.</li>
+          <li><code>/Dc/0/Current</code> &mdash; Controller DC current in amperes.</li>
+          <li><code>/Dc/0/Power</code> &mdash; Controller DC power in watts.</li>
+          <li><code>/Motor/RPM</code> &mdash; Motor speed in RPM (if enabled).</li>
+          <li><code>/Motor/Direction</code> &mdash; Motor direction: <code>0</code> = Neutral, <code>1</code> = Reverse, <code>2</code> = Forward (if enabled).</li>
+          <li><code>/Motor/Temperature</code> &mdash; Motor temperature in °C (if enabled).</li>
+          <li><code>/Controller/Temperature</code> &mdash; Controller temperature in °C (if enabled).</li>
+          <li><code>/Coolant/Temperature</code> &mdash; Coolant temperature in °C (if enabled).</li>
+        </ul>
+        <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
+      </div>
+    </div>
+    <div>
+      <div><strong>Output:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+        </ol>
+      </div>
+    </div>
+  `,
+      img: null
+    },
+    gps: {
+      label: 'GPS',
+      text: `
+    ${INPUT_DOCS}
+    <div>
+      <div><strong>Most relevant paths:</strong>
+        <ul>
+          <li><code>/Position/Latitude</code> &mdash; Latitude in decimal degrees.</li>
+          <li><code>/Position/Longitude</code> &mdash; Longitude in decimal degrees.</li>
+          <li><code>/Altitude</code> &mdash; Altitude in meters.</li>
+          <li><code>/Speed</code> &mdash; Speed in m/s.</li>
+          <li><code>/Course</code> &mdash; Course/heading in degrees.</li>
+          <li><code>/Fix</code> &mdash; GPS fix status.</li>
+          <li><code>/NrOfSatellites</code> &mdash; Number of satellites in view.</li>
+        </ul>
+        <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
+      </div>
+    </div>
+    <div>
+      <div><strong>Output:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+        </ol>
+      </div>
+    </div>
+  `,
+      img: null
+    },
+    generator: {
+      label: 'Generator',
+      text: `
+    ${INPUT_DOCS}
+    <div>
+      <div><strong>Most relevant paths:</strong>
+        <p><em>AC Generator (genset):</em></p>
+        <ul>
+          <li><code>/Ac/{phase}/Power</code> &mdash; Power per phase in watts, where <code>{phase}</code> is <code>L1</code>, <code>L2</code>, or <code>L3</code>.</li>
+          <li><code>/Ac/{phase}/Voltage</code> &mdash; Voltage per phase in volts.</li>
+          <li><code>/Ac/{phase}/Current</code> &mdash; Current per phase in amperes.</li>
+          <li><code>/Ac/Frequency</code> &mdash; AC frequency in Hz.</li>
+          <li><code>/Engine/OperatingHours</code> &mdash; Engine operating hours (if enabled).</li>
+          <li><code>/StarterVoltage</code> &mdash; Starter battery voltage in volts (if enabled).</li>
+        </ul>
+        <p><em>DC Generator (dcgenset):</em></p>
+        <ul>
+          <li><code>/Dc/0/Voltage</code> &mdash; DC output voltage in volts.</li>
+          <li><code>/Dc/0/Current</code> &mdash; DC output current in amperes.</li>
+          <li><code>/Dc/0/Power</code> &mdash; DC output power in watts.</li>
+          <li><code>/History/EnergyOut</code> &mdash; Total energy output in kWh (if enabled).</li>
+        </ul>
+        <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
+      </div>
+    </div>
+    <div>
+      <div><strong>Output:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+        </ol>
+      </div>
+    </div>
+  `,
+      img: null
+    },
+    grid: {
+      label: 'Grid meter',
+      text: `
+    ${INPUT_DOCS}
+    <div>
+      <div><strong>Most relevant paths:</strong>
+        <ul>
+          <li><code>/Ac/Power</code> &mdash; Total AC power in watts. Positive values indicate power consumption from the grid, negative values indicate power fed back to the grid.</li>
+          <li><code>/Ac/{line}/Power</code> &mdash; Power per phase in watts, where <code>{line}</code> is <code>L1</code>, <code>L2</code>, or <code>L3</code>.</li>
+          <li><code>/Ac/{line}/Voltage</code> &mdash; Voltage per phase in volts.</li>
+          <li><code>/Ac/{line}/Current</code> &mdash; Current per phase in amperes.</li>
+          <li><code>/Ac/Energy/Forward</code> &mdash; Total energy purchased from the grid in kWh.</li>
+          <li><code>/Ac/Energy/Reverse</code> &mdash; Total energy sold back to the grid in kWh.</li>
+          <li><code>/Ac/{line}/Energy/Forward</code> &mdash; Energy purchased per phase in kWh.</li>
+          <li><code>/Ac/{line}/Energy/Reverse</code> &mdash; Energy sold per phase in kWh.</li>
+          <li><code>/Ac/Frequency</code> &mdash; Grid frequency in Hz.</li>
+          <li><code>/Ac/PowerFactor</code> &mdash; Overall power factor.</li>
+          <li><code>/Ac/{line}/PowerFactor</code> &mdash; Power factor per phase.</li>
+        </ul>
+        <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
+      </div>
+    </div>
+    <div>
+      <div><strong>Output:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+        </ol>
+      </div>
+    </div>
+  `,
+      img: null
+    },
+    meteo: {
+      label: 'Meteo',
+      text: `
+    ${INPUT_DOCS}
+    <div>
+      <div><strong>Most relevant paths:</strong>
+        <ul>
+          <li><code>/Irradiance</code> &mdash; Solar irradiance in W/m².</li>
+          <li><code>/WindSpeed</code> &mdash; Wind speed in m/s.</li>
+          <li><code>/WindDirection</code> &mdash; Wind direction in degrees.</li>
+          <li><code>/ExternalTemperature</code> &mdash; External temperature in °C.</li>
+          <li><code>/CellTemperature</code> &mdash; Sensor cell temperature in °C.</li>
+        </ul>
+        <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
+      </div>
+    </div>
+    <div>
+      <div><strong>Output:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+        </ol>
+      </div>
+    </div>
+  `,
+      img: null
+    },
+    pvinverter: {
+      label: 'PV Inverter',
+      text: `
+    ${INPUT_DOCS}
+    <div>
+      <div><strong>Most relevant paths:</strong>
+        <ul>
+          <li><code>/Ac/Power</code> &mdash; Total AC power output in watts.</li>
+          <li><code>/Ac/{line}/Power</code> &mdash; Power per phase in watts, where <code>{line}</code> is <code>L1</code>, <code>L2</code>, or <code>L3</code>.</li>
+          <li><code>/Ac/{line}/Voltage</code> &mdash; Voltage per phase in volts.</li>
+          <li><code>/Ac/{line}/Current</code> &mdash; Current per phase in amperes.</li>
+          <li><code>/Ac/Energy/Forward</code> &mdash; Total energy produced in kWh.</li>
+          <li><code>/Ac/{line}/Energy/Forward</code> &mdash; Energy produced per phase in kWh.</li>
+          <li><code>/Ac/Frequency</code> &mdash; AC frequency in Hz.</li>
+          <li><code>/Position</code> &mdash; Position: <code>0</code> = AC input 1, <code>1</code> = AC output, <code>2</code> = AC input 2.</li>
+        </ul>
+        <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
+      </div>
+    </div>
+    <div>
+      <div><strong>Output:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+        </ol>
+      </div>
+    </div>
+  `,
+      img: null
+    },
+    tank: {
+      label: 'Tank sensor',
+      text: `
+    ${INPUT_DOCS}
+    <div>
+      <div><strong>Most relevant paths:</strong>
+        <ul>
+          <li><code>/Level</code> &mdash; Tank level as a percentage (0-100%).</li>
+          <li><code>/Remaining</code> &mdash; Remaining fluid volume in m³.</li>
+          <li><code>/Capacity</code> &mdash; Tank capacity in m³.</li>
+          <li><code>/FluidType</code> &mdash; Fluid type: <code>0</code> = Fuel, <code>1</code> = Fresh water, <code>2</code> = Waste water, <code>3</code> = Live well, <code>4</code> = Oil, <code>5</code> = Black water, <code>6</code> = Gasoline, <code>7</code> = Diesel, <code>8</code> = LPG, <code>9</code> = LNG, <code>10</code> = Hydraulic oil, <code>11</code> = Raw water.</li>
+          <li><code>/Temperature</code> &mdash; Temperature in °C (if enabled).</li>
+          <li><code>/BatteryVoltage</code> &mdash; Sensor battery voltage in volts (if enabled).</li>
+        </ul>
+        <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
+      </div>
+    </div>
+    <div>
+      <div><strong>Output:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+        </ol>
+      </div>
+    </div>
+  `,
+      img: null
+    },
+    temperature: {
+      label: 'Temperature sensor',
+      text: `
+    ${INPUT_DOCS}
+    <div>
+      <div><strong>Most relevant paths:</strong>
+        <ul>
+          <li><code>/Temperature</code> &mdash; Temperature in °C.</li>
+          <li><code>/TemperatureType</code> &mdash; Sensor type: <code>0</code> = Battery, <code>1</code> = Fridge, <code>2</code> = Generic, <code>3</code> = Room, <code>4</code> = Outdoor, <code>5</code> = Water heater, <code>6</code> = Freezer.</li>
+          <li><code>/Humidity</code> &mdash; Humidity as a percentage (if enabled).</li>
+          <li><code>/Pressure</code> &mdash; Atmospheric pressure in kPa (if enabled).</li>
+          <li><code>/BatteryVoltage</code> &mdash; Sensor battery voltage in volts (if enabled).</li>
+        </ul>
+        <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
+      </div>
+    </div>
+    <div>
+      <div><strong>Output:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+        </ol>
+      </div>
+    </div>
+  `,
+      img: null
+    }
   };
 
   function renderSwitchConfigRow (context) {
@@ -662,6 +955,21 @@
     } else {
       $('#default-values-container').show();
       $('#switch-docs-container').empty();
+
+      // Show device-specific documentation if available
+      if (DEVICE_TYPE_DOCS[selected]) {
+        const doc = DEVICE_TYPE_DOCS[selected];
+        const docRow = $(`
+        <div class="form-row">
+          <div id="device-doc-row" class="victron-doc-box">
+            <label>${doc.label} usage</label>
+            ${doc.img ? `<img src="${doc.img}" alt="${doc.label} preview">` : ''}
+            <div class="victron-doc-text">${doc.text}</div>
+          </div>
+        </div>
+      `);
+        $('#switch-docs-container').append(docRow);
+      }
     }
   }
 
