@@ -141,7 +141,7 @@ function generatePathDoc (pathObj, format) {
 /**
  * Generate documentation for a service
  */
-function generateServiceDoc (serviceName, serviceData, format) {
+function generateServiceDoc (serviceName, serviceData, registeredNodes, format) {
   const nodeTypes = ['input', 'output']
   let doc = ''
 
@@ -158,6 +158,10 @@ function generateServiceDoc (serviceName, serviceData, format) {
       )
 
       if (relevantPaths.length === 0) continue
+
+      // Check if the node is actually registered
+      const nodeSet = nodeType === 'input' ? registeredNodes.inputNodes : registeredNodes.outputNodes
+      if (!nodeSet.has(serviceName)) continue
 
       const nodeName = `victron-${nodeType}-${serviceName}`
       const title = serviceName === 'motordrive' ? 'E-drive' : serviceName.charAt(0).toUpperCase() + serviceName.slice(1)
@@ -258,7 +262,7 @@ function generateOverview (servicesData, registeredNodes, format) {
     let hasAnyOutput = false
 
     Object.entries(serviceData).forEach(([serviceType, serviceTypeData]) => {
-      if (serviceType === 'help') return
+      if (serviceType === 'help' || serviceType === 'communityTag') return
 
       const paths = serviceTypeData || []
       if (paths.length === 0) return
@@ -341,7 +345,7 @@ function generateDocumentation (servicesData, registeredNodes, format) {
   Object.entries(servicesData)
     .sort(([a], [b]) => a.localeCompare(b)) // Sort services alphabetically
     .forEach(([serviceName, serviceData]) => {
-      doc += generateServiceDoc(serviceName, serviceData, format)
+      doc += generateServiceDoc(serviceName, serviceData, registeredNodes, format)
     })
 
   return doc
