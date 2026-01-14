@@ -132,7 +132,7 @@ class SystemConfiguration {
 
     // Filter all paths that begin with '/Relay'.
     // Construct and return an array of relay nodes representing their settings.
-    return Object.entries(this.cache)
+    const services = Object.entries(this.cache)
       .reduce((acc, [service, pathObj]) => {
         const relayPaths = Object.keys(pathObj).filter(path => path.startsWith('/Relay'))
         if (relayPaths.length) {
@@ -143,6 +143,11 @@ class SystemConfiguration {
         }
         return acc
       }, [])
+
+    return {
+      communityTag: _.get(utils.SERVICES, ['relay', 'communityTag']) || null,
+      services
+    }
   }
 
   getCachedServices () {
