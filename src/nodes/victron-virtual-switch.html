@@ -68,7 +68,12 @@
             return 'Output ' + (index + 1)
         },
         oneditprepare: function oneditprepare() {
-            const { renderSwitchConfigRow, updateOutputs, initializeTooltips } = window.__victron;
+            const {
+                renderSwitchConfigRow,
+                updateOutputs,
+                initializeTooltips, 
+                fetchSwitchNodeNameAndGroupFromCache
+            } = window.__victron;
 
             this.device = 'switch';
             renderSwitchConfigRow(this);
@@ -83,6 +88,18 @@
             if (typeof initializeTooltips === 'function') {
                 initializeTooltips();
             }
+
+            fetchSwitchNodeNameAndGroupFromCache(this.id).then(({name, group}) => {
+                if (name) {
+                    $(`#node-input-switch_1_customname`).val(name);
+                }
+                if (group) {
+                    $(`#node-input-switch_1_group`).val(group);
+                }
+            }).catch(error => {
+                console.error('Error fetching name and group from cache for switch node:', error);
+            });
+
         },
         oneditsave: function() {
             const { validateSwitchConfig, SWITCH_TYPE_CONFIGS, updateOutputs } = window.__victron;

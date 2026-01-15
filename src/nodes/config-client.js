@@ -43,9 +43,12 @@ module.exports = function (RED) {
     }
   })
 
-  RED.httpNode.get('/victron/cache', RED.auth.needsPermission('victron-client.read'), (_req, res) => {
+  RED.httpNode.get('/victron/cache', RED.auth.needsPermission('victron-client.read'), (req, res) => {
     if (!globalClient) return res.status(503).send('Client not initialized')
-    const serialized = utils.mapCacheToJsonResponse(globalClient.system.cache)
+    const filtered = utils.filterCache(globalClient.system.cache, {
+      filterBySerial: req.query.filter_by_serial
+    })
+    const serialized = utils.mapCacheToJsonResponse(filtered)
     res.setHeader('Content-Type', 'application/json')
     return res.send(serialized)
   })

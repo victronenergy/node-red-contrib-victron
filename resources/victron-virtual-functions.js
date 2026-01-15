@@ -581,6 +581,26 @@
     }
   }
 
+  function fetchSwitchNodeNameAndGroupFromCache (id) {
+    if (!id) {
+      return Promise.reject(new Error('id is required'))
+    }
+
+    return fetch(`/victron/cache?filter_by_serial=${id}`)
+      .then(response => response.json())
+      .then(data => {
+        for (const key in data) {
+          if (key.match(/^com.victronenergy\./) && data[key]['/Serial'] === id) {
+            const name = data[key]['/SwitchableOutput/output_1/Settings/CustomName'];
+            const group = data[key]['/SwitchableOutput/output_1/Settings/Group'];
+            return { name, group }
+          }
+        }
+        // No matching entry found
+        return {}
+      })
+  }
+
   function updateSwitchConfig (context) {
     const container = $('#switch-config-container');
     container.empty();
@@ -792,6 +812,7 @@
     updateSwitchConfig,
     checkSelectedVirtualDevice,
     validateSwitchConfig,
+    fetchSwitchNodeNameAndGroupFromCache,
     updateBatteryVoltageVisibility,
     calculateOutputs,
     updateOutputs,

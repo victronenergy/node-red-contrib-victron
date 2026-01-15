@@ -10,7 +10,8 @@ const {
   calculateRgbValidTypes,
   getFirstRgbType,
   formatLightControls,
-  formatBitmask
+  formatBitmask,
+  fetchSwitchNodeNameAndGroupFromCache
 } = require('./fixtures/victron-virtual-functions.cjs')
 
 // Helper to create mock jQuery element
@@ -38,6 +39,62 @@ function createMockElement(customValues = {}) {
 
 global.$ = jest.fn()
 
+describe('fetchSwitchNodeNameAndGroupFromCache', () => {
+  const originalFetch = global.fetch;
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  afterAll(() => {
+    global.fetch = originalFetch;
+  })
+
+  test('returns name and group when found in cache', async () => {
+
+    const mockCache = {
+      'com.victronenergy.123': {
+        '/Serial': '12345',
+        '/SwitchableOutput/output_1/Settings/CustomName': 'Test Switch',
+        '/SwitchableOutput/output_1/Settings/Group': 'Test Group',
+      },
+    }
+
+    global.fetch = jest.fn(() => Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve(mockCache)
+    }))
+
+    const result = await fetchSwitchNodeNameAndGroupFromCache('12345')
+    expect(result).toEqual({ name: 'Test Switch', group: 'Test Group' })
+
+    const noResult = await fetchSwitchNodeNameAndGroupFromCache('67890')
+    expect(noResult).toEqual({})
+
+    // expect it to fail if no id given
+    try {
+      await fetchSwitchNodeNameAndGroupFromCache()
+      expect(true).toBe(false); // should not reach here
+    } catch (e) {
+      expect(e.message).toMatch('id is required');
+    }
+
+    // expect it to fail if fetch fails
+    global.fetch = jest.fn(() => Promise.resolve({
+      ok: false,
+      status: 500,
+      statusText: 'Internal Server Error'
+    }))
+
+    try {
+      await fetchSwitchNodeNameAndGroupFromCache('12345')
+      expect(true).toBe(false); // should not reach here
+    } catch (e) {
+      expect(e.message).toBeDefined();
+    }
+  })
+
+})
+
 describe('Switch Configuration Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -60,7 +117,7 @@ describe('Switch Configuration Tests', () => {
     test('renders switch row with correct HTML structure', () => {
       const mockContainer = createMockElement()
       const mockTypeSelect = createMockElement({ val: String(SWITCH_TYPE_MAP.DROPDOWN) })
-      
+
       global.$.mockImplementation((selector) => {
         if (selector === '#switch-config-container') {
           return mockContainer
@@ -83,7 +140,7 @@ describe('Switch Configuration Tests', () => {
     test('uses default type 1 when context has no switch type', () => {
       const mockContainer = createMockElement()
       const mockTypeSelect = createMockElement({ val: String(SWITCH_TYPE_MAP.TOGGLE) })
-      
+
       global.$.mockImplementation((selector) => {
         if (selector === '#switch-config-container') {
           return mockContainer
@@ -104,7 +161,7 @@ describe('Switch Configuration Tests', () => {
     test('sets up event handler for type change', () => {
       const mockContainer = createMockElement()
       const mockTypeSelect = createMockElement({ val: String(SWITCH_TYPE_MAP.DROPDOWN) })
-      
+
       global.$.mockImplementation((selector) => {
         if (selector === '#switch-config-container') {
           return mockContainer
@@ -146,7 +203,7 @@ describe('Switch Configuration Tests', () => {
 
     test('validates stepped switch max field (STEPPED type)', () => {
       const mockMaxField = createMockElement({ val: '' })
-      
+
       global.$.mockImplementation((selector) => {
         if (selector === '#node-input-switch_1_type') {
           return createMockElement({ val: String(SWITCH_TYPE_MAP.STEPPED) })
@@ -164,7 +221,7 @@ describe('Switch Configuration Tests', () => {
 
     test('validates stepped switch max is within range (1-7)', () => {
       const mockMaxField = createMockElement({ val: '10' }) // Above max
-      
+
       global.$.mockImplementation((selector) => {
         if (selector === '#node-input-switch_1_type') {
           return createMockElement({ val: String(SWITCH_TYPE_MAP.STEPPED) })
@@ -182,7 +239,7 @@ describe('Switch Configuration Tests', () => {
 
     test('passes validation for valid stepped switch max', () => {
       const mockMaxField = createMockElement({ val: '5' })
-      
+
       global.$.mockImplementation((selector) => {
         if (selector === '#node-input-switch_1_type') {
           return createMockElement({ val: String(SWITCH_TYPE_MAP.STEPPED) })
@@ -201,7 +258,7 @@ describe('Switch Configuration Tests', () => {
     test('validates dropdown value is required when value field exists', () => {
       const mockValueField = createMockElement({ val: '' })
       const mockCountField = createMockElement({ val: '2' })
-      
+
       global.$.mockImplementation((selector) => {
         if (selector === '#node-input-switch_1_type') {
           return createMockElement({ val: '6' })
@@ -380,8 +437,8 @@ describe('Switch Configuration Tests', () => {
 
       test('formats multiple bits correctly', () => {
         const bitmask = (1 << SWITCH_TYPE_MAP.RGB_COLOR_WHEEL) |
-                        (1 << SWITCH_TYPE_MAP.CCT_WHEEL) |
-                        (1 << SWITCH_TYPE_MAP.RGB_WHITE_DIMMER)
+          (1 << SWITCH_TYPE_MAP.CCT_WHEEL) |
+          (1 << SWITCH_TYPE_MAP.RGB_WHITE_DIMMER)
         const result = formatBitmask(bitmask, SWITCH_TYPE_BITMASK_NAMES)
         expect(result).toBe('RGB wheel, CCT wheel, RGB+W dimmer')
       })
