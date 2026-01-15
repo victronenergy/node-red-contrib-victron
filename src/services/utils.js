@@ -284,6 +284,25 @@ function mapCacheToJsonResponse (cache) {
 }
 
 /**
+ * Filter cache, so that the result can be limited for efficiency.
+ * For now, the only filter supported is by device serial.
+ */
+function filterCache (cache, options = {}) {
+  const { filterBySerial } = options
+  if (!filterBySerial) {
+    return cache
+  }
+
+  const filteredCache = {}
+  for (const [device, paths] of Object.entries(cache)) {
+    if (filterBySerial && device.match(/^com\.victronenergy\./) && paths['/Serial'] === filterBySerial) {
+      filteredCache[device] = paths
+    }
+  }
+  return filteredCache
+}
+
+/**
  * Validates that a payload object is valid for setting virtual device values
  * @param {any} payload - The payload to validate
  * @returns {{ valid: boolean, error?: string, invalidKeys?: string[] }}
@@ -454,6 +473,7 @@ module.exports = {
   expandWildcardPaths,
   mapCacheValueToJsonResponseValue,
   mapCacheToJsonResponse,
+  filterCache,
   validateVirtualDevicePayload,
   validateLightControls,
   debounce,

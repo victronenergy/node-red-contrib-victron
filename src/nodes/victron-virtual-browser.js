@@ -6,6 +6,7 @@ import {
   updateSwitchConfig,
   checkSelectedVirtualDevice,
   validateSwitchConfig,
+  fetchSwitchNodeNameAndGroupFromCache,
   updateBatteryVoltageVisibility,
   calculateOutputs,
   updateOutputs
@@ -19,6 +20,7 @@ window.__victron = {
   updateSwitchConfig,
   checkSelectedVirtualDevice,
   validateSwitchConfig,
+  fetchSwitchNodeNameAndGroupFromCache,
   updateBatteryVoltageVisibility,
   calculateOutputs,
   updateOutputs,
