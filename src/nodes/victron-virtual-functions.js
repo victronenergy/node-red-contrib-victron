@@ -829,8 +829,8 @@ export function checkSelectedVirtualDevice (context) {
     $('#switch-docs-container').empty()
 
     // Show device-specific documentation if available
-    if (DEVICE_TYPE_DOCS[selected]) {
-      const doc = DEVICE_TYPE_DOCS[selected]
+    const doc = DEVICE_TYPE_DOCS[selected]
+    if (doc) {
       const docRow = $(`
         <div class="form-row">
           <div id="device-doc-row" class="victron-doc-box">
