@@ -1,82 +1,79 @@
 {
-    "name": "@victronenergy/node-red-contrib-victron",
-    "description": "Custom Node-RED Nodes for Victron Energy",
-    "version": "1.6.56",
-    "dependencies": {
-        "dbus-native-victron": "^0.4.5",
-        "dbus-victron-virtual": "^0.1.28",
-        "debug": "^4.4.0",
-        "lodash": "^4.17.21",
-        "promise-retry": "^2.0.1"
+  "name": "@victronenergy/node-red-contrib-victron",
+  "description": "Custom Node-RED Nodes for Victron Energy",
+  "version": "1.6.56",
+  "dependencies": {
+    "dbus-native-victron": "^0.4.5",
+    "dbus-victron-virtual": "^0.1.28",
+    "debug": "^4.4.0",
+    "lodash": "^4.17.21",
+    "promise-retry": "^2.0.1"
+  },
+  "files": [
+    "examples",
+    "src",
+    "resources",
+    "LICENSE"
+  ],
+  "node-red": {
+    "nodes": {
+      "victron-client": "./src/nodes/config-client.js",
+      "victron-nodes": "./src/nodes/victron-nodes.js",
+      "victron-virtual": "./src/nodes/victron-virtual.js",
+      "victron-virtual-switch": "./src/nodes/victron-virtual-switch.js",
+      "victron-inject": "./src/nodes/victron-inject.js"
     },
-    "files": [
-        "examples",
-        "src",
-        "resources",
-        "LICENSE"
+    "version": ">=3.0.2"
+  },
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.27.1",
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-node-resolve": "^16.0.2",
+    "csv-parse": "^5.6.0",
+    "eslint": "^9.26.0",
+    "eslint-config-google": "^0.14.0",
+    "gar": "^1.0.4",
+    "husky": "^9.1.7",
+    "jest": "^29.7.0",
+    "rollup": "^4.50.0",
+    "standard": "^17.1.2",
+    "yargs": "^17.7.2"
+  },
+  "keywords": [
+    "node-red"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "build:test": "rollup -c rollup.test.config.mjs",
+    "test": "npm run lint && npm run build && npm run build:test && npm run test:unit",
+    "test:unit": "jest",
+    "test:coverage": "jest --coverage",
+    "lint": "standard --fix src/ scripts/",
+    "verify": "npm test",
+    "prerelease": "npm run verify",
+    "release": "git tag -d v$npm_package_version; git tag v$npm_package_version && git push --tags && git push && npm run create-release",
+    "documentation": "bash -c '( sed \"/^<!--/q\" src/nodes/config-client.html && node scripts/service2doc.js -s src/services/services.json -r src/nodes/victron-nodes.html -o nodered ) | sponge src/nodes/config-client.html'",
+    "wiki": "bash -c 'node scripts/service2doc.js -s src/services/services.json -r src/nodes/victron-nodes.html -o md | sponge ../node-red-contrib-victron.wiki/Available-nodes.md'",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/victronenergy/node-red-contrib-victron"
+  },
+  "engines": {
+    "node": ">=14.17.4"
+  },
+  "license": "MIT",
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/test/**/*.test.js"
     ],
-    "node-red": {
-        "nodes": {
-            "victron-client": "./src/nodes/config-client.js",
-            "victron-nodes": "./src/nodes/victron-nodes.js",
-            "victron-virtual": "./src/nodes/victron-virtual.js",
-            "victron-virtual-switch": "./src/nodes/victron-virtual-switch.js",
-            "victron-inject": "./src/nodes/victron-inject.js"
-        },
-        "version": ">=3.0.2"
-    },
-    "devDependencies": {
-        "@babel/eslint-parser": "^7.27.1",
-        "@rollup/plugin-commonjs": "^28.0.6",
-        "@rollup/plugin-node-resolve": "^16.0.2",
-        "csv-parse": "^5.6.0",
-        "eslint": "^9.26.0",
-        "eslint-config-google": "^0.14.0",
-        "gar": "^1.0.4",
-        "jest": "^29.7.0",
-        "pre-commit": "^1.2.2",
-        "rollup": "^4.50.0",
-        "standard": "^17.1.2",
-        "yargs": "^17.7.2"
-    },
-    "keywords": [
-        "node-red"
-    ],
-    "scripts": {
-        "build": "rollup -c",
-        "build:test": "rollup -c rollup.test.config.mjs",
-        "test": "npm run lint && npm run build && npm run build:test && npm run test:unit",
-        "test:unit": "jest",
-        "test:coverage": "jest --coverage",
-        "lint": "standard --fix src/ scripts/",
-        "verify": "npm test",
-        "prerelease": "npm run verify",
-        "release": "git tag -d v$npm_package_version; git tag v$npm_package_version && git push --tags && git push && npm run create-release",
-        "documentation": "bash -c '( sed \"/^<!--/q\" src/nodes/config-client.html && node scripts/service2doc.js -s src/services/services.json -r src/nodes/victron-nodes.html -o nodered ) | sponge src/nodes/config-client.html'",
-        "wiki": "bash -c 'node scripts/service2doc.js -s src/services/services.json -r src/nodes/victron-nodes.html -o md | sponge ../node-red-contrib-victron.wiki/Available-nodes.md'"
-    },
-    "pre-commit": [
-        "lint",
-        "test"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/victronenergy/node-red-contrib-victron"
-    },
-    "engines": {
-        "node": ">=14.17.4"
-    },
-    "license": "MIT",
-    "jest": {
-        "testEnvironment": "node",
-        "testMatch": [
-            "**/test/**/*.test.js"
-        ],
-        "collectCoverage": true,
-        "coverageDirectory": "coverage",
-        "coverageReporters": [
-            "text",
-            "lcov"
-        ]
-    }
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "text",
+      "lcov"
+    ]
+  }
 }
