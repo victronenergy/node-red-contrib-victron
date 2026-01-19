@@ -31,8 +31,11 @@ function createSwitchProperties (config, ifaceDesc, iface) {
     { name: 'State', type: 'i', format: (v) => ({ 0: 'Off', 1: 'On' }[v] || 'unknown'), persist: true, immediate: true },
     { name: 'Status', type: 'i', format: (v) => v != null ? v : '', immediate: true },
     { name: 'Name', type: 's', persist: true },
-    { name: 'Settings/Group', type: 's', value: '', persist: false },
-    { name: 'Settings/CustomName', type: 's', value: '', persist: false },
+
+    // we need value to be '' for Group and CustomName, compare logic below where we set iface[switchableOutputPropertyKey]
+    { name: 'Settings/Group', type: 's', value: '', persist: true },
+    { name: 'Settings/CustomName', type: 's', value: '', persist: true },
+
     {
       name: 'Settings/Type',
       type: 'i',
@@ -96,17 +99,9 @@ function createSwitchProperties (config, ifaceDesc, iface) {
 
   // Set CustomName and Group from config
   const customNameKey = 'SwitchableOutput/output_1/Settings/CustomName'
-  ifaceDesc.properties[customNameKey] = {
-    type: 's',
-    persist: true
-  }
   iface[customNameKey] = config.switch_1_customname || ''
 
   const groupKey = 'SwitchableOutput/output_1/Settings/Group'
-  ifaceDesc.properties[groupKey] = {
-    type: 's',
-    persist: true
-  }
   iface[groupKey] = config.switch_1_group || ''
 
   // Type-specific properties
