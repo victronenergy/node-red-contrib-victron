@@ -2902,6 +2902,49 @@
     ],
     "communityTag": "gridmeter"
   },
+  "heatpump": {
+    "help": {
+      "both": "<p>This node is for reading from a heat pump. <strong>This service is under development.</strong></p>",
+      "input": "",
+      "output": " "
+    },
+    "heatpump": [
+      {
+        "path": "/Ac/Energy/Forward",
+        "type": "float",
+        "name": "Total Forward Energy (bought) (kWh)"
+      },
+    {
+        "path": "/Ac/Power",
+        "type": "float",
+        "name": "Power (W)"
+      },
+      {
+        "path": "/State",
+        "type": "enum",
+        "name": "Heat pump state",
+        "enum": {
+          "0": "Off",
+          "1": "Error",
+          "2": "Startup",
+          "3": "Heating",
+          "4": "Cooling"
+        }
+      },
+      {
+        "path": "/Temperature",
+        "type": "float",
+        "name": "Temperature (°C)"
+      },
+      {
+        "path": "/TargetTemperature",
+        "type": "float",
+        "name": "Target temperature (°C)",
+        "mode": "both"
+      }
+    ],
+    "communityTag": "heat pump"
+  },
   "inverter": {
     "help": {
       "both": "<p>This node is for reading from an inverter.</p>",
