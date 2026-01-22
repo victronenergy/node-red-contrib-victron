@@ -10,7 +10,7 @@
             name: {value:""},
             outputs: {value:1},
             device: {value:"", required: true},
-            default_values: {value: false, required: false},
+            default_values: {value: true, required: false},
             // acload
             acload_nrofphases: {value: 1, required: false},
             enable_s2support: {value: false, required: false},
@@ -503,11 +503,11 @@
             <div class="control-group">
                 <div class="victron-radio-group">
                     <div>
-                        <input type="radio" name="default_values" id="node-input-default_values-yes" value="yes">
+                        <input type="radio" name="default_values" id="node-input-default_values-yes" value="yes" checked>
                         <label for="node-input-default_values-yes">Yes</label>
                     </div>
                     <div>
-                        <input type="radio" name="default_values" id="node-input-default_values-no" value="no" checked>
+                        <input type="radio" name="default_values" id="node-input-default_values-no" value="no">
                         <label for="node-input-default_values-no">No</label>
                     </div>
                 </div>
