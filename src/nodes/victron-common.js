@@ -1,5 +1,16 @@
 /* global $ */
 
+// Service labels loaded from API
+let serviceLabels = null
+
+/**
+ * Set service labels from API response
+ * @param {Object} labels - Service labels object from API
+ */
+export function setServiceLabels (labels) {
+  serviceLabels = labels
+}
+
 export function initializeTooltips () {
   $('.tooltip-container').remove()
   $('.tooltip-icon').off('mouseenter mouseleave')
@@ -87,49 +98,15 @@ export function countServicesByName (services) {
  * @returns {string} Friendly service type name (e.g., "Tank Sensor")
  */
 export function getServiceTypeName (servicePath) {
-  // Service type mapping (matches registerInputNode calls)
-  const serviceTypeMap = {
-    accharger: 'AC Charger',
-    acload: 'AC Load',
-    acsystem: 'AC System',
-    alternator: 'Alternator',
-    battery: 'Battery Monitor',
-    dcdc: 'DC-DC',
-    dcgenset: 'DC Generator',
-    dcload: 'DC Load',
-    dcsource: 'DC Source',
-    dcsystem: 'DC System',
-    dess: 'Dynamic ESS',
-    digitalinput: 'Digital Input',
-    ess: 'ESS',
-    evcharger: 'EV Charger',
-    fuelcell: 'Fuel Cell',
-    generator: 'Generator',
-    gps: 'GPS',
-    grid: 'Grid Meter',
-    gridmeter: 'Grid Meter',
-    inverter: 'Inverter',
-    meteo: 'Meteo',
-    motordrive: 'Motor Drive',
-    multi: 'Multi RS',
-    pulsemeter: 'Pulse Meter',
-    pump: 'Pump',
-    pvinverter: 'PV Inverter',
-    relay: 'Relay',
-    settings: 'Settings',
-    solarcharger: 'Solar Charger',
-    switch: 'Switch',
-    system: 'System',
-    tank: 'Tank Sensor',
-    temperature: 'Temperature Sensor',
-    vebus: 'VE.Bus System'
-  }
-
   // Extract service type from path: com.victronenergy.{type}/{instance}
   const match = servicePath.match(/^com\.victronenergy\.([^./]+)/)
   if (match && match[1]) {
     const serviceType = match[1]
-    return serviceTypeMap[serviceType] || serviceType
+    // Use API labels if available, with label property from object
+    if (serviceLabels && serviceLabels[serviceType]) {
+      return serviceLabels[serviceType].label || serviceType
+    }
+    return serviceType
   }
 
   return servicePath
@@ -186,6 +163,7 @@ export function buildGroupedServiceDropdown (services, $dropdown) {
 if (typeof window !== 'undefined') {
   window.__victronCommon = window.__victronCommon || {}
   window.__victronCommon.initializeTooltips = initializeTooltips
+  window.__victronCommon.setServiceLabels = setServiceLabels
   window.__victronCommon.filterBlacklistedServices = filterBlacklistedServices
   window.__victronCommon.filterNumericPaths = filterNumericPaths
   window.__victronCommon.countServicesByName = countServicesByName

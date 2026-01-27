@@ -1,0 +1,107 @@
+{
+  "version": "1.0",
+  "services": {
+    "accharger": {
+      "label": "AC Charger"
+    },
+    "acload": {
+      "label": "AC Load"
+    },
+    "acsystem": {
+      "label": "AC System"
+    },
+    "alternator": {
+      "label": "Alternator"
+    },
+    "battery": {
+      "label": "Battery Monitor"
+    },
+    "dcdc": {
+      "label": "DC-DC"
+    },
+    "dcgenset": {
+      "label": "DC Generator"
+    },
+    "dcload": {
+      "label": "DC Load"
+    },
+    "dcsource": {
+      "label": "DC Source"
+    },
+    "dcsystem": {
+      "label": "DC System"
+    },
+    "dess": {
+      "label": "Dynamic ESS"
+    },
+    "digitalinput": {
+      "label": "Digital Input"
+    },
+    "ess": {
+      "label": "ESS"
+    },
+    "evcharger": {
+      "label": "EV Charger"
+    },
+    "fuelcell": {
+      "label": "Fuel Cell"
+    },
+    "generator": {
+      "label": "Generator"
+    },
+    "gps": {
+      "label": "GPS"
+    },
+    "grid": {
+      "label": "Grid Meter"
+    },
+    "gridmeter": {
+      "label": "Grid Meter"
+    },
+    "inverter": {
+      "label": "Inverter"
+    },
+    "meteo": {
+      "label": "Meteo"
+    },
+    "motordrive": {
+      "label": "E-drive"
+    },
+    "multi": {
+      "label": "Multi RS"
+    },
+    "pulsemeter": {
+      "label": "Pulse Meter"
+    },
+    "pump": {
+      "label": "Pump"
+    },
+    "pvinverter": {
+      "label": "PV Inverter"
+    },
+    "relay": {
+      "label": "Relay"
+    },
+    "settings": {
+      "label": "Settings"
+    },
+    "solarcharger": {
+      "label": "Solar Charger"
+    },
+    "switch": {
+      "label": "Switch"
+    },
+    "system": {
+      "label": "System"
+    },
+    "tank": {
+      "label": "Tank Sensor"
+    },
+    "temperature": {
+      "label": "Temperature Sensor"
+    },
+    "vebus": {
+      "label": "VE.Bus System"
+    }
+  }
+}

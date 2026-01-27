@@ -201,6 +201,7 @@ class SystemConfiguration {
     const services = {
       // meta
       version: _.get(packagejson, 'version'),
+      serviceLabels: utils.SERVICE_LABELS.services,
 
       // input node services
       'input-accharger': this.getNodeServices('input-accharger'),

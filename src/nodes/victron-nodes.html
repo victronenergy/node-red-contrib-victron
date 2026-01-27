@@ -77,16 +77,16 @@
         <div class="form-row" id="conditional-mode-toggle-row">
             <hr />
             <label for="node-input-conditionalMode">
-                <i class="fa fa-filter"></i> Conditional Mode
+                <i class="fa fa-filter"></i> Enable conditional evaluation
                 <i class="fa fa-info-circle tooltip-icon" data-tooltip="Enables a second output for conditional evaluation. Output 1 continues to send the raw measurement value (subject to rounding/rate limit settings above). Output 2 sends TRUE/FALSE based on conditions below."></i>
             </label>
             <input type="checkbox" id="node-input-conditionalMode">
         </div>
 
-        <!-- Live Preview Panel -->
-        <div id="conditional-preview-panel" class="victron-preview-panel hidden">
+        <!-- Preview Panel -->
+        <div id="conditional-preview-panel" class="victron-preview-panel">
             <div class="victron-preview-header">
-                <i class="fa fa-eye"></i> Live Preview
+                <i class="fa fa-eye"></i> Preview
                 <span class="victron-preview-status" id="preview-connection-status">
                     <i class="fa fa-circle-o-notch fa-spin"></i> Connecting...
                 </span>
@@ -94,7 +94,7 @@
 
             <div class="victron-preview-body" id="preview-body">
                 <div class="victron-preview-placeholder">
-                    Configure conditions to see live evaluation
+                    Enable and configure condition to see preview
                 </div>
             </div>
         </div>
@@ -282,82 +282,46 @@
     var serviceRoot = (RED.settings.httpNodeRoot || RED.settings.httpAdminRoot || "").replace(/\/$/, "") + '/victron/services/';
 
     function initializeConditionalMode(node) {
-        var $conditionalMode = $('#node-input-conditionalMode');
-        var $conditionalPanel = $('#conditional-config-panel');
-        var $condition2Panel = $('#condition-2-panel');
-        var $addCondition2Btn = $('#add-condition-2-btn');
-        var $removeCondition2Btn = $('#remove-condition-2-btn');
-        var $condition2Service = $('#node-input-condition2-service');
-        var $condition2Path = $('#node-input-condition2-path');
+        const $conditionalMode = $('#node-input-conditionalMode');
+        const $conditionalPanel = $('#conditional-config-panel');
+        const $condition2Panel = $('#condition-2-panel');
+        const $addCondition2Btn = $('#add-condition-2-btn');
+        const $removeCondition2Btn = $('#remove-condition-2-btn');
+        const $condition2Service = $('#node-input-condition2-service');
+        const $condition2Path = $('#node-input-condition2-path');
 
         // Fetch and populate condition 2 service dropdown
         function populateCondition2Services() {
             $.ajax(serviceRoot, {
                 beforeSend: function(jqXHR) {
-                    var auth_tokens = RED.settings.get("auth-tokens");
+                    const auth_tokens = RED.settings.get("auth-tokens");
                     if (auth_tokens) {
                         jqXHR.setRequestHeader("Authorization", "Bearer " + auth_tokens.access_token);
                     }
                 }
             }).done(function(allServices) {
+                // Set service labels for getServiceTypeName
+                victronCommon.setServiceLabels(allServices.serviceLabels);
+
                 // Combine all input services into a single array
-                var serviceMap = {};
+                const serviceMap = {};
                 Object.keys(allServices).forEach(function(key) {
                     if (key.startsWith('input-') && key !== 'input-custom' && allServices[key].services) {
                         allServices[key].services.forEach(function(service) {
                             if (service.service) {
-                                var dedupeKey = service.service + ':' + (service.deviceInstance || '');
+                                const dedupeKey = service.service + ':' + (service.deviceInstance || '');
                                 serviceMap[dedupeKey] = service;
                             }
                         });
                     }
                 });
 
-                var services = Object.values(serviceMap);
+                let services = Object.values(serviceMap);
 
                 // Apply blacklist filter
-                if (window.__victronCommon && window.__victronCommon.filterBlacklistedServices) {
-                    services = window.__victronCommon.filterBlacklistedServices(services);
-                }
+                services = victronCommon.filterBlacklistedServices(services);
 
-                if (window.__victronCommon && window.__victronCommon.buildGroupedServiceDropdown) {
-                    try {
-                        window.__victronCommon.buildGroupedServiceDropdown(services, $condition2Service);
-                    } catch (error) {
-                        console.error('Error building grouped dropdown:', error);
-                        // Fallback to old method
-                        var serviceCounts = window.__victronCommon.countServicesByName(services);
-                        $condition2Service.empty();
-                        services.forEach(function(service) {
-                            var optionText = service.name;
-                            var shouldShowInstance = serviceCounts[service.name] > 1;
-                            if (shouldShowInstance && service.deviceInstance && !optionText.includes('(' + service.deviceInstance + ')')) {
-                                optionText += ' (' + service.deviceInstance + ')';
-                            }
-                            var $option = $('<option/>')
-                                .val(service.service)
-                                .text(optionText)
-                                .data(service);
-                            $condition2Service.append($option);
-                        });
-                    }
-                } else {
-                    // Fallback if function not available
-                    var serviceCounts = window.__victronCommon.countServicesByName(services);
-                    $condition2Service.empty();
-                    services.forEach(function(service) {
-                        var optionText = service.name;
-                        var shouldShowInstance = serviceCounts[service.name] > 1;
-                        if (shouldShowInstance && service.deviceInstance && !optionText.includes('(' + service.deviceInstance + ')')) {
-                            optionText += ' (' + service.deviceInstance + ')';
-                        }
-                        var $option = $('<option/>')
-                            .val(service.service)
-                            .text(optionText)
-                            .data(service);
-                        $condition2Service.append($option);
-                    });
-                }
+                victronCommon.buildGroupedServiceDropdown(services, $condition2Service);
 
                 // Restore saved selection if exists, or populate paths for first service
                 if (node.condition2Service) {
@@ -370,19 +334,17 @@
 
         // Update condition 2 paths based on selected service
         function updateCondition2Paths() {
-            var serviceData = $condition2Service.find(':selected').data();
+            const serviceData = $condition2Service.find(':selected').data();
             if (serviceData && serviceData.paths) {
-                var paths = serviceData.paths;
+                let paths = serviceData.paths;
 
                 // Filter to numeric types only
-                if (window.__victronCommon && window.__victronCommon.filterNumericPaths) {
-                    paths = window.__victronCommon.filterNumericPaths(paths);
-                }
+                paths = victronCommon.filterNumericPaths(paths);
 
                 // Populate path dropdown
                 $condition2Path.empty();
                 paths.forEach(function(path) {
-                    var option = $('<option/>')
+                    const option = $('<option/>')
                         .val(path.path)
                         .text(path.name)
                         .data(path);
@@ -475,20 +437,20 @@
         });
 
         // Live preview state
-        var previewCache = {};
-        var $previewPanel = $('#conditional-preview-panel');
-        var $previewBody = $('#preview-body');
-        var $previewStatus = $('#preview-connection-status');
+        let previewCache = {};
+        const $previewPanel = $('#conditional-preview-panel');
+        const $previewBody = $('#preview-body');
+        const $previewStatus = $('#preview-connection-status');
 
         // Threshold validation
-        var $thresholdWarning = $('#threshold-warning');
+        const $thresholdWarning = $('#threshold-warning');
 
         function validateThreshold() {
             if (!$conditionalMode.is(':checked')) {
                 $thresholdWarning.hide();
                 return true;
             }
-            var threshold = $('#node-input-condition1-threshold').val();
+            const threshold = $('#node-input-condition1-threshold').val();
             if (threshold === '' || threshold === null || threshold === undefined) {
                 $thresholdWarning.show();
                 return false;
@@ -513,28 +475,25 @@
                     startLivePreview();
                 }, 100);
             } else {
-                validateThreshold(); // Will hide warning when conditional mode is disabled
-                stopLivePreview();
+                validateThreshold();
             }
         });
 
         // Fetch new data when a service or path is changed
         $('#node-input-service, #node-input-path, #node-input-condition2-service, #node-input-condition2-path').on('change', function() {
-            if ($conditionalMode.is(':checked')) {
-                fetchPreviewCache();
-            }
+            fetchPreviewCache();
         });
 
         function evaluateCondition(currentValue, operator, threshold) {
             if (currentValue === null || currentValue === undefined || isNaN(currentValue)) {
                 return null;
             }
-            var current = Number(currentValue);
-            var thresholdNum = Number(threshold);
+            const current = Number(currentValue);
+            const thresholdNum = Number(threshold);
             if (isNaN(thresholdNum)) return null;
 
-            var getEpsilon = function(a, b) {
-                var absMax = Math.max(Math.abs(a), Math.abs(b));
+            const getEpsilon = function(a, b) {
+                const absMax = Math.max(Math.abs(a), Math.abs(b));
                 return absMax === 0 ? 1e-10 : absMax * 1e-10;
             };
 
@@ -551,12 +510,12 @@
 
         function fetchPreviewCache() {
             $previewStatus.html('<i class="fa fa-circle-o-notch fa-spin"></i>');
-            var cacheUrl = (RED.settings.httpNodeRoot || RED.settings.httpAdminRoot || "").replace(/\/$/, "") + '/victron/cache';
+            const cacheUrl = (RED.settings.httpNodeRoot || RED.settings.httpAdminRoot || "").replace(/\/$/, "") + '/victron/cache';
             $.ajax({
                 url: cacheUrl,
                 type: "GET",
                 beforeSend: function(jqXHR) {
-                    var auth_tokens = RED.settings.get("auth-tokens");
+                    const auth_tokens = RED.settings.get("auth-tokens");
                     if (auth_tokens) {
                         jqXHR.setRequestHeader("Authorization", "Bearer " + auth_tokens.access_token);
                     }
@@ -577,9 +536,7 @@
                 updateLivePreview();
             });
             // Re-initialize tooltips for newly added/modified elements
-            if (window.__victronCommon && window.__victronCommon.initializeTooltips) {
-                window.__victronCommon.initializeTooltips();
-            }
+            victronCommon.initializeTooltips();
         }
 
         // Helper function to format numbers intelligently (max 3 decimals, no trailing zeros)
@@ -588,10 +545,10 @@
             if (typeof value !== 'number') return value;
 
             // Round to max 3 decimals and remove trailing zeros
-            var rounded = Math.round(value * 1000) / 1000;
+            const rounded = Math.round(value * 1000) / 1000;
 
             // Convert to string and remove trailing zeros after decimal
-            var str = rounded.toString();
+            let str = rounded.toString();
             if (str.indexOf('.') !== -1) {
                 str = str.replace(/\.?0+$/, '');
             }
@@ -600,51 +557,59 @@
         }
 
         function updateLivePreview() {
-            var primaryService = $('#node-input-service').val();
-            var primaryPath = $('#node-input-path').val();
-            var condition1Operator = $('#node-input-condition1-operator').val();
-            var condition1Threshold = $('#node-input-condition1-threshold').val();
+            const primaryService = $('#node-input-service').val();
+            const primaryPath = $('#node-input-path').val();
+            const condition1Operator = $('#node-input-condition1-operator').val();
+            const condition1Threshold = $('#node-input-condition1-threshold').val();
 
-            if (!primaryService || !primaryPath || !condition1Operator || condition1Threshold === '') {
-                $previewBody.html('<div class="victron-preview-placeholder">Configure conditions to see live evaluation</div>');
+            // No service/path selected yet
+            if (!primaryService || !primaryPath) {
+                $previewBody.html('<div class="victron-preview-placeholder">Select a service and measurement</div>');
                 return;
             }
 
-            var condition1Value = (previewCache[primaryService] && previewCache[primaryService][primaryPath] !== undefined)
+            const condition1Value = (previewCache[primaryService] && previewCache[primaryService][primaryPath] !== undefined)
                 ? previewCache[primaryService][primaryPath]
                 : null;
 
-            var result1 = evaluateCondition(condition1Value, condition1Operator, condition1Threshold);
+            // No condition configured - just show the current value
+            if (!$conditionalMode.is(':checked') || !condition1Operator || condition1Threshold === '') {
+                const valueText = formatPreviewNumber(condition1Value);
+                $previewBody.html('<div class="victron-preview-line"><span class="victron-preview-value">Current value: <strong>' + valueText + '</strong></span></div>');
+                return;
+            }
 
-            var html = '<div class="victron-preview-line">';
+            const result1 = evaluateCondition(condition1Value, condition1Operator, condition1Threshold);
+
+            let html = '<div class="victron-preview-line">';
 
             // Condition 1
-            var c1Class = result1 === null ? '' : (result1 ? 'true' : 'false');
-            var c1ValText = formatPreviewNumber(condition1Value);
+            const c1Class = result1 === null ? '' : (result1 ? 'true' : 'false');
+            const c1ValText = formatPreviewNumber(condition1Value);
             html += '<span class="victron-preview-group ' + c1Class + '">';
             html += '(<span id="preview-val-1">' + c1ValText + '</span> ' + condition1Operator + ' ' + condition1Threshold + ')';
             html += '</span>';
 
-            var finalResult = result1;
+            let finalResult = result1;
 
             // Condition 2 (if enabled and configured)
             if ($condition2Panel.is(':visible')) {
-                var condition2Service = $condition2Service.val();
-                var condition2Path = $condition2Path.val();
-                var condition2Operator = $('#node-input-condition2-operator').val();
-                var condition2Threshold = $('#node-input-condition2-threshold').val();
-                var logicOperator = $('input[name="logicOperator"]:checked').val();
+                const condition2Service = $condition2Service.val();
+                const condition2Path = $condition2Path.val();
+                const condition2Operator = $('#node-input-condition2-operator').val();
+                const condition2Threshold = $('#node-input-condition2-threshold').val();
+                const logicOperator = $('input[name="logicOperator"]:checked').val();
 
                 html += '<span class="victron-preview-logic-op">' + logicOperator + '</span>';
 
                 if (condition2Service && condition2Path && condition2Operator && condition2Threshold !== '') {
-                    var condition2Value = (previewCache[condition2Service] && previewCache[condition2Service][condition2Path] !== undefined)
+                    const condition2Value = (previewCache[condition2Service] && previewCache[condition2Service][condition2Path] !== undefined)
                         ? previewCache[condition2Service][condition2Path]
                         : null;
-                    var result2 = evaluateCondition(condition2Value, condition2Operator, condition2Threshold);
+                    const result2 = evaluateCondition(condition2Value, condition2Operator, condition2Threshold);
 
-                    var c2Class = result2 === null ? '' : (result2 ? 'true' : 'false');
-                    var c2ValText = formatPreviewNumber(condition2Value);
+                    const c2Class = result2 === null ? '' : (result2 ? 'true' : 'false');
+                    const c2ValText = formatPreviewNumber(condition2Value);
                     html += '<span class="victron-preview-group ' + c2Class + '">';
                     html += '(<span id="preview-val-2">' + c2ValText + '</span> ' + condition2Operator + ' ' + condition2Threshold + ')';
                     html += '</span>';
@@ -662,9 +627,9 @@
 
             // Final Result
             html += '<span class="victron-preview-equals">=</span>';
-            var finalResultClass = finalResult === null ? '' : (finalResult ? 'true' : 'false');
-            var finalResultIcon = finalResult === null ? '' : (finalResult ? '<i class="fa fa-check-circle"></i> ' : '<i class="fa fa-times-circle"></i> ');
-            var finalResultText = finalResult === null ? '--' : (finalResult ? 'TRUE' : 'FALSE');
+            const finalResultClass = finalResult === null ? '' : (finalResult ? 'true' : 'false');
+            const finalResultIcon = finalResult === null ? '' : (finalResult ? '<i class="fa fa-check-circle"></i> ' : '<i class="fa fa-times-circle"></i> ');
+            const finalResultText = finalResult === null ? '--' : (finalResult ? 'TRUE' : 'FALSE');
 
             html += '<span class="victron-preview-final-result ' + finalResultClass + '">' + finalResultIcon + finalResultText + '</span>';
 
@@ -673,28 +638,16 @@
         }
 
         function startLivePreview() {
-            $previewPanel.removeClass('hidden');
-            fetchPreviewCache(); // Initial fetch
+            fetchPreviewCache();
         }
 
-        function stopLivePreview() {
-            $previewPanel.addClass('hidden');
-        }
-
-        // Start preview if conditional mode is already enabled
-        if (node.conditionalMode) {
-            setTimeout(function() {
-                if ($conditionalMode.is(':checked')) {
-                    validateThreshold();
-                    startLivePreview();
-                }
-            }, 500);
-        }
-
-        // Clean up on dialog close
-        return function cleanup() {
-            stopLivePreview();
-        };
+        // Fetch preview cache on panel open
+        setTimeout(function() {
+            fetchPreviewCache();
+            if ($conditionalMode.is(':checked')) {
+                validateThreshold();
+            }
+        }, 500);
     }
 
     function buildEditPanel(node, service, isOutputNode, isCustomNode, nodeLabel) {
@@ -951,9 +904,7 @@
             }
 
             // Initialize tooltips
-            if (window.__victronCommon && window.__victronCommon.initializeTooltips) {
-                window.__victronCommon.initializeTooltips();
-            }
+            victronCommon.initializeTooltips();
 
             // Initialize conditional mode for input nodes only
             if (!isOutputNode) {

@@ -34,6 +34,21 @@ try {
   SERVICES = {}
 }
 
+let SERVICE_LABELS = { version: '1.0', services: {} }
+const SUPPORTED_LABEL_VERSION = '1.0'
+try {
+  const loadedLabels = require('./service-meta.json')
+  if (loadedLabels.version !== SUPPORTED_LABEL_VERSION) {
+    console.warn(`Warning: service-meta.json version ${loadedLabels.version} does not match supported version ${SUPPORTED_LABEL_VERSION}`)
+  }
+  if (!loadedLabels.services || typeof loadedLabels.services !== 'object') {
+    throw new Error('service-meta.json missing required "services" object')
+  }
+  SERVICE_LABELS = loadedLabels
+} catch (error) {
+  console.warn('Warning: Could not load service-meta.json:', error.message)
+}
+
 // Service-specific wildcard mappings
 const WILDCARD_MAPPINGS = {
   switch: {
@@ -465,6 +480,7 @@ module.exports = {
   RELAY_FUNCTIONS,
   RELAY_MODE_WARNING,
   SERVICES,
+  SERVICE_LABELS,
   STATUS,
   TEMPLATE,
   UUID,
