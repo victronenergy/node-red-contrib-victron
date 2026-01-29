@@ -222,7 +222,7 @@
                         <i class="fa fa-clock-o"></i> Debounce (ms)
                         <i class="fa fa-info-circle tooltip-icon" data-tooltip="Delay in milliseconds before sending output. Prevents rapid changes from triggering multiple outputs. Use 0 for no debounce."></i>
                     </label>
-                    <input type="number" id="node-input-debounce" placeholder="0" min="0" step="100" value="0" autocomplete="off" data-lpignore="true">
+                    <input type="number" id="node-input-debounce" placeholder="2000" min="0" step="100" value="2000" autocomplete="off" data-lpignore="true">
                 </div>
             </div>
         </div>
@@ -895,6 +895,10 @@
 
             if (isOutputNode) {
                 $('#outputinfo').show()
+                // Hide conditional mode UI for output nodes
+                $('#conditional-mode-toggle-row').hide()
+                $('#conditional-preview-panel').hide()
+                $('#conditional-config-panel').hide()
             } else {
                 if (typeof(node.onlyChanges) === 'undefined') {
                     $('#node-input-onlyChanges').removeAttr("checked");
@@ -997,6 +1001,9 @@
 
             // Update outputs count based on conditional mode
             node.outputs = node.conditionalMode ? 2 : 1;
+        } else {
+            // Output nodes have no outputs
+            node.outputs = 0;
         }
 
         // Only try to save initial value if we have path data and it's an output node
@@ -1094,7 +1101,7 @@
                 outputTrue: { value: "true" },
                 outputFalse: { value: "false" },
                 outputOnChange: { value: false },
-                debounce: { value: 0 }
+                debounce: { value: 2000 }
             },
             color: isCustomNode ? "#f7ab3e" : "#4790d0",
             inputs: isOutputNode ? 1 : 0,
