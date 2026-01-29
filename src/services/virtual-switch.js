@@ -33,8 +33,8 @@ function createSwitchProperties (config, ifaceDesc, iface) {
     { name: 'Name', type: 's', persist: true },
 
     // we need value to be '' for Group and CustomName, compare logic below where we set iface[switchableOutputPropertyKey]
-    { name: 'Settings/Group', type: 's', value: '', persist: true },
-    { name: 'Settings/CustomName', type: 's', value: '', persist: true },
+    { name: 'Settings/Group', type: 's', value: '', persist: false },
+    { name: 'Settings/CustomName', type: 's', value: '', persist: false },
 
     {
       name: 'Settings/Type',
