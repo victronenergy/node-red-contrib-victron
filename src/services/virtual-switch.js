@@ -70,6 +70,9 @@ function createSwitchProperties (config, ifaceDesc, iface) {
     persist: true
   }
 
+  ifaceDesc.properties.DeviceInstance = { type: 'i' }
+  ifaceDesc.properties.Serial = { type: 's', persist: true }
+
   // Add base properties for all switch types
   baseProperties.forEach(({ name, type, value, format, persist, immediate, min, max }) => {
     const switchableOutputPropertyKey = `SwitchableOutput/output_1/${name}`
