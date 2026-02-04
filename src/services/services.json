@@ -3156,6 +3156,24 @@
       "input": "",
       "output": " "
     },
+    "acload": [
+      {
+        "path": "/SwitchableOutput/{type}/State",
+        "type": "enum",
+        "enum": {
+          "0": "Off",
+          "1": "On"
+        },
+        "name": "{type} state",
+        "mode": "both"
+      },
+      {
+        "path": "/SwitchableOutput/{type}/Dimming",
+        "type": "integer",
+        "name": "{type} dimming",
+        "mode": "both"
+      }
+    ],
     "switch": [
       {
         "path": "/SwitchableOutput/{type}/State",
