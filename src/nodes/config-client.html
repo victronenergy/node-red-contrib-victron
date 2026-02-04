@@ -6159,6 +6159,70 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 </dl>
 </script>
 
+<script type="text/x-red" data-help-name="victron-input-switch">
+<h3>Details</h3>
+<p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+
+<div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
+  <strong>📝 Wildcard Paths:</strong> 
+  Paths containing placeholders like <code>{type}</code>, <code>{tracker}</code>, <code>{phase}</code> 
+  will be automatically expanded to show available options based on your connected devices.
+  <ul style="margin: 5px 0;">
+    <li><code>{type}</code> - Switch types (output_1, output_2, pwm_1, relay_1, etc.)</li>
+    <li><code>{tracker}</code> - PV tracker numbers (0, 1, 2, 3)</li>
+    <li><code>{phase}</code> - AC phases (1, 2, 3 for L1, L2, L3)</li>
+    <li><code>{day}</code> - History days (0=today, 1=yesterday)</li>
+    <li><code>{input}</code> - AC inputs (1, 2)</li>
+    <li><code>{channel}</code> - DC channels (0, 1)</li>
+    <li><code>{index}</code> - Index numbers (0, 1, 2, 3, etc.)</li>
+  </ul>
+</div><p>The <b>switch</b> node can be used for the usb-connected I/O extender.</p>
+<h3>Switch</h3>
+<dl class="message-properties">
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code> state<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/SwitchableOutput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code>/State</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul></dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code> dimming<span class="property-type">integer</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/SwitchableOutput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code>/Dimming</b><span class="property-mode"> (Mode: both)</span>
+</dd>
+</dl>
+</script>
+
+<script type="text/x-red" data-help-name="victron-output-switch">
+<h3>Details</h3>
+<p>The <strong>output nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+
+<div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
+  <strong>📝 Wildcard Paths:</strong> 
+  Paths containing placeholders like <code>{type}</code>, <code>{tracker}</code>, <code>{phase}</code> 
+  will be automatically expanded to show available options based on your connected devices.
+  <ul style="margin: 5px 0;">
+    <li><code>{type}</code> - Switch types (output_1, output_2, pwm_1, relay_1, etc.)</li>
+    <li><code>{tracker}</code> - PV tracker numbers (0, 1, 2, 3)</li>
+    <li><code>{phase}</code> - AC phases (1, 2, 3 for L1, L2, L3)</li>
+    <li><code>{day}</code> - History days (0=today, 1=yesterday)</li>
+    <li><code>{input}</code> - AC inputs (1, 2)</li>
+    <li><code>{channel}</code> - DC channels (0, 1)</li>
+    <li><code>{index}</code> - Index numbers (0, 1, 2, 3, etc.)</li>
+  </ul>
+</div> 
+<h3>Switch</h3>
+<dl class="message-properties">
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code> state<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/SwitchableOutput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code>/State</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - On</li>
+</ul></dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code> dimming<span class="property-type">integer</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/SwitchableOutput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code>/Dimming</b><span class="property-mode"> (Mode: both)</span>
+</dd>
+</dl>
+</script>
+
 <script type="text/x-red" data-help-name="victron-input-system">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
