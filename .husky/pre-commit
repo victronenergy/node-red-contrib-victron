@@ -1,4 +1,10 @@
-npm run build
-npm run build:test
-npm run lint
-npm test
+#!/usr/bin/env sh
+
+# ensure there are no manual changes to ./resources before committing
+git diff-index --quiet HEAD -- ./resources || (echo "manual changes to ./resources, they would get overwritten by 'npm run build'. Abort." && false)
+
+# call lint-staged, see ./package.json for configuration
+npx lint-staged
+
+# if lint-staged made changes to ./resources, add them to the commit
+git add ./resources
