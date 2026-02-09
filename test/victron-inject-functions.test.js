@@ -68,6 +68,15 @@ describe('victron-inject-functions', () => {
         expect(result.message).toBe('Test message')
       })
 
+      it.each(['0', '1', '2'])('should accept valid payload with type as string "%s"', (typeString) => {
+        const typeNum = parseInt(typeString, 10);
+        const result = validateNotificationInput('Test message', typeString, 'Test Title');
+        expect(result.valid).toBe(true);
+        expect(result.type).toBe(typeNum);
+        expect(result.title).toBe('Test Title');
+        expect(result.message).toBe('Test message');
+      });
+
       it('should accept valid payload with type as "warning"', () => {
         const result = validateNotificationInput('Warning message', 'warning', 'Warning Title')
         expect(result.valid).toBe(true)

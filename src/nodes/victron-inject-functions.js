@@ -59,7 +59,12 @@ function validateNotificationInput (payload, type, title) {
       info: 2
     }
     const typeLower = type.toLowerCase()
-    if (typeLower in typeMap) {
+
+    // Check if the string is a number between 0 and 2
+    const parsedType = parseInt(type, 10)
+    if (!isNaN(parsedType) && parsedType >= 0 && parsedType <= 2) {
+      typeNum = parsedType
+    } else if (typeLower in typeMap) {
       typeNum = typeMap[typeLower]
     } else {
       return {
