@@ -1289,10 +1289,53 @@ module.exports = function (RED) {
                 })
                 .map(entry => entry[0].split('/')[0])
 
-              // Filter out devices that belong to active nodes
-              const activeNodeIds = Array.from(nodeInstances).map(node => node.id)
+              // Get all active DBus services to check which virtual devices are actually active
+              const activeServices = await new Promise((resolve, reject) => {
+                usedBus.listNames((error, services) => {
+                  if (error) {
+                    console.error('Error listing DBus services:', error)
+                    resolve([])
+                  } else {
+                    resolve(services || [])
+                  }
+                })
+              })
+
+              debug('Active DBus services:', activeServices)
+
+              // Only remove devices that are not active on DBus
               const devicesToRemove = virtualDevices.filter(devicePath => {
-                return !activeNodeIds.some(nodeId => devicePath.includes(nodeId))
+                if (!devicePath.startsWith('virtual_')) {
+                  return false
+                }
+
+                const deviceNodeId = devicePath.substring('virtual_'.length)
+                const deviceEntry = deviceEntries.find(entry => entry[0] === `/Settings/Devices/${devicePath}/ClassAndVrmInstance`)
+
+                if (!deviceEntry?.[1]?.[0]) {
+                  debug(`No ClassAndVRMInstance found for device ${devicePath}, will not remove`)
+                  return false
+                }
+
+                const deviceType = deviceEntry[1][0].split(':')[0]
+                const serviceName = `com.victronenergy.${
+                  deviceType === 'dcgenset'
+? 'dcgenset'
+                  : deviceType === 'genset'
+? 'genset'
+                  : deviceType === 'motordrive' ? 'motordrive' : deviceType
+                }.virtual_${deviceNodeId}`
+
+                debug(`Checking if service ${serviceName} is active for device ${devicePath}`)
+
+                const isServiceActive = activeServices.includes(serviceName)
+                if (isServiceActive) {
+                  debug(`Service ${serviceName} is still active on DBus, will not remove device ${devicePath}`)
+                  return false
+                }
+
+                debug(`Service ${serviceName} is not active on DBus, device ${devicePath} can be removed`)
+                return true
               })
 
               debug('Devices to remove (no active nodes):', devicesToRemove)
