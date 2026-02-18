@@ -9,6 +9,7 @@ const {
 } = require('./victron-virtual-constants')
 const { validateVirtualDevicePayload, validateLightControls, debounce } = require('../services/utils')
 const { createSwitchProperties, getSwitchStatusText, handleSwitchOutputs } = require('../services/virtual-switch')
+const { filterInactiveVirtualDevices } = require('../services/virtual-device-cleanup')
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('=== UNHANDLED REJECTION (PREVENTING CRASH) ===')
@@ -1279,16 +1280,6 @@ module.exports = function (RED) {
             if (getValueResult && getValueResult[1] && Array.isArray(getValueResult[1])) {
               const deviceEntries = getValueResult[1][0]
 
-              // Get all virtual devices first
-              const virtualDevices = deviceEntries
-                .filter(entry => {
-                  const path = entry[0]
-                  return typeof path === 'string' &&
-                    path.includes('virtual_') &&
-                    path.includes('ClassAndVrmInstance')
-                })
-                .map(entry => entry[0].split('/')[0])
-
               // Get all active DBus services to check which virtual devices are actually active
               const activeServices = await new Promise((resolve, reject) => {
                 usedBus.listNames((error, services) => {
@@ -1304,39 +1295,7 @@ module.exports = function (RED) {
               debug('Active DBus services:', activeServices)
 
               // Only remove devices that are not active on DBus
-              const devicesToRemove = virtualDevices.filter(devicePath => {
-                if (!devicePath.startsWith('virtual_')) {
-                  return false
-                }
-
-                const deviceNodeId = devicePath.substring('virtual_'.length)
-                const deviceEntry = deviceEntries.find(entry => entry[0] === `/Settings/Devices/${devicePath}/ClassAndVrmInstance`)
-
-                if (!deviceEntry?.[1]?.[0]) {
-                  debug(`No ClassAndVRMInstance found for device ${devicePath}, will not remove`)
-                  return false
-                }
-
-                const deviceType = deviceEntry[1][0].split(':')[0]
-                const serviceName = `com.victronenergy.${
-                  deviceType === 'dcgenset'
-? 'dcgenset'
-                  : deviceType === 'genset'
-? 'genset'
-                  : deviceType === 'motordrive' ? 'motordrive' : deviceType
-                }.virtual_${deviceNodeId}`
-
-                debug(`Checking if service ${serviceName} is active for device ${devicePath}`)
-
-                const isServiceActive = activeServices.includes(serviceName)
-                if (isServiceActive) {
-                  debug(`Service ${serviceName} is still active on DBus, will not remove device ${devicePath}`)
-                  return false
-                }
-
-                debug(`Service ${serviceName} is not active on DBus, device ${devicePath} can be removed`)
-                return true
-              })
+              const devicesToRemove = filterInactiveVirtualDevices(deviceEntries, activeServices)
 
               debug('Devices to remove (no active nodes):', devicesToRemove)
 
@@ -1344,7 +1303,7 @@ module.exports = function (RED) {
               if (devicesToRemove.length > 0 && removeSettings) {
                 // Try removing each device individually to better handle errors
                 for (const device of devicesToRemove) {
-                  const path = `/Settings/Devices/${device}/ClassAndVRMInstance`
+                  const path = `/Settings/Devices/${device}/ClassAndVrmInstance`
                   debug('Attempting to remove:', path)
 
                   try {
