@@ -310,7 +310,10 @@
                         allServices[key].services.forEach(function(service) {
                             if (service.service) {
                                 const dedupeKey = service.service + ':' + (service.deviceInstance || '');
-                                serviceMap[dedupeKey] = service;
+                                const existing = serviceMap[dedupeKey];
+                                if (!existing || service.paths.length > existing.paths.length) {
+                                    serviceMap[dedupeKey] = service;
+                                }
                             }
                         });
                     }
