@@ -17,7 +17,7 @@ describe('Virtual Device Removal Logic', () => {
     ]
     const activeServices = [
       'com.victronenergy.switch.virtual_node1',
-      'com.victronenergy.generator.virtual_node2'
+      'com.victronenergy.genset.virtual_node2'
       // Note: com.victronenergy.switch.virtual_node3 is NOT in the list
     ]
 
@@ -43,18 +43,21 @@ describe('Virtual Device Removal Logic', () => {
 
   it('should handle different device types correctly', () => {
     const deviceEntries = [
-      ['virtual_abc123/ClassAndVrmInstance', [{ type: 's' }, ['dcgenset:10']]],
-      ['virtual_def456/ClassAndVrmInstance', [{ type: 's' }, ['motordrive:20']]]
+      ['virtual_abc123/ClassAndVrmInstance', [{ type: 's' }, ['generator:10']]], // AC genset
+      ['virtual_def456/ClassAndVrmInstance', [{ type: 's' }, ['generator:20']]], // DC genset (dcgenset on DBus)
+      ['virtual_ghi789/ClassAndVrmInstance', [{ type: 's' }, ['e-drive:30']]],
+      ['virtual_jkl012/ClassAndVrmInstance', [{ type: 's' }, ['e-drive:40']]] // inactive motordrive
     ]
     const activeServices = [
-      'com.victronenergy.dcgenset.virtual_abc123'
-      // Note: com.victronenergy.motordrive.virtual_def456 is NOT active
+      'com.victronenergy.genset.virtual_abc123',
+      'com.victronenergy.dcgenset.virtual_def456', // generator maps to both genset and dcgenset
+      'com.victronenergy.motordrive.virtual_ghi789' // e-drive maps to motordrive
+      // Note: com.victronenergy.motordrive.virtual_jkl012 is NOT active
     ]
 
     const devicesToRemove = filterInactiveVirtualDevices(deviceEntries, activeServices)
 
-    // Should only remove virtual_def456 because its service is not active
-    expect(devicesToRemove).toEqual(['virtual_def456'])
+    expect(devicesToRemove).toEqual(['virtual_jkl012'])
   })
 
   it('should not remove any devices if all services are active', () => {
@@ -64,7 +67,7 @@ describe('Virtual Device Removal Logic', () => {
     ]
     const activeServices = [
       'com.victronenergy.switch.virtual_node1',
-      'com.victronenergy.generator.virtual_node2'
+      'com.victronenergy.genset.virtual_node2'
     ]
 
     const devicesToRemove = filterInactiveVirtualDevices(deviceEntries, activeServices)
@@ -104,7 +107,7 @@ describe('Virtual Device Removal Logic', () => {
     const activeServices = [
       'com.victronenergy.switch.virtual_node1_instance1',
       'com.victronenergy.switch.virtual_node1_instance2',
-      'com.victronenergy.generator.virtual_node2'
+      'com.victronenergy.genset.virtual_node2'
       // All services are active, including those from other instances
     ]
 

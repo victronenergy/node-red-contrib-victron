@@ -1297,7 +1297,7 @@ module.exports = function (RED) {
               // Only remove devices that are not active on DBus
               const devicesToRemove = filterInactiveVirtualDevices(deviceEntries, activeServices)
 
-              debug('Devices to remove (no active nodes):', devicesToRemove)
+              debug('Virtual devices to remove (no active nodes):', devicesToRemove)
 
               // Remove settings for each inactive virtual device
               if (devicesToRemove.length > 0 && removeSettings) {
