@@ -38,31 +38,34 @@ function filterInactiveVirtualDevices (deviceEntries, activeServices) {
 
       const deviceType = classAndVrmInstance.split(':')[0] // e.g., "switch", "generator", etc.
 
-      let serviceNamePrefix
-      // Handle special cases where deviceType in ClassAndVrmInstance doesn't directly map to service name
-      if (deviceType === 'dcgenset') {
-        serviceNamePrefix = 'com.victronenergy.dcgenset'
-      } else if (deviceType === 'genset') {
-        serviceNamePrefix = 'com.victronenergy.genset'
-      } else if (deviceType === 'motordrive') {
-        serviceNamePrefix = 'com.victronenergy.motordrive'
+      // Map ClassAndVrmInstance device types to DBus service name prefixes.
+      // ClassAndVrmInstance stores the UI device type (config.device), which doesn't always
+      // match the DBus service name directly.
+      // 'generator' can be either genset or dcgenset on DBus, so check both.
+      // 'e-drive' maps to motordrive on DBus.
+      let possibleServiceNames
+      if (deviceType === 'generator') {
+        possibleServiceNames = [
+          `com.victronenergy.genset.virtual_${deviceNodeId}`,
+          `com.victronenergy.dcgenset.virtual_${deviceNodeId}`
+        ]
+      } else if (deviceType === 'e-drive') {
+        possibleServiceNames = [`com.victronenergy.motordrive.virtual_${deviceNodeId}`]
       } else {
-        serviceNamePrefix = `com.victronenergy.${deviceType}`
+        possibleServiceNames = [`com.victronenergy.${deviceType}.virtual_${deviceNodeId}`]
       }
 
-      const serviceName = `${serviceNamePrefix}.virtual_${deviceNodeId}`
+      debug(`Checking if any of ${possibleServiceNames} is active for device ${devicePath}`)
 
-      debug(`Checking if service ${serviceName} is active for device ${devicePath}`)
-
-      const isServiceActive = activeServices.includes(serviceName)
+      const isServiceActive = possibleServiceNames.some(name => activeServices.includes(name))
 
       if (isServiceActive) {
-        debug(`Service ${serviceName} is still active on DBus, will not remove device ${devicePath}.`)
-        return false // Keep if active
+        debug(`A service for ${devicePath} is still active on DBus, will not remove.`)
+        return false
       }
 
-      debug(`Service ${serviceName} is not active on DBus, device ${devicePath} can be removed.`)
-      return true // Remove if inactive
+      debug(`No active DBus service found for device ${devicePath}, can be removed.`)
+      return true
     })
 }
 
