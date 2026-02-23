@@ -523,6 +523,10 @@
   overflow: hidden;
 }
 
+.victron-form .victron-logic-toggle .victron-logic-option {
+  display: inline-block;
+}
+
 .victron-form .victron-logic-option {
   flex: 1;
   margin: 0;
