@@ -1609,8 +1609,8 @@
         "name": "Active restrictions",
         "enum": {
           "0": "No restrictions between battery and the grid",
-          "1": "Grid to battery energy flow is restricted",
-          "2": "Battery to grid energy flow is restricted",
+          "1": "Battery to grid energy flow is restricted",
+          "2": "Grid to battery energy flow is restricted",
           "3": "No energy flow between battery and grid"
         }
       },
