@@ -27,7 +27,7 @@ const properties = {
       11: 'Raw water'
     }[v] || 'unknown'),
     value: 0,
-    persist: true
+    persist: false
   },
   Level: { type: 'd', format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: 60 },
   RawUnit: { type: 's', persist: true },
