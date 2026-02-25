@@ -225,7 +225,8 @@ module.exports = function (RED) {
       node.send(outputs)
 
       if (userSetConnected) {
-        node.setPresence(!!msg.connected, done)
+        const targetConnected = msg.connected === 'toggle' ? !node.presenceConnected : !!msg.connected
+        node.setPresence(targetConnected, done)
         return
       }
 

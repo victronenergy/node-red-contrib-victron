@@ -513,7 +513,7 @@
             <input type="checkbox" id="node-input-start_disconnected">
             <label for="node-input-start_disconnected">
                 Start disconnected
-                <i class="fa fa-info-circle tooltip-icon" data-tooltip="When checked, the device will not appear on the system until it receives msg.connected = true"></i>
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="When checked, the device will not appear on the system until it receives msg.connected = true or msg.connected = 'toggle'"></i>
             </label>
         </div>
 
@@ -612,6 +612,10 @@ return msg;
 
 // Bring it back online
 msg.connected = true;
+return msg;
+
+// Toggle (flip current state)
+msg.connected = 'toggle';
 return msg;
 ```
 

@@ -158,7 +158,8 @@ describe('victron-virtual presence toggle (msg.connected)', () => {
         msg.connected = node.presenceConnected
       }
       if (userSetConnected) {
-        node.setPresence(!!msg.connected, done)
+        const targetConnected = msg.connected === 'toggle' ? !node.presenceConnected : !!msg.connected
+        node.setPresence(targetConnected, done)
         return true // indicates early return
       }
       return false
@@ -249,6 +250,28 @@ describe('victron-virtual presence toggle (msg.connected)', () => {
       // null !== undefined, so it routes to setPresence with !!null = false
       expect(earlyReturn).toBe(true)
       expect(node.setPresence).toHaveBeenCalledWith(false, done)
+    })
+
+    test('msg.connected = toggle inverts presence when currently connected', () => {
+      const node = createMockNode(true)
+      node.setPresence = jest.fn((_connected, done) => done())
+      const done = jest.fn()
+
+      const earlyReturn = simulateHandleInput(node, { connected: 'toggle' }, done)
+
+      expect(earlyReturn).toBe(true)
+      expect(node.setPresence).toHaveBeenCalledWith(false, done)
+    })
+
+    test('msg.connected = toggle inverts presence when currently disconnected', () => {
+      const node = createMockNode(false)
+      node.setPresence = jest.fn((_connected, done) => done())
+      const done = jest.fn()
+
+      const earlyReturn = simulateHandleInput(node, { connected: 'toggle' }, done)
+
+      expect(earlyReturn).toBe(true)
+      expect(node.setPresence).toHaveBeenCalledWith(true, done)
     })
   })
 
