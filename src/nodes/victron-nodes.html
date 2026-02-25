@@ -304,13 +304,39 @@
                 victronCommon.setServiceLabels(allServices.serviceLabels);
 
                 // Combine all input services into a single array
+                /* Possibly confusing code ahead: One service (each value in
+                allServices) can contain multiple "services". Here we prepare
+                an array of services (in variable "services") so that each
+                actual device has exactly one entry in the services array. Then
+                we build the dropdown options for the devices (grouped) and the
+                values for the measurement dropdown based on the selected
+                service. If, as per the "dedupeKey", we encounter another
+                service for an actual device we have already, we merge the
+                paths. Note that the merging results in the other values of
+                "mergedService" being overridden by the service we are merging.
+                This should have no consequence for the dropdowns. */
+
                 const serviceMap = {};
                 Object.keys(allServices).forEach(function(key) {
                     if (key.startsWith('input-') && key !== 'input-custom' && allServices[key].services) {
                         allServices[key].services.forEach(function(service) {
                             if (service.service) {
                                 const dedupeKey = service.service + ':' + (service.deviceInstance || '');
-                                serviceMap[dedupeKey] = service;
+                                if (serviceMap[dedupeKey]) {
+                                    // Merge paths if duplicate service is found
+                                    const existingService = serviceMap[dedupeKey];
+                                    const existingPaths = existingService.paths || [];
+                                    const newPaths = service.paths || [];
+                                    const mergedPaths = existingPaths.concat(newPaths.filter(np => !existingPaths.some(ep => ep.path === np.path)));
+                                    const mergedService = {
+                                        ...existingService,
+                                        ...service,
+                                        paths: mergedPaths
+                                    }
+                                    serviceMap[dedupeKey] = mergedService;
+                                } else {
+                                    serviceMap[dedupeKey] = service;
+                                }
                             }
                         });
                     }
