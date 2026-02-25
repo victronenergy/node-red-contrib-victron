@@ -184,6 +184,7 @@ module.exports = function (RED) {
     }
 
     node.retryOnConnectionEnd = true
+    node.presenceConnected = false
     node.pendingCallsToSetValuesLocally = []
 
     const debouncedSetters = new Map()
@@ -212,12 +213,21 @@ module.exports = function (RED) {
 
     function handleInput (msg, done) {
       // Send passthrough message FIRST, before any validation
+      const userSetConnected = msg.connected !== undefined
+      if (!userSetConnected) {
+        msg.connected = node.presenceConnected
+      }
       const outputs = [msg]
       // Fill remaining outputs with null
       for (let i = 1; i < config.outputs; i++) {
         outputs.push(null)
       }
       node.send(outputs)
+
+      if (userSetConnected) {
+        node.setPresence(!!msg.connected, done)
+        return
+      }
 
       // Now do validation with more helpful messages
       if (!msg || !msg.payload) {
@@ -608,6 +618,12 @@ module.exports = function (RED) {
               node.warn(`Service name "${serviceName}" for ${config.device} already exists on the bus, this may result in undesired behavior.`)
             }
             node.serviceName = serviceName
+            if (config.start_disconnected) {
+              node.bus.releaseName(node.serviceName, () => {
+                node.presenceConnected = false
+                node.status({ fill: 'grey', shape: 'ring', text: `${text} (${iface.DeviceInstance}) — offline` })
+              })
+            }
           } else {
             /* Other return codes means various errors, check here
             (https://dbus.freedesktop.org/doc/api/html/group__DBusShared.html#ga37a9bc7c6eb11d212bf8d5e5ff3b50f9) for more
@@ -660,6 +676,29 @@ module.exports = function (RED) {
         node.setValuesLocally = setValuesLocally
         node.emitS2Signal = emitS2Signal
 
+        node.setPresence = function (connected, onDone) {
+          const statusText = `${text} (${iface.DeviceInstance})`
+          if (connected && !node.presenceConnected) {
+            node.bus.requestName(node.serviceName, 0x4, (err, retCode) => {
+              if (!err && (retCode === 1 || retCode === 3)) {
+                node.presenceConnected = true
+                node.status({ fill: 'green', shape: 'dot', text: statusText })
+              }
+              onDone()
+            })
+          } else if (!connected && node.presenceConnected) {
+            node.bus.releaseName(node.serviceName, (err) => {
+              if (!err) {
+                node.presenceConnected = false
+                node.status({ fill: 'grey', shape: 'ring', text: `${statusText} — offline` })
+              }
+              onDone()
+            })
+          } else {
+            onDone()
+          }
+        }
+
         // If there are pending calls, process them now
         node.pendingCallsToSetValuesLocally.forEach(([msg, done]) => {
           try {
@@ -673,6 +712,7 @@ module.exports = function (RED) {
 
         node.removeSettings = removeSettings
 
+        node.presenceConnected = true
         node.status({
           fill: 'green',
           shape: 'dot',
