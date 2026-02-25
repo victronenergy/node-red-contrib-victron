@@ -125,53 +125,58 @@
             return 'Output ' + (index + 1)
         },
         oneditprepare: function oneditprepare() {
+            const self = this;
             const { checkSelectedVirtualDevice, updateOutputs, initializeTooltips } = window.__victron;
 
-            // Function to show/hide deprecation notice
             const toggleDeprecationNotice = (deviceType) => {
-                const noticeRow = $('#switch-deprecation-notice-row');
-                if (deviceType === 'switch') {
-                    noticeRow.show();
-                } else {
-                    noticeRow.hide();
-                }
+                $('#switch-deprecation-notice-row').toggle(deviceType === 'switch');
             };
 
-            // Show notice if device is already set to switch
-            toggleDeprecationNotice(this.device);
-
-            if (this.device === 'motordrive') {
-                this.device = 'e-drive';
+            if (self.device === 'motordrive') {
+                self.device = 'e-drive';
             }
 
-            if (this.id && this.changed === false && this.device && this.device !== '') {
-                $('#node-input-device')
-                    .prop('disabled', true)
-                    .attr('title', 'Device type cannot be changed after deployment.');
-            }
+            $.getJSON('/victron/virtual-device-types')
+                .done(function(deviceTypes) {
+                    const $select = $('#node-input-device');
+                    $select.empty();
+                    deviceTypes.forEach(function(dt) {
+                        $select.append($('<option>', { value: dt.value, text: dt.label }));
+                    });
+                    if (self.device) $select.val(self.device);
+                })
+                .fail(function() {
+                    console.error('Failed to load virtual device types');
+                })
+                .always(function() {
+                    toggleDeprecationNotice(self.device);
 
-            $('#node-input-device').on('change', (v) => {
-                checkSelectedVirtualDevice(this);
-                // Update outputs when device changes
-                this.device = v.target.value
-                updateOutputs(this);
-                // Show/hide deprecation notice based on selected device
-                toggleDeprecationNotice(this.device);
-            });
+                    if (self.id && self.changed === false && self.device && self.device !== '') {
+                        $('#node-input-device')
+                            .prop('disabled', true)
+                            .attr('title', 'Device type cannot be changed after deployment.');
+                    }
 
-            if (this.default_values === true) {
-                $('#node-input-default_values-yes').prop('checked', true);
-            } else {
-                $('#node-input-default_values-no').prop('checked', true);
-            }
+                    $('#node-input-device').on('change', (v) => {
+                        checkSelectedVirtualDevice(self);
+                        self.device = v.target.value;
+                        updateOutputs(self);
+                        toggleDeprecationNotice(self.device);
+                    });
 
-            // Initialize outputs on load
-            updateOutputs(this);
-            checkSelectedVirtualDevice(this);
+                    if (self.default_values === true) {
+                        $('#node-input-default_values-yes').prop('checked', true);
+                    } else {
+                        $('#node-input-default_values-no').prop('checked', true);
+                    }
 
-            if (typeof initializeTooltips === 'function') {
-                initializeTooltips();
-            }
+                    updateOutputs(self);
+                    checkSelectedVirtualDevice(self);
+
+                    if (typeof initializeTooltips === 'function') {
+                        initializeTooltips();
+                    }
+                });
         },
         oneditsave: function() {
             const { validateSwitchConfig, SWITCH_TYPE_CONFIGS, updateOutputs } = window.__victron;
@@ -261,19 +266,7 @@
         <input type="hidden" id="node-input-instance">
         <div class="form-row">
             <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
-            <select id="node-input-device" required>
-                <option value="acload">AC Load</option>
-                <option value="battery">Battery</option>
-                <option value="e-drive">E-drive</option>
-                <option value="generator">Generator</option>
-                <option value="gps">GPS</option>
-                <option value="grid">Grid meter</option>
-                <option value="meteo">Meteo</option>
-                <option value="pvinverter">PV inverter</option>
-                <option value="switch">Switch (deprecated)</option>
-                <option value="tank">Tank sensor</option>
-                <option value="temperature">Temperature sensor</option>
-            </select>
+            <select id="node-input-device" required></select>
         </div>
         <div class="form-row" id="switch-deprecation-notice-row" style="display: none;">
             <div class="deprecation-notice">
