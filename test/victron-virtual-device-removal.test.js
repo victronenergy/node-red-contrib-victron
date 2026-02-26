@@ -46,18 +46,25 @@ describe('Virtual Device Removal Logic', () => {
       ['virtual_abc123/ClassAndVrmInstance', [{ type: 's' }, ['generator:10']]], // AC genset
       ['virtual_def456/ClassAndVrmInstance', [{ type: 's' }, ['generator:20']]], // DC genset (dcgenset on DBus)
       ['virtual_ghi789/ClassAndVrmInstance', [{ type: 's' }, ['e-drive:30']]],
-      ['virtual_jkl012/ClassAndVrmInstance', [{ type: 's' }, ['e-drive:40']]] // inactive motordrive
+      ['virtual_jkl012/ClassAndVrmInstance', [{ type: 's' }, ['e-drive:40']]], // inactive motordrive
+      ['virtual_mno345/ClassAndVrmInstance', [{ type: 's' }, ['genset:50']]], // AC genset
+      ['virtual_pqr678/ClassAndVrmInstance', [{ type: 's' }, ['dcgenset:60']]], // DC genset (dcgenset on DBus)
+      ['virtual_stu901/ClassAndVrmInstance', [{ type: 's' }, ['motordrive:70']]],
+      ['virtual_vwx234/ClassAndVrmInstance', [{ type: 's' }, ['motordrive:80']]] // inactive motordrive
     ]
     const activeServices = [
       'com.victronenergy.genset.virtual_abc123',
       'com.victronenergy.dcgenset.virtual_def456', // generator maps to both genset and dcgenset
-      'com.victronenergy.motordrive.virtual_ghi789' // e-drive maps to motordrive
-      // Note: com.victronenergy.motordrive.virtual_jkl012 is NOT active
+      'com.victronenergy.motordrive.virtual_ghi789', // e-drive maps to motordrive
+      'com.victronenergy.genset.virtual_mno345',
+      'com.victronenergy.dcgenset.virtual_pqr678',
+      'com.victronenergy.motordrive.virtual_stu901'
+      // Note: com.victronenergy.motordrive.virtual_jkl012 and com.victronenergy.motordrive.virtual_vwx234 are NOT active
     ]
 
     const devicesToRemove = filterInactiveVirtualDevices(deviceEntries, activeServices)
 
-    expect(devicesToRemove).toEqual(['virtual_jkl012'])
+    expect(devicesToRemove).toEqual(['virtual_jkl012', 'virtual_vwx234'])
   })
 
   it('should not remove any devices if all services are active', () => {

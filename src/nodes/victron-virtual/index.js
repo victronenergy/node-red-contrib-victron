@@ -524,7 +524,7 @@ module.exports = function (RED) {
           settingsResult = await callAddSettingsWithRetry(usedBus, [
             {
               path: `/Settings/Devices/virtual_${node.id}/ClassAndVrmInstance`,
-              default: `${config.device}:100`,
+              default: `${actualDeviceType}:100`,
               type: 's'
             }
           ])
