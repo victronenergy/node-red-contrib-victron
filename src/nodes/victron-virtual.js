@@ -352,6 +352,17 @@ function getIface (dev) {
   return result
 }
 
+function getDeviceTypeForConfig (config) {
+  switch (config.device) {
+    case 'generator':
+      return config.generator_type === 'dc' ? 'dcgenset' : 'genset'
+    case 'e-drive':
+      return 'motordrive'
+    default:
+      return config.device
+  }
+}
+
 module.exports = function (RED) {
   // Shared state across all instances
   let hasRunOnce = false
@@ -569,11 +580,7 @@ module.exports = function (RED) {
         return
       }
 
-      const actualDeviceType = config.device === 'generator'
-        ? (config.generator_type === 'dc' ? 'dcgenset' : 'genset')
-        : config.device === 'e-drive'
-          ? 'motordrive'
-          : config.device
+      const actualDeviceType = getDeviceTypeForConfig(config)
 
       const serviceName = `com.victronenergy.${actualDeviceType}.virtual_${self.id}`
       const interfaceName = serviceName
@@ -1111,7 +1118,7 @@ module.exports = function (RED) {
           settingsResult = await callAddSettingsWithRetry(usedBus, [
             {
               path: `/Settings/Devices/virtual_${node.id}/ClassAndVrmInstance`,
-              default: `${config.device}:100`,
+              default: `${getDeviceTypeForConfig(config)}:100`,
               type: 's'
             }
           ])
