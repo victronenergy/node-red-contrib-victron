@@ -676,7 +676,6 @@
           <li><code>/Ac/{line}/Current</code> &mdash; Current per phase in amperes.</li>
           <li><code>/Ac/Energy/Forward</code> &mdash; Total energy produced in kWh.</li>
           <li><code>/Ac/{line}/Energy/Forward</code> &mdash; Energy produced per phase in kWh.</li>
-          <li><code>/Ac/Frequency</code> &mdash; AC frequency in Hz.</li>
           <li><code>/Position</code> &mdash; Position: <code>0</code> = AC input 1, <code>1</code> = AC output, <code>2</code> = AC input 2.</li>
         </ul>
         <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
