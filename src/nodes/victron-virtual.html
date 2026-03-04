@@ -156,6 +156,11 @@
                             .prop('disabled', true)
                             .attr('title', 'Device type cannot be changed after deployment.');
                     }
+                    if (self.id && self.changed === false && self.device === 'generator') {
+                        $('#node-input-generator_type')
+                            .prop('disabled', true)
+                            .attr('title', 'Generator type (AC/DC) cannot be changed after deployment.');
+                    }
 
                     $('#node-input-device').on('change', (v) => {
                         checkSelectedVirtualDevice(self);
