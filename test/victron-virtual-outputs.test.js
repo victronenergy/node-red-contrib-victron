@@ -1,4 +1,5 @@
 // test/victron-virtual-outputs.test.js
+/* eslint-env jest */
 const { calculateOutputs, getOutputLabels } = require('./fixtures/victron-virtual-functions.cjs')
 const { SWITCH_TYPE_MAP, SWITCH_OUTPUT_CONFIG } = require('../src/nodes/victron-virtual-constants')
 
@@ -14,6 +15,10 @@ describe('calculateOutputs', () => {
 
     test('meteo has 1 output (passthrough only)', () => {
       expect(calculateOutputs('meteo', {})).toBe(1)
+    })
+
+    test('pulsemeter has 2 outputs (passthrough + aggregate)', () => {
+      expect(calculateOutputs('pulsemeter', {})).toBe(2)
     })
 
     test('unknown device defaults to 1 output', () => {
@@ -129,6 +134,10 @@ describe('getOutputLabels', () => {
 
     test('gps has only passthrough label', () => {
       expect(getOutputLabels('gps', {})).toEqual(['Passthrough'])
+    })
+
+    test('pulsemeter has passthrough and aggregate labels', () => {
+      expect(getOutputLabels({ device: 'pulsemeter' })).toEqual(['Passthrough', 'Aggregate'])
     })
   })
 
