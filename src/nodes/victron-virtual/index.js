@@ -572,6 +572,53 @@ module.exports = function (RED) {
           return null
         }
         iface.DeviceInstance = getDeviceInstance(settingsResult)
+
+        // Migrate legacy ClassAndVrmInstance values ('generator', 'e-drive') to the correct
+        // D-Bus type. AddSettings only sets defaults so existing values are never overwritten
+        // automatically — we need an explicit SetValue to fix them.
+        const currentClassAndVrmInstance = settingsResult?.[0]?.[2]?.[1]?.[1]?.[0] || settingsResult?.[1]?.[0]
+        if (currentClassAndVrmInstance) {
+          const parts = currentClassAndVrmInstance.split(':')
+          const currentClass = parts[0]
+          const vrmInstance = parts[1]
+          if (currentClass !== actualDeviceType && vrmInstance != null) {
+            const newValue = `${actualDeviceType}:${vrmInstance}`
+            let migrationSucceeded = false
+            await new Promise(resolve => {
+              usedBus.invoke({
+                path: `/Settings/Devices/virtual_${node.id}/ClassAndVrmInstance`,
+                destination: 'com.victronenergy.settings',
+                interface: 'com.victronenergy.BusItem',
+                member: 'SetValue',
+                body: [['s', newValue]],
+                signature: 'v'
+              }, (err) => {
+                if (err) debug(`Failed to migrate ClassAndVrmInstance: ${err}`)
+                else {
+                  debug(`Migrated ClassAndVrmInstance from ${currentClassAndVrmInstance} to ${newValue}`)
+                  migrationSucceeded = true
+                }
+                resolve()
+              })
+            })
+            if (migrationSucceeded) {
+              // Re-read the actual assigned value — localsettings may have reassigned
+              // the VRM instance if the target class already had a conflict.
+              try {
+                const updatedResult = await callAddSettingsWithRetry(usedBus, [{
+                  path: `/Settings/Devices/virtual_${node.id}/ClassAndVrmInstance`,
+                  default: `${actualDeviceType}:${vrmInstance}`,
+                  type: 's'
+                }])
+                iface.DeviceInstance = getDeviceInstance(updatedResult)
+                debug(`DeviceInstance after migration: ${iface.DeviceInstance}`)
+              } catch (err) {
+                debug(`Failed to read back ClassAndVrmInstance after migration: ${err}`)
+              }
+            }
+          }
+        }
+
         iface.CustomName = config.name || `Virtual ${config.device}`
 
         if (iface.deviceInstance === null) {

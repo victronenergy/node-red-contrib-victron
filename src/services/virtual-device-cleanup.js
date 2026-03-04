@@ -39,8 +39,9 @@ function filterInactiveVirtualDevices (deviceEntries, activeServices) {
       const deviceType = classAndVrmInstance.split(':')[0] // e.g., "switch", "generator", etc.
 
       // Map ClassAndVrmInstance device types to DBus service name prefixes.
-      // ClassAndVrmInstance stores the UI device type (config.device), which doesn't always
-      // match the DBus service name directly.
+      // New devices store the D-Bus type directly (e.g. 'genset', 'dcgenset', 'motordrive').
+      // Legacy entries (created before this fix) stored the UI type ('generator', 'e-drive').
+      // Handle both formats for backward compatibility:
       // 'generator' can be either genset or dcgenset on DBus, so check both.
       // 'e-drive' maps to motordrive on DBus.
       let possibleServiceNames
