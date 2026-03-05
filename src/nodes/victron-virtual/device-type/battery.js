@@ -28,7 +28,18 @@ const properties = {
   'Alarms/StateOfHealth': { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
   ErrorCode: { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
   NrOfDistributors: { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  'System/MinCellVoltage': { type: 'd', format: (v) => v != null ? v.toFixed(3) + 'V' : '', immediate: true }
+  'System/NrOfBatteries': { type: 'i', format: (v) => v != null ? v : '', value: 1 },
+  'System/BatteriesParallel': { type: 'i', format: (v) => v != null ? v : '', value: 1 },
+  'System/BatteriesSeries': { type: 'i', format: (v) => v != null ? v : '', value: 1 },
+  'System/NrOfCellsPerBattery': { type: 'i', format: (v) => v != null ? v : '', value: 16 },
+  'System/MinCellVoltage': { type: 'd', format: (v) => v != null ? v.toFixed(3) + 'V' : '', immediate: true },
+  'System/MinVoltageCellId': { type: 'i', format: (v) => v != null ? v : '' },
+  'System/MaxCellVoltage': { type: 'd', format: (v) => v != null ? v.toFixed(3) + 'V' : '', immediate: true },
+  'System/MaxVoltageCellId': { type: 'i', format: (v) => v != null ? v : '' },
+  'System/MinCellTemperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', immediate: true },
+  'System/MinTemperatureCellId': { type: 'i', format: (v) => v != null ? v : '' },
+  'System/MaxCellTemperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', immediate: true },
+  'System/MaxTemperatureCellId': { type: 'i', format: (v) => v != null ? v : '' }
 }
 
 const BATTERY_DEFAULT_VOLTAGES = ['12', '24', '48']
