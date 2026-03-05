@@ -2187,6 +2187,26 @@
         "mode": "both"
       },
       {
+         "path": "/Session/Time",
+         "type": "integer",
+         "name": "Session charging time (seconds)"
+      },
+      {
+        "path": "/Session/Energy",
+        "type": "integer",
+        "name": "Session charging energy (kWh)"
+      },
+      {
+        "path": "/Session/Cost",
+        "type": "float",
+        "name": "Session cost (no currency)"
+      },
+      {
+        "path": "/Session/SavedCost",
+        "type": "float",
+        "name": "Session saved cost (no currency)"
+      },
+      {
         "path": "/StartStop",
         "type": "enum",
         "name": "Start/stop charging (manual mode)",
