@@ -514,7 +514,7 @@
             <input type="checkbox" id="node-input-start_disconnected">
             <label for="node-input-start_disconnected">
                 Start disconnected
-                <i class="fa fa-info-circle tooltip-icon" data-tooltip="When checked, the device will not appear on the system until it receives msg.connected = true or msg.connected = 'toggle'"></i>
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="When checked, the device will not appear on the system until it receives msg.connected = true"></i>
             </label>
         </div>
 
@@ -615,12 +615,9 @@ return msg;
 msg.connected = true;
 return msg;
 
-// Toggle (flip current state)
-msg.connected = 'toggle';
-return msg;
 ```
 
-When `msg.connected` is set, no payload processing takes place — the message is used solely for presence control. For normal value updates, omit `msg.connected`.
+When `msg.connected` is set, no payload processing takes place - the message is used solely for presence control. For normal value updates, omit `msg.connected`.
 
 Every output message from the node carries `msg.connected` indicating the current presence state (`true` when visible on the system, `false` when offline). The node status shows a grey ring when the device is intentionally offline.
 

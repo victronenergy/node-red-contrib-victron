@@ -12,6 +12,7 @@ const {
 const { validateVirtualDevicePayload, validateLightControls, debounce } = require('../../services/utils')
 const { handleSwitchOutputs } = require('../../services/virtual-switch')
 const { filterInactiveVirtualDevices } = require('../../services/virtual-device-cleanup')
+const { makeSetPresence } = require('./helpers')
 
 const acloadModule = require('./device-type/acload')
 const batteryModule = require('./device-type/battery')
@@ -225,8 +226,7 @@ module.exports = function (RED) {
       node.send(outputs)
 
       if (userSetConnected) {
-        const targetConnected = msg.connected === 'toggle' ? !node.presenceConnected : !!msg.connected
-        node.setPresence(targetConnected, done)
+        node.setPresence(!!msg.connected, done)
         return
       }
 
@@ -677,28 +677,7 @@ module.exports = function (RED) {
         node.setValuesLocally = setValuesLocally
         node.emitS2Signal = emitS2Signal
 
-        node.setPresence = function (connected, onDone) {
-          const statusText = `${text} (${iface.DeviceInstance})`
-          if (connected && !node.presenceConnected) {
-            node.bus.requestName(node.serviceName, 0x4, (err, retCode) => {
-              if (!err && (retCode === 1 || retCode === 3)) {
-                node.presenceConnected = true
-                node.status({ fill: 'green', shape: 'dot', text: statusText })
-              }
-              onDone()
-            })
-          } else if (!connected && node.presenceConnected) {
-            node.bus.releaseName(node.serviceName, (err) => {
-              if (!err) {
-                node.presenceConnected = false
-                node.status({ fill: 'grey', shape: 'ring', text: `${statusText} — offline` })
-              }
-              onDone()
-            })
-          } else {
-            onDone()
-          }
-        }
+        node.setPresence = makeSetPresence(node, text, iface)
 
         // If there are pending calls, process them now
         node.pendingCallsToSetValuesLocally.forEach(([msg, done]) => {
