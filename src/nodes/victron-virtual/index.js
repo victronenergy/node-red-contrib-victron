@@ -104,8 +104,13 @@ try {
   console.error('Failed to load virtual device types:', err)
 }
 
-function getIfaceDesc (dev) {
-  const actualDev = dev === 'generator' ? 'genset' : dev === 'e-drive' ? 'motordrive' : dev
+function getActualDeviceType (type, subtype) {
+  if (type === 'generator') return subtype === 'dc' ? 'dcgenset' : 'genset'
+  if (type === 'e-drive') return 'motordrive'
+  return type
+}
+
+function getIfaceDesc (actualDev) {
   if (!properties[actualDev]) {
     return {}
   }
@@ -113,7 +118,7 @@ function getIfaceDesc (dev) {
   const result = {}
 
   // Deep copy the properties, including format functions
-  for (const [key, value] of Object.entries(properties[dev])) {
+  for (const [key, value] of Object.entries(properties[actualDev])) {
     result[key] = { ...value }
     if (typeof value.format === 'function') {
       result[key].format = value.format
@@ -127,8 +132,7 @@ function getIfaceDesc (dev) {
   return result
 }
 
-function getIface (dev) {
-  const actualDev = dev === 'generator' ? 'genset' : dev === 'e-drive' ? 'motordrive' : dev
+function getIface (actualDev) {
   if (!properties[actualDev]) {
     return {
       emit: function () {
@@ -141,8 +145,8 @@ function getIface (dev) {
     }
   }
 
-  for (const key in properties[dev]) {
-    const propertyValue = JSON.parse(JSON.stringify(properties[dev][key]))
+  for (const key in properties[actualDev]) {
+    const propertyValue = JSON.parse(JSON.stringify(properties[actualDev][key]))
 
     if (propertyValue.value !== undefined) {
       result[key] = propertyValue.value
@@ -381,11 +385,7 @@ module.exports = function (RED) {
         return
       }
 
-      const actualDeviceType = config.device === 'generator'
-        ? (config.generator_type === 'dc' ? 'dcgenset' : 'genset')
-        : config.device === 'e-drive'
-          ? 'motordrive'
-          : config.device
+      const actualDeviceType = getActualDeviceType(config.device, config.generator_type)
 
       const serviceName = `com.victronenergy.${actualDeviceType}.virtual_${self.id}`
       const interfaceName = serviceName
@@ -581,10 +581,12 @@ module.exports = function (RED) {
           const parts = currentClassAndVrmInstance.split(':')
           const currentClass = parts[0]
           const vrmInstance = parts[1]
-          if (currentClass !== actualDeviceType && vrmInstance != null) {
+          if (currentClass !== actualDeviceType && !vrmInstance) {
+            throw new Error(`Invalid ClassAndVrmInstance value: ${currentClassAndVrmInstance}`)
+          }
+          if (currentClass !== actualDeviceType) {
             const newValue = `${actualDeviceType}:${vrmInstance}`
-            let migrationSucceeded = false
-            await new Promise(resolve => {
+            const migrationSucceeded = await new Promise(resolve => {
               usedBus.invoke({
                 path: `/Settings/Devices/virtual_${node.id}/ClassAndVrmInstance`,
                 destination: 'com.victronenergy.settings',
@@ -593,12 +595,13 @@ module.exports = function (RED) {
                 body: [['s', newValue]],
                 signature: 'v'
               }, (err) => {
-                if (err) debug(`Failed to migrate ClassAndVrmInstance: ${err}`)
-                else {
+                if (err) {
+                  debug(`Failed to migrate ClassAndVrmInstance: ${err}`)
+                  resolve(false)
+                } else {
                   debug(`Migrated ClassAndVrmInstance from ${currentClassAndVrmInstance} to ${newValue}`)
-                  migrationSucceeded = true
+                  resolve(true)
                 }
-                resolve()
               })
             })
             if (migrationSucceeded) {
