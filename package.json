@@ -21,6 +21,7 @@
       "victron-nodes": "./src/nodes/victron-nodes.js",
       "victron-virtual": "./src/nodes/victron-virtual.js",
       "victron-virtual-switch": "./src/nodes/victron-virtual-switch.js",
+      "victron-virtual-sensor": "./src/nodes/victron-virtual-sensor.js",
       "victron-inject": "./src/nodes/victron-inject.js"
     },
     "version": ">=3.0.2"
