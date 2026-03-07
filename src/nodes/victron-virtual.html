@@ -69,7 +69,9 @@
             include_humidity: { value: false },
             include_pressure: { value: false },
             include_temp_battery: { value: false },
-            temp_battery_voltage: { value: 3.3 }
+            temp_battery_voltage: { value: 3.3 },
+            // presence
+            start_disconnected: { value: false, required: false }
         },
         icon: "victronenergy.svg",
         inputs:1,
@@ -155,11 +157,6 @@
                         $('#node-input-device')
                             .prop('disabled', true)
                             .attr('title', 'Device type cannot be changed after deployment.');
-                    }
-                    if (self.id && self.changed === false && self.device === 'generator') {
-                        $('#node-input-generator_type')
-                            .prop('disabled', true)
-                            .attr('title', 'Generator type (AC/DC) cannot be changed after deployment.');
                     }
 
                     $('#node-input-device').on('change', (v) => {
@@ -513,6 +510,14 @@
             </div>
         </div>
 
+        <div class="form-row victron-checkbox">
+            <input type="checkbox" id="node-input-start_disconnected">
+            <label for="node-input-start_disconnected">
+                Start disconnected
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="When checked, the device will not appear on the system until it receives msg.connected = true"></i>
+            </label>
+        </div>
+
         <div id="switch-docs-container"></div>
 
         <div class="form-row community-link-container">
@@ -596,6 +601,27 @@ update all specified properties and show the number of updated values in its sta
 
 If you want to set a single value, you can either use this way to send that single
 path + value combination (recommended) or use the _Custom Control_ node.
+
+### Device presence
+
+When the real-world device goes offline, the virtual device keeps broadcasting its last known values. To make the rest of the system aware that the device is gone, you can explicitly disconnect it from the dbus by sending `msg.connected = false`. The device will disappear from VRM and the GX display until you reconnect it with `msg.connected = true`.
+
+```javascript
+// Take the device offline
+msg.connected = false;
+return msg;
+
+// Bring it back online
+msg.connected = true;
+return msg;
+
+```
+
+When `msg.connected` is set, no payload processing takes place - the message is used solely for presence control. For normal value updates, omit `msg.connected`.
+
+Every output message from the node carries `msg.connected` indicating the current presence state (`true` when visible on the system, `false` when offline). The node status shows a grey ring when the device is intentionally offline.
+
+The _Start disconnected_ option in the edit dialog causes the device to remain invisible after deployment until it receives `msg.connected = true`. This is useful when the flow controls visibility based on whether data is actually being received.
 
 ### AC Load
 
@@ -703,6 +729,8 @@ humidity, pressure and battery voltage.
 ## Device Visibility
 
 Depending on the created device, it might not appear immediately on the GX device or VRM portal. You will need to write some values to it first. Alternatively, you could use _Initialize with default values_ to make it appear on the GX device directly. Please note that those default values may not be appropriate for your specific situation, but it can help to get you started.
+
+Use _Start disconnected_ if you want the device to remain invisible until your flow explicitly connects it with `msg.connected = true`. This is the recommended approach when the virtual device represents a real-world device whose availability is not guaranteed at startup.
 
 Also note that it might take a short while before the service on the dbus is actually created. So best practice is to wait a second before injecting data into the virtual device.
 

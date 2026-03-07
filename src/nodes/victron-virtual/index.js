@@ -12,6 +12,7 @@ const {
 const { validateVirtualDevicePayload, validateLightControls, debounce } = require('../../services/utils')
 const { handleSwitchOutputs } = require('../../services/virtual-switch')
 const { filterInactiveVirtualDevices } = require('../../services/virtual-device-cleanup')
+const { makeSetPresence } = require('./helpers')
 
 const acloadModule = require('./device-type/acload')
 const batteryModule = require('./device-type/battery')
@@ -188,6 +189,7 @@ module.exports = function (RED) {
     }
 
     node.retryOnConnectionEnd = true
+    node.presenceConnected = false
     node.pendingCallsToSetValuesLocally = []
 
     const debouncedSetters = new Map()
@@ -216,12 +218,21 @@ module.exports = function (RED) {
 
     function handleInput (msg, done) {
       // Send passthrough message FIRST, before any validation
+      const userSetConnected = msg.connected !== undefined
+      if (!userSetConnected) {
+        msg.connected = node.presenceConnected
+      }
       const outputs = [msg]
       // Fill remaining outputs with null
       for (let i = 1; i < config.outputs; i++) {
         outputs.push(null)
       }
       node.send(outputs)
+
+      if (userSetConnected) {
+        node.setPresence(!!msg.connected, done)
+        return
+      }
 
       // Now do validation with more helpful messages
       if (!msg || !msg.payload) {
@@ -658,6 +669,12 @@ module.exports = function (RED) {
               node.warn(`Service name "${serviceName}" for ${config.device} already exists on the bus, this may result in undesired behavior.`)
             }
             node.serviceName = serviceName
+            if (config.start_disconnected) {
+              node.bus.releaseName(node.serviceName, () => {
+                node.presenceConnected = false
+                node.status({ fill: 'grey', shape: 'ring', text: `${text} (${iface.DeviceInstance}) — offline` })
+              })
+            }
           } else {
             /* Other return codes means various errors, check here
             (https://dbus.freedesktop.org/doc/api/html/group__DBusShared.html#ga37a9bc7c6eb11d212bf8d5e5ff3b50f9) for more
@@ -710,6 +727,8 @@ module.exports = function (RED) {
         node.setValuesLocally = setValuesLocally
         node.emitS2Signal = emitS2Signal
 
+        node.setPresence = makeSetPresence(node, text, iface)
+
         // If there are pending calls, process them now
         node.pendingCallsToSetValuesLocally.forEach(([msg, done]) => {
           try {
@@ -723,6 +742,7 @@ module.exports = function (RED) {
 
         node.removeSettings = removeSettings
 
+        node.presenceConnected = true
         node.status({
           fill: 'green',
           shape: 'dot',
