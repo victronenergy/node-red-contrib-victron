@@ -19,6 +19,7 @@ const batteryModule = require('./device-type/battery')
 const generatorModule = require('./device-type/generator')
 const gpsModule = require('./device-type/gps')
 const gridModule = require('./device-type/grid')
+const heatpumpModule = require('./device-type/heatpump')
 const meteoModule = require('./device-type/meteo')
 const motordriveModule = require('./device-type/motordrive')
 const pvinverterModule = require('./device-type/pvinverter')
@@ -45,6 +46,7 @@ const properties = {
   genset: generatorModule.properties.genset,
   dcgenset: generatorModule.properties.dcgenset,
   grid: gridModule.properties,
+  heatpump: heatpumpModule.properties,
   pvinverter: pvinverterModule.properties,
   meteo: meteoModule.properties,
   motordrive: motordriveModule.properties,
@@ -60,6 +62,7 @@ const deviceModules = {
   generator: generatorModule,
   gps: gpsModule,
   grid: gridModule,
+  heatpump: heatpumpModule,
   meteo: meteoModule,
   motordrive: motordriveModule,
   'e-drive': motordriveModule,
@@ -76,6 +79,7 @@ const DEVICE_TYPES = [
   { value: 'generator', label: 'Generator' },
   { value: 'gps', label: 'GPS' },
   { value: 'grid', label: 'Grid meter' },
+  { value: 'heatpump', label: 'Heat pump' },
   { value: 'meteo', label: 'Meteo' },
   { value: 'pvinverter', label: 'PV inverter' },
   { value: 'switch', label: 'Switch (deprecated)' },

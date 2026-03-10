@@ -6,6 +6,7 @@ const battery = require('../src/nodes/victron-virtual/device-type/battery')
 const generator = require('../src/nodes/victron-virtual/device-type/generator')
 const gps = require('../src/nodes/victron-virtual/device-type/gps')
 const grid = require('../src/nodes/victron-virtual/device-type/grid')
+const heatpump = require('../src/nodes/victron-virtual/device-type/heatpump')
 const meteo = require('../src/nodes/victron-virtual/device-type/meteo')
 const motordrive = require('../src/nodes/victron-virtual/device-type/motordrive')
 const pvinverter = require('../src/nodes/victron-virtual/device-type/pvinverter')
@@ -287,6 +288,48 @@ describe('grid', () => {
       expect(iface['Ac/Power']).toBe(0)
       expect(iface['Ac/Frequency']).toBe(50)
       expect(iface['Ac/N/Current']).toBe(0)
+    })
+  })
+})
+
+// ---------------------------------------------------------------------------
+// heatpump
+// ---------------------------------------------------------------------------
+
+describe('heatpump', () => {
+  describe('initialize', () => {
+    test('1-phase adds L1 properties with PowerFactor and sets NrOfPhases=1', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      const result = heatpump.initialize({ heatpump_nrofphases: 1 }, ifaceDesc, iface, node)
+      expect(ifaceDesc.properties['Ac/L1/Current']).toBeDefined()
+      expect(ifaceDesc.properties['Ac/L1/PowerFactor']).toBeDefined()
+      expect(ifaceDesc.properties['Ac/L2/Current']).toBeUndefined()
+      expect(iface.NrOfPhases).toBe(1)
+      expect(result).toBe('Virtual 1-phase heat pump')
+    })
+
+    test('3-phase adds L1-L3 properties', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      heatpump.initialize({ heatpump_nrofphases: 3 }, ifaceDesc, iface, node)
+      expect(ifaceDesc.properties['Ac/L1/Current']).toBeDefined()
+      expect(ifaceDesc.properties['Ac/L2/Current']).toBeDefined()
+      expect(ifaceDesc.properties['Ac/L3/Current']).toBeDefined()
+      expect(ifaceDesc.properties['Ac/L3/PowerFactor']).toBeDefined()
+    })
+
+    test('sets default values when enabled', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      heatpump.initialize({ heatpump_nrofphases: 1, default_values: true }, ifaceDesc, iface, node)
+      expect(iface['Ac/Power']).toBe(0)
+      expect(iface['Ac/Energy/Forward']).toBe(0)
+      expect(iface['Ac/Energy/Reverse']).toBe(0)
+    })
+
+    test('does not set Frequency or N/Current (unlike grid)', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      heatpump.initialize({ heatpump_nrofphases: 1, default_values: true }, ifaceDesc, iface, node)
+      expect(iface['Ac/Frequency']).toBeUndefined()
+      expect(iface['Ac/N/Current']).toBeUndefined()
     })
   })
 })

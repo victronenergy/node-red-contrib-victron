@@ -27,6 +27,8 @@
             include_history_energy: {value: false},
             // grid
             grid_nrofphases: {value: 1, required: false},
+            // heatpump
+            heatpump_nrofphases: {value: 1, required: false},
             // motordrive
             include_motor_temp: {value: false},
             include_controller_temp: {value: false},
@@ -362,6 +364,17 @@
             <div class="form-row">
                 <label for="node-input-grid_nrofphases"><i class="fa fa-plug"></i> Nr of phases</label>
                 <select id="node-input-grid_nrofphases">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="input-heatpump">
+            <div class="form-row">
+                <label for="node-input-heatpump_nrofphases"><i class="fa fa-plug"></i> Nr of phases</label>
+                <select id="node-input-heatpump_nrofphases">
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
