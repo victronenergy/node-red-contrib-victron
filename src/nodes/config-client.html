@@ -4156,6 +4156,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">Inverter model<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/ProductId</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> enabled<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/Enabled</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
+</ul></dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">MPP operation mode tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code><span class="property-type">enum</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/MppOperationMode</b><span class="property-mode"></span>
 <ul>
@@ -4164,20 +4170,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>2 - MPPT active</li>
   <li>255 - Not available</li>
 </ul></dd>
-  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">PV power for tracker {tracker| (W)<span class="property-type">float</span></dt>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">PV power for tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>| (W)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/P</b><span class="property-mode"></span>
 </dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">PV voltage for tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> (V DC)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/V</b><span class="property-mode"></span>
 </dd>
-  <dt class="optional">MPP operation mode tracker 2<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/1/MppOperationMode</b><span class="property-mode"></span>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - Voltage/current limited</li>
-  <li>2 - MPPT active</li>
-  <li>255 - Not available</li>
-</ul></dd>
   <dt class="optional">PV voltage (for single tracker units) (V DC)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Pv/V</b><span class="property-mode"></span>
 </dd>
@@ -4338,6 +4336,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">Inverter model<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/ProductId</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> enabled<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/Enabled</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
+</ul></dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">MPP operation mode tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code><span class="property-type">enum</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/MppOperationMode</b><span class="property-mode"></span>
 <ul>
@@ -4346,20 +4350,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>2 - MPPT active</li>
   <li>255 - Not available</li>
 </ul></dd>
-  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">PV power for tracker {tracker| (W)<span class="property-type">float</span></dt>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">PV power for tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>| (W)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/P</b><span class="property-mode"></span>
 </dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">PV voltage for tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> (V DC)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/V</b><span class="property-mode"></span>
 </dd>
-  <dt class="optional">MPP operation mode tracker 2<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/1/MppOperationMode</b><span class="property-mode"></span>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - Voltage/current limited</li>
-  <li>2 - MPPT active</li>
-  <li>255 - Not available</li>
-</ul></dd>
   <dt class="optional">PV voltage (for single tracker units) (V DC)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Pv/V</b><span class="property-mode"></span>
 </dd>
@@ -4598,61 +4594,25 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>2 - MPPT active</li>
   <li>255 - Not available</li>
 </ul></dd>
-  <dt class="optional">MPP operation mode tracker 1<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/0/MppOperationMode</b><span class="property-mode"></span>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> enabled<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/Enabled</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
+</ul></dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">MPP operation mode tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code><span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/MppOperationMode</b><span class="property-mode"></span>
 <ul>
   <li>0 - Off</li>
   <li>1 - Voltage/current limited</li>
   <li>2 - MPPT active</li>
   <li>255 - Not available</li>
 </ul></dd>
-  <dt class="optional">PV power for tracker 0 (W)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/0/P</b><span class="property-mode"></span>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">PV power for tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> (W)<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/P</b><span class="property-mode"></span>
 </dd>
-  <dt class="optional">PV voltage for tracker 0 (V DC)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/0/V</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">MPP operation mode tracker 2<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/1/MppOperationMode</b><span class="property-mode"></span>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - Voltage/current limited</li>
-  <li>2 - MPPT active</li>
-  <li>255 - Not available</li>
-</ul></dd>
-  <dt class="optional">PV power for tracker 1 (W)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/1/P</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">PV voltage for tracker 1 (V DC)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/1/V</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">MPP operation mode tracker 3<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/2/MppOperationMode</b><span class="property-mode"></span>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - Voltage/current limited</li>
-  <li>2 - MPPT active</li>
-  <li>255 - Not available</li>
-</ul></dd>
-  <dt class="optional">PV power for tracker 2 (W)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/2/P</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">PV voltage for tracker 2 (V DC)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/2/V</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">MPP operation mode tracker 4<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/3/MppOperationMode</b><span class="property-mode"></span>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - Voltage/current limited</li>
-  <li>2 - MPPT active</li>
-  <li>255 - Not available</li>
-</ul></dd>
-  <dt class="optional">PV power for tracker 3 (W)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/3/P</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">PV voltage for tracker 3 (V DC)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/3/V</b><span class="property-mode"></span>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">PV voltage for tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> (V DC)<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/V</b><span class="property-mode"></span>
 </dd>
   <dt class="optional">PV voltage (V DC)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Pv/V</b><span class="property-mode"></span>
@@ -4863,61 +4823,25 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>2 - MPPT active</li>
   <li>255 - Not available</li>
 </ul></dd>
-  <dt class="optional">MPP operation mode tracker 1<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/0/MppOperationMode</b><span class="property-mode"></span>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> enabled<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/Enabled</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
+</ul></dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">MPP operation mode tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code><span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/MppOperationMode</b><span class="property-mode"></span>
 <ul>
   <li>0 - Off</li>
   <li>1 - Voltage/current limited</li>
   <li>2 - MPPT active</li>
   <li>255 - Not available</li>
 </ul></dd>
-  <dt class="optional">PV power for tracker 0 (W)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/0/P</b><span class="property-mode"></span>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">PV power for tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> (W)<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/P</b><span class="property-mode"></span>
 </dd>
-  <dt class="optional">PV voltage for tracker 0 (V DC)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/0/V</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">MPP operation mode tracker 2<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/1/MppOperationMode</b><span class="property-mode"></span>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - Voltage/current limited</li>
-  <li>2 - MPPT active</li>
-  <li>255 - Not available</li>
-</ul></dd>
-  <dt class="optional">PV power for tracker 1 (W)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/1/P</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">PV voltage for tracker 1 (V DC)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/1/V</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">MPP operation mode tracker 3<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/2/MppOperationMode</b><span class="property-mode"></span>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - Voltage/current limited</li>
-  <li>2 - MPPT active</li>
-  <li>255 - Not available</li>
-</ul></dd>
-  <dt class="optional">PV power for tracker 2 (W)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/2/P</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">PV voltage for tracker 2 (V DC)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/2/V</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">MPP operation mode tracker 4<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/3/MppOperationMode</b><span class="property-mode"></span>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - Voltage/current limited</li>
-  <li>2 - MPPT active</li>
-  <li>255 - Not available</li>
-</ul></dd>
-  <dt class="optional">PV power for tracker 3 (W)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/3/P</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">PV voltage for tracker 3 (V DC)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/3/V</b><span class="property-mode"></span>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">PV voltage for tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> (V DC)<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/V</b><span class="property-mode"></span>
 </dd>
   <dt class="optional">PV voltage (V DC)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Pv/V</b><span class="property-mode"></span>
@@ -5869,6 +5793,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>2 - MPPT active</li>
   <li>255 - Not available</li>
 </ul></dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> enabled<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/Enabled</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
+</ul></dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> power<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/P</b><span class="property-mode"></span>
 </dd>
@@ -6074,6 +6004,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - Voltage/current limited</li>
   <li>2 - MPPT active</li>
   <li>255 - Not available</li>
+</ul></dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> enabled<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/Enabled</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
 </ul></dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> power<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/P</b><span class="property-mode"></span>

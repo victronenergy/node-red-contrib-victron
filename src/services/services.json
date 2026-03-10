@@ -3111,6 +3111,15 @@
         "name": "Inverter model"
       },
       {
+        "path": "/Pv/{tracker}/Enabled",
+        "type": "enum",
+        "name": "Tracker {tracker} enabled",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        }
+      },
+      {
         "path": "/Pv/{tracker}/MppOperationMode",
         "type": "enum",
         "name": "MPP operation mode tracker {tracker}",
@@ -3124,23 +3133,12 @@
       {
         "path": "/Pv/{tracker}/P",
         "type": "float",
-        "name": "PV power for tracker {tracker| (W)"
+        "name": "PV power for tracker {tracker}| (W)"
       },
       {
         "path": "/Pv/{tracker}/V",
         "type": "float",
         "name": "PV voltage for tracker {tracker} (V DC)"
-      },
-      {
-        "path": "/Pv/1/MppOperationMode",
-        "type": "enum",
-        "name": "MPP operation mode tracker 2",
-        "enum": {
-          "0": "Off",
-          "1": "Voltage/current limited",
-          "2": "MPPT active",
-          "255": "Not available"
-        }
       },
       {
         "path": "/Pv/V",
@@ -3523,9 +3521,18 @@
         }
       },
       {
-        "path": "/Pv/0/MppOperationMode",
+        "path": "/Pv/{tracker}/Enabled",
         "type": "enum",
-        "name": "MPP operation mode tracker 1",
+        "name": "Tracker {tracker} enabled",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        }
+      },
+      {
+        "path": "/Pv/{tracker}/MppOperationMode",
+        "type": "enum",
+        "name": "MPP operation mode tracker {tracker}",
         "enum": {
           "0": "Off",
           "1": "Voltage/current limited",
@@ -3534,77 +3541,14 @@
         }
       },
       {
-        "path": "/Pv/0/P",
+        "path": "/Pv/{tracker}/P",
         "type": "float",
-        "name": "PV power for tracker 0 (W)"
+        "name": "PV power for tracker {tracker} (W)"
       },
       {
-        "path": "/Pv/0/V",
+        "path": "/Pv/{tracker}/V",
         "type": "float",
-        "name": "PV voltage for tracker 0 (V DC)"
-      },
-      {
-        "path": "/Pv/1/MppOperationMode",
-        "type": "enum",
-        "name": "MPP operation mode tracker 2",
-        "enum": {
-          "0": "Off",
-          "1": "Voltage/current limited",
-          "2": "MPPT active",
-          "255": "Not available"
-        }
-      },
-      {
-        "path": "/Pv/1/P",
-        "type": "float",
-        "name": "PV power for tracker 1 (W)"
-      },
-      {
-        "path": "/Pv/1/V",
-        "type": "float",
-        "name": "PV voltage for tracker 1 (V DC)"
-      },
-      {
-        "path": "/Pv/2/MppOperationMode",
-        "type": "enum",
-        "name": "MPP operation mode tracker 3",
-        "enum": {
-          "0": "Off",
-          "1": "Voltage/current limited",
-          "2": "MPPT active",
-          "255": "Not available"
-        }
-      },
-      {
-        "path": "/Pv/2/P",
-        "type": "float",
-        "name": "PV power for tracker 2 (W)"
-      },
-      {
-        "path": "/Pv/2/V",
-        "type": "float",
-        "name": "PV voltage for tracker 2 (V DC)"
-      },
-      {
-        "path": "/Pv/3/MppOperationMode",
-        "type": "enum",
-        "name": "MPP operation mode tracker 4",
-        "enum": {
-          "0": "Off",
-          "1": "Voltage/current limited",
-          "2": "MPPT active",
-          "255": "Not available"
-        }
-      },
-      {
-        "path": "/Pv/3/P",
-        "type": "float",
-        "name": "PV power for tracker 3 (W)"
-      },
-      {
-        "path": "/Pv/3/V",
-        "type": "float",
-        "name": "PV voltage for tracker 3 (V DC)"
+        "name": "PV voltage for tracker {tracker} (V DC)"
       },
       {
         "path": "/Pv/V",
@@ -4285,6 +4229,15 @@
           "1": "Voltage/current limited",
           "2": "MPPT active",
           "255": "Not available"
+        }
+      },
+      {
+        "path": "/Pv/{tracker}/Enabled",
+        "type": "enum",
+        "name": "Tracker {tracker} enabled",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
         }
       },
       {
