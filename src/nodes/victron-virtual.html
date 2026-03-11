@@ -64,6 +64,9 @@
                     return !isNaN(num) && num > 0;
                 }
             },
+            // pulsemeter
+            auto_aggregate: { value: false },
+            pulsemeter_multiplier: { value: 0.001, required: false },
             // temperature
             temperature_type: {value: 2, required: false},
             include_humidity: { value: false },
@@ -81,6 +84,9 @@
         },
         outputLabels: function(index) {
             // Inline logic since window.getOutputLabels may not be loaded yet
+            if (this.device === 'pulsemeter') {
+                return index === 0 ? 'Passthrough' : 'Aggregate'
+            }
             if (!this.device || this.device !== 'switch') {
                 return index === 0 ? 'Passthrough' : 'Output ' + (index + 1)
             }
@@ -412,6 +418,21 @@
             <div class="form-row" id="tank_battery-voltage-row" class="hidden-row">
                 <label for="node-input-tank_battery_voltage"><i class="fa fa-battery-full"></i> Battery Voltage (V)</label>
                 <input type="number" id="node-input-tank_battery_voltage" value="3.3" step="0.1" min="0">
+            </div>
+        </div>
+
+        <div class="input-pulsemeter">
+            <div class="form-row victron-checkbox">
+                <input type="checkbox" id="node-input-auto_aggregate">
+                <label for="node-input-auto_aggregate">Auto-compute Aggregate from Count</label>
+            </div>
+            <div class="form-row" id="pulsemeter-multiplier-row">
+                <label for="node-input-pulsemeter_multiplier">
+                    <i class="fa fa-tag"></i> Multiplier
+                    <i class="fa fa-info-circle tooltip-icon"
+                       data-tooltip="Aggregate = Count x multiplier. E.g. 0.001 for 1 pulse = 1 litre (Aggregate is in m3)."></i>
+                </label>
+                <input type="number" id="node-input-pulsemeter_multiplier" step="any" min="0">
             </div>
         </div>
 

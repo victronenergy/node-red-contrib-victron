@@ -743,6 +743,31 @@
     </div>
   `,
       img: null
+    },
+    pulsemeter: {
+      label: 'Pulse meter',
+      text: `
+    ${INPUT_DOCS}
+    <div>
+      <div><strong>Most relevant paths:</strong>
+        <ul>
+          <li><code>/Count</code> &mdash; Cumulative pulse count (integer). The raw counter value from the pulse source.</li>
+          <li><code>/Aggregate</code> &mdash; Measured aggregate value in m&sup3; (float). Set this directly in dumb mode, or let it be computed automatically from Count when auto-compute is enabled.</li>
+        </ul>
+        <p>When <em>Auto-compute Aggregate</em> is enabled, Aggregate is derived as <code>Count &times; multiplier</code> whenever Count changes. For example, with multiplier <code>0.001</code> each pulse represents 1 litre (1000 pulses = 1 m&sup3;).</p>
+        <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
+      </div>
+    </div>
+    <div>
+      <div><strong>Output:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+          <li><code>Aggregate</code> &mdash; Emits <tt>msg.payload</tt> with the current Aggregate value whenever it changes</li>
+        </ol>
+      </div>
+    </div>
+  `,
+      img: null
     }
   };
 
@@ -1057,7 +1082,7 @@
   function checkSelectedVirtualDevice (context) {
     [
       'acload', 'battery', 'generator', 'gps', 'grid', 'e-drive',
-      'pvinverter', 'switch', 'tank', 'temperature'
+      'pulsemeter', 'pvinverter', 'switch', 'tank', 'temperature'
     ].forEach(x => { $('.input-' + x).hide(); });
 
     const selected = $('select#node-input-device').val();
@@ -1088,6 +1113,13 @@
         $('#tank_battery-voltage-row').toggle($(this).is(':checked'));
       });
       $('#tank_battery-voltage-row').toggle($('#node-input-include_tank_battery').is(':checked'));
+    }
+
+    if (selected === 'pulsemeter') {
+      $('#node-input-auto_aggregate').off('change').on('change', function () {
+        $('#pulsemeter-multiplier-row').toggle($(this).is(':checked'));
+      });
+      $('#pulsemeter-multiplier-row').toggle($('#node-input-auto_aggregate').is(':checked'));
     }
 
     if (selected === 'generator') {
@@ -1209,7 +1241,8 @@
         return 2 // passthrough + signals
       }
       return 1
-    }
+    },
+    pulsemeter: () => 2
   };
 
   /**
