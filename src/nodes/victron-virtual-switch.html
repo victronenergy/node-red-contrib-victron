@@ -43,13 +43,14 @@
                 2: 'Dimming',      // DIMMABLE
                 4: 'Value',        // STEPPED
                 8: 'Value',        // NUMERIC_INPUT
+                9: 'Auto mode',    // THREE_STATE
                 11: 'LightControls', // RGB_COLOR_WHEEL
                 12: 'LightControls', // CCT_WHEEL
                 13: 'LightControls'  // RGB_WHITE_DIMMER
             }
 
             const outputCounts = {
-                0: 2, 1: 2, 2: 3, 3: 2, 4: 3, 6: 2, 7: 2, 8: 3, 9: 2, 10: 2, 11: 3, 12: 3, 13: 3
+                0: 2, 1: 2, 2: 3, 3: 2, 4: 3, 6: 2, 7: 2, 8: 3, 9: 3, 10: 2, 11: 3, 12: 3, 13: 3
             }
 
             if (index === 0) return 'Passthrough'
@@ -206,7 +207,7 @@ There are several types of switches available:
 - **Dropdown**: Select from a custom list of options defined by you. The selected value is stored in the `Dimming` field (starting at `0` for the first option).
 - **Basic slider**: A slider control for selecting a value within a defined range
 - **Numeric input**: A numeric input control with configurable minimum/maximum values, step size, and display unit that allows precise manual entry of setpoint values.
-- **Three-state switch**: Select from three states (On, Off, Auto)
+- **Three-state switch**: Select from three states (On, Off, Auto). The Auto mode is visible on Output 3.
 - **Bilge pump control**: Special switch type for bilge pumps with automatic and manual modes (A bilge pump is a device on a boat that removes accumulated water from the lowest part of the hull, known as the bilge, and pumps it overboard).
 - **RGB Color Wheel**: Control RGB lighting with hue, saturation, and brightness
 - **CCT Wheel**: Control color temperature and brightness
@@ -257,6 +258,7 @@ The switch has multiple outputs depending on the switch type:
   - For Temperature/Dropdown/Basic Slider: Sends the selected value
 - **Output 3** (if applicable):
   - For Dimmable/Stepped/Numeric Input: Sends the dimming/value when changed
+  - For Three-state: Sends the Auto mode (0=Manual, 1=Auto) when changed from the GX device
   - For RGB controls: Sends the LightControls array with additional RGB/HSB properties
 
 ## GX Device Display

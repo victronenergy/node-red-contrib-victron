@@ -66,9 +66,9 @@ describe('calculateOutputs', () => {
       expect(calculateOutputs('switch', config)).toBe(3)
     })
 
-    test('three-state switch has 2 outputs (passthrough + state)', () => {
+    test('three-state switch has 3 outputs (passthrough + state + auto)', () => {
       const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE) }
-      expect(calculateOutputs('switch', config)).toBe(2)
+      expect(calculateOutputs('switch', config)).toBe(3)
     })
 
     test('bilge pump switch has 2 outputs (passthrough + state)', () => {
@@ -173,9 +173,9 @@ describe('getOutputLabels', () => {
       expect(getOutputLabels(context)).toEqual(['Passthrough', 'State', 'Value'])
     })
 
-    test('three-state switch has passthrough and state labels', () => {
+    test('three-state switch has passthrough, state, and auto mode labels', () => {
       const context = { device: 'switch', switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE) }
-      expect(getOutputLabels(context)).toEqual(['Passthrough', 'State'])
+      expect(getOutputLabels(context)).toEqual(['Passthrough', 'State', 'Auto mode'])
     })
 
     test('bilge pump has passthrough and state labels', () => {

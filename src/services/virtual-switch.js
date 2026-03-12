@@ -448,8 +448,20 @@ function handleSwitchOutputs (config, node, propName, propValue) {
 
   // Handle output 3 (only for 3-output switches)
   if (config.outputs >= 3) {
-    // Handle Dimming for dimmable, stepped, and numeric input switches
-    if (propName === 'SwitchableOutput/output_1/Dimming') {
+    // Handle Auto for three-state switches
+    if (switchType === SWITCH_TYPE_MAP.THREE_STATE &&
+        propName === 'SwitchableOutput/output_1/Auto') {
+      if (node.lastSentValues.Auto !== propValue) {
+        node.lastSentValues.Auto = propValue
+        outputMsgs[2] = {
+          payload: propValue,
+          topic: `${node.name || 'Virtual switch'}/auto`,
+          source_path: '/SwitchableOutput/output_1/Auto'
+        }
+        hasChanges = true
+      }
+    } else if (propName === 'SwitchableOutput/output_1/Dimming') {
+      // Handle Dimming for dimmable, stepped, and numeric input switches
       if (node.lastSentValues.Dimming !== propValue) {
         node.lastSentValues.Dimming = propValue
 
@@ -499,8 +511,95 @@ function handleSwitchOutputs (config, node, propName, propValue) {
   }
 }
 
+/**
+ * Emits the current switch state on outputs 2 and 3 immediately after connect.
+ * Allows downstream nodes to see the current state without waiting for a change.
+ *
+ * @param {Object} config - Node configuration object
+ * @param {Object} node - Node-RED node instance (must have node.iface)
+ */
+function emitInitialSwitchOutputs (config, node) {
+  if (config.outputs <= 1 || !node.iface) return
+
+  const switchType = parseInt(config.switch_1_type, 10)
+  const iface = node.iface
+  const outputMsgs = [null] // Output 1 is passthrough only
+
+  // Output 2: State or special value depending on switch type
+  const secondOutputLabel = SWITCH_SECOND_OUTPUT_LABEL[switchType]
+  const hasSpecialSecondOutput = secondOutputLabel !== undefined && secondOutputLabel !== 'State'
+
+  if (hasSpecialSecondOutput) {
+    const dimValue = iface['SwitchableOutput/output_1/Dimming']
+    outputMsgs[1] = dimValue != null
+      ? {
+          payload: Number(dimValue),
+          topic: `${node.name || 'Virtual switch'}/${secondOutputLabel.toLowerCase()}`,
+          source_path: '/SwitchableOutput/output_1/Dimming'
+        }
+      : null
+  } else {
+    const stateValue = iface['SwitchableOutput/output_1/State']
+    outputMsgs[1] = stateValue != null
+      ? {
+          payload: stateValue,
+          topic: `${node.name || 'Virtual switch'}/state`,
+          source_path: '/SwitchableOutput/output_1/State'
+        }
+      : null
+  }
+
+  // Output 3: Auto mode, Dimming, or LightControls depending on switch type
+  if (config.outputs >= 3) {
+    if (switchType === SWITCH_TYPE_MAP.THREE_STATE) {
+      const autoValue = iface['SwitchableOutput/output_1/Auto']
+      outputMsgs[2] = autoValue != null
+        ? {
+            payload: autoValue,
+            topic: `${node.name || 'Virtual switch'}/auto`,
+            source_path: '/SwitchableOutput/output_1/Auto'
+          }
+        : null
+    } else if (
+      switchType === SWITCH_TYPE_MAP.RGB_COLOR_WHEEL ||
+      switchType === SWITCH_TYPE_MAP.CCT_WHEEL ||
+      switchType === SWITCH_TYPE_MAP.RGB_WHITE_DIMMER
+    ) {
+      const lightControls = iface['SwitchableOutput/output_1/LightControls']
+      if (lightControls != null) {
+        const topicLabel = SWITCH_THIRD_OUTPUT_LABEL[switchType] || 'lightcontrols'
+        const [hue, saturation, brightness, white, colorTemp] = lightControls
+        const rgb = hsbToRgb(hue, saturation, brightness)
+        outputMsgs[2] = {
+          payload: lightControls,
+          topic: `${node.name || 'Virtual switch'}/${topicLabel.toLowerCase()}`,
+          source_path: '/SwitchableOutput/output_1/LightControls',
+          rgb,
+          hsb: { hue, saturation, brightness },
+          white,
+          colorTemperature: colorTemp
+        }
+      } else {
+        outputMsgs[2] = null
+      }
+    } else {
+      const dimValue = iface['SwitchableOutput/output_1/Dimming']
+      outputMsgs[2] = dimValue != null
+        ? {
+            payload: dimValue,
+            topic: `${node.name || 'Virtual switch'}/${(SWITCH_THIRD_OUTPUT_LABEL[switchType] || 'value').toLowerCase()}`,
+            source_path: '/SwitchableOutput/output_1/Dimming'
+          }
+        : null
+    }
+  }
+
+  node.send(outputMsgs)
+}
+
 module.exports = {
   createSwitchProperties,
   getSwitchStatusText,
-  handleSwitchOutputs
+  handleSwitchOutputs,
+  emitInitialSwitchOutputs
 }

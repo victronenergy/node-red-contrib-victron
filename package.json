@@ -65,6 +65,9 @@
     "node": ">=14.17.4"
   },
   "license": "MIT",
+  "standard": {
+    "env": ["jest"]
+  },
   "jest": {
     "testEnvironment": "node",
     "testMatch": [
