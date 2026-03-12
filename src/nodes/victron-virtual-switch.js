@@ -15,7 +15,7 @@ const debugInput = require('debug')('victron-virtual-switch:input')
 const debugConnection = require('debug')('victron-virtual-switch:connection')
 const { DEBOUNCE_DELAY_MS } = require('./victron-virtual-constants')
 const { validateVirtualDevicePayload, validateLightControls, debounce } = require('../services/utils')
-const { createSwitchProperties, getSwitchStatusText, handleSwitchOutputs } = require('../services/virtual-switch')
+const { createSwitchProperties, getSwitchStatusText, handleSwitchOutputs, emitInitialSwitchOutputs } = require('../services/virtual-switch')
 const { filterInactiveVirtualDevices } = require('../services/virtual-device-cleanup')
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -458,6 +458,8 @@ module.exports = function (RED) {
           shape: 'dot',
           text: `${text} (${iface.DeviceInstance})`
         })
+
+        emitInitialSwitchOutputs(config, node)
 
         nodeInstances.add(node)
 
