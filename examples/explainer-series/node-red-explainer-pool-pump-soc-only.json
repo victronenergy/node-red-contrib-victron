@@ -1,0 +1,179 @@
+[
+    {
+        "id": "94e0be6248c995a4",
+        "type": "tab",
+        "label": "Pool pump",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "cf9fa7054c772144",
+        "type": "victron-output-switch",
+        "z": "94e0be6248c995a4",
+        "service": "com.victronenergy.switch/50",
+        "path": "/SwitchableOutput/0/State",
+        "serviceObj": {
+            "service": "com.victronenergy.switch/50",
+            "name": "Shelly 441793A8E6C8",
+            "communityTag": "switch"
+        },
+        "pathObj": {
+            "path": "/SwitchableOutput/0/State",
+            "type": "enum",
+            "enum": {
+                "0": "Off",
+                "1": "On"
+            },
+            "name": "Channel 1 state",
+            "mode": "both"
+        },
+        "name": "pool-pump",
+        "onlyChanges": false,
+        "roundValues": "no",
+        "rateLimit": 0,
+        "outputs": 0,
+        "conditionalMode": false,
+        "condition1Operator": ">",
+        "condition2Enabled": false,
+        "condition2Service": "",
+        "condition2Path": "",
+        "condition2Operator": ">",
+        "logicOperator": "AND",
+        "outputTrue": "true",
+        "outputFalse": "false",
+        "outputOnChange": false,
+        "debounce": 2000,
+        "x": 970,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "f23ed4ea3534a224",
+        "type": "victron-input-battery",
+        "z": "94e0be6248c995a4",
+        "service": "com.victronenergy.battery/256",
+        "path": "/Soc",
+        "serviceObj": {
+            "service": "com.victronenergy.battery/256",
+            "name": "BMV-702",
+            "communityTag": "battery"
+        },
+        "pathObj": {
+            "path": "/Soc",
+            "type": "float",
+            "name": "State of charge (%)"
+        },
+        "name": "soc",
+        "onlyChanges": false,
+        "roundValues": "no",
+        "rateLimit": 0,
+        "outputs": 1,
+        "conditionalMode": false,
+        "outputTrue": "1",
+        "outputFalse": "0",
+        "debounce": "2000",
+        "x": 150,
+        "y": 200,
+        "wires": [
+            [
+                "7bf9446809892e43"
+            ]
+        ]
+    },
+    {
+        "id": "f0178c9297ad177c",
+        "type": "change",
+        "z": "94e0be6248c995a4",
+        "name": "on",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "1",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 690,
+        "y": 180,
+        "wires": [
+            [
+                "cf9fa7054c772144"
+            ]
+        ]
+    },
+    {
+        "id": "f60c1bd22a87bcd7",
+        "type": "change",
+        "z": "94e0be6248c995a4",
+        "name": "off",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "0",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 690,
+        "y": 220,
+        "wires": [
+            [
+                "cf9fa7054c772144"
+            ]
+        ]
+    },
+    {
+        "id": "7bf9446809892e43",
+        "type": "switch",
+        "z": "94e0be6248c995a4",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gte",
+                "v": "95",
+                "vt": "num"
+            },
+            {
+                "t": "lt",
+                "v": "90",
+                "vt": "num"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 430,
+        "y": 200,
+        "wires": [
+            [
+                "f0178c9297ad177c"
+            ],
+            [
+                "f60c1bd22a87bcd7"
+            ]
+        ]
+    },
+    {
+        "id": "5c55cf4b734fb833",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@victronenergy/node-red-contrib-victron": "1.6.63"
+        }
+    }
+]
