@@ -3193,6 +3193,16 @@
       }
     ],
     "switch": [
+          {
+        "path": "/SwitchableOutput/{type}/Auto",
+        "type": "enum",
+        "enum": {
+          "0": "Manual",
+          "1": "Auto"
+        },
+        "name": "{type} auto mode",
+        "mode": "both"
+      },
       {
         "path": "/SwitchableOutput/{type}/State",
         "type": "enum",
