@@ -71,7 +71,7 @@ describe('calculateOutputs', () => {
       expect(calculateOutputs('switch', config)).toBe(3)
     })
 
-    test('bilge pump switch has 2 outputs (passthrough + state)', () => {
+    test('bilge pump switch has 2 outputs (passthrough + state with msg.status)', () => {
       const config = { switch_1_type: String(SWITCH_TYPE_MAP.BILGE_PUMP) }
       expect(calculateOutputs('switch', config)).toBe(2)
     })

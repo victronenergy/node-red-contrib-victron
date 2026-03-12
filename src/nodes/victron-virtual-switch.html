@@ -208,7 +208,7 @@ There are several types of switches available:
 - **Basic slider**: A slider control for selecting a value within a defined range
 - **Numeric input**: A numeric input control with configurable minimum/maximum values, step size, and display unit that allows precise manual entry of setpoint values.
 - **Three-state switch**: Select from three states (On, Off, Auto). The Auto mode is visible on Output 3.
-- **Bilge pump control**: Special switch type for bilge pumps with automatic and manual modes (A bilge pump is a device on a boat that removes accumulated water from the lowest part of the hull, known as the bilge, and pumps it overboard).
+- **Bilge pump control**: On/off pump control with Auto mode (GX device controls state automatically). State on Output 2 with `msg.status` containing decoded Status flags.
 - **RGB Color Wheel**: Control RGB lighting with hue, saturation, and brightness
 - **CCT Wheel**: Control color temperature and brightness
 - **RGB + White Dimmer**: Control RGBW lighting with independent white channel
@@ -254,12 +254,19 @@ The switch has multiple outputs depending on the switch type:
 
 - **Output 1 (Passthrough)**: Forwards the input message unchanged
 - **Output 2**:
-  - For most switches: Sends the switch State (0 or 1) when changed from the GX device
+  - For most switches: Sends the switch State (0 or 1) when changed from the GX device. `msg.status` contains the raw Status value (`msg.status.value`) and decoded boolean flags (`powered`, `tripped`, `overTemperature`, `outputFault`, `shortFault`, `disabled`, `bypassed`, `externalControl`).
   - For Temperature/Dropdown/Basic Slider: Sends the selected value
 - **Output 3** (if applicable):
   - For Dimmable/Stepped/Numeric Input: Sends the dimming/value when changed
   - For Three-state: Sends the Auto mode (0=Manual, 1=Auto) when changed from the GX device
   - For RGB controls: Sends the LightControls array with additional RGB/HSB properties
+
+## Node Status
+
+The node status indicator shows the current state of the switch:
+
+- **On connect**: displays the actual current values from the GX device (e.g., `On | Auto (100)` for a three-state switch, or `On (100)` for a toggle switch).
+- **After sending a value**: briefly shows how many paths were updated (e.g., `Updated 1 path (100)`), then reverts to the actual current state after 5 seconds.
 
 ## GX Device Display
 

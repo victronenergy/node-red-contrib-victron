@@ -15,7 +15,7 @@ const debugInput = require('debug')('victron-virtual-switch:input')
 const debugConnection = require('debug')('victron-virtual-switch:connection')
 const { DEBOUNCE_DELAY_MS } = require('./victron-virtual-constants')
 const { validateVirtualDevicePayload, validateLightControls, debounce } = require('../services/utils')
-const { createSwitchProperties, getSwitchStatusText, handleSwitchOutputs, emitInitialSwitchOutputs } = require('../services/virtual-switch')
+const { createSwitchProperties, handleSwitchOutputs, updateSwitchStatus, emitInitialSwitchOutputs } = require('../services/virtual-switch')
 const { filterInactiveVirtualDevices } = require('../services/virtual-device-cleanup')
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -156,6 +156,13 @@ module.exports = function (RED) {
           shape: 'dot',
           text: `Updated ${pathCount} ${pathWord} (${node.iface.DeviceInstance})`
         })
+
+        if (node.statusRevertTimeout) clearTimeout(node.statusRevertTimeout)
+        node.statusRevertTimeout = setTimeout(() => {
+          updateSwitchStatus(config, node)
+          node.statusRevertTimeout = null
+        }, 5000)
+
         done()
       } catch (err) {
         node.error(`Failed to set values: ${err.message}. Expected: JavaScript object with at least one property/value.`, msg)
@@ -304,8 +311,6 @@ module.exports = function (RED) {
 
         createSwitchProperties(config, ifaceDesc, iface)
 
-        const text = getSwitchStatusText(config)
-
         if (hasPersistedState(RED, self.id)) {
           debug(`Virtual switch (${self.id}) has persisted state, loading it.`)
           await loadPersistedState(RED, self.id, iface, ifaceDesc)
@@ -427,7 +432,7 @@ module.exports = function (RED) {
               console.error(`Failed to persist state for ${propName}:`, err)
             })
           }
-
+          updateSwitchStatus(config, node)
           handleSwitchOutputs(config, node, propName, propValue)
         }
 
@@ -453,12 +458,7 @@ module.exports = function (RED) {
 
         node.removeSettings = removeSettings
 
-        node.status({
-          fill: 'green',
-          shape: 'dot',
-          text: `${text} (${iface.DeviceInstance})`
-        })
-
+        updateSwitchStatus(config, node)
         emitInitialSwitchOutputs(config, node)
 
         nodeInstances.add(node)
