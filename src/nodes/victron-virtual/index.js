@@ -78,7 +78,6 @@ const DEVICE_TYPES = [
   { value: 'grid', label: 'Grid meter' },
   { value: 'meteo', label: 'Meteo' },
   { value: 'pvinverter', label: 'PV inverter' },
-  { value: 'switch', label: 'Switch (deprecated)' },
   { value: 'tank', label: 'Tank sensor' },
   { value: 'temperature', label: 'Temperature sensor' }
 ]
