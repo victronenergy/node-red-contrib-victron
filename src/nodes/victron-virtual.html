@@ -127,19 +127,6 @@
         oneditprepare: function oneditprepare() {
             const { checkSelectedVirtualDevice, updateOutputs, initializeTooltips } = window.__victron;
 
-            // Function to show/hide deprecation notice
-            const toggleDeprecationNotice = (deviceType) => {
-                const noticeRow = $('#switch-deprecation-notice-row');
-                if (deviceType === 'switch') {
-                    noticeRow.show();
-                } else {
-                    noticeRow.hide();
-                }
-            };
-
-            // Show notice if device is already set to switch
-            toggleDeprecationNotice(this.device);
-
             if (this.device === 'motordrive') {
                 this.device = 'e-drive';
             }
@@ -155,8 +142,6 @@
                 // Update outputs when device changes
                 this.device = v.target.value
                 updateOutputs(this);
-                // Show/hide deprecation notice based on selected device
-                toggleDeprecationNotice(this.device);
             });
 
             if (this.default_values === true) {
@@ -270,20 +255,9 @@
                 <option value="grid">Grid meter</option>
                 <option value="meteo">Meteo</option>
                 <option value="pvinverter">PV inverter</option>
-                <option value="switch">Switch (deprecated)</option>
                 <option value="tank">Tank sensor</option>
                 <option value="temperature">Temperature sensor</option>
             </select>
-        </div>
-        <div class="form-row" id="switch-deprecation-notice-row" style="display: none;">
-            <div class="deprecation-notice">
-                <i class="fa fa-info-circle fa-2x"></i>
-                <div>
-                    <strong>Deprecation Notice:</strong> The "Switch" device type is deprecated in the "Virtual Device" node.
-                    Please use the dedicated <strong>"Virtual Switch"</strong> node for new switch configurations.
-                    This Virtual Device will continue to work for now, but we recommend migrating to the new node.
-                </div>
-            </div>
         </div>
         <div class="form-row input-acload" class="hidden-row">
             <label for="node-input-acload_nrofphases"><i class="fa fa-plug"></i> Number of phases</label>
@@ -546,7 +520,6 @@ device type needs to be selected. At the moment the system supports:
 - Grid meter
 - Meteo
 - PV inverter
-- Switch (deprecated - use dedicated "Virtual Switch" node)
 - Tank sensor
 - Temperature sensor
 
@@ -672,12 +645,6 @@ Additionally, you can enable optional monitoring parameters:
 - Coolant temperature
 
 These additional parameters can help monitor the performance and status of your electric drive system.
-
-### Virtual switch
-
-The virtual switch device type is deprecated in the "Virtual Device" node. While you can still select "Switch (deprecated)" from the device dropdown, we recommend using the dedicated **"Virtual Switch"** node for new switch configurations. The dedicated node provides a better user experience with immediate switch type selection and clearer purpose.
-
-Existing Virtual Device nodes configured as switches will continue to function normally with full support for all switch features. You can choose when to migrate to the new node at your convenience.
 
 ### PV inverter
 
