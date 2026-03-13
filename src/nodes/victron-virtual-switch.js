@@ -55,10 +55,11 @@ module.exports = function (RED) {
     const debouncedSetters = new Map()
 
     function shouldApplyImmediately (key) {
-      if (node.ifaceDesc && node.ifaceDesc.properties && node.ifaceDesc.properties[key]) {
-        return node.ifaceDesc.properties[key].immediate === true
-      }
-      return false
+      // if (node.ifaceDesc && node.ifaceDesc.properties && node.ifaceDesc.properties[key]) {
+      //   return node.ifaceDesc.properties[key].immediate === true
+      // }
+      // return false
+      return true
     }
 
     function getDebouncedSetter (key) {
@@ -151,17 +152,7 @@ module.exports = function (RED) {
         const pathCount = Object.keys(msg.payload).length
         const pathWord = pathCount === 1 ? 'path' : 'paths'
 
-        node.status({
-          fill: 'green',
-          shape: 'dot',
-          text: `Updated ${pathCount} ${pathWord} (${node.iface.DeviceInstance})`
-        })
-
-        if (node.statusRevertTimeout) clearTimeout(node.statusRevertTimeout)
-        node.statusRevertTimeout = setTimeout(() => {
-          updateSwitchStatus(config, node)
-          node.statusRevertTimeout = null
-        }, 5000)
+        updateSwitchStatus(config, node, `Updated ${pathCount} ${pathWord} (${node.iface.DeviceInstance})`)
 
         done()
       } catch (err) {
@@ -189,7 +180,7 @@ module.exports = function (RED) {
     })
 
     function instantiateDbus (self) {
-      debug('instantiateDbus called for node', self.id, nodeInstances)
+      debug('instantiateDbus called for node:', self.id)
       // Connect to the dbus
       if (self.address) {
         debug(`Connecting to TCP address ${self.address}.`)
