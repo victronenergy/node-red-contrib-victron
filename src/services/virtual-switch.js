@@ -18,6 +18,16 @@ const {
 
 const { hsbToRgb } = require('./color-utils')
 
+const stateKey = 'SwitchableOutput/output_1/State'
+const statusKey = 'SwitchableOutput/output_1/Status'
+
+const STATUS_BIT_NAMES = ['Powered', 'Tripped', 'Over temperature', 'Output fault', 'Short fault', 'Disabled', 'Bypassed', 'Ext. control']
+function statusFormat (v) {
+  if (v == null || v === 0) return 'Off'
+  if (v === 0x09) return 'On'
+  return STATUS_BIT_NAMES.filter((_, i) => v & (1 << i)).join(', ') || String(v)
+}
+
 /**
  * Creates D-Bus interface properties for a virtual switch based on configuration.
  *
@@ -227,6 +237,18 @@ function createSwitchProperties (config, ifaceDesc, iface) {
       format: (v) => v || '{}'
     }
     iface[labelsKey] = labels
+  }
+
+  if (switchType === SWITCH_TYPE_MAP.NUMERIC_INPUT) {
+    // State is not used for numeric input, only 'Dimming'
+    delete ifaceDesc.properties[stateKey]
+  }
+
+  if (switchType === SWITCH_TYPE_MAP.BILGE_PUMP) {
+    // different format for status property
+    ifaceDesc.properties[stateKey].format = (v) => ({ 0: 'Auto', 1: 'On' }[v] || 'unknown')
+    // Status 0x00 is *not* off for a bilge pump, it is "Not running"
+    ifaceDesc.properties[statusKey].format = (v) => v === 0 ? 'Not running' : statusFormat(v)
   }
 
   if (switchType === SWITCH_TYPE_MAP.BASIC_SLIDER || switchType === SWITCH_TYPE_MAP.NUMERIC_INPUT) {
