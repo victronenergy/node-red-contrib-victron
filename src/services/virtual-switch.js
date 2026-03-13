@@ -255,6 +255,18 @@ function createSwitchProperties (config, ifaceDesc, iface) {
     iface[labelsKey] = labels
   }
 
+  if (switchType === SWITCH_TYPE_MAP.NUMERIC_INPUT) {
+    // State is not used for numeric input, only 'Dimming'
+    delete ifaceDesc.properties[stateKey]
+  }
+
+  if (switchType === SWITCH_TYPE_MAP.BILGE_PUMP) {
+    // different format for status property
+    ifaceDesc.properties[stateKey].format = (v) => ({ 0: 'Auto', 1: 'On' }[v] || 'unknown')
+    // Status 0x00 is *not* off for a bilge pump, it is "Not running"
+    ifaceDesc.properties[statusKey].format = (v) => v === 0 ? 'Not running' : statusFormat(v)
+  }
+
   if (switchType === SWITCH_TYPE_MAP.BASIC_SLIDER || switchType === SWITCH_TYPE_MAP.NUMERIC_INPUT) {
     const dimmingKey = 'SwitchableOutput/output_1/Dimming'
     ifaceDesc.properties[dimmingKey] = {
@@ -436,6 +448,9 @@ function handleSwitchOutputs (config, node, propName, propValue) {
   if (hasChanges) node.send(msgs)
 }
 
+const stateKey = 'SwitchableOutput/output_1/State'
+const statusKey = 'SwitchableOutput/output_1/Status'
+
 /**
  * Updates node.status to reflect the current switch state.
  * Uses ifaceDesc format functions so each switch type shows meaningful values.
@@ -444,7 +459,17 @@ function handleSwitchOutputs (config, node, propName, propValue) {
  * @param {Object} config - Node configuration object
  * @param {Object} node - Node-RED node instance (must have node.iface and node.ifaceDesc)
  */
-function updateSwitchStatus (config, node) {
+function updateSwitchStatus (config, node, actionNotificationMessage) {
+  // use a symbol property to track actionNotificationMessages, as there could be multiple in a sequence
+  const notificationMessagesSymbol = Symbol.for('actionNotificationMessage')
+  if (!node[notificationMessagesSymbol]) {
+    node[notificationMessagesSymbol] = []
+  }
+
+  if (actionNotificationMessage) {
+    node[notificationMessagesSymbol].push(actionNotificationMessage)
+  }
+
   const switchType = parseInt(config.switch_1_type, 10)
   const iface = node.iface
   const ifaceDesc = node.ifaceDesc
@@ -460,7 +485,6 @@ function updateSwitchStatus (config, node) {
     return String(val)
   }
 
-  const stateKey = 'SwitchableOutput/output_1/State'
   const autoKey = 'SwitchableOutput/output_1/Auto'
   const dimmingKey = 'SwitchableOutput/output_1/Dimming'
 
@@ -469,16 +493,17 @@ function updateSwitchStatus (config, node) {
   if (switchType === SWITCH_TYPE_MAP.THREE_STATE) {
     text = `${fmt(stateKey)} | ${fmt(autoKey)} (${deviceInstance})`
   } else if (switchType === SWITCH_TYPE_MAP.BILGE_PUMP) {
-    text = `${fmt(stateKey)} | ${fmt('SwitchableOutput/output_1/Status')} (${deviceInstance})`
+    text = `${fmt(stateKey)} | ${fmt(statusKey)} (${deviceInstance})`
   } else if (switchType === SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) {
     text = `${fmt(dimmingKey)} (${deviceInstance})`
   } else if (switchType === SWITCH_TYPE_MAP.BASIC_SLIDER) {
     const unit = iface['SwitchableOutput/output_1/Settings/Unit'] || ''
     const val = iface[dimmingKey]
     text = `${val != null ? val.toFixed(1) : '-'}${unit} (${deviceInstance})`
+  } else if (switchType === SWITCH_TYPE_MAP.NUMERIC_INPUT) {
+    text = `${fmt(dimmingKey)} (${deviceInstance})`
   } else if (
     switchType === SWITCH_TYPE_MAP.DIMMABLE ||
-    switchType === SWITCH_TYPE_MAP.NUMERIC_INPUT ||
     switchType === SWITCH_TYPE_MAP.STEPPED
   ) {
     text = `${fmt(stateKey)} | ${fmt(dimmingKey)} (${deviceInstance})`
@@ -486,7 +511,21 @@ function updateSwitchStatus (config, node) {
     text = `${fmt(stateKey)} (${deviceInstance})`
   }
 
-  node.status({ fill: 'green', shape: 'dot', text })
+  // append our text as the last message to be shown
+  node[notificationMessagesSymbol].push(text)
+
+  function updateStatusWithNextMessage () {
+    const nextMessage = node[notificationMessagesSymbol].shift()
+    if (nextMessage) {
+      node.status({ fill: node[notificationMessagesSymbol].length > 0 ? 'blue' : 'green', shape: 'dot', text: nextMessage })
+      // node.status({ fill: 'green', shape: 'dot', text })
+      if (node[notificationMessagesSymbol].length > 0) {
+        setTimeout(updateStatusWithNextMessage, 1000)
+      }
+    }
+  }
+
+  updateStatusWithNextMessage()
 }
 
 /**
@@ -517,13 +556,13 @@ function buildSwitchOutputMsgs (config, iface, nodeName) {
           }
         : null
     } else {
-      const stateValue = iface['SwitchableOutput/output_1/State']
-      const statusValue = iface['SwitchableOutput/output_1/Status']
+      const stateValue = iface[stateKey]
+      const statusValue = iface[statusKey]
       msgs[1] = stateValue != null
         ? {
             payload: stateValue,
             topic: `${name}/state`,
-            source_path: '/SwitchableOutput/output_1/State',
+            source_path: '/' + stateKey,
             ...(statusValue != null ? { status: decodeStatus(statusValue) } : {})
           }
         : null
