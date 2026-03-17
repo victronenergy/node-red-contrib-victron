@@ -130,10 +130,6 @@
             const self = this;
             const { checkSelectedVirtualDevice, updateOutputs, initializeTooltips } = window.__victron;
 
-            const toggleDeprecationNotice = (deviceType) => {
-                $('#switch-deprecation-notice-row').toggle(deviceType === 'switch');
-            };
-
             if (self.device === 'motordrive') {
                 self.device = 'e-drive';
             }
@@ -151,8 +147,6 @@
                     console.error('Failed to load virtual device types');
                 })
                 .always(function() {
-                    toggleDeprecationNotice(self.device);
-
                     if (self.id && self.changed === false && self.device && self.device !== '') {
                         $('#node-input-device')
                             .prop('disabled', true)
@@ -163,7 +157,6 @@
                         checkSelectedVirtualDevice(self);
                         self.device = v.target.value;
                         updateOutputs(self);
-                        toggleDeprecationNotice(self.device);
                     });
 
                     if (self.default_values === true) {
@@ -269,16 +262,6 @@
         <div class="form-row">
             <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
             <select id="node-input-device" required></select>
-        </div>
-        <div class="form-row" id="switch-deprecation-notice-row" style="display: none;">
-            <div class="deprecation-notice">
-                <i class="fa fa-info-circle fa-2x"></i>
-                <div>
-                    <strong>Deprecation Notice:</strong> The "Switch" device type is deprecated in the "Virtual Device" node.
-                    Please use the dedicated <strong>"Virtual Switch"</strong> node for new switch configurations.
-                    This Virtual Device will continue to work for now, but we recommend migrating to the new node.
-                </div>
-            </div>
         </div>
         <div class="form-row input-acload" class="hidden-row">
             <label for="node-input-acload_nrofphases"><i class="fa fa-plug"></i> Number of phases</label>
@@ -549,7 +532,6 @@ device type needs to be selected. At the moment the system supports:
 - Grid meter
 - Meteo
 - PV inverter
-- Switch (deprecated - use dedicated "Virtual Switch" node)
 - Tank sensor
 - Temperature sensor
 
@@ -696,12 +678,6 @@ Additionally, you can enable optional monitoring parameters:
 - Coolant temperature
 
 These additional parameters can help monitor the performance and status of your electric drive system.
-
-### Virtual switch
-
-The virtual switch device type is deprecated in the "Virtual Device" node. While you can still select "Switch (deprecated)" from the device dropdown, we recommend using the dedicated **"Virtual Switch"** node for new switch configurations. The dedicated node provides a better user experience with immediate switch type selection and clearer purpose.
-
-Existing Virtual Device nodes configured as switches will continue to function normally with full support for all switch features. You can choose when to migrate to the new node at your convenience.
 
 ### PV inverter
 

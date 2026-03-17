@@ -18,6 +18,32 @@ const {
 
 const { hsbToRgb } = require('./color-utils')
 
+// Status bitmask bit names (index = bit position)
+const STATUS_BIT_NAMES = [
+  'Powered', 'Tripped', 'Over temperature', 'Output fault',
+  'Short fault', 'Disabled', 'Bypassed', 'Ext. control'
+]
+
+function statusFormat (v) {
+  if (v == null || v === 0) return 'Off'
+  if (v === 0x09) return 'On'
+  return STATUS_BIT_NAMES.filter((_, i) => v & (1 << i)).join(', ') || String(v)
+}
+
+function decodeStatus (v) {
+  return {
+    value: v,
+    powered: !!(v & 0x01),
+    tripped: !!(v & 0x02),
+    overTemperature: !!(v & 0x04),
+    outputFault: !!(v & 0x08),
+    shortFault: !!(v & 0x10),
+    disabled: !!(v & 0x20),
+    bypassed: !!(v & 0x40),
+    externalControl: !!(v & 0x80)
+  }
+}
+
 /**
  * Creates D-Bus interface properties for a virtual switch based on configuration.
  *
@@ -29,8 +55,8 @@ const { hsbToRgb } = require('./color-utils')
 function createSwitchProperties (config, ifaceDesc, iface) {
   const baseProperties = [
     { name: 'State', type: 'i', format: (v) => ({ 0: 'Off', 1: 'On' }[v] || 'unknown'), persist: true, immediate: true },
-    { name: 'Status', type: 'i', format: (v) => v != null ? v : '', immediate: true },
-    { name: 'Name', type: 's', persist: true },
+    { name: 'Status', type: 'i', format: statusFormat, persist: true, immediate: true },
+    { name: 'Name', type: 's', persist: false },
 
     // we need value to be '' for Group and CustomName, compare logic below where we set iface[switchableOutputPropertyKey]
     { name: 'Settings/Group', type: 's', value: '', persist: false },
@@ -229,6 +255,18 @@ function createSwitchProperties (config, ifaceDesc, iface) {
     iface[labelsKey] = labels
   }
 
+  if (switchType === SWITCH_TYPE_MAP.NUMERIC_INPUT) {
+    // State is not used for numeric input, only 'Dimming'
+    delete ifaceDesc.properties[stateKey]
+  }
+
+  if (switchType === SWITCH_TYPE_MAP.BILGE_PUMP) {
+    // different format for status property
+    ifaceDesc.properties[stateKey].format = (v) => ({ 0: 'Auto', 1: 'On' }[v] || 'unknown')
+    // Status 0x00 is *not* off for a bilge pump, it is "Not running"
+    ifaceDesc.properties[statusKey].format = (v) => v === 0 ? 'Not running' : statusFormat(v)
+  }
+
   if (switchType === SWITCH_TYPE_MAP.BASIC_SLIDER || switchType === SWITCH_TYPE_MAP.NUMERIC_INPUT) {
     const dimmingKey = 'SwitchableOutput/output_1/Dimming'
     ifaceDesc.properties[dimmingKey] = {
@@ -389,118 +427,222 @@ function getSwitchStatusText (config) {
  * @returns {void} - Sends output messages via node.send() if values changed
  */
 function handleSwitchOutputs (config, node, propName, propValue) {
-  // Only process if this is a switch with multiple outputs
-  if (config.outputs <= 1) {
-    return
-  }
+  if (config.outputs <= 1) return
+  if (!node.lastSentValues) node.lastSentValues = {}
 
-  if (!node.lastSentValues) {
-    node.lastSentValues = {}
-  }
-
-  const outputMsgs = []
+  const msgs = buildSwitchOutputMsgs(config, node.iface, node.name)
   let hasChanges = false
+
+  for (let i = 1; i < msgs.length; i++) {
+    const msg = msgs[i]
+    if (msg == null) continue
+    const serialized = JSON.stringify(msg.payload)
+    if (node.lastSentValues[msg.source_path] === serialized) {
+      msgs[i] = null
+    } else {
+      node.lastSentValues[msg.source_path] = serialized
+      hasChanges = true
+    }
+  }
+
+  if (hasChanges) node.send(msgs)
+}
+
+const stateKey = 'SwitchableOutput/output_1/State'
+const statusKey = 'SwitchableOutput/output_1/Status'
+
+/**
+ * Updates node.status to reflect the current switch state.
+ * Uses ifaceDesc format functions so each switch type shows meaningful values.
+ * Called after initial connect and on any property change.
+ *
+ * @param {Object} config - Node configuration object
+ * @param {Object} node - Node-RED node instance (must have node.iface and node.ifaceDesc)
+ */
+function updateSwitchStatus (config, node, actionNotificationMessage) {
+  // use a symbol property to track actionNotificationMessages, as there could be multiple in a sequence
+  const notificationMessagesSymbol = Symbol.for('actionNotificationMessage')
+  if (!node[notificationMessagesSymbol]) {
+    node[notificationMessagesSymbol] = []
+  }
+
+  if (actionNotificationMessage) {
+    node[notificationMessagesSymbol].push(actionNotificationMessage)
+  }
+
   const switchType = parseInt(config.switch_1_type, 10)
+  const iface = node.iface
+  const ifaceDesc = node.ifaceDesc
+  if (!iface || !ifaceDesc) return
 
-  // Output 1: null (no passthrough on ItemsChanged)
-  outputMsgs[0] = null
+  const deviceInstance = iface.DeviceInstance
 
-  const secondOutputLabel = SWITCH_SECOND_OUTPUT_LABEL[switchType] || 'State'
+  function fmt (key) {
+    const val = iface[key]
+    const prop = ifaceDesc.properties[key]
+    if (val == null) return '-'
+    if (prop && typeof prop.format === 'function') return prop.format(val)
+    return String(val)
+  }
 
-  // Handle output 2 based on switch type
+  const autoKey = 'SwitchableOutput/output_1/Auto'
+  const dimmingKey = 'SwitchableOutput/output_1/Dimming'
+
+  let text
+
+  if (switchType === SWITCH_TYPE_MAP.THREE_STATE) {
+    text = `${fmt(stateKey)} | ${fmt(autoKey)} (${deviceInstance})`
+  } else if (switchType === SWITCH_TYPE_MAP.BILGE_PUMP) {
+    text = `${fmt(stateKey)} | ${fmt(statusKey)} (${deviceInstance})`
+  } else if (switchType === SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) {
+    text = `${fmt(dimmingKey)} (${deviceInstance})`
+  } else if (switchType === SWITCH_TYPE_MAP.BASIC_SLIDER) {
+    const unit = iface['SwitchableOutput/output_1/Settings/Unit'] || ''
+    const val = iface[dimmingKey]
+    text = `${val != null ? val.toFixed(1) : '-'}${unit} (${deviceInstance})`
+  } else if (switchType === SWITCH_TYPE_MAP.NUMERIC_INPUT) {
+    text = `${fmt(dimmingKey)} (${deviceInstance})`
+  } else if (
+    switchType === SWITCH_TYPE_MAP.DIMMABLE ||
+    switchType === SWITCH_TYPE_MAP.STEPPED
+  ) {
+    text = `${fmt(stateKey)} | ${fmt(dimmingKey)} (${deviceInstance})`
+  } else {
+    text = `${fmt(stateKey)} (${deviceInstance})`
+  }
+
+  // append our text as the last message to be shown
+  node[notificationMessagesSymbol].push(text)
+
+  function updateStatusWithNextMessage () {
+    const nextMessage = node[notificationMessagesSymbol].shift()
+    if (nextMessage) {
+      node.status({ fill: node[notificationMessagesSymbol].length > 0 ? 'blue' : 'green', shape: 'dot', text: nextMessage })
+      // node.status({ fill: 'green', shape: 'dot', text })
+      if (node[notificationMessagesSymbol].length > 0) {
+        setTimeout(updateStatusWithNextMessage, 1000)
+      }
+    }
+  }
+
+  updateStatusWithNextMessage()
+}
+
+/**
+ * Builds the output message array for a switch node from the current iface state.
+ * Output 1 is always null (passthrough only). Outputs 2 and 3 depend on switch type.
+ *
+ * @param {Object} config - Node configuration object
+ * @param {Object} iface - D-Bus interface object with current property values
+ * @param {string} nodeName - Node name used in message topics
+ * @returns {Array} Message array [null, msg2OrNull, msg3OrNull]
+ */
+function buildSwitchOutputMsgs (config, iface, nodeName) {
+  const switchType = parseInt(config.switch_1_type, 10)
+  const name = nodeName || 'Virtual switch'
+  const msgs = [null]
+
   if (config.outputs >= 2) {
-    // Check if this is a switch type with special second output (not "State")
-    const hasSpecialSecondOutput = SWITCH_SECOND_OUTPUT_LABEL[switchType] !== undefined
+    const secondOutputLabel = SWITCH_SECOND_OUTPUT_LABEL[switchType]
+    const hasSpecialSecondOutput = secondOutputLabel !== undefined && secondOutputLabel !== 'State'
 
-    if (hasSpecialSecondOutput && secondOutputLabel !== 'State') {
-      // These switches (Temperature, Dropdown, Basic Slider) output their value directly
-      if (propName === 'SwitchableOutput/output_1/Dimming') {
-        if (node.lastSentValues.Dimming !== propValue) {
-          node.lastSentValues.Dimming = propValue
-          const topicSuffix = secondOutputLabel.toLowerCase()
-          outputMsgs[1] = {
-            payload: Number(propValue),
-            topic: `${node.name || 'Virtual switch'}/${topicSuffix}`,
+    if (hasSpecialSecondOutput) {
+      const dimValue = iface['SwitchableOutput/output_1/Dimming']
+      msgs[1] = dimValue != null
+        ? {
+            payload: Number(dimValue),
+            topic: `${name}/${secondOutputLabel.toLowerCase()}`,
             source_path: '/SwitchableOutput/output_1/Dimming'
           }
-          hasChanges = true
-        }
-      } else {
-        outputMsgs[1] = null
-      }
+        : null
     } else {
-      // Standard switches: Output 2 = State
-      if (propName === 'SwitchableOutput/output_1/State') {
-        if (node.lastSentValues.State !== propValue) {
-          node.lastSentValues.State = propValue
-          outputMsgs[1] = {
-            payload: propValue,
-            topic: `${node.name || 'Virtual switch'}/state`,
-            source_path: '/SwitchableOutput/output_1/State'
+      const stateValue = iface[stateKey]
+      const statusValue = iface[statusKey]
+      msgs[1] = stateValue != null
+        ? {
+            payload: stateValue,
+            topic: `${name}/state`,
+            source_path: '/' + stateKey,
+            ...(statusValue != null ? { status: decodeStatus(statusValue) } : {})
           }
-          hasChanges = true
+        : null
+    }
+  }
+
+  if (config.outputs >= 3) {
+    if (switchType === SWITCH_TYPE_MAP.THREE_STATE) {
+      const autoValue = iface['SwitchableOutput/output_1/Auto']
+      msgs[2] = autoValue != null
+        ? {
+            payload: autoValue,
+            topic: `${name}/auto`,
+            source_path: '/SwitchableOutput/output_1/Auto'
+          }
+        : null
+    } else if (
+      switchType === SWITCH_TYPE_MAP.RGB_COLOR_WHEEL ||
+      switchType === SWITCH_TYPE_MAP.CCT_WHEEL ||
+      switchType === SWITCH_TYPE_MAP.RGB_WHITE_DIMMER
+    ) {
+      const lightControls = iface['SwitchableOutput/output_1/LightControls']
+      if (lightControls != null) {
+        const topicLabel = SWITCH_THIRD_OUTPUT_LABEL[switchType] || 'lightcontrols'
+        const [hue, saturation, brightness, white, colorTemp] = lightControls
+        const rgb = hsbToRgb(hue, saturation, brightness)
+        msgs[2] = {
+          payload: lightControls,
+          topic: `${name}/${topicLabel.toLowerCase()}`,
+          source_path: '/SwitchableOutput/output_1/LightControls',
+          rgb,
+          hsb: { hue, saturation, brightness },
+          white,
+          colorTemperature: colorTemp
         }
       } else {
-        outputMsgs[1] = null
-      }
-    }
-  }
-
-  // Handle output 3 (only for 3-output switches)
-  if (config.outputs >= 3) {
-    // Handle Dimming for dimmable, stepped, and numeric input switches
-    if (propName === 'SwitchableOutput/output_1/Dimming') {
-      if (node.lastSentValues.Dimming !== propValue) {
-        node.lastSentValues.Dimming = propValue
-
-        const topicLabel = SWITCH_THIRD_OUTPUT_LABEL[switchType] || 'value'
-
-        outputMsgs[2] = {
-          payload: propValue,
-          topic: `${node.name || 'Virtual switch'}/${topicLabel.toLowerCase()}`,
-          source_path: '/SwitchableOutput/output_1/Dimming'
-        }
-        hasChanges = true
-      }
-    } else if (propName === 'SwitchableOutput/output_1/LightControls') {
-      // Handle LightControls for RGB control types
-      // propValue is already an array of integers from D-Bus
-      const currentValue = JSON.stringify(node.lastSentValues.LightControls)
-      const newValue = JSON.stringify(propValue)
-
-      if (currentValue !== newValue) {
-        node.lastSentValues.LightControls = propValue
-
-        const topicLabel = SWITCH_THIRD_OUTPUT_LABEL[switchType] || 'lightcontrols'
-
-        // Convert HSB to RGB for convenience
-        const [hue, saturation, brightness, white, colorTemp] = propValue
-        const rgb = hsbToRgb(hue, saturation, brightness)
-
-        outputMsgs[2] = {
-          payload: propValue, // Send the array directly
-          topic: `${node.name || 'Virtual switch'}/${topicLabel.toLowerCase()}`,
-          source_path: '/SwitchableOutput/output_1/LightControls',
-          rgb, // RGB as #RRGGBB string
-          hsb: { hue, saturation, brightness }, // HSB object
-          white, // White level (0-100%)
-          colorTemperature: colorTemp // Color temperature in Kelvin
-        }
-        hasChanges = true
+        msgs[2] = null
       }
     } else {
-      outputMsgs[2] = null
+      const dimValue = iface['SwitchableOutput/output_1/Dimming']
+      msgs[2] = dimValue != null
+        ? {
+            payload: dimValue,
+            topic: `${name}/${(SWITCH_THIRD_OUTPUT_LABEL[switchType] || 'value').toLowerCase()}`,
+            source_path: '/SwitchableOutput/output_1/Dimming'
+          }
+        : null
     }
   }
 
-  // Send outputs only if there were actual changes
-  if (hasChanges) {
-    node.send(outputMsgs)
+  return msgs
+}
+
+/**
+ * Emits the current switch state on outputs 2 and 3 immediately after connect.
+ * Allows downstream nodes to see the current state without waiting for a change.
+ * Also seeds node.lastSentValues so handleSwitchOutputs skips re-emitting on first call.
+ *
+ * @param {Object} config - Node configuration object
+ * @param {Object} node - Node-RED node instance (must have node.iface)
+ */
+function emitInitialSwitchOutputs (config, node) {
+  if (config.outputs <= 1 || !node.iface) return
+
+  const msgs = buildSwitchOutputMsgs(config, node.iface, node.name)
+
+  if (!node.lastSentValues) node.lastSentValues = {}
+  for (let i = 1; i < msgs.length; i++) {
+    const msg = msgs[i]
+    if (msg != null) node.lastSentValues[msg.source_path] = JSON.stringify(msg.payload)
   }
+
+  node.send(msgs)
 }
 
 module.exports = {
   createSwitchProperties,
   getSwitchStatusText,
-  handleSwitchOutputs
+  buildSwitchOutputMsgs,
+  handleSwitchOutputs,
+  updateSwitchStatus,
+  emitInitialSwitchOutputs
 }

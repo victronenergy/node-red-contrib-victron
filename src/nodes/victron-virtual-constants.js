@@ -57,8 +57,8 @@ const SWITCH_OUTPUT_CONFIG = {
   [SWITCH_TYPE_MAP.DROPDOWN]: 2, // passthrough + state
   [SWITCH_TYPE_MAP.BASIC_SLIDER]: 2, // passthrough + slider value
   [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 3, // passthrough + state + numeric value
-  [SWITCH_TYPE_MAP.THREE_STATE]: 2, // passthrough + state
-  [SWITCH_TYPE_MAP.BILGE_PUMP]: 2, // passthrough + state
+  [SWITCH_TYPE_MAP.THREE_STATE]: 3, // passthrough + state + auto
+  [SWITCH_TYPE_MAP.BILGE_PUMP]: 2, // passthrough + state (with msg.status)
   [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 3, // passthrough + state + lightcontrols
   [SWITCH_TYPE_MAP.CCT_WHEEL]: 3, // passthrough + state + lightcontrols
   [SWITCH_TYPE_MAP.RGB_WHITE_DIMMER]: 3 // passthrough + state + lightcontrols
@@ -75,6 +75,7 @@ const SWITCH_THIRD_OUTPUT_LABEL = {
   [SWITCH_TYPE_MAP.DIMMABLE]: 'Dimming',
   [SWITCH_TYPE_MAP.STEPPED]: 'Value',
   [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Value',
+  [SWITCH_TYPE_MAP.THREE_STATE]: 'Auto mode',
   [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 'LightControls',
   [SWITCH_TYPE_MAP.CCT_WHEEL]: 'LightControls',
   [SWITCH_TYPE_MAP.RGB_WHITE_DIMMER]: 'LightControls'

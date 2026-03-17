@@ -13,9 +13,8 @@ const dbus = require('dbus-native-victron')
 const debug = require('debug')('victron-virtual-switch')
 const debugInput = require('debug')('victron-virtual-switch:input')
 const debugConnection = require('debug')('victron-virtual-switch:connection')
-const { DEBOUNCE_DELAY_MS } = require('./victron-virtual-constants')
-const { validateVirtualDevicePayload, validateLightControls, debounce } = require('../services/utils')
-const { createSwitchProperties, getSwitchStatusText, handleSwitchOutputs } = require('../services/virtual-switch')
+const { validateVirtualDevicePayload, validateLightControls } = require('../services/utils')
+const { createSwitchProperties, handleSwitchOutputs, updateSwitchStatus, emitInitialSwitchOutputs } = require('../services/virtual-switch')
 const { filterInactiveVirtualDevices } = require('../services/virtual-device-cleanup')
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -51,30 +50,6 @@ module.exports = function (RED) {
 
     node.retryOnConnectionEnd = true
     node.pendingCallsToSetValuesLocally = []
-
-    const debouncedSetters = new Map()
-
-    function shouldApplyImmediately (key) {
-      if (node.ifaceDesc && node.ifaceDesc.properties && node.ifaceDesc.properties[key]) {
-        return node.ifaceDesc.properties[key].immediate === true
-      }
-      return false
-    }
-
-    function getDebouncedSetter (key) {
-      if (!debouncedSetters.has(key)) {
-        const setter = debounce((value) => {
-          debugInput(`Applying debounced value for ${key}: ${value}`)
-          try {
-            node.setValuesLocally({ [key]: value })
-          } catch (err) {
-            node.error(`Failed to apply debounced value for ${key}: ${err.message}`)
-          }
-        }, DEBOUNCE_DELAY_MS)
-        debouncedSetters.set(key, setter)
-      }
-      return debouncedSetters.get(key)
-    }
 
     function handleInput (msg, done) {
       // Send passthrough message FIRST, before any validation
@@ -126,36 +101,16 @@ module.exports = function (RED) {
       try {
         debugInput(`Setting values locally for node ${node.id}:`, msg.payload)
 
-        const immediatePayload = {}
-        const debouncedPayload = {}
-
-        for (const [key, value] of Object.entries(msg.payload)) {
-          if (shouldApplyImmediately(key)) {
-            immediatePayload[key] = value
-          } else {
-            debouncedPayload[key] = value
-          }
-        }
-
-        if (Object.keys(immediatePayload).length > 0) {
-          node.setValuesLocally(immediatePayload)
-          debugInput(`Applied ${Object.keys(immediatePayload).length} immediate properties`)
-        }
-
-        for (const [key, value] of Object.entries(debouncedPayload)) {
-          const setter = getDebouncedSetter(key)
-          setter(value)
-          debugInput(`Debouncing ${key} for ${DEBOUNCE_DELAY_MS}ms`)
+        if (Object.keys(msg.payload).length > 0) {
+          node.setValuesLocally(msg.payload)
+          debugInput(`Applied ${Object.keys(msg.payload).length} properties`)
         }
 
         const pathCount = Object.keys(msg.payload).length
         const pathWord = pathCount === 1 ? 'path' : 'paths'
 
-        node.status({
-          fill: 'green',
-          shape: 'dot',
-          text: `Updated ${pathCount} ${pathWord} (${node.iface.DeviceInstance})`
-        })
+        updateSwitchStatus(config, node, `Updated ${pathCount} ${pathWord} (${node.iface.DeviceInstance})`)
+
         done()
       } catch (err) {
         node.error(`Failed to set values: ${err.message}. Expected: JavaScript object with at least one property/value.`, msg)
@@ -182,7 +137,7 @@ module.exports = function (RED) {
     })
 
     function instantiateDbus (self) {
-      debug('instantiateDbus called for node', self.id, nodeInstances)
+      debug('instantiateDbus called for node:', self.id)
       // Connect to the dbus
       if (self.address) {
         debug(`Connecting to TCP address ${self.address}.`)
@@ -303,8 +258,6 @@ module.exports = function (RED) {
         }
 
         createSwitchProperties(config, ifaceDesc, iface)
-
-        const text = getSwitchStatusText(config)
 
         if (hasPersistedState(RED, self.id)) {
           debug(`Virtual switch (${self.id}) has persisted state, loading it.`)
@@ -427,7 +380,7 @@ module.exports = function (RED) {
               console.error(`Failed to persist state for ${propName}:`, err)
             })
           }
-
+          updateSwitchStatus(config, node)
           handleSwitchOutputs(config, node, propName, propValue)
         }
 
@@ -453,11 +406,8 @@ module.exports = function (RED) {
 
         node.removeSettings = removeSettings
 
-        node.status({
-          fill: 'green',
-          shape: 'dot',
-          text: `${text} (${iface.DeviceInstance})`
-        })
+        updateSwitchStatus(config, node)
+        emitInitialSwitchOutputs(config, node)
 
         nodeInstances.add(node)
 

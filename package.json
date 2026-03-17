@@ -1,7 +1,7 @@
 {
   "name": "@victronenergy/node-red-contrib-victron",
   "description": "Custom Node-RED Nodes for Victron Energy",
-  "version": "1.7.1",
+  "version": "1.7.3",
   "dependencies": {
     "dbus-native-victron": "^0.4.5",
     "dbus-victron-virtual": "^0.1.29",
@@ -66,6 +66,11 @@
     "node": ">=14.17.4"
   },
   "license": "MIT",
+  "standard": {
+    "env": [
+      "jest"
+    ]
+  },
   "jest": {
     "testEnvironment": "node",
     "testMatch": [
