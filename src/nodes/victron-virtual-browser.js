@@ -9,7 +9,9 @@ import {
   fetchSwitchNodeNameAndGroupFromCache,
   updateBatteryVoltageVisibility,
   calculateOutputs,
-  updateOutputs
+  updateOutputs,
+  renderShowInUICheckboxes,
+  getShowUIValue
 } from './victron-virtual-functions.js'
 import { initializeTooltips } from './victron-common.js'
 
@@ -24,5 +26,7 @@ window.__victron = {
   updateBatteryVoltageVisibility,
   calculateOutputs,
   updateOutputs,
+  renderShowInUICheckboxes,
+  getShowUIValue,
   initializeTooltips
 }
