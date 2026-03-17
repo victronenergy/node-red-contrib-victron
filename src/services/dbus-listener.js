@@ -168,29 +168,60 @@ class VictronDbusListener {
     })
   }
 
-  _initService (owner, name) {
+  async _initService (owner, name) {
     const service = { name }
-    this.bus.invoke({
-      path: '/DeviceInstance',
-      destination: name,
-      interface: 'com.victronenergy.BusItem',
-      member: 'GetValue'
-    },
-    (err, res) => {
-      this.services[owner] = service
-      if (res) {
-        this.services[owner].deviceInstance = res[1]?.[0]
-        // TODO: instead of (!...) we now use (... === undefined), which allows for deviceInstance === 0 without error log output
-        // note that this does not change semantics, other than the error log output
-        if (this.services[owner].deviceInstance === undefined) {
-          console.error(`deviceInstance could not be assigned because res[1][0] is undefined owner=${owner} services[owner]=${JSON.stringify(this.services[owner])} (${this.services[owner].name})`)
-          // TODO: Handle the case where res[1][0] is undefined
+
+    // check if service supports GetValue on /DeviceInstance, which is required to
+    // get the device instance number.
+    const isGetValueSupported = await new Promise((resolve) => {
+      this.bus.invoke({
+        path: '/DeviceInstance',
+        destination: name,
+        interface: 'org.freedesktop.DBus.Introspectable',
+        member: 'Introspect'
+      },
+      (err, res) => {
+        if (err) {
+          console.warn(`Introspect failed for ${name}, cannot determine if GetValue is supported: ${err}`)
+          return resolve(false)
         }
-      }
-      if (err && err.length > 0) {
-        debug(`initService ${name} : ${err}`)
-      }
+        const xml = res
+        const hasGetValue = xml.includes('<method name="GetValue"')
+        debug(`Service ${name} supports GetValue on /DeviceInstance: ${hasGetValue}`)
+        resolve(hasGetValue)
+      })
     })
+
+    if (isGetValueSupported) {
+      const deviceInstance = await new Promise((resolve) => {
+        this.bus.invoke({
+          path: '/DeviceInstance',
+          destination: name,
+          interface: 'com.victronenergy.BusItem',
+          member: 'GetValue'
+        },
+        (err, res) => {
+          this.services[owner] = service
+          if (res) {
+            const deviceInstance = res[1]?.[0]
+            // TODO: instead of (!...) we now use (... === undefined), which allows for deviceInstance === 0 without error log output
+            // note that this does not change semantics, other than the error log output
+            if (deviceInstance === undefined) {
+              console.error(`deviceInstance could not be assigned because res[1][0] is undefined owner=${owner} services[owner]=${JSON.stringify(this.services[owner])} (${this.services[owner].name})`)
+              // TODO: Handle the case where res[1][0] is undefined
+            }
+            return resolve(deviceInstance)
+          }
+          if (err && err.length > 0) {
+            console.log(`initService ${name}, invoke on path /DeviceInstance : ${err}`)
+          }
+          return resolve(null)
+        })
+      })
+
+      this.services[owner].deviceInstance = deviceInstance
+    }
+
     this._requestRoot(service)
   }
 
