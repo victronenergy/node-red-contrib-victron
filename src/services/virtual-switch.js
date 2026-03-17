@@ -75,7 +75,7 @@ function createSwitchProperties (config, ifaceDesc, iface) {
       value: 1,
       min: 0,
       max: 6,
-      persist: true,
+      persist: false,
       format: (v) => {
         if (v === 0) return 'Hidden'
         const parts = []

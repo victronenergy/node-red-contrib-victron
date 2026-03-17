@@ -21,7 +21,8 @@
             switch_1_include_measurement: {value: false, required: false},
             switch_1_rgb_color_wheel: {value: false, required: false},
             switch_1_cct_wheel: {value: false, required: false},
-            switch_1_rgb_white_dimmer: {value: false, required: false}
+            switch_1_rgb_white_dimmer: {value: false, required: false},
+            switch_1_show_ui_input: {value: 1, required: false}
         },
         icon: "victronenergy.svg",
         inputs:1,
@@ -103,7 +104,7 @@
 
         },
         oneditsave: function() {
-            const { validateSwitchConfig, SWITCH_TYPE_CONFIGS, updateOutputs } = window.__victron;
+            const { validateSwitchConfig, SWITCH_TYPE_CONFIGS, updateOutputs, getShowUIValue } = window.__victron;
 
             this.device = 'switch';
 
@@ -159,6 +160,7 @@
                     });
                 });
             }
+            this['switch_1_show_ui_input'] = getShowUIValue('switch-show-ui');
             updateOutputs(this);
         }
     });
