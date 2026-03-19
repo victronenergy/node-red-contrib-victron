@@ -28,22 +28,33 @@ function createSensorProperties (config, ifaceDesc, iface) {
     { name: 'Name', type: 's', value: config.customname || '' },
     { name: 'Settings/CustomName', type: 's', value: config.customname || '', persist: false },
     { name: 'Settings/Group', type: 's', value: config.group || '', persist: false },
-    { name: 'Settings/ShowUIInput', type: 'i', value: config.show_ui_input ?? 6, persist: true, format: (v) => {
-      if (v === 0) return 'Hidden'
-      const parts = []
-      if (v & 0b001) parts.push('All UIs')
-      if (v & 0b010) parts.push('GX device')
-      if (v & 0b100) parts.push('VRM')
-      return parts.length > 0 ? parts.join(' + ') : 'Hidden'
-    } },
+    {
+      name: 'Settings/ShowUIInput',
+      type: 'i',
+      value: config.show_ui_input ?? 1,
+      persist: true,
+      format: (v) => {
+        if (v === 0) return 'Hidden'
+        const parts = []
+        if (v & 0b001) parts.push('All UIs')
+        if (v & 0b010) parts.push('GX device')
+        if (v & 0b100) parts.push('VRM')
+        return parts.length > 0 ? parts.join(' + ') : 'Hidden'
+      }
+    },
     { name: 'Settings/Type', type: 'i', value: sensorType, persist: false, format: (v) => SENSOR_TYPE_NAMES[v] || 'unknown' },
-    { name: 'Settings/ValidTypes', type: 'i', value: 1 << sensorType, format: (v) => {
-      if (v == null || v === 0) return 'None'
-      return Object.entries(SENSOR_TYPE_NAMES)
-        .filter(([bit]) => v & (1 << Number(bit)))
-        .map(([, name]) => name)
-        .join(', ') || 'None'
-    } }
+    {
+      name: 'Settings/ValidTypes',
+      type: 'i',
+      value: 1 << sensorType,
+      format: (v) => {
+        if (v == null || v === 0) return 'None'
+        return Object.entries(SENSOR_TYPE_NAMES)
+          .filter(([bit]) => v & (1 << Number(bit)))
+          .map(([, name]) => name)
+          .join(', ') || 'None'
+      }
+    }
   ]
 
   if (config.unit !== undefined && config.unit !== '') {

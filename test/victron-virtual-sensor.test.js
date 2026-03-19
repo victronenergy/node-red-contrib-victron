@@ -42,10 +42,10 @@ describe('createSensorProperties', () => {
       expect(iface['GenericInput/0/Settings/Group']).toBe('Sensors')
     })
 
-    test('sets Settings/ShowUIInput to 6 by default', () => {
+    test('sets Settings/ShowUIInput to 1 by default', () => {
       const { ifaceDesc, iface } = makeIfaceAndDesc()
       createSensorProperties({}, ifaceDesc, iface)
-      expect(iface['GenericInput/0/Settings/ShowUIInput']).toBe(6)
+      expect(iface['GenericInput/0/Settings/ShowUIInput']).toBe(1)
     })
 
     test('sets Settings/Type from config', () => {

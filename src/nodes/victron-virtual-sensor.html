@@ -1,4 +1,5 @@
 <link rel="stylesheet" href="resources/@victronenergy/node-red-contrib-victron/victron-styles.css">
+<link rel="stylesheet" href="resources/@victronenergy/node-red-contrib-victron/victron-virtual-style.css">
 <script src="resources/@victronenergy/node-red-contrib-victron/victron-common.js"></script>
 <script src="resources/@victronenergy/node-red-contrib-victron/victron-virtual-functions.js"></script>
 <script type="text/javascript">
@@ -17,7 +18,7 @@
             range_min:     { value: '' },
             range_max:     { value: '' },
             decimals:      { value: '' },
-            show_ui_input: { value: 6 }
+            show_ui_input: { value: 1 }
         },
         icon: 'victronenergy.svg',
         inputs: 1,
@@ -27,7 +28,7 @@
         },
         outputLabels: ['Passthrough'],
         oneditprepare: function () {
-            const { initializeTooltips, renderSensorDocBox } = window.__victron || {}
+            const { initializeTooltips, renderSensorDocBox, renderShowInUICheckboxes } = window.__victron || {}
 
             function updateVisibility () {
                 const type = parseInt($('#node-input-sensor_type').val())
@@ -47,6 +48,10 @@
 
             $('#node-input-sensor_type').on('change', updateVisibility)
             updateVisibility()
+
+            if (typeof renderShowInUICheckboxes === 'function') {
+                renderShowInUICheckboxes('sensor-show-ui', this.show_ui_input, 'node-input-show_ui_input')
+            }
 
             if (typeof initializeTooltips === 'function') {
                 initializeTooltips()
@@ -128,18 +133,8 @@
             <input type="number" id="node-input-decimals" placeholder="e.g. 2" min="0" max="10">
         </div>
 
-        <div class="form-row">
-            <label for="node-input-show_ui_input"><i class="fa fa-eye"></i> Show in UI
-                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Controls where the sensor is visible. 0: hidden, 1: all UIs, 2: local UI only, 4: remote UI only, 6: local + remote (default)."></i>
-            </label>
-            <select id="node-input-show_ui_input">
-                <option value="0">Hidden</option>
-                <option value="1">All UIs</option>
-                <option value="2">Local UI only</option>
-                <option value="4">Remote UI only</option>
-                <option value="6">Local + Remote (default)</option>
-            </select>
-        </div>
+        <input type="hidden" id="node-input-show_ui_input">
+        <div id="sensor-show-ui"></div>
 
         <div id="sensor-docs-container">
             <!-- Dynamic sensor documentation will be added here -->
@@ -178,7 +173,7 @@ There are several types of sensors available:
 
 - **Range min/max**: For range types (Value with range, Temperature) only
 - **Decimals**: Number of decimal places to display. Not applicable to Discrete sensors.
-- **Show in UI**: Controls visibility on local GX display and/or VRM remote console
+- **Show in UI**: Controls visibility on local GX display (GX device, MFD) and/or VRM remote console. Both checked = value 1 (show in all UIs), local only = 2, remote only = 4, neither = 0 (hidden).
 
 ## Setting Values
 
