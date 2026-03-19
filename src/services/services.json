@@ -4031,7 +4031,8 @@
           "1": "Grid",
           "2": "Genset",
           "3": "Shore"
-        }
+        },
+        "mode": "both"
       },
       {
         "path": "/Settings/SystemSetup/SystemName",
