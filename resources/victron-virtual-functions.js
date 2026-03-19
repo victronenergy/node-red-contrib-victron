@@ -750,6 +750,54 @@
     }
   };
 
+  function renderShowInUICheckboxes (containerId, savedValue, targetInputId) {
+    const localId = `${containerId}-local`;
+    const remoteId = `${containerId}-remote`;
+
+    const savedInt = parseInt(savedValue ?? 1, 10);
+    const localChecked = !!(savedInt & 1) || !!(savedInt & 2);
+    const remoteChecked = !!(savedInt & 1) || !!(savedInt & 4);
+
+    const container = $(`#${containerId}`);
+    container.empty();
+    container.append(`
+    <label style="font-weight:bold;"><i class="fa fa-eye"></i> Show in UI</label>
+    <div class="form-row victron-checkbox">
+      <input type="checkbox" id="${localId}">
+      <label for="${localId}">Local UI
+        <i class="fa fa-info-circle tooltip-icon" data-tooltip="GUI running natively on GX device, MFD and WASM over local LAN"></i>
+      </label>
+    </div>
+    <div class="form-row victron-checkbox">
+      <input type="checkbox" id="${remoteId}">
+      <label for="${remoteId}">Remote UI
+        <i class="fa fa-info-circle tooltip-icon" data-tooltip="VRM remote console and VRM switch pane"></i>
+      </label>
+    </div>
+  `);
+
+    $(`#${localId}`).prop('checked', localChecked);
+    $(`#${remoteId}`).prop('checked', remoteChecked);
+
+    if (targetInputId) {
+      const updateTarget = () => {
+        $(`#${targetInputId}`).val(getShowUIValue(containerId));
+      };
+      $(`#${localId}`).on('change', updateTarget);
+      $(`#${remoteId}`).on('change', updateTarget);
+      updateTarget();
+    }
+  }
+
+  function getShowUIValue (containerId) {
+    const local = $(`#${containerId}-local`).is(':checked');
+    const remote = $(`#${containerId}-remote`).is(':checked');
+    if (local && remote) return 1
+    if (local) return 2
+    if (remote) return 4
+    return 0
+  }
+
   function renderSwitchConfigRow (context) {
     const typeOptions = Object.entries(SWITCH_TYPE_CONFIGS)
       .map(([value, cfg]) => `<option value="${value}">${cfg.label}</option>`)
@@ -968,6 +1016,10 @@
 
     $('#node-input-switch_1_type').on('change', renderTypeConfig);
     renderTypeConfig();
+
+    // Show in UI section (outside renderTypeConfig so it persists across type changes)
+    $('#switch-config-container').append('<div id="switch-show-ui" style="margin-top:10px;"></div>');
+    renderShowInUICheckboxes('switch-show-ui', context.switch_1_show_ui_input);
   }
 
   function renderDropdownLabels (context) {
@@ -1261,6 +1313,8 @@
     updateBatteryVoltageVisibility,
     calculateOutputs,
     updateOutputs,
+    renderShowInUICheckboxes,
+    getShowUIValue,
     initializeTooltips
   };
 
