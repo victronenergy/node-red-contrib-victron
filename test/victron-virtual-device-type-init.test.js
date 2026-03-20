@@ -3,6 +3,7 @@
 
 const acload = require('../src/nodes/victron-virtual/device-type/acload')
 const battery = require('../src/nodes/victron-virtual/device-type/battery')
+const dcload = require('../src/nodes/victron-virtual/device-type/dcload')
 const generator = require('../src/nodes/victron-virtual/device-type/generator')
 const gps = require('../src/nodes/victron-virtual/device-type/gps')
 const grid = require('../src/nodes/victron-virtual/device-type/grid')
@@ -128,6 +129,52 @@ describe('battery', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
       const result = battery.initialize({ battery_capacity: 25 }, ifaceDesc, iface, node)
       expect(result).toBe('Virtual 25Ah battery')
+    })
+  })
+})
+
+// ---------------------------------------------------------------------------
+// dcload
+// ---------------------------------------------------------------------------
+
+describe('dcload', () => {
+  describe('properties', () => {
+    test('has required DC paths', () => {
+      expect(dcload.properties['Dc/0/Current']).toBeDefined()
+      expect(dcload.properties['Dc/0/Power']).toBeDefined()
+      expect(dcload.properties['Dc/0/Voltage']).toBeDefined()
+    })
+
+    test('Settings/MonitorMode has value 1', () => {
+      expect(dcload.properties['Settings/MonitorMode'].value).toBe(1)
+    })
+
+    test('DC paths have immediate: true', () => {
+      expect(dcload.properties['Dc/0/Current'].immediate).toBe(true)
+      expect(dcload.properties['Dc/0/Power'].immediate).toBe(true)
+      expect(dcload.properties['Dc/0/Voltage'].immediate).toBe(true)
+    })
+  })
+
+  describe('initialize', () => {
+    test('sets default values when enabled', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      dcload.initialize({ default_values: true }, ifaceDesc, iface, node)
+      expect(iface['Dc/0/Current']).toBe(0)
+      expect(iface['Dc/0/Power']).toBe(0)
+      expect(iface['Dc/0/Voltage']).toBe(0)
+    })
+
+    test('does not set default values when disabled', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      dcload.initialize({ default_values: false }, ifaceDesc, iface, node)
+      expect(iface['Dc/0/Current']).toBeUndefined()
+    })
+
+    test('returns label string', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      const result = dcload.initialize({}, ifaceDesc, iface, node)
+      expect(result).toBe('Virtual DC load')
     })
   })
 })

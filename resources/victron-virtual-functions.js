@@ -517,6 +517,30 @@
   `,
       img: null
     },
+    dcload: {
+      label: 'DC Load',
+      text: `
+    ${INPUT_DOCS}
+    <div>
+      <div><strong>Most relevant paths:</strong>
+        <ul>
+          <li><code>/Dc/0/Voltage</code> &mdash; DC load voltage in volts.</li>
+          <li><code>/Dc/0/Current</code> &mdash; DC load current in amperes.</li>
+          <li><code>/Dc/0/Power</code> &mdash; DC load power in watts.</li>
+        </ul>
+        <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
+      </div>
+    </div>
+    <div>
+      <div><strong>Output:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+        </ol>
+      </div>
+    </div>
+  `,
+      img: null
+    },
     'e-drive': {
       label: 'E-drive',
       text: `
