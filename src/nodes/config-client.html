@@ -1275,7 +1275,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <ul>
   <li>0 - Disabled</li>
   <li>1 - Enabled</li>
-</ul></dd>
+</ul><p>For monitoring the state of the built-in contactor.</p></dd>
   <dt class="optional">Time to go (s)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/TimeToGo</b><span class="property-mode"></span>
 </dd>
@@ -1767,7 +1767,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <ul>
   <li>0 - Disabled</li>
   <li>1 - Enabled</li>
-</ul></dd>
+</ul><p>For monitoring the state of the built-in contactor.</p></dd>
   <dt class="optional">Time to go (s)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/TimeToGo</b><span class="property-mode"></span>
 </dd>
@@ -1822,6 +1822,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">/History/Cumulative/User/ChargedAh (Ah)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/History/Cumulative/User/ChargedAh</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">Charger on/off<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Mode</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>1 - On</li>
+  <li>4 - Off</li>
+</ul></dd>
   <dt class="optional">/ProductId<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/ProductId</b><span class="property-mode"></span>
 </dd>
@@ -1887,6 +1893,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">/History/Cumulative/User/ChargedAh (Ah)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/History/Cumulative/User/ChargedAh</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">Charger on/off<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Mode</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>1 - On</li>
+  <li>4 - Off</li>
+</ul></dd>
   <dt class="optional">/ProductId<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/ProductId</b><span class="property-mode"></span>
 </dd>
@@ -2535,10 +2547,10 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - No</li>
 </ul></dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">AC Power <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code> setpoint (W)<span class="property-type">integer</span></dt>
-  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Hub4/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code>}/AcPowerSetpoint</b><span class="property-mode"> (Mode: both)</span>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Hub4/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code>/AcPowerSetpoint</b><span class="property-mode"> (Mode: both)</span>
 </dd>
-  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Maximum overvoltage feed-in power <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code>} (W)<span class="property-type">integer</span></dt>
-  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Hub4/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code>}/MaxFeedInPower</b><span class="property-mode"> (Mode: both)</span>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Maximum overvoltage feed-in power <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code> (W)<span class="property-type">integer</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Hub4/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code>/MaxFeedInPower</b><span class="property-mode"> (Mode: both)</span>
 </dd>
   <dt class="optional">Disable PV inverter<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/PvInverter/Disable</b><span class="property-mode"></span>
@@ -2594,10 +2606,10 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - No</li>
 </ul></dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">AC Power <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code> setpoint (W)<span class="property-type">integer</span></dt>
-  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Hub4/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code>}/AcPowerSetpoint</b><span class="property-mode"> (Mode: both)</span>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Hub4/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code>/AcPowerSetpoint</b><span class="property-mode"> (Mode: both)</span>
 </dd>
-  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Maximum overvoltage feed-in power <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code>} (W)<span class="property-type">integer</span></dt>
-  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Hub4/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code>}/MaxFeedInPower</b><span class="property-mode"> (Mode: both)</span>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Maximum overvoltage feed-in power <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code> (W)<span class="property-type">integer</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Hub4/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code>/MaxFeedInPower</b><span class="property-mode"> (Mode: both)</span>
 </dd>
   <dt class="optional">Disable PV inverter<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/PvInverter/Disable</b><span class="property-mode"></span>
@@ -2672,21 +2684,22 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{schedule}</code>/Start</b><span class="property-mode"> (Mode: both)</span>
 </dd>
   <dt class="optional">ESS state<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b><span class="property-mode"></span>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b><span class="property-mode"> (Mode: both)</span>
 <ul>
-  <li>1 - BatteryLife enabled (GUI controlled)</li>
-  <li>2 - Optimized Mode /w BatteryLife: self consumption</li>
-  <li>3 - Optimized Mode /w BatteryLife: self consumption, SoC exceeds 85%</li>
-  <li>4 - Optimized Mode /w BatteryLife: self consumption, SoC at 100%</li>
-  <li>5 - Optimized Mode /w BatteryLife: SoC below dynamic SoC limit</li>
-  <li>6 - Optimized Mode /w BatteryLife: SoC has been below SoC limit for more than 24 hours. Charging the battery (5A)</li>
-  <li>7 - Optimized Mode /w BatteryLife: Inverter/Charger is in sustain mode</li>
-  <li>8 - Optimized Mode /w BatteryLife: recharging, SoC dropped by 5% or more below the minimum SoC</li>
-  <li>9 - 'Keep batteries charged' mode is enabled</li>
-  <li>10 - Optimized mode w/o BatteryLife: self consumption, SoC at or above minimum SoC</li>
-  <li>11 - Optimized mode w/o BatteryLife: self consumption, SoC is below minimum SoC</li>
-  <li>12 - Optimized mode w/o BatteryLife: recharging, SoC dropped by 5% or more below minimum SoC</li>
-</ul></dd>
+  <li>0 - No longer used</li>
+  <li>1 - Optimized w/ BatteryLife: BatteryLife enabled (set by GUI)</li>
+  <li>2 - Optimized w/ BatteryLife: Self consumption</li>
+  <li>3 - Optimized w/ BatteryLife: Self consumption, SoC exceeds 85%</li>
+  <li>4 - Optimized w/ BatteryLife: Self consumption, SoC at 100%</li>
+  <li>5 - Optimized w/ BatteryLife: SoC below dynamic SoC limit</li>
+  <li>6 - Optimized w/ BatteryLife: SoC below limit >24h, charging at 5A</li>
+  <li>7 - Optimized w/ BatteryLife: Multi/Quattro in sustain</li>
+  <li>8 - Optimized w/ BatteryLife: Recharge, SoC dropped 5%+ below MinSoC</li>
+  <li>9 - Keep batteries charged</li>
+  <li>10 - Optimized w/o BatteryLife: Self consumption, SoC at or above minimum SoC</li>
+  <li>11 - Optimized w/o BatteryLife: Self consumption, SoC below minimum SoC</li>
+  <li>12 - Optimized w/o BatteryLife: Recharge, SoC dropped 5%+ below minimum SoC</li>
+</ul><p>Writable values: 1 (Optimized with BatteryLife), 9 (Keep batteries charged), 10 (Optimized without BatteryLife).</p></dd>
   <dt class="optional">ESS mode<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/Hub4Mode</b><span class="property-mode"> (Mode: both)</span>
 <ul>
@@ -2696,13 +2709,13 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 </ul></dd>
   <dt class="optional">Max charge power (W)<span class="property-type">integer</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/MaxChargePower</b><span class="property-mode"> (Mode: both)</span>
-</dd>
+<p>Not used with DVCC.</p></dd>
   <dt class="optional">Max inverter power (W)<span class="property-type">integer</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/MaxDischargePower</b><span class="property-mode"> (Mode: both)</span>
 </dd>
   <dt class="optional">Maximum System Grid Feed In (W)<span class="property-type">integer</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/MaxFeedInPower</b><span class="property-mode"> (Mode: both)</span>
-</dd>
+<ul><li>-1: No limit</li><li> &gt;=0: limited system feed-in</li></ul><p>Applies to DC-coupled and AC-coupled feed-in.</p></dd>
   <dt class="optional">Feed excess DC-coupled PV into grid<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/OvervoltageFeedIn</b><span class="property-mode"> (Mode: both)</span>
 <ul>
@@ -2788,21 +2801,22 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{schedule}</code>/Start</b><span class="property-mode"> (Mode: both)</span>
 </dd>
   <dt class="optional">ESS state<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b><span class="property-mode"></span>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b><span class="property-mode"> (Mode: both)</span>
 <ul>
-  <li>1 - BatteryLife enabled (GUI controlled)</li>
-  <li>2 - Optimized Mode /w BatteryLife: self consumption</li>
-  <li>3 - Optimized Mode /w BatteryLife: self consumption, SoC exceeds 85%</li>
-  <li>4 - Optimized Mode /w BatteryLife: self consumption, SoC at 100%</li>
-  <li>5 - Optimized Mode /w BatteryLife: SoC below dynamic SoC limit</li>
-  <li>6 - Optimized Mode /w BatteryLife: SoC has been below SoC limit for more than 24 hours. Charging the battery (5A)</li>
-  <li>7 - Optimized Mode /w BatteryLife: Inverter/Charger is in sustain mode</li>
-  <li>8 - Optimized Mode /w BatteryLife: recharging, SoC dropped by 5% or more below the minimum SoC</li>
-  <li>9 - 'Keep batteries charged' mode is enabled</li>
-  <li>10 - Optimized mode w/o BatteryLife: self consumption, SoC at or above minimum SoC</li>
-  <li>11 - Optimized mode w/o BatteryLife: self consumption, SoC is below minimum SoC</li>
-  <li>12 - Optimized mode w/o BatteryLife: recharging, SoC dropped by 5% or more below minimum SoC</li>
-</ul></dd>
+  <li>0 - No longer used</li>
+  <li>1 - Optimized w/ BatteryLife: BatteryLife enabled (set by GUI)</li>
+  <li>2 - Optimized w/ BatteryLife: Self consumption</li>
+  <li>3 - Optimized w/ BatteryLife: Self consumption, SoC exceeds 85%</li>
+  <li>4 - Optimized w/ BatteryLife: Self consumption, SoC at 100%</li>
+  <li>5 - Optimized w/ BatteryLife: SoC below dynamic SoC limit</li>
+  <li>6 - Optimized w/ BatteryLife: SoC below limit >24h, charging at 5A</li>
+  <li>7 - Optimized w/ BatteryLife: Multi/Quattro in sustain</li>
+  <li>8 - Optimized w/ BatteryLife: Recharge, SoC dropped 5%+ below MinSoC</li>
+  <li>9 - Keep batteries charged</li>
+  <li>10 - Optimized w/o BatteryLife: Self consumption, SoC at or above minimum SoC</li>
+  <li>11 - Optimized w/o BatteryLife: Self consumption, SoC below minimum SoC</li>
+  <li>12 - Optimized w/o BatteryLife: Recharge, SoC dropped 5%+ below minimum SoC</li>
+</ul><p>Writable values: 1 (Optimized with BatteryLife), 9 (Keep batteries charged), 10 (Optimized without BatteryLife).</p></dd>
   <dt class="optional">ESS mode<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/Hub4Mode</b><span class="property-mode"> (Mode: both)</span>
 <ul>
@@ -2812,13 +2826,13 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 </ul></dd>
   <dt class="optional">Max charge power (W)<span class="property-type">integer</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/MaxChargePower</b><span class="property-mode"> (Mode: both)</span>
-</dd>
+<p>Not used with DVCC.</p></dd>
   <dt class="optional">Max inverter power (W)<span class="property-type">integer</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/MaxDischargePower</b><span class="property-mode"> (Mode: both)</span>
 </dd>
   <dt class="optional">Maximum System Grid Feed In (W)<span class="property-type">integer</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/MaxFeedInPower</b><span class="property-mode"> (Mode: both)</span>
-</dd>
+<ul><li>-1: No limit</li><li> &gt;=0: limited system feed-in</li></ul><p>Applies to DC-coupled and AC-coupled feed-in.</p></dd>
   <dt class="optional">Feed excess DC-coupled PV into grid<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/OvervoltageFeedIn</b><span class="property-mode"> (Mode: both)</span>
 <ul>
@@ -5449,7 +5463,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 </dd>
   <dt class="optional">Maximum System Grid Feed In (W)<span class="property-type">integer</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/MaxFeedInPower</b><span class="property-mode"> (Mode: both)</span>
-</dd>
+<ul><li>-1: No limit</li><li> &gt;=0: limited system feed-in</li></ul><p>Applies to DC-coupled and AC-coupled feed-in.</p></dd>
   <dt class="optional">Feed excess DC-coupled PV into grid<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/OvervoltageFeedIn</b><span class="property-mode"> (Mode: both)</span>
 <ul>
@@ -5466,22 +5480,22 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/SocLimit</b><span class="property-mode"></span>
 </dd>
   <dt class="optional">ESS BatteryLife state<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b><span class="property-mode"></span>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b><span class="property-mode"> (Mode: both)</span>
 <ul>
-  <li>0 - Unused, BL disabled</li>
-  <li>1 - Restarting</li>
-  <li>2 - Self-consumption</li>
-  <li>3 - Self-consumption</li>
-  <li>4 - Self-consumption</li>
-  <li>5 - Discharge disabled</li>
-  <li>6 - Force charge</li>
-  <li>7 - Sustain</li>
-  <li>8 - Low Soc Recharge</li>
+  <li>0 - No longer used</li>
+  <li>1 - Optimized w/ BatteryLife: BatteryLife enabled (set by GUI)</li>
+  <li>2 - Optimized w/ BatteryLife: Self consumption</li>
+  <li>3 - Optimized w/ BatteryLife: Self consumption, SoC exceeds 85%</li>
+  <li>4 - Optimized w/ BatteryLife: Self consumption, SoC at 100%</li>
+  <li>5 - Optimized w/ BatteryLife: SoC below dynamic SoC limit</li>
+  <li>6 - Optimized w/ BatteryLife: SoC below limit >24h, charging at 5A</li>
+  <li>7 - Optimized w/ BatteryLife: Multi/Quattro in sustain</li>
+  <li>8 - Optimized w/ BatteryLife: Recharge, SoC dropped 5%+ below MinSoC</li>
   <li>9 - Keep batteries charged</li>
-  <li>10 - BL Disabled</li>
-  <li>11 - BL Disabled (Low SoC)</li>
-  <li>12 - BL Disabled (Low SOC recharge)</li>
-</ul></dd>
+  <li>10 - Optimized w/o BatteryLife: Self consumption, SoC at or above minimum SoC</li>
+  <li>11 - Optimized w/o BatteryLife: Self consumption, SoC below minimum SoC</li>
+  <li>12 - Optimized w/o BatteryLife: Recharge, SoC dropped 5%+ below minimum SoC</li>
+</ul><p>Writable values: 1 (Optimized with BatteryLife), 9 (Keep batteries charged), 10 (Optimized without BatteryLife).</p></dd>
   <dt class="optional">Enable status LEDs<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Settings/LEDs/Enable</b><span class="property-mode"> (Mode: both)</span>
 <ul>
@@ -5548,7 +5562,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 </dd>
   <dt class="optional">Maximum System Grid Feed In (W)<span class="property-type">integer</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/MaxFeedInPower</b><span class="property-mode"> (Mode: both)</span>
-</dd>
+<ul><li>-1: No limit</li><li> &gt;=0: limited system feed-in</li></ul><p>Applies to DC-coupled and AC-coupled feed-in.</p></dd>
   <dt class="optional">Feed excess DC-coupled PV into grid<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/OvervoltageFeedIn</b><span class="property-mode"> (Mode: both)</span>
 <ul>
@@ -5565,22 +5579,22 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/SocLimit</b><span class="property-mode"></span>
 </dd>
   <dt class="optional">ESS BatteryLife state<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b><span class="property-mode"></span>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b><span class="property-mode"> (Mode: both)</span>
 <ul>
-  <li>0 - Unused, BL disabled</li>
-  <li>1 - Restarting</li>
-  <li>2 - Self-consumption</li>
-  <li>3 - Self-consumption</li>
-  <li>4 - Self-consumption</li>
-  <li>5 - Discharge disabled</li>
-  <li>6 - Force charge</li>
-  <li>7 - Sustain</li>
-  <li>8 - Low Soc Recharge</li>
+  <li>0 - No longer used</li>
+  <li>1 - Optimized w/ BatteryLife: BatteryLife enabled (set by GUI)</li>
+  <li>2 - Optimized w/ BatteryLife: Self consumption</li>
+  <li>3 - Optimized w/ BatteryLife: Self consumption, SoC exceeds 85%</li>
+  <li>4 - Optimized w/ BatteryLife: Self consumption, SoC at 100%</li>
+  <li>5 - Optimized w/ BatteryLife: SoC below dynamic SoC limit</li>
+  <li>6 - Optimized w/ BatteryLife: SoC below limit >24h, charging at 5A</li>
+  <li>7 - Optimized w/ BatteryLife: Multi/Quattro in sustain</li>
+  <li>8 - Optimized w/ BatteryLife: Recharge, SoC dropped 5%+ below MinSoC</li>
   <li>9 - Keep batteries charged</li>
-  <li>10 - BL Disabled</li>
-  <li>11 - BL Disabled (Low SoC)</li>
-  <li>12 - BL Disabled (Low SOC recharge)</li>
-</ul></dd>
+  <li>10 - Optimized w/o BatteryLife: Self consumption, SoC at or above minimum SoC</li>
+  <li>11 - Optimized w/o BatteryLife: Self consumption, SoC below minimum SoC</li>
+  <li>12 - Optimized w/o BatteryLife: Recharge, SoC dropped 5%+ below minimum SoC</li>
+</ul><p>Writable values: 1 (Optimized with BatteryLife), 9 (Keep batteries charged), 10 (Optimized without BatteryLife).</p></dd>
   <dt class="optional">Enable status LEDs<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Settings/LEDs/Enable</b><span class="property-mode"> (Mode: both)</span>
 <ul>
@@ -5612,7 +5626,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <ul>
   <li>0 - Feed-in limiting is inactive</li>
   <li>1 - Feed-in limiting is active</li>
-</ul></dd>
+</ul><p>Applies to both AC-coupled and DC-coupled limiting.</p></dd>
 </dl>
 </script>
 
@@ -5627,7 +5641,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <ul>
   <li>0 - Feed-in limiting is inactive</li>
   <li>1 - Feed-in limiting is active</li>
-</ul></dd>
+</ul><p>Applies to both AC-coupled and DC-coupled limiting.</p></dd>
 </dl>
 </script>
 
@@ -6665,7 +6679,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - Do not feed in overvoltage</li>
 </ul></dd>
   <dt class="optional">Solar offset voltage<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Hub4/FixSolarOffsetTo100mV</b><span class="property-mode"></span>
+  <dd>Dbus path: <b>/Hub4/FixSolarOffsetTo100mV</b><span class="property-mode"> (Mode: both)</span>
 <ul>
   <li>0 - OvervoltageFeedIn uses 1V offset</li>
   <li>1 - OvervoltageFeedIn uses 0.1V offset</li>
@@ -6977,7 +6991,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - Do not feed in overvoltage</li>
 </ul></dd>
   <dt class="optional">Solar offset voltage<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Hub4/FixSolarOffsetTo100mV</b><span class="property-mode"></span>
+  <dd>Dbus path: <b>/Hub4/FixSolarOffsetTo100mV</b><span class="property-mode"> (Mode: both)</span>
 <ul>
   <li>0 - OvervoltageFeedIn uses 1V offset</li>
   <li>1 - OvervoltageFeedIn uses 0.1V offset</li>
