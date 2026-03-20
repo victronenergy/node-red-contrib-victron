@@ -120,6 +120,10 @@ function generatePathDoc (pathObj, format) {
       doc += generateEnumList(pathObj.enum, format)
     }
 
+    if (pathObj.remarks) {
+      doc += `\n**Note:** ${pathObj.remarks}\n`
+    }
+
     return doc
   } else {
     const wildcardStyle = pathObj.path.includes('{')
@@ -131,6 +135,10 @@ function generatePathDoc (pathObj, format) {
 
     if (pathObj.enum) {
       doc += generateEnumList(pathObj.enum, format)
+    }
+
+    if (pathObj.remarks) {
+      doc += pathObj.remarks
     }
 
     doc += '</dd>\n'

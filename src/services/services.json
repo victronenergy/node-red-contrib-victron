@@ -1257,6 +1257,16 @@
         "name": "/History/Cumulative/User/ChargedAh (Ah)"
       },
       {
+        "path": "/Mode",
+        "type": "enum",
+        "name": "Charger on/off",
+        "mode": "both",
+        "enum": {
+          "1": "On",
+          "4": "Off"
+        }
+      },
+      {
         "path": "/ProductId",
         "type": "float",
         "name": "/ProductId"
@@ -1897,15 +1907,15 @@
         "mode": "both"
       },
       {
-        "path": "/Hub4/{line}}/AcPowerSetpoint",
+        "path": "/Hub4/{line}/AcPowerSetpoint",
         "type": "integer",
         "name": "AC Power {line} setpoint (W)",
         "mode": "both"
       },
       {
-        "path": "/Hub4/{line}}/MaxFeedInPower",
+        "path": "/Hub4/{line}/MaxFeedInPower",
         "type": "integer",
-        "name": "Maximum overvoltage feed-in power {line}} (W)",
+        "name": "Maximum overvoltage feed-in power {line} (W)",
         "mode": "both"
       },
       {
@@ -1992,19 +2002,22 @@
         "path": "/Settings/CGwacs/BatteryLife/State",
         "type": "enum",
         "name": "ESS state",
+        "mode": "both",
+        "remarks": "<p>Writable values: 1 (Optimized with BatteryLife), 9 (Keep batteries charged), 10 (Optimized without BatteryLife).</p>",
         "enum": {
-          "1": "BatteryLife enabled (GUI controlled)",
-          "2": "Optimized Mode /w BatteryLife: self consumption",
-          "3": "Optimized Mode /w BatteryLife: self consumption, SoC exceeds 85%",
-          "4": "Optimized Mode /w BatteryLife: self consumption, SoC at 100%",
-          "5": "Optimized Mode /w BatteryLife: SoC below dynamic SoC limit",
-          "6": "Optimized Mode /w BatteryLife: SoC has been below SoC limit for more than 24 hours. Charging the battery (5A)",
-          "7": "Optimized Mode /w BatteryLife: Inverter/Charger is in sustain mode",
-          "8": "Optimized Mode /w BatteryLife: recharging, SoC dropped by 5% or more below the minimum SoC",
-          "9": "'Keep batteries charged' mode is enabled",
-          "10": "Optimized mode w/o BatteryLife: self consumption, SoC at or above minimum SoC",
-          "11": "Optimized mode w/o BatteryLife: self consumption, SoC is below minimum SoC",
-          "12": "Optimized mode w/o BatteryLife: recharging, SoC dropped by 5% or more below minimum SoC"
+          "0": "No longer used",
+          "1": "Optimized w/ BatteryLife: BatteryLife enabled (set by GUI)",
+          "2": "Optimized w/ BatteryLife: Self consumption",
+          "3": "Optimized w/ BatteryLife: Self consumption, SoC exceeds 85%",
+          "4": "Optimized w/ BatteryLife: Self consumption, SoC at 100%",
+          "5": "Optimized w/ BatteryLife: SoC below dynamic SoC limit",
+          "6": "Optimized w/ BatteryLife: SoC below limit >24h, charging at 5A",
+          "7": "Optimized w/ BatteryLife: Multi/Quattro in sustain",
+          "8": "Optimized w/ BatteryLife: Recharge, SoC dropped 5%+ below MinSoC",
+          "9": "Keep batteries charged",
+          "10": "Optimized w/o BatteryLife: Self consumption, SoC at or above minimum SoC",
+          "11": "Optimized w/o BatteryLife: Self consumption, SoC below minimum SoC",
+          "12": "Optimized w/o BatteryLife: Recharge, SoC dropped 5%+ below minimum SoC"
         }
       },
       {
@@ -3996,20 +4009,22 @@
         "path": "/Settings/CGwacs/BatteryLife/State",
         "type": "enum",
         "name": "ESS BatteryLife state",
+        "mode": "both",
+        "remarks": "<p>Writable values: 1 (Optimized with BatteryLife), 9 (Keep batteries charged), 10 (Optimized without BatteryLife).</p>",
         "enum": {
-          "0": "Unused, BL disabled",
-          "1": "Restarting",
-          "2": "Self-consumption",
-          "3": "Self-consumption",
-          "4": "Self-consumption",
-          "5": "Discharge disabled",
-          "6": "Force charge",
-          "7": "Sustain",
-          "8": "Low Soc Recharge",
+          "0": "No longer used",
+          "1": "Optimized w/ BatteryLife: BatteryLife enabled (set by GUI)",
+          "2": "Optimized w/ BatteryLife: Self consumption",
+          "3": "Optimized w/ BatteryLife: Self consumption, SoC exceeds 85%",
+          "4": "Optimized w/ BatteryLife: Self consumption, SoC at 100%",
+          "5": "Optimized w/ BatteryLife: SoC below dynamic SoC limit",
+          "6": "Optimized w/ BatteryLife: SoC below limit >24h, charging at 5A",
+          "7": "Optimized w/ BatteryLife: Multi/Quattro in sustain",
+          "8": "Optimized w/ BatteryLife: Recharge, SoC dropped 5%+ below MinSoC",
           "9": "Keep batteries charged",
-          "10": "BL Disabled",
-          "11": "BL Disabled (Low SoC)",
-          "12": "BL Disabled (Low SOC recharge)"
+          "10": "Optimized w/o BatteryLife: Self consumption, SoC at or above minimum SoC",
+          "11": "Optimized w/o BatteryLife: Self consumption, SoC below minimum SoC",
+          "12": "Optimized w/o BatteryLife: Recharge, SoC dropped 5%+ below minimum SoC"
         }
       },
       {
@@ -4995,6 +5010,7 @@
         "path": "/Hub4/FixSolarOffsetTo100mV",
         "type": "enum",
         "name": "Solar offset voltage",
+        "mode": "both",
         "enum": {
           "0": "OvervoltageFeedIn uses 1V offset",
           "1": "OvervoltageFeedIn uses 0.1V offset"
