@@ -16,6 +16,7 @@ const { makeSetPresence } = require('./helpers')
 
 const acloadModule = require('./device-type/acload')
 const batteryModule = require('./device-type/battery')
+const dcloadModule = require('./device-type/dcload')
 const evModule = require('./device-type/ev')
 const generatorModule = require('./device-type/generator')
 const gpsModule = require('./device-type/gps')
@@ -42,6 +43,7 @@ process.on('unhandledRejection', (reason, promise) => {
 const properties = {
   acload: acloadModule.properties,
   battery: batteryModule.properties,
+  dcload: dcloadModule.properties,
   ev: evModule.properties,
   temperature: temperatureModule.properties,
   genset: generatorModule.properties.genset,
@@ -59,6 +61,7 @@ const properties = {
 const deviceModules = {
   acload: acloadModule,
   battery: batteryModule,
+  dcload: dcloadModule,
   ev: evModule,
   generator: generatorModule,
   gps: gpsModule,
@@ -75,6 +78,7 @@ const deviceModules = {
 const DEVICE_TYPES = [
   { value: 'acload', label: 'AC Load' },
   { value: 'battery', label: 'Battery' },
+  { value: 'dcload', label: 'DC Load' },
   { value: 'e-drive', label: 'E-drive' },
   { value: 'ev', label: 'Electric Vehicle' },
   { value: 'generator', label: 'Generator' },
