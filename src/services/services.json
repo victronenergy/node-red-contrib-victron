@@ -321,7 +321,7 @@
     "help": {
       "both": "<p>This node allows for monitoring the state of BMVs configured in Monitor Mode and DC meter type is Alternator or an alternator controller which is interfaced to the Venus OS.</p>",
       "input": "",
-      "output": ""
+      "output": " "
     },
     "alternator": [
       {
@@ -461,6 +461,7 @@
         "path": "/Mode",
         "type": "enum",
         "name": "Mode",
+        "mode": "both",
         "enum": {
           "1": "On",
           "4": "Off"
