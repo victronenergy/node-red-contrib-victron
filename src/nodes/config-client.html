@@ -158,7 +158,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
     border-left: 4px solid #007acc;
     border-radius: 4px;
   }
-  
+
   .wildcard-info code {
     background-color: #e1f5fe;
     color: #01579b;
@@ -166,12 +166,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
     padding: 1px 3px;
     border-radius: 3px;
   }
-  
+
   .wildcard-info ul {
     margin: 5px 0 0 0;
     padding-left: 20px;
   }
-  
+
   dt[style*="border-left"], dd[style*="border-left"] {
     background: #fcfcfc;
   }
@@ -766,7 +766,146 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dd>Dbus path: <b>/History/EnergyOut</b><span class="property-mode"></span>
 </dd>
   <dt class="optional">Mode<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Mode</b><span class="property-mode"></span>
+  <dd>Dbus path: <b>/Mode</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>1 - On</li>
+  <li>4 - Off</li>
+</ul></dd>
+  <dt class="optional">Alternator speed (RPM)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Speed</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Alternator state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/State</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Off</li>
+  <li>2 - Fault</li>
+  <li>3 - Bulk</li>
+  <li>4 - Absorption</li>
+  <li>5 - Float</li>
+  <li>6 - Storage</li>
+  <li>7 - Equalize</li>
+  <li>11 - Psu</li>
+  <li>252 - External control</li>
+</ul></dd>
+</dl>
+</script>
+
+<script type="text/x-red" data-help-name="victron-output-alternator">
+<h3>Details</h3>
+<p>The <strong>output nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+
+<div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
+  <strong>📝 Wildcard Paths:</strong> 
+  Paths containing placeholders like <code>{type}</code>, <code>{tracker}</code>, <code>{phase}</code> 
+  will be automatically expanded to show available options based on your connected devices.
+  <ul style="margin: 5px 0;">
+    <li><code>{type}</code> - Switch types (output_1, output_2, pwm_1, relay_1, etc.)</li>
+    <li><code>{tracker}</code> - PV tracker numbers (0, 1, 2, 3)</li>
+    <li><code>{phase}</code> - AC phases (1, 2, 3 for L1, L2, L3)</li>
+    <li><code>{day}</code> - History days (0=today, 1=yesterday)</li>
+    <li><code>{input}</code> - AC inputs (1, 2)</li>
+    <li><code>{channel}</code> - DC channels (0, 1)</li>
+    <li><code>{index}</code> - Index numbers (0, 1, 2, 3, etc.)</li>
+  </ul>
+</div> 
+<h3>Alternator</h3>
+<dl class="message-properties">
+  <dt class="optional">High auxiliary voltage alarm<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Alarms/HighStarterVoltage</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul></dd>
+  <dt class="optional">High temperature alarm<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Alarms/HighTemperature</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul></dd>
+  <dt class="optional">High voltage alarm<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Alarms/HighVoltage</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul></dd>
+  <dt class="optional">Low auxiliary voltage alarm<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Alarms/LowStarterVoltage</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul></dd>
+  <dt class="optional">Low temperature alarm<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Alarms/LowTemperature</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul></dd>
+  <dt class="optional">Low voltage alarm<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Alarms/LowVoltage</b><span class="property-mode"></span>
+<ul>
+  <li>0 - No alarm</li>
+  <li>2 - Alarm</li>
+</ul></dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Battery current <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{channel}</code> (A)<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Dc/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{channel}</code>/Current</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Battery temperature <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{channel}</code> (°C)<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Dc/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{channel}</code>/Temperature</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Battery voltage <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{channel}</code> (V)<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Dc/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{channel}</code>/Voltage</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Input voltage (before DC/DC converter) (V DC)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Dc/In/V</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Input power (W DC)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Dc/In/P</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Engine speed (RPM)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Engine/Speed</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Alternator error code<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/ErrorCode</b><span class="property-mode"></span>
+<ul>
+  <li>12 - High battery temperature</li>
+  <li>13 - High battery voltage</li>
+  <li>14 - Low battery voltage</li>
+  <li>15 - VBat exceeds $CPB</li>
+  <li>21 - High alternator temperature</li>
+  <li>22 - Alternator overspeed</li>
+  <li>24 - Internal error</li>
+  <li>41 - High field FET temperature</li>
+  <li>42 - Sensor missing</li>
+  <li>43 - Low VAlt</li>
+  <li>44 - High Voltage offset</li>
+  <li>45 - VAlt exceeds $CPB</li>
+  <li>53 - Battery instance out of range</li>
+  <li>54 - Too many BMSes</li>
+  <li>55 - AEBus fault</li>
+  <li>56 - Too many Victron devices</li>
+  <li>91 - BMS lost</li>
+  <li>92 - Forced idle</li>
+  <li>201 - DCDC converter fail</li>
+  <li>51-52 - Battery disconnect request</li>
+  <li>58-61 - Battery requested disconnection</li>
+  <li>201-207 - DCDC error</li>
+</ul></dd>
+  <dt class="optional">Alternator Field Drive %<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/FieldDrive</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Cumulative amp-hours charged (Ah)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/History/Cumulative/User/ChargedAh</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Total energy produced (kWh)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/History/EnergyOut</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Mode<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Mode</b><span class="property-mode"> (Mode: both)</span>
 <ul>
   <li>1 - On</li>
   <li>4 - Off</li>

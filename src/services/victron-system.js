@@ -239,6 +239,7 @@ class SystemConfiguration {
 
       // output services
       'output-accharger': this.getNodeServices('output-accharger'),
+      'output-alternator': this.getNodeServices('output-alternator'),
       'output-acsystem': this.getNodeServices('output-acsystem'),
       'output-battery': this.getNodeServices('output-battery'),
       'output-charger': this.getNodeServices('output-charger'),

@@ -1,5 +1,48 @@
 const SystemConfiguration = require('../src/services/victron-system')
 const utils = require('../src/services/utils')
+const servicesJson = require('../src/services/services.json')
+
+describe('Alternator /Mode control (Orion XS in Charger mode)', () => {
+  let systemConfig
+
+  beforeEach(() => {
+    systemConfig = new SystemConfiguration()
+    systemConfig.cache = {
+      'com.victronenergy.alternator.ttyUSB0': {
+        '/ProductName': 'Orion XS',
+        '/Mode': 1,
+        '/ModeIsAdjustable': 1,
+        '/State': 3,
+        '/DeviceInstance': 0
+      }
+    }
+  })
+
+  test('alternator /Mode has mode: both in services.json', () => {
+    const modePath = servicesJson.alternator.alternator.find(p => p.path === '/Mode')
+    expect(modePath).toBeDefined()
+    expect(modePath.mode).toBe('both')
+  })
+
+  test('output-alternator node exposes /Mode for writing', () => {
+    const result = systemConfig.getNodeServices('output-alternator')
+    expect(result.services).toHaveLength(1)
+    const modePath = result.services[0].paths.find(p => p.path === '/Mode')
+    expect(modePath).toBeDefined()
+  })
+
+  test('input-alternator node exposes /Mode for reading', () => {
+    const result = systemConfig.getNodeServices('input-alternator')
+    expect(result.services).toHaveLength(1)
+    const modePath = result.services[0].paths.find(p => p.path === '/Mode')
+    expect(modePath).toBeDefined()
+  })
+
+  test('output-alternator is included in listAvailableServices', () => {
+    const services = systemConfig.listAvailableServices()
+    expect(services).toHaveProperty('output-alternator')
+  })
+})
 
 describe('SystemConfiguration path sorting', () => {
   let systemConfig
