@@ -127,6 +127,14 @@ describe('utils', () => {
       expect(result.valid).toBe(true)
     })
 
+    it('accepts array of strings (for dropdown Labels)', () => {
+      const payload = {
+        'SwitchableOutput/output_1/Settings/Labels': ['Label 1', 'Label 2', 'Label 3']
+      }
+      const result = validateVirtualDevicePayload(payload)
+      expect(result.valid).toBe(true)
+    })
+
     it('accepts mixed valid types including arrays', () => {
       const payload = {
         Soc: 75,
@@ -268,7 +276,7 @@ describe('utils', () => {
       }
       const result = validateVirtualDevicePayload(payload)
       expect(result.error).toContain('BadObject')
-      expect(result.error).toContain('Expected: string, number, boolean, null, or array of numbers')
+      expect(result.error).toContain('Expected: string, number, boolean, null, array of numbers, or array of strings')
     })
 
   })
