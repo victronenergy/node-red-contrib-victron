@@ -12,6 +12,7 @@ const pvinverter = require('../src/nodes/victron-virtual/device-type/pvinverter'
 const switchMod = require('../src/nodes/victron-virtual/device-type/switch')
 const tank = require('../src/nodes/victron-virtual/device-type/tank')
 const temperature = require('../src/nodes/victron-virtual/device-type/temperature')
+const energymeter = require('../src/nodes/victron-virtual/device-type/energymeter')
 
 function makeFixtures () {
   return {
@@ -633,6 +634,75 @@ describe('temperature', () => {
       [99, 'unknown']
     ])('TemperatureType %i → %s', (v, expected) => {
       expect(fmt(v)).toBe(expected)
+    })
+  })
+})
+
+// ---------------------------------------------------------------------------
+// energymeter
+// ---------------------------------------------------------------------------
+
+describe('energymeter', () => {
+  describe('properties', () => {
+    it('defines properties, and handles "Position" property with correct format', () => {
+      expect(energymeter.properties).toBeDefined()
+      expect(typeof energymeter.properties).toBe('function')
+
+      // a grid meter should not have Position property
+      expect(energymeter.properties({ energymeter_role: 'gridmeter' }).Position).toBeUndefined()
+
+      // other roles have the Position property
+      expect(energymeter.properties({}).Position).toBeDefined()
+
+      expect(energymeter.properties({}).Position.format(0)).toBe('output')
+      expect(energymeter.properties({}).Position.format(1)).toBe('input')
+    })
+  })
+
+  describe('shared properties', () => {
+    it('provides a format function for each property', () => {
+      const props = energymeter.__sharedProperties
+      for (const [, prop] of Object.entries(props)) {
+        expect(prop.format).toBeDefined()
+        expect(typeof prop.format).toBe('function')
+        expect(prop.format(null)).toBeDefined()
+      }
+    })
+  })
+
+  describe('initialize', () => {
+    it('adds phase properties based on "energymeter_nrofphases" config', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+
+      energymeter.initialize({ energymeter_nrofphases: 1 }, ifaceDesc, iface, node)
+      expect(ifaceDesc.properties['Ac/L1/Current']).toBeDefined()
+      expect(ifaceDesc.properties['Ac/L2/Current']).toBeUndefined()
+      expect(ifaceDesc.properties['Ac/L3/Current']).toBeUndefined()
+
+      // ensure the format function is available
+      expect(ifaceDesc.properties['Ac/L1/Current'].format).toBeDefined()
+      expect(typeof ifaceDesc.properties['Ac/L1/Current'].format).toBe('function')
+      expect(typeof ifaceDesc.properties['Ac/L1/Current'].format(0)).toBeDefined()
+
+      const { ifaceDesc: desc2, iface: iface2, node: node2 } = makeFixtures()
+      energymeter.initialize({ energymeter_nrofphases: 3 }, desc2, iface2, node2)
+      expect(desc2.properties['Ac/L1/Current']).toBeDefined()
+      expect(desc2.properties['Ac/L2/Current']).toBeDefined()
+      expect(desc2.properties['Ac/L3/Current']).toBeDefined()
+    })
+
+    it('honors "config.default_values"', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+
+      energymeter.initialize({ default_values: false }, ifaceDesc, iface, node)
+      expect(iface['Ac/Power']).toBeUndefined()
+      expect(iface['Ac/Energy/Forward']).toBeUndefined()
+      expect(iface['Ac/Energy/Reverse']).toBeUndefined()
+
+      energymeter.initialize({ default_values: true }, ifaceDesc, iface, node)
+      expect(iface['Ac/Power']).toBe(0)
+      expect(iface['Ac/Energy/Forward']).toBe(0)
+      expect(iface['Ac/Energy/Reverse']).toBe(0)
     })
   })
 })
