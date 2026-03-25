@@ -1,18 +1,32 @@
+const debug = require('debug')('victron-virtual')
+
+const ROLE_TO_SERVICE_TYPE = {
+  gridmeter: 'grid',
+  inverter: 'pvinverter',
+  generator: 'genset',
+  acload: 'acload',
+  evcharger: 'evcharger',
+  heatpump: 'heatpump'
+}
+
 const sharedProperties = {
-  'Ac/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '', value: 0 },
   'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', value: 0 },
   'Ac/Energy/Reverse': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', value: 0 },
   'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
   'Ac/PowerFactor': { type: 'd', format: (v) => v != null ? v.toFixed(2) : '' },
-  'Ac/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
+  Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
   DeviceType: { type: 'i', format: (v) => v != null ? v : '', value: 0 },
   ErrorCode: { type: 'i', format: (v) => v != null ? v : '', value: 0 },
   IsGenericEnergyMeter: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
   NrOfPhases: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
 }
 
+function getServiceType (config) {
+  return ROLE_TO_SERVICE_TYPE[config.energymeter_role] || 'grid'
+}
+
 function buildProperties (config) {
-  console.log('Building properties for energy meter with config:', config)
+  debug('Building properties for energy meter with config: %o', config)
 
   // make copy of sharedProperties to avoid modifying the original object
   const properties = { ...sharedProperties }
@@ -22,6 +36,7 @@ function buildProperties (config) {
       break
     default:
       properties.Position = { type: 'i', format: (v) => v === 0 ? 'output' : 'input', value: 0 }
+      properties.PositionIsAdjustable = { type: 'i', format: (v) => v != null ? v : '', value: 0 }
   }
 
   return properties
@@ -59,6 +74,7 @@ function initialize (config, ifaceDesc, iface, node) {
 
 module.exports = {
   properties: buildProperties,
+  getServiceType,
   initialize,
   label: 'Energy meter',
   // we export sharedProperties for unit testing

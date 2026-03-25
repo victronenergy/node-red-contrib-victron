@@ -403,8 +403,9 @@ module.exports = function (RED) {
       }
 
       const actualDeviceType = getActualDeviceType(config.device, config.generator_type)
+      const dbusServiceType = deviceModules[config.device]?.getServiceType?.(config) ?? actualDeviceType
 
-      const serviceName = `com.victronenergy.${actualDeviceType}.virtual_${self.id}`
+      const serviceName = `com.victronenergy.${dbusServiceType}.virtual_${self.id}`
       const interfaceName = serviceName
       const objectPath = `/${serviceName.replace(/\./g, '/')}`
 
@@ -541,7 +542,7 @@ module.exports = function (RED) {
           settingsResult = await callAddSettingsWithRetry(usedBus, [
             {
               path: `/Settings/Devices/virtual_${node.id}/ClassAndVrmInstance`,
-              default: `${actualDeviceType}:100`,
+              default: `${dbusServiceType}:100`,
               type: 's'
             }
           ])
@@ -598,11 +599,11 @@ module.exports = function (RED) {
           const parts = currentClassAndVrmInstance.split(':')
           const currentClass = parts[0]
           const vrmInstance = parts[1]
-          if (currentClass !== actualDeviceType && !vrmInstance) {
+          if (currentClass !== dbusServiceType && !vrmInstance) {
             throw new Error(`Invalid ClassAndVrmInstance value: ${currentClassAndVrmInstance}`)
           }
-          if (currentClass !== actualDeviceType) {
-            const newValue = `${actualDeviceType}:${vrmInstance}`
+          if (currentClass !== dbusServiceType) {
+            const newValue = `${dbusServiceType}:${vrmInstance}`
             const migrationSucceeded = await new Promise(resolve => {
               usedBus.invoke({
                 path: `/Settings/Devices/virtual_${node.id}/ClassAndVrmInstance`,
