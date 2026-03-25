@@ -276,7 +276,7 @@ function getDbusServiceName (name) {
  * Prefers immediate:true paths (primary measurements); falls back to non-internal paths.
  */
 function getKeyPaths (properties) {
-  const allKeys = Object.keys(properties)
+  const allKeys = Object.keys(typeof properties === 'function' ? properties({}) : properties)
   const immediate = allKeys.filter(k => properties[k] && properties[k].immediate)
   const candidates = immediate.length > 0
     ? immediate
@@ -327,8 +327,9 @@ function generateDeviceTypesTable (deviceModules) {
       const label = mod.label || (name.charAt(0).toUpperCase() + name.slice(1))
 
       // Detect nested properties (generator has { genset: {...}, dcgenset: {...} })
-      const isNested = !Object.values(mod.properties).some(v => v && v.type)
-      const flatProperties = isNested ? Object.values(mod.properties)[0] : mod.properties
+      const properties = typeof mod.properties === 'function' ? mod.properties({}) : mod.properties
+      const isNested = !Object.values(properties).some(v => v && v.type)
+      const flatProperties = isNested ? Object.values(properties)[0] : properties
 
       const service = getDbusServiceName(name)
       const keyPaths = getKeyPaths(flatProperties)
