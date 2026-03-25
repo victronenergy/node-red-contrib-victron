@@ -254,6 +254,38 @@ export const DEVICE_TYPE_DOCS = {
   `,
     img: null
   },
+  ev: {
+    label: 'Electric Vehicle',
+    text: `
+    ${INPUT_DOCS}
+    <div>
+      <div><strong>Most relevant paths:</strong>
+        <ul>
+          <li><code>/Soc</code> &mdash; State of charge as a percentage (0-100%).</li>
+          <li><code>/TargetSoc</code> &mdash; Target state of charge as a percentage (0-100%).</li>
+          <li><code>/ChargingState</code> &mdash; Charging state: <code>0</code> = Disconnected, <code>1</code> = Connected, <code>2</code> = Charging, <code>3</code> = Charged, <code>5</code> = Inverting, <code>6</code> = Error, <code>7</code> = Unknown.</li>
+          <li><code>/Ac/Power</code> &mdash; AC power in watts. Positive = charging, negative = discharging (V2G/V2H).</li>
+          <li><code>/Odometer</code> &mdash; Odometer reading in km.</li>
+          <li><code>/RangeToGo</code> &mdash; Estimated driving range in km.</li>
+          <li><code>/Position/Latitude</code> &mdash; Vehicle latitude in decimal degrees.</li>
+          <li><code>/Position/Longitude</code> &mdash; Vehicle longitude in decimal degrees.</li>
+          <li><code>/AtSite</code> &mdash; Whether the EV is at the site: <code>0</code> = No, <code>1</code> = Yes.</li>
+          <li><code>/LastEvContact</code> &mdash; Unix timestamp of the last contact with the EV.</li>
+          <li><code>/Alarms/StarterBatteryLow</code> &mdash; Starter battery low alarm: <code>0</code> = No alarm, <code>1</code> = Alarm.</li>
+        </ul>
+        <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
+      </div>
+    </div>
+    <div>
+      <div><strong>Output:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+        </ol>
+      </div>
+    </div>
+  `,
+    img: null
+  },
   'e-drive': {
     label: 'E-drive',
     text: `
@@ -797,7 +829,7 @@ export function updateBatteryVoltageVisibility () {
 
 export function checkSelectedVirtualDevice (context) {
   [
-    'acload', 'battery', 'generator', 'gps', 'grid', 'e-drive',
+    'acload', 'battery', 'ev', 'generator', 'gps', 'grid', 'e-drive',
     'pvinverter', 'switch', 'tank', 'temperature'
   ].forEach(x => { $('.input-' + x).hide() })
 
