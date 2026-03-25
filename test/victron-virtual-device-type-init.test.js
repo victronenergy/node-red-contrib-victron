@@ -648,14 +648,32 @@ describe('energymeter', () => {
       expect(energymeter.properties).toBeDefined()
       expect(typeof energymeter.properties).toBe('function')
 
-      // a grid meter should not have Position property
+      // a grid meter should not have Position or PositionIsAdjustable
       expect(energymeter.properties({ energymeter_role: 'gridmeter' }).Position).toBeUndefined()
+      expect(energymeter.properties({ energymeter_role: 'gridmeter' }).PositionIsAdjustable).toBeUndefined()
 
-      // other roles have the Position property
+      // other roles have Position and PositionIsAdjustable
       expect(energymeter.properties({}).Position).toBeDefined()
+      expect(energymeter.properties({}).PositionIsAdjustable).toBeDefined()
 
       expect(energymeter.properties({}).Position.format(0)).toBe('output')
       expect(energymeter.properties({}).Position.format(1)).toBe('input')
+    })
+  })
+
+  describe('getServiceType', () => {
+    it('maps each role to the correct Venus OS service type', () => {
+      expect(energymeter.getServiceType({ energymeter_role: 'gridmeter' })).toBe('grid')
+      expect(energymeter.getServiceType({ energymeter_role: 'heatpump' })).toBe('heatpump')
+      expect(energymeter.getServiceType({ energymeter_role: 'acload' })).toBe('acload')
+      expect(energymeter.getServiceType({ energymeter_role: 'evcharger' })).toBe('evcharger')
+      expect(energymeter.getServiceType({ energymeter_role: 'inverter' })).toBe('pvinverter')
+      expect(energymeter.getServiceType({ energymeter_role: 'generator' })).toBe('genset')
+    })
+
+    it('defaults to "grid" for unknown roles', () => {
+      expect(energymeter.getServiceType({})).toBe('grid')
+      expect(energymeter.getServiceType({ energymeter_role: 'unknown' })).toBe('grid')
     })
   })
 
