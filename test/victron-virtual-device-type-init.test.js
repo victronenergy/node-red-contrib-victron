@@ -8,6 +8,7 @@ const gps = require('../src/nodes/victron-virtual/device-type/gps')
 const grid = require('../src/nodes/victron-virtual/device-type/grid')
 const meteo = require('../src/nodes/victron-virtual/device-type/meteo')
 const motordrive = require('../src/nodes/victron-virtual/device-type/motordrive')
+const pulsemeter = require('../src/nodes/victron-virtual/device-type/pulsemeter')
 const pvinverter = require('../src/nodes/victron-virtual/device-type/pvinverter')
 const switchMod = require('../src/nodes/victron-virtual/device-type/switch')
 const tank = require('../src/nodes/victron-virtual/device-type/tank')
@@ -398,6 +399,49 @@ describe('motordrive', () => {
       [99, 'unknown']
     ])('Motor/Direction %i → %s', (v, expected) => {
       expect(fmt(v)).toBe(expected)
+    })
+  })
+})
+
+// ---------------------------------------------------------------------------
+// pulsemeter
+// ---------------------------------------------------------------------------
+
+describe('pulsemeter', () => {
+  describe('initialize', () => {
+    test('returns status text', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      const result = pulsemeter.initialize({}, ifaceDesc, iface, node)
+      expect(result).toBe('Virtual pulse meter')
+    })
+
+    test('does not modify ifaceDesc or iface', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      pulsemeter.initialize({}, ifaceDesc, iface, node)
+      expect(Object.keys(ifaceDesc.properties)).toHaveLength(0)
+      expect(Object.keys(iface)).toHaveLength(0)
+    })
+  })
+
+  describe('format', () => {
+    const countFmt = pulsemeter.properties.Count.format
+    const aggregateFmt = pulsemeter.properties.Aggregate.format
+
+    test.each([
+      [0, '0'],
+      [1000, '1000'],
+      [null, '']
+    ])('Count %s -> %s', (v, expected) => {
+      expect(countFmt(v)).toBe(expected)
+    })
+
+    test.each([
+      [1.0, '1.000m³'],
+      [0.5, '0.500m³'],
+      [1234.5678, '1234.568m³'],
+      [null, '']
+    ])('Aggregate %s -> %s', (v, expected) => {
+      expect(aggregateFmt(v)).toBe(expected)
     })
   })
 })
