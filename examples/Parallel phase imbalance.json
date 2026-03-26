@@ -1,0 +1,427 @@
+[
+    {
+        "id": "1a2b3c4d5e6f0001",
+        "type": "subflow",
+        "name": "Phase Imbalance Check",
+        "info": "Tracks the latest value per device (keyed by `msg.topic`), calculates their average, and reports the worst percentage deviation once all expected devices have reported.\n\nEach subflow instance maintains its own per-device state, so one instance per phase is correct.\n\n## Parameters\n\nConfigurable via the subflow instance edit panel:\n\n| Parameter | Default | Description |\n|---|---|---|\n| Sample count | 3 | Number of distinct devices expected per phase |\n| Warning threshold (%) | 10 | Deviation % that triggers a warning |\n| Critical threshold (%) | 25 | Deviation % that triggers a critical alert |\n\n## Output\n\n- `msg.payload`: severity - `0` = OK, `1` = warning, `2` = critical\n- `msg.text`: human-readable status string\n- `msg.details`: `{ deviceValues, avg, worstDeviationPct, offenders }`\n\n## Node status\n\n- **Green dot**: within tolerance\n- **Orange ring**: imbalance warning\n- **Red ring**: critical imbalance",
+        "category": "",
+        "color": "#8BBFD4",
+        "env": [
+            {
+                "name": "SAMPLE_COUNT",
+                "type": "num",
+                "value": "3",
+                "ui": {
+                    "label": {"en-US": "Sample count"},
+                    "type": "spinner",
+                    "opts": {"min": 2, "max": 20}
+                }
+            },
+            {
+                "name": "WARNING_LIMIT_PCT",
+                "type": "num",
+                "value": "10",
+                "ui": {
+                    "label": {"en-US": "Warning threshold (%)"},
+                    "type": "spinner",
+                    "opts": {"min": 1, "max": 100}
+                }
+            },
+            {
+                "name": "RED_LIMIT_PCT",
+                "type": "num",
+                "value": "25",
+                "ui": {
+                    "label": {"en-US": "Critical threshold (%)"},
+                    "type": "spinner",
+                    "opts": {"min": 1, "max": 100}
+                }
+            }
+        ],
+        "in": [
+            {
+                "x": 60,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "1a2b3c4d5e6f0002"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 420,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "1a2b3c4d5e6f0002",
+                        "port": 0
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "1a2b3c4d5e6f0002",
+        "type": "function",
+        "z": "1a2b3c4d5e6f0001",
+        "name": "",
+        "func": "/************************************************************\n * Phase Imbalance Check\n *\n * Tracks the latest value per device (keyed by msg.topic),\n * then calculates the worst % deviation from the average\n * once all expected devices have reported.\n *\n * Parameters are configured via the subflow instance edit panel.\n ************************************************************/\nconst SAMPLE_COUNT = Number(env.get('SAMPLE_COUNT') ?? 3);\nconst WARNING_LIMIT_PCT = Number(env.get('WARNING_LIMIT_PCT') ?? 10);\nconst RED_LIMIT_PCT = Number(env.get('RED_LIMIT_PCT') ?? 25);\n// Near-zero average: skip % deviation (division by ~0 is meaningless).\n// At very low load all devices read near 0 W, so reporting OK is correct.\nconst MIN_AVG = 0.0001;\nconst ROUND_TO = 3;\n\n/******************** helpers ******************************/\nfunction round(n, d) {\n    const p = Math.pow(10, d);\n    return Math.round(n * p) / p;\n}\n\n/******************** main *********************************/\nconst val = Number(msg.payload);\nif (!Number.isFinite(val)) return null;\n\n// Store latest value per device, keyed by msg.topic (node name)\nconst deviceValues = context.get('deviceValues') || {};\ndeviceValues[msg.topic] = val;\ncontext.set('deviceValues', deviceValues);\n\n// Wait until we have a reading from each expected device\nconst readings = Object.values(deviceValues);\nconst seen = readings.length;\nif (seen < SAMPLE_COUNT) {\n    node.status({\n        fill: 'yellow',\n        shape: 'ring',\n        text: `waiting (${seen}/${SAMPLE_COUNT})`\n    });\n    return null;\n}\n\n// Calculate average\nconst avg = readings.reduce((a, b) => a + b, 0) / readings.length;\n\nlet worstPct = 0;\nconst offenders = [];\n\nif (Math.abs(avg) >= MIN_AVG) {\n    Object.entries(deviceValues).forEach(([device, v]) => {\n        const pct = Math.abs((v - avg) / avg) * 100;\n        if (pct > worstPct) worstPct = pct;\n        if (pct > WARNING_LIMIT_PCT) offenders.push(device);\n    });\n}\n\n// Determine severity\nlet severity, statusText;\n\nif (worstPct <= WARNING_LIMIT_PCT) {\n    severity = 0;\n    statusText = 'in tolerance';\n    node.status({ fill: 'green', shape: 'dot', text: 'in tolerance' });\n} else if (worstPct <= RED_LIMIT_PCT) {\n    severity = 1;\n    statusText = 'imbalance warning';\n    node.status({ fill: 'orange', shape: 'ring', text: 'imbalance warning' });\n} else {\n    severity = 2;\n    statusText = 'CRITICAL phase imbalance';\n    node.status({ fill: 'red', shape: 'ring', text: 'CRITICAL imbalance' });\n}\n\nmsg.payload = severity;\nmsg.text = statusText;\nmsg.details = {\n    deviceValues: Object.fromEntries(\n        Object.entries(deviceValues).map(([k, v]) => [k, round(v, ROUND_TO)])\n    ),\n    avg: round(avg, ROUND_TO),\n    worstDeviationPct: round(worstPct, 1),\n    offenders\n};\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 240,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1a2b3c4d5e6f0003",
+        "type": "tab",
+        "label": "Parallel phase imbalance",
+        "disabled": false,
+        "info": "# Parallel Phase Imbalance Monitor\n\nMonitors AC input power balance across parallel Quattro units in a 3-phase system. Designed for installers who need to verify that load is distributed evenly across units.\n\n## How it works\n\nEach phase group collects the AC input power (`/Devices/N/Ac/In/P`) from all Quattro units assigned to that phase, then calculates the worst percentage deviation from the average. The result is reported as a severity level.\n\n## Setup\n\nThis example is configured for a system with **9 Quattro units** (3 per phase). The VE.Bus device numbering follows this pattern:\n\n| Phase | Device numbers |\n|-------|----------------|\n| L1    | 0, 3, 6        |\n| L2    | 1, 4, 7        |\n| L3    | 2, 5, 8        |\n\nAdapt the `victron-input-custom` nodes to match your installation:\n- Set the correct **service name** (your VE.Bus service)\n- Adjust the **device numbers** and **number of inputs per phase** to match your system\n\nTo add or remove units per phase, add or remove `victron-input-custom` nodes inside the relevant group, wiring them to the `Phase Imbalance Check` subflow instance.\n\n## Output\n\nEach phase group outputs:\n- `msg.payload`: `0` = OK, `1` = warning, `2` = critical\n- `msg.text`: human-readable status\n- `msg.details`: raw values, average, worst deviation %, offending inputs\n\n## Thresholds\n\n| Level    | Deviation | Status color |\n|----------|-----------|--------------|\n| OK       | <= 10%    | green        |\n| Warning  | 10 - 25%  | orange       |\n| Critical | > 25%     | red          |\n\nThresholds and sample count can be adjusted per phase by double-clicking the `Phase Imbalance Check` subflow instance.",
+        "env": []
+    },
+    {
+        "id": "1a2b3c4d5e6f0004",
+        "type": "group",
+        "z": "1a2b3c4d5e6f0003",
+        "name": "L1",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "1a2b3c4d5e6f0007",
+            "1a2b3c4d5e6f0008",
+            "1a2b3c4d5e6f0009",
+            "1a2b3c4d5e6f0010"
+        ],
+        "x": 34,
+        "y": 59,
+        "w": 672,
+        "h": 162
+    },
+    {
+        "id": "1a2b3c4d5e6f0005",
+        "type": "group",
+        "z": "1a2b3c4d5e6f0003",
+        "name": "L2",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "1a2b3c4d5e6f000a",
+            "1a2b3c4d5e6f000b",
+            "1a2b3c4d5e6f000c",
+            "1a2b3c4d5e6f0011"
+        ],
+        "x": 34,
+        "y": 239,
+        "w": 672,
+        "h": 162
+    },
+    {
+        "id": "1a2b3c4d5e6f0006",
+        "type": "group",
+        "z": "1a2b3c4d5e6f0003",
+        "name": "L3",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "1a2b3c4d5e6f000d",
+            "1a2b3c4d5e6f000e",
+            "1a2b3c4d5e6f000f",
+            "1a2b3c4d5e6f0012"
+        ],
+        "x": 34,
+        "y": 419,
+        "w": 672,
+        "h": 162
+    },
+    {
+        "id": "1a2b3c4d5e6f0007",
+        "type": "victron-input-custom",
+        "z": "1a2b3c4d5e6f0003",
+        "g": "1a2b3c4d5e6f0004",
+        "service": "com.victronenergy.vebus/274",
+        "path": "/Devices/0/Ac/In/P",
+        "serviceObj": {
+            "service": "com.victronenergy.vebus/274",
+            "name": "Quattro 48/15000/200-2x100 (274)"
+        },
+        "pathObj": {
+            "path": "/Devices/0/Ac/In/P",
+            "name": "/Devices/0/Ac/In/P",
+            "type": "number",
+            "value": 0
+        },
+        "name": "Device 0",
+        "onlyChanges": false,
+        "x": 230,
+        "y": 100,
+        "wires": [
+            [
+                "1a2b3c4d5e6f0010"
+            ]
+        ]
+    },
+    {
+        "id": "1a2b3c4d5e6f0008",
+        "type": "victron-input-custom",
+        "z": "1a2b3c4d5e6f0003",
+        "g": "1a2b3c4d5e6f0004",
+        "service": "com.victronenergy.vebus/274",
+        "path": "/Devices/3/Ac/In/P",
+        "serviceObj": {
+            "service": "com.victronenergy.vebus/274",
+            "name": "Quattro 48/15000/200-2x100 (274)"
+        },
+        "pathObj": {
+            "path": "/Devices/3/Ac/In/P",
+            "name": "/Devices/3/Ac/In/P",
+            "type": "number",
+            "value": 0
+        },
+        "name": "Device 3",
+        "onlyChanges": false,
+        "x": 230,
+        "y": 140,
+        "wires": [
+            [
+                "1a2b3c4d5e6f0010"
+            ]
+        ]
+    },
+    {
+        "id": "1a2b3c4d5e6f0009",
+        "type": "victron-input-custom",
+        "z": "1a2b3c4d5e6f0003",
+        "g": "1a2b3c4d5e6f0004",
+        "service": "com.victronenergy.vebus/274",
+        "path": "/Devices/6/Ac/In/P",
+        "serviceObj": {
+            "service": "com.victronenergy.vebus/274",
+            "name": "Quattro 48/15000/200-2x100 (274)"
+        },
+        "pathObj": {
+            "path": "/Devices/6/Ac/In/P",
+            "name": "/Devices/6/Ac/In/P",
+            "type": "number",
+            "value": 0
+        },
+        "name": "Device 6",
+        "onlyChanges": false,
+        "x": 230,
+        "y": 180,
+        "wires": [
+            [
+                "1a2b3c4d5e6f0010"
+            ]
+        ]
+    },
+    {
+        "id": "1a2b3c4d5e6f000a",
+        "type": "victron-input-custom",
+        "z": "1a2b3c4d5e6f0003",
+        "g": "1a2b3c4d5e6f0005",
+        "service": "com.victronenergy.vebus/274",
+        "path": "/Devices/1/Ac/In/P",
+        "serviceObj": {
+            "service": "com.victronenergy.vebus/274",
+            "name": "Quattro 48/15000/200-2x100 (274)"
+        },
+        "pathObj": {
+            "path": "/Devices/1/Ac/In/P",
+            "name": "/Devices/1/Ac/In/P",
+            "type": "number",
+            "value": 0
+        },
+        "name": "Device 1",
+        "onlyChanges": false,
+        "x": 230,
+        "y": 280,
+        "wires": [
+            [
+                "1a2b3c4d5e6f0011"
+            ]
+        ]
+    },
+    {
+        "id": "1a2b3c4d5e6f000b",
+        "type": "victron-input-custom",
+        "z": "1a2b3c4d5e6f0003",
+        "g": "1a2b3c4d5e6f0005",
+        "service": "com.victronenergy.vebus/274",
+        "path": "/Devices/4/Ac/In/P",
+        "serviceObj": {
+            "service": "com.victronenergy.vebus/274",
+            "name": "Quattro 48/15000/200-2x100 (274)"
+        },
+        "pathObj": {
+            "path": "/Devices/4/Ac/In/P",
+            "name": "/Devices/4/Ac/In/P",
+            "type": "number",
+            "value": 0
+        },
+        "name": "Device 4",
+        "onlyChanges": false,
+        "x": 230,
+        "y": 320,
+        "wires": [
+            [
+                "1a2b3c4d5e6f0011"
+            ]
+        ]
+    },
+    {
+        "id": "1a2b3c4d5e6f000c",
+        "type": "victron-input-custom",
+        "z": "1a2b3c4d5e6f0003",
+        "g": "1a2b3c4d5e6f0005",
+        "service": "com.victronenergy.vebus/274",
+        "path": "/Devices/7/Ac/In/P",
+        "serviceObj": {
+            "service": "com.victronenergy.vebus/274",
+            "name": "Quattro 48/15000/200-2x100 (274)"
+        },
+        "pathObj": {
+            "path": "/Devices/7/Ac/In/P",
+            "name": "/Devices/7/Ac/In/P",
+            "type": "number",
+            "value": 0
+        },
+        "name": "Device 7",
+        "onlyChanges": false,
+        "x": 230,
+        "y": 360,
+        "wires": [
+            [
+                "1a2b3c4d5e6f0011"
+            ]
+        ]
+    },
+    {
+        "id": "1a2b3c4d5e6f000d",
+        "type": "victron-input-custom",
+        "z": "1a2b3c4d5e6f0003",
+        "g": "1a2b3c4d5e6f0006",
+        "service": "com.victronenergy.vebus/274",
+        "path": "/Devices/2/Ac/In/P",
+        "serviceObj": {
+            "service": "com.victronenergy.vebus/274",
+            "name": "Quattro 48/15000/200-2x100 (274)"
+        },
+        "pathObj": {
+            "path": "/Devices/2/Ac/In/P",
+            "name": "/Devices/2/Ac/In/P",
+            "type": "number",
+            "value": 0
+        },
+        "name": "Device 2",
+        "onlyChanges": false,
+        "x": 230,
+        "y": 460,
+        "wires": [
+            [
+                "1a2b3c4d5e6f0012"
+            ]
+        ]
+    },
+    {
+        "id": "1a2b3c4d5e6f000e",
+        "type": "victron-input-custom",
+        "z": "1a2b3c4d5e6f0003",
+        "g": "1a2b3c4d5e6f0006",
+        "service": "com.victronenergy.vebus/274",
+        "path": "/Devices/5/Ac/In/P",
+        "serviceObj": {
+            "service": "com.victronenergy.vebus/274",
+            "name": "Quattro 48/15000/200-2x100 (274)"
+        },
+        "pathObj": {
+            "path": "/Devices/5/Ac/In/P",
+            "name": "/Devices/5/Ac/In/P",
+            "type": "number",
+            "value": 0
+        },
+        "name": "Device 5",
+        "onlyChanges": false,
+        "x": 230,
+        "y": 500,
+        "wires": [
+            [
+                "1a2b3c4d5e6f0012"
+            ]
+        ]
+    },
+    {
+        "id": "1a2b3c4d5e6f000f",
+        "type": "victron-input-custom",
+        "z": "1a2b3c4d5e6f0003",
+        "g": "1a2b3c4d5e6f0006",
+        "service": "com.victronenergy.vebus/274",
+        "path": "/Devices/8/Ac/In/P",
+        "serviceObj": {
+            "service": "com.victronenergy.vebus/274",
+            "name": "Quattro 48/15000/200-2x100 (274)"
+        },
+        "pathObj": {
+            "path": "/Devices/8/Ac/In/P",
+            "name": "/Devices/8/Ac/In/P",
+            "type": "number",
+            "value": 0
+        },
+        "name": "Device 8",
+        "onlyChanges": false,
+        "x": 230,
+        "y": 540,
+        "wires": [
+            [
+                "1a2b3c4d5e6f0012"
+            ]
+        ]
+    },
+    {
+        "id": "1a2b3c4d5e6f0010",
+        "type": "subflow:1a2b3c4d5e6f0001",
+        "z": "1a2b3c4d5e6f0003",
+        "g": "1a2b3c4d5e6f0004",
+        "name": "L1",
+        "x": 530,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1a2b3c4d5e6f0011",
+        "type": "subflow:1a2b3c4d5e6f0001",
+        "z": "1a2b3c4d5e6f0003",
+        "g": "1a2b3c4d5e6f0005",
+        "name": "L2",
+        "x": 530,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1a2b3c4d5e6f0012",
+        "type": "subflow:1a2b3c4d5e6f0001",
+        "z": "1a2b3c4d5e6f0003",
+        "g": "1a2b3c4d5e6f0006",
+        "name": "L3",
+        "x": 530,
+        "y": 500,
+        "wires": [
+            []
+        ]
+    }
+]

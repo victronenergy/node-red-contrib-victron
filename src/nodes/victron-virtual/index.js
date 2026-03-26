@@ -114,15 +114,20 @@ function getActualDeviceType (type, subtype) {
   return type
 }
 
-function getIfaceDesc (actualDev) {
+function getIfaceDesc (actualDev, config) {
   if (!properties[actualDev]) {
     return {}
   }
 
   const result = {}
 
+  let deviceProperties = properties[actualDev]
+  if (typeof properties[actualDev] === 'function') {
+    deviceProperties = properties[actualDev](config)
+  }
+
   // Deep copy the properties, including format functions
-  for (const [key, value] of Object.entries(properties[actualDev])) {
+  for (const [key, value] of Object.entries(deviceProperties)) {
     result[key] = { ...value }
     if (typeof value.format === 'function') {
       result[key].format = value.format
@@ -136,7 +141,7 @@ function getIfaceDesc (actualDev) {
   return result
 }
 
-function getIface (actualDev) {
+function getIface (actualDev, config) {
   if (!properties[actualDev]) {
     return {
       emit: function () {
@@ -149,8 +154,10 @@ function getIface (actualDev) {
     }
   }
 
-  for (const key in properties[actualDev]) {
-    const propertyValue = JSON.parse(JSON.stringify(properties[actualDev][key]))
+  const ifaceProperties = typeof properties[actualDev] === 'function' ? properties[actualDev](config) : properties[actualDev]
+
+  for (const key in ifaceProperties) {
+    const propertyValue = JSON.parse(JSON.stringify(ifaceProperties[key]))
 
     if (propertyValue.value !== undefined) {
       result[key] = propertyValue.value
@@ -400,8 +407,9 @@ module.exports = function (RED) {
       }
 
       const actualDeviceType = getActualDeviceType(config.device, config.generator_type)
+      const dbusServiceType = deviceModules[config.device]?.getServiceType?.(config) ?? actualDeviceType
 
-      const serviceName = `com.victronenergy.${actualDeviceType}.virtual_${self.id}`
+      const serviceName = `com.victronenergy.${dbusServiceType}.virtual_${self.id}`
       const interfaceName = serviceName
       const objectPath = `/${serviceName.replace(/\./g, '/')}`
 
@@ -501,13 +509,17 @@ module.exports = function (RED) {
           name: interfaceName,
           methods: {
           },
-          properties: getIfaceDesc(actualDeviceType),
+          properties: getIfaceDesc(actualDeviceType, config),
           signals: {
           }
         }
 
+        if (dbusServiceType !== config.device) {
+          ifaceDesc.productType = config.device
+        }
+
         // Then we need to create the interface implementation (with actual functions)
-        const iface = getIface(actualDeviceType)
+        const iface = getIface(actualDeviceType, config)
 
         iface.Status = 0
         iface.Serial = node.id || '-'
@@ -538,7 +550,7 @@ module.exports = function (RED) {
           settingsResult = await callAddSettingsWithRetry(usedBus, [
             {
               path: `/Settings/Devices/virtual_${node.id}/ClassAndVrmInstance`,
-              default: `${actualDeviceType}:100`,
+              default: `${dbusServiceType}:100`,
               type: 's'
             }
           ])
@@ -595,11 +607,11 @@ module.exports = function (RED) {
           const parts = currentClassAndVrmInstance.split(':')
           const currentClass = parts[0]
           const vrmInstance = parts[1]
-          if (currentClass !== actualDeviceType && !vrmInstance) {
+          if (currentClass !== dbusServiceType && !vrmInstance) {
             throw new Error(`Invalid ClassAndVrmInstance value: ${currentClassAndVrmInstance}`)
           }
-          if (currentClass !== actualDeviceType) {
-            const newValue = `${actualDeviceType}:${vrmInstance}`
+          if (currentClass !== dbusServiceType) {
+            const newValue = `${dbusServiceType}:${vrmInstance}`
             const migrationSucceeded = await new Promise(resolve => {
               usedBus.invoke({
                 path: `/Settings/Devices/virtual_${node.id}/ClassAndVrmInstance`,

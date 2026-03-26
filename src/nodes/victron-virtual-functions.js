@@ -410,6 +410,38 @@ export const DEVICE_TYPE_DOCS = {
   `,
     img: null
   },
+  energymeter: {
+    label: 'Energy meter',
+    text: `
+    ${INPUT_DOCS}
+    <div>
+      <div><strong>Most relevant paths:</strong>
+        <ul>
+          <li><code>/Ac/Power</code> &mdash; Total AC power in watts.</li>
+          <li><code>/Ac/{line}/Power</code> &mdash; Power per phase in watts, where <code>{line}</code> is <code>L1</code>, <code>L2</code>, or <code>L3</code>.</li>
+          <li><code>/Ac/{line}/Voltage</code> &mdash; Voltage per phase in volts.</li>
+          <li><code>/Ac/{line}/Current</code> &mdash; Current per phase in amperes.</li>
+          <li><code>/Ac/Energy/Forward</code> &mdash; Total energy consumed in kWh.</li>
+          <li><code>/Ac/Energy/Reverse</code> &mdash; Total energy fed back in kWh.</li>
+          <li><code>/Ac/{line}/Energy/Forward</code> &mdash; Energy consumed per phase in kWh.</li>
+          <li><code>/Ac/{line}/Energy/Reverse</code> &mdash; Energy fed back per phase in kWh.</li>
+          <li><code>/Ac/{line}/PowerFactor</code> &mdash; Power factor per phase.</li>
+          <li><code>/DeviceType</code> &mdash; Device type identifier.</li>
+          <li><code>/ErrorCode</code> &mdash; Error code (0 = no error).</li>
+        </ul>
+        <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
+      </div>
+    </div>
+    <div>
+      <div><strong>Output:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+        </ol>
+      </div>
+    </div>
+  `,
+    img: null
+  },
   meteo: {
     label: 'Meteo',
     text: `
@@ -829,8 +861,8 @@ export function updateBatteryVoltageVisibility () {
 
 export function checkSelectedVirtualDevice (context) {
   [
-    'acload', 'battery', 'ev', 'generator', 'gps', 'grid', 'e-drive',
-    'pvinverter', 'switch', 'tank', 'temperature'
+      'acload', 'battery', 'ev', 'generator', 'gps', 'grid', 'e-drive',
+      'pvinverter', 'switch', 'tank', 'temperature', 'energymeter'
   ].forEach(x => { $('.input-' + x).hide() })
 
   const selected = $('select#node-input-device').val()
@@ -1167,8 +1199,8 @@ export function validateVirtualDevicePayload (payload) {
     if (typeof value === 'number') return false
     if (typeof value === 'boolean') return false
     if (Array.isArray(value)) {
-      // Arrays are valid (for LightControls), but should contain only numbers
-      return !value.every(item => typeof item === 'number')
+      // Arrays are valid (for LightControls and Labels), but must be homogeneous (all numbers or all strings)
+      return !(value.every(item => typeof item === 'number') || value.every(item => typeof item === 'string'))
     }
     return true
   })
@@ -1177,7 +1209,7 @@ export function validateVirtualDevicePayload (payload) {
     const invalidKeys = invalidEntries.map(([key]) => key).join(', ')
     return {
       valid: false,
-      error: `Invalid value types for keys: ${invalidKeys}. Expected: string, number, boolean, null, or array of numbers.`,
+      error: `Invalid value types for keys: ${invalidKeys}. Expected: string, number, boolean, null, array of numbers, or array of strings.`,
       invalidKeys: invalidEntries.map(([key]) => key)
     }
   }

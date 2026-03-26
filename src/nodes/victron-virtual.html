@@ -27,6 +27,9 @@
             include_history_energy: {value: false},
             // grid
             grid_nrofphases: {value: 1, required: false},
+            // energymeter
+            energymeter_nrofphases: {value: 1, required: false},
+            energymeter_role: {value: "gridmeter", required: false},
             // motordrive
             include_motor_temp: {value: false},
             include_controller_temp: {value: false},
@@ -359,6 +362,28 @@
             <div class="form-row">
                 <label for="node-input-grid_nrofphases"><i class="fa fa-plug"></i> Nr of phases</label>
                 <select id="node-input-grid_nrofphases">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="input-energymeter">
+            <div class="form-row">
+                <label for="node-input-energymeter_role"><i class="fa fa-cog"></i> Role</label>
+                <select id="node-input-energymeter_role">
+                    <option value="gridmeter">Grid meter</option>
+                    <option value="inverter">PV inverter</option>
+                    <option value="generator">Generator</option>
+                    <option value="acload">AC load</option>
+                    <option value="evcharger">EV charger</option>
+                    <option value="heatpump">Heat pump</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="node-input-energymeter_nrofphases"><i class="fa fa-plug"></i> Nr of phases</label>
+                <select id="node-input-energymeter_nrofphases">
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
