@@ -6,6 +6,7 @@
 const dbus = require('dbus-native-victron')
 const { processItemsChanged } = require('./core/dbus-message-processor')
 const debug = require('debug')('node-red-contrib-victron:dbus')
+const debugListNames = require('debug')('node-red-contrib-victron:dbus-list-names')
 const _ = require('lodash')
 
 /**
@@ -70,6 +71,23 @@ function searchDeviceInstanceByName (stack, needle, fallback) {
   return fallback
 }
 
+const initServiceDenylist = [
+  'com.victronenergy.ble',
+  'com.victronenergy.vecan.can0',
+  'com.victronenergy.adc',
+  'com.victronenergy.settings',
+  'com.victronenergy.digitalinputs',
+  'com.victronenergy.fronius',
+  'com.victronenergy.modbusclient.tcp',
+  'com.victronenergy.modbustcp',
+  'com.victronenergy.shelly',
+  'com.victronenergy.logger'
+]
+
+const initServiceAllowlistRegexes = [
+  /^com\.victronenergy\..+/ // anything beginning with 'com.victronenergy.' is allowed
+]
+
 class VictronDbusListener {
   constructor (address, callbacks) {
     this.address = address
@@ -116,8 +134,17 @@ class VictronDbusListener {
 
         this.bus.listNames((props, args) => {
           args.forEach(name => {
-            debug(`listNames, found service: ${name}`)
-            if (name.startsWith('com.victronenergy')) { this.bus.getNameOwner(name, (props, args) => this._initService(args, name)) }
+            debugListNames(`listNames, found service: ${name}`)
+            if (initServiceDenylist.includes(name)) {
+              debugListNames(`listNames, ${name} is denied.`)
+            } else if (initServiceAllowlistRegexes.some(
+              regex => name.match(regex)
+            )) {
+              debugListNames(`listNames, ${name} is allowed.`)
+              this.bus.getNameOwner(name, (props, args) => this._initService(args, name))
+            } else {
+              debugListNames(`listNames, ${name} is neither denied nor allowed.`)
+            }
           })
         })
 
@@ -171,56 +198,32 @@ class VictronDbusListener {
   async _initService (owner, name) {
     const service = { name }
 
-    // check if service supports GetValue on /DeviceInstance, which is required to
-    // get the device instance number.
-    const isGetValueSupported = await new Promise((resolve) => {
+    console.log(`Initializing service ${name} with owner ${owner}`)
+
+    const deviceInstance = await new Promise((resolve) => {
       this.bus.invoke({
         path: '/DeviceInstance',
         destination: name,
-        interface: 'org.freedesktop.DBus.Introspectable',
-        member: 'Introspect'
+        interface: 'com.victronenergy.BusItem',
+        member: 'GetValue'
       },
       (err, res) => {
+        this.services[owner] = service
         if (err) {
-          console.warn(`Introspect failed for ${name}, cannot determine if GetValue is supported: ${err}`)
-          return resolve(false)
+          console.warn(`initService ${name}, error calling GetValue on /DeviceInstance : ${err}`)
         }
-        const xml = res
-        const hasGetValue = xml.includes('<method name="GetValue"')
-        debug(`Service ${name} supports GetValue on /DeviceInstance: ${hasGetValue}`)
-        resolve(hasGetValue)
+        if (res) {
+          const deviceInstance = res[1]?.[0]
+          if (deviceInstance === undefined) {
+            console.error(`deviceInstance could not be assigned because res[1][0] is undefined owner=${owner} services[owner]=${JSON.stringify(this.services[owner])} (${this.services[owner].name})`)
+          }
+          return resolve(deviceInstance)
+        }
+        return resolve(null)
       })
     })
 
-    if (isGetValueSupported) {
-      const deviceInstance = await new Promise((resolve) => {
-        this.bus.invoke({
-          path: '/DeviceInstance',
-          destination: name,
-          interface: 'com.victronenergy.BusItem',
-          member: 'GetValue'
-        },
-        (err, res) => {
-          this.services[owner] = service
-          if (res) {
-            const deviceInstance = res[1]?.[0]
-            // TODO: instead of (!...) we now use (... === undefined), which allows for deviceInstance === 0 without error log output
-            // note that this does not change semantics, other than the error log output
-            if (deviceInstance === undefined) {
-              console.error(`deviceInstance could not be assigned because res[1][0] is undefined owner=${owner} services[owner]=${JSON.stringify(this.services[owner])} (${this.services[owner].name})`)
-              // TODO: Handle the case where res[1][0] is undefined
-            }
-            return resolve(deviceInstance)
-          }
-          if (err && err.length > 0) {
-            console.log(`initService ${name}, invoke on path /DeviceInstance : ${err}`)
-          }
-          return resolve(null)
-        })
-      })
-
-      this.services[owner].deviceInstance = deviceInstance
-    }
+    this.services[owner].deviceInstance = deviceInstance
 
     this._requestRoot(service)
   }
