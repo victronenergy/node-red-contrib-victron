@@ -510,6 +510,10 @@ module.exports = function (RED) {
           }
         }
 
+        if (dbusServiceType !== config.device) {
+          ifaceDesc.productType = config.device
+        }
+
         // Then we need to create the interface implementation (with actual functions)
         const iface = getIface(actualDeviceType, config)
 
