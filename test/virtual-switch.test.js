@@ -1,5 +1,5 @@
 // test/virtual-switch.test.js
-const { updateSwitchStatus, emitInitialSwitchOutputs, handleSwitchOutputs } = require('../src/services/virtual-switch')
+const { updateSwitchStatus, emitInitialSwitchOutputs, handleSwitchOutputs, createSwitchProperties } = require('../src/services/virtual-switch')
 const { SWITCH_TYPE_MAP } = require('../src/nodes/victron-virtual-constants')
 
 function makeNode (ifaceOverrides = {}, ifaceDescOverrides = {}) {
@@ -256,5 +256,32 @@ describe('handleSwitchOutputs', () => {
       null,
       { payload: 21.5, topic: 'Test switch/temperature', source_path: '/SwitchableOutput/output_1/Dimming' }
     ])
+  })
+})
+
+describe('createSwitchProperties - ShowUIControl', () => {
+  const showUIKey = 'SwitchableOutput/output_1/Settings/ShowUIControl'
+
+  function run (config) {
+    const ifaceDesc = { properties: {} }
+    const iface = {}
+    createSwitchProperties({ switch_1_type: SWITCH_TYPE_MAP.TOGGLE, ...config }, ifaceDesc, iface)
+    return iface[showUIKey]
+  }
+
+  test('defaults to 1 when switch_1_show_ui_input is not set', () => {
+    expect(run({})).toBe(1)
+  })
+
+  test('uses switch_1_show_ui_input value 0 (hidden)', () => {
+    expect(run({ switch_1_show_ui_input: 0 })).toBe(0)
+  })
+
+  test('uses switch_1_show_ui_input value 2 (local UI only)', () => {
+    expect(run({ switch_1_show_ui_input: 2 })).toBe(2)
+  })
+
+  test('uses switch_1_show_ui_input value 4 (remote UI only)', () => {
+    expect(run({ switch_1_show_ui_input: 4 })).toBe(4)
   })
 })

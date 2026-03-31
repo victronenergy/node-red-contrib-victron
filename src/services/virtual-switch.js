@@ -133,6 +133,9 @@ function createSwitchProperties (config, ifaceDesc, iface) {
   const groupKey = 'SwitchableOutput/output_1/Settings/Group'
   iface[groupKey] = config.switch_1_group || ''
 
+  const showUIControlKey = 'SwitchableOutput/output_1/Settings/ShowUIControl'
+  iface[showUIControlKey] = Number(config.switch_1_show_ui_input ?? 1)
+
   // Type-specific properties
   if (switchType === 2) {
     // DIMMABLE switch
