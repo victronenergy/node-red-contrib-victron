@@ -75,7 +75,6 @@ const initServiceDenylist = [
   'com.victronenergy.ble',
   'com.victronenergy.vecan.can0',
   'com.victronenergy.adc',
-  'com.victronenergy.settings',
   'com.victronenergy.digitalinputs',
   'com.victronenergy.fronius',
   'com.victronenergy.modbusclient.tcp',
@@ -87,6 +86,8 @@ const initServiceDenylist = [
 const initServiceAllowlistRegexes = [
   /^com\.victronenergy\..+/ // anything beginning with 'com.victronenergy.' is allowed
 ]
+
+const serviceNamesWithoutDeviceInstance = ['com.victronenergy.settings']
 
 class VictronDbusListener {
   constructor (address, callbacks) {
@@ -200,27 +201,33 @@ class VictronDbusListener {
 
     console.log(`Initializing service ${name} with owner ${owner}`)
 
+    this.services[owner] = service
+
     const deviceInstance = await new Promise((resolve) => {
-      this.bus.invoke({
-        path: '/DeviceInstance',
-        destination: name,
-        interface: 'com.victronenergy.BusItem',
-        member: 'GetValue'
-      },
-      (err, res) => {
-        this.services[owner] = service
-        if (err) {
-          console.warn(`initService ${name}, error calling GetValue on /DeviceInstance : ${err}`)
-        }
-        if (res) {
-          const deviceInstance = res[1]?.[0]
-          if (deviceInstance === undefined) {
-            console.error(`deviceInstance could not be assigned because res[1][0] is undefined owner=${owner} services[owner]=${JSON.stringify(this.services[owner])} (${this.services[owner].name})`)
-          }
-          return resolve(deviceInstance)
-        }
+      if (serviceNamesWithoutDeviceInstance.includes(name)) {
+        debug(`Skipping retrieving /DeviceInstance of service ${name} as it is in the skip list.`)
         return resolve(null)
-      })
+      } else {
+        this.bus.invoke({
+          path: '/DeviceInstance',
+          destination: name,
+          interface: 'com.victronenergy.BusItem',
+          member: 'GetValue'
+        },
+        (err, res) => {
+          if (err) {
+            console.warn(`initService ${name}, error calling GetValue on /DeviceInstance : ${err}`)
+          }
+          if (res) {
+            const deviceInstance = res[1]?.[0]
+            if (deviceInstance === undefined) {
+              console.error(`deviceInstance could not be assigned because res[1][0] is undefined owner=${owner} services[owner]=${JSON.stringify(this.services[owner])} (${this.services[owner].name})`)
+            }
+            return resolve(deviceInstance)
+          }
+          return resolve(null)
+        })
+      }
     })
 
     this.services[owner].deviceInstance = deviceInstance
