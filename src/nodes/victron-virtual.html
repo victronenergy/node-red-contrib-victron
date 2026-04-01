@@ -140,7 +140,8 @@
                 self.device = 'e-drive';
             }
 
-            $.getJSON('/victron/virtual-device-types')
+            var baseUrl = (RED.settings.httpNodeRoot || RED.settings.httpAdminRoot || "").replace(/\/$/, "");
+            $.getJSON(baseUrl + '/victron/virtual-device-types')
                 .done(function(deviceTypes) {
                     const $select = $('#node-input-device');
                     $select.empty();
