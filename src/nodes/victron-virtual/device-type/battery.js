@@ -39,7 +39,9 @@ const properties = {
   'System/MinCellTemperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', immediate: true },
   'System/MinTemperatureCellId': { type: 'i', format: (v) => v != null ? v : '' },
   'System/MaxCellTemperature': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', immediate: true },
-  'System/MaxTemperatureCellId': { type: 'i', format: (v) => v != null ? v : '' }
+  'System/MaxTemperatureCellId': { type: 'i', format: (v) => v != null ? v : '' },
+  'History/ChargedEnergy': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', persist: 15 },
+  'History/DischargedEnergy': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', persist: 15 }
 }
 
 const BATTERY_DEFAULT_VOLTAGES = ['12', '24', '48']
