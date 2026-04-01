@@ -80,6 +80,23 @@ window.__victronCommon.initializeTooltips();
 
 See [victron-styles.css](/resources/victron-styles.css) for CSS definitions.
 
+## HTTP Requests from Edit Dialogs
+
+**Never hardcode absolute paths** when calling backend endpoints from `oneditprepare` or other dialog callbacks. Node-RED can be deployed under a non-root subpath (e.g., `/node-red/`), so a hardcoded `/victron/...` URL will 404.
+
+Always prefix with the admin root:
+
+```javascript
+// ❌ WRONG - breaks when Node-RED is not at /
+$.getJSON('/victron/virtual-device-types')
+
+// ✅ CORRECT - works at any subpath
+var baseUrl = (RED.settings.httpNodeRoot || RED.settings.httpAdminRoot || "").replace(/\/$/, "");
+$.getJSON(baseUrl + '/victron/virtual-device-types')
+```
+
+The same pattern applies to any `$.ajax`, `fetch`, or other HTTP call made inside an edit dialog.
+
 ## Dynamic Content
 
 Use CSS classes in JavaScript-generated HTML:
