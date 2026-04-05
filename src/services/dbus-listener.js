@@ -460,3 +460,4 @@ class VictronDbusListener {
 }
 
 module.exports = VictronDbusListener
+module.exports.serviceNamesWithoutDeviceInstance = serviceNamesWithoutDeviceInstance

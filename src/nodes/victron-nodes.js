@@ -1,6 +1,7 @@
 module.exports = function (RED) {
   const debug = require('debug')('node-red-contrib-victron:victron-nodes')
   const utils = require('../services/utils.js')
+  const { serviceNamesWithoutDeviceInstance } = require('../services/dbus-listener.js')
 
   const migrateSubscriptions = (x) => {
     // Check if client is fully initialized
@@ -18,7 +19,7 @@ module.exports = function (RED) {
         }
       }
     }
-    if (typeof x.deviceInstance !== 'undefined' && x.deviceInstance.toString().match(/^\d+$/)) {
+    if (x.deviceInstance != null && x.deviceInstance.toString().match(/^\d+$/)) {
       const dbusInterface = x.service.split('.').splice(0, 3).join('.') + ('/' + x.deviceInstance).replace(/\/$/, '')
       // var dbusInterface = x.service
       const newsub = dbusInterface + ':' + x.path
@@ -99,7 +100,7 @@ module.exports = function (RED) {
 
       if (this.service && this.path) {
         // The following is for migration purposes
-        if (!this.service.match(/\/\d+$/)) {
+        if (!this.service.match(/\/\d+$/) && !serviceNamesWithoutDeviceInstance.includes(this.service)) {
           this.deviceInstance = this.service.replace(/^.*\.(\d+)$/, '$1')
           this.service = this.service.replace(/\.\d+$/, '')
           // Only call getValue if the client is initialized and connected
