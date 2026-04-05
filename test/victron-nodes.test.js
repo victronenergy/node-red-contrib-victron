@@ -1,4 +1,90 @@
 const victronNodesInitFunction = require('../src/nodes/victron-nodes');
+const { serviceNamesWithoutDeviceInstance } = require('../src/services/dbus-listener');
+
+function buildMockRED({ services = {}, connected = true } = {}) {
+  const subscribe = jest.fn();
+  const mockRED = {
+    nodes: {
+      registerType: jest.fn(),
+      createNode: function (self, config) {
+        self.name = config.name;
+        self.serviceObj = config.serviceObj;
+        self.pathObj = config.pathObj;
+        self.on = jest.fn();
+        self.send = jest.fn();
+        self.context = jest.fn().mockReturnValue({ global: { set: jest.fn() } });
+        self.status = jest.fn();
+      },
+      getNode: function (id) {
+        if (id === 'victron-client-id') {
+          return {
+            addStatusListener: jest.fn(),
+            client: {
+              subscribe,
+              subscriptions: {},
+              system: { cache: {} },
+              onStatusUpdate: jest.fn(),
+              client: { connected, getValue: jest.fn(), services }
+            },
+            showValues: true
+          };
+        }
+        throw new Error('[mock getNode] Node not found: ' + id);
+      }
+    }
+  };
+  victronNodesInitFunction(mockRED);
+  const BaseInputNode = mockRED.nodes.registerType.mock.calls[0][1];
+  return { mockRED, BaseInputNode, subscribe };
+}
+
+describe('victron-nodes migration', () => {
+  it('skips migration for services in serviceNamesWithoutDeviceInstance', () => {
+    const setTimeoutSpy = jest.spyOn(global, 'setTimeout');
+    const { BaseInputNode } = buildMockRED();
+
+    new BaseInputNode({
+      name: 'Test',
+      service: 'com.victronenergy.settings',
+      path: '/Settings/Foo',
+      serviceObj: { name: 'Settings' },
+      pathObj: { name: 'Foo' }
+    });
+
+    const migrationTimers = setTimeoutSpy.mock.calls.filter(
+      ([fn]) => fn.name === 'migrateSubscriptions'
+    );
+    expect(migrationTimers).toHaveLength(0);
+    setTimeoutSpy.mockRestore();
+  });
+
+  it('does not crash when deviceInstance is null in the services cache', () => {
+    jest.useFakeTimers();
+    try {
+      const { BaseInputNode } = buildMockRED({
+        services: {
+          'com.victronenergy.battery': { name: 'com.victronenergy.battery', deviceInstance: null }
+        }
+      });
+
+      new BaseInputNode({
+        name: 'Test',
+        service: 'com.victronenergy.battery.512',
+        path: '/Soc',
+        serviceObj: { name: 'Battery' },
+        pathObj: { name: 'SoC' }
+      });
+
+      expect(() => jest.runAllTimers()).not.toThrow();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('serviceNamesWithoutDeviceInstance contains com.victronenergy.settings', () => {
+    expect(serviceNamesWithoutDeviceInstance).toContain('com.victronenergy.settings');
+  });
+});
 
 describe('victron-nodes', () => {
   it('allows me to instantiate a node and set values', () => {
