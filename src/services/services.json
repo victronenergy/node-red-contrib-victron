@@ -4051,6 +4051,12 @@
         "mode": "both"
       },
       {
+        "path": "/Settings/SystemSetup/MaxChargeVoltage",
+        "type": "float",
+        "name": "Limit managed battery voltage (V DC)",
+        "mode": "both"
+      },
+      {
         "path": "/Settings/SystemSetup/SystemName",
         "type": "string",
         "name": "System name",
