@@ -25,7 +25,6 @@ const additionalS2Properties = {
   'S2/0/RmSettings/OffHysteresis': { type: 'i' },
   'S2/0/RmSettings/OnHysteresis': { type: 'i' },
   'S2/0/RmSettings/PowerSetting': { type: 'i' },
-  'S2/0/Priority': { type: 'i' },
   'S2/0/Rm': { type: 's', format: (v) => v != null ? v : '' }
 }
 
@@ -115,6 +114,8 @@ function initialize (config, ifaceDesc, iface, node) {
             }
           }
         ])
+        // D-Bus method must return a value - return true to indicate RM is alive
+        return true
       }
     }
   }
