@@ -1,30 +1,30 @@
-const SENSOR_TYPE_NAMES = {
+const INDICATOR_TYPE_NAMES = {
   0: 'Discrete',
   1: 'Value',
   2: 'Value with range',
   3: 'Temperature'
 }
 
-const SENSOR_INPUT_KEY = 'GenericInput/0'
+const INDICATOR_INPUT_KEY = 'GenericInput/0'
 
 /**
- * Creates D-Bus interface properties for a virtual sensor based on configuration.
+ * Creates D-Bus interface properties for a virtual indicator based on configuration.
  *
- * @param {Object} config - Node configuration object containing sensor settings
+ * @param {Object} config - Node configuration object containing indicator settings
  * @param {Object} ifaceDesc - D-Bus interface description to populate with property definitions
  * @param {Object} iface - D-Bus interface object to populate with initial values
  * @returns {void} - Modifies ifaceDesc and iface in place
  */
-function createSensorProperties (config, ifaceDesc, iface) {
-  const sensorType = Number(config.sensor_type ?? 1)
-  const hasRange = sensorType === 2 || sensorType === 3
-  const isDiscrete = sensorType === 0
+function createIndicatorProperties (config, ifaceDesc, iface) {
+  const indicatorType = Number(config.indicator_type ?? 1)
+  const hasRange = indicatorType === 2 || indicatorType === 3
+  const isDiscrete = indicatorType === 0
 
-  const SENSOR_STATUS_NAMES = { 0: 'Ok', 3: 'Not connected' }
+  const INDICATOR_STATUS_NAMES = { 0: 'Ok', 3: 'Not connected' }
 
   const properties = [
     { name: 'Value', type: 'd', persist: true },
-    { name: 'Status', type: 'i', value: 0, persist: true, format: (v) => SENSOR_STATUS_NAMES[v] ?? String(v) },
+    { name: 'Status', type: 'i', value: 0, persist: true, format: (v) => INDICATOR_STATUS_NAMES[v] ?? String(v) },
     { name: 'Name', type: 's', value: config.customname || '' },
     { name: 'Settings/CustomName', type: 's', value: config.customname || '', persist: false },
     { name: 'Settings/Group', type: 's', value: config.group || '', persist: false },
@@ -42,14 +42,14 @@ function createSensorProperties (config, ifaceDesc, iface) {
         return parts.length > 0 ? parts.join(' + ') : 'Hidden'
       }
     },
-    { name: 'Settings/Type', type: 'i', value: sensorType, persist: false, format: (v) => SENSOR_TYPE_NAMES[v] || 'unknown' },
+    { name: 'Settings/Type', type: 'i', value: indicatorType, persist: false, format: (v) => INDICATOR_TYPE_NAMES[v] || 'unknown' },
     {
       name: 'Settings/ValidTypes',
       type: 'i',
-      value: 1 << sensorType,
+      value: 1 << indicatorType,
       format: (v) => {
         if (v == null || v === 0) return 'None'
-        return Object.entries(SENSOR_TYPE_NAMES)
+        return Object.entries(INDICATOR_TYPE_NAMES)
           .filter(([bit]) => v & (1 << Number(bit)))
           .map(([, name]) => name)
           .join(', ') || 'None'
@@ -84,7 +84,7 @@ function createSensorProperties (config, ifaceDesc, iface) {
   }
 
   properties.forEach(({ name, type, value, format, persist, immediate }) => {
-    const key = `${SENSOR_INPUT_KEY}/${name}`
+    const key = `${INDICATOR_INPUT_KEY}/${name}`
     ifaceDesc.properties[key] = { type, format, persist, immediate }
     if (value !== undefined) {
       iface[key] = value
@@ -99,22 +99,22 @@ function createSensorProperties (config, ifaceDesc, iface) {
 }
 
 /**
- * Updates node.status to reflect the current sensor value.
+ * Updates node.status to reflect the current indicator value.
  * Called after initial connect and triggered again after inject feedback times out.
  *
  * @param {Object} config - Node configuration object
  * @param {Object} node - Node-RED node instance (must have node.iface)
  */
-function updateSensorStatus (config, node) {
+function updateIndicatorStatus (config, node) {
   const iface = node.iface
   if (!iface) return
 
   const deviceInstance = iface.DeviceInstance
-  const value = iface[`${SENSOR_INPUT_KEY}/Value`]
+  const value = iface[`${INDICATOR_INPUT_KEY}/Value`]
   const unit = config.unit || ''
 
   const valueText = value != null ? `${value}${unit}` : '-'
   node.status({ fill: 'green', shape: 'dot', text: `${valueText} (${deviceInstance})` })
 }
 
-module.exports = { createSensorProperties, updateSensorStatus, SENSOR_TYPE_NAMES, SENSOR_INPUT_KEY }
+module.exports = { createIndicatorProperties, updateIndicatorStatus, INDICATOR_TYPE_NAMES, INDICATOR_INPUT_KEY }

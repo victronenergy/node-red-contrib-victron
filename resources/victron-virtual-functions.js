@@ -750,6 +750,54 @@
     }
   };
 
+  function renderShowInUICheckboxes (containerId, savedValue, targetInputId) {
+    const localId = `${containerId}-local`;
+    const remoteId = `${containerId}-remote`;
+
+    const savedInt = parseInt(savedValue ?? 1, 10);
+    const localChecked = !!(savedInt & 1) || !!(savedInt & 2);
+    const remoteChecked = !!(savedInt & 1) || !!(savedInt & 4);
+
+    const container = $(`#${containerId}`);
+    container.empty();
+    container.append(`
+    <label style="font-weight:bold;"><i class="fa fa-eye"></i> Show in UI</label>
+    <div class="form-row victron-checkbox">
+      <input type="checkbox" id="${localId}">
+      <label for="${localId}">Local UI
+        <i class="fa fa-info-circle tooltip-icon" data-tooltip="GUI running natively on GX device, MFD and WASM over local LAN"></i>
+      </label>
+    </div>
+    <div class="form-row victron-checkbox">
+      <input type="checkbox" id="${remoteId}">
+      <label for="${remoteId}">Remote UI
+        <i class="fa fa-info-circle tooltip-icon" data-tooltip="VRM remote console and VRM switch pane"></i>
+      </label>
+    </div>
+  `);
+
+    $(`#${localId}`).prop('checked', localChecked);
+    $(`#${remoteId}`).prop('checked', remoteChecked);
+
+    if (targetInputId) {
+      const updateTarget = () => {
+        $(`#${targetInputId}`).val(getShowUIValue(containerId));
+      };
+      $(`#${localId}`).on('change', updateTarget);
+      $(`#${remoteId}`).on('change', updateTarget);
+      updateTarget();
+    }
+  }
+
+  function getShowUIValue (containerId) {
+    const local = $(`#${containerId}-local`).is(':checked');
+    const remote = $(`#${containerId}-remote`).is(':checked');
+    if (local && remote) return 1
+    if (local) return 2
+    if (remote) return 4
+    return 0
+  }
+
   function renderSwitchConfigRow (context) {
     const typeOptions = Object.entries(SWITCH_TYPE_CONFIGS)
       .map(([value, cfg]) => `<option value="${value}">${cfg.label}</option>`)
@@ -968,6 +1016,10 @@
 
     $('#node-input-switch_1_type').on('change', renderTypeConfig);
     renderTypeConfig();
+
+    // Show in UI section (outside renderTypeConfig so it persists across type changes)
+    $('#switch-config-container').append('<div id="switch-show-ui" style="margin-top:10px;"></div>');
+    renderShowInUICheckboxes('switch-show-ui', context.switch_1_show_ui_input);
   }
 
   function renderDropdownLabels (context) {
@@ -1130,73 +1182,74 @@
     }
   }
 
-  const SENSOR_TYPE_DOCS = {
+  const INDICATOR_TYPE_DOCS = {
     0: createDocTemplate(
       '<div><strong>Most relevant path(s):</strong><ul>' +
       '<li><code>/GenericInput/0/Value</code> &mdash; Current discrete state (integer index, e.g. 0, 1, 2, ...)</li>' +
-      '<li><code>/GenericInput/0/Status</code> &mdash; Sensor status: 0=OK, 1=Fault, 2=Battery low</li>' +
-      '<li><code>/GenericInput/0/Settings/Labels</code> &mdash; JSON array of label strings, e.g. <tt>["/off","/on"]</tt>. ' +
+      '<li><code>/GenericInput/0/Status</code> &mdash; Indicator status: 0=OK, 1=Fault, 2=Battery low</li>' +
+      '<li><code>/GenericInput/0/Settings/Labels</code> &mdash; Array of label strings, one per discrete value. ' +
+      'Custom strings (e.g. <tt>"eco"</tt>) and reserved keywords (e.g. <tt>"/on"</tt>) can be mixed freely. ' +
       'Reserved keywords: <tt>/off</tt>, <tt>/on</tt>, <tt>/open</tt>, <tt>/closed</tt>, <tt>/ok</tt>, <tt>/alarm</tt>, ' +
       '<tt>/stopped</tt>, <tt>/running</tt>, <tt>/low</tt>, <tt>/high</tt></li>' +
       '</ul></div>',
       '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li></ol></div>',
-      null
+      '/resources/@victronenergy/node-red-contrib-victron/docs/discrete.svg'
     ),
     1: createDocTemplate(
       '<div><strong>Most relevant path(s):</strong><ul>' +
-      '<li><code>/GenericInput/0/Value</code> &mdash; Numeric sensor reading</li>' +
-      '<li><code>/GenericInput/0/Status</code> &mdash; Sensor status: 0=OK, 1=Fault, 2=Battery low</li>' +
+      '<li><code>/GenericInput/0/Value</code> &mdash; Numeric indicator reading</li>' +
+      '<li><code>/GenericInput/0/Status</code> &mdash; Indicator status: 0=OK, 1=Fault, 2=Battery low</li>' +
       '<li><code>/GenericInput/0/Settings/Unit</code> &mdash; Display unit, e.g. <tt>W</tt>, <tt>kWh</tt>. ' +
       'Use <tt>/Temperature</tt>, <tt>/Speed</tt> or <tt>/Volume</tt> to follow GX system-wide unit settings</li>' +
       '</ul></div>',
       '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li></ol></div>',
-      null
+      '/resources/@victronenergy/node-red-contrib-victron/docs/value.svg'
     ),
     2: createDocTemplate(
       '<div><strong>Most relevant path(s):</strong><ul>' +
-      '<li><code>/GenericInput/0/Value</code> &mdash; Numeric sensor reading</li>' +
-      '<li><code>/GenericInput/0/Status</code> &mdash; Sensor status: 0=OK, 1=Fault, 2=Battery low</li>' +
+      '<li><code>/GenericInput/0/Value</code> &mdash; Numeric indicator reading</li>' +
+      '<li><code>/GenericInput/0/Status</code> &mdash; Indicator status: 0=OK, 1=Fault, 2=Battery low</li>' +
       '<li><code>/GenericInput/0/Settings/RangeMin</code> &mdash; Minimum value for the range indicator</li>' +
       '<li><code>/GenericInput/0/Settings/RangeMax</code> &mdash; Maximum value for the range indicator</li>' +
       '</ul></div>',
       '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li></ol></div>',
-      null
+      '/resources/@victronenergy/node-red-contrib-victron/docs/value_range.svg'
     ),
     3: createDocTemplate(
       '<div><strong>Most relevant path(s):</strong><ul>' +
       '<li><code>/GenericInput/0/Value</code> &mdash; Temperature value in the unit selected in GX system settings</li>' +
-      '<li><code>/GenericInput/0/Status</code> &mdash; Sensor status: 0=OK, 1=Fault, 2=Battery low</li>' +
+      '<li><code>/GenericInput/0/Status</code> &mdash; Indicator status: 0=OK, 1=Fault, 2=Battery low</li>' +
       '<li><code>/GenericInput/0/Settings/RangeMin</code> &mdash; Minimum value for the range indicator</li>' +
       '<li><code>/GenericInput/0/Settings/RangeMax</code> &mdash; Maximum value for the range indicator</li>' +
       '</ul></div>',
       '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li></ol></div>',
-      null
+      '/resources/@victronenergy/node-red-contrib-victron/docs/temperature_indicator.svg'
     )
   };
 
-  const SENSOR_TYPE_LABELS = {
+  const INDICATOR_TYPE_LABELS = {
     0: 'Discrete',
     1: 'Value',
     2: 'Value with range',
     3: 'Temperature'
   };
 
-  function renderSensorDocBox (type) {
-    $('#sensor-docs-container').empty();
+  function renderIndicatorDocBox (type) {
+    $('#indicator-docs-container').empty();
     const typeKey = parseInt(type, 10);
-    const doc = SENSOR_TYPE_DOCS[typeKey];
-    const label = SENSOR_TYPE_LABELS[typeKey] || 'Sensor';
+    const doc = INDICATOR_TYPE_DOCS[typeKey];
+    const label = INDICATOR_TYPE_LABELS[typeKey] || 'Indicator';
     if (doc) {
       const docRow = $(`
       <div class="form-row">
-        <div id="sensor-doc-row" class="victron-doc-box">
+        <div id="indicator-doc-row" class="victron-doc-box">
           <label>${label} usage</label>
           ${doc.img ? `<img src="${doc.img}" alt="${label} preview">` : ''}
           <div class="victron-doc-text">${doc.text}</div>
         </div>
       </div>
     `);
-      $('#sensor-docs-container').append(docRow);
+      $('#indicator-docs-container').append(docRow);
     }
   }
 
@@ -1331,7 +1384,9 @@
     updateBatteryVoltageVisibility,
     calculateOutputs,
     updateOutputs,
-    renderSensorDocBox,
+    renderIndicatorDocBox,
+    renderShowInUICheckboxes,
+    getShowUIValue,
     initializeTooltips
   };
 

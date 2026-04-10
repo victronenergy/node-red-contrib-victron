@@ -1,16 +1,16 @@
 const { addVictronInterfaces, addSettings } = require('dbus-victron-virtual')
 const { needsPersistedState, hasPersistedState, loadPersistedState, savePersistedState } = require('./persist')
 const dbus = require('dbus-native-victron')
-const debug = require('debug')('victron-virtual-sensor')
-const debugInput = require('debug')('victron-virtual-sensor:input')
-const debugConnection = require('debug')('victron-virtual-sensor:connection')
+const debug = require('debug')('victron-virtual-indicator')
+const debugInput = require('debug')('victron-virtual-indicator:input')
+const debugConnection = require('debug')('victron-virtual-indicator:connection')
 const { DEBOUNCE_DELAY_MS } = require('./victron-virtual-constants')
 const { validateVirtualDevicePayload, debounce } = require('../services/utils')
-const { createSensorProperties, updateSensorStatus, SENSOR_INPUT_KEY } = require('../services/virtual-sensor')
+const { createIndicatorProperties, updateIndicatorStatus, INDICATOR_INPUT_KEY } = require('../services/virtual-indicator')
 const { filterInactiveVirtualDevices } = require('../services/virtual-device-cleanup')
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled rejection in victron-virtual-sensor:', reason)
+  console.error('Unhandled rejection in victron-virtual-indicator:', reason)
 })
 
 module.exports = function (RED) {
@@ -18,7 +18,7 @@ module.exports = function (RED) {
   let globalTimeoutHandle = null
   const nodeInstances = new Set()
 
-  function VictronVirtualSensorNode (config) {
+  function VictronVirtualIndicatorNode (config) {
     RED.nodes.createNode(this, config)
     const node = this
 
@@ -60,7 +60,7 @@ module.exports = function (RED) {
       const expanded = {}
       for (const [key, value] of Object.entries(payload)) {
         if (key === 'Value' || key === 'Status') {
-          expanded[`${SENSOR_INPUT_KEY}/${key}`] = value
+          expanded[`${INDICATOR_INPUT_KEY}/${key}`] = value
         } else {
           expanded[key] = value
         }
@@ -123,7 +123,7 @@ module.exports = function (RED) {
 
         if (node.statusRevertTimeout) clearTimeout(node.statusRevertTimeout)
         node.statusRevertTimeout = setTimeout(() => {
-          updateSensorStatus(config, node)
+          updateIndicatorStatus(config, node)
           node.statusRevertTimeout = null
         }, 5000)
 
@@ -217,7 +217,7 @@ module.exports = function (RED) {
         const ifaceDesc = { name: interfaceName, methods: {}, properties: {}, signals: {} }
         const iface = { Status: 0, Serial: node.id || '-' }
 
-        createSensorProperties(config, ifaceDesc, iface)
+        createIndicatorProperties(config, ifaceDesc, iface)
 
         if (hasPersistedState(RED, self.id)) {
           await loadPersistedState(RED, self.id, iface, ifaceDesc)
@@ -233,9 +233,9 @@ module.exports = function (RED) {
             type: 's'
           }])
         } catch (error) {
-          console.error('Error in virtual sensor setup:', error)
+          console.error('Error in virtual indicator setup:', error)
           node.status({ color: 'red', shape: 'dot', text: `Setup failed: ${error.message || 'Unknown error'}` })
-          node.error('Virtual sensor setup failed', error)
+          node.error('Virtual indicator setup failed', error)
           return
         }
 
@@ -261,7 +261,7 @@ module.exports = function (RED) {
         }
 
         iface.DeviceInstance = getDeviceInstance(settingsResult)
-        iface.CustomName = config.name || config.customname || 'Virtual Sensor'
+        iface.CustomName = config.name || config.customname || 'Virtual Indicator'
 
         if (iface.DeviceInstance === null) return
 
@@ -300,7 +300,7 @@ module.exports = function (RED) {
           }
 
           if (!node.statusRevertTimeout) {
-            updateSensorStatus(config, node)
+            updateIndicatorStatus(config, node)
           }
         }
 
@@ -321,7 +321,7 @@ module.exports = function (RED) {
 
         node.removeSettings = removeSettings
 
-        updateSensorStatus(config, node)
+        updateIndicatorStatus(config, node)
 
         nodeInstances.add(node)
 
@@ -392,5 +392,5 @@ module.exports = function (RED) {
     })
   }
 
-  RED.nodes.registerType('victron-virtual-sensor', VictronVirtualSensorNode)
+  RED.nodes.registerType('victron-virtual-indicator', VictronVirtualIndicatorNode)
 }

@@ -1,17 +1,16 @@
-<link rel="stylesheet" href="resources/@victronenergy/node-red-contrib-victron/victron-styles.css">
 <link rel="stylesheet" href="resources/@victronenergy/node-red-contrib-victron/victron-virtual-style.css">
 <script src="resources/@victronenergy/node-red-contrib-victron/victron-common.js"></script>
 <script src="resources/@victronenergy/node-red-contrib-victron/victron-virtual-functions.js"></script>
 <script type="text/javascript">
-    RED.nodes.registerType('victron-virtual-sensor', {
+    RED.nodes.registerType('victron-virtual-indicator', {
         category: 'Victron Energy',
         color: '#f7ab3e',
-        paletteLabel: 'Virtual Sensor',
+        paletteLabel: 'Virtual Indicator',
         defaults: {
             name:          { value: '' },
             customname:    { value: '' },
             group:         { value: '' },
-            sensor_type:   { value: 1, required: true },
+            indicator_type:   { value: 1, required: true },
             unit:          { value: '' },
             labels:        { value: '' },
             primary_label: { value: '' },
@@ -24,33 +23,33 @@
         inputs: 1,
         outputs: 1,
         label: function () {
-            return this.name || this.customname || 'Virtual Sensor'
+            return this.name || this.customname || 'Virtual Indicator'
         },
         outputLabels: ['Passthrough'],
         oneditprepare: function () {
-            const { initializeTooltips, renderSensorDocBox, renderShowInUICheckboxes } = window.__victron || {}
+            const { initializeTooltips, renderIndicatorDocBox, renderShowInUICheckboxes } = window.__victron || {}
 
             function updateVisibility () {
-                const type = parseInt($('#node-input-sensor_type').val())
+                const type = parseInt($('#node-input-indicator_type').val())
                 const hasRange = type === 2 || type === 3
                 const isDiscrete = type === 0
 
-                $('#sensor-range-rows').toggle(hasRange)
-                $('#sensor-discrete-rows').toggle(isDiscrete)
-                $('#sensor-unit-row').toggle(!isDiscrete)
-                $('#sensor-primary-label-row').toggle(!isDiscrete)
-                $('#sensor-decimals-row').toggle(!isDiscrete)
+                $('#indicator-range-rows').toggle(hasRange)
+                $('#indicator-discrete-rows').toggle(isDiscrete)
+                $('#indicator-unit-row').toggle(!isDiscrete)
+                $('#indicator-primary-label-row').toggle(!isDiscrete)
+                $('#indicator-decimals-row').toggle(!isDiscrete)
 
-                if (typeof renderSensorDocBox === 'function') {
-                    renderSensorDocBox(type)
+                if (typeof renderIndicatorDocBox === 'function') {
+                    renderIndicatorDocBox(type)
                 }
             }
 
-            $('#node-input-sensor_type').on('change', updateVisibility)
+            $('#node-input-indicator_type').on('change', updateVisibility)
             updateVisibility()
 
             if (typeof renderShowInUICheckboxes === 'function') {
-                renderShowInUICheckboxes('sensor-show-ui', this.show_ui_input, 'node-input-show_ui_input')
+                renderShowInUICheckboxes('indicator-show-ui', this.show_ui_input, 'node-input-show_ui_input')
             }
 
             if (typeof initializeTooltips === 'function') {
@@ -60,7 +59,7 @@
     })
 </script>
 
-<script type="text/html" data-template-name="victron-virtual-sensor">
+<script type="text/html" data-template-name="victron-virtual-indicator">
     <div class="victron-form">
         <div class="form-row">
             <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
@@ -68,8 +67,8 @@
         </div>
 
         <div class="form-row">
-            <label for="node-input-sensor_type"><i class="fa fa-sliders"></i> Type</label>
-            <select id="node-input-sensor_type">
+            <label for="node-input-indicator_type"><i class="fa fa-sliders"></i> Type</label>
+            <select id="node-input-indicator_type">
                 <option value="0">Discrete</option>
                 <option value="1">Value</option>
                 <option value="2">Value with range</option>
@@ -86,27 +85,27 @@
 
         <div class="form-row">
             <label for="node-input-group"><i class="fa fa-object-group"></i> Group
-                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Group name used to combine sensors onto the same card on the GX device."></i>
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Group name used to combine indicators onto the same card on the GX device."></i>
             </label>
             <input type="text" id="node-input-group" placeholder="e.g. Solar">
         </div>
 
-        <div id="sensor-unit-row" class="form-row">
+        <div id="indicator-unit-row" class="form-row">
             <label for="node-input-unit"><i class="fa fa-pencil"></i> Unit
                 <i class="fa fa-info-circle tooltip-icon" data-tooltip="Unit to display next to the value. Use /Temperature, /Speed or /Volume to follow GX system-wide unit settings."></i>
             </label>
             <input type="text" id="node-input-unit" placeholder="e.g. W, kWh, /Temperature">
         </div>
 
-        <div id="sensor-primary-label-row" class="form-row">
+        <div id="indicator-primary-label-row" class="form-row">
             <label for="node-input-primary_label"><i class="fa fa-text-width"></i> Primary label
                 <i class="fa fa-info-circle tooltip-icon" data-tooltip="Label shown above the value on the GX device, e.g. 'Power' or 'Temperature'."></i>
             </label>
             <input type="text" id="node-input-primary_label" placeholder="e.g. Power">
         </div>
 
-        <div id="sensor-discrete-rows">
-            <div id="sensor-labels-row" class="form-row">
+        <div id="indicator-discrete-rows">
+            <div id="indicator-labels-row" class="form-row">
                 <label for="node-input-labels"><i class="fa fa-list"></i> Labels
                     <i class="fa fa-info-circle tooltip-icon" data-tooltip="Comma-separated labels for discrete values (0, 1, 2, ...). Supports custom strings (e.g. off,eco,on) and reserved keywords (/off, /on, /open, /closed, /ok, /alarm, /stopped, /running, /low, /high). Keywords and custom strings can be mixed freely."></i>
                 </label>
@@ -115,7 +114,7 @@
 
         </div>
 
-        <div id="sensor-range-rows">
+        <div id="indicator-range-rows">
             <div class="form-row">
                 <label for="node-input-range_min"><i class="fa fa-arrow-down"></i> Range min</label>
                 <input type="number" id="node-input-range_min" placeholder="e.g. 0">
@@ -126,7 +125,7 @@
             </div>
         </div>
 
-        <div id="sensor-decimals-row" class="form-row">
+        <div id="indicator-decimals-row" class="form-row">
             <label for="node-input-decimals"><i class="fa fa-hashtag"></i> Decimals
                 <i class="fa fa-info-circle tooltip-icon" data-tooltip="Number of decimal places to display."></i>
             </label>
@@ -134,10 +133,10 @@
         </div>
 
         <input type="hidden" id="node-input-show_ui_input">
-        <div id="sensor-show-ui"></div>
+        <div id="indicator-show-ui"></div>
 
-        <div id="sensor-docs-container">
-            <!-- Dynamic sensor documentation will be added here -->
+        <div id="indicator-docs-container">
+            <!-- Dynamic indicator documentation will be added here -->
         </div>
 
         <div class="form-row" style="margin-top: 20px;">
@@ -150,13 +149,13 @@
     </div>
 </script>
 
-<script type="text/markdown" data-help-name="victron-virtual-sensor">
+<script type="text/markdown" data-help-name="victron-virtual-indicator">
 
-The _Virtual Sensor_ node creates a virtual sensor device on the underlying `dbus`, which allows Node-RED flows to publish sensor values that appear in the switching pane on the GX device display and VRM remote console.
+The _Virtual Indicator_ node creates a virtual indicator device on the underlying `dbus`, which allows Node-RED flows to publish indicator values that appear in the switching pane on the GX device display and VRM remote console.
 
-## Sensor Types
+## Indicator Types
 
-There are several types of sensors available:
+There are several types of indicators available:
 
 - **Discrete**: Shows a labeled state, e.g. Off/On or Open/Closed. Configure labels as a comma-separated list.
 - **Value**: Displays a numeric value with an optional unit.
@@ -166,18 +165,18 @@ There are several types of sensors available:
 ## Configuration
 
 - **Custom Name**: Display name shown on the GX device
-- **Group**: Group multiple sensors together on the GX device display
-- **Unit**: Display unit (e.g. `W`, `kWh`), or use a reserved keyword (`/Temperature`, `/Speed`, `/Volume`) to follow the GX system-wide unit setting. Not applicable to Discrete sensors.
-- **Primary label**: Label shown above the value (e.g. `Power`, `Temperature`). Not applicable to Discrete sensors.
-- **Labels**: For discrete sensors only - comma-separated labels for values 0, 1, 2, ... Custom strings (e.g. `off,eco,on`) and reserved GX keywords (`/off`, `/on`, `/open`, `/closed`, `/ok`, `/alarm`, `/stopped`, `/running`, `/low`, `/high`) are both supported and can be mixed freely
+- **Group**: Group multiple indicators together on the GX device display
+- **Unit**: Display unit (e.g. `W`, `kWh`), or use a reserved keyword (`/Temperature`, `/Speed`, `/Volume`) to follow the GX system-wide unit setting. Not applicable to Discrete indicators.
+- **Primary label**: Label shown above the value (e.g. `Power`, `Temperature`). Not applicable to Discrete indicators.
+- **Labels**: For discrete indicators only - comma-separated labels for values 0, 1, 2, ... Custom strings (e.g. `off,eco,on`) and reserved GX keywords (`/off`, `/on`, `/open`, `/closed`, `/ok`, `/alarm`, `/stopped`, `/running`, `/low`, `/high`) are both supported and can be mixed freely
 
 - **Range min/max**: For range types (Value with range, Temperature) only
-- **Decimals**: Number of decimal places to display. Not applicable to Discrete sensors.
+- **Decimals**: Number of decimal places to display. Not applicable to Discrete indicators.
 - **Show in UI**: Controls visibility on local GX display (GX device, MFD) and/or VRM remote console. Both checked = value 1 (show in all UIs), local only = 2, remote only = 4, neither = 0 (hidden).
 
 ## Setting Values
 
-The virtual sensor accepts input messages to update the displayed value.
+The virtual indicator accepts input messages to update the displayed value.
 Send an object containing the properties you want to update as the message payload.
 
 For example, to update a power reading:
@@ -207,8 +206,8 @@ return msg;
 
 ## GX Device Display
 
-As the virtual sensor becomes available on the dbus, it will appear in the switching pane on the (remote) console and attached screen of the GX device. Settings like name and group can be configured in Node-RED or directly on the GX device. On restart of Node-RED, the configured name and group will be applied again.
+As the virtual indicator becomes available on the dbus, it will appear in the switching pane on the (remote) console and attached screen of the GX device. Settings like name and group can be configured in Node-RED or directly on the GX device. On restart of Node-RED, the configured name and group will be applied again.
 
-The sensor types correspond to the Venus OS Generic Input API, which can be found [here](https://github.com/victronenergy/venus/wiki/dbus#switch).
+The indicator types correspond to the Venus OS Generic Input API, which can be found [here](https://github.com/victronenergy/venus/wiki/dbus#switch).
 
 </script>
