@@ -321,10 +321,27 @@ module.exports = function (RED) {
             }
             node.emitS2Signal(msg.payload.s2Signal, [msg.payload.reason])
             return successAndDone('Sent s2Signal "Disconnect"', done)
-          case 'PowerMeasurementStart':
+          case 'PowerMeasurementStart': {
             node._s2PowerMeasurementActive = true
             node._s2PowerMeasurementCemId = msg.cemId
+            // Emit current values immediately so the CEM doesn't wait for the first change
+            const measurementProps = node.ifaceDesc && node.ifaceDesc.__s2PowerMeasurementProps
+            if (measurementProps && node.iface) {
+              for (const [propName, commodityQuantity] of Object.entries(measurementProps)) {
+                const propValue = node.iface[propName]
+                if (propValue !== null && propValue !== undefined) {
+                  node.send([null, {
+                    payload: {
+                      command: 'PowerMeasurement',
+                      cemId: node._s2PowerMeasurementCemId,
+                      values: [{ commodity_quantity: commodityQuantity, value: propValue }]
+                    }
+                  }])
+                }
+              }
+            }
             return successAndDone('Power measurement started', done)
+          }
           case 'PowerMeasurementStop':
             node._s2PowerMeasurementActive = false
             node._s2PowerMeasurementCemId = null
