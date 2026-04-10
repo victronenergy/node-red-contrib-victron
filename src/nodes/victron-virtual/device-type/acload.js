@@ -66,6 +66,10 @@ function initialize (config, ifaceDesc, iface, node) {
     })
 
     ifaceDesc.__enableS2 = true
+    // Maps D-Bus property names to S2 CommodityQuantity values for power measurement reporting
+    ifaceDesc.__s2PowerMeasurementProps = {
+      'Ac/Power': 'ELECTRIC.POWER.3_PHASE_SYMMETRIC'
+    }
     ifaceDesc.__s2Handlers = {
       Connect: function (cemId, timeout) {
         console.log('Connect received for CEM ID:', cemId, 'timeout', timeout)
