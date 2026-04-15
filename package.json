@@ -3,8 +3,7 @@
   "description": "Custom Node-RED Nodes for Victron Energy",
   "version": "1.7.8",
   "dependencies": {
-    "dbus-native-victron": "^0.4.5",
-    "dbus-victron-virtual": "^0.1.32",
+    "dbus-victron-virtual": "^0.1.33",
     "debug": "^4.4.0",
     "lodash": "^4.17.21",
     "promise-retry": "^2.0.1"
