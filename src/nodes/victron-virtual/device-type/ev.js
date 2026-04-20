@@ -52,4 +52,11 @@ function initialize (config, _ifaceDesc, iface, _node) {
   return 'Virtual EV'
 }
 
-module.exports = { properties, initialize, label: 'Electric Vehicle' }
+function onPropertiesChanged ({ changes /* , instance */ }) {
+  if (!changes.LastEvContact) {
+    changes.LastEvContact = Math.floor(Date.now() / 1000)
+  }
+  return changes
+}
+
+module.exports = { properties, initialize, onPropertiesChanged, label: 'Electric Vehicle' }
