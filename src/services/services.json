@@ -3246,7 +3246,7 @@
       {
         "path": "/BatteryVoltage",
         "type": "float",
-        "name": "SBattery voltage (V)"
+        "name": "Battery voltage (V)"
       },
       {
         "path": "/CellTemperature",
