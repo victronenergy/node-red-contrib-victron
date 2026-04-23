@@ -2,6 +2,7 @@ const properties = {
   CellTemperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', persist: 300 },
   ExternalTemperature: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'C' : '', persist: 300 },
   Irradiance: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'W/m2' : '', persist: 300 },
+  InstallationPower: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'W' : '', persist: 300 },
   WindSpeed: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'm/s' : '', persist: 300 },
   WindDirection: { type: 'i', persist: 300 }
 }
