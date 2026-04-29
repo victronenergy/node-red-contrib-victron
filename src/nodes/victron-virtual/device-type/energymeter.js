@@ -77,6 +77,7 @@ module.exports = {
   getServiceType,
   initialize,
   label: 'Energy meter',
+  productType: 'energymeter',
   // we export sharedProperties for unit testing
   __sharedProperties: sharedProperties
 }
