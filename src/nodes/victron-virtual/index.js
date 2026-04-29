@@ -486,6 +486,11 @@ module.exports = function (RED) {
           }
         }
 
+        const moduleProductType = deviceModules[config.device]?.productType
+        if (moduleProductType) {
+          ifaceDesc.productType = moduleProductType
+        }
+
         // Then we need to create the interface implementation (with actual functions)
         const iface = getIface(actualDeviceType, config)
 
