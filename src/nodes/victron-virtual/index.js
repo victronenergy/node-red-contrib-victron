@@ -146,22 +146,19 @@ function getIfaceDesc (actualDev, config) {
 }
 
 function getIface (actualDev, config) {
-  if (!properties[actualDev]) {
-    return {
-      emit: function () {
-      }
-    }
-  }
-
   const result = {
     emit: function () {
     }
   }
 
+  if (!properties[actualDev]) {
+    return result
+  }
+
   const ifaceProperties = typeof properties[actualDev] === 'function' ? properties[actualDev](config) : properties[actualDev]
 
   for (const key in ifaceProperties) {
-    const propertyValue = JSON.parse(JSON.stringify(ifaceProperties[key]))
+    const propertyValue = ifaceProperties[key]
 
     if (propertyValue.value !== undefined) {
       result[key] = propertyValue.value
