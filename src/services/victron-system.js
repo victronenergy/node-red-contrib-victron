@@ -59,7 +59,8 @@ class SystemConfiguration {
               )) &&
               (expandedPathObj.mode === 'both' ||
               (isOutput && expandedPathObj.mode === 'output') ||
-              (!isOutput && (expandedPathObj.mode === 'input' || !expandedPathObj.mode)))
+              (!isOutput && (expandedPathObj.mode === 'input' || !expandedPathObj.mode))) &&
+              cachedPaths[expandedPathObj.path] !== null
             )
 
             return pathAcc.concat(filtered)
