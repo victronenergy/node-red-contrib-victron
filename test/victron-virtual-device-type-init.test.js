@@ -863,6 +863,12 @@ describe('energymeter', () => {
         expect(prop.format(null)).toBeDefined()
       }
     })
+
+    it('Ac/Energy/Forward and Ac/Energy/Reverse have no default value to avoid spurious delta on first real write', () => {
+      const props = energymeter.__sharedProperties
+      expect(props['Ac/Energy/Forward'].value).toBeUndefined()
+      expect(props['Ac/Energy/Reverse'].value).toBeUndefined()
+    })
   })
 
   describe('initialize', () => {
