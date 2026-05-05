@@ -7,7 +7,7 @@
  * the legacy Virtual Device (switch) configuration.
  */
 
-const { addVictronInterfaces, addSettings } = require('dbus-victron-virtual')
+const { addVictronInterfaces } = require('dbus-victron-virtual')
 const { needsPersistedState, hasPersistedState, loadPersistedState, savePersistedState } = require('./persist')
 const dbus = require('dbus-native-victron')
 const debug = require('debug')('victron-virtual-switch')
@@ -16,6 +16,7 @@ const debugConnection = require('debug')('victron-virtual-switch:connection')
 const { validateVirtualDevicePayload, validateLightControls } = require('../services/utils')
 const { createSwitchProperties, handleSwitchOutputs, updateSwitchStatus, emitInitialSwitchOutputs } = require('../services/virtual-switch')
 const { filterInactiveVirtualDevices } = require('../services/virtual-device-cleanup')
+const { getTcpBusAddress, callAddSettingsWithRetry, getDeviceInstance, registerInputHandler, flushPendingInputs } = require('./victron-virtual-dbus-helpers')
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('=== UNHANDLED REJECTION (PREVENTING CRASH) ===')
@@ -41,15 +42,10 @@ module.exports = function (RED) {
 
     node.lastSentValues = {}
 
-    const address = process.env.NODE_RED_DBUS_ADDRESS
-      ? process.env.NODE_RED_DBUS_ADDRESS.split(':')
-      : null
-    if (address && address.length === 2) {
-      this.address = `tcp:host=${address[0]},port=${address[1]}`
-    }
+    const tcpAddress = getTcpBusAddress()
+    if (tcpAddress) this.address = tcpAddress
 
     node.retryOnConnectionEnd = true
-    node.pendingCallsToSetValuesLocally = []
 
     function handleInput (msg, done) {
       // Send passthrough message FIRST, before any validation
@@ -123,18 +119,7 @@ module.exports = function (RED) {
       }
     }
 
-    this.on('input', function (msg, _send, done) {
-      if (!node.setValuesLocally) {
-        // we cannot call setValuesLocally yet, so we queue the message
-        node.pendingCallsToSetValuesLocally.push([msg, done])
-        debugInput(
-          `Node ${node.id} is not ready to handle input yet, queuing message. Pending calls: ${node.pendingCallsToSetValuesLocally.length}`
-        )
-        return
-      }
-
-      handleInput(msg, done)
-    })
+    registerInputHandler(node, debugInput, handleInput)
 
     function instantiateDbus (self) {
       debug('instantiateDbus called for node:', self.id)
@@ -213,37 +198,6 @@ module.exports = function (RED) {
         retryConnectionDelayed()
       })
 
-      async function callAddSettingsWithRetry (bus, settings, maxRetries = 10) {
-        for (let attempt = 0; attempt < maxRetries; attempt++) {
-          try {
-            const result = await addSettings(bus, settings)
-            return result
-          } catch (error) {
-            let errorMessage = ''
-            if (Array.isArray(error)) {
-              errorMessage = error.join(', ')
-            } else if (error && error.message) {
-              errorMessage = error.message
-            } else {
-              errorMessage = String(error)
-            }
-            const isServiceUnavailable =
-              errorMessage.includes('org.freedesktop.DBus.Error.ServiceUnknown') ||
-              errorMessage.includes('com.victronenergy.settings') ||
-              errorMessage.includes('No such service') ||
-              errorMessage.includes('was not provided by any .service files')
-
-            if (!isServiceUnavailable || attempt === maxRetries - 1) {
-              throw error
-            }
-
-            const delay = Math.min(1000 * Math.pow(2, attempt), 10000) // Exponential backoff, max 10s
-            debug(`Settings service unavailable, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`)
-            await new Promise(resolve => setTimeout(resolve, delay))
-          }
-        }
-      }
-
       async function proceed (usedBus) {
         const ifaceDesc = {
           name: interfaceName,
@@ -289,32 +243,6 @@ module.exports = function (RED) {
           return
         }
 
-        const getDeviceInstance = (result) => {
-          try {
-            const firstValue = result?.[0]?.[2]?.[1]?.[1]?.[0]?.split(':')[1]
-            if (firstValue != null) {
-              const number = Number(firstValue)
-              if (!isNaN(number)) {
-                return number
-              }
-            }
-          } catch (e) {
-          }
-
-          try {
-            const fallbackValue = result?.[1]?.[0]?.split(':')[1]
-            if (fallbackValue != null) {
-              const number = Number(fallbackValue)
-              if (!isNaN(number)) {
-                return number
-              }
-            }
-          } catch (e) {
-          }
-
-          console.warn('Failed to extract valid DeviceInstance from settings result')
-          return null
-        }
         iface.DeviceInstance = getDeviceInstance(settingsResult)
         iface.CustomName = config.name || 'Virtual switch'
 
@@ -394,15 +322,7 @@ module.exports = function (RED) {
         node.setValuesLocally = setValuesLocally
         node.emitS2Signal = emitS2Signal
 
-        node.pendingCallsToSetValuesLocally.forEach(([msg, done]) => {
-          try {
-            debugInput(`Processing pending message for node ${node.id}:`, msg)
-            handleInput(msg, done)
-          } catch (err) {
-            node.error(`Failed to set values locally for pending message: ${err.message}`, msg)
-          }
-        })
-        node.pendingCallsToSetValuesLocally = []
+        flushPendingInputs(node, handleInput)
 
         node.removeSettings = removeSettings
 
