@@ -39,6 +39,7 @@ Create simulated Victron devices on the dbus:
 - Generator
 - GPS
 - Grid meter
+- Indicator
 - Meteo
 - Motor drive
 - PV inverter
