@@ -1,7 +1,7 @@
 {
   "name": "@victronenergy/node-red-contrib-victron",
   "description": "Custom Node-RED Nodes for Victron Energy",
-  "version": "1.7.9",
+  "version": "1.7.10",
   "dependencies": {
     "dbus-native-victron": "^0.4.5",
     "dbus-victron-virtual": "^0.1.34",
@@ -21,6 +21,7 @@
       "victron-nodes": "./src/nodes/victron-nodes.js",
       "victron-virtual": "./src/nodes/victron-virtual.js",
       "victron-virtual-switch": "./src/nodes/victron-virtual-switch.js",
+      "victron-virtual-indicator": "./src/nodes/victron-virtual-indicator.js",
       "victron-inject": "./src/nodes/victron-inject.js"
     },
     "version": ">=3.0.2"

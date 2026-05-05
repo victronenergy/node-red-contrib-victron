@@ -139,6 +139,34 @@ describe('Virtual Device Removal Logic', () => {
     expect(devicesToRemove).toEqual(['virtual_node1'])
   })
 
+  it('should remove inactive vindic_ (indicator) entries and not affect virtual_ entries', () => {
+    const deviceEntries = [
+      ['virtual_sw1/ClassAndVrmInstance', [{ type: 's' }, ['switch:10']]],
+      ['vindic_ind1/ClassAndVrmInstance', [{ type: 's' }, ['switch:20']]],
+      ['vindic_ind2/ClassAndVrmInstance', [{ type: 's' }, ['switch:30']]]
+    ]
+    const activeServices = [
+      'com.victronenergy.switch.virtual_sw1',
+      'com.victronenergy.switch.vindic_ind1'
+      // vindic_ind2 is NOT active
+    ]
+
+    const devicesToRemove = filterInactiveVirtualDevices(deviceEntries, activeServices)
+
+    expect(devicesToRemove).toEqual(['vindic_ind2'])
+  })
+
+  it('should not remove vindic_ entries whose services are active', () => {
+    const deviceEntries = [
+      ['vindic_ind1/ClassAndVrmInstance', [{ type: 's' }, ['switch:10']]]
+    ]
+    const activeServices = ['com.victronenergy.switch.vindic_ind1']
+
+    const devicesToRemove = filterInactiveVirtualDevices(deviceEntries, activeServices)
+
+    expect(devicesToRemove).toHaveLength(0)
+  })
+
   it('should also handle non-virtual entries mixed in with numeric values', () => {
     // Real DBus data mixes many entry types; numeric-valued entries should be ignored
     const deviceEntries = [

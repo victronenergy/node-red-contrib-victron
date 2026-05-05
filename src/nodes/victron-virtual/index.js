@@ -13,6 +13,7 @@ const { validateVirtualDevicePayload, validateLightControls, debounce } = requir
 const { handleSwitchOutputs } = require('../../services/virtual-switch')
 const { filterInactiveVirtualDevices } = require('../../services/virtual-device-cleanup')
 const { makeSetPresence } = require('./helpers')
+const { registerInputHandler, flushPendingInputs, createDebouncedSetters } = require('../victron-virtual-dbus-helpers')
 
 const acloadModule = require('./device-type/acload')
 const batteryModule = require('./device-type/battery')
@@ -201,31 +202,8 @@ module.exports = function (RED) {
 
     node.retryOnConnectionEnd = true
     node.presenceConnected = false
-    node.pendingCallsToSetValuesLocally = []
 
-    const debouncedSetters = new Map()
-
-    function shouldApplyImmediately (key) {
-      if (node.ifaceDesc && node.ifaceDesc.properties && node.ifaceDesc.properties[key]) {
-        return node.ifaceDesc.properties[key].immediate === true
-      }
-      return false
-    }
-
-    function getDebouncedSetter (key) {
-      if (!debouncedSetters.has(key)) {
-        const setter = debounce((value) => {
-          debugInput(`Applying debounced value for ${key}: ${value}`)
-          try {
-            node.setValuesLocally({ [key]: value })
-          } catch (err) {
-            node.error(`Failed to apply debounced value for ${key}: ${err.message}`)
-          }
-        }, DEBOUNCE_DELAY_MS)
-        debouncedSetters.set(key, setter)
-      }
-      return debouncedSetters.get(key)
-    }
+    const { shouldApplyImmediately, getDebouncedSetter } = createDebouncedSetters(node, debounce, DEBOUNCE_DELAY_MS)
 
     function handleInput (msg, done) {
       // Send passthrough message FIRST, before any validation
@@ -368,18 +346,7 @@ module.exports = function (RED) {
       }
     }
 
-    this.on('input', function (msg, _send, done) {
-      if (!node.setValuesLocally) {
-        // we cannot call setValuesLocally yet, so we queue the message
-        node.pendingCallsToSetValuesLocally.push([msg, done])
-        debugInput(
-          `Node ${node.id} is not ready to handle input yet, queuing message. Pending calls: ${node.pendingCallsToSetValuesLocally.length}`
-        )
-        return
-      }
-
-      handleInput(msg, done)
-    })
+    registerInputHandler(node, debugInput, handleInput)
 
     function instantiateDbus (self) {
       debug('instantiateDbus called for node', self.id, nodeInstances)
@@ -747,16 +714,7 @@ module.exports = function (RED) {
 
         node.setPresence = makeSetPresence(node, text, iface)
 
-        // If there are pending calls, process them now
-        node.pendingCallsToSetValuesLocally.forEach(([msg, done]) => {
-          try {
-            debugInput(`Processing pending message for node ${node.id}:`, msg)
-            handleInput(msg, done)
-          } catch (err) {
-            node.error(`Failed to set values locally for pending message: ${err.message}`, msg)
-          }
-        })
-        node.pendingCallsToSetValuesLocally = []
+        flushPendingInputs(node, handleInput)
 
         node.removeSettings = removeSettings
 
