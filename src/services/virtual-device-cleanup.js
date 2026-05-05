@@ -17,14 +17,12 @@ function filterInactiveVirtualDevices (deviceEntries, activeServices) {
     .filter(entry => {
       const path = entry[0]
       return typeof path === 'string' &&
-             path.startsWith('virtual_') &&
+             (path.startsWith('virtual_') || path.startsWith('vindic_')) &&
              path.includes('/ClassAndVrmInstance')
     })
-    .map(entry => entry[0].split('/')[0]) // Extract 'virtual_{nodeId}'
+    .map(entry => entry[0].split('/')[0]) // Extract device path prefix, e.g. 'virtual_{nodeId}' or 'vindic_{nodeId}'
     .filter((devicePath, index, self) => self.indexOf(devicePath) === index) // Unique devicePaths
     .filter(devicePath => {
-      const deviceNodeId = devicePath.substring('virtual_'.length)
-
       // Find the corresponding deviceEntry to get the deviceType
       // Note: deviceEntries paths are relative to /Settings/Devices/
       const deviceEntry = deviceEntries.find(entry => entry[0] === `${devicePath}/ClassAndVrmInstance`)
@@ -47,13 +45,13 @@ function filterInactiveVirtualDevices (deviceEntries, activeServices) {
       let possibleServiceNames
       if (deviceType === 'generator') {
         possibleServiceNames = [
-          `com.victronenergy.genset.virtual_${deviceNodeId}`,
-          `com.victronenergy.dcgenset.virtual_${deviceNodeId}`
+          `com.victronenergy.genset.${devicePath}`,
+          `com.victronenergy.dcgenset.${devicePath}`
         ]
       } else if (deviceType === 'e-drive') {
-        possibleServiceNames = [`com.victronenergy.motordrive.virtual_${deviceNodeId}`]
+        possibleServiceNames = [`com.victronenergy.motordrive.${devicePath}`]
       } else {
-        possibleServiceNames = [`com.victronenergy.${deviceType}.virtual_${deviceNodeId}`]
+        possibleServiceNames = [`com.victronenergy.${deviceType}.${devicePath}`]
       }
 
       debug(`Checking if any of ${possibleServiceNames} is active for device ${devicePath}`)

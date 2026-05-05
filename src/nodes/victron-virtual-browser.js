@@ -10,6 +10,7 @@ import {
   updateBatteryVoltageVisibility,
   calculateOutputs,
   updateOutputs,
+  renderIndicatorDocBox,
   renderShowInUICheckboxes,
   getShowUIValue
 } from './victron-virtual-functions.js'
@@ -26,6 +27,7 @@ window.__victron = {
   updateBatteryVoltageVisibility,
   calculateOutputs,
   updateOutputs,
+  renderIndicatorDocBox,
   renderShowInUICheckboxes,
   getShowUIValue,
   initializeTooltips

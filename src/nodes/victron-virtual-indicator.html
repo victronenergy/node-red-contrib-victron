@@ -1,0 +1,207 @@
+<link rel="stylesheet" href="resources/@victronenergy/node-red-contrib-victron/victron-virtual-style.css">
+<script src="resources/@victronenergy/node-red-contrib-victron/victron-common.js"></script>
+<script src="resources/@victronenergy/node-red-contrib-victron/victron-virtual-functions.js"></script>
+<script type="text/javascript">
+    RED.nodes.registerType('victron-virtual-indicator', {
+        category: 'Victron Energy',
+        color: '#f7ab3e',
+        paletteLabel: 'Virtual Indicator',
+        defaults: {
+            name:          { value: '' },
+            customname:    { value: '', required: true },
+            group:         { value: '', required: true },
+            indicator_type:   { value: 1, required: true },
+            unit:          { value: '' },
+            labels:        { value: '' },
+            primary_label: { value: '' },
+            range_min:     { value: '' },
+            range_max:     { value: '' },
+            decimals:      { value: '' },
+            show_ui_input: { value: 1 }
+        },
+        icon: 'victronenergy.svg',
+        inputs: 1,
+        outputs: 1,
+        label: function () {
+            return this.name || this.customname || 'Virtual Indicator'
+        },
+        outputLabels: ['Passthrough'],
+        oneditprepare: function () {
+            const { initializeTooltips, renderIndicatorDocBox, renderShowInUICheckboxes } = window.__victron
+
+            function updateVisibility () {
+                const type = parseInt($('#node-input-indicator_type').val())
+                const hasRange = type === 2 || type === 3
+                const isDiscrete = type === 0
+                const isTemperature = type === 3
+
+                $('#indicator-range-rows').toggle(hasRange)
+                $('#indicator-discrete-rows').toggle(isDiscrete)
+                $('#indicator-unit-row').toggle(!isDiscrete && !isTemperature)
+                $('#indicator-primary-label-row').toggle(!hasRange)
+                $('#indicator-decimals-row').toggle(!isDiscrete)
+
+                renderIndicatorDocBox(type)
+            }
+
+            $('#node-input-indicator_type').on('change', updateVisibility)
+            updateVisibility()
+
+            renderShowInUICheckboxes('indicator-show-ui', this.show_ui_input, 'node-input-show_ui_input')
+            initializeTooltips()
+        }
+    })
+</script>
+
+<script type="text/html" data-template-name="victron-virtual-indicator">
+    <div class="victron-form">
+        <div class="form-row">
+            <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+            <input type="text" id="node-input-name" placeholder="Name">
+        </div>
+
+        <div class="form-row">
+            <label for="node-input-indicator_type"><i class="fa fa-sliders"></i> Type</label>
+            <select id="node-input-indicator_type">
+                <option value="0">Discrete</option>
+                <option value="1">Value</option>
+                <option value="2">Value with range</option>
+                <option value="3">Temperature</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <label for="node-input-customname">Custom name
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Display name shown on the GX device. If the custom name gets changed on the GX device after initial deploy, that value will be overwritten on restart and re-deploy of Node-RED."></i>
+            </label>
+            <input type="text" id="node-input-customname" placeholder="e.g. Solar power" required>
+        </div>
+
+        <div class="form-row">
+            <label for="node-input-group">Group
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Group name used to combine indicators onto the same card on the GX device. If the group gets changed on the GX device after initial deploy, that value will be overwritten on restart and re-deploy of Node-RED."></i>
+            </label>
+            <input type="text" id="node-input-group" placeholder="e.g. Solar" required>
+        </div>
+
+        <div id="indicator-unit-row" class="form-row">
+            <label for="node-input-unit">Unit
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Unit to display next to the value. Use /Temperature, /Speed or /Volume to follow GX system-wide unit settings."></i>
+            </label>
+            <input type="text" id="node-input-unit" placeholder="e.g. W, kWh, /Temperature" required>
+        </div>
+
+        <div id="indicator-primary-label-row" class="form-row">
+            <label for="node-input-primary_label">Primary label
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Label shown above the value on the GX device, e.g. 'Power' or 'Temperature'."></i>
+            </label>
+            <input type="text" id="node-input-primary_label" placeholder="e.g. Power" required>
+        </div>
+
+        <div id="indicator-discrete-rows">
+            <div id="indicator-labels-row" class="form-row">
+                <label for="node-input-labels">Labels
+                    <i class="fa fa-info-circle tooltip-icon" data-tooltip="Comma-separated labels for discrete values (0, 1, 2, ...). Supports custom strings (e.g. off,eco,on) and reserved keywords (/off, /on, /open, /closed, /ok, /alarm, /stopped, /running, /low, /high). Keywords and custom strings can be mixed freely."></i>
+                </label>
+                <input type="text" id="node-input-labels" placeholder="e.g. /off,/on or off,eco,on" required>
+            </div>
+
+        </div>
+
+        <div id="indicator-range-rows">
+            <div class="form-row">
+                <label for="node-input-range_min">Range min</label>
+                <input type="number" id="node-input-range_min" placeholder="e.g. 0" required>
+            </div>
+            <div class="form-row">
+                <label for="node-input-range_max">Range max</label>
+                <input type="number" id="node-input-range_max" placeholder="e.g. 100" required>
+            </div>
+        </div>
+
+        <div id="indicator-decimals-row" class="form-row">
+            <label for="node-input-decimals">Decimals
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Number of decimal places to display."></i>
+            </label>
+            <input type="number" id="node-input-decimals" placeholder="e.g. 2" min="0" max="10" required>
+        </div>
+
+        <input type="hidden" id="node-input-show_ui_input">
+        <div id="indicator-show-ui"></div>
+
+        <div id="indicator-docs-container">
+            <!-- Dynamic indicator documentation will be added here -->
+        </div>
+
+        <div class="form-row" style="margin-top: 20px;">
+            <div style="width: 456px; text-align: right;">
+                <a href="https://community.victronenergy.com/c/node-red/28" target="_blank" rel="noopener noreferrer">
+                    <img src="resources/@victronenergy/node-red-contrib-victron/docs/community-link.svg" alt="Community Link" style="height: 32px; vertical-align: middle;">
+                </a>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/markdown" data-help-name="victron-virtual-indicator">
+
+The _Virtual Indicator_ node creates a virtual indicator device on the underlying `dbus`, which allows Node-RED flows to publish indicator values that appear in the switching pane on the GX device display and VRM remote console.
+
+## Indicator Types
+
+There are several types of indicators available:
+
+- **Discrete**: Shows a labeled state, e.g. Off/On or Open/Closed. Configure labels as a comma-separated list.
+- **Value**: Displays a numeric value with an optional unit.
+- **Value with range**: Displays a numeric value with a configurable min/max range indicator.
+- **Temperature**: Displays a temperature value with a range indicator.
+
+## Configuration
+
+- **Custom Name**: Display name shown on the GX device
+- **Group**: Group multiple indicators together on the GX device display
+- **Unit**: Display unit (e.g. `W`, `kWh`), or use a reserved keyword (`/Temperature`, `/Speed`, `/Volume`) to follow the GX system-wide unit setting. Not applicable to Discrete or Temperature indicators.
+- **Primary label**: Label shown above the value (e.g. `Power`, `Temperature`). Not applicable to Value with range or Temperature indicators.
+- **Labels**: For discrete indicators only - comma-separated labels for values 0, 1, 2, ... Custom strings (e.g. `off,eco,on`) and reserved GX keywords (`/off`, `/on`, `/open`, `/closed`, `/ok`, `/alarm`, `/stopped`, `/running`, `/low`, `/high`) are both supported and can be mixed freely
+
+- **Range min/max**: For range types (Value with range, Temperature) only
+- **Decimals**: Number of decimal places to display. Not applicable to Discrete indicators.
+- **Show in UI**: Controls visibility on local GX display (GX device, MFD) and/or VRM remote console. Both checked = value 1 (show in all UIs), local only = 2, remote only = 4, neither = 0 (hidden).
+
+## Setting Values
+
+The virtual indicator accepts input messages to update the displayed value.
+Send an object containing the properties you want to update as the message payload.
+
+For example, to update a power reading:
+
+```javascript
+msg.payload = { Value: 42.5 };
+return msg;
+```
+
+With an explicit status:
+
+```javascript
+msg.payload = { Value: 42.5, Status: 0 };  // Status: 0=OK, 1=Fault, 2=Battery low
+return msg;
+```
+
+Full D-Bus path keys are also accepted:
+
+```javascript
+msg.payload = { 'GenericInput/0/Value': 42.5 };
+return msg;
+```
+
+## Outputs
+
+- **Output 1 (Passthrough)**: Forwards the input message unchanged
+
+## GX Device Display
+
+As the virtual indicator becomes available on the dbus, it will appear in the switching pane on the (remote) console and attached screen of the GX device. Settings like name and group can be configured in Node-RED or directly on the GX device. On restart of Node-RED, the configured name and group will be applied again.
+
+The indicator types correspond to the Venus OS Generic Input API, which can be found [here](https://github.com/victronenergy/venus/wiki/dbus#switch).
+
+</script>
