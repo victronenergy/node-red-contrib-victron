@@ -1,0 +1,147 @@
+<link rel="stylesheet" href="resources/@victronenergy/node-red-contrib-victron/victron-styles.css">
+<script src="resources/@victronenergy/node-red-contrib-victron/victron-common.js"></script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('victron-event', {
+        category: 'Victron Energy',
+        color: '#f7ab3e',
+        paletteLabel: "Inject Event",
+        defaults: {
+            name:     { value: "" },
+            severity: { value: 2, required: true },
+            app:      { value: "node-red", required: true }
+        },
+        icon: "victronenergy.svg",
+        inputs: 1,
+        outputs: 1,
+        label: function() {
+            if (this.name) return this.name;
+            const severityLabels = { 0: 'Warning', 1: 'Critical', 2: 'Info' };
+            const severityLabel = severityLabels[parseInt(this.severity, 10)] || 'Info';
+            const app = this.app || 'node-red';
+            return app + ' [' + severityLabel + ']';
+        },
+        oneditprepare: function() {
+            if (window.__victronCommon && typeof window.__victronCommon.initializeTooltips === 'function') {
+                window.__victronCommon.initializeTooltips();
+            }
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="victron-event">
+    <div class="victron-form">
+        <div class="form-row">
+            <label for="node-input-name">
+                <i class="fa fa-tag"></i> Name
+            </label>
+            <input type="text" id="node-input-name" placeholder="Name">
+        </div>
+
+        <div class="form-row">
+            <label for="node-input-severity">
+                <i class="fa fa-exclamation-triangle"></i> Severity
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Event severity level. Can be overridden by msg.severity (0/1/2 or &quot;warning&quot;/&quot;critical&quot;/&quot;info&quot;)."></i>
+            </label>
+            <select id="node-input-severity">
+                <option value="0">Warning</option>
+                <option value="1">Critical</option>
+                <option value="2">Info</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <label for="node-input-app">
+                <i class="fa fa-tag"></i> App
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Name identifying the source of the event. Can be overridden by msg.app."></i>
+            </label>
+            <input type="text" id="node-input-app" placeholder="node-red" required>
+        </div>
+
+        <div class="victron-doc-box">
+            <div class="victron-doc-text">
+                <strong>Usage:</strong>
+                <p>Send the event message in <code>msg.payload</code>.</p>
+                <p>Optionally override the configured severity with <code>msg.severity</code> (number: 0/1/2 or string: "warning"/"critical"/"info").</p>
+                <p>Optionally override the configured app with <code>msg.app</code>.</p>
+                <p>The output includes <code>msg.event</code> with the injected event details.</p>
+                <p>Status displays "app: message" with a color-coded dot (yellow=Warning, red=Critical, blue=Info).</p>
+            </div>
+        </div>
+
+        <div class="form-row community-link-row" id="community-link-row">
+            <div class="community-link-container">
+                <a href="https://community.victronenergy.com/c/node-red/28" target="_blank" rel="noopener noreferrer">
+                    <img class="community-link-img" src="resources/@victronenergy/node-red-contrib-victron/docs/community-link.svg" alt="Community Link">
+                </a>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/markdown" data-help-name="victron-event">
+
+The _Inject Event_ node sends an event to the VRM portal Event logs tab via service `com.victronenergy.logger`, path `/EventLogging/Inject`.
+
+## Configuration
+
+### Severity
+Select the event severity level:
+- **Warning** (0): Non-critical condition worth noting - displayed with yellow status
+- **Critical** (1): Serious condition requiring attention - displayed with red status
+- **Info** (2): Informational event - displayed with blue status
+
+The severity can be overridden by setting `msg.severity` in the incoming message.
+
+### App
+The name identifying the source of the event (e.g. `node-red`, `my-flow`). This can be overridden by setting `msg.app` in the incoming message.
+
+## Usage
+
+Send a message with the event text in `msg.payload`:
+
+```javascript
+msg.payload = "Critical switch was triggered";
+return msg;
+```
+
+### Overriding Configuration
+
+You can override the configured severity and app per message:
+
+```javascript
+msg.payload = "Flow failed: missing sensor data";
+msg.severity = 1;        // Override to Critical (number)
+msg.app = "my-flow";     // Override app name
+return msg;
+```
+
+```javascript
+msg.payload = "Flow failed: missing sensor data";
+msg.severity = "critical";  // Override to Critical (string, case-insensitive)
+return msg;
+```
+
+## Output
+
+The node passes through the original message and adds a `msg.event` object:
+
+```javascript
+{
+    payload: "Critical switch was triggered",
+    event: {
+        severity: 1,
+        app: "node-red",
+        message: "Critical switch was triggered"
+    }
+}
+```
+
+## Node Status
+
+- **Yellow dot**: Warning event injected
+- **Red dot**: Critical event injected
+- **Blue dot**: Info event injected
+- **Red ring**: Error occurred during injection
+
+</script>

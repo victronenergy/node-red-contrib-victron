@@ -406,7 +406,7 @@ function generateOverview (servicesData, registeredNodes, format, page) {
 
   if (!page || isIndexPage) {
     overview += 'If there are services and paths not covered by the above nodes, there are also 2 [custom nodes](#custom-nodes) that allow you to read from and write to all found dbus services and paths.\n\n'
-    overview += '**Other nodes:** [Virtual Device](Virtual-devices#virtual-device), [Virtual Switch](Virtual-devices#virtual-switch), [Inject Notification](Virtual-devices#inject-notification)\n\n'
+    overview += '**Other nodes:** [Virtual Device](Virtual-devices#virtual-device), [Virtual Switch](Virtual-devices#virtual-switch), [Inject Notification](Virtual-devices#inject-notification), [Inject Event](Virtual-devices#inject-event)\n\n'
   } else if (page === 'input') {
     overview += 'For writing values to control devices, see [Output nodes](Output-nodes).\n'
     overview += 'For creating virtual Victron devices on D-Bus, see [Virtual devices](Virtual-devices).\n\n'
@@ -532,6 +532,49 @@ msg.notification = {
     type: 1,              // type number used
     title: "Battery Alert",
     message: "Battery voltage is low"
+}
+\`\`\`
+
+---
+
+## Inject Event
+
+The _Inject Event_ node sends an event to the VRM portal Event logs tab, visible under Diagnostics -> Event logs.
+
+Events are sent to D-Bus at \`com.victronenergy.logger /EventLogging/Inject\`.
+
+### Configuration
+
+- **Severity:** The event severity: Warning (0), Critical (1), or Info (2).
+- **App:** The name identifying the source of the event (e.g. \`node-red\`, \`my-flow\`).
+
+### Usage
+
+Send the event message in \`msg.payload\`:
+
+\`\`\`javascript
+msg.payload = "Relay activated by flow logic";
+\`\`\`
+
+Override the configured severity and app at runtime:
+
+\`\`\`javascript
+msg.payload = "Battery state of charge critically low";
+msg.severity = 1;        // number: 0 (Warning), 1 (Critical), 2 (Info)
+msg.app = "battery-monitor";
+\`\`\`
+
+Severity can also be set as a string (\`"warning"\`, \`"critical"\`, \`"info"\`), case-insensitive.
+
+### Output
+
+Passes through the original \`msg\` with \`msg.event\` added:
+
+\`\`\`javascript
+msg.event = {
+    severity: 1,
+    app: "node-red",
+    message: "Battery state of charge critically low"
 }
 \`\`\`
 `
