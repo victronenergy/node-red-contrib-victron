@@ -18,6 +18,7 @@
   "node-red": {
     "nodes": {
       "victron-client": "./src/nodes/config-client.js",
+      "victron-event": "./src/nodes/victron-event.js",
       "victron-nodes": "./src/nodes/victron-nodes.js",
       "victron-virtual": "./src/nodes/victron-virtual.js",
       "victron-virtual-switch": "./src/nodes/victron-virtual-switch.js",
