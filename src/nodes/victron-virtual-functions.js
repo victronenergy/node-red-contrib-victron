@@ -254,6 +254,30 @@ export const DEVICE_TYPE_DOCS = {
   `,
     img: null
   },
+  dcload: {
+    label: 'DC Load',
+    text: `
+    ${INPUT_DOCS}
+    <div>
+      <div><strong>Most relevant paths:</strong>
+        <ul>
+          <li><code>/Dc/0/Voltage</code> &mdash; DC load voltage in volts.</li>
+          <li><code>/Dc/0/Current</code> &mdash; DC load current in amperes.</li>
+          <li><code>/Dc/0/Power</code> &mdash; DC load power in watts.</li>
+        </ul>
+        <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
+      </div>
+    </div>
+    <div>
+      <div><strong>Output:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+        </ol>
+      </div>
+    </div>
+  `,
+    img: null
+  },
   ev: {
     label: 'Electric Vehicle',
     text: `
@@ -980,6 +1004,77 @@ export function checkSelectedVirtualDevice (context) {
       `)
       $('#switch-docs-container').append(docRow)
     }
+  }
+}
+
+export const INDICATOR_TYPE_DOCS = {
+  0: createDocTemplate(
+    '<div><strong>Most relevant path(s):</strong><ul>' +
+    '<li><code>/GenericInput/0/Value</code> &mdash; Current discrete state (integer index, e.g. 0, 1, 2, ...)</li>' +
+    '<li><code>/GenericInput/0/Status</code> &mdash; Indicator status: 0=OK, 1=Fault, 2=Battery low</li>' +
+    '<li><code>/GenericInput/0/Settings/Labels</code> &mdash; Array of label strings, one per discrete value. ' +
+    'Custom strings (e.g. <tt>"eco"</tt>) and reserved keywords (e.g. <tt>"/on"</tt>) can be mixed freely. ' +
+    'Reserved keywords: <tt>/off</tt>, <tt>/on</tt>, <tt>/open</tt>, <tt>/closed</tt>, <tt>/ok</tt>, <tt>/alarm</tt>, ' +
+    '<tt>/stopped</tt>, <tt>/running</tt>, <tt>/low</tt>, <tt>/high</tt></li>' +
+    '</ul></div>',
+    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li></ol></div>',
+    '/resources/@victronenergy/node-red-contrib-victron/docs/discrete.svg'
+  ),
+  1: createDocTemplate(
+    '<div><strong>Most relevant path(s):</strong><ul>' +
+    '<li><code>/GenericInput/0/Value</code> &mdash; Numeric indicator reading</li>' +
+    '<li><code>/GenericInput/0/Status</code> &mdash; Indicator status: 0=OK, 1=Fault, 2=Battery low</li>' +
+    '<li><code>/GenericInput/0/Settings/Unit</code> &mdash; Display unit, e.g. <tt>W</tt>, <tt>kWh</tt>. ' +
+    'Use <tt>/Temperature</tt>, <tt>/Speed</tt> or <tt>/Volume</tt> to follow GX system-wide unit settings</li>' +
+    '</ul></div>',
+    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li></ol></div>',
+    '/resources/@victronenergy/node-red-contrib-victron/docs/value.svg'
+  ),
+  2: createDocTemplate(
+    '<div><strong>Most relevant path(s):</strong><ul>' +
+    '<li><code>/GenericInput/0/Value</code> &mdash; Numeric indicator reading</li>' +
+    '<li><code>/GenericInput/0/Status</code> &mdash; Indicator status: 0=OK, 1=Fault, 2=Battery low</li>' +
+    '<li><code>/GenericInput/0/Settings/RangeMin</code> &mdash; Minimum value for the range indicator</li>' +
+    '<li><code>/GenericInput/0/Settings/RangeMax</code> &mdash; Maximum value for the range indicator</li>' +
+    '</ul></div>',
+    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li></ol></div>',
+    '/resources/@victronenergy/node-red-contrib-victron/docs/value_range.svg'
+  ),
+  3: createDocTemplate(
+    '<div><strong>Most relevant path(s):</strong><ul>' +
+    '<li><code>/GenericInput/0/Value</code> &mdash; Temperature value in the unit selected in GX system settings</li>' +
+    '<li><code>/GenericInput/0/Status</code> &mdash; Indicator status: 0=OK, 1=Fault, 2=Battery low</li>' +
+    '<li><code>/GenericInput/0/Settings/RangeMin</code> &mdash; Minimum value for the range indicator</li>' +
+    '<li><code>/GenericInput/0/Settings/RangeMax</code> &mdash; Maximum value for the range indicator</li>' +
+    '</ul></div>',
+    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li></ol></div>',
+    '/resources/@victronenergy/node-red-contrib-victron/docs/temperature_indicator.svg'
+  )
+}
+
+export const INDICATOR_TYPE_LABELS = {
+  0: 'Discrete',
+  1: 'Value',
+  2: 'Value with range',
+  3: 'Temperature'
+}
+
+export function renderIndicatorDocBox (type) {
+  $('#indicator-docs-container').empty()
+  const typeKey = parseInt(type, 10)
+  const doc = INDICATOR_TYPE_DOCS[typeKey]
+  const label = INDICATOR_TYPE_LABELS[typeKey] || 'Indicator'
+  if (doc) {
+    const docRow = $(`
+      <div class="form-row">
+        <div id="indicator-doc-row" class="victron-doc-box">
+          <label>${label} usage</label>
+          ${doc.img ? `<img src="${doc.img}" alt="${label} preview">` : ''}
+          <div class="victron-doc-text">${doc.text}</div>
+        </div>
+      </div>
+    `)
+    $('#indicator-docs-container').append(docRow)
   }
 }
 
