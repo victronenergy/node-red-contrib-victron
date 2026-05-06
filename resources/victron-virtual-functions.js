@@ -550,7 +550,7 @@
         <ul>
           <li><code>/Soc</code> &mdash; State of charge as a percentage (0-100%).</li>
           <li><code>/TargetSoc</code> &mdash; Target state of charge as a percentage (0-100%).</li>
-          <li><code>/ChargingState</code> &mdash; Charging state: <code>0</code> = Disconnected, <code>1</code> = Connected, <code>2</code> = Charging, <code>3</code> = Charged, <code>5</code> = Inverting, <code>6</code> = Error, <code>7</code> = Unknown.</li>
+          <li><code>/ChargingState</code> &mdash; Charging state: <code>0</code> = Not charging, <code>1</code> = Low power mode, <code>3</code> = Charging, <code>256</code> = Discharging, <code>259</code> = Scheduled charging. Also supported: <code>244</code> = Sustain, <code>245</code> = Wake up, <code>250</code> = Blocked, <code>255</code> = Unavailable.</li>
           <li><code>/Ac/Power</code> &mdash; AC power in watts. Positive = charging, negative = discharging (V2G/V2H).</li>
           <li><code>/Odometer</code> &mdash; Odometer reading in km.</li>
           <li><code>/RangeToGo</code> &mdash; Estimated driving range in km.</li>

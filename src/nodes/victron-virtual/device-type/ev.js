@@ -5,13 +5,15 @@ const properties = {
   ChargingState: {
     type: 'i',
     format: (v) => ({
-      0: 'Disconnected',
-      1: 'Connected',
-      2: 'Charging',
-      3: 'Charged',
-      5: 'Inverting',
-      6: 'Error',
-      7: 'Unknown'
+      0: 'Not charging',
+      1: 'Low power mode',
+      3: 'Charging',
+      244: 'Sustain',
+      245: 'Wake up',
+      250: 'Blocked',
+      255: 'Unavailable',
+      256: 'Discharging',
+      259: 'Scheduled charging'
     }[v] || 'unknown')
   },
   BatteryCapacity: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'kWh' : '', persist: true },

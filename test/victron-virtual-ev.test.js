@@ -9,6 +9,33 @@ describe('ev device module', () => {
     expect(typeof ev.onPropertiesChanged).toBe('function')
   })
 
+  describe('ChargingState format', () => {
+    const fmt = ev.properties.ChargingState.format
+
+    test.each([
+      [0, 'Not charging'],
+      [1, 'Low power mode'],
+      [3, 'Charging'],
+      [244, 'Sustain'],
+      [245, 'Wake up'],
+      [250, 'Blocked'],
+      [255, 'Unavailable'],
+      [256, 'Discharging'],
+      [259, 'Scheduled charging']
+    ])('value %i formats to "%s"', (value, expected) => {
+      expect(fmt(value)).toBe(expected)
+    })
+
+    test('unknown value returns "unknown"', () => {
+      expect(fmt(2)).toBe('unknown')
+      expect(fmt(99)).toBe('unknown')
+    })
+
+    test('null returns "unknown"', () => {
+      expect(fmt(null)).toBe('unknown')
+    })
+  })
+
   describe('onPropertiesChanged', () => {
     test('returns changes with LastEvContact timestamp when a property changes', () => {
       const before = Math.floor(Date.now() / 1000)
