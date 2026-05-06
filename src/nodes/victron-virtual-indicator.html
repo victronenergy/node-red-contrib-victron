@@ -23,7 +23,13 @@
         inputs: 1,
         outputs: 1,
         label: function () {
-            return this.name || this.customname || 'Virtual Indicator'
+            return window.__victron.getVirtualNodeLabel({
+                name: this.name,
+                customname: this.customname,
+                group: this.group,
+                typeName: window.__victron.INDICATOR_TYPE_LABELS[this.indicator_type],
+                fallback: 'Virtual Indicator'
+            })
         },
         outputLabels: ['Passthrough'],
         oneditprepare: function () {

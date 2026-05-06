@@ -28,7 +28,14 @@
         inputs:1,
         outputs:2,
         label: function() {
-            return this.name || "Virtual Switch"
+            const cfg = window.__victron.SWITCH_TYPE_CONFIGS[parseInt(this.switch_1_type, 10)]
+            return window.__victron.getVirtualNodeLabel({
+                name: this.name,
+                customname: this.switch_1_customname,
+                group: this.switch_1_group,
+                typeName: cfg ? cfg.label : 'Switch',
+                fallback: 'Virtual Switch'
+            })
         },
         outputLabels: function(index) {
             const switchType = this.switch_1_type
