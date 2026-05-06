@@ -1459,11 +1459,26 @@
     $('#node-input-outputs').val(outputs);
   }
 
+  /**
+   * Returns the Node-RED palette label for a virtual node.
+   * Priority: name -> customname + group + typeName -> fallback + typeName
+   * @param {{ name?: string, customname?: string, group?: string, typeName?: string, fallback?: string }} opts
+   * @returns {string}
+   */
+  function getVirtualNodeLabel ({ name, customname, group, typeName, fallback = 'Virtual' } = {}) {
+    if (name) return name
+    const parts = [customname || fallback];
+    if (group) parts.push('(' + group + ')');
+    if (typeName) parts.push('[' + typeName + ']');
+    return parts.join(' ')
+  }
+
   // src/nodes/victron-virtual-browser.js
 
   window.__victron = {
     checkGeneratorType,
     SWITCH_TYPE_CONFIGS,
+    INDICATOR_TYPE_LABELS,
     renderSwitchConfigRow,
     updateSwitchConfig,
     checkSelectedVirtualDevice,
@@ -1475,7 +1490,8 @@
     renderIndicatorDocBox,
     renderShowInUICheckboxes,
     getShowUIValue,
-    initializeTooltips
+    initializeTooltips,
+    getVirtualNodeLabel
   };
 
 })();
