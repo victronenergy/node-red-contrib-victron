@@ -147,22 +147,19 @@ function getIfaceDesc (actualDev, config) {
 }
 
 function getIface (actualDev, config) {
-  if (!properties[actualDev]) {
-    return {
-      emit: function () {
-      }
-    }
-  }
-
   const result = {
     emit: function () {
     }
   }
 
+  if (!properties[actualDev]) {
+    return result
+  }
+
   const ifaceProperties = typeof properties[actualDev] === 'function' ? properties[actualDev](config) : properties[actualDev]
 
   for (const key in ifaceProperties) {
-    const propertyValue = JSON.parse(JSON.stringify(ifaceProperties[key]))
+    const propertyValue = ifaceProperties[key]
 
     if (propertyValue.value !== undefined) {
       result[key] = propertyValue.value
@@ -486,8 +483,9 @@ module.exports = function (RED) {
           }
         }
 
-        if (dbusServiceType !== config.device) {
-          ifaceDesc.productType = config.device
+        const moduleProductType = deviceModules[config.device]?.productType
+        if (moduleProductType) {
+          ifaceDesc.productType = moduleProductType
         }
 
         // Then we need to create the interface implementation (with actual functions)

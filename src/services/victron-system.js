@@ -52,15 +52,15 @@ class SystemConfiguration {
             const expanded = utils.expandWildcardPaths(pathObj, cachedPaths, dbusService)
 
             const filtered = expanded.filter(expandedPathObj =>
-              (!isOutput || (
-                (expandedPathObj.path !== '/Mode' || _.get(cachedPaths, '/ModeIsAdjustable', 1)) &&
-                (expandedPathObj.path !== '/Ac/In/1/CurrentLimit' || _.get(cachedPaths, '/Ac/In/1/CurrentLimitIsAdjustable', 1)) &&
-                (expandedPathObj.path !== '/Ac/In/2/CurrentLimit' || _.get(cachedPaths, '/Ac/In/2/CurrentLimitIsAdjustable', 1))
-              )) &&
               (expandedPathObj.mode === 'both' ||
               (isOutput && expandedPathObj.mode === 'output') ||
               (!isOutput && (expandedPathObj.mode === 'input' || !expandedPathObj.mode)))
-            )
+            ).map(expandedPathObj => {
+              if (cachedPaths[expandedPathObj.path] === null) {
+                return { ...expandedPathObj, name: `${expandedPathObj.name} - (null)` }
+              }
+              return expandedPathObj
+            })
 
             return pathAcc.concat(filtered)
           }, [])

@@ -318,6 +318,12 @@ describe('ev', () => {
 // ---------------------------------------------------------------------------
 
 describe('generator', () => {
+  describe('productType', () => {
+    it('does not export productType so the library resolves it from the service name', () => {
+      expect(generator.productType).toBeUndefined()
+    })
+  })
+
   describe('initialize', () => {
     test('AC 1-phase adds L1 properties and sets NrOfPhases', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
@@ -503,6 +509,12 @@ describe('meteo', () => {
 // ---------------------------------------------------------------------------
 
 describe('motordrive', () => {
+  describe('productType', () => {
+    it('does not export productType so the library resolves it from the service name', () => {
+      expect(motordrive.productType).toBeUndefined()
+    })
+  })
+
   describe('initialize', () => {
     test('removes Motor/Temperature when not included', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
@@ -865,6 +877,18 @@ describe('energymeter', () => {
         expect(typeof prop.format).toBe('function')
         expect(prop.format(null)).toBeDefined()
       }
+    })
+
+    it('Ac/Energy/Forward and Ac/Energy/Reverse have no default value to avoid spurious delta on first real write', () => {
+      const props = energymeter.__sharedProperties
+      expect(props['Ac/Energy/Forward'].value).toBeUndefined()
+      expect(props['Ac/Energy/Reverse'].value).toBeUndefined()
+    })
+  })
+
+  describe('productType', () => {
+    it('exports productType as "energymeter" so index.js can override the D-Bus service name', () => {
+      expect(energymeter.productType).toBe('energymeter')
     })
   })
 
