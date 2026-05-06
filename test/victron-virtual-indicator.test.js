@@ -42,6 +42,13 @@ describe('createIndicatorProperties', () => {
       expect(iface['GenericInput/0/Settings/Group']).toBe('Indicators')
     })
 
+    test('sets top-level State to 0x100 (Running)', () => {
+      const { ifaceDesc, iface } = makeIfaceAndDesc()
+      createIndicatorProperties({}, ifaceDesc, iface)
+      expect(iface['State']).toBe(0x100)
+      expect(ifaceDesc.properties['State']).toBeDefined()
+    })
+
     test('sets Settings/ShowUIInput to 1 by default', () => {
       const { ifaceDesc, iface } = makeIfaceAndDesc()
       createIndicatorProperties({}, ifaceDesc, iface)
