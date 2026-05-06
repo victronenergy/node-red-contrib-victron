@@ -99,8 +99,6 @@ function createIndicatorProperties (config, ifaceDesc, iface) {
     }
   })
 
-  ifaceDesc.properties.State = { type: 'i' }
-  iface.State = 0x100
   ifaceDesc.properties.CustomName = { type: 's', persist: true }
   ifaceDesc.properties.DeviceInstance = { type: 'i' }
   ifaceDesc.properties.Serial = { type: 's', persist: true }

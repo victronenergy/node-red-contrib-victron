@@ -96,8 +96,6 @@ function createSwitchProperties (config, ifaceDesc, iface) {
     persist: true
   }
 
-  ifaceDesc.properties.State = { type: 'i' }
-  iface.State = 0x100
   ifaceDesc.properties.DeviceInstance = { type: 'i' }
   ifaceDesc.properties.Serial = { type: 's', persist: true }
 
