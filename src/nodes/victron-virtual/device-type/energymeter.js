@@ -10,8 +10,8 @@ const ROLE_TO_SERVICE_TYPE = {
 }
 
 const sharedProperties = {
-  'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', value: 0 },
-  'Ac/Energy/Reverse': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', value: 0 },
+  'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
+  'Ac/Energy/Reverse': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
   'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
   'Ac/PowerFactor': { type: 'd', format: (v) => v != null ? v.toFixed(2) : '' },
   Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
@@ -77,6 +77,7 @@ module.exports = {
   getServiceType,
   initialize,
   label: 'Energy meter',
+  productType: 'energymeter',
   // we export sharedProperties for unit testing
   __sharedProperties: sharedProperties
 }

@@ -39,4 +39,14 @@ describe('virtual device type module contracts', () => {
       expect(mod.label.length).toBeGreaterThan(0)
     }
   })
+
+  test.each(moduleFiles)('$name format functions handle null without throwing', ({ mod }) => {
+    const properties = buildProperties(mod)
+    for (const key in properties) {
+      const prop = properties[key]
+      if (typeof prop.format === 'function') {
+        expect(() => prop.format(null)).not.toThrow()
+      }
+    }
+  })
 })
