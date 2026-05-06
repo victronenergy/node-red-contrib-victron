@@ -44,7 +44,7 @@ describe('Alternator /Mode control (Orion XS in Charger mode)', () => {
   })
 })
 
-describe('getNodeServices null value filtering', () => {
+describe('getNodeServices null value handling', () => {
   let systemConfig
   let originalServices
 
@@ -57,7 +57,7 @@ describe('getNodeServices null value filtering', () => {
     utils.SERVICES = originalServices
   })
 
-  test('excludes paths with null D-Bus values from input node dropdown', () => {
+  test('includes paths with null D-Bus values in input node dropdown, labeled with - (null)', () => {
     utils.SERVICES = {
       multi: {
         multi: [
@@ -81,11 +81,13 @@ describe('getNodeServices null value filtering', () => {
     const paths = result.services[0].paths
 
     expect(paths.find(p => p.path === '/Ac/In/1/CurrentLimit')).toBeDefined()
-    expect(paths.find(p => p.path === '/Ac/In/2/CurrentLimit')).toBeUndefined()
+    const nullPath = paths.find(p => p.path === '/Ac/In/2/CurrentLimit')
+    expect(nullPath).toBeDefined()
+    expect(nullPath.name).toBe('AC Input 2 Current Limit - (null)')
     expect(paths.find(p => p.path === '/Ac/Out/P')).toBeDefined()
   })
 
-  test('excludes paths with null D-Bus values from output node dropdown', () => {
+  test('includes paths with null D-Bus values in output node dropdown, labeled with - (null)', () => {
     utils.SERVICES = {
       multi: {
         multi: [
@@ -109,7 +111,9 @@ describe('getNodeServices null value filtering', () => {
     const paths = result.services[0].paths
 
     expect(paths.find(p => p.path === '/Ac/In/1/CurrentLimit')).toBeDefined()
-    expect(paths.find(p => p.path === '/Ac/In/2/CurrentLimit')).toBeUndefined()
+    const nullPath = paths.find(p => p.path === '/Ac/In/2/CurrentLimit')
+    expect(nullPath).toBeDefined()
+    expect(nullPath.name).toBe('AC Input 2 Current Limit - (null)')
   })
 })
 
