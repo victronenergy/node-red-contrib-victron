@@ -287,7 +287,7 @@ export const DEVICE_TYPE_DOCS = {
         <ul>
           <li><code>/Soc</code> &mdash; State of charge as a percentage (0-100%).</li>
           <li><code>/TargetSoc</code> &mdash; Target state of charge as a percentage (0-100%).</li>
-          <li><code>/ChargingState</code> &mdash; Charging state: <code>0</code> = Disconnected, <code>1</code> = Connected, <code>2</code> = Charging, <code>3</code> = Charged, <code>5</code> = Inverting, <code>6</code> = Error, <code>7</code> = Unknown.</li>
+          <li><code>/ChargingState</code> &mdash; Charging state: <code>0</code> = Not charging, <code>1</code> = Low power mode, <code>3</code> = Charging, <code>256</code> = Discharging, <code>259</code> = Scheduled charging. Also supported: <code>244</code> = Sustain, <code>245</code> = Wake up, <code>250</code> = Blocked, <code>255</code> = Unavailable.</li>
           <li><code>/Ac/Power</code> &mdash; AC power in watts. Positive = charging, negative = discharging (V2G/V2H).</li>
           <li><code>/Odometer</code> &mdash; Odometer reading in km.</li>
           <li><code>/RangeToGo</code> &mdash; Estimated driving range in km.</li>
@@ -1314,4 +1314,18 @@ export function formatLightControls (value, switchType) {
   }
 
   return String(value) || ''
+}
+
+/**
+ * Returns the Node-RED palette label for a virtual node.
+ * Priority: name -> customname + group + typeName -> fallback + typeName
+ * @param {{ name?: string, customname?: string, group?: string, typeName?: string, fallback?: string }} opts
+ * @returns {string}
+ */
+export function getVirtualNodeLabel ({ name, customname, group, typeName, fallback = 'Virtual' } = {}) {
+  if (name) return name
+  const parts = [customname || fallback]
+  if (group) parts.push('(' + group + ')')
+  if (typeName) parts.push('[' + typeName + ']')
+  return parts.join(' ')
 }

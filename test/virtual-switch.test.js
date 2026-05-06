@@ -259,6 +259,16 @@ describe('handleSwitchOutputs', () => {
   })
 })
 
+describe('createSwitchProperties - State', () => {
+  test('sets top-level State to 0x100 (Running)', () => {
+    const ifaceDesc = { properties: {} }
+    const iface = {}
+    createSwitchProperties({ switch_1_type: SWITCH_TYPE_MAP.TOGGLE }, ifaceDesc, iface)
+    expect(iface['State']).toBe(0x100)
+    expect(ifaceDesc.properties['State']).toBeDefined()
+  })
+})
+
 describe('createSwitchProperties - ShowUIControl', () => {
   const showUIKey = 'SwitchableOutput/output_1/Settings/ShowUIControl'
 

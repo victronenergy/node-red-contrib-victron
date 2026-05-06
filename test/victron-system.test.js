@@ -44,6 +44,105 @@ describe('Alternator /Mode control (Orion XS in Charger mode)', () => {
   })
 })
 
+describe('getNodeServices null value handling', () => {
+  let systemConfig
+  let originalServices
+
+  beforeEach(() => {
+    originalServices = utils.SERVICES
+    systemConfig = new SystemConfiguration()
+  })
+
+  afterEach(() => {
+    utils.SERVICES = originalServices
+  })
+
+  test('includes paths with null D-Bus values in input node dropdown, labeled with - (null)', () => {
+    utils.SERVICES = {
+      multi: {
+        multi: [
+          { path: '/Ac/In/1/CurrentLimit', type: 'float', name: 'AC Input 1 Current Limit', mode: 'both' },
+          { path: '/Ac/In/2/CurrentLimit', type: 'float', name: 'AC Input 2 Current Limit', mode: 'both' },
+          { path: '/Ac/Out/P', type: 'float', name: 'AC Output Power', mode: 'input' }
+        ]
+      }
+    }
+
+    systemConfig.cache = {
+      'com.victronenergy.multi.socketcan_vecan0_vi2_uc738825': {
+        '/Ac/In/1/CurrentLimit': 16,
+        '/Ac/In/2/CurrentLimit': null,
+        '/Ac/Out/P': 500,
+        '/DeviceInstance': 0
+      }
+    }
+
+    const result = systemConfig.getNodeServices('input-multi')
+    const paths = result.services[0].paths
+
+    expect(paths.find(p => p.path === '/Ac/In/1/CurrentLimit')).toBeDefined()
+    const nullPath = paths.find(p => p.path === '/Ac/In/2/CurrentLimit')
+    expect(nullPath).toBeDefined()
+    expect(nullPath.name).toBe('AC Input 2 Current Limit - (null)')
+    expect(paths.find(p => p.path === '/Ac/Out/P')).toBeDefined()
+  })
+
+  test('includes paths with null D-Bus values in output node dropdown, labeled with - (null)', () => {
+    utils.SERVICES = {
+      multi: {
+        multi: [
+          { path: '/Ac/In/1/CurrentLimit', type: 'float', name: 'AC Input 1 Current Limit', mode: 'both' },
+          { path: '/Ac/In/2/CurrentLimit', type: 'float', name: 'AC Input 2 Current Limit', mode: 'both' }
+        ]
+      }
+    }
+
+    systemConfig.cache = {
+      'com.victronenergy.multi.socketcan_vecan0_vi2_uc738825': {
+        '/Ac/In/1/CurrentLimit': 16,
+        '/Ac/In/2/CurrentLimit': null,
+        '/Ac/In/1/CurrentLimitIsAdjustable': 1,
+        '/Ac/In/2/CurrentLimitIsAdjustable': 1,
+        '/DeviceInstance': 0
+      }
+    }
+
+    const result = systemConfig.getNodeServices('output-multi')
+    const paths = result.services[0].paths
+
+    expect(paths.find(p => p.path === '/Ac/In/1/CurrentLimit')).toBeDefined()
+    const nullPath = paths.find(p => p.path === '/Ac/In/2/CurrentLimit')
+    expect(nullPath).toBeDefined()
+    expect(nullPath.name).toBe('AC Input 2 Current Limit - (null)')
+  })
+})
+
+describe('getCachedServices null value handling (custom nodes)', () => {
+  let systemConfig
+
+  beforeEach(() => {
+    systemConfig = new SystemConfiguration()
+    systemConfig.cache = {
+      'com.victronenergy.multi.socketcan_vecan0_vi2_uc738825': {
+        '/Ac/In/1/CurrentLimit': 16,
+        '/Ac/In/2/CurrentLimit': null,
+        '/Ac/Out/P': 500,
+        '/DeviceInstance': 0
+      }
+    }
+  })
+
+  test('custom nodes still show paths with null D-Bus values', () => {
+    const result = systemConfig.getCachedServices()
+    const service = result.services[0]
+    const paths = service.paths
+
+    expect(paths.find(p => p.path === '/Ac/In/1/CurrentLimit')).toBeDefined()
+    expect(paths.find(p => p.path === '/Ac/In/2/CurrentLimit')).toBeDefined()
+    expect(paths.find(p => p.path === '/Ac/Out/P')).toBeDefined()
+  })
+})
+
 describe('SystemConfiguration path sorting', () => {
   let systemConfig
   let originalServices
