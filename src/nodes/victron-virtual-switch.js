@@ -14,7 +14,7 @@ const debug = require('debug')('victron-virtual-switch')
 const debugInput = require('debug')('victron-virtual-switch:input')
 const debugConnection = require('debug')('victron-virtual-switch:connection')
 const { validateVirtualDevicePayload, validateLightControls } = require('../services/utils')
-const { createSwitchProperties, handleSwitchOutputs, updateSwitchStatus, emitInitialSwitchOutputs, expandSwitchPayload } = require('../services/virtual-switch')
+const { createSwitchProperties, handleSwitchOutputs, updateSwitchStatus, emitInitialSwitchOutputs, expandSwitchPayload, shouldApplyPayloadToDBus } = require('../services/virtual-switch')
 const { filterInactiveVirtualDevices } = require('../services/virtual-device-cleanup')
 const { getTcpBusAddress, callAddSettingsWithRetry, getDeviceInstance, registerInputHandler, flushPendingInputs } = require('./victron-virtual-dbus-helpers')
 
@@ -102,6 +102,12 @@ module.exports = function (RED) {
           done()
           return
         }
+      }
+
+      if (!shouldApplyPayloadToDBus(config, node.iface)) {
+        updateSwitchStatus(config, node, `Ignored: switch in manual mode (${node.iface.DeviceInstance})`)
+        done()
+        return
       }
 
       try {

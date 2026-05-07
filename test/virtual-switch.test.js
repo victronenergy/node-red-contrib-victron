@@ -1,5 +1,5 @@
 // test/virtual-switch.test.js
-const { updateSwitchStatus, emitInitialSwitchOutputs, handleSwitchOutputs, createSwitchProperties, expandSwitchPayload } = require('../src/services/virtual-switch')
+const { updateSwitchStatus, emitInitialSwitchOutputs, handleSwitchOutputs, createSwitchProperties, expandSwitchPayload, shouldApplyPayloadToDBus } = require('../src/services/virtual-switch')
 const { SWITCH_TYPE_MAP } = require('../src/nodes/victron-virtual-constants')
 
 function makeNode (ifaceOverrides = {}, ifaceDescOverrides = {}) {
@@ -264,8 +264,8 @@ describe('createSwitchProperties - State', () => {
     const ifaceDesc = { properties: {} }
     const iface = {}
     createSwitchProperties({ switch_1_type: SWITCH_TYPE_MAP.TOGGLE }, ifaceDesc, iface)
-    expect(iface['State']).toBe(0x100)
-    expect(ifaceDesc.properties['State']).toBeDefined()
+    expect(iface.State).toBe(0x100)
+    expect(ifaceDesc.properties.State).toBeDefined()
   })
 })
 
@@ -360,5 +360,67 @@ describe('expandSwitchPayload', () => {
 
   test('null payload is returned as-is', () => {
     expect(expandSwitchPayload(null, SWITCH_TYPE_MAP.TOGGLE)).toBeNull()
+  })
+})
+
+describe('shouldApplyPayloadToDBus', () => {
+  const autoKey = 'SwitchableOutput/output_1/Auto'
+
+  function makeIface (autoValue) {
+    return { [autoKey]: autoValue }
+  }
+
+  describe('non-three-state switch types', () => {
+    test('always returns true for toggle switch regardless of mode', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.TOGGLE), switch_1_passthrough_mode: 'auto_only' }
+      expect(shouldApplyPayloadToDBus(config, makeIface(0))).toBe(true)
+    })
+
+    test('always returns true for momentary switch', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.MOMENTARY) }
+      expect(shouldApplyPayloadToDBus(config, makeIface(0))).toBe(true)
+    })
+  })
+
+  describe('three-state switch - mode: always', () => {
+    test('applies when Auto=1 (auto mode)', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE), switch_1_passthrough_mode: 'always' }
+      expect(shouldApplyPayloadToDBus(config, makeIface(1))).toBe(true)
+    })
+
+    test('applies when Auto=0 (manual mode)', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE), switch_1_passthrough_mode: 'always' }
+      expect(shouldApplyPayloadToDBus(config, makeIface(0))).toBe(true)
+    })
+  })
+
+  describe('three-state switch - mode: auto_only (default)', () => {
+    test('applies when Auto=1', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE), switch_1_passthrough_mode: 'auto_only' }
+      expect(shouldApplyPayloadToDBus(config, makeIface(1))).toBe(true)
+    })
+
+    test('blocks when Auto=0', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE), switch_1_passthrough_mode: 'auto_only' }
+      expect(shouldApplyPayloadToDBus(config, makeIface(0))).toBe(false)
+    })
+
+    test('defaults to always when mode is not set (backward compat for existing nodes)', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE) }
+      expect(shouldApplyPayloadToDBus(config, makeIface(0))).toBe(true)
+      expect(shouldApplyPayloadToDBus(config, makeIface(1))).toBe(true)
+    })
+  })
+
+  describe('three-state switch - edge cases', () => {
+    test('unknown mode defaults to applying (safe fallback)', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE), switch_1_passthrough_mode: 'unknown_value' }
+      expect(shouldApplyPayloadToDBus(config, makeIface(0))).toBe(true)
+    })
+
+    test('applies when Auto is null (state not yet set)', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE), switch_1_passthrough_mode: 'auto_only' }
+      expect(shouldApplyPayloadToDBus(config, makeIface(null))).toBe(false)
+    })
   })
 })

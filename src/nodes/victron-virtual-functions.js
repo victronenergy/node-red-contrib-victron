@@ -785,6 +785,25 @@ export function renderSwitchConfigRow (context) {
       }
     }
 
+    if (Number(type) === SWITCH_TYPE_MAP.THREE_STATE) {
+      const passthroughRow = $(`
+        <div class="form-row" id="switch-1-passthrough-row">
+          <label for="node-input-switch_1_passthrough_mode">
+            Apply input
+            <i class="fa fa-info-circle tooltip-icon" data-tooltip="Controls when incoming values are written to D-Bus. Use 'Auto only' to block automations when the switch is in manual mode."></i>
+          </label>
+          <select id="node-input-switch_1_passthrough_mode">
+            <option value="always">Always</option>
+            <option value="auto_only">Auto only</option>
+          </select>
+        </div>
+      `)
+      $('#switch-1-config-row').append(passthroughRow)
+
+      const savedMode = context.switch_1_passthrough_mode || 'auto_only'
+      $('#node-input-switch_1_passthrough_mode').val(savedMode)
+    }
+
     if (cfg && cfg.isRgbControl) {
       // Add RGB control type checkboxes
       const rgbCheckboxes = $(`

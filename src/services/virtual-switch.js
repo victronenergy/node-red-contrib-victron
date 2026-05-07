@@ -660,6 +660,33 @@ function expandSwitchPayload (payload, switchType) {
   return { [defaultPath]: payload }
 }
 
+/**
+ * Returns true if the incoming payload should be written to D-Bus given the current Auto state.
+ * For non-three-state switches, always returns true. For three-state switches, the
+ * switch_1_passthrough_mode config field controls when writes are allowed:
+ *   'always'      - always write (same as other switch types)
+ *   'auto_only'   - only write when Auto=1 (default; prevents automations from overriding manual control)
+ *   'manual_only' - only write when Auto=0
+ *
+ * @param {Object} config - Node configuration object
+ * @param {Object} iface - D-Bus interface object with current property values
+ * @returns {boolean} true if the payload should be applied to D-Bus
+ */
+function shouldApplyPayloadToDBus (config, iface) {
+  const switchType = Number(config.switch_1_type ?? 1)
+  if (switchType !== SWITCH_TYPE_MAP.THREE_STATE) return true
+
+  const mode = config.switch_1_passthrough_mode ?? 'always'
+  if (mode === 'always') return true
+
+  const autoValue = iface ? iface['SwitchableOutput/output_1/Auto'] : null
+  const isAuto = autoValue === 1
+
+  if (mode === 'auto_only') return isAuto
+
+  return true
+}
+
 module.exports = {
   createSwitchProperties,
   getSwitchStatusText,
@@ -667,5 +694,6 @@ module.exports = {
   handleSwitchOutputs,
   updateSwitchStatus,
   emitInitialSwitchOutputs,
-  expandSwitchPayload
+  expandSwitchPayload,
+  shouldApplyPayloadToDBus
 }
