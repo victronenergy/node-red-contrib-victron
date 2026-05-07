@@ -1,6 +1,6 @@
 /* eslint-env jest */
 
-const { createIndicatorProperties, updateIndicatorStatus } = require('../src/services/virtual-indicator')
+const { createIndicatorProperties, updateIndicatorStatus, expandIndicatorPayload } = require('../src/services/virtual-indicator')
 
 function makeIfaceAndDesc () {
   return {
@@ -249,5 +249,47 @@ describe('updateIndicatorStatus', () => {
     const node = makeNode(null)
     updateIndicatorStatus({ indicator_type: 0, labels: 'Off, On' }, node)
     expect(node.status).toHaveBeenCalledWith(expect.objectContaining({ fill: 'grey' }))
+  })
+})
+
+describe('expandIndicatorPayload', () => {
+  test('plain number expands to Value path', () => {
+    expect(expandIndicatorPayload(42.5)).toEqual({ 'GenericInput/0/Value': 42.5 })
+  })
+
+  test('zero (falsy) expands to Value path', () => {
+    expect(expandIndicatorPayload(0)).toEqual({ 'GenericInput/0/Value': 0 })
+  })
+
+  test('plain string expands to Value path', () => {
+    expect(expandIndicatorPayload('high')).toEqual({ 'GenericInput/0/Value': 'high' })
+  })
+
+  test('object with Value key expands to full path', () => {
+    expect(expandIndicatorPayload({ Value: 21.5 })).toEqual({ 'GenericInput/0/Value': 21.5 })
+  })
+
+  test('object with Status key expands to full path', () => {
+    expect(expandIndicatorPayload({ Status: 1 })).toEqual({ 'GenericInput/0/Status': 1 })
+  })
+
+  test('object with Value and Status expands both', () => {
+    expect(expandIndicatorPayload({ Value: 42, Status: 0 })).toEqual({
+      'GenericInput/0/Value': 42,
+      'GenericInput/0/Status': 0
+    })
+  })
+
+  test('object with full path key is passed through unchanged', () => {
+    const payload = { 'GenericInput/0/Value': 99 }
+    expect(expandIndicatorPayload(payload)).toEqual(payload)
+  })
+
+  test('null is returned as-is', () => {
+    expect(expandIndicatorPayload(null)).toBeNull()
+  })
+
+  test('undefined is returned as-is', () => {
+    expect(expandIndicatorPayload(undefined)).toBeUndefined()
   })
 })

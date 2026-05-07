@@ -81,6 +81,21 @@ const SWITCH_THIRD_OUTPUT_LABEL = {
   [SWITCH_TYPE_MAP.RGB_WHITE_DIMMER]: 'LightControls'
 }
 
+// Default D-Bus path used when msg.payload is a plain value (not an object).
+// RGB types are omitted intentionally - they require an array and have no meaningful default.
+const SWITCH_DEFAULT_PATH = {
+  [SWITCH_TYPE_MAP.MOMENTARY]: 'SwitchableOutput/output_1/State',
+  [SWITCH_TYPE_MAP.TOGGLE]: 'SwitchableOutput/output_1/State',
+  [SWITCH_TYPE_MAP.DIMMABLE]: 'SwitchableOutput/output_1/Dimming',
+  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'SwitchableOutput/output_1/Dimming',
+  [SWITCH_TYPE_MAP.STEPPED]: 'SwitchableOutput/output_1/Dimming',
+  [SWITCH_TYPE_MAP.DROPDOWN]: 'SwitchableOutput/output_1/Dimming',
+  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'SwitchableOutput/output_1/Dimming',
+  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'SwitchableOutput/output_1/Dimming',
+  [SWITCH_TYPE_MAP.THREE_STATE]: 'SwitchableOutput/output_1/State',
+  [SWITCH_TYPE_MAP.BILGE_PUMP]: 'SwitchableOutput/output_1/State'
+}
+
 // Default debounce delay for virtual device property writes (in milliseconds)
 const DEBOUNCE_DELAY_MS = 100
 
@@ -91,5 +106,6 @@ module.exports = {
   SWITCH_OUTPUT_CONFIG,
   SWITCH_SECOND_OUTPUT_LABEL,
   SWITCH_THIRD_OUTPUT_LABEL,
+  SWITCH_DEFAULT_PATH,
   DEBOUNCE_DELAY_MS
 }

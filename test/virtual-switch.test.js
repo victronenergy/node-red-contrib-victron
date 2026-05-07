@@ -1,5 +1,5 @@
 // test/virtual-switch.test.js
-const { updateSwitchStatus, emitInitialSwitchOutputs, handleSwitchOutputs, createSwitchProperties } = require('../src/services/virtual-switch')
+const { updateSwitchStatus, emitInitialSwitchOutputs, handleSwitchOutputs, createSwitchProperties, expandSwitchPayload } = require('../src/services/virtual-switch')
 const { SWITCH_TYPE_MAP } = require('../src/nodes/victron-virtual-constants')
 
 function makeNode (ifaceOverrides = {}, ifaceDescOverrides = {}) {
@@ -293,5 +293,72 @@ describe('createSwitchProperties - ShowUIControl', () => {
 
   test('uses switch_1_show_ui_input value 4 (remote UI only)', () => {
     expect(run({ switch_1_show_ui_input: 4 })).toBe(4)
+  })
+})
+
+describe('expandSwitchPayload', () => {
+  test('plain number for toggle uses State path', () => {
+    expect(expandSwitchPayload(1, SWITCH_TYPE_MAP.TOGGLE)).toEqual({ 'SwitchableOutput/output_1/State': 1 })
+  })
+
+  test('zero (falsy) for toggle uses State path', () => {
+    expect(expandSwitchPayload(0, SWITCH_TYPE_MAP.TOGGLE)).toEqual({ 'SwitchableOutput/output_1/State': 0 })
+  })
+
+  test('plain number for momentary uses State path', () => {
+    expect(expandSwitchPayload(1, SWITCH_TYPE_MAP.MOMENTARY)).toEqual({ 'SwitchableOutput/output_1/State': 1 })
+  })
+
+  test('plain number for dimmable uses Dimming path', () => {
+    expect(expandSwitchPayload(75, SWITCH_TYPE_MAP.DIMMABLE)).toEqual({ 'SwitchableOutput/output_1/Dimming': 75 })
+  })
+
+  test('plain number for temperature setpoint uses Dimming path', () => {
+    expect(expandSwitchPayload(21.5, SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT)).toEqual({ 'SwitchableOutput/output_1/Dimming': 21.5 })
+  })
+
+  test('plain number for stepped uses Dimming path', () => {
+    expect(expandSwitchPayload(2, SWITCH_TYPE_MAP.STEPPED)).toEqual({ 'SwitchableOutput/output_1/Dimming': 2 })
+  })
+
+  test('plain number for dropdown uses Dimming path', () => {
+    expect(expandSwitchPayload(0, SWITCH_TYPE_MAP.DROPDOWN)).toEqual({ 'SwitchableOutput/output_1/Dimming': 0 })
+  })
+
+  test('plain number for basic slider uses Dimming path', () => {
+    expect(expandSwitchPayload(50, SWITCH_TYPE_MAP.BASIC_SLIDER)).toEqual({ 'SwitchableOutput/output_1/Dimming': 50 })
+  })
+
+  test('plain number for numeric input uses Dimming path', () => {
+    expect(expandSwitchPayload(42, SWITCH_TYPE_MAP.NUMERIC_INPUT)).toEqual({ 'SwitchableOutput/output_1/Dimming': 42 })
+  })
+
+  test('plain number for three-state uses State path', () => {
+    expect(expandSwitchPayload(1, SWITCH_TYPE_MAP.THREE_STATE)).toEqual({ 'SwitchableOutput/output_1/State': 1 })
+  })
+
+  test('plain number for bilge pump uses State path', () => {
+    expect(expandSwitchPayload(1, SWITCH_TYPE_MAP.BILGE_PUMP)).toEqual({ 'SwitchableOutput/output_1/State': 1 })
+  })
+
+  test('plain number for RGB color wheel returns null (no shortcut)', () => {
+    expect(expandSwitchPayload(1, SWITCH_TYPE_MAP.RGB_COLOR_WHEEL)).toBeNull()
+  })
+
+  test('plain number for CCT wheel returns null (no shortcut)', () => {
+    expect(expandSwitchPayload(1, SWITCH_TYPE_MAP.CCT_WHEEL)).toBeNull()
+  })
+
+  test('plain number for RGB white dimmer returns null (no shortcut)', () => {
+    expect(expandSwitchPayload(1, SWITCH_TYPE_MAP.RGB_WHITE_DIMMER)).toBeNull()
+  })
+
+  test('object payload is returned unchanged', () => {
+    const payload = { 'SwitchableOutput/output_1/State': 1 }
+    expect(expandSwitchPayload(payload, SWITCH_TYPE_MAP.TOGGLE)).toBe(payload)
+  })
+
+  test('null payload is returned as-is', () => {
+    expect(expandSwitchPayload(null, SWITCH_TYPE_MAP.TOGGLE)).toBeNull()
   })
 })

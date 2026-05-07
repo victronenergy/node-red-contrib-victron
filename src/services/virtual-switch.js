@@ -13,7 +13,8 @@ const {
   SWITCH_TYPE_NAMES,
   SWITCH_TYPE_BITMASK_NAMES,
   SWITCH_SECOND_OUTPUT_LABEL,
-  SWITCH_THIRD_OUTPUT_LABEL
+  SWITCH_THIRD_OUTPUT_LABEL,
+  SWITCH_DEFAULT_PATH
 } = require('../nodes/victron-virtual-constants')
 
 const { hsbToRgb } = require('./color-utils')
@@ -643,11 +644,28 @@ function emitInitialSwitchOutputs (config, node) {
   node.send(msgs)
 }
 
+/**
+ * Expands msg.payload into a D-Bus path object using the type's default path.
+ * A plain (non-object) value is treated as a shorthand for the default writable path.
+ * RGB switch types have no meaningful default and return null for plain values.
+ *
+ * @param {*} payload - msg.payload from the input message
+ * @param {number} switchType - The SWITCH_TYPE_MAP value for this node
+ * @returns {Object|null|*} - Expanded object, null if type has no shortcut, or original if already an object
+ */
+function expandSwitchPayload (payload, switchType) {
+  if (typeof payload === 'object') return payload
+  const defaultPath = SWITCH_DEFAULT_PATH[switchType]
+  if (!defaultPath) return null
+  return { [defaultPath]: payload }
+}
+
 module.exports = {
   createSwitchProperties,
   getSwitchStatusText,
   buildSwitchOutputMsgs,
   handleSwitchOutputs,
   updateSwitchStatus,
-  emitInitialSwitchOutputs
+  emitInitialSwitchOutputs,
+  expandSwitchPayload
 }
