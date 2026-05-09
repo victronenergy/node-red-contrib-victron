@@ -32,6 +32,8 @@ function createMockElement(customValues = {}) {
     after: jest.fn().mockReturnThis(),
     on: jest.fn().mockReturnThis(),
     off: jest.fn().mockReturnThis(),
+    prop: jest.fn().mockReturnThis(),
+    is: jest.fn().mockReturnValue(customValues.is || false),
     0: mockDOMElement,
     length: customValues.length !== undefined ? customValues.length : 1
   }

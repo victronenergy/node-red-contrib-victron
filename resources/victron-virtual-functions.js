@@ -66,8 +66,8 @@
   	  [SWITCH_TYPE_MAP.DROPDOWN]: 2, // passthrough + state
   	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 2, // passthrough + slider value
   	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 3, // passthrough + state + numeric value
-  	  [SWITCH_TYPE_MAP.THREE_STATE]: 2, // passthrough + state
-  	  [SWITCH_TYPE_MAP.BILGE_PUMP]: 2, // passthrough + state
+  	  [SWITCH_TYPE_MAP.THREE_STATE]: 3, // passthrough + state + auto
+  	  [SWITCH_TYPE_MAP.BILGE_PUMP]: 2, // passthrough + state (with msg.status)
   	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 3, // passthrough + state + lightcontrols
   	  [SWITCH_TYPE_MAP.CCT_WHEEL]: 3, // passthrough + state + lightcontrols
   	  [SWITCH_TYPE_MAP.RGB_WHITE_DIMMER]: 3 // passthrough + state + lightcontrols
@@ -84,6 +84,7 @@
   	  [SWITCH_TYPE_MAP.DIMMABLE]: 'Dimming',
   	  [SWITCH_TYPE_MAP.STEPPED]: 'Value',
   	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Value',
+  	  [SWITCH_TYPE_MAP.THREE_STATE]: 'Auto mode',
   	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 'LightControls',
   	  [SWITCH_TYPE_MAP.CCT_WHEEL]: 'LightControls',
   	  [SWITCH_TYPE_MAP.RGB_WHITE_DIMMER]: 'LightControls'
@@ -386,20 +387,23 @@
     img
   });
 
+  const STATUS_PATH_DOC = '<li><code>/SwitchableOutput/output_1/Status</code> &mdash; Bitmask: 0x00=Off, 0x09=On, 0x01=Powered, 0x02=Tripped, 0x04=Over temperature, 0x08=Output fault, 0x10=Short fault, 0x20=Disabled, 0x40=Bypassed, 0x80=Ext. control.</li>';
+  const STATE_WITH_STATUS_DOC = '<tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the switch. <tt>msg.status</tt> contains the raw Status value (<tt>msg.status.value</tt>) and decoded flags (see Status path above).';
+
   const SWITCH_TYPE_DOCS = {
     [victronVirtualConstantsExports.SWITCH_TYPE_MAP.MOMENTARY]: createDocTemplate(
-      '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li></ul></div>',
-      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the switch</li></ol></div>',
+      `<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li>${STATUS_PATH_DOC}</ul></div>`,
+      `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li></ol></div>`,
       '/resources/@victronenergy/node-red-contrib-victron/docs/momentary.svg'
     ),
     [victronVirtualConstantsExports.SWITCH_TYPE_MAP.TOGGLE]: createDocTemplate(
-      '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li></ul></div>',
-      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the switch</li></ol></div>',
+      `<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li>${STATUS_PATH_DOC}</ul></div>`,
+      `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li></ol></div>`,
       '/resources/@victronenergy/node-red-contrib-victron/docs/toggle.svg'
     ),
     [victronVirtualConstantsExports.SWITCH_TYPE_MAP.DIMMABLE]: createDocTemplate(
-      '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li><li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; 0 to 100%, read/write.</li></ul></div>',
-      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the switch</li><li><code>Dimming</code> &mdash; <tt>msg.payload</tt> contains the dimming value</li></ol></div>',
+      `<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li><li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; 0 to 100%, read/write.</li>${STATUS_PATH_DOC}</ul></div>`,
+      `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li><li><code>Dimming</code> &mdash; <tt>msg.payload</tt> contains the dimming value</li></ol></div>`,
       '/resources/@victronenergy/node-red-contrib-victron/docs/dimmable.svg'
     ),
     [victronVirtualConstantsExports.SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: createDocTemplate(
@@ -410,8 +414,8 @@
       '/resources/@victronenergy/node-red-contrib-victron/docs/temp_setpoint.svg'
     ),
     [victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED]: createDocTemplate(
-      '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds selected option.</li><li><code>/SwitchableOutput/output_1/Settings/DimmingMax</code> &mdash; defines the number of options. Mandatory for this type.</li></ul></div>',
-      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li><li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the stepped value</li></ol></div>',
+      `<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds selected option.</li><li><code>/SwitchableOutput/output_1/Settings/DimmingMax</code> &mdash; defines the number of options. Mandatory for this type.</li>${STATUS_PATH_DOC}</ul></div>`,
+      `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li><li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the stepped value</li></ol></div>`,
       '/resources/@victronenergy/node-red-contrib-victron/docs/stepped.svg'
     ),
     [victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN]: createDocTemplate(
@@ -425,18 +429,18 @@
       '/resources/@victronenergy/node-red-contrib-victron/docs/basic_slider.svg'
     ),
     [victronVirtualConstantsExports.SWITCH_TYPE_MAP.NUMERIC_INPUT]: createDocTemplate(
-      '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/Value</code> &mdash; holds the current numeric value.</li><li><code>/SwitchableOutput/output_1/Settings/Min</code> &mdash; defines the minimum value. <tt>0</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/Max</code> &mdash; defines the maximum value. <tt>100</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/StepSize</code> &mdash; defines stepsize. Stepsize = <tt>1</tt> if omitted.</li></ul></div>',
-      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the  on/off state of the switch</li><li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the numeric value</li></ol></div>',
+      `<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/Dimming</code> &mdash; holds the current numeric value.</li><li><code>/SwitchableOutput/output_1/Settings/Min</code> &mdash; defines the minimum value. <tt>0</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/Max</code> &mdash; defines the maximum value. <tt>100</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/StepSize</code> &mdash; defines stepsize. Stepsize = <tt>1</tt> if omitted.</li>${STATUS_PATH_DOC}</ul></div>`,
+      `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li><li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the numeric value</li></ol></div>`,
       '/resources/@victronenergy/node-red-contrib-victron/docs/numeric_input.svg'
     ),
     [victronVirtualConstantsExports.SWITCH_TYPE_MAP.THREE_STATE]: createDocTemplate(
-      '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; holds the current state (e.g., Off, Auto, On).</li></ul></div>',
-      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains the current state</li></ol></div>',
+      `<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; holds the current state (0=Off, 1=On).</li><li><code>/SwitchableOutput/output_1/Auto</code> &mdash; holds the auto mode (0=Manual, 1=Auto). When in auto mode, the GX device controls the state.</li>${STATUS_PATH_DOC}</ul></div>`,
+      `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li><li><code>Auto mode</code> &mdash; <tt>msg.payload</tt> contains the auto mode (0=Manual, 1=Auto)</li></ol></div>`,
       '/resources/@victronenergy/node-red-contrib-victron/docs/three_state.svg'
     ),
     [victronVirtualConstantsExports.SWITCH_TYPE_MAP.BILGE_PUMP]: createDocTemplate(
-      '<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li><li><code>/SwitchableOutput/output_1/Alarm</code> &mdash; Indicates if an alarm condition is present (e.g., high water level).</li><li><code>/SwitchableOutput/output_1/Measurement</code> &mdash; If supported by the connected device, this path may provide additional measurement data, such as water level percentage.</li></ul></div>',
-      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the pump</li></ol></div>',
+      `<div><strong>Most relevant path(s):</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; Pump state: 0=Auto, 1=On.</li>${STATUS_PATH_DOC}</ul></div>`,
+      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains the pump state (0=Auto, 1=On). <tt>msg.status</tt> contains the raw Status value (<tt>msg.status.value</tt>) and decoded flags (see Status path above).</li></ol></div>',
       '/resources/@victronenergy/node-red-contrib-victron/docs/bilge_pump.svg'
     ),
     [victronVirtualConstantsExports.SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: createDocTemplate(
@@ -501,6 +505,62 @@
           <li><code>/Dc/0/Temperature</code> &mdash; Battery temperature in °C (if temperature sensor is enabled).</li>
         </ul>
         <p><strong>Note:</strong> The battery device includes numerous alarm paths for monitoring conditions such as high/low voltage, temperature, cell imbalance, and more. Use the <strong>Custom Control</strong> node to discover all available paths on your deployed device, or see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a> for the complete list.</p>
+      </div>
+    </div>
+    <div>
+      <div><strong>Output:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+        </ol>
+      </div>
+    </div>
+  `,
+      img: null
+    },
+    dcload: {
+      label: 'DC Load',
+      text: `
+    ${INPUT_DOCS}
+    <div>
+      <div><strong>Most relevant paths:</strong>
+        <ul>
+          <li><code>/Dc/0/Voltage</code> &mdash; DC load voltage in volts.</li>
+          <li><code>/Dc/0/Current</code> &mdash; DC load current in amperes.</li>
+          <li><code>/Dc/0/Power</code> &mdash; DC load power in watts.</li>
+        </ul>
+        <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
+      </div>
+    </div>
+    <div>
+      <div><strong>Output:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+        </ol>
+      </div>
+    </div>
+  `,
+      img: null
+    },
+    ev: {
+      label: 'Electric Vehicle',
+      text: `
+    ${INPUT_DOCS}
+    <div>
+      <div><strong>Most relevant paths:</strong>
+        <ul>
+          <li><code>/Soc</code> &mdash; State of charge as a percentage (0-100%).</li>
+          <li><code>/TargetSoc</code> &mdash; Target state of charge as a percentage (0-100%).</li>
+          <li><code>/ChargingState</code> &mdash; Charging state: <code>0</code> = Not charging, <code>1</code> = Low power mode, <code>3</code> = Charging, <code>256</code> = Discharging, <code>259</code> = Scheduled charging. Also supported: <code>244</code> = Sustain, <code>245</code> = Wake up, <code>250</code> = Blocked, <code>255</code> = Unavailable.</li>
+          <li><code>/Ac/Power</code> &mdash; AC power in watts. Positive = charging, negative = discharging (V2G/V2H).</li>
+          <li><code>/Odometer</code> &mdash; Odometer reading in km.</li>
+          <li><code>/RangeToGo</code> &mdash; Estimated driving range in km.</li>
+          <li><code>/Position/Latitude</code> &mdash; Vehicle latitude in decimal degrees.</li>
+          <li><code>/Position/Longitude</code> &mdash; Vehicle longitude in decimal degrees.</li>
+          <li><code>/AtSite</code> &mdash; Whether the EV is at the site: <code>0</code> = No, <code>1</code> = Yes.</li>
+          <li><code>/LastEvContact</code> &mdash; Unix timestamp of the last contact with the EV.</li>
+          <li><code>/Alarms/StarterBatteryLow</code> &mdash; Starter battery low alarm: <code>0</code> = No alarm, <code>1</code> = Alarm.</li>
+        </ul>
+        <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
       </div>
     </div>
     <div>
@@ -623,6 +683,38 @@
           <li><code>/Ac/Frequency</code> &mdash; Grid frequency in Hz.</li>
           <li><code>/Ac/PowerFactor</code> &mdash; Overall power factor.</li>
           <li><code>/Ac/{line}/PowerFactor</code> &mdash; Power factor per phase.</li>
+        </ul>
+        <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
+      </div>
+    </div>
+    <div>
+      <div><strong>Output:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+        </ol>
+      </div>
+    </div>
+  `,
+      img: null
+    },
+    energymeter: {
+      label: 'Energy meter',
+      text: `
+    ${INPUT_DOCS}
+    <div>
+      <div><strong>Most relevant paths:</strong>
+        <ul>
+          <li><code>/Ac/Power</code> &mdash; Total AC power in watts.</li>
+          <li><code>/Ac/{line}/Power</code> &mdash; Power per phase in watts, where <code>{line}</code> is <code>L1</code>, <code>L2</code>, or <code>L3</code>.</li>
+          <li><code>/Ac/{line}/Voltage</code> &mdash; Voltage per phase in volts.</li>
+          <li><code>/Ac/{line}/Current</code> &mdash; Current per phase in amperes.</li>
+          <li><code>/Ac/Energy/Forward</code> &mdash; Total energy consumed in kWh.</li>
+          <li><code>/Ac/Energy/Reverse</code> &mdash; Total energy fed back in kWh.</li>
+          <li><code>/Ac/{line}/Energy/Forward</code> &mdash; Energy consumed per phase in kWh.</li>
+          <li><code>/Ac/{line}/Energy/Reverse</code> &mdash; Energy fed back per phase in kWh.</li>
+          <li><code>/Ac/{line}/PowerFactor</code> &mdash; Power factor per phase.</li>
+          <li><code>/DeviceType</code> &mdash; Device type identifier.</li>
+          <li><code>/ErrorCode</code> &mdash; Error code (0 = no error).</li>
         </ul>
         <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
       </div>
@@ -770,6 +862,54 @@
       img: null
     }
   };
+
+  function renderShowInUICheckboxes (containerId, savedValue, targetInputId) {
+    const localId = `${containerId}-local`;
+    const remoteId = `${containerId}-remote`;
+
+    const savedInt = parseInt(savedValue ?? 1, 10);
+    const localChecked = !!(savedInt & 1) || !!(savedInt & 2);
+    const remoteChecked = !!(savedInt & 1) || !!(savedInt & 4);
+
+    const container = $(`#${containerId}`);
+    container.empty();
+    container.append(`
+    <label style="font-weight:bold;"><i class="fa fa-eye"></i> Show in UI</label>
+    <div class="form-row victron-checkbox">
+      <input type="checkbox" id="${localId}">
+      <label for="${localId}">Local UI
+        <i class="fa fa-info-circle tooltip-icon" data-tooltip="GUI running natively on GX device, MFD and WASM over local LAN"></i>
+      </label>
+    </div>
+    <div class="form-row victron-checkbox">
+      <input type="checkbox" id="${remoteId}">
+      <label for="${remoteId}">Remote UI
+        <i class="fa fa-info-circle tooltip-icon" data-tooltip="VRM remote console and VRM switch pane"></i>
+      </label>
+    </div>
+  `);
+
+    $(`#${localId}`).prop('checked', localChecked);
+    $(`#${remoteId}`).prop('checked', remoteChecked);
+
+    if (targetInputId) {
+      const updateTarget = () => {
+        $(`#${targetInputId}`).val(getShowUIValue(containerId));
+      };
+      $(`#${localId}`).on('change', updateTarget);
+      $(`#${remoteId}`).on('change', updateTarget);
+      updateTarget();
+    }
+  }
+
+  function getShowUIValue (containerId) {
+    const local = $(`#${containerId}-local`).is(':checked');
+    const remote = $(`#${containerId}-remote`).is(':checked');
+    if (local && remote) return 1
+    if (local) return 2
+    if (remote) return 4
+    return 0
+  }
 
   function renderSwitchConfigRow (context) {
     const typeOptions = Object.entries(SWITCH_TYPE_CONFIGS)
@@ -989,6 +1129,10 @@
 
     $('#node-input-switch_1_type').on('change', renderTypeConfig);
     renderTypeConfig();
+
+    // Show in UI section (outside renderTypeConfig so it persists across type changes)
+    $('#switch-config-container').append('<div id="switch-show-ui" style="margin-top:10px;"></div>');
+    renderShowInUICheckboxes('switch-show-ui', context.switch_1_show_ui_input);
   }
 
   function renderDropdownLabels (context) {
@@ -1081,8 +1225,8 @@
 
   function checkSelectedVirtualDevice (context) {
     [
-      'acload', 'battery', 'generator', 'gps', 'grid', 'e-drive',
-      'pulsemeter', 'pvinverter', 'switch', 'tank', 'temperature'
+      'acload', 'battery', 'ev', 'generator', 'gps', 'grid', 'e-drive',
+      'pvinverter', 'switch', 'tank', 'temperature', 'energymeter'
     ].forEach(x => { $('.input-' + x).hide(); });
 
     const selected = $('select#node-input-device').val();
@@ -1155,6 +1299,77 @@
       `);
         $('#switch-docs-container').append(docRow);
       }
+    }
+  }
+
+  const INDICATOR_TYPE_DOCS = {
+    0: createDocTemplate(
+      '<div><strong>Most relevant path(s):</strong><ul>' +
+      '<li><code>/GenericInput/0/Value</code> &mdash; Current discrete state (integer index, e.g. 0, 1, 2, ...)</li>' +
+      '<li><code>/GenericInput/0/Status</code> &mdash; Indicator status: 0=OK, 1=Fault, 2=Battery low</li>' +
+      '<li><code>/GenericInput/0/Settings/Labels</code> &mdash; Array of label strings, one per discrete value. ' +
+      'Custom strings (e.g. <tt>"eco"</tt>) and reserved keywords (e.g. <tt>"/on"</tt>) can be mixed freely. ' +
+      'Reserved keywords: <tt>/off</tt>, <tt>/on</tt>, <tt>/open</tt>, <tt>/closed</tt>, <tt>/ok</tt>, <tt>/alarm</tt>, ' +
+      '<tt>/stopped</tt>, <tt>/running</tt>, <tt>/low</tt>, <tt>/high</tt></li>' +
+      '</ul></div>',
+      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li></ol></div>',
+      '/resources/@victronenergy/node-red-contrib-victron/docs/discrete.svg'
+    ),
+    1: createDocTemplate(
+      '<div><strong>Most relevant path(s):</strong><ul>' +
+      '<li><code>/GenericInput/0/Value</code> &mdash; Numeric indicator reading</li>' +
+      '<li><code>/GenericInput/0/Status</code> &mdash; Indicator status: 0=OK, 1=Fault, 2=Battery low</li>' +
+      '<li><code>/GenericInput/0/Settings/Unit</code> &mdash; Display unit, e.g. <tt>W</tt>, <tt>kWh</tt>. ' +
+      'Use <tt>/Temperature</tt>, <tt>/Speed</tt> or <tt>/Volume</tt> to follow GX system-wide unit settings</li>' +
+      '</ul></div>',
+      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li></ol></div>',
+      '/resources/@victronenergy/node-red-contrib-victron/docs/value.svg'
+    ),
+    2: createDocTemplate(
+      '<div><strong>Most relevant path(s):</strong><ul>' +
+      '<li><code>/GenericInput/0/Value</code> &mdash; Numeric indicator reading</li>' +
+      '<li><code>/GenericInput/0/Status</code> &mdash; Indicator status: 0=OK, 1=Fault, 2=Battery low</li>' +
+      '<li><code>/GenericInput/0/Settings/RangeMin</code> &mdash; Minimum value for the range indicator</li>' +
+      '<li><code>/GenericInput/0/Settings/RangeMax</code> &mdash; Maximum value for the range indicator</li>' +
+      '</ul></div>',
+      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li></ol></div>',
+      '/resources/@victronenergy/node-red-contrib-victron/docs/value_range.svg'
+    ),
+    3: createDocTemplate(
+      '<div><strong>Most relevant path(s):</strong><ul>' +
+      '<li><code>/GenericInput/0/Value</code> &mdash; Temperature value in the unit selected in GX system settings</li>' +
+      '<li><code>/GenericInput/0/Status</code> &mdash; Indicator status: 0=OK, 1=Fault, 2=Battery low</li>' +
+      '<li><code>/GenericInput/0/Settings/RangeMin</code> &mdash; Minimum value for the range indicator</li>' +
+      '<li><code>/GenericInput/0/Settings/RangeMax</code> &mdash; Maximum value for the range indicator</li>' +
+      '</ul></div>',
+      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li></ol></div>',
+      '/resources/@victronenergy/node-red-contrib-victron/docs/temperature_indicator.svg'
+    )
+  };
+
+  const INDICATOR_TYPE_LABELS = {
+    0: 'Discrete',
+    1: 'Value',
+    2: 'Value with range',
+    3: 'Temperature'
+  };
+
+  function renderIndicatorDocBox (type) {
+    $('#indicator-docs-container').empty();
+    const typeKey = parseInt(type, 10);
+    const doc = INDICATOR_TYPE_DOCS[typeKey];
+    const label = INDICATOR_TYPE_LABELS[typeKey] || 'Indicator';
+    if (doc) {
+      const docRow = $(`
+      <div class="form-row">
+        <div id="indicator-doc-row" class="victron-doc-box">
+          <label>${label} usage</label>
+          ${doc.img ? `<img src="${doc.img}" alt="${label} preview">` : ''}
+          <div class="victron-doc-text">${doc.text}</div>
+        </div>
+      </div>
+    `);
+      $('#indicator-docs-container').append(docRow);
     }
   }
 
@@ -1277,11 +1492,26 @@
     $('#node-input-outputs').val(outputs);
   }
 
+  /**
+   * Returns the Node-RED palette label for a virtual node.
+   * Priority: name -> customname + group + typeName -> fallback + typeName
+   * @param {{ name?: string, customname?: string, group?: string, typeName?: string, fallback?: string }} opts
+   * @returns {string}
+   */
+  function getVirtualNodeLabel ({ name, customname, group, typeName, fallback = 'Virtual' } = {}) {
+    if (name) return name
+    const parts = [customname || fallback];
+    if (group) parts.push('(' + group + ')');
+    if (typeName) parts.push('[' + typeName + ']');
+    return parts.join(' ')
+  }
+
   // src/nodes/victron-virtual-browser.js
 
   window.__victron = {
     checkGeneratorType,
     SWITCH_TYPE_CONFIGS,
+    INDICATOR_TYPE_LABELS,
     renderSwitchConfigRow,
     updateSwitchConfig,
     checkSelectedVirtualDevice,
@@ -1290,7 +1520,11 @@
     updateBatteryVoltageVisibility,
     calculateOutputs,
     updateOutputs,
-    initializeTooltips
+    renderIndicatorDocBox,
+    renderShowInUICheckboxes,
+    getShowUIValue,
+    initializeTooltips,
+    getVirtualNodeLabel
   };
 
 })();

@@ -2,20 +2,7 @@
 import {
   checkGeneratorType,
   SWITCH_TYPE_CONFIGS,
-  renderSwitchConfigRow,
-  updateSwitchConfig,
-  checkSelectedVirtualDevice,
-  validateSwitchConfig,
-  fetchSwitchNodeNameAndGroupFromCache,
-  updateBatteryVoltageVisibility,
-  calculateOutputs,
-  updateOutputs
-} from './victron-virtual-functions.js'
-import { initializeTooltips } from './victron-common.js'
-
-window.__victron = {
-  checkGeneratorType,
-  SWITCH_TYPE_CONFIGS,
+  INDICATOR_TYPE_LABELS,
   renderSwitchConfigRow,
   updateSwitchConfig,
   checkSelectedVirtualDevice,
@@ -24,5 +11,28 @@ window.__victron = {
   updateBatteryVoltageVisibility,
   calculateOutputs,
   updateOutputs,
-  initializeTooltips
+  renderIndicatorDocBox,
+  renderShowInUICheckboxes,
+  getShowUIValue,
+  getVirtualNodeLabel
+} from './victron-virtual-functions.js'
+import { initializeTooltips } from './victron-common.js'
+
+window.__victron = {
+  checkGeneratorType,
+  SWITCH_TYPE_CONFIGS,
+  INDICATOR_TYPE_LABELS,
+  renderSwitchConfigRow,
+  updateSwitchConfig,
+  checkSelectedVirtualDevice,
+  validateSwitchConfig,
+  fetchSwitchNodeNameAndGroupFromCache,
+  updateBatteryVoltageVisibility,
+  calculateOutputs,
+  updateOutputs,
+  renderIndicatorDocBox,
+  renderShowInUICheckboxes,
+  getShowUIValue,
+  initializeTooltips,
+  getVirtualNodeLabel
 }

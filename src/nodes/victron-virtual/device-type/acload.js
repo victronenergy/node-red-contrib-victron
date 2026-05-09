@@ -25,7 +25,6 @@ const additionalS2Properties = {
   'S2/0/RmSettings/OffHysteresis': { type: 'i' },
   'S2/0/RmSettings/OnHysteresis': { type: 'i' },
   'S2/0/RmSettings/PowerSetting': { type: 'i' },
-  'S2/0/Priority': { type: 'i' },
   'S2/0/Rm': { type: 's', format: (v) => v != null ? v : '' }
 }
 
@@ -67,6 +66,10 @@ function initialize (config, ifaceDesc, iface, node) {
     })
 
     ifaceDesc.__enableS2 = true
+    // Maps D-Bus property names to S2 CommodityQuantity values for power measurement reporting
+    ifaceDesc.__s2PowerMeasurementProps = {
+      'Ac/Power': 'ELECTRIC.POWER.3_PHASE_SYMMETRIC'
+    }
     ifaceDesc.__s2Handlers = {
       Connect: function (cemId, timeout) {
         console.log('Connect received for CEM ID:', cemId, 'timeout', timeout)
@@ -115,6 +118,8 @@ function initialize (config, ifaceDesc, iface, node) {
             }
           }
         ])
+        // D-Bus method must return a value - return true to indicate RM is alive
+        return true
       }
     }
   }

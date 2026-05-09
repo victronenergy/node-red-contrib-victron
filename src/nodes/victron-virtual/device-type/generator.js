@@ -41,7 +41,7 @@ const commonGeneratorProperties = {
     value: 0,
     immediate: true
   },
-  ErrorCode: { type: 'i', format: (v) => v != null ? v : '', value: 0, immediate: true },
+  'Error/0/Id': { type: 's', format: (v) => v != null ? v : '', value: '', immediate: true },
   StarterVoltage: { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '', persist: true, immediate: true },
   FirmwareVersion: { type: 's', format: (v) => v != null ? v : '', persist: true },
   Model: { type: 's', format: (v) => v != null ? v : '', persist: true },

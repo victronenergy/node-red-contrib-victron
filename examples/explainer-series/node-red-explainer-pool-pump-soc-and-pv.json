@@ -1,0 +1,267 @@
+[
+    {
+        "id": "03355d1b4fb02eff",
+        "type": "tab",
+        "label": "Pool pump",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "31c91d2230fdb67b",
+        "type": "victron-output-switch",
+        "z": "03355d1b4fb02eff",
+        "service": "com.victronenergy.switch/50",
+        "path": "/SwitchableOutput/0/State",
+        "serviceObj": {
+            "service": "com.victronenergy.switch/50",
+            "name": "Shelly 441793A8E6C8",
+            "communityTag": "switch"
+        },
+        "pathObj": {
+            "path": "/SwitchableOutput/0/State",
+            "type": "enum",
+            "enum": {
+                "0": "Off",
+                "1": "On"
+            },
+            "name": "Channel 1 state",
+            "mode": "both"
+        },
+        "name": "pool-pump",
+        "onlyChanges": false,
+        "roundValues": "no",
+        "rateLimit": 0,
+        "outputs": 0,
+        "conditionalMode": false,
+        "condition1Operator": ">",
+        "condition2Enabled": false,
+        "condition2Service": "",
+        "condition2Path": "",
+        "condition2Operator": ">",
+        "logicOperator": "AND",
+        "outputTrue": "true",
+        "outputFalse": "false",
+        "outputOnChange": false,
+        "debounce": 2000,
+        "x": 870,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "8298eafb42217de7",
+        "type": "victron-input-battery",
+        "z": "03355d1b4fb02eff",
+        "service": "com.victronenergy.battery/256",
+        "path": "/Soc",
+        "serviceObj": {
+            "service": "com.victronenergy.battery/256",
+            "name": "BMV-702",
+            "communityTag": "battery"
+        },
+        "pathObj": {
+            "path": "/Soc",
+            "type": "float",
+            "name": "State of charge (%)"
+        },
+        "name": "soc",
+        "onlyChanges": false,
+        "roundValues": "no",
+        "rateLimit": 0,
+        "outputs": 1,
+        "conditionalMode": false,
+        "outputTrue": "1",
+        "outputFalse": "0",
+        "debounce": "2000",
+        "x": 110,
+        "y": 260,
+        "wires": [
+            [
+                "ec7ca613e93272cf"
+            ]
+        ]
+    },
+    {
+        "id": "221fa5a210a4d6c0",
+        "type": "change",
+        "z": "03355d1b4fb02eff",
+        "name": "on",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "1",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 690,
+        "y": 280,
+        "wires": [
+            [
+                "31c91d2230fdb67b"
+            ]
+        ]
+    },
+    {
+        "id": "23b620b3c455848f",
+        "type": "change",
+        "z": "03355d1b4fb02eff",
+        "name": "off",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "0",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 690,
+        "y": 320,
+        "wires": [
+            [
+                "31c91d2230fdb67b"
+            ]
+        ]
+    },
+    {
+        "id": "70d1c49c87ceb6ac",
+        "type": "victron-input-solarcharger",
+        "z": "03355d1b4fb02eff",
+        "service": "com.victronenergy.solarcharger/258",
+        "path": "/Yield/Power",
+        "serviceObj": {
+            "service": "com.victronenergy.solarcharger/258",
+            "name": "BlueSolar Charger MPPT 150/35 rev1",
+            "communityTag": "solarcharger"
+        },
+        "pathObj": {
+            "path": "/Yield/Power",
+            "type": "float",
+            "name": "PV Power (W)"
+        },
+        "name": "pv",
+        "onlyChanges": false,
+        "roundValues": "0",
+        "rateLimit": 0,
+        "outputs": 1,
+        "conditionalMode": false,
+        "outputTrue": "true",
+        "outputFalse": "false",
+        "debounce": "2000",
+        "x": 110,
+        "y": 340,
+        "wires": [
+            [
+                "ec7ca613e93272cf"
+            ]
+        ]
+    },
+    {
+        "id": "ec7ca613e93272cf",
+        "type": "join",
+        "z": "03355d1b4fb02eff",
+        "name": "",
+        "mode": "custom",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "useparts": false,
+        "accumulate": true,
+        "timeout": "",
+        "count": "2",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 270,
+        "y": 300,
+        "wires": [
+            [
+                "744892219b68db42"
+            ]
+        ]
+    },
+    {
+        "id": "ed51e9ce70efedd7",
+        "type": "switch",
+        "z": "03355d1b4fb02eff",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "jsonata_exp",
+                "v": "payload.soc >= 95 and payload.pv > 750",
+                "vt": "jsonata"
+            },
+            {
+                "t": "jsonata_exp",
+                "v": "payload.soc < 90 or payload.pv < 600",
+                "vt": "jsonata"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 530,
+        "y": 300,
+        "wires": [
+            [
+                "221fa5a210a4d6c0"
+            ],
+            [
+                "23b620b3c455848f"
+            ]
+        ]
+    },
+    {
+        "id": "744892219b68db42",
+        "type": "delay",
+        "z": "03355d1b4fb02eff",
+        "name": "1/5s",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "5",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": true,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 395,
+        "y": 300,
+        "wires": [
+            [
+                "ed51e9ce70efedd7"
+            ]
+        ],
+        "l": false
+    },
+    {
+        "id": "9043bf68bbf3e1f8",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@victronenergy/node-red-contrib-victron": "1.6.63"
+        }
+    }
+]

@@ -7,16 +7,16 @@
  * the legacy Virtual Device (switch) configuration.
  */
 
-const { addVictronInterfaces, addSettings } = require('dbus-victron-virtual')
+const { addVictronInterfaces } = require('dbus-victron-virtual')
 const { needsPersistedState, hasPersistedState, loadPersistedState, savePersistedState } = require('./persist')
 const dbus = require('dbus-native-victron')
 const debug = require('debug')('victron-virtual-switch')
 const debugInput = require('debug')('victron-virtual-switch:input')
 const debugConnection = require('debug')('victron-virtual-switch:connection')
-const { DEBOUNCE_DELAY_MS } = require('./victron-virtual-constants')
-const { validateVirtualDevicePayload, validateLightControls, debounce } = require('../services/utils')
-const { createSwitchProperties, getSwitchStatusText, handleSwitchOutputs } = require('../services/virtual-switch')
+const { validateVirtualDevicePayload, validateLightControls } = require('../services/utils')
+const { createSwitchProperties, handleSwitchOutputs, updateSwitchStatus, emitInitialSwitchOutputs } = require('../services/virtual-switch')
 const { filterInactiveVirtualDevices } = require('../services/virtual-device-cleanup')
+const { getTcpBusAddress, callAddSettingsWithRetry, getDeviceInstance, registerInputHandler, flushPendingInputs } = require('./victron-virtual-dbus-helpers')
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('=== UNHANDLED REJECTION (PREVENTING CRASH) ===')
@@ -42,39 +42,10 @@ module.exports = function (RED) {
 
     node.lastSentValues = {}
 
-    const address = process.env.NODE_RED_DBUS_ADDRESS
-      ? process.env.NODE_RED_DBUS_ADDRESS.split(':')
-      : null
-    if (address && address.length === 2) {
-      this.address = `tcp:host=${address[0]},port=${address[1]}`
-    }
+    const tcpAddress = getTcpBusAddress()
+    if (tcpAddress) this.address = tcpAddress
 
     node.retryOnConnectionEnd = true
-    node.pendingCallsToSetValuesLocally = []
-
-    const debouncedSetters = new Map()
-
-    function shouldApplyImmediately (key) {
-      if (node.ifaceDesc && node.ifaceDesc.properties && node.ifaceDesc.properties[key]) {
-        return node.ifaceDesc.properties[key].immediate === true
-      }
-      return false
-    }
-
-    function getDebouncedSetter (key) {
-      if (!debouncedSetters.has(key)) {
-        const setter = debounce((value) => {
-          debugInput(`Applying debounced value for ${key}: ${value}`)
-          try {
-            node.setValuesLocally({ [key]: value })
-          } catch (err) {
-            node.error(`Failed to apply debounced value for ${key}: ${err.message}`)
-          }
-        }, DEBOUNCE_DELAY_MS)
-        debouncedSetters.set(key, setter)
-      }
-      return debouncedSetters.get(key)
-    }
 
     function handleInput (msg, done) {
       // Send passthrough message FIRST, before any validation
@@ -126,36 +97,16 @@ module.exports = function (RED) {
       try {
         debugInput(`Setting values locally for node ${node.id}:`, msg.payload)
 
-        const immediatePayload = {}
-        const debouncedPayload = {}
-
-        for (const [key, value] of Object.entries(msg.payload)) {
-          if (shouldApplyImmediately(key)) {
-            immediatePayload[key] = value
-          } else {
-            debouncedPayload[key] = value
-          }
-        }
-
-        if (Object.keys(immediatePayload).length > 0) {
-          node.setValuesLocally(immediatePayload)
-          debugInput(`Applied ${Object.keys(immediatePayload).length} immediate properties`)
-        }
-
-        for (const [key, value] of Object.entries(debouncedPayload)) {
-          const setter = getDebouncedSetter(key)
-          setter(value)
-          debugInput(`Debouncing ${key} for ${DEBOUNCE_DELAY_MS}ms`)
+        if (Object.keys(msg.payload).length > 0) {
+          node.setValuesLocally(msg.payload)
+          debugInput(`Applied ${Object.keys(msg.payload).length} properties`)
         }
 
         const pathCount = Object.keys(msg.payload).length
         const pathWord = pathCount === 1 ? 'path' : 'paths'
 
-        node.status({
-          fill: 'green',
-          shape: 'dot',
-          text: `Updated ${pathCount} ${pathWord} (${node.iface.DeviceInstance})`
-        })
+        updateSwitchStatus(config, node, `Updated ${pathCount} ${pathWord} (${node.iface.DeviceInstance})`)
+
         done()
       } catch (err) {
         node.error(`Failed to set values: ${err.message}. Expected: JavaScript object with at least one property/value.`, msg)
@@ -168,21 +119,10 @@ module.exports = function (RED) {
       }
     }
 
-    this.on('input', function (msg, _send, done) {
-      if (!node.setValuesLocally) {
-        // we cannot call setValuesLocally yet, so we queue the message
-        node.pendingCallsToSetValuesLocally.push([msg, done])
-        debugInput(
-          `Node ${node.id} is not ready to handle input yet, queuing message. Pending calls: ${node.pendingCallsToSetValuesLocally.length}`
-        )
-        return
-      }
-
-      handleInput(msg, done)
-    })
+    registerInputHandler(node, debugInput, handleInput)
 
     function instantiateDbus (self) {
-      debug('instantiateDbus called for node', self.id, nodeInstances)
+      debug('instantiateDbus called for node:', self.id)
       // Connect to the dbus
       if (self.address) {
         debug(`Connecting to TCP address ${self.address}.`)
@@ -258,37 +198,6 @@ module.exports = function (RED) {
         retryConnectionDelayed()
       })
 
-      async function callAddSettingsWithRetry (bus, settings, maxRetries = 10) {
-        for (let attempt = 0; attempt < maxRetries; attempt++) {
-          try {
-            const result = await addSettings(bus, settings)
-            return result
-          } catch (error) {
-            let errorMessage = ''
-            if (Array.isArray(error)) {
-              errorMessage = error.join(', ')
-            } else if (error && error.message) {
-              errorMessage = error.message
-            } else {
-              errorMessage = String(error)
-            }
-            const isServiceUnavailable =
-              errorMessage.includes('org.freedesktop.DBus.Error.ServiceUnknown') ||
-              errorMessage.includes('com.victronenergy.settings') ||
-              errorMessage.includes('No such service') ||
-              errorMessage.includes('was not provided by any .service files')
-
-            if (!isServiceUnavailable || attempt === maxRetries - 1) {
-              throw error
-            }
-
-            const delay = Math.min(1000 * Math.pow(2, attempt), 10000) // Exponential backoff, max 10s
-            debug(`Settings service unavailable, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`)
-            await new Promise(resolve => setTimeout(resolve, delay))
-          }
-        }
-      }
-
       async function proceed (usedBus) {
         const ifaceDesc = {
           name: interfaceName,
@@ -303,8 +212,6 @@ module.exports = function (RED) {
         }
 
         createSwitchProperties(config, ifaceDesc, iface)
-
-        const text = getSwitchStatusText(config)
 
         if (hasPersistedState(RED, self.id)) {
           debug(`Virtual switch (${self.id}) has persisted state, loading it.`)
@@ -336,32 +243,6 @@ module.exports = function (RED) {
           return
         }
 
-        const getDeviceInstance = (result) => {
-          try {
-            const firstValue = result?.[0]?.[2]?.[1]?.[1]?.[0]?.split(':')[1]
-            if (firstValue != null) {
-              const number = Number(firstValue)
-              if (!isNaN(number)) {
-                return number
-              }
-            }
-          } catch (e) {
-          }
-
-          try {
-            const fallbackValue = result?.[1]?.[0]?.split(':')[1]
-            if (fallbackValue != null) {
-              const number = Number(fallbackValue)
-              if (!isNaN(number)) {
-                return number
-              }
-            }
-          } catch (e) {
-          }
-
-          console.warn('Failed to extract valid DeviceInstance from settings result')
-          return null
-        }
         iface.DeviceInstance = getDeviceInstance(settingsResult)
         iface.CustomName = config.name || 'Virtual switch'
 
@@ -427,7 +308,7 @@ module.exports = function (RED) {
               console.error(`Failed to persist state for ${propName}:`, err)
             })
           }
-
+          updateSwitchStatus(config, node)
           handleSwitchOutputs(config, node, propName, propValue)
         }
 
@@ -441,23 +322,12 @@ module.exports = function (RED) {
         node.setValuesLocally = setValuesLocally
         node.emitS2Signal = emitS2Signal
 
-        node.pendingCallsToSetValuesLocally.forEach(([msg, done]) => {
-          try {
-            debugInput(`Processing pending message for node ${node.id}:`, msg)
-            handleInput(msg, done)
-          } catch (err) {
-            node.error(`Failed to set values locally for pending message: ${err.message}`, msg)
-          }
-        })
-        node.pendingCallsToSetValuesLocally = []
+        flushPendingInputs(node, handleInput)
 
         node.removeSettings = removeSettings
 
-        node.status({
-          fill: 'green',
-          shape: 'dot',
-          text: `${text} (${iface.DeviceInstance})`
-        })
+        updateSwitchStatus(config, node)
+        emitInitialSwitchOutputs(config, node)
 
         nodeInstances.add(node)
 

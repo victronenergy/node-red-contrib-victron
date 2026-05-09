@@ -27,6 +27,9 @@
             include_history_energy: {value: false},
             // grid
             grid_nrofphases: {value: 1, required: false},
+            // energymeter
+            energymeter_nrofphases: {value: 1, required: false},
+            energymeter_role: {value: "gridmeter", required: false},
             // motordrive
             include_motor_temp: {value: false},
             include_controller_temp: {value: false},
@@ -67,12 +70,17 @@
             // pulsemeter
             auto_aggregate: { value: false },
             pulsemeter_multiplier: { value: 0.001, required: false },
+            // ev
+            ev_vin: {value: "", required: false},
+            ev_battery_capacity: {value: "", required: false},
             // temperature
             temperature_type: {value: 2, required: false},
             include_humidity: { value: false },
             include_pressure: { value: false },
             include_temp_battery: { value: false },
-            temp_battery_voltage: { value: 3.3 }
+            temp_battery_voltage: { value: 3.3 },
+            // presence
+            start_disconnected: { value: false, required: false }
         },
         icon: "victronenergy.svg",
         inputs:1,
@@ -134,15 +142,12 @@
             const self = this;
             const { checkSelectedVirtualDevice, updateOutputs, initializeTooltips } = window.__victron;
 
-            const toggleDeprecationNotice = (deviceType) => {
-                $('#switch-deprecation-notice-row').toggle(deviceType === 'switch');
-            };
-
             if (self.device === 'motordrive') {
                 self.device = 'e-drive';
             }
 
-            $.getJSON('/victron/virtual-device-types')
+            var baseUrl = (RED.settings.httpNodeRoot || RED.settings.httpAdminRoot || "").replace(/\/$/, "");
+            $.getJSON(baseUrl + '/victron/virtual-device-types')
                 .done(function(deviceTypes) {
                     const $select = $('#node-input-device');
                     $select.empty();
@@ -155,8 +160,6 @@
                     console.error('Failed to load virtual device types');
                 })
                 .always(function() {
-                    toggleDeprecationNotice(self.device);
-
                     if (self.id && self.changed === false && self.device && self.device !== '') {
                         $('#node-input-device')
                             .prop('disabled', true)
@@ -167,7 +170,6 @@
                         checkSelectedVirtualDevice(self);
                         self.device = v.target.value;
                         updateOutputs(self);
-                        toggleDeprecationNotice(self.device);
                     });
 
                     if (self.default_values === true) {
@@ -274,16 +276,6 @@
             <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
             <select id="node-input-device" required></select>
         </div>
-        <div class="form-row" id="switch-deprecation-notice-row" style="display: none;">
-            <div class="deprecation-notice">
-                <i class="fa fa-info-circle fa-2x"></i>
-                <div>
-                    <strong>Deprecation Notice:</strong> The "Switch" device type is deprecated in the "Virtual Device" node.
-                    Please use the dedicated <strong>"Virtual Switch"</strong> node for new switch configurations.
-                    This Virtual Device will continue to work for now, but we recommend migrating to the new node.
-                </div>
-            </div>
-        </div>
         <div class="form-row input-acload" class="hidden-row">
             <label for="node-input-acload_nrofphases"><i class="fa fa-plug"></i> Number of phases</label>
             <select id="node-input-acload_nrofphases">
@@ -330,6 +322,17 @@
 
         </div>
 
+        <div class="input-ev">
+            <div class="form-row">
+                <label for="node-input-ev_vin"><i class="fa fa-car"></i> VIN</label>
+                <input type="text" id="node-input-ev_vin" placeholder="Vehicle Identification Number">
+            </div>
+            <div class="form-row">
+                <label for="node-input-ev_battery_capacity"><i class="fa fa-flask"></i> Battery Capacity (kWh)</label>
+                <input type="number" id="node-input-ev_battery_capacity" min="0" step="0.1">
+            </div>
+        </div>
+
         <div class="input-generator">
             <div class="form-row">
                 <label for="node-input-generator_type"><i class="fa fa-cog"></i> Generator type</label>
@@ -366,6 +369,28 @@
             <div class="form-row">
                 <label for="node-input-grid_nrofphases"><i class="fa fa-plug"></i> Nr of phases</label>
                 <select id="node-input-grid_nrofphases">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="input-energymeter">
+            <div class="form-row">
+                <label for="node-input-energymeter_role"><i class="fa fa-cog"></i> Role</label>
+                <select id="node-input-energymeter_role">
+                    <option value="gridmeter">Grid meter</option>
+                    <option value="inverter">PV inverter</option>
+                    <option value="generator">Generator</option>
+                    <option value="acload">AC load</option>
+                    <option value="evcharger">EV charger</option>
+                    <option value="heatpump">Heat pump</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="node-input-energymeter_nrofphases"><i class="fa fa-plug"></i> Nr of phases</label>
+                <select id="node-input-energymeter_nrofphases">
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
@@ -529,6 +554,14 @@
             </div>
         </div>
 
+        <div class="form-row victron-checkbox">
+            <input type="checkbox" id="node-input-start_disconnected">
+            <label for="node-input-start_disconnected">
+                Start disconnected
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="When checked, the device will not appear on the system until it receives msg.connected = true"></i>
+            </label>
+        </div>
+
         <div id="switch-docs-container"></div>
 
         <div class="form-row community-link-container">
@@ -560,7 +593,6 @@ device type needs to be selected. At the moment the system supports:
 - Grid meter
 - Meteo
 - PV inverter
-- Switch (deprecated - use dedicated "Virtual Switch" node)
 - Tank sensor
 - Temperature sensor
 
@@ -612,6 +644,27 @@ update all specified properties and show the number of updated values in its sta
 
 If you want to set a single value, you can either use this way to send that single
 path + value combination (recommended) or use the _Custom Control_ node.
+
+### Device presence
+
+When the real-world device goes offline, the virtual device keeps broadcasting its last known values. To make the rest of the system aware that the device is gone, you can explicitly disconnect it from the dbus by sending `msg.connected = false`. The device will disappear from VRM and the GX display until you reconnect it with `msg.connected = true`.
+
+```javascript
+// Take the device offline
+msg.connected = false;
+return msg;
+
+// Bring it back online
+msg.connected = true;
+return msg;
+
+```
+
+When `msg.connected` is set, no payload processing takes place - the message is used solely for presence control. For normal value updates, omit `msg.connected`.
+
+Every output message from the node carries `msg.connected` indicating the current presence state (`true` when visible on the system, `false` when offline). The node status shows a grey ring when the device is intentionally offline.
+
+The _Start disconnected_ option in the edit dialog causes the device to remain invisible after deployment until it receives `msg.connected = true`. This is useful when the flow controls visibility based on whether data is actually being received.
 
 ### AC Load
 
@@ -687,12 +740,6 @@ Additionally, you can enable optional monitoring parameters:
 
 These additional parameters can help monitor the performance and status of your electric drive system.
 
-### Virtual switch
-
-The virtual switch device type is deprecated in the "Virtual Device" node. While you can still select "Switch (deprecated)" from the device dropdown, we recommend using the dedicated **"Virtual Switch"** node for new switch configurations. The dedicated node provides a better user experience with immediate switch type selection and clearer purpose.
-
-Existing Virtual Device nodes configured as switches will continue to function normally with full support for all switch features. You can choose when to migrate to the new node at your convenience.
-
 ### PV inverter
 
 For the PV inverter you can set the position of the inverter. This can be:
@@ -719,6 +766,8 @@ humidity, pressure and battery voltage.
 ## Device Visibility
 
 Depending on the created device, it might not appear immediately on the GX device or VRM portal. You will need to write some values to it first. Alternatively, you could use _Initialize with default values_ to make it appear on the GX device directly. Please note that those default values may not be appropriate for your specific situation, but it can help to get you started.
+
+Use _Start disconnected_ if you want the device to remain invisible until your flow explicitly connects it with `msg.connected = true`. This is the recommended approach when the virtual device represents a real-world device whose availability is not guaranteed at startup.
 
 Also note that it might take a short while before the service on the dbus is actually created. So best practice is to wait a second before injecting data into the virtual device.
 

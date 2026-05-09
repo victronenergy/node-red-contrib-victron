@@ -9,6 +9,11 @@
  * Usage:
  *   node service2doc.js -s services.json -r reference.html -o nodered
  *   node service2doc.js -s services.json -r reference.html -o md
+ *   node service2doc.js -s services.json -r reference.html -o md --page input
+ *   node service2doc.js -s services.json -r reference.html -o md --page output
+ *   node service2doc.js -s services.json -r reference.html -o md --page virtual
+ *   node service2doc.js -s services.json -r reference.html -o md --page index
+ *   node service2doc.js -s services.json -r reference.html -o md --page sidebar
  */
 
 const fs = require('fs')
@@ -120,6 +125,10 @@ function generatePathDoc (pathObj, format) {
       doc += generateEnumList(pathObj.enum, format)
     }
 
+    if (pathObj.remarks) {
+      doc += `\n**Note:** ${pathObj.remarks}\n`
+    }
+
     return doc
   } else {
     const wildcardStyle = pathObj.path.includes('{')
@@ -133,6 +142,10 @@ function generatePathDoc (pathObj, format) {
       doc += generateEnumList(pathObj.enum, format)
     }
 
+    if (pathObj.remarks) {
+      doc += pathObj.remarks
+    }
+
     doc += '</dd>\n'
     return doc
   }
@@ -141,8 +154,8 @@ function generatePathDoc (pathObj, format) {
 /**
  * Generate documentation for a service
  */
-function generateServiceDoc (serviceName, serviceData, registeredNodes, format) {
-  const nodeTypes = ['input', 'output']
+function generateServiceDoc (serviceName, serviceData, registeredNodes, format, nodeTypeFilter) {
+  const nodeTypes = nodeTypeFilter ? [nodeTypeFilter] : ['input', 'output']
   let doc = ''
 
   // Process each service type within the service
@@ -242,11 +255,105 @@ function parseRegisteredNodes (referenceHtml) {
   return { inputNodes, outputNodes }
 }
 
+// Maps device-type filename to the Input-nodes wiki anchor (when it differs from the filename)
+const DEVICE_INPUT_ANCHOR_MAP = {
+  motordrive: 'e-drive',
+  grid: 'gridmeter'
+}
+
 /**
- * Generate overview section with links to all nodes
+ * Returns the D-Bus service name(s) for a device type, as a markdown string.
  */
-function generateOverview (servicesData, registeredNodes, format) {
+function getDbusServiceName (name) {
+  if (name === 'generator') {
+    return '`com.victronenergy.genset` / `com.victronenergy.dcgenset`'
+  }
+  return `\`com.victronenergy.${name}\``
+}
+
+/**
+ * Returns the most relevant paths from a flat properties object, as a markdown string.
+ * Prefers immediate:true paths (primary measurements); falls back to non-internal paths.
+ */
+function getKeyPaths (properties) {
+  const allKeys = Object.keys(typeof properties === 'function' ? properties({}) : properties)
+  const immediate = allKeys.filter(k => properties[k] && properties[k].immediate)
+  const candidates = immediate.length > 0
+    ? immediate
+    : allKeys.filter(k =>
+      !k.startsWith('Alarms/') &&
+      !k.startsWith('System/') &&
+      !k.startsWith('Settings/') &&
+      !k.startsWith('Info/')
+    )
+  return candidates.slice(0, 5).map(k => `\`/${k}\``).join(', ')
+}
+
+/**
+ * Load all virtual device-type modules from the device-type directory.
+ * Excludes 'switch' which is used internally by the virtual-switch node.
+ */
+function loadDeviceTypeModules (deviceTypeDir) {
+  const dir = deviceTypeDir || path.join(__dirname, '../src/nodes/victron-virtual/device-type')
+  const modules = {}
+  try {
+    fs.readdirSync(dir)
+      .filter(f => f.endsWith('.js'))
+      .forEach(f => {
+        const name = path.basename(f, '.js')
+        if (name === 'switch') return
+        try {
+          modules[name] = require(path.join(dir, f))
+        } catch (e) {
+          console.error(`Failed to load device type module ${name}:`, e.message)
+        }
+      })
+  } catch (e) {
+    console.error('Failed to read device type directory:', e.message)
+  }
+  return modules
+}
+
+/**
+ * Generate the device types table for the Virtual Device section.
+ * Built from the actual device-type module files.
+ */
+function generateDeviceTypesTable (deviceModules) {
+  const header = '| Type | D-Bus service | Key paths | Read node |\n| --- | --- | --- | --- |'
+
+  const rows = Object.entries(deviceModules)
+    .sort(([, a], [, b]) => (a.label || '').localeCompare(b.label || ''))
+    .map(([name, mod]) => {
+      const label = mod.label || (name.charAt(0).toUpperCase() + name.slice(1))
+
+      // Detect nested properties (generator has { genset: {...}, dcgenset: {...} })
+      const properties = typeof mod.properties === 'function' ? mod.properties({}) : mod.properties
+      const isNested = !Object.values(properties).some(v => v && v.type)
+      const flatProperties = isNested ? Object.values(properties)[0] : properties
+
+      const service = getDbusServiceName(name)
+      const keyPaths = getKeyPaths(flatProperties)
+
+      const anchorName = DEVICE_INPUT_ANCHOR_MAP[name] || name
+      const anchorTitle = anchorName.charAt(0).toUpperCase() + anchorName.slice(1)
+      const inputLink = `[${anchorTitle} input](Input-nodes#${anchorName}-input)`
+
+      return `| ${label} | ${service} | ${keyPaths} | ${inputLink} |`
+    })
+
+  return header + '\n' + rows.join('\n')
+}
+
+/**
+ * Generate overview section with links to all nodes.
+ * page: 'input' | 'output' | 'index' | undefined (backward compat, all-in-one)
+ */
+function generateOverview (servicesData, registeredNodes, format, page) {
   if (format !== 'md') return ''
+
+  const isIndexPage = page === 'index'
+  const showInput = !page || page === 'input' || isIndexPage
+  const showOutput = !page || page === 'output' || isIndexPage
 
   const services = Object.keys(servicesData).sort()
 
@@ -256,8 +363,6 @@ function generateOverview (servicesData, registeredNodes, format) {
   services.forEach(serviceName => {
     const serviceData = servicesData[serviceName]
     const title = serviceName === 'motordrive' ? 'E-drive' : serviceName.charAt(0).toUpperCase() + serviceName.slice(1)
-    const anchor = serviceName.toLowerCase()
-
     let hasAnyInput = false
     let hasAnyOutput = false
 
@@ -275,11 +380,16 @@ function generateOverview (servicesData, registeredNodes, format) {
       }
     })
 
+    // Derive the actual GitHub wiki anchor from the heading title (lowercase, hyphens, no parens)
+    const titleAnchor = title.toLowerCase().replace(/\s+/g, '-').replace(/[()]/g, '')
+
     if (hasAnyInput && registeredNodes.inputNodes.has(serviceName)) {
-      inputNodesSet.add(`[${title}](#${anchor}-input)`)
+      const href = isIndexPage ? `Input-nodes#${titleAnchor}-input` : `#${titleAnchor}-input`
+      inputNodesSet.add(`[${title}](${href})`)
     }
     if (hasAnyOutput && registeredNodes.outputNodes.has(serviceName)) {
-      outputNodesSet.add(`[${title} Control](#${anchor}-output)`)
+      const href = isIndexPage ? `Output-nodes#${titleAnchor}-output` : `#${titleAnchor}-output`
+      outputNodesSet.add(`[${title} Control](${href})`)
     }
   })
 
@@ -287,30 +397,147 @@ function generateOverview (servicesData, registeredNodes, format) {
   const outputNodesList = Array.from(outputNodesSet)
 
   let overview = ''
-  if (inputNodesList.length > 0) {
+  if (showInput && inputNodesList.length > 0) {
     overview += `**Input nodes:** ${inputNodesList.join(', ')}\n\n`
   }
-  if (outputNodesList.length > 0) {
+  if (showOutput && outputNodesList.length > 0) {
     overview += `**Output nodes:** ${outputNodesList.join(', ')}\n\n`
   }
-  overview += 'If there are services and paths not covered by the above nodes, there are also 2 [custom nodes](#custom-nodes) that allow you to read from and write to all found dbus services and paths.\n\n'
+
+  if (!page || isIndexPage) {
+    overview += 'If there are services and paths not covered by the above nodes, there are also 2 [custom nodes](#custom-nodes) that allow you to read from and write to all found dbus services and paths.\n\n'
+    overview += '**Other nodes:** [Virtual Device](Virtual-devices#virtual-device), [Virtual Switch](Virtual-devices#virtual-switch), [Inject Notification](Virtual-devices#inject-notification)\n\n'
+  } else if (page === 'input') {
+    overview += 'For writing values to control devices, see [Output nodes](Output-nodes).\n'
+    overview += 'For creating virtual Victron devices on D-Bus, see [Virtual devices](Virtual-devices).\n\n'
+  } else if (page === 'output') {
+    overview += 'For reading values from devices, see [Input nodes](Input-nodes).\n'
+    overview += 'For creating virtual Victron devices on D-Bus, see [Virtual devices](Virtual-devices).\n\n'
+  }
 
   return overview
 }
 
 /**
- * Main documentation generation function
+ * Generate documentation for the special nodes not covered by services.json
+ * (victron-virtual, victron-virtual-switch, victron-inject)
  */
-function generateDocumentation (servicesData, registeredNodes, format) {
-  let doc = ''
+function generateSpecialNodesDoc (deviceModules) {
+  const deviceTypesTable = generateDeviceTypesTable(deviceModules || loadDeviceTypeModules())
+  return `
+## Virtual Device
 
-  if (format === 'md') {
-    doc += '# Available Nodes\n\n'
-    doc += 'This document lists all available Victron Energy nodes and their measurable values.\n\n'
-    doc += generateOverview(servicesData, registeredNodes, format)
-  } else {
-    // Add CSS for wildcard styling in Node-RED format
-    doc += `
+The _Virtual Device_ node creates a virtual Victron device on D-Bus, making it appear as a real device to Venus OS and the VRM portal. This is useful for feeding external data (e.g. from a sensor or third-party system) into the Victron ecosystem.
+
+The service name on D-Bus will be \`com.victronenergy.<type>.virtual_<nodeId>\`.
+
+### Usage
+
+Send \`msg.payload\` as a JavaScript object where keys are D-Bus path names (without the leading \`/\`) and values are the corresponding readings:
+
+\`\`\`javascript
+msg.payload = {
+    "Dc/0/Voltage": 48.2,
+    "Dc/0/Current": 12.5,
+    "Soc": 85
+};
+\`\`\`
+
+Set \`msg.connected = false\` to take the device offline (releases the D-Bus service name), or \`msg.connected = true\` to bring it back online.
+
+### Device types
+
+${deviceTypesTable}
+
+### Output
+
+- **Port 1 (Passthrough):** Passes through the original \`msg\` with \`msg.connected\` set to the current D-Bus connection state.
+
+---
+
+## Virtual Switch
+
+The _Virtual Switch_ node creates a virtual I/O extender switch on D-Bus, appearing to Venus OS as a connected Cerbo GX I/O extender device. The GX device GUI will show the virtual switch and allow interaction with it.
+
+### Usage
+
+Send \`msg.payload\` as a JavaScript object with the property to set:
+
+\`\`\`javascript
+msg.payload = { "SwitchableOutput/output_1/State": 1 };  // Turn on
+msg.payload = { "SwitchableOutput/output_1/Dimming": 75 };  // Set dimming to 75%
+\`\`\`
+
+Set \`msg.connected = false\` to take the switch offline.
+
+### Switch types
+
+| Type | Description | D-Bus path |
+| --- | --- | --- |
+| On/Off | Simple toggle | \`/SwitchableOutput/{type}/State\` (0=Off, 1=On) |
+| Dimmable | On/off with dimming level | \`/SwitchableOutput/{type}/State\`, \`/SwitchableOutput/{type}/Dimming\` (0-100%) |
+| Temperature setpoint | Thermostat slider | \`/SwitchableOutput/{type}/Dimming\` (°C), \`/SwitchableOutput/{type}/Measurement\` |
+| Stepped | Slider with steps | \`/SwitchableOutput/{type}/Dimming\`, \`/SwitchableOutput/{type}/State\` |
+| Basic slider | Numeric slider | \`/SwitchableOutput/{type}/Dimming\` |
+| Dropdown | Selection list | \`/SwitchableOutput/{type}/State\` |
+| Numeric input | Free numeric entry | \`/SwitchableOutput/{type}/Dimming\`, \`/SwitchableOutput/{type}/State\` |
+| Three state | Off/On/Auto | \`/SwitchableOutput/{type}/State\` (0=Off, 1=On, 2=Auto) |
+| RGB color wheel | RGB color picker | \`/SwitchableOutput/{type}/State\`, \`/SwitchableOutput/{type}/LightControls\` |
+| CCT wheel | Color temperature | \`/SwitchableOutput/{type}/State\`, \`/SwitchableOutput/{type}/LightControls\` |
+| RGB+White dimmer | RGBW dimmer | \`/SwitchableOutput/{type}/State\`, \`/SwitchableOutput/{type}/LightControls\` |
+
+### Output
+
+- **Port 1 (Passthrough):** Passes through the original \`msg\` with \`msg.connected\` set to the current D-Bus connection state.
+- **Port 2 (State):** Emits a message when the switch state changes, with \`msg.payload\` containing the new state value.
+- **Port 3 (Value, if applicable):** Emits a message when the dimming/value changes (for dimmable, stepped, numeric, and RGB types).
+
+---
+
+## Inject Notification
+
+The _Inject Notification_ node sends a notification to the Venus OS notification center, where it appears in the GX device GUI.
+
+Notifications are sent to D-Bus at \`com.victronenergy.platform /Notifications/Inject\`.
+
+### Configuration
+
+- **Type:** The notification severity: Warning (0), Alarm (1), or Information (2).
+- **Title:** The notification title displayed in the GUI.
+
+### Usage
+
+Send the notification message in \`msg.payload\`:
+
+\`\`\`javascript
+msg.payload = "Battery voltage is low";
+\`\`\`
+
+Override the configured type and title at runtime:
+
+\`\`\`javascript
+msg.payload = "Critical temperature alert";
+msg.type = "alarm";   // string: "warning", "alarm", "info" - or number: 0, 1, 2
+msg.title = "Temperature Alert";
+\`\`\`
+
+Title is truncated to 100 characters and message to 500 characters.
+
+### Output
+
+Passes through the original \`msg\` with \`msg.notification\` added:
+
+\`\`\`javascript
+msg.notification = {
+    type: 1,              // type number used
+    title: "Battery Alert",
+    message: "Battery voltage is low"
+}
+\`\`\`
+`
+}
+
+const NODERED_CSS = `
 <style>
   .wildcard-info {
     background: #f5f5f5;
@@ -319,7 +546,7 @@ function generateDocumentation (servicesData, registeredNodes, format) {
     border-left: 4px solid #007acc;
     border-radius: 4px;
   }
-  
+
   .wildcard-info code {
     background-color: #e1f5fe;
     color: #01579b;
@@ -327,28 +554,112 @@ function generateDocumentation (servicesData, registeredNodes, format) {
     padding: 1px 3px;
     border-radius: 3px;
   }
-  
+
   .wildcard-info ul {
     margin: 5px 0 0 0;
     padding-left: 20px;
   }
-  
+
   dt[style*="border-left"], dd[style*="border-left"] {
     background: #fcfcfc;
   }
 </style>
 
 `
+
+function generateInputPageDoc (servicesData, registeredNodes) {
+  let doc = '# Input Nodes\n\n'
+  doc += 'Input nodes subscribe to D-Bus values from Victron devices connected to Venus OS. '
+  doc += 'Each node outputs a message whenever the subscribed value changes.\n\n'
+  doc += generateOverview(servicesData, registeredNodes, 'md', 'input')
+  Object.entries(servicesData)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .forEach(([serviceName, serviceData]) => {
+      doc += generateServiceDoc(serviceName, serviceData, registeredNodes, 'md', 'input')
+    })
+  return doc
+}
+
+function generateOutputPageDoc (servicesData, registeredNodes) {
+  let doc = '# Output Nodes\n\n'
+  doc += 'Output (control) nodes write values to Victron devices. '
+  doc += 'Send a message with `msg.payload` containing the value to set.\n\n'
+  doc += generateOverview(servicesData, registeredNodes, 'md', 'output')
+  Object.entries(servicesData)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .forEach(([serviceName, serviceData]) => {
+      doc += generateServiceDoc(serviceName, serviceData, registeredNodes, 'md', 'output')
+    })
+  return doc
+}
+
+function generateVirtualPageDoc (deviceModules) {
+  let doc = '# Virtual Devices\n\n'
+  doc += 'These nodes create virtual Victron devices on D-Bus or inject data into Venus OS.\n\n'
+  doc += 'For reading values from physical devices, see [Input nodes](Input-nodes).\n\n'
+  doc += generateSpecialNodesDoc(deviceModules)
+  return doc
+}
+
+function generateIndexPageDoc (servicesData, registeredNodes) {
+  let doc = '# Available Nodes\n\n'
+  doc += 'This wiki covers all nodes provided by the node-red-contrib-victron package.\n\n'
+  doc += '## Node types\n\n'
+  doc += '- **[Input nodes](Input-nodes)** - Read values from Victron devices connected to Venus OS.\n'
+  doc += '- **[Output / Control nodes](Output-nodes)** - Write values to control Victron devices.\n'
+  doc += '- **[Virtual devices](Virtual-devices)** - Create virtual Victron devices on D-Bus or inject data into Venus OS.\n\n'
+  doc += generateOverview(servicesData, registeredNodes, 'md', 'index')
+  return doc
+}
+
+function generateSidebarDoc () {
+  return `## Navigation
+* [Home](Home)
+* [Available Nodes](Available-nodes)
+  * [Input Nodes](Input-nodes)
+  * [Output Nodes](Output-nodes)
+  * [Virtual Devices](Virtual-devices)
+* [Example Flows](Example-Flows)
+`
+}
+
+/**
+ * Main documentation generation function.
+ * page: 'input' | 'output' | 'virtual' | 'index' | 'sidebar' | undefined (backward compat)
+ */
+function generateDocumentation (servicesData, registeredNodes, format, page) {
+  if (format === 'nodered') {
+    let doc = NODERED_CSS
+    Object.entries(servicesData)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .forEach(([serviceName, serviceData]) => {
+        doc += generateServiceDoc(serviceName, serviceData, registeredNodes, format)
+      })
+    return doc
   }
 
-  // Generate documentation for each service
-  Object.entries(servicesData)
-    .sort(([a], [b]) => a.localeCompare(b)) // Sort services alphabetically
-    .forEach(([serviceName, serviceData]) => {
-      doc += generateServiceDoc(serviceName, serviceData, registeredNodes, format)
-    })
-
-  return doc
+  // markdown format - route by page
+  const deviceModules = loadDeviceTypeModules()
+  switch (page) {
+    case 'input': return generateInputPageDoc(servicesData, registeredNodes)
+    case 'output': return generateOutputPageDoc(servicesData, registeredNodes)
+    case 'virtual': return generateVirtualPageDoc(deviceModules)
+    case 'index': return generateIndexPageDoc(servicesData, registeredNodes)
+    case 'sidebar': return generateSidebarDoc()
+    default: {
+      // backward compat: generate everything in one file
+      let doc = '# Available Nodes\n\n'
+      doc += 'This document lists all available Victron Energy nodes and their measurable values.\n\n'
+      doc += generateOverview(servicesData, registeredNodes, format)
+      Object.entries(servicesData)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .forEach(([serviceName, serviceData]) => {
+          doc += generateServiceDoc(serviceName, serviceData, registeredNodes, format)
+        })
+      doc += generateSpecialNodesDoc(deviceModules)
+      return doc
+    }
+  }
 }
 
 /**
@@ -376,6 +687,11 @@ function main () {
       choices: ['nodered', 'md'],
       demandOption: true
     })
+    .option('page', {
+      describe: 'Wiki page to generate: input, output, virtual, index, sidebar',
+      type: 'string',
+      choices: ['input', 'output', 'virtual', 'index', 'sidebar']
+    })
     .help()
     .argv
 
@@ -400,7 +716,7 @@ function main () {
     const registeredNodes = parseRegisteredNodes(referenceHtml)
 
     // Generate documentation
-    const documentation = generateDocumentation(servicesData, registeredNodes, argv.output)
+    const documentation = generateDocumentation(servicesData, registeredNodes, argv.output, argv.page)
 
     // Output to stdout (for piping)
     process.stdout.write(documentation)
@@ -418,5 +734,8 @@ if (require.main === module) {
 module.exports = {
   generateDocumentation,
   generateWildcardExplanation,
-  highlightWildcards
+  highlightWildcards,
+  loadDeviceTypeModules,
+  generateDeviceTypesTable,
+  generateSpecialNodesDoc
 }

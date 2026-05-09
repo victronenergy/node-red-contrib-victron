@@ -352,8 +352,8 @@ function validateVirtualDevicePayload (payload) {
     if (typeof value === 'number') return false
     if (typeof value === 'boolean') return false
     if (Array.isArray(value)) {
-      // Arrays are valid (for LightControls), but should contain only numbers
-      return !value.every(item => typeof item === 'number')
+      // Arrays are valid (for LightControls and Labels), but must be homogeneous (all numbers or all strings)
+      return !(value.every(item => typeof item === 'number') || value.every(item => typeof item === 'string'))
     }
     return true
   })
@@ -362,7 +362,7 @@ function validateVirtualDevicePayload (payload) {
     const invalidKeys = invalidEntries.map(([key]) => key).join(', ')
     return {
       valid: false,
-      error: `Invalid value types for keys: ${invalidKeys}. Expected: string, number, boolean, null, or array of numbers.`,
+      error: `Invalid value types for keys: ${invalidKeys}. Expected: string, number, boolean, null, array of numbers, or array of strings.`,
       invalidKeys: invalidEntries.map(([key]) => key)
     }
   }

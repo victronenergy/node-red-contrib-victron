@@ -158,7 +158,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
     border-left: 4px solid #007acc;
     border-radius: 4px;
   }
-  
+
   .wildcard-info code {
     background-color: #e1f5fe;
     color: #01579b;
@@ -166,12 +166,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
     padding: 1px 3px;
     border-radius: 3px;
   }
-  
+
   .wildcard-info ul {
     margin: 5px 0 0 0;
     padding-left: 20px;
   }
-  
+
   dt[style*="border-left"], dd[style*="border-left"] {
     background: #fcfcfc;
   }
@@ -766,7 +766,146 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dd>Dbus path: <b>/History/EnergyOut</b><span class="property-mode"></span>
 </dd>
   <dt class="optional">Mode<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Mode</b><span class="property-mode"></span>
+  <dd>Dbus path: <b>/Mode</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>1 - On</li>
+  <li>4 - Off</li>
+</ul></dd>
+  <dt class="optional">Alternator speed (RPM)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Speed</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Alternator state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/State</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Off</li>
+  <li>2 - Fault</li>
+  <li>3 - Bulk</li>
+  <li>4 - Absorption</li>
+  <li>5 - Float</li>
+  <li>6 - Storage</li>
+  <li>7 - Equalize</li>
+  <li>11 - Psu</li>
+  <li>252 - External control</li>
+</ul></dd>
+</dl>
+</script>
+
+<script type="text/x-red" data-help-name="victron-output-alternator">
+<h3>Details</h3>
+<p>The <strong>output nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+
+<div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
+  <strong>📝 Wildcard Paths:</strong> 
+  Paths containing placeholders like <code>{type}</code>, <code>{tracker}</code>, <code>{phase}</code> 
+  will be automatically expanded to show available options based on your connected devices.
+  <ul style="margin: 5px 0;">
+    <li><code>{type}</code> - Switch types (output_1, output_2, pwm_1, relay_1, etc.)</li>
+    <li><code>{tracker}</code> - PV tracker numbers (0, 1, 2, 3)</li>
+    <li><code>{phase}</code> - AC phases (1, 2, 3 for L1, L2, L3)</li>
+    <li><code>{day}</code> - History days (0=today, 1=yesterday)</li>
+    <li><code>{input}</code> - AC inputs (1, 2)</li>
+    <li><code>{channel}</code> - DC channels (0, 1)</li>
+    <li><code>{index}</code> - Index numbers (0, 1, 2, 3, etc.)</li>
+  </ul>
+</div> 
+<h3>Alternator</h3>
+<dl class="message-properties">
+  <dt class="optional">High auxiliary voltage alarm<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Alarms/HighStarterVoltage</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul></dd>
+  <dt class="optional">High temperature alarm<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Alarms/HighTemperature</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul></dd>
+  <dt class="optional">High voltage alarm<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Alarms/HighVoltage</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul></dd>
+  <dt class="optional">Low auxiliary voltage alarm<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Alarms/LowStarterVoltage</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul></dd>
+  <dt class="optional">Low temperature alarm<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Alarms/LowTemperature</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Ok</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul></dd>
+  <dt class="optional">Low voltage alarm<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Alarms/LowVoltage</b><span class="property-mode"></span>
+<ul>
+  <li>0 - No alarm</li>
+  <li>2 - Alarm</li>
+</ul></dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Battery current <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{channel}</code> (A)<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Dc/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{channel}</code>/Current</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Battery temperature <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{channel}</code> (°C)<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Dc/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{channel}</code>/Temperature</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Battery voltage <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{channel}</code> (V)<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Dc/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{channel}</code>/Voltage</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Input voltage (before DC/DC converter) (V DC)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Dc/In/V</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Input power (W DC)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Dc/In/P</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Engine speed (RPM)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Engine/Speed</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Alternator error code<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/ErrorCode</b><span class="property-mode"></span>
+<ul>
+  <li>12 - High battery temperature</li>
+  <li>13 - High battery voltage</li>
+  <li>14 - Low battery voltage</li>
+  <li>15 - VBat exceeds $CPB</li>
+  <li>21 - High alternator temperature</li>
+  <li>22 - Alternator overspeed</li>
+  <li>24 - Internal error</li>
+  <li>41 - High field FET temperature</li>
+  <li>42 - Sensor missing</li>
+  <li>43 - Low VAlt</li>
+  <li>44 - High Voltage offset</li>
+  <li>45 - VAlt exceeds $CPB</li>
+  <li>53 - Battery instance out of range</li>
+  <li>54 - Too many BMSes</li>
+  <li>55 - AEBus fault</li>
+  <li>56 - Too many Victron devices</li>
+  <li>91 - BMS lost</li>
+  <li>92 - Forced idle</li>
+  <li>201 - DCDC converter fail</li>
+  <li>51-52 - Battery disconnect request</li>
+  <li>58-61 - Battery requested disconnection</li>
+  <li>201-207 - DCDC error</li>
+</ul></dd>
+  <dt class="optional">Alternator Field Drive %<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/FieldDrive</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Cumulative amp-hours charged (Ah)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/History/Cumulative/User/ChargedAh</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Total energy produced (kWh)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/History/EnergyOut</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Mode<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Mode</b><span class="property-mode"> (Mode: both)</span>
 <ul>
   <li>1 - On</li>
   <li>4 - Off</li>
@@ -1275,7 +1414,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <ul>
   <li>0 - Disabled</li>
   <li>1 - Enabled</li>
-</ul></dd>
+</ul><p>For monitoring the state of the built-in contactor.</p></dd>
   <dt class="optional">Time to go (s)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/TimeToGo</b><span class="property-mode"></span>
 </dd>
@@ -1767,7 +1906,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <ul>
   <li>0 - Disabled</li>
   <li>1 - Enabled</li>
-</ul></dd>
+</ul><p>For monitoring the state of the built-in contactor.</p></dd>
   <dt class="optional">Time to go (s)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/TimeToGo</b><span class="property-mode"></span>
 </dd>
@@ -1822,6 +1961,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">/History/Cumulative/User/ChargedAh (Ah)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/History/Cumulative/User/ChargedAh</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">Charger on/off<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Mode</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>1 - On</li>
+  <li>4 - Off</li>
+</ul></dd>
   <dt class="optional">/ProductId<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/ProductId</b><span class="property-mode"></span>
 </dd>
@@ -1887,6 +2032,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">/History/Cumulative/User/ChargedAh (Ah)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/History/Cumulative/User/ChargedAh</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">Charger on/off<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Mode</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>1 - On</li>
+  <li>4 - Off</li>
+</ul></dd>
   <dt class="optional">/ProductId<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/ProductId</b><span class="property-mode"></span>
 </dd>
@@ -2535,10 +2686,10 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - No</li>
 </ul></dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">AC Power <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code> setpoint (W)<span class="property-type">integer</span></dt>
-  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Hub4/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code>}/AcPowerSetpoint</b><span class="property-mode"> (Mode: both)</span>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Hub4/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code>/AcPowerSetpoint</b><span class="property-mode"> (Mode: both)</span>
 </dd>
-  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Maximum overvoltage feed-in power <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code>} (W)<span class="property-type">integer</span></dt>
-  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Hub4/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code>}/MaxFeedInPower</b><span class="property-mode"> (Mode: both)</span>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Maximum overvoltage feed-in power <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code> (W)<span class="property-type">integer</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Hub4/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code>/MaxFeedInPower</b><span class="property-mode"> (Mode: both)</span>
 </dd>
   <dt class="optional">Disable PV inverter<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/PvInverter/Disable</b><span class="property-mode"></span>
@@ -2594,10 +2745,10 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - No</li>
 </ul></dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">AC Power <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code> setpoint (W)<span class="property-type">integer</span></dt>
-  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Hub4/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code>}/AcPowerSetpoint</b><span class="property-mode"> (Mode: both)</span>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Hub4/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code>/AcPowerSetpoint</b><span class="property-mode"> (Mode: both)</span>
 </dd>
-  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Maximum overvoltage feed-in power <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code>} (W)<span class="property-type">integer</span></dt>
-  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Hub4/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code>}/MaxFeedInPower</b><span class="property-mode"> (Mode: both)</span>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Maximum overvoltage feed-in power <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code> (W)<span class="property-type">integer</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Hub4/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code>/MaxFeedInPower</b><span class="property-mode"> (Mode: both)</span>
 </dd>
   <dt class="optional">Disable PV inverter<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/PvInverter/Disable</b><span class="property-mode"></span>
@@ -2672,21 +2823,22 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{schedule}</code>/Start</b><span class="property-mode"> (Mode: both)</span>
 </dd>
   <dt class="optional">ESS state<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b><span class="property-mode"></span>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b><span class="property-mode"> (Mode: both)</span>
 <ul>
-  <li>1 - BatteryLife enabled (GUI controlled)</li>
-  <li>2 - Optimized Mode /w BatteryLife: self consumption</li>
-  <li>3 - Optimized Mode /w BatteryLife: self consumption, SoC exceeds 85%</li>
-  <li>4 - Optimized Mode /w BatteryLife: self consumption, SoC at 100%</li>
-  <li>5 - Optimized Mode /w BatteryLife: SoC below dynamic SoC limit</li>
-  <li>6 - Optimized Mode /w BatteryLife: SoC has been below SoC limit for more than 24 hours. Charging the battery (5A)</li>
-  <li>7 - Optimized Mode /w BatteryLife: Inverter/Charger is in sustain mode</li>
-  <li>8 - Optimized Mode /w BatteryLife: recharging, SoC dropped by 5% or more below the minimum SoC</li>
-  <li>9 - 'Keep batteries charged' mode is enabled</li>
-  <li>10 - Optimized mode w/o BatteryLife: self consumption, SoC at or above minimum SoC</li>
-  <li>11 - Optimized mode w/o BatteryLife: self consumption, SoC is below minimum SoC</li>
-  <li>12 - Optimized mode w/o BatteryLife: recharging, SoC dropped by 5% or more below minimum SoC</li>
-</ul></dd>
+  <li>0 - No longer used</li>
+  <li>1 - Optimized w/ BatteryLife: BatteryLife enabled (set by GUI)</li>
+  <li>2 - Optimized w/ BatteryLife: Self consumption</li>
+  <li>3 - Optimized w/ BatteryLife: Self consumption, SoC exceeds 85%</li>
+  <li>4 - Optimized w/ BatteryLife: Self consumption, SoC at 100%</li>
+  <li>5 - Optimized w/ BatteryLife: SoC below dynamic SoC limit</li>
+  <li>6 - Optimized w/ BatteryLife: SoC below limit >24h, charging at 5A</li>
+  <li>7 - Optimized w/ BatteryLife: Multi/Quattro in sustain</li>
+  <li>8 - Optimized w/ BatteryLife: Recharge, SoC dropped 5%+ below MinSoC</li>
+  <li>9 - Keep batteries charged</li>
+  <li>10 - Optimized w/o BatteryLife: Self consumption, SoC at or above minimum SoC</li>
+  <li>11 - Optimized w/o BatteryLife: Self consumption, SoC below minimum SoC</li>
+  <li>12 - Optimized w/o BatteryLife: Recharge, SoC dropped 5%+ below minimum SoC</li>
+</ul><p>Writable values: 1 (Optimized with BatteryLife), 9 (Keep batteries charged), 10 (Optimized without BatteryLife).</p></dd>
   <dt class="optional">ESS mode<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/Hub4Mode</b><span class="property-mode"> (Mode: both)</span>
 <ul>
@@ -2696,13 +2848,13 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 </ul></dd>
   <dt class="optional">Max charge power (W)<span class="property-type">integer</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/MaxChargePower</b><span class="property-mode"> (Mode: both)</span>
-</dd>
+<p>Not used with DVCC.</p></dd>
   <dt class="optional">Max inverter power (W)<span class="property-type">integer</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/MaxDischargePower</b><span class="property-mode"> (Mode: both)</span>
 </dd>
   <dt class="optional">Maximum System Grid Feed In (W)<span class="property-type">integer</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/MaxFeedInPower</b><span class="property-mode"> (Mode: both)</span>
-</dd>
+<ul><li>-1: No limit</li><li> &gt;=0: limited system feed-in</li></ul><p>Applies to DC-coupled and AC-coupled feed-in.</p></dd>
   <dt class="optional">Feed excess DC-coupled PV into grid<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/OvervoltageFeedIn</b><span class="property-mode"> (Mode: both)</span>
 <ul>
@@ -2788,21 +2940,22 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Settings/CGwacs/BatteryLife/Schedule/Charge/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{schedule}</code>/Start</b><span class="property-mode"> (Mode: both)</span>
 </dd>
   <dt class="optional">ESS state<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b><span class="property-mode"></span>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b><span class="property-mode"> (Mode: both)</span>
 <ul>
-  <li>1 - BatteryLife enabled (GUI controlled)</li>
-  <li>2 - Optimized Mode /w BatteryLife: self consumption</li>
-  <li>3 - Optimized Mode /w BatteryLife: self consumption, SoC exceeds 85%</li>
-  <li>4 - Optimized Mode /w BatteryLife: self consumption, SoC at 100%</li>
-  <li>5 - Optimized Mode /w BatteryLife: SoC below dynamic SoC limit</li>
-  <li>6 - Optimized Mode /w BatteryLife: SoC has been below SoC limit for more than 24 hours. Charging the battery (5A)</li>
-  <li>7 - Optimized Mode /w BatteryLife: Inverter/Charger is in sustain mode</li>
-  <li>8 - Optimized Mode /w BatteryLife: recharging, SoC dropped by 5% or more below the minimum SoC</li>
-  <li>9 - 'Keep batteries charged' mode is enabled</li>
-  <li>10 - Optimized mode w/o BatteryLife: self consumption, SoC at or above minimum SoC</li>
-  <li>11 - Optimized mode w/o BatteryLife: self consumption, SoC is below minimum SoC</li>
-  <li>12 - Optimized mode w/o BatteryLife: recharging, SoC dropped by 5% or more below minimum SoC</li>
-</ul></dd>
+  <li>0 - No longer used</li>
+  <li>1 - Optimized w/ BatteryLife: BatteryLife enabled (set by GUI)</li>
+  <li>2 - Optimized w/ BatteryLife: Self consumption</li>
+  <li>3 - Optimized w/ BatteryLife: Self consumption, SoC exceeds 85%</li>
+  <li>4 - Optimized w/ BatteryLife: Self consumption, SoC at 100%</li>
+  <li>5 - Optimized w/ BatteryLife: SoC below dynamic SoC limit</li>
+  <li>6 - Optimized w/ BatteryLife: SoC below limit >24h, charging at 5A</li>
+  <li>7 - Optimized w/ BatteryLife: Multi/Quattro in sustain</li>
+  <li>8 - Optimized w/ BatteryLife: Recharge, SoC dropped 5%+ below MinSoC</li>
+  <li>9 - Keep batteries charged</li>
+  <li>10 - Optimized w/o BatteryLife: Self consumption, SoC at or above minimum SoC</li>
+  <li>11 - Optimized w/o BatteryLife: Self consumption, SoC below minimum SoC</li>
+  <li>12 - Optimized w/o BatteryLife: Recharge, SoC dropped 5%+ below minimum SoC</li>
+</ul><p>Writable values: 1 (Optimized with BatteryLife), 9 (Keep batteries charged), 10 (Optimized without BatteryLife).</p></dd>
   <dt class="optional">ESS mode<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/Hub4Mode</b><span class="property-mode"> (Mode: both)</span>
 <ul>
@@ -2812,13 +2965,13 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 </ul></dd>
   <dt class="optional">Max charge power (W)<span class="property-type">integer</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/MaxChargePower</b><span class="property-mode"> (Mode: both)</span>
-</dd>
+<p>Not used with DVCC.</p></dd>
   <dt class="optional">Max inverter power (W)<span class="property-type">integer</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/MaxDischargePower</b><span class="property-mode"> (Mode: both)</span>
 </dd>
   <dt class="optional">Maximum System Grid Feed In (W)<span class="property-type">integer</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/MaxFeedInPower</b><span class="property-mode"> (Mode: both)</span>
-</dd>
+<ul><li>-1: No limit</li><li> &gt;=0: limited system feed-in</li></ul><p>Applies to DC-coupled and AC-coupled feed-in.</p></dd>
   <dt class="optional">Feed excess DC-coupled PV into grid<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/OvervoltageFeedIn</b><span class="property-mode"> (Mode: both)</span>
 <ul>
@@ -2943,6 +3096,18 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">Set charge current (manual mode) (A)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/SetCurrent</b><span class="property-mode"> (Mode: both)</span>
 </dd>
+  <dt class="optional">Session charging time (seconds)<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/Session/Time</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Session charging energy (kWh)<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/Session/Energy</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Session cost (no currency)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Session/Cost</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Session saved cost (no currency)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Session/SavedCost</b><span class="property-mode"></span>
+</dd>
   <dt class="optional">Start/stop charging (manual mode)<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/StartStop</b><span class="property-mode"> (Mode: both)</span>
 <ul>
@@ -3053,6 +3218,18 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 </dd>
   <dt class="optional">Set charge current (manual mode) (A)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/SetCurrent</b><span class="property-mode"> (Mode: both)</span>
+</dd>
+  <dt class="optional">Session charging time (seconds)<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/Session/Time</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Session charging energy (kWh)<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/Session/Energy</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Session cost (no currency)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Session/Cost</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Session saved cost (no currency)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Session/SavedCost</b><span class="property-mode"></span>
 </dd>
   <dt class="optional">Start/stop charging (manual mode)<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/StartStop</b><span class="property-mode"> (Mode: both)</span>
@@ -4132,6 +4309,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">Inverter model<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/ProductId</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> enabled<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/Enabled</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
+</ul></dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">MPP operation mode tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code><span class="property-type">enum</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/MppOperationMode</b><span class="property-mode"></span>
 <ul>
@@ -4140,20 +4323,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>2 - MPPT active</li>
   <li>255 - Not available</li>
 </ul></dd>
-  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">PV power for tracker {tracker| (W)<span class="property-type">float</span></dt>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">PV power for tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>| (W)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/P</b><span class="property-mode"></span>
 </dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">PV voltage for tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> (V DC)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/V</b><span class="property-mode"></span>
 </dd>
-  <dt class="optional">MPP operation mode tracker 2<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/1/MppOperationMode</b><span class="property-mode"></span>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - Voltage/current limited</li>
-  <li>2 - MPPT active</li>
-  <li>255 - Not available</li>
-</ul></dd>
   <dt class="optional">PV voltage (for single tracker units) (V DC)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Pv/V</b><span class="property-mode"></span>
 </dd>
@@ -4314,6 +4489,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">Inverter model<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/ProductId</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> enabled<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/Enabled</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
+</ul></dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">MPP operation mode tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code><span class="property-type">enum</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/MppOperationMode</b><span class="property-mode"></span>
 <ul>
@@ -4322,20 +4503,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>2 - MPPT active</li>
   <li>255 - Not available</li>
 </ul></dd>
-  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">PV power for tracker {tracker| (W)<span class="property-type">float</span></dt>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">PV power for tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>| (W)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/P</b><span class="property-mode"></span>
 </dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">PV voltage for tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> (V DC)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/V</b><span class="property-mode"></span>
 </dd>
-  <dt class="optional">MPP operation mode tracker 2<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/1/MppOperationMode</b><span class="property-mode"></span>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - Voltage/current limited</li>
-  <li>2 - MPPT active</li>
-  <li>255 - Not available</li>
-</ul></dd>
   <dt class="optional">PV voltage (for single tracker units) (V DC)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Pv/V</b><span class="property-mode"></span>
 </dd>
@@ -4362,7 +4535,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <p>The <b>meteo</b> node allows for Solar Irradiance, Temperature and Wind Speed Sensors measuring.</p><p>More information and supported devices can be found in the <a href="https://www.victronenergy.com/media/pg/Cerbo_GX/en/installation.html#UUID-d4b7dfe9-4ee0-53bc-8959-c567ed63cebb">manual</a>.</p>
 <h3>Meteo</h3>
 <dl class="message-properties">
-  <dt class="optional">SBattery voltage (V)<span class="property-type">float</span></dt>
+  <dt class="optional">Battery voltage (V)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/BatteryVoltage</b><span class="property-mode"></span>
 </dd>
   <dt class="optional">Sensor cell temperature (°C)<span class="property-type">float</span></dt>
@@ -4574,61 +4747,25 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>2 - MPPT active</li>
   <li>255 - Not available</li>
 </ul></dd>
-  <dt class="optional">MPP operation mode tracker 1<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/0/MppOperationMode</b><span class="property-mode"></span>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> enabled<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/Enabled</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
+</ul></dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">MPP operation mode tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code><span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/MppOperationMode</b><span class="property-mode"></span>
 <ul>
   <li>0 - Off</li>
   <li>1 - Voltage/current limited</li>
   <li>2 - MPPT active</li>
   <li>255 - Not available</li>
 </ul></dd>
-  <dt class="optional">PV power for tracker 0 (W)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/0/P</b><span class="property-mode"></span>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">PV power for tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> (W)<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/P</b><span class="property-mode"></span>
 </dd>
-  <dt class="optional">PV voltage for tracker 0 (V DC)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/0/V</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">MPP operation mode tracker 2<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/1/MppOperationMode</b><span class="property-mode"></span>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - Voltage/current limited</li>
-  <li>2 - MPPT active</li>
-  <li>255 - Not available</li>
-</ul></dd>
-  <dt class="optional">PV power for tracker 1 (W)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/1/P</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">PV voltage for tracker 1 (V DC)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/1/V</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">MPP operation mode tracker 3<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/2/MppOperationMode</b><span class="property-mode"></span>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - Voltage/current limited</li>
-  <li>2 - MPPT active</li>
-  <li>255 - Not available</li>
-</ul></dd>
-  <dt class="optional">PV power for tracker 2 (W)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/2/P</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">PV voltage for tracker 2 (V DC)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/2/V</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">MPP operation mode tracker 4<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/3/MppOperationMode</b><span class="property-mode"></span>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - Voltage/current limited</li>
-  <li>2 - MPPT active</li>
-  <li>255 - Not available</li>
-</ul></dd>
-  <dt class="optional">PV power for tracker 3 (W)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/3/P</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">PV voltage for tracker 3 (V DC)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/3/V</b><span class="property-mode"></span>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">PV voltage for tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> (V DC)<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/V</b><span class="property-mode"></span>
 </dd>
   <dt class="optional">PV voltage (V DC)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Pv/V</b><span class="property-mode"></span>
@@ -4839,61 +4976,25 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>2 - MPPT active</li>
   <li>255 - Not available</li>
 </ul></dd>
-  <dt class="optional">MPP operation mode tracker 1<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/0/MppOperationMode</b><span class="property-mode"></span>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> enabled<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/Enabled</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
+</ul></dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">MPP operation mode tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code><span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/MppOperationMode</b><span class="property-mode"></span>
 <ul>
   <li>0 - Off</li>
   <li>1 - Voltage/current limited</li>
   <li>2 - MPPT active</li>
   <li>255 - Not available</li>
 </ul></dd>
-  <dt class="optional">PV power for tracker 0 (W)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/0/P</b><span class="property-mode"></span>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">PV power for tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> (W)<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/P</b><span class="property-mode"></span>
 </dd>
-  <dt class="optional">PV voltage for tracker 0 (V DC)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/0/V</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">MPP operation mode tracker 2<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/1/MppOperationMode</b><span class="property-mode"></span>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - Voltage/current limited</li>
-  <li>2 - MPPT active</li>
-  <li>255 - Not available</li>
-</ul></dd>
-  <dt class="optional">PV power for tracker 1 (W)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/1/P</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">PV voltage for tracker 1 (V DC)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/1/V</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">MPP operation mode tracker 3<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/2/MppOperationMode</b><span class="property-mode"></span>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - Voltage/current limited</li>
-  <li>2 - MPPT active</li>
-  <li>255 - Not available</li>
-</ul></dd>
-  <dt class="optional">PV power for tracker 2 (W)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/2/P</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">PV voltage for tracker 2 (V DC)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/2/V</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">MPP operation mode tracker 4<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/3/MppOperationMode</b><span class="property-mode"></span>
-<ul>
-  <li>0 - Off</li>
-  <li>1 - Voltage/current limited</li>
-  <li>2 - MPPT active</li>
-  <li>255 - Not available</li>
-</ul></dd>
-  <dt class="optional">PV power for tracker 3 (W)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/3/P</b><span class="property-mode"></span>
-</dd>
-  <dt class="optional">PV voltage for tracker 3 (V DC)<span class="property-type">float</span></dt>
-  <dd>Dbus path: <b>/Pv/3/V</b><span class="property-mode"></span>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">PV voltage for tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> (V DC)<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/V</b><span class="property-mode"></span>
 </dd>
   <dt class="optional">PV voltage (V DC)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Pv/V</b><span class="property-mode"></span>
@@ -5501,7 +5602,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 </dd>
   <dt class="optional">Maximum System Grid Feed In (W)<span class="property-type">integer</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/MaxFeedInPower</b><span class="property-mode"> (Mode: both)</span>
-</dd>
+<ul><li>-1: No limit</li><li> &gt;=0: limited system feed-in</li></ul><p>Applies to DC-coupled and AC-coupled feed-in.</p></dd>
   <dt class="optional">Feed excess DC-coupled PV into grid<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/OvervoltageFeedIn</b><span class="property-mode"> (Mode: both)</span>
 <ul>
@@ -5518,22 +5619,22 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/SocLimit</b><span class="property-mode"></span>
 </dd>
   <dt class="optional">ESS BatteryLife state<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b><span class="property-mode"></span>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b><span class="property-mode"> (Mode: both)</span>
 <ul>
-  <li>0 - Unused, BL disabled</li>
-  <li>1 - Restarting</li>
-  <li>2 - Self-consumption</li>
-  <li>3 - Self-consumption</li>
-  <li>4 - Self-consumption</li>
-  <li>5 - Discharge disabled</li>
-  <li>6 - Force charge</li>
-  <li>7 - Sustain</li>
-  <li>8 - Low Soc Recharge</li>
+  <li>0 - No longer used</li>
+  <li>1 - Optimized w/ BatteryLife: BatteryLife enabled (set by GUI)</li>
+  <li>2 - Optimized w/ BatteryLife: Self consumption</li>
+  <li>3 - Optimized w/ BatteryLife: Self consumption, SoC exceeds 85%</li>
+  <li>4 - Optimized w/ BatteryLife: Self consumption, SoC at 100%</li>
+  <li>5 - Optimized w/ BatteryLife: SoC below dynamic SoC limit</li>
+  <li>6 - Optimized w/ BatteryLife: SoC below limit >24h, charging at 5A</li>
+  <li>7 - Optimized w/ BatteryLife: Multi/Quattro in sustain</li>
+  <li>8 - Optimized w/ BatteryLife: Recharge, SoC dropped 5%+ below MinSoC</li>
   <li>9 - Keep batteries charged</li>
-  <li>10 - BL Disabled</li>
-  <li>11 - BL Disabled (Low SoC)</li>
-  <li>12 - BL Disabled (Low SOC recharge)</li>
-</ul></dd>
+  <li>10 - Optimized w/o BatteryLife: Self consumption, SoC at or above minimum SoC</li>
+  <li>11 - Optimized w/o BatteryLife: Self consumption, SoC below minimum SoC</li>
+  <li>12 - Optimized w/o BatteryLife: Recharge, SoC dropped 5%+ below minimum SoC</li>
+</ul><p>Writable values: 1 (Optimized with BatteryLife), 9 (Keep batteries charged), 10 (Optimized without BatteryLife).</p></dd>
   <dt class="optional">Enable status LEDs<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Settings/LEDs/Enable</b><span class="property-mode"> (Mode: both)</span>
 <ul>
@@ -5541,13 +5642,16 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - Enabled</li>
 </ul></dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">AC input <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code> source (for VE.Bus inverter/chargers)<span class="property-type">enum</span></dt>
-  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Settings/SystemSetup/AcInput<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code></b><span class="property-mode"></span>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Settings/SystemSetup/AcInput<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code></b><span class="property-mode"> (Mode: both)</span>
 <ul>
   <li>0 - Unused</li>
   <li>1 - Grid</li>
   <li>2 - Genset</li>
   <li>3 - Shore</li>
 </ul></dd>
+  <dt class="optional">Limit managed battery voltage (V DC)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Settings/SystemSetup/MaxChargeVoltage</b><span class="property-mode"> (Mode: both)</span>
+</dd>
   <dt class="optional">System name<span class="property-type">string</span></dt>
   <dd>Dbus path: <b>/Settings/SystemSetup/SystemName</b><span class="property-mode"> (Mode: both)</span>
 </dd>
@@ -5600,7 +5704,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 </dd>
   <dt class="optional">Maximum System Grid Feed In (W)<span class="property-type">integer</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/MaxFeedInPower</b><span class="property-mode"> (Mode: both)</span>
-</dd>
+<ul><li>-1: No limit</li><li> &gt;=0: limited system feed-in</li></ul><p>Applies to DC-coupled and AC-coupled feed-in.</p></dd>
   <dt class="optional">Feed excess DC-coupled PV into grid<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Settings/CGwacs/OvervoltageFeedIn</b><span class="property-mode"> (Mode: both)</span>
 <ul>
@@ -5617,22 +5721,22 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/SocLimit</b><span class="property-mode"></span>
 </dd>
   <dt class="optional">ESS BatteryLife state<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b><span class="property-mode"></span>
+  <dd>Dbus path: <b>/Settings/CGwacs/BatteryLife/State</b><span class="property-mode"> (Mode: both)</span>
 <ul>
-  <li>0 - Unused, BL disabled</li>
-  <li>1 - Restarting</li>
-  <li>2 - Self-consumption</li>
-  <li>3 - Self-consumption</li>
-  <li>4 - Self-consumption</li>
-  <li>5 - Discharge disabled</li>
-  <li>6 - Force charge</li>
-  <li>7 - Sustain</li>
-  <li>8 - Low Soc Recharge</li>
+  <li>0 - No longer used</li>
+  <li>1 - Optimized w/ BatteryLife: BatteryLife enabled (set by GUI)</li>
+  <li>2 - Optimized w/ BatteryLife: Self consumption</li>
+  <li>3 - Optimized w/ BatteryLife: Self consumption, SoC exceeds 85%</li>
+  <li>4 - Optimized w/ BatteryLife: Self consumption, SoC at 100%</li>
+  <li>5 - Optimized w/ BatteryLife: SoC below dynamic SoC limit</li>
+  <li>6 - Optimized w/ BatteryLife: SoC below limit >24h, charging at 5A</li>
+  <li>7 - Optimized w/ BatteryLife: Multi/Quattro in sustain</li>
+  <li>8 - Optimized w/ BatteryLife: Recharge, SoC dropped 5%+ below MinSoC</li>
   <li>9 - Keep batteries charged</li>
-  <li>10 - BL Disabled</li>
-  <li>11 - BL Disabled (Low SoC)</li>
-  <li>12 - BL Disabled (Low SOC recharge)</li>
-</ul></dd>
+  <li>10 - Optimized w/o BatteryLife: Self consumption, SoC at or above minimum SoC</li>
+  <li>11 - Optimized w/o BatteryLife: Self consumption, SoC below minimum SoC</li>
+  <li>12 - Optimized w/o BatteryLife: Recharge, SoC dropped 5%+ below minimum SoC</li>
+</ul><p>Writable values: 1 (Optimized with BatteryLife), 9 (Keep batteries charged), 10 (Optimized without BatteryLife).</p></dd>
   <dt class="optional">Enable status LEDs<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Settings/LEDs/Enable</b><span class="property-mode"> (Mode: both)</span>
 <ul>
@@ -5640,13 +5744,16 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - Enabled</li>
 </ul></dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">AC input <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code> source (for VE.Bus inverter/chargers)<span class="property-type">enum</span></dt>
-  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Settings/SystemSetup/AcInput<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code></b><span class="property-mode"></span>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Settings/SystemSetup/AcInput<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code></b><span class="property-mode"> (Mode: both)</span>
 <ul>
   <li>0 - Unused</li>
   <li>1 - Grid</li>
   <li>2 - Genset</li>
   <li>3 - Shore</li>
 </ul></dd>
+  <dt class="optional">Limit managed battery voltage (V DC)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Settings/SystemSetup/MaxChargeVoltage</b><span class="property-mode"> (Mode: both)</span>
+</dd>
   <dt class="optional">System name<span class="property-type">string</span></dt>
   <dd>Dbus path: <b>/Settings/SystemSetup/SystemName</b><span class="property-mode"> (Mode: both)</span>
 </dd>
@@ -5664,7 +5771,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <ul>
   <li>0 - Feed-in limiting is inactive</li>
   <li>1 - Feed-in limiting is active</li>
-</ul></dd>
+</ul><p>Applies to both AC-coupled and DC-coupled limiting.</p></dd>
 </dl>
 </script>
 
@@ -5679,7 +5786,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <ul>
   <li>0 - Feed-in limiting is inactive</li>
   <li>1 - Feed-in limiting is active</li>
-</ul></dd>
+</ul><p>Applies to both AC-coupled and DC-coupled limiting.</p></dd>
 </dl>
 </script>
 
@@ -5844,6 +5951,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - Voltage/current limited</li>
   <li>2 - MPPT active</li>
   <li>255 - Not available</li>
+</ul></dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> enabled<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/Enabled</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
 </ul></dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> power<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/P</b><span class="property-mode"></span>
@@ -6051,6 +6164,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>2 - MPPT active</li>
   <li>255 - Not available</li>
 </ul></dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> enabled<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/Enabled</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
+</ul></dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> power<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/P</b><span class="property-mode"></span>
 </dd>
@@ -6179,6 +6298,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 </div><p>The <b>switch</b> node can be used for the usb-connected I/O extender.</p>
 <h3>Switch</h3>
 <dl class="message-properties">
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code> auto mode<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/SwitchableOutput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code>/Auto</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>0 - Manual</li>
+  <li>1 - Auto</li>
+</ul></dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code> state<span class="property-type">enum</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/SwitchableOutput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code>/State</b><span class="property-mode"> (Mode: both)</span>
 <ul>
@@ -6211,6 +6336,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 </div> 
 <h3>Switch</h3>
 <dl class="message-properties">
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code> auto mode<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/SwitchableOutput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code>/Auto</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>0 - Manual</li>
+  <li>1 - Auto</li>
+</ul></dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code> state<span class="property-type">enum</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/SwitchableOutput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code>/State</b><span class="property-mode"> (Mode: both)</span>
 <ul>
@@ -6693,7 +6824,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - Do not feed in overvoltage</li>
 </ul></dd>
   <dt class="optional">Solar offset voltage<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Hub4/FixSolarOffsetTo100mV</b><span class="property-mode"></span>
+  <dd>Dbus path: <b>/Hub4/FixSolarOffsetTo100mV</b><span class="property-mode"> (Mode: both)</span>
 <ul>
   <li>0 - OvervoltageFeedIn uses 1V offset</li>
   <li>1 - OvervoltageFeedIn uses 0.1V offset</li>
@@ -7005,7 +7136,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - Do not feed in overvoltage</li>
 </ul></dd>
   <dt class="optional">Solar offset voltage<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Hub4/FixSolarOffsetTo100mV</b><span class="property-mode"></span>
+  <dd>Dbus path: <b>/Hub4/FixSolarOffsetTo100mV</b><span class="property-mode"> (Mode: both)</span>
 <ul>
   <li>0 - OvervoltageFeedIn uses 1V offset</li>
   <li>1 - OvervoltageFeedIn uses 0.1V offset</li>

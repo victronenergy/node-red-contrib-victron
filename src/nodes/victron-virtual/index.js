@@ -12,9 +12,13 @@ const {
 const { validateVirtualDevicePayload, validateLightControls, debounce } = require('../../services/utils')
 const { handleSwitchOutputs } = require('../../services/virtual-switch')
 const { filterInactiveVirtualDevices } = require('../../services/virtual-device-cleanup')
+const { makeSetPresence } = require('./helpers')
+const { registerInputHandler, flushPendingInputs, createDebouncedSetters } = require('../victron-virtual-dbus-helpers')
 
 const acloadModule = require('./device-type/acload')
 const batteryModule = require('./device-type/battery')
+const dcloadModule = require('./device-type/dcload')
+const evModule = require('./device-type/ev')
 const generatorModule = require('./device-type/generator')
 const gpsModule = require('./device-type/gps')
 const gridModule = require('./device-type/grid')
@@ -41,6 +45,8 @@ process.on('unhandledRejection', (reason, promise) => {
 const properties = {
   acload: acloadModule.properties,
   battery: batteryModule.properties,
+  dcload: dcloadModule.properties,
+  ev: evModule.properties,
   temperature: temperatureModule.properties,
   genset: generatorModule.properties.genset,
   dcgenset: generatorModule.properties.dcgenset,
@@ -58,6 +64,8 @@ const properties = {
 const deviceModules = {
   acload: acloadModule,
   battery: batteryModule,
+  dcload: dcloadModule,
+  ev: evModule,
   generator: generatorModule,
   gps: gpsModule,
   grid: gridModule,
@@ -74,14 +82,15 @@ const deviceModules = {
 const DEVICE_TYPES = [
   { value: 'acload', label: 'AC Load' },
   { value: 'battery', label: 'Battery' },
+  { value: 'dcload', label: 'DC Load' },
   { value: 'e-drive', label: 'E-drive' },
+  { value: 'ev', label: 'Electric Vehicle' },
   { value: 'generator', label: 'Generator' },
   { value: 'gps', label: 'GPS' },
   { value: 'grid', label: 'Grid meter' },
   { value: 'meteo', label: 'Meteo' },
   { value: 'pulsemeter', label: 'Pulse meter' },
   { value: 'pvinverter', label: 'PV inverter' },
-  { value: 'switch', label: 'Switch (deprecated)' },
   { value: 'tank', label: 'Tank sensor' },
   { value: 'temperature', label: 'Temperature sensor' }
 ]
@@ -108,16 +117,26 @@ try {
   console.error('Failed to load virtual device types:', err)
 }
 
-function getIfaceDesc (dev) {
-  const actualDev = dev === 'generator' ? 'genset' : dev === 'e-drive' ? 'motordrive' : dev
+function getActualDeviceType (type, subtype) {
+  if (type === 'generator') return subtype === 'dc' ? 'dcgenset' : 'genset'
+  if (type === 'e-drive') return 'motordrive'
+  return type
+}
+
+function getIfaceDesc (actualDev, config) {
   if (!properties[actualDev]) {
     return {}
   }
 
   const result = {}
 
+  let deviceProperties = properties[actualDev]
+  if (typeof properties[actualDev] === 'function') {
+    deviceProperties = properties[actualDev](config)
+  }
+
   // Deep copy the properties, including format functions
-  for (const [key, value] of Object.entries(properties[dev])) {
+  for (const [key, value] of Object.entries(deviceProperties)) {
     result[key] = { ...value }
     if (typeof value.format === 'function') {
       result[key].format = value.format
@@ -131,22 +150,20 @@ function getIfaceDesc (dev) {
   return result
 }
 
-function getIface (dev) {
-  const actualDev = dev === 'generator' ? 'genset' : dev === 'e-drive' ? 'motordrive' : dev
-  if (!properties[actualDev]) {
-    return {
-      emit: function () {
-      }
-    }
-  }
-
+function getIface (actualDev, config) {
   const result = {
     emit: function () {
     }
   }
 
-  for (const key in properties[dev]) {
-    const propertyValue = JSON.parse(JSON.stringify(properties[dev][key]))
+  if (!properties[actualDev]) {
+    return result
+  }
+
+  const ifaceProperties = typeof properties[actualDev] === 'function' ? properties[actualDev](config) : properties[actualDev]
+
+  for (const key in ifaceProperties) {
+    const propertyValue = ifaceProperties[key]
 
     if (propertyValue.value !== undefined) {
       result[key] = propertyValue.value
@@ -188,40 +205,27 @@ module.exports = function (RED) {
     }
 
     node.retryOnConnectionEnd = true
-    node.pendingCallsToSetValuesLocally = []
+    node.presenceConnected = false
 
-    const debouncedSetters = new Map()
-
-    function shouldApplyImmediately (key) {
-      if (node.ifaceDesc && node.ifaceDesc.properties && node.ifaceDesc.properties[key]) {
-        return node.ifaceDesc.properties[key].immediate === true
-      }
-      return false
-    }
-
-    function getDebouncedSetter (key) {
-      if (!debouncedSetters.has(key)) {
-        const setter = debounce((value) => {
-          debugInput(`Applying debounced value for ${key}: ${value}`)
-          try {
-            node.setValuesLocally({ [key]: value })
-          } catch (err) {
-            node.error(`Failed to apply debounced value for ${key}: ${err.message}`)
-          }
-        }, DEBOUNCE_DELAY_MS)
-        debouncedSetters.set(key, setter)
-      }
-      return debouncedSetters.get(key)
-    }
+    const { shouldApplyImmediately, getDebouncedSetter } = createDebouncedSetters(node, debounce, DEBOUNCE_DELAY_MS)
 
     function handleInput (msg, done) {
       // Send passthrough message FIRST, before any validation
+      const userSetConnected = msg.connected !== undefined
+      if (!userSetConnected) {
+        msg.connected = node.presenceConnected
+      }
       const outputs = [msg]
       // Fill remaining outputs with null
       for (let i = 1; i < config.outputs; i++) {
         outputs.push(null)
       }
       node.send(outputs)
+
+      if (userSetConnected) {
+        node.setPresence(!!msg.connected, done)
+        return
+      }
 
       // Now do validation with more helpful messages
       if (!msg || !msg.payload) {
@@ -346,18 +350,7 @@ module.exports = function (RED) {
       }
     }
 
-    this.on('input', function (msg, _send, done) {
-      if (!node.setValuesLocally) {
-        // we cannot call setValuesLocally yet, so we queue the message
-        node.pendingCallsToSetValuesLocally.push([msg, done])
-        debugInput(
-          `Node ${node.id} is not ready to handle input yet, queuing message. Pending calls: ${node.pendingCallsToSetValuesLocally.length}`
-        )
-        return
-      }
-
-      handleInput(msg, done)
-    })
+    registerInputHandler(node, debugInput, handleInput)
 
     function instantiateDbus (self) {
       debug('instantiateDbus called for node', self.id, nodeInstances)
@@ -385,13 +378,11 @@ module.exports = function (RED) {
         return
       }
 
-      const actualDeviceType = config.device === 'generator'
-        ? (config.generator_type === 'dc' ? 'dcgenset' : 'genset')
-        : config.device === 'e-drive'
-          ? 'motordrive'
-          : config.device
+      const actualDeviceType = getActualDeviceType(config.device, config.generator_type)
+      const dbusServiceType = deviceModules[config.device]?.getServiceType?.(config) ?? actualDeviceType
+      const onPropertiesChanged = deviceModules[config.device]?.onPropertiesChanged
 
-      const serviceName = `com.victronenergy.${actualDeviceType}.virtual_${self.id}`
+      const serviceName = `com.victronenergy.${dbusServiceType}.virtual_${self.id}`
       const interfaceName = serviceName
       const objectPath = `/${serviceName.replace(/\./g, '/')}`
 
@@ -491,13 +482,18 @@ module.exports = function (RED) {
           name: interfaceName,
           methods: {
           },
-          properties: getIfaceDesc(actualDeviceType),
+          properties: getIfaceDesc(actualDeviceType, config),
           signals: {
           }
         }
 
+        const moduleProductType = deviceModules[config.device]?.productType
+        if (moduleProductType) {
+          ifaceDesc.productType = moduleProductType
+        }
+
         // Then we need to create the interface implementation (with actual functions)
-        const iface = getIface(actualDeviceType)
+        const iface = getIface(actualDeviceType, config)
 
         iface.Status = 0
         iface.Serial = node.id || '-'
@@ -528,7 +524,7 @@ module.exports = function (RED) {
           settingsResult = await callAddSettingsWithRetry(usedBus, [
             {
               path: `/Settings/Devices/virtual_${node.id}/ClassAndVrmInstance`,
-              default: `${config.device}:100`,
+              default: `${dbusServiceType}:100`,
               type: 's'
             }
           ])
@@ -576,6 +572,56 @@ module.exports = function (RED) {
           return null
         }
         iface.DeviceInstance = getDeviceInstance(settingsResult)
+
+        // Migrate legacy ClassAndVrmInstance values ('generator', 'e-drive') to the correct
+        // D-Bus type. AddSettings only sets defaults so existing values are never overwritten
+        // automatically — we need an explicit SetValue to fix them.
+        const currentClassAndVrmInstance = settingsResult?.[0]?.[2]?.[1]?.[1]?.[0] || settingsResult?.[1]?.[0]
+        if (currentClassAndVrmInstance) {
+          const parts = currentClassAndVrmInstance.split(':')
+          const currentClass = parts[0]
+          const vrmInstance = parts[1]
+          if (currentClass !== dbusServiceType && !vrmInstance) {
+            throw new Error(`Invalid ClassAndVrmInstance value: ${currentClassAndVrmInstance}`)
+          }
+          if (currentClass !== dbusServiceType) {
+            const newValue = `${dbusServiceType}:${vrmInstance}`
+            const migrationSucceeded = await new Promise(resolve => {
+              usedBus.invoke({
+                path: `/Settings/Devices/virtual_${node.id}/ClassAndVrmInstance`,
+                destination: 'com.victronenergy.settings',
+                interface: 'com.victronenergy.BusItem',
+                member: 'SetValue',
+                body: [['s', newValue]],
+                signature: 'v'
+              }, (err) => {
+                if (err) {
+                  debug(`Failed to migrate ClassAndVrmInstance: ${err}`)
+                  resolve(false)
+                } else {
+                  debug(`Migrated ClassAndVrmInstance from ${currentClassAndVrmInstance} to ${newValue}`)
+                  resolve(true)
+                }
+              })
+            })
+            if (migrationSucceeded) {
+              // Re-read the actual assigned value — localsettings may have reassigned
+              // the VRM instance if the target class already had a conflict.
+              try {
+                const updatedResult = await callAddSettingsWithRetry(usedBus, [{
+                  path: `/Settings/Devices/virtual_${node.id}/ClassAndVrmInstance`,
+                  default: `${actualDeviceType}:${vrmInstance}`,
+                  type: 's'
+                }])
+                iface.DeviceInstance = getDeviceInstance(updatedResult)
+                debug(`DeviceInstance after migration: ${iface.DeviceInstance}`)
+              } catch (err) {
+                debug(`Failed to read back ClassAndVrmInstance after migration: ${err}`)
+              }
+            }
+          }
+        }
+
         iface.CustomName = config.name || `Virtual ${config.device}`
 
         if (iface.deviceInstance === null) {
@@ -612,6 +658,12 @@ module.exports = function (RED) {
               node.warn(`Service name "${serviceName}" for ${config.device} already exists on the bus, this may result in undesired behavior.`)
             }
             node.serviceName = serviceName
+            if (config.start_disconnected) {
+              node.bus.releaseName(node.serviceName, () => {
+                node.presenceConnected = false
+                node.status({ fill: 'grey', shape: 'ring', text: `${text} (${iface.DeviceInstance}) — offline` })
+              })
+            }
           } else {
             /* Other return codes means various errors, check here
             (https://dbus.freedesktop.org/doc/api/html/group__DBusShared.html#ga37a9bc7c6eb11d212bf8d5e5ff3b50f9) for more
@@ -690,24 +742,18 @@ module.exports = function (RED) {
           getValue,
           setValuesLocally,
           emitS2Signal
-        } = addVictronInterfaces(usedBus, ifaceDesc, iface, /* add_defaults */ true, emitCallback)
+        } = addVictronInterfaces(usedBus, ifaceDesc, iface, /* add_defaults */ true, emitCallback, onPropertiesChanged)
 
         node.setValuesLocally = setValuesLocally
         node.emitS2Signal = emitS2Signal
 
-        // If there are pending calls, process them now
-        node.pendingCallsToSetValuesLocally.forEach(([msg, done]) => {
-          try {
-            debugInput(`Processing pending message for node ${node.id}:`, msg)
-            handleInput(msg, done)
-          } catch (err) {
-            node.error(`Failed to set values locally for pending message: ${err.message}`, msg)
-          }
-        })
-        node.pendingCallsToSetValuesLocally = []
+        node.setPresence = makeSetPresence(node, text, iface)
+
+        flushPendingInputs(node, handleInput)
 
         node.removeSettings = removeSettings
 
+        node.presenceConnected = true
         node.status({
           fill: 'green',
           shape: 'dot',
