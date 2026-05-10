@@ -7,67 +7,88 @@ describe('pulsemeter device module', () => {
     expect(typeof pulsemeter.properties).toBe('object')
     expect(typeof pulsemeter.initialize).toBe('function')
     expect(typeof pulsemeter.onPropertiesChanged).toBe('function')
+    expect(pulsemeter.initialize()).toBe('Virtual pulse meter')
   })
 
-  describe.skip('onPropertyChanged - dumb mode', () => {
-    test('does not return setValues when auto_aggregate is false', () => {
-      const result = pulsemeter.onPropertyChanged('Count', 500, {}, { auto_aggregate: false, pulsemeter_multiplier: 0.001 })
-      expect(result).toBeUndefined()
+  describe('properties definition', () => {
+    test('defines Count property format', () => {
+      const countProp = pulsemeter.properties.Count
+      expect(countProp).toBeDefined()
+      expect(typeof countProp.format).toBe('function')
+      expect(countProp.format(123)).toBe('123')
+      expect(countProp.format(null)).toBe('')
+    })
+    test('defines Aggregate property format', () => {
+      const aggProp = pulsemeter.properties.Aggregate
+      expect(aggProp).toBeDefined()
+      expect(typeof aggProp.format).toBe('function')
+      expect(aggProp.format(1.234567)).toBe('1.235m³')
+      expect(aggProp.format(null)).toBe('')
+    })
+  })
+
+  describe('onPropertyChanged - dumb mode', () => {
+    test('does not modify Aggregate when auto_aggregate is false', () => {
+      const changes = pulsemeter.onPropertiesChanged({
+        changes: { Count: 500 },
+        instance: {},
+        config: { auto_aggregate: false, pulsemeter_multiplier: 0.001 }
+      })
+      expect(changes.Count).toEqual(500)
+      expect(changes.Aggregate).toBeUndefined()
     })
 
     test('does not react to non-Count property changes', () => {
-      const result = pulsemeter.onPropertyChanged('Aggregate', 1.0, {}, { auto_aggregate: true, pulsemeter_multiplier: 0.001 })
+      const changes = pulsemeter.onPropertiesChanged({
+        changes: { Aggregate: 500 },
+        instance: {},
+        config: { auto_aggregate: false, pulsemeter_multiplier: 0.001 }
+      })
       // Aggregate changes always produce output (not setValues)
-      expect(result).not.toHaveProperty('setValues')
+      expect(changes.Aggregate).toEqual(500)
+      expect(Object.keys(changes)).toEqual(['Aggregate'])
     })
   })
 
-  describe.skip('onPropertyChanged - smart mode', () => {
+  describe('onPropertyChanged - smart mode', () => {
     test('computes Aggregate from Count x multiplier', () => {
-      const result = pulsemeter.onPropertyChanged('Count', 1000, {}, { auto_aggregate: true, pulsemeter_multiplier: 0.001 })
-      expect(result.setValues.Aggregate).toBeCloseTo(1.0)
-    })
-
-    test('returns output message with computed Aggregate', () => {
-      const result = pulsemeter.onPropertyChanged('Count', 1000, {}, { auto_aggregate: true, pulsemeter_multiplier: 0.001 })
-      expect(result.outputIndex).toBe(1)
-      expect(result.msg.payload).toBeCloseTo(1.0)
-      expect(result.msg.topic).toBe('/Aggregate')
+      const changes = pulsemeter.onPropertiesChanged({
+        changes: { Count: 1000 },
+        instance: {},
+        config: { auto_aggregate: true, pulsemeter_multiplier: 0.001 }
+      })
+      expect(changes.Count).toEqual(1000)
+      expect(changes.Aggregate).toBeCloseTo(1.0)
     })
 
     test('does not compute if Count is null', () => {
-      const result = pulsemeter.onPropertyChanged('Count', null, {}, { auto_aggregate: true, pulsemeter_multiplier: 0.001 })
-      expect(result).toBeUndefined()
+      const changes = pulsemeter.onPropertiesChanged({
+        changes: { Count: null },
+        instance: {},
+        config: { auto_aggregate: true, pulsemeter_multiplier: 0.001 }
+      })
+      expect(changes.Count).toBeNull()
+      expect(changes.Aggregate).toBeUndefined()
     })
 
     test('does not compute if multiplier is zero', () => {
-      const result = pulsemeter.onPropertyChanged('Count', 100, {}, { auto_aggregate: true, pulsemeter_multiplier: 0 })
-      expect(result).toBeUndefined()
+      const changes = pulsemeter.onPropertiesChanged({
+        changes: { Count: 100 },
+        instance: {},
+        config: { auto_aggregate: true, pulsemeter_multiplier: 0 }
+      })
+      expect(changes.Count).toEqual(100)
+      expect(changes.Aggregate).toBeUndefined()
     })
 
     test('does not compute if multiplier is invalid', () => {
-      const result = pulsemeter.onPropertyChanged('Count', 100, {}, { auto_aggregate: true, pulsemeter_multiplier: 'bad' })
-      expect(result).toBeUndefined()
-    })
-  })
-
-  describe.skip('onPropertyChanged - output message', () => {
-    test('returns output message when Aggregate changes', () => {
-      const result = pulsemeter.onPropertyChanged('Aggregate', 1.5, {}, { auto_aggregate: false })
-      expect(result).toEqual({
-        outputIndex: 1,
-        msg: { payload: 1.5, topic: '/Aggregate', source_path: '/Aggregate' }
+      const changes = pulsemeter.onPropertiesChanged({
+        changes: { Count: 100 },
+        instance: {},
+        config: { auto_aggregate: true, pulsemeter_multiplier: 'bad' }
       })
-    })
-
-    test('returns undefined for Count changes in dumb mode (no direct output)', () => {
-      const result = pulsemeter.onPropertyChanged('Count', 1000, {}, { auto_aggregate: false })
-      expect(result).toBeUndefined()
-    })
-
-    test('does not return output message when Aggregate is null', () => {
-      const result = pulsemeter.onPropertyChanged('Aggregate', null, {}, { auto_aggregate: false })
-      expect(result).toBeUndefined()
+      expect(changes.Count).toEqual(100)
+      expect(changes.Aggregate).toBeUndefined()
     })
   })
 })

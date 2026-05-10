@@ -24,7 +24,6 @@ const gpsModule = require('./device-type/gps')
 const gridModule = require('./device-type/grid')
 const meteoModule = require('./device-type/meteo')
 const motordriveModule = require('./device-type/motordrive')
-const pulsemeterModule = require('./device-type/pulsemeter')
 const pvinverterModule = require('./device-type/pvinverter')
 const switchModule = require('./device-type/switch')
 const tankModule = require('./device-type/tank')
@@ -51,7 +50,6 @@ const properties = {
   genset: generatorModule.properties.genset,
   dcgenset: generatorModule.properties.dcgenset,
   grid: gridModule.properties,
-  pulsemeter: pulsemeterModule.properties,
   pvinverter: pvinverterModule.properties,
   meteo: meteoModule.properties,
   motordrive: motordriveModule.properties,
@@ -72,7 +70,6 @@ const deviceModules = {
   meteo: meteoModule,
   motordrive: motordriveModule,
   'e-drive': motordriveModule,
-  pulsemeter: pulsemeterModule,
   pvinverter: pvinverterModule,
   switch: switchModule,
   tank: tankModule,
@@ -89,7 +86,6 @@ const DEVICE_TYPES = [
   { value: 'gps', label: 'GPS' },
   { value: 'grid', label: 'Grid meter' },
   { value: 'meteo', label: 'Meteo' },
-  { value: 'pulsemeter', label: 'Pulse meter' },
   { value: 'pvinverter', label: 'PV inverter' },
   { value: 'tank', label: 'Tank sensor' },
   { value: 'temperature', label: 'Temperature sensor' }
@@ -712,7 +708,18 @@ module.exports = function (RED) {
           getValue,
           setValuesLocally,
           emitS2Signal
-        } = addVictronInterfaces(usedBus, ifaceDesc, iface, /* add_defaults */ true, emitCallback, onPropertiesChanged)
+        } = addVictronInterfaces(usedBus, ifaceDesc, iface, /* add_defaults */ true, emitCallback,
+          /* onPropertiesChanged */ function ({ changes, instance }) {
+            if (typeof onPropertiesChanged === 'function') {
+              /**
+               * We wrap onPropertiesChanged, so that we can pass the config as well.
+              */
+              return onPropertiesChanged({ changes, instance, config })
+            } else {
+              return changes
+            }
+          }
+        )
 
         node.setValuesLocally = setValuesLocally
         node.emitS2Signal = emitS2Signal
