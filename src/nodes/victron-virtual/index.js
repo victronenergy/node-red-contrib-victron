@@ -683,10 +683,6 @@ module.exports = function (RED) {
         // We need to add a emitCallbackS2 for S2-related property changes
         // to be able to react to imocoming connection requests and messages.
 
-        // Track properties set as derived values so emitCallback skips re-processing them.
-        // This prevents infinite recursion when onPropertyChanged calls setValuesLocally.
-        const skipOnPropertyChanged = new Set()
-
         function emitCallback (event, data) {
           // we could use node.context().set('bla', 42) to set (and get) state, but state disappears on redeploy
           // for global context: node.context().global.set('bla', 43)
@@ -707,32 +703,6 @@ module.exports = function (RED) {
           // Legacy support: Handle outputs for existing Virtual Device (switch) nodes
           if (config.device === 'switch') {
             handleSwitchOutputs(config, node, propName, propValue)
-          }
-
-          // Skip onPropertyChanged for properties set as derived values (e.g. auto-computed Aggregate)
-          if (skipOnPropertyChanged.has(propName)) {
-            skipOnPropertyChanged.delete(propName)
-            return
-          }
-
-          // Allow device modules to react to property changes and compute derived values
-          const deviceModule = deviceModules[config.device]
-          if (deviceModule && typeof deviceModule.onPropertyChanged === 'function' && node.setValuesLocally) {
-            const result = deviceModule.onPropertyChanged(propName, propValue, iface, config)
-            if (result != null) {
-              // Set derived values (e.g. auto-compute Aggregate from Count).
-              // Mark them first so their emitCallback does not re-trigger onPropertyChanged.
-              if (result.setValues) {
-                Object.keys(result.setValues).forEach(k => skipOnPropertyChanged.add(k))
-                node.setValuesLocally(result.setValues)
-              }
-              // Send output message
-              if (result.msg != null) {
-                const outputs = new Array(config.outputs).fill(null)
-                outputs[result.outputIndex] = result.msg
-                node.send(outputs)
-              }
-            }
           }
         }
 
