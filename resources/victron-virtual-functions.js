@@ -1226,7 +1226,7 @@
   function checkSelectedVirtualDevice (context) {
     [
       'acload', 'battery', 'ev', 'generator', 'gps', 'grid', 'e-drive',
-      'pvinverter', 'switch', 'tank', 'temperature', 'energymeter'
+      'pvinverter', 'switch', 'tank', 'temperature', 'energymeter', 'pulsemeter'
     ].forEach(x => { $('.input-' + x).hide(); });
 
     const selected = $('select#node-input-device').val();
