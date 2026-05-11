@@ -104,7 +104,7 @@ module.exports = function (RED) {
         }
       }
 
-      if (!shouldApplyPayloadToDBus(config, node.iface)) {
+      if (!shouldApplyPayloadToDBus(config, node.iface, msg.payload)) {
         updateSwitchStatus(config, node, `Ignored: switch in manual mode (${node.iface.DeviceInstance})`)
         done()
         return
