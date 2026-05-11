@@ -14,7 +14,8 @@ function formatEvent (eventType, severity, app, message) {
   return `${eventType}\t${severity}\t${sanitize(app)}\t${sanitize(message)}`
 }
 
-const SEVERITY_ERROR = 'Severity must be "warning", "critical", "info", or 0-2'
+const MAX_SEVERITY = 2
+const SEVERITY_ERROR = `Severity must be "warning", "critical", "info", or 0-${MAX_SEVERITY}`
 
 /**
  * Validate event input parameters
@@ -36,7 +37,7 @@ function validateEventInput (payload, severity, app) {
   if (typeof severity === 'string') {
     const severityMap = { warning: 0, critical: 1, info: 2, information: 2 }
     const parsed = parseInt(severity, 10)
-    if (!isNaN(parsed) && parsed >= 0 && parsed <= 2) {
+    if (!isNaN(parsed) && parsed >= 0 && parsed <= MAX_SEVERITY) {
       severityNum = parsed
     } else if (severity.toLowerCase() in severityMap) {
       severityNum = severityMap[severity.toLowerCase()]
@@ -44,7 +45,7 @@ function validateEventInput (payload, severity, app) {
       return { valid: false, error: SEVERITY_ERROR }
     }
   } else if (typeof severity === 'number') {
-    if (!Number.isInteger(severity) || severity < 0 || severity > 2) {
+    if (!Number.isInteger(severity) || severity < 0 || severity > MAX_SEVERITY) {
       return { valid: false, error: SEVERITY_ERROR }
     }
     severityNum = severity
