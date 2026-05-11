@@ -29,8 +29,8 @@ module.exports = function (RED) {
     function handleInput (msg, done) {
       node.send(msg)
 
-      if (!msg || msg.payload == null) {
-        node.warn('Received message without payload. Expected: { Value: <number>, Status: <number> }')
+      if (!msg || msg.payload === undefined) {
+        node.warn('Received message without payload. Expected: value for the default path, or a JavaScript object with keys/values.')
         node.status({ fill: 'yellow', shape: 'ring', text: 'No payload' })
         done()
         return

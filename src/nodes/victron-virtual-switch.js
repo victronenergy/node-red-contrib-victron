@@ -55,8 +55,8 @@ module.exports = function (RED) {
       }
       node.send(outputs)
 
-      if (!msg || msg.payload == null) {
-        node.warn('Received message without payload. Expected: JavaScript object with at least one property/value.')
+      if (!msg || msg.payload === undefined) {
+        node.warn('Received message without payload. Expected: value for the default path, or a JavaScript object with keys/values.')
         node.status({
           fill: 'yellow',
           shape: 'ring',
