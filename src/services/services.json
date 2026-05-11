@@ -2104,6 +2104,116 @@
     ],
     "communityTag": "ess"
   },
+  "ev": {
+    "help": {
+      "both": "<p>The EV input node reads data from Electric Vehicle devices on D-Bus, including both real EVs (integrated via VRM) and virtual EV devices created in Node-RED.</p>",
+      "input": "",
+      "output": ""
+    },
+    "ev": [
+      {
+        "path": "/Ac/Power",
+        "type": "float",
+        "name": "AC Power (W)"
+      },
+      {
+        "path": "/Soc",
+        "type": "float",
+        "name": "State of Charge (%)"
+      },
+      {
+        "path": "/TargetSoc",
+        "type": "float",
+        "name": "Target State of Charge (%)"
+      },
+      {
+        "path": "/ChargingState",
+        "type": "enum",
+        "name": "Charging state",
+        "enum": {
+          "0": "Not charging",
+          "1": "Low power mode",
+          "3": "Charging",
+          "244": "Sustain",
+          "245": "Wake up",
+          "250": "Blocked",
+          "255": "Unavailable",
+          "256": "Discharging",
+          "259": "Scheduled charging"
+        }
+      },
+      {
+        "path": "/BatteryCapacity",
+        "type": "float",
+        "name": "Battery capacity (kWh)"
+      },
+      {
+        "path": "/VIN",
+        "type": "string",
+        "name": "VIN"
+      },
+      {
+        "path": "/Odometer",
+        "type": "float",
+        "name": "Odometer (km)"
+      },
+      {
+        "path": "/RangeToGo",
+        "type": "float",
+        "name": "Range to go (km)"
+      },
+      {
+        "path": "/Position/Latitude",
+        "type": "float",
+        "name": "Latitude"
+      },
+      {
+        "path": "/Position/Longitude",
+        "type": "float",
+        "name": "Longitude"
+      },
+      {
+        "path": "/AtSite",
+        "type": "enum",
+        "name": "At site",
+        "enum": {
+          "0": "No",
+          "1": "Yes"
+        }
+      },
+      {
+        "path": "/Connected",
+        "type": "integer",
+        "name": "Connected"
+      },
+      {
+        "path": "/LastUpdated/ChargingStarted",
+        "type": "integer",
+        "name": "Last charging state update (Unix timestamp)"
+      },
+      {
+        "path": "/LastUpdated/EvContact",
+        "type": "integer",
+        "name": "Last EV contact (Unix timestamp)"
+      },
+      {
+        "path": "/LastUpdated/Position",
+        "type": "integer",
+        "name": "Last position update (Unix timestamp)"
+      },
+      {
+        "path": "/LastUpdated/ProviderContact",
+        "type": "integer",
+        "name": "Last provider contact (Unix timestamp)"
+      },
+      {
+        "path": "/Alarms/StarterBatteryLow",
+        "type": "integer",
+        "name": "Alarm: starter battery low"
+      }
+    ],
+    "communityTag": "ev"
+  },
   "evcharger": {
     "help": {
       "both": "<p>The EV charger input node is for reading from the EV Charging Station.</p><p>Also see <a href=\"https://github.com/victronenergy/venus/wiki/dbus#evcharger\">here</a> for more information.</p>",
