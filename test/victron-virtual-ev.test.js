@@ -51,20 +51,6 @@ describe('ev device module', () => {
       expect(result['LastUpdated/ProviderContact']).toBe(externalContactTime)
     })
 
-    test('sets LastUpdated/ChargingStarted when ChargingState changes', () => {
-      const result = ev.onPropertiesChanged({ changes: { ChargingState: 3 } })
-      expect(result).toHaveProperty('LastUpdated/ChargingStarted')
-      expect(typeof result['LastUpdated/ChargingStarted']).toBe('number')
-    })
-
-    test('does not set LastUpdated/ChargingStarted for non-ChargingState fields', () => {
-      const fields = ['Soc', 'RangeToGo', 'Odometer', 'Ac/Power']
-      for (const prop of fields) {
-        const result = ev.onPropertiesChanged({ changes: { [prop]: 1 } })
-        expect(result).not.toHaveProperty('LastUpdated/ChargingStarted')
-      }
-    })
-
     test('sets LastUpdated/Position when position-related fields change', () => {
       const positionFields = ['Position/Latitude', 'Position/Longitude', 'AtSite']
       for (const prop of positionFields) {

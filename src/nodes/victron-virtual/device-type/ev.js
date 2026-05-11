@@ -62,10 +62,6 @@ function onPropertiesChanged ({ changes /* , instance */ }) {
     changes['LastUpdated/ProviderContact'] = now
   }
 
-  if ('ChargingState' in changes && !changes['LastUpdated/ChargingStarted']) {
-    changes['LastUpdated/ChargingStarted'] = now
-  }
-
   const positionFields = ['Position/Latitude', 'Position/Longitude', 'AtSite']
   if (positionFields.some(f => f in changes) && !changes['LastUpdated/Position']) {
     changes['LastUpdated/Position'] = now
