@@ -37,28 +37,32 @@ describe('ev device module', () => {
   })
 
   describe('onPropertiesChanged', () => {
-    test('returns changes with LastEvContact timestamp when a property changes', () => {
+    test('always sets LastUpdated/ProviderContact timestamp', () => {
       const before = Math.floor(Date.now() / 1000)
       const result = ev.onPropertiesChanged({ changes: { Soc: 75 } })
       const after = Math.floor(Date.now() / 1000)
-      expect(result).toHaveProperty('LastEvContact')
-      expect(result.LastEvContact).toBeGreaterThanOrEqual(before)
-      expect(result.LastEvContact).toBeLessThanOrEqual(after)
+      expect(result['LastUpdated/ProviderContact']).toBeGreaterThanOrEqual(before)
+      expect(result['LastUpdated/ProviderContact']).toBeLessThanOrEqual(after)
     })
 
-    test('does not override LastEvContact when explicitly set by caller', () => {
-      const externalContactTime = Math.floor(Date.now() / 1000) - 3600 // 1 hour ago
-      const result = ev.onPropertiesChanged({ changes: { LastEvContact: externalContactTime } })
-      expect(result.LastEvContact).toBe(externalContactTime)
+    test('does not override LastUpdated/ProviderContact when explicitly set by caller', () => {
+      const externalContactTime = Math.floor(Date.now() / 1000) - 3600
+      const result = ev.onPropertiesChanged({ changes: { 'LastUpdated/ProviderContact': externalContactTime } })
+      expect(result['LastUpdated/ProviderContact']).toBe(externalContactTime)
     })
 
-    test('updates LastEvContact for any non-LastEvContact property', () => {
-      const props = ['Soc', 'TargetSoc', 'ChargingState', 'Ac/Power', 'BatteryCapacity', 'AtSite', 'Connected']
-      for (const prop of props) {
+    test('sets LastUpdated/Position when position-related fields change', () => {
+      const positionFields = ['Position/Latitude', 'Position/Longitude', 'AtSite']
+      for (const prop of positionFields) {
         const result = ev.onPropertiesChanged({ changes: { [prop]: 1 } })
-        expect(result).toHaveProperty('LastEvContact')
-        expect(typeof result.LastEvContact).toBe('number')
+        expect(result).toHaveProperty('LastUpdated/Position')
+        expect(typeof result['LastUpdated/Position']).toBe('number')
       }
+    })
+
+    test('does not set LastUpdated/Position for non-position fields', () => {
+      const result = ev.onPropertiesChanged({ changes: { Soc: 75 } })
+      expect(result).not.toHaveProperty('LastUpdated/Position')
     })
 
     test('does not include msg in result', () => {
