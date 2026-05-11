@@ -1,0 +1,168 @@
+[
+    {
+        "id": "event-example-comment",
+        "type": "comment",
+        "z": "example-flow-id",
+        "name": "Example: Inject Events to VRM Event logs",
+        "info": "This example demonstrates how to use the Inject Event node to send events to the VRM portal Event logs tab.\n\nThe example shows:\n1. Basic event with configured severity and app\n2. Overriding severity and app via msg properties\n3. Conditional event based on battery SOC",
+        "x": 280,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "inject-basic-event",
+        "type": "inject",
+        "z": "example-flow-id",
+        "name": "Send basic event",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Flow started successfully",
+        "payloadType": "str",
+        "x": 180,
+        "y": 180,
+        "wires": [
+            [
+                "event-basic"
+            ]
+        ]
+    },
+    {
+        "id": "event-basic",
+        "type": "victron-event",
+        "z": "example-flow-id",
+        "name": "",
+        "severity": "2",
+        "app": "node-red",
+        "x": 420,
+        "y": 180,
+        "wires": [
+            [
+                "debug-event-output"
+            ]
+        ]
+    },
+    {
+        "id": "inject-override-trigger",
+        "type": "inject",
+        "z": "example-flow-id",
+        "name": "Trigger override example",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 200,
+        "y": 240,
+        "wires": [
+            [
+                "function-override-event"
+            ]
+        ]
+    },
+    {
+        "id": "function-override-event",
+        "type": "function",
+        "z": "example-flow-id",
+        "name": "Override severity and app",
+        "func": "msg.payload = \"Relay was manually activated\";\nmsg.severity = \"warning\";\nmsg.app = \"relay-control\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 240,
+        "wires": [
+            [
+                "event-basic"
+            ]
+        ]
+    },
+    {
+        "id": "battery-monitor-soc",
+        "type": "victron-input-battery",
+        "z": "example-flow-id",
+        "service": "com.victronenergy.battery.ttyUSB0",
+        "path": "/Soc",
+        "serviceObj": {
+            "service": "com.victronenergy.battery.ttyUSB0",
+            "name": "Battery Monitor"
+        },
+        "pathObj": {
+            "path": "/Soc",
+            "type": "float",
+            "name": "State of charge (%)"
+        },
+        "name": "",
+        "onlyChanges": true,
+        "x": 180,
+        "y": 340,
+        "wires": [
+            [
+                "check-soc-event"
+            ]
+        ]
+    },
+    {
+        "id": "check-soc-event",
+        "type": "function",
+        "z": "example-flow-id",
+        "name": "Check SOC threshold",
+        "func": "const soc = msg.payload;\n\nif (soc < 20) {\n    msg.payload = `Battery SOC critically low: ${soc}%`;\n    msg.severity = 1;  // Critical\n    msg.app = \"battery-monitor\";\n    return msg;\n} else if (soc < 30) {\n    msg.payload = `Battery SOC low: ${soc}%`;\n    msg.severity = 0;  // Warning\n    msg.app = \"battery-monitor\";\n    return msg;\n}\n\n// Do not send an event if SOC is OK\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 340,
+        "wires": [
+            [
+                "event-battery"
+            ]
+        ]
+    },
+    {
+        "id": "event-battery",
+        "type": "victron-event",
+        "z": "example-flow-id",
+        "name": "",
+        "severity": "0",
+        "app": "battery-monitor",
+        "x": 640,
+        "y": 340,
+        "wires": [
+            [
+                "debug-event-output"
+            ]
+        ]
+    },
+    {
+        "id": "debug-event-output",
+        "type": "debug",
+        "z": "example-flow-id",
+        "name": "Event result",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "event",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 860,
+        "y": 260,
+        "wires": []
+    }
+]

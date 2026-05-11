@@ -31,7 +31,8 @@ class SystemConfiguration {
 
     const services = serviceEntries
       .reduce((acc, [dbusService, servicePaths]) => {
-        const cachedService = _.pickBy(this.cache, (val, key) => key.startsWith(`com.victronenergy.${dbusService}`))
+        const servicePrefix = `com.victronenergy.${dbusService}`
+        const cachedService = _.pickBy(this.cache, (val, key) => key === servicePrefix || key.startsWith(`${servicePrefix}.`) || key.startsWith(`${servicePrefix}/`))
 
         Object.keys(cachedService).forEach((dbusInterface) => {
           const cachedPaths = cachedService[dbusInterface]
@@ -216,6 +217,7 @@ class SystemConfiguration {
       'input-dcsystem': this.getNodeServices('input-dcsystem'),
       'input-digitalinput': this.getNodeServices('input-digitalinput'),
       'input-ess': this.getNodeServices('input-ess'),
+      'input-ev': this.getNodeServices('input-ev'),
       'input-evcharger': this.getNodeServices('input-evcharger'),
       'input-fuelcell': this.getNodeServices('input-fuelcell'),
       'input-generator': this.getNodeServices('input-generator'),

@@ -708,7 +708,18 @@ module.exports = function (RED) {
           getValue,
           setValuesLocally,
           emitS2Signal
-        } = addVictronInterfaces(usedBus, ifaceDesc, iface, /* add_defaults */ true, emitCallback, onPropertiesChanged)
+        } = addVictronInterfaces(usedBus, ifaceDesc, iface, /* add_defaults */ true, emitCallback,
+          /* onPropertiesChanged */ function ({ changes, instance }) {
+            if (typeof onPropertiesChanged === 'function') {
+              /**
+               * We wrap onPropertiesChanged, so that we can pass the config as well.
+              */
+              return onPropertiesChanged({ changes, instance, config })
+            } else {
+              return changes
+            }
+          }
+        )
 
         node.setValuesLocally = setValuesLocally
         node.emitS2Signal = emitS2Signal

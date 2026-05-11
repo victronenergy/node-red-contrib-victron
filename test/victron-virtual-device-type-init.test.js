@@ -10,6 +10,7 @@ const gps = require('../src/nodes/victron-virtual/device-type/gps')
 const grid = require('../src/nodes/victron-virtual/device-type/grid')
 const meteo = require('../src/nodes/victron-virtual/device-type/meteo')
 const motordrive = require('../src/nodes/victron-virtual/device-type/motordrive')
+const pulsemeter = require('../src/nodes/victron-virtual/device-type/pulsemeter')
 const pvinverter = require('../src/nodes/victron-virtual/device-type/pvinverter')
 const switchMod = require('../src/nodes/victron-virtual/device-type/switch')
 const tank = require('../src/nodes/victron-virtual/device-type/tank')
@@ -291,13 +292,13 @@ describe('ev', () => {
       expect(atSiteFmt(v)).toBe(expected)
     })
 
-    test('LastEvContact formats null as empty string', () => {
-      expect(ev.properties.LastEvContact.format(null)).toBe('')
+    test('LastUpdated/ProviderContact formats null as empty string', () => {
+      expect(ev.properties['LastUpdated/ProviderContact'].format(null)).toBe('')
     })
 
-    test('LastEvContact formats unix timestamp as date string', () => {
+    test('LastUpdated/ProviderContact formats unix timestamp as date string', () => {
       // 2025-01-15 12:00:00 UTC
-      const result = ev.properties.LastEvContact.format(1736942400)
+      const result = ev.properties['LastUpdated/ProviderContact'].format(1736942400)
       expect(result).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)
     })
 
@@ -591,6 +592,49 @@ describe('motordrive', () => {
       [99, 'unknown']
     ])('Motor/Direction %i → %s', (v, expected) => {
       expect(fmt(v)).toBe(expected)
+    })
+  })
+})
+
+// ---------------------------------------------------------------------------
+// pulsemeter
+// ---------------------------------------------------------------------------
+
+describe('pulsemeter', () => {
+  describe('initialize', () => {
+    test('returns status text', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      const result = pulsemeter.initialize({}, ifaceDesc, iface, node)
+      expect(result).toBe('Virtual pulse meter')
+    })
+
+    test('does not modify ifaceDesc or iface', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      pulsemeter.initialize({}, ifaceDesc, iface, node)
+      expect(Object.keys(ifaceDesc.properties)).toHaveLength(0)
+      expect(Object.keys(iface)).toHaveLength(0)
+    })
+  })
+
+  describe('format', () => {
+    const countFmt = pulsemeter.properties.Count.format
+    const aggregateFmt = pulsemeter.properties.Aggregate.format
+
+    test.each([
+      [0, '0'],
+      [1000, '1000'],
+      [null, '']
+    ])('Count %s -> %s', (v, expected) => {
+      expect(countFmt(v)).toBe(expected)
+    })
+
+    test.each([
+      [1.0, '1.000m³'],
+      [0.5, '0.500m³'],
+      [1234.5678, '1234.568m³'],
+      [null, '']
+    ])('Aggregate %s -> %s', (v, expected) => {
+      expect(aggregateFmt(v)).toBe(expected)
     })
   })
 })

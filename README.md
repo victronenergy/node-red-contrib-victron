@@ -39,12 +39,17 @@ Create simulated Victron devices on the dbus:
 - Generator
 - GPS
 - Grid meter
+- Indicator
 - Meteo
 - Motor drive
 - PV inverter
 - Switch
 - Tank sensor
 - Temperature sensor
+
+### Utility Nodes
+- **Inject Notification** - Send a pop-up notification to the Venus OS GUI
+- **Inject Event** - Send an event to the VRM portal Event logs tab (Warning, Critical, Info)
 
 For detailed examples, visit our [Example Flows](https://github.com/victronenergy/node-red-contrib-victron/wiki/Example-Flows).
 

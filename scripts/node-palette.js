@@ -76,5 +76,7 @@ for (const node of nodes) {
 output.nodes.push({ type: 'victron-virtual', name: 'Virtual device', z: '1234567891', id: '1234567891', x: 370, y: 620 })
 output.nodes.push({ type: 'victron-virtual-switch', name: 'Virtual Switch', z: '1234567891', id: '1234567892', x: 590, y: 620 })
 output.nodes.push({ type: 'victron-inject', name: 'Inject Notification', z: '1234567891', id: '1234567893', x: 810, y: 620 })
+output.nodes.push({ type: 'victron-virtual-indicator', name: 'Virtual Indicator', z: '1234567891', id: '1234567894', x: 150, y: 660 })
+output.nodes.push({ type: 'victron-event', name: 'Inject Event', z: '1234567891', id: '1234567895', x: 370, y: 660 })
 
 console.log(JSON.stringify(output))
