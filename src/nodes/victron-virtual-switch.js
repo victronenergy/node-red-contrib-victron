@@ -14,7 +14,7 @@ const debug = require('debug')('victron-virtual-switch')
 const debugInput = require('debug')('victron-virtual-switch:input')
 const debugConnection = require('debug')('victron-virtual-switch:connection')
 const { validateVirtualDevicePayload, validateLightControls } = require('../services/utils')
-const { createSwitchProperties, handleSwitchOutputs, updateSwitchStatus, emitInitialSwitchOutputs } = require('../services/virtual-switch')
+const { createSwitchProperties, handleSwitchOutputs, updateSwitchStatus, emitInitialSwitchOutputs, expandSwitchPayload, shouldApplyPayloadToDBus } = require('../services/virtual-switch')
 const { filterInactiveVirtualDevices } = require('../services/virtual-device-cleanup')
 const { getTcpBusAddress, callAddSettingsWithRetry, getDeviceInstance, registerInputHandler, flushPendingInputs } = require('./victron-virtual-dbus-helpers')
 
@@ -55,8 +55,8 @@ module.exports = function (RED) {
       }
       node.send(outputs)
 
-      if (!msg || !msg.payload) {
-        node.warn('Received message without payload. Expected: JavaScript object with at least one property/value.')
+      if (!msg || msg.payload === undefined) {
+        node.warn('Received message without payload. Expected: value for the default path, or a JavaScript object with keys/values.')
         node.status({
           fill: 'yellow',
           shape: 'ring',
@@ -65,6 +65,16 @@ module.exports = function (RED) {
         done()
         return
       }
+
+      const switchType = Number(config.switch_1_type ?? 1)
+      const expanded = expandSwitchPayload(msg.payload, switchType)
+      if (expanded === null) {
+        node.warn('Plain value payload is not supported for RGB switch types. Send an object with a LightControls key.')
+        node.status({ fill: 'yellow', shape: 'ring', text: 'Plain value not supported for RGB' })
+        done()
+        return
+      }
+      msg.payload = expanded
 
       const validation = validateVirtualDevicePayload(msg.payload)
       if (!validation.valid) {
@@ -92,6 +102,12 @@ module.exports = function (RED) {
           done()
           return
         }
+      }
+
+      if (!shouldApplyPayloadToDBus(config, node.iface, msg.payload)) {
+        updateSwitchStatus(config, node, `Ignored: switch in manual mode (${node.iface.DeviceInstance})`)
+        done()
+        return
       }
 
       try {

@@ -1,0 +1,152 @@
+[
+    {
+        "id": "a1b2c3d4e5f60001",
+        "type": "comment",
+        "z": "a1b2c3d4e5f60000",
+        "name": "Three-state switch: automation with manual override",
+        "info": "## Three-state switch: automation with manual override\n\nDemonstrates the **Apply input** passthrough mode on the three-state switch.\n\n### How it works\n\nWith **Auto only** (the default for new nodes), incoming messages from an automation are only written to D-Bus when the switch is in Auto mode (`Auto=1`).\n\nWhen the switch is in manual mode (`Auto=0`), the user controls the output directly from the GX device and automation messages are ignored.\n\n### This flow\n\n- The top two inject nodes simulate an automation sending on/off commands.\n- The bottom two inject nodes switch between auto and manual mode.\n- The virtual indicator reflects the current switch state.",
+        "x": 260,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "a1b2c3d4e5f60002",
+        "type": "inject",
+        "z": "a1b2c3d4e5f60000",
+        "name": "Automation: turn on",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "payload": "1",
+        "payloadType": "num",
+        "x": 190,
+        "y": 180,
+        "wires": [
+            [
+                "a1b2c3d4e5f60006"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60003",
+        "type": "inject",
+        "z": "a1b2c3d4e5f60000",
+        "name": "Automation: turn off",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "payload": "0",
+        "payloadType": "num",
+        "x": 190,
+        "y": 240,
+        "wires": [
+            [
+                "a1b2c3d4e5f60006"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60004",
+        "type": "inject",
+        "z": "a1b2c3d4e5f60000",
+        "name": "Enable auto mode",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "payload": "{\"SwitchableOutput/output_1/Auto\":1}",
+        "payloadType": "json",
+        "x": 190,
+        "y": 340,
+        "wires": [
+            [
+                "a1b2c3d4e5f60006"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60005",
+        "type": "inject",
+        "z": "a1b2c3d4e5f60000",
+        "name": "Manual mode (blocks automation)",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "payload": "{\"SwitchableOutput/output_1/Auto\":0}",
+        "payloadType": "json",
+        "x": 220,
+        "y": 400,
+        "wires": [
+            [
+                "a1b2c3d4e5f60006"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60006",
+        "type": "victron-virtual-switch",
+        "z": "a1b2c3d4e5f60000",
+        "name": "Pump control",
+        "outputs": 3,
+        "switch_1_type": 9,
+        "switch_1_initial": 0,
+        "switch_1_label": "",
+        "switch_1_customname": "Pump control",
+        "switch_1_group": "Automation",
+        "switch_1_include_measurement": false,
+        "switch_1_rgb_color_wheel": false,
+        "switch_1_cct_wheel": false,
+        "switch_1_rgb_white_dimmer": false,
+        "switch_1_show_ui_input": 1,
+        "switch_1_passthrough_mode": "auto_only",
+        "x": 500,
+        "y": 280,
+        "wires": [
+            [],
+            [
+                "a1b2c3d4e5f60007"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60007",
+        "type": "victron-virtual-indicator",
+        "z": "a1b2c3d4e5f60000",
+        "name": "Pump state",
+        "customname": "Pump state",
+        "group": "Automation",
+        "indicator_type": 0,
+        "labels": "/off,/on",
+        "unit": "",
+        "decimals": "",
+        "x": 710,
+        "y": 280,
+        "wires": [
+            []
+        ]
+    }
+]
