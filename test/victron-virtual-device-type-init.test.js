@@ -292,13 +292,13 @@ describe('ev', () => {
       expect(atSiteFmt(v)).toBe(expected)
     })
 
-    test('LastEvContact formats null as empty string', () => {
-      expect(ev.properties.LastEvContact.format(null)).toBe('')
+    test('LastUpdated/ProviderContact formats null as empty string', () => {
+      expect(ev.properties['LastUpdated/ProviderContact'].format(null)).toBe('')
     })
 
-    test('LastEvContact formats unix timestamp as date string', () => {
+    test('LastUpdated/ProviderContact formats unix timestamp as date string', () => {
       // 2025-01-15 12:00:00 UTC
-      const result = ev.properties.LastEvContact.format(1736942400)
+      const result = ev.properties['LastUpdated/ProviderContact'].format(1736942400)
       expect(result).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)
     })
 

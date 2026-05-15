@@ -1,3 +1,9 @@
+const formatTimestamp = (v) => {
+  if (v == null) return ''
+  const date = new Date(v * 1000)
+  return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`
+}
+
 const properties = {
   'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'W' : '' },
   Soc: { type: 'd', format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: true },
@@ -31,15 +37,10 @@ const properties = {
     value: 0,
     persist: 300
   },
-  LastEvContact: {
-    type: 'i',
-    format: (v) => {
-      if (v == null) return ''
-      const date = new Date(v * 1000)
-      return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`
-    },
-    persist: 300
-  },
+  'LastUpdated/ChargingStarted': { type: 'i', format: formatTimestamp, persist: 300 },
+  'LastUpdated/EvContact': { type: 'i', format: formatTimestamp, persist: 300 },
+  'LastUpdated/Position': { type: 'i', format: formatTimestamp, persist: 300 },
+  'LastUpdated/ProviderContact': { type: 'i', format: formatTimestamp, persist: 300 },
   'Alarms/StarterBatteryLow': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
   Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
 }
@@ -55,9 +56,17 @@ function initialize (config, _ifaceDesc, iface, _node) {
 }
 
 function onPropertiesChanged ({ changes /* , instance */ }) {
-  if (!changes.LastEvContact) {
-    changes.LastEvContact = Math.floor(Date.now() / 1000)
+  const now = Math.floor(Date.now() / 1000)
+
+  if (!changes['LastUpdated/ProviderContact']) {
+    changes['LastUpdated/ProviderContact'] = now
   }
+
+  const positionFields = ['Position/Latitude', 'Position/Longitude', 'AtSite']
+  if (positionFields.some(f => f in changes) && !changes['LastUpdated/Position']) {
+    changes['LastUpdated/Position'] = now
+  }
+
   return changes
 }
 

@@ -54,6 +54,7 @@
             switch_1_rgb_color_wheel: {value: false, required: false},
             switch_1_cct_wheel: {value: false, required: false},
             switch_1_rgb_white_dimmer: {value: false, required: false},
+            switch_1_passthrough_mode: {value: 'auto_only', required: false},
             // RGB control uses switch_1_min and switch_1_step (already defined above)
             // tank
             fluid_type: { value: 0, required: false},
@@ -246,6 +247,12 @@
                         this[`switch_1_rgb_color_wheel`] = $(`#node-input-switch_1_rgb_color_wheel`).is(':checked');
                         this[`switch_1_cct_wheel`] = $(`#node-input-switch_1_cct_wheel`).is(':checked');
                         this[`switch_1_rgb_white_dimmer`] = $(`#node-input-switch_1_rgb_white_dimmer`).is(':checked');
+                    }
+
+                    // For THREE_STATE switch (9), save passthrough mode
+                    if (type === 9) {
+                        const selected = $('#node-input-switch_1_passthrough_mode').val();
+                        this['switch_1_passthrough_mode'] = selected || 'auto_only';
                     }
 
                     // Clear any previously set config fields for other types

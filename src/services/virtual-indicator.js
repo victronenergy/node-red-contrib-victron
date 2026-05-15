@@ -135,4 +135,28 @@ function updateIndicatorStatus (config, node) {
   }
 }
 
-module.exports = { createIndicatorProperties, updateIndicatorStatus, INDICATOR_TYPE_NAMES, INDICATOR_INPUT_KEY }
+/**
+ * Expands msg.payload into a full D-Bus path object.
+ * A plain (non-object) value is treated as a shorthand for the Value path.
+ * An object payload has Value and Status keys expanded to their full paths.
+ *
+ * @param {*} payload - msg.payload from the input message
+ * @returns {Object|*} - Expanded object, or the original value if null/undefined
+ */
+function expandIndicatorPayload (payload) {
+  if (payload === null || payload === undefined) return payload
+  if (typeof payload !== 'object') {
+    return { [`${INDICATOR_INPUT_KEY}/Value`]: payload }
+  }
+  const expanded = {}
+  for (const [key, value] of Object.entries(payload)) {
+    if (key === 'Value' || key === 'Status') {
+      expanded[`${INDICATOR_INPUT_KEY}/${key}`] = value
+    } else {
+      expanded[key] = value
+    }
+  }
+  return expanded
+}
+
+module.exports = { createIndicatorProperties, updateIndicatorStatus, expandIndicatorPayload, INDICATOR_TYPE_NAMES, INDICATOR_INPUT_KEY }

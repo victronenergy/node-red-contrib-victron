@@ -217,6 +217,17 @@ a.blue-link {
     line-height: 1.2;
   }
 
+  .victron-doc-text li.victron-shortcut-bullet {
+    list-style: none;
+    position: relative;
+  }
+
+  .victron-doc-text li.victron-shortcut-bullet .fa-bolt {
+    position: absolute;
+    left: -18px;
+    top: 0.1em;
+  }
+
   .victron-doc-text code {
     background-color: #f5f5f5;
     padding: 1px 3px;
@@ -303,5 +314,3 @@ a.blue-link {
     color: #666;
   }
 }
-
-

@@ -3023,6 +3023,79 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 </dl>
 </script>
 
+<script type="text/x-red" data-help-name="victron-input-ev">
+<h3>Details</h3>
+<p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>The EV input node reads data from Electric Vehicle devices on D-Bus, including both real EVs (integrated via VRM) and virtual EV devices created in Node-RED.</p>
+<h3>Ev</h3>
+<dl class="message-properties">
+  <dt class="optional">AC Power (W)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Ac/Power</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">State of Charge (%)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Soc</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Target State of Charge (%)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/TargetSoc</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Charging state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/ChargingState</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Not charging</li>
+  <li>1 - Low power mode</li>
+  <li>3 - Charging</li>
+  <li>244 - Sustain</li>
+  <li>245 - Wake up</li>
+  <li>250 - Blocked</li>
+  <li>255 - Unavailable</li>
+  <li>256 - Discharging</li>
+  <li>259 - Scheduled charging</li>
+</ul></dd>
+  <dt class="optional">Battery capacity (kWh)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/BatteryCapacity</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">VIN<span class="property-type">string</span></dt>
+  <dd>Dbus path: <b>/VIN</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Odometer (km)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Odometer</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Range to go (km)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/RangeToGo</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Latitude<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Position/Latitude</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Longitude<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Position/Longitude</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">At site<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/AtSite</b><span class="property-mode"></span>
+<ul>
+  <li>0 - No</li>
+  <li>1 - Yes</li>
+</ul></dd>
+  <dt class="optional">Connected<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/Connected</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Last charging state update (Unix timestamp)<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/LastUpdated/ChargingStarted</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Last EV contact (Unix timestamp)<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/LastUpdated/EvContact</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Last position update (Unix timestamp)<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/LastUpdated/Position</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Last provider contact (Unix timestamp)<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/LastUpdated/ProviderContact</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Alarm: starter battery low<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/Alarms/StarterBatteryLow</b><span class="property-mode"></span>
+</dd>
+</dl>
+</script>
+
 <script type="text/x-red" data-help-name="victron-input-evcharger">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>

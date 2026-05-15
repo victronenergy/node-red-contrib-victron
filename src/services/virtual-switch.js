@@ -13,7 +13,8 @@ const {
   SWITCH_TYPE_NAMES,
   SWITCH_TYPE_BITMASK_NAMES,
   SWITCH_SECOND_OUTPUT_LABEL,
-  SWITCH_THIRD_OUTPUT_LABEL
+  SWITCH_THIRD_OUTPUT_LABEL,
+  SWITCH_DEFAULT_PATH
 } = require('../nodes/victron-virtual-constants')
 
 const { hsbToRgb } = require('./color-utils')
@@ -643,11 +644,61 @@ function emitInitialSwitchOutputs (config, node) {
   node.send(msgs)
 }
 
+/**
+ * Expands msg.payload into a D-Bus path object using the type's default path.
+ * A plain (non-object) value is treated as a shorthand for the default writable path.
+ * RGB switch types have no meaningful default and return null for plain values.
+ *
+ * @param {*} payload - msg.payload from the input message
+ * @param {number} switchType - The SWITCH_TYPE_MAP value for this node
+ * @returns {Object|null|*} - Expanded object, null if type has no shortcut, or original if already an object
+ */
+function expandSwitchPayload (payload, switchType) {
+  if (typeof payload === 'object') return payload
+  const defaultPath = SWITCH_DEFAULT_PATH[switchType]
+  if (!defaultPath) return null
+  return { [defaultPath]: payload }
+}
+
+/**
+ * Returns true if the incoming payload should be written to D-Bus given the current Auto state.
+ * For non-three-state switches, always returns true. For three-state switches, the
+ * switch_1_passthrough_mode config field controls when writes are allowed:
+ *   'always'    - always write (same as other switch types)
+ *   'auto_only' - only write when Auto=1 (default; prevents automations from overriding manual control)
+ *
+ * A payload that sets Auto=1 is always allowed through so Node-RED can restore auto mode
+ * even when the switch was put into manual mode on the GX device.
+ *
+ * @param {Object} config - Node configuration object
+ * @param {Object} iface - D-Bus interface object with current property values
+ * @param {Object} payload - The expanded msg.payload about to be written
+ * @returns {boolean} true if the payload should be applied to D-Bus
+ */
+function shouldApplyPayloadToDBus (config, iface, payload) {
+  const switchType = Number(config.switch_1_type ?? 1)
+  if (switchType !== SWITCH_TYPE_MAP.THREE_STATE) return true
+
+  const mode = config.switch_1_passthrough_mode ?? 'always'
+  if (mode === 'always') return true
+
+  if (payload && payload['SwitchableOutput/output_1/Auto'] === 1) return true
+
+  const autoValue = iface ? iface['SwitchableOutput/output_1/Auto'] : null
+  const isAuto = autoValue === 1
+
+  if (mode === 'auto_only') return isAuto
+
+  return true
+}
+
 module.exports = {
   createSwitchProperties,
   getSwitchStatusText,
   buildSwitchOutputMsgs,
   handleSwitchOutputs,
   updateSwitchStatus,
-  emitInitialSwitchOutputs
+  emitInitialSwitchOutputs,
+  expandSwitchPayload,
+  shouldApplyPayloadToDBus
 }

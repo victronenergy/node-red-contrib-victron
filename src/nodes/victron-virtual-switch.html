@@ -22,7 +22,8 @@
             switch_1_rgb_color_wheel: {value: false, required: false},
             switch_1_cct_wheel: {value: false, required: false},
             switch_1_rgb_white_dimmer: {value: false, required: false},
-            switch_1_show_ui_input: {value: 1, required: false}
+            switch_1_show_ui_input: {value: 1, required: false},
+            switch_1_passthrough_mode: {value: 'auto_only', required: false}
         },
         icon: "victronenergy.svg",
         inputs:1,
@@ -156,6 +157,12 @@
                     this[`switch_1_rgb_color_wheel`] = $(`#node-input-switch_1_rgb_color_wheel`).is(':checked');
                     this[`switch_1_cct_wheel`] = $(`#node-input-switch_1_cct_wheel`).is(':checked');
                     this[`switch_1_rgb_white_dimmer`] = $(`#node-input-switch_1_rgb_white_dimmer`).is(':checked');
+                }
+
+                // For THREE_STATE switch (9), save passthrough mode
+                if (type === 9) {
+                    const selected = $('#node-input-switch_1_passthrough_mode').val();
+                    this['switch_1_passthrough_mode'] = selected || 'auto_only';
                 }
 
                 Object.values(SWITCH_TYPE_CONFIGS).forEach(c => {

@@ -6,7 +6,7 @@ const debugInput = require('debug')('victron-virtual-indicator:input')
 const debugConnection = require('debug')('victron-virtual-indicator:connection')
 const { DEBOUNCE_DELAY_MS } = require('./victron-virtual-constants')
 const { validateVirtualDevicePayload, debounce } = require('../services/utils')
-const { createIndicatorProperties, updateIndicatorStatus, INDICATOR_INPUT_KEY } = require('../services/virtual-indicator')
+const { createIndicatorProperties, updateIndicatorStatus, expandIndicatorPayload, INDICATOR_INPUT_KEY } = require('../services/virtual-indicator')
 const { filterInactiveVirtualDevices } = require('../services/virtual-device-cleanup')
 const { getTcpBusAddress, callAddSettingsWithRetry, getDeviceInstance, registerInputHandler, flushPendingInputs, createDebouncedSetters } = require('./victron-virtual-dbus-helpers')
 
@@ -26,30 +26,17 @@ module.exports = function (RED) {
 
     const { shouldApplyImmediately, getDebouncedSetter } = createDebouncedSetters(node, debounce, DEBOUNCE_DELAY_MS)
 
-    // Map shorthand keys (Value, Status) to full D-Bus paths
-    function expandPayload (payload) {
-      const expanded = {}
-      for (const [key, value] of Object.entries(payload)) {
-        if (key === 'Value' || key === 'Status') {
-          expanded[`${INDICATOR_INPUT_KEY}/${key}`] = value
-        } else {
-          expanded[key] = value
-        }
-      }
-      return expanded
-    }
-
     function handleInput (msg, done) {
       node.send(msg)
 
-      if (!msg || !msg.payload) {
-        node.warn('Received message without payload. Expected: { Value: <number>, Status: <number> }')
+      if (!msg || msg.payload === undefined) {
+        node.warn('Received message without payload. Expected: value for the default path, or a JavaScript object with keys/values.')
         node.status({ fill: 'yellow', shape: 'ring', text: 'No payload' })
         done()
         return
       }
 
-      const expanded = expandPayload(msg.payload)
+      const expanded = expandIndicatorPayload(msg.payload)
       const validation = validateVirtualDevicePayload(expanded)
       if (!validation.valid) {
         node.warn(validation.error)

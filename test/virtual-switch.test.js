@@ -1,5 +1,5 @@
 // test/virtual-switch.test.js
-const { updateSwitchStatus, emitInitialSwitchOutputs, handleSwitchOutputs, createSwitchProperties } = require('../src/services/virtual-switch')
+const { updateSwitchStatus, emitInitialSwitchOutputs, handleSwitchOutputs, createSwitchProperties, expandSwitchPayload, shouldApplyPayloadToDBus } = require('../src/services/virtual-switch')
 const { SWITCH_TYPE_MAP } = require('../src/nodes/victron-virtual-constants')
 
 function makeNode (ifaceOverrides = {}, ifaceDescOverrides = {}) {
@@ -264,8 +264,8 @@ describe('createSwitchProperties - State', () => {
     const ifaceDesc = { properties: {} }
     const iface = {}
     createSwitchProperties({ switch_1_type: SWITCH_TYPE_MAP.TOGGLE }, ifaceDesc, iface)
-    expect(iface['State']).toBe(0x100)
-    expect(ifaceDesc.properties['State']).toBeDefined()
+    expect(iface.State).toBe(0x100)
+    expect(ifaceDesc.properties.State).toBeDefined()
   })
 })
 
@@ -293,5 +293,140 @@ describe('createSwitchProperties - ShowUIControl', () => {
 
   test('uses switch_1_show_ui_input value 4 (remote UI only)', () => {
     expect(run({ switch_1_show_ui_input: 4 })).toBe(4)
+  })
+})
+
+describe('expandSwitchPayload', () => {
+  test('plain number for toggle uses State path', () => {
+    expect(expandSwitchPayload(1, SWITCH_TYPE_MAP.TOGGLE)).toEqual({ 'SwitchableOutput/output_1/State': 1 })
+  })
+
+  test('zero (falsy) for toggle uses State path', () => {
+    expect(expandSwitchPayload(0, SWITCH_TYPE_MAP.TOGGLE)).toEqual({ 'SwitchableOutput/output_1/State': 0 })
+  })
+
+  test('plain number for momentary uses State path', () => {
+    expect(expandSwitchPayload(1, SWITCH_TYPE_MAP.MOMENTARY)).toEqual({ 'SwitchableOutput/output_1/State': 1 })
+  })
+
+  test('plain number for dimmable uses Dimming path', () => {
+    expect(expandSwitchPayload(75, SWITCH_TYPE_MAP.DIMMABLE)).toEqual({ 'SwitchableOutput/output_1/Dimming': 75 })
+  })
+
+  test('plain number for temperature setpoint uses Dimming path', () => {
+    expect(expandSwitchPayload(21.5, SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT)).toEqual({ 'SwitchableOutput/output_1/Dimming': 21.5 })
+  })
+
+  test('plain number for stepped uses Dimming path', () => {
+    expect(expandSwitchPayload(2, SWITCH_TYPE_MAP.STEPPED)).toEqual({ 'SwitchableOutput/output_1/Dimming': 2 })
+  })
+
+  test('plain number for dropdown uses Dimming path', () => {
+    expect(expandSwitchPayload(0, SWITCH_TYPE_MAP.DROPDOWN)).toEqual({ 'SwitchableOutput/output_1/Dimming': 0 })
+  })
+
+  test('plain number for basic slider uses Dimming path', () => {
+    expect(expandSwitchPayload(50, SWITCH_TYPE_MAP.BASIC_SLIDER)).toEqual({ 'SwitchableOutput/output_1/Dimming': 50 })
+  })
+
+  test('plain number for numeric input uses Dimming path', () => {
+    expect(expandSwitchPayload(42, SWITCH_TYPE_MAP.NUMERIC_INPUT)).toEqual({ 'SwitchableOutput/output_1/Dimming': 42 })
+  })
+
+  test('plain number for three-state uses State path', () => {
+    expect(expandSwitchPayload(1, SWITCH_TYPE_MAP.THREE_STATE)).toEqual({ 'SwitchableOutput/output_1/State': 1 })
+  })
+
+  test('plain number for bilge pump uses State path', () => {
+    expect(expandSwitchPayload(1, SWITCH_TYPE_MAP.BILGE_PUMP)).toEqual({ 'SwitchableOutput/output_1/State': 1 })
+  })
+
+  test('plain number for RGB color wheel returns null (no shortcut)', () => {
+    expect(expandSwitchPayload(1, SWITCH_TYPE_MAP.RGB_COLOR_WHEEL)).toBeNull()
+  })
+
+  test('plain number for CCT wheel returns null (no shortcut)', () => {
+    expect(expandSwitchPayload(1, SWITCH_TYPE_MAP.CCT_WHEEL)).toBeNull()
+  })
+
+  test('plain number for RGB white dimmer returns null (no shortcut)', () => {
+    expect(expandSwitchPayload(1, SWITCH_TYPE_MAP.RGB_WHITE_DIMMER)).toBeNull()
+  })
+
+  test('object payload is returned unchanged', () => {
+    const payload = { 'SwitchableOutput/output_1/State': 1 }
+    expect(expandSwitchPayload(payload, SWITCH_TYPE_MAP.TOGGLE)).toBe(payload)
+  })
+
+  test('null payload is returned as-is', () => {
+    expect(expandSwitchPayload(null, SWITCH_TYPE_MAP.TOGGLE)).toBeNull()
+  })
+})
+
+describe('shouldApplyPayloadToDBus', () => {
+  const autoKey = 'SwitchableOutput/output_1/Auto'
+
+  function makeIface (autoValue) {
+    return { [autoKey]: autoValue }
+  }
+
+  describe('non-three-state switch types', () => {
+    test('always returns true for toggle switch regardless of mode', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.TOGGLE), switch_1_passthrough_mode: 'auto_only' }
+      expect(shouldApplyPayloadToDBus(config, makeIface(0))).toBe(true)
+    })
+
+    test('always returns true for momentary switch', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.MOMENTARY) }
+      expect(shouldApplyPayloadToDBus(config, makeIface(0))).toBe(true)
+    })
+  })
+
+  describe('three-state switch - mode: always', () => {
+    test('applies when Auto=1 (auto mode)', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE), switch_1_passthrough_mode: 'always' }
+      expect(shouldApplyPayloadToDBus(config, makeIface(1))).toBe(true)
+    })
+
+    test('applies when Auto=0 (manual mode)', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE), switch_1_passthrough_mode: 'always' }
+      expect(shouldApplyPayloadToDBus(config, makeIface(0))).toBe(true)
+    })
+  })
+
+  describe('three-state switch - mode: auto_only (default)', () => {
+    test('applies when Auto=1', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE), switch_1_passthrough_mode: 'auto_only' }
+      expect(shouldApplyPayloadToDBus(config, makeIface(1))).toBe(true)
+    })
+
+    test('blocks when Auto=0', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE), switch_1_passthrough_mode: 'auto_only' }
+      expect(shouldApplyPayloadToDBus(config, makeIface(0), {})).toBe(false)
+    })
+
+    test('allows payload that sets Auto=1 even when currently in manual mode', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE), switch_1_passthrough_mode: 'auto_only' }
+      const payload = { [autoKey]: 1 }
+      expect(shouldApplyPayloadToDBus(config, makeIface(0), payload)).toBe(true)
+    })
+
+    test('defaults to always when mode is not set (backward compat for existing nodes)', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE) }
+      expect(shouldApplyPayloadToDBus(config, makeIface(0))).toBe(true)
+      expect(shouldApplyPayloadToDBus(config, makeIface(1))).toBe(true)
+    })
+  })
+
+  describe('three-state switch - edge cases', () => {
+    test('unknown mode defaults to applying (safe fallback)', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE), switch_1_passthrough_mode: 'unknown_value' }
+      expect(shouldApplyPayloadToDBus(config, makeIface(0))).toBe(true)
+    })
+
+    test('applies when Auto is null (state not yet set)', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE), switch_1_passthrough_mode: 'auto_only' }
+      expect(shouldApplyPayloadToDBus(config, makeIface(null))).toBe(false)
+    })
   })
 })
