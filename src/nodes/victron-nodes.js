@@ -70,6 +70,8 @@ module.exports = function (RED) {
       this.conditionalMode = nodeDefinition.conditionalMode || false
       this.condition1Operator = nodeDefinition.condition1Operator
       this.condition1Threshold = nodeDefinition.condition1Threshold
+      this.condition1HysteresisEnabled = nodeDefinition.condition1HysteresisEnabled || false
+      this.condition1HysteresisThreshold = nodeDefinition.condition1HysteresisThreshold
       this.condition2Enabled = nodeDefinition.condition2Enabled || false
       this.condition2Service = nodeDefinition.condition2Service
       this.condition2Path = nodeDefinition.condition2Path
@@ -84,6 +86,7 @@ module.exports = function (RED) {
 
       // Conditional mode state
       this.condition1CurrentValue = null
+      this.condition1LastResult = null // Tracks condition 1 result for hysteresis
       this.condition2CurrentValue = null
       this.lastConditionalResult = null
       this.pendingConditionalResult = null // Track what result we're debouncing towards
@@ -213,12 +216,41 @@ module.exports = function (RED) {
           }
         }
 
+        // Returns the inverse operator for hysteresis "turn-off" check
+        const getInverseOperator = (operator) => {
+          const inverseOps = { '>': '<=', '>=': '<', '<': '>=', '<=': '>' }
+          return inverseOps[operator] || null
+        }
+
+        // Evaluates a condition with optional hysteresis using previousResult as state
+        const evaluateConditionWithHysteresis = (currentValue, operator, threshold, hysteresisEnabled, hysteresisThreshold, previousResult) => {
+          if (!hysteresisEnabled) {
+            return evaluateCondition(currentValue, operator, threshold)
+          }
+          const inverseOp = getInverseOperator(operator)
+          if (!inverseOp) {
+            // == and != don't have a meaningful inverse; fall back to normal evaluation
+            return evaluateCondition(currentValue, operator, threshold)
+          }
+          if (previousResult === true) {
+            // Currently ON: stay ON unless value crosses the hysteresis threshold
+            const shouldTurnOff = evaluateCondition(currentValue, inverseOp, hysteresisThreshold)
+            if (shouldTurnOff === null) return null
+            return !shouldTurnOff
+          }
+          // Currently OFF (or unknown on first evaluation): use main threshold to turn ON
+          return evaluateCondition(currentValue, operator, threshold)
+        }
+
         // Evaluate conditions and send conditional output
         this.evaluateAndSendConditional = (topic, primaryValue) => {
-          const result1 = evaluateCondition(
+          const result1 = evaluateConditionWithHysteresis(
             this.condition1CurrentValue,
             this.condition1Operator,
-            this.condition1Threshold
+            this.condition1Threshold,
+            this.condition1HysteresisEnabled,
+            this.condition1HysteresisThreshold,
+            this.condition1LastResult
           )
 
           if (result1 === null) {
@@ -227,6 +259,8 @@ module.exports = function (RED) {
             }
             return
           }
+
+          this.condition1LastResult = result1
 
           let result2 = null
           if (this.condition2Enabled) {
@@ -297,14 +331,17 @@ module.exports = function (RED) {
             : parseOutputValue(this.outputFalse, false)
 
           // Build diagnostic info
-          const info = {
-            condition1: {
-              value: this.condition1CurrentValue,
-              operator: this.condition1Operator,
-              threshold: this.condition1Threshold,
-              result: result1
-            }
+          const condition1Info = {
+            value: this.condition1CurrentValue,
+            operator: this.condition1Operator,
+            threshold: this.condition1Threshold,
+            result: result1,
+            hysteresisEnabled: this.condition1HysteresisEnabled
           }
+          if (this.condition1HysteresisEnabled) {
+            condition1Info.hysteresisThreshold = this.condition1HysteresisThreshold
+          }
+          const info = { condition1: condition1Info }
 
           if (this.condition2Enabled) {
             info.condition2 = {
