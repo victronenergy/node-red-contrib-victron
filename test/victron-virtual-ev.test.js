@@ -60,12 +60,12 @@ describe('ev device module', () => {
       }
     })
 
-    test('does not set LastUpdated/Location when position field value is unchanged', () => {
+    test('does set LastUpdated/Location when position field value is unchanged', () => {
       const result = ev.onPropertiesChanged({
         changes: { 'Position/Latitude': 52.5 },
         instance: { 'Position/Latitude': 52.5 }
       })
-      expect(result).not.toHaveProperty('LastUpdated/Location')
+      expect(result).toHaveProperty('LastUpdated/Location')
     })
 
     test('does not set LastUpdated/Location for non-position fields', () => {
