@@ -62,7 +62,7 @@ function onPropertiesChanged ({ changes, instance }) {
   }
 
   const positionFields = ['Position/Latitude', 'Position/Longitude', 'AtSite']
-  if (positionFields.some(f => f in changes && !changes['LastUpdated/Location']) {
+  if (positionFields.some(f => f in changes && !changes['LastUpdated/Location'])) {
     changes['LastUpdated/Location'] = now
   }
 
