@@ -37,10 +37,9 @@ const properties = {
     value: 0,
     persist: 300
   },
-  'LastUpdated/ChargingStarted': { type: 'i', format: formatTimestamp, persist: 300 },
+  'LastUpdated/Location': { type: 'i', format: formatTimestamp, persist: 300 },
+  'LastUpdated/Charging': { type: 'i', format: formatTimestamp, persist: 300 },
   'LastUpdated/EvContact': { type: 'i', format: formatTimestamp, persist: 300 },
-  'LastUpdated/Position': { type: 'i', format: formatTimestamp, persist: 300 },
-  'LastUpdated/ProviderContact': { type: 'i', format: formatTimestamp, persist: 300 },
   'Alarms/StarterBatteryLow': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
   Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
 }
@@ -55,16 +54,20 @@ function initialize (config, _ifaceDesc, iface, _node) {
   return 'Virtual EV'
 }
 
-function onPropertiesChanged ({ changes /* , instance */ }) {
+function onPropertiesChanged ({ changes, instance }) {
   const now = Math.floor(Date.now() / 1000)
 
-  if (!changes['LastUpdated/ProviderContact']) {
-    changes['LastUpdated/ProviderContact'] = now
+  if (!changes['LastUpdated/EvContact']) {
+    changes['LastUpdated/EvContact'] = now
   }
 
   const positionFields = ['Position/Latitude', 'Position/Longitude', 'AtSite']
-  if (positionFields.some(f => f in changes) && !changes['LastUpdated/Position']) {
-    changes['LastUpdated/Position'] = now
+  if (positionFields.some(f => f in changes && changes[f] !== instance[f]) && !changes['LastUpdated/Location']) {
+    changes['LastUpdated/Location'] = now
+  }
+
+  if ('ChargingState' in changes && changes.ChargingState !== instance.ChargingState && !changes['LastUpdated/Charging']) {
+    changes['LastUpdated/Charging'] = now
   }
 
   return changes
