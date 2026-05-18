@@ -4,7 +4,7 @@ const properties = {
     type: 'i',
     value: 2,
     min: 0,
-    max: 2,
+    max: 6,
     format: (v) => ({
       0: 'Battery',
       1: 'Fridge',

@@ -9,7 +9,7 @@
         defaults: {
             name: {value: ""},
             notificationType: {value: 2, required: true},
-            notificationTitle: {value: "", required: true}
+            notificationTitle: {value: ""}
         },
         icon: "victronenergy.svg",
         inputs: 1,
@@ -50,9 +50,9 @@
         <div class="form-row">
             <label for="node-input-notificationTitle">
                 <i class="fa fa-header"></i> Title
-                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Notification title. Can be overridden by msg.title"></i>
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Notification title. Optional if msg.title is set on the incoming message."></i>
             </label>
-            <input type="text" id="node-input-notificationTitle" placeholder="Notification Title" required>
+            <input type="text" id="node-input-notificationTitle" placeholder="Notification Title">
         </div>
 
         <div class="victron-doc-box">
