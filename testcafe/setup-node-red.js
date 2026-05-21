@@ -49,16 +49,6 @@ function nodeRedRequest (method, path, sessionCookie, body) {
   }, bodyStr)
 }
 
-async function installPackage (sessionCookie) {
-  console.log(`Installing ${PACKAGE_NAME} from ${TARBALL_URL}`)
-  const res = await nodeRedRequest('POST', '/nodes', sessionCookie, {
-    module: PACKAGE_NAME,
-    url: TARBALL_URL
-  })
-  if (res.status !== 200) throw new Error(`POST /nodes failed: ${res.status} ${res.body}`)
-  console.log('Install request accepted')
-}
-
 async function waitForNodeRed (sessionCookie) {
   console.log(`Waiting for Node-RED to come back up (max ${MAX_WAIT_MS / 1000}s)...`)
   const deadline = Date.now() + MAX_WAIT_MS
@@ -76,8 +66,29 @@ async function waitForNodeRed (sessionCookie) {
   throw new Error(`Node-RED did not become ready within ${MAX_WAIT_MS / 1000}s`)
 }
 
+async function uninstallIfPresent (sessionCookie) {
+  const check = await nodeRedRequest('GET', `/nodes/${encodeURIComponent(PACKAGE_NAME)}`, sessionCookie)
+  if (check.status === 404) return false
+  console.log(`${PACKAGE_NAME} already installed - uninstalling first...`)
+  const del = await nodeRedRequest('DELETE', `/nodes/${encodeURIComponent(PACKAGE_NAME)}`, sessionCookie)
+  if (del.status !== 204) throw new Error(`DELETE /nodes failed: ${del.status} ${del.body}`)
+  await waitForNodeRed(sessionCookie)
+  return true
+}
+
+async function installPackage (sessionCookie) {
+  console.log(`Installing ${PACKAGE_NAME} from ${TARBALL_URL}`)
+  const res = await nodeRedRequest('POST', '/nodes', sessionCookie, {
+    module: PACKAGE_NAME,
+    url: TARBALL_URL
+  })
+  if (res.status !== 200) throw new Error(`POST /nodes failed: ${res.status} ${res.body}`)
+  console.log('Install request accepted')
+}
+
 async function main () {
   const sessionCookie = await fetchSessionCookie()
+  await uninstallIfPresent(sessionCookie)
   await installPackage(sessionCookie)
   await waitForNodeRed(sessionCookie)
   console.log('Node-RED setup complete')
