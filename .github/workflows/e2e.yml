@@ -23,15 +23,22 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Pack and upload tarball
+      - name: Pack and publish temporary release
         id: pack
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           npm pack
           TARBALL=$(ls *.tgz | head -1)
-          echo "Packed: ${TARBALL}"
-          URL=$(curl -s --upload-file "./${TARBALL}" "https://transfer.sh/${TARBALL}")
-          echo "Uploaded to: ${URL}"
+          TAG="ci-e2e-tmp-${{ github.run_id }}"
+          gh release create "${TAG}" "${TARBALL}" \
+            --prerelease \
+            --title "CI E2E temp (${{ github.run_id }})" \
+            --notes "Temporary build artifact - deleted after tests complete"
+          URL=$(gh release view "${TAG}" --json assets --jq '.assets[0].browserDownloadUrl')
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
           echo "url=${URL}" >> $GITHUB_OUTPUT
+          echo "Tarball published at: ${URL}"
 
       - name: Install package on Node-RED
         env:
@@ -45,3 +52,14 @@ jobs:
           VRM_INSTALLATION_ID: ${{ secrets.VRM_INSTALLATION_ID }}
           SKIP_MQTT_VERIFICATION: 'true'
         run: npm run test:e2e
+
+      - name: Delete temporary release
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ steps.pack.outputs.tag }}"
+          if [ -n "${TAG}" ]; then
+            gh release delete "${TAG}" --yes 2>/dev/null || true
+            git push origin ":refs/tags/${TAG}" 2>/dev/null || true
+          fi
