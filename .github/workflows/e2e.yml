@@ -35,7 +35,7 @@ jobs:
             --prerelease \
             --title "CI E2E temp (${{ github.run_id }})" \
             --notes "Temporary build artifact - deleted after tests complete"
-          URL=$(gh release view "${TAG}" --json assets --jq '.assets[0].browserDownloadUrl')
+          URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/${TARBALL}"
           echo "tag=${TAG}" >> $GITHUB_OUTPUT
           echo "url=${URL}" >> $GITHUB_OUTPUT
           echo "Tarball published at: ${URL}"
