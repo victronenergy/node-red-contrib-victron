@@ -1,17 +1,27 @@
 'use strict'
 
-// Ensures @victronenergy/node-red-contrib-victron is installed on the remote
-// Node-RED instance before e2e tests run. Authenticates via VRM proxy,
-// checks the current installation, installs/updates if needed, and waits
-// for Node-RED to come back up.
+// Installs @victronenergy/node-red-contrib-victron on the remote Node-RED
+// instance via the VRM proxy before e2e tests run.
+//
+// Usage: node testcafe/setup-node-red.js --url <tarball-url>
+//
+// The tarball URL must be publicly reachable from the GX device. In the
+// GitHub Actions workflow this is produced by: npm pack && upload to transfer.sh.
 
 const https = require('https')
 const { fetchSessionCookie, PROXY_DOMAIN } = require('./vrm-auth.js')
 
 const PACKAGE_NAME = '@victronenergy/node-red-contrib-victron'
-const PACKAGE_VERSION = require('../package.json').version
 const POLL_INTERVAL_MS = 3000
-const MAX_WAIT_MS = 90000
+const MAX_WAIT_MS = 120000
+
+const args = process.argv.slice(2)
+const urlFlag = args.indexOf('--url')
+if (urlFlag === -1 || !args[urlFlag + 1]) {
+  console.error('Usage: node setup-node-red.js --url <tarball-url>')
+  process.exit(1)
+}
+const TARBALL_URL = args[urlFlag + 1]
 
 function httpsRequest (options, body) {
   return new Promise((resolve, reject) => {
@@ -39,24 +49,18 @@ function nodeRedRequest (method, path, sessionCookie, body) {
   }, bodyStr)
 }
 
-async function getInstalledVersion (sessionCookie) {
-  const res = await nodeRedRequest('GET', `/nodes/${encodeURIComponent(PACKAGE_NAME)}`, sessionCookie)
-  if (res.status === 404) return null
-  if (res.status !== 200) throw new Error(`GET /nodes failed: ${res.status} ${res.body}`)
-  return JSON.parse(res.body).version || null
-}
-
 async function installPackage (sessionCookie) {
-  console.log(`Installing ${PACKAGE_NAME}@${PACKAGE_VERSION}...`)
+  console.log(`Installing ${PACKAGE_NAME} from ${TARBALL_URL}`)
   const res = await nodeRedRequest('POST', '/nodes', sessionCookie, {
     module: PACKAGE_NAME,
-    version: PACKAGE_VERSION
+    url: TARBALL_URL
   })
   if (res.status !== 200) throw new Error(`POST /nodes failed: ${res.status} ${res.body}`)
-  console.log('Install request accepted, waiting for Node-RED to restart...')
+  console.log('Install request accepted')
 }
 
 async function waitForNodeRed (sessionCookie) {
+  console.log(`Waiting for Node-RED to come back up (max ${MAX_WAIT_MS / 1000}s)...`)
   const deadline = Date.now() + MAX_WAIT_MS
   while (Date.now() < deadline) {
     await new Promise(r => setTimeout(r, POLL_INTERVAL_MS))
@@ -66,27 +70,14 @@ async function waitForNodeRed (sessionCookie) {
         console.log('Node-RED is ready')
         return
       }
-      console.log(`Node-RED returned ${res.status}, still waiting...`)
-    } catch (_) {
-      console.log('Node-RED not responding yet, still waiting...')
-    }
+    } catch (_) {}
+    process.stdout.write('.')
   }
   throw new Error(`Node-RED did not become ready within ${MAX_WAIT_MS / 1000}s`)
 }
 
 async function main () {
-  console.log(`Checking ${PACKAGE_NAME} on Node-RED (target: ${PACKAGE_VERSION})...`)
-
   const sessionCookie = await fetchSessionCookie()
-  const installedVersion = await getInstalledVersion(sessionCookie)
-
-  console.log(`Installed: ${installedVersion || 'not installed'}, target: ${PACKAGE_VERSION}`)
-
-  if (installedVersion === PACKAGE_VERSION) {
-    console.log('Already at correct version, skipping install')
-    return
-  }
-
   await installPackage(sessionCookie)
   await waitForNodeRed(sessionCookie)
   console.log('Node-RED setup complete')
