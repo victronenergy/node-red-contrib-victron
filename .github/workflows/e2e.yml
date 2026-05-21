@@ -56,6 +56,13 @@ jobs:
           SKIP_MQTT_VERIFICATION: 'true'
         run: npm run test:e2e
 
+      - name: Teardown Node-RED
+        if: always()
+        env:
+          VRM_API_TOKEN: ${{ secrets.VRM_API_TOKEN }}
+          VRM_INSTALLATION_ID: ${{ secrets.VRM_INSTALLATION_ID }}
+        run: node testcafe/teardown-node-red.js
+
       - name: Delete temporary release
         if: always()
         env:
