@@ -2,6 +2,9 @@ name: e2e
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - feat/e2e-testcafe-vrm
 
 jobs:
   e2e:
