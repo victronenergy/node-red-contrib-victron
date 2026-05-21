@@ -1,0 +1,25 @@
+name: e2e
+
+on:
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run E2E tests
+        env:
+          VRM_API_TOKEN: ${{ secrets.VRM_API_TOKEN }}
+          VRM_INSTALLATION_ID: ${{ secrets.VRM_INSTALLATION_ID }}
+          SKIP_MQTT_VERIFICATION: 'true'
+        run: npm run test:e2e

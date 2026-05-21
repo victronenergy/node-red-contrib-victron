@@ -1,0 +1,28 @@
+{
+  "label": "TestCafe Flow Switches 1",
+  "nodes": [
+    {
+      "id": "switch1",
+      "type": "victron-virtual-switch",
+      "z": "51e29eef710f16fc",
+      "name": "",
+      "outputs": 2,
+      "switch_1_type": 1,
+      "switch_1_min": 0,
+      "switch_1_max": "",
+      "switch_1_initial": 0,
+      "switch_1_label": "",
+      "switch_1_unit": "",
+      "switch_1_step": 1,
+      "switch_1_customname": "flow-switches-1-switch1",
+      "switch_1_group": "switches-1",
+      "switch_1_include_measurement": false,
+      "switch_1_rgb_color_wheel": false,
+      "switch_1_cct_wheel": false,
+      "switch_1_rgb_white_dimmer": false,
+      "x": 120,
+      "y": 60,
+      "wires": [[], []]
+    }
+  ]
+}
