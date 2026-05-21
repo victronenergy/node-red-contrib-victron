@@ -147,8 +147,6 @@ test('Set and read switch state via MQTT', async t => {
   await t.eval(() => location.reload(true))
   await t.expect(Selector('.red-ui-tab.active').withAttribute('id', `red-ui-tab-${flowId}`).exists).ok('Flow tab did not become active')
 
-  await deploy(t)
-
   if (SKIP_MQTT) {
     console.log('SKIP_MQTT_VERIFICATION: skipping switch state assertions')
     return
