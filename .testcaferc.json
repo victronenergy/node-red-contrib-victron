@@ -1,0 +1,9 @@
+{
+  "src": ["testcafe/*test.js"],
+  "browsers": ["chrome:headless --no-sandbox --disable-dev-shm-usage"],
+  "selectorTimeout": 20000,
+  "assertionTimeout": 20000,
+  "pageLoadTimeout": 90000,
+  "testExecutionTimeout": 300000,
+  "stopOnFirstFail": false
+}

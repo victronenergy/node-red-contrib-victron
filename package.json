@@ -51,7 +51,7 @@
     "build:test": "rollup -c rollup.test.config.mjs",
     "test": "npm run lint && npm run build && npm run build:test && npm run test:unit",
     "test:unit": "jest",
-    "test:e2e": "testcafe 'chrome:headless' testcafe/*test.js",
+    "test:e2e": "testcafe",
     "test:coverage": "jest --coverage",
     "lint": "standard --fix src/ scripts/",
     "verify": "npm test",
