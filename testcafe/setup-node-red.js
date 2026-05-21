@@ -6,7 +6,7 @@
 // Usage: node testcafe/setup-node-red.js --url <tarball-url>
 //
 // The tarball URL must be publicly reachable from the GX device. In the
-// GitHub Actions workflow this is produced by: npm pack && upload to transfer.sh.
+// GitHub Actions workflow this is produced by: npm pack && gh release create (prerelease).
 
 const https = require('https')
 const { fetchSessionCookie, PROXY_DOMAIN } = require('./vrm-auth.js')
@@ -36,7 +36,7 @@ function httpsRequest (options, body) {
   })
 }
 
-function nodeRedRequest (method, path, sessionCookie, body) {
+function nodeRedRequest (method, path, sessionCookie, body, extraHeaders) {
   const bodyStr = body ? JSON.stringify(body) : undefined
   return httpsRequest({
     hostname: PROXY_DOMAIN,
@@ -44,7 +44,8 @@ function nodeRedRequest (method, path, sessionCookie, body) {
     method,
     headers: {
       cookie: `VRMPROXYSESSION=${sessionCookie}`,
-      ...(bodyStr ? { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(bodyStr) } : {})
+      ...(bodyStr ? { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(bodyStr) } : {}),
+      ...(extraHeaders || {})
     }
   }, bodyStr)
 }
@@ -66,14 +67,34 @@ async function waitForNodeRed (sessionCookie) {
   throw new Error(`Node-RED did not become ready within ${MAX_WAIT_MS / 1000}s`)
 }
 
+async function clearAllFlows (sessionCookie) {
+  const getRes = await nodeRedRequest('GET', '/flows', sessionCookie, null, { 'Node-RED-API-Version': 'v2' })
+  if (getRes.status !== 200) return
+  const { rev } = JSON.parse(getRes.body)
+  const postRes = await nodeRedRequest('POST', '/flows', sessionCookie, { flows: [], rev }, { 'Node-RED-API-Version': 'v2' })
+  console.log(`Cleared all flows: ${postRes.status}`)
+}
+
 async function uninstallIfPresent (sessionCookie) {
   const check = await nodeRedRequest('GET', `/nodes/${encodeURIComponent(PACKAGE_NAME)}`, sessionCookie)
   if (check.status === 404) return false
   console.log(`${PACKAGE_NAME} already installed - uninstalling first...`)
   const del = await nodeRedRequest('DELETE', `/nodes/${encodeURIComponent(PACKAGE_NAME)}`, sessionCookie)
-  if (del.status !== 204) throw new Error(`DELETE /nodes failed: ${del.status} ${del.body}`)
-  await waitForNodeRed(sessionCookie)
-  return true
+  if (del.status === 204) {
+    await waitForNodeRed(sessionCookie)
+    return true
+  }
+  const body = JSON.parse(del.body || '{}')
+  if (body.code === 'type_in_use') {
+    console.log('type_in_use: clearing all flows first, then retrying uninstall...')
+    await clearAllFlows(sessionCookie)
+    await waitForNodeRed(sessionCookie)
+    const retry = await nodeRedRequest('DELETE', `/nodes/${encodeURIComponent(PACKAGE_NAME)}`, sessionCookie)
+    if (retry.status !== 204) throw new Error(`DELETE /nodes retry failed: ${retry.status} ${retry.body}`)
+    await waitForNodeRed(sessionCookie)
+    return true
+  }
+  throw new Error(`DELETE /nodes failed: ${del.status} ${del.body}`)
 }
 
 async function installPackage (sessionCookie) {

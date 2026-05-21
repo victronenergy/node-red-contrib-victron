@@ -24,7 +24,7 @@ function httpsRequest (options, body) {
   })
 }
 
-function nodeRedRequest (method, path, sessionCookie, body) {
+function nodeRedRequest (method, path, sessionCookie, body, extraHeaders) {
   const bodyStr = body ? JSON.stringify(body) : undefined
   return httpsRequest({
     hostname: PROXY_DOMAIN,
@@ -32,24 +32,26 @@ function nodeRedRequest (method, path, sessionCookie, body) {
     method,
     headers: {
       cookie: `VRMPROXYSESSION=${sessionCookie}`,
-      ...(bodyStr ? { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(bodyStr) } : {})
+      ...(bodyStr ? { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(bodyStr) } : {}),
+      ...(extraHeaders || {})
     }
   }, bodyStr)
 }
 
-async function deleteAllFlows (sessionCookie) {
-  console.log('Fetching existing flows...')
-  const res = await nodeRedRequest('GET', '/flows', sessionCookie)
-  if (res.status !== 200) {
-    console.warn(`GET /flows returned ${res.status}, skipping flow cleanup`)
+async function clearAllFlows (sessionCookie) {
+  console.log('Fetching current flows revision...')
+  const getRes = await nodeRedRequest('GET', '/flows', sessionCookie, null, { 'Node-RED-API-Version': 'v2' })
+  if (getRes.status !== 200) {
+    console.warn(`GET /flows returned ${getRes.status}, skipping flow cleanup`)
     return
   }
-  const { flows } = JSON.parse(res.body)
-  const tabs = flows.filter(n => n.type === 'tab')
-  console.log(`Found ${tabs.length} flow tab(s) to delete`)
-  for (const tab of tabs) {
-    const del = await nodeRedRequest('DELETE', `/flow/${tab.id}`, sessionCookie)
-    console.log(`DELETE /flow/${tab.id} (${tab.label}): ${del.status}`)
+  const { rev } = JSON.parse(getRes.body)
+  console.log(`Clearing all flows (rev ${rev})...`)
+  const postRes = await nodeRedRequest('POST', '/flows', sessionCookie, { flows: [], rev }, { 'Node-RED-API-Version': 'v2' })
+  if (postRes.status === 200 || postRes.status === 204) {
+    console.log('All flows cleared')
+  } else {
+    console.warn(`POST /flows returned ${postRes.status}: ${postRes.body}`)
   }
 }
 
@@ -81,7 +83,7 @@ async function waitForNodeRed (sessionCookie) {
 
 async function main () {
   const sessionCookie = await fetchSessionCookie()
-  await deleteAllFlows(sessionCookie)
+  await clearAllFlows(sessionCookie)
   await uninstallPackage(sessionCookie)
   await waitForNodeRed(sessionCookie)
   console.log('Teardown complete')
