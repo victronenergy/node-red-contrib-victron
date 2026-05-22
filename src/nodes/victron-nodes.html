@@ -130,6 +130,37 @@
                     <label for="node-input-condition1-threshold">Threshold</label>
                     <input type="number" id="node-input-condition1-threshold" placeholder="e.g., 50" step="any" autocomplete="off" data-lpignore="true">
                 </div>
+
+                <!-- Hysteresis (Advanced) -->
+                <div class="form-row victron-condition-row">
+                    <label>&nbsp;</label>
+                    <button type="button" id="toggle-hysteresis-btn" class="victron-add-condition-btn">
+                        <i class="fa fa-chevron-right" id="hysteresis-chevron"></i> Advanced: Hysteresis
+                    </button>
+                </div>
+                <div id="hysteresis-panel" class="hidden">
+                    <div class="form-tips">
+                        Hysteresis prevents rapid switching near a threshold. Example: turn ON above 80%, turn OFF only when it drops below 70%.
+                    </div>
+                    <div class="form-row victron-condition-row">
+                        <label for="node-input-condition1HysteresisEnabled">
+                            Enable hysteresis
+                            <i class="fa fa-info-circle tooltip-icon" data-tooltip="When enabled, the condition stays TRUE until the value crosses a second (turn-off) threshold, preventing rapid switching near the main threshold."></i>
+                        </label>
+                        <input type="checkbox" id="node-input-condition1HysteresisEnabled">
+                    </div>
+                    <div id="hysteresis-threshold-row" class="form-row victron-condition-row hidden">
+                        <label for="node-input-condition1HysteresisThreshold">
+                            Turn-off threshold
+                            <i class="fa fa-info-circle tooltip-icon" data-tooltip="Value at which the condition switches back to FALSE. Should be on the opposite side of the main threshold (e.g., main > 80, turn-off < 70)."></i>
+                        </label>
+                        <input type="number" id="node-input-condition1HysteresisThreshold" placeholder="e.g., 70" step="any" autocomplete="off" data-lpignore="true">
+                    </div>
+                    <div class="form-warning hidden" id="hysteresis-warning">
+                        <i class="fa fa-exclamation-circle"></i>
+                        <span id="hysteresis-warning-text"></span>
+                    </div>
+                </div>
             </div>
 
             <!-- Second Condition Toggle -->
@@ -422,12 +453,49 @@
                 if (node.logicOperator) $('input[name="logicOperator"][value="' + node.logicOperator + '"]').prop('checked', true);
             }
 
+            // Restore hysteresis state
+            if (node.condition1HysteresisEnabled) {
+                $('#hysteresis-panel').removeClass('hidden').show();
+                $('#hysteresis-chevron').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+                $('#node-input-condition1HysteresisEnabled').prop('checked', true);
+                $('#hysteresis-threshold-row').removeClass('hidden').show();
+                if (node.condition1HysteresisThreshold !== undefined) {
+                    $('#node-input-condition1HysteresisThreshold').val(node.condition1HysteresisThreshold);
+                }
+            }
+
             // Restore output configuration
             if (node.outputTrue !== undefined) $('#node-input-outputTrue').val(node.outputTrue);
             if (node.outputFalse !== undefined) $('#node-input-outputFalse').val(node.outputFalse);
             // outputOnChange is now always enforced to true in the backend for conditional mode
             if (node.debounce !== undefined) $('#node-input-debounce').val(node.debounce);
         }
+
+        // Toggle hysteresis advanced panel
+        $('#toggle-hysteresis-btn').on('click', function() {
+            const $panel = $('#hysteresis-panel');
+            const $chevron = $('#hysteresis-chevron');
+            if ($panel.is(':visible')) {
+                $panel.slideUp(200);
+                $chevron.removeClass('fa-chevron-down').addClass('fa-chevron-right');
+            } else {
+                $panel.removeClass('hidden').slideDown(200);
+                $chevron.removeClass('fa-chevron-right').addClass('fa-chevron-down');
+            }
+        });
+
+        // Show/hide hysteresis threshold field based on checkbox
+        $('#node-input-condition1HysteresisEnabled').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#hysteresis-threshold-row').removeClass('hidden').slideDown(200);
+            } else {
+                $('#hysteresis-threshold-row').slideUp(200, function() {
+                    $('#hysteresis-threshold-row').addClass('hidden');
+                    $('#node-input-condition1HysteresisThreshold').val('');
+                });
+            }
+            validateHysteresisThreshold();
+        });
 
         // Toggle conditional mode panel
         $conditionalMode.on('change', function() {
@@ -470,6 +538,8 @@
 
         // Threshold validation
         const $thresholdWarning = $('#threshold-warning');
+        const $hysteresisWarning = $('#hysteresis-warning');
+        const $hysteresisWarningText = $('#hysteresis-warning-text');
 
         function validateThreshold() {
             if (!$conditionalMode.is(':checked')) {
@@ -485,23 +555,67 @@
             return true;
         }
 
+        function validateHysteresisThreshold() {
+            const showWarning = function(msg) {
+                $hysteresisWarningText.text(msg);
+                $hysteresisWarning.removeClass('hidden').show();
+                return false;
+            };
+            $hysteresisWarning.hide();
+
+            if (!$conditionalMode.is(':checked')) return true;
+            if (!$('#node-input-condition1HysteresisEnabled').is(':checked')) return true;
+
+            const operator = $('#node-input-condition1-operator').val();
+
+            if (operator === '==' || operator === '!=') {
+                return showWarning('Hysteresis has no effect with == or != operators.');
+            }
+
+            const hysteresisVal = $('#node-input-condition1HysteresisThreshold').val();
+            if (hysteresisVal === '' || hysteresisVal === null || hysteresisVal === undefined) {
+                return showWarning('Turn-off threshold is required when hysteresis is enabled.');
+            }
+
+            const mainThreshold = parseFloat($('#node-input-condition1-threshold').val());
+            const hysteresisThreshold = parseFloat(hysteresisVal);
+
+            if (isNaN(mainThreshold)) return true; // main threshold not yet filled in
+
+            if ((operator === '>' || operator === '>=') && hysteresisThreshold >= mainThreshold) {
+                return showWarning('Turn-off threshold must be lower than the main threshold (e.g., main > 80, turn-off < 70).');
+            }
+            if ((operator === '<' || operator === '<=') && hysteresisThreshold <= mainThreshold) {
+                return showWarning('Turn-off threshold must be higher than the main threshold (e.g., main < 20, turn-off > 30).');
+            }
+
+            return true;
+        }
+
         // Update preview when operator/threshold changes (no data fetch needed)
         $('#node-input-condition1-operator, #node-input-condition1-threshold, ' +
           '#node-input-condition2-operator, #node-input-condition2-threshold, ' +
           'input[name="logicOperator"]').on('change input', function() {
             updateLivePreview();
             validateThreshold();
+            validateHysteresisThreshold();
+        });
+
+        $('#node-input-condition1HysteresisThreshold').on('input change', function() {
+            validateHysteresisThreshold();
         });
 
         // Start preview and fetch initial data when conditional mode is enabled
         $conditionalMode.on('change', function() {
             if ($(this).is(':checked')) {
                 validateThreshold();
+                validateHysteresisThreshold();
                 setTimeout(function() {
                     startLivePreview();
                 }, 100);
             } else {
                 validateThreshold();
+                validateHysteresisThreshold();
             }
         });
 
@@ -969,6 +1083,14 @@
                 node.condition1Operator = $('#node-input-condition1-operator').val();
                 node.condition1Threshold = parseFloat($('#node-input-condition1-threshold').val());
 
+                // Hysteresis
+                node.condition1HysteresisEnabled = $('#node-input-condition1HysteresisEnabled').is(':checked');
+                if (node.condition1HysteresisEnabled) {
+                    node.condition1HysteresisThreshold = parseFloat($('#node-input-condition1HysteresisThreshold').val());
+                } else {
+                    delete node.condition1HysteresisThreshold;
+                }
+
                 // Condition 2
                 node.condition2Enabled = $('#condition-2-panel').is(':visible');
                 if (node.condition2Enabled) {
@@ -1005,6 +1127,8 @@
                 // Clear all conditional mode data if disabled
                 delete node.condition1Operator;
                 delete node.condition1Threshold;
+                delete node.condition1HysteresisEnabled;
+                delete node.condition1HysteresisThreshold;
                 delete node.condition2Enabled;
                 delete node.condition2Service;
                 delete node.condition2Path;
@@ -1109,6 +1233,8 @@
                 conditionalMode: { value: false },
                 condition1Operator: { value: ">" },
                 condition1Threshold: { value: undefined },
+                condition1HysteresisEnabled: { value: false },
+                condition1HysteresisThreshold: { value: undefined },
                 condition2Enabled: { value: false },
                 condition2Service: { value: "" },
                 condition2Path: { value: "" },

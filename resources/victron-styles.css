@@ -417,6 +417,12 @@
   box-sizing: border-box;
 }
 
+.victron-form .victron-condition-section .form-warning,
+.victron-form .victron-condition-section .form-info,
+.victron-form .victron-condition-section .form-tips {
+  width: auto;
+}
+
 .victron-form .victron-condition-header {
   display: flex;
   justify-content: space-between;
@@ -478,7 +484,7 @@
 .victron-form .victron-condition-row input[type="number"],
 .victron-form .victron-condition-row select,
 .victron-form .victron-logic-row .victron-logic-toggle {
-  width: 220px !important;
+  width: 210px !important;
 }
 
 /* Add condition button */
