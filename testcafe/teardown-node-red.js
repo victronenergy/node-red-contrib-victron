@@ -4,6 +4,8 @@
 // 1. Removes all non-system flows added during tests.
 // 2. Uninstalls the package so the device is left in a clean state.
 
+// TODO: we do not call this at the moment from the gihhub workflow.
+
 const https = require('https')
 const { fetchSessionCookie, PROXY_DOMAIN } = require('./vrm-auth.js')
 
@@ -71,11 +73,11 @@ async function waitForNodeRed (sessionCookie) {
   console.log('Waiting for Node-RED to restart after uninstall...')
   const deadline = Date.now() + MAX_WAIT_MS
   while (Date.now() < deadline) {
-    await new Promise(r => setTimeout(r, POLL_INTERVAL_MS))
+    await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL_MS))
     try {
       const res = await nodeRedRequest('GET', '/', sessionCookie)
       if (res.status === 200) { console.log('Node-RED is ready'); return }
-    } catch (_) {}
+    } catch (_) { }
     process.stdout.write('.')
   }
   console.warn('Node-RED did not come back within timeout - continuing anyway')
