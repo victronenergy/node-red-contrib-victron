@@ -54,7 +54,7 @@ async function waitForNodeRed (sessionCookie) {
   console.log(`Waiting for Node-RED to come back up (max ${MAX_WAIT_MS / 1000}s)...`)
   const deadline = Date.now() + MAX_WAIT_MS
   while (Date.now() < deadline) {
-    await new Promise(r => setTimeout(r, POLL_INTERVAL_MS))
+    await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL_MS))
     try {
       const res = await nodeRedRequest('GET', '/', sessionCookie)
       if (res.status === 200) {
@@ -78,11 +78,14 @@ async function clearAllFlows (sessionCookie) {
 async function uninstallIfPresent (sessionCookie) {
   const check = await nodeRedRequest('GET', `/nodes/${encodeURIComponent(PACKAGE_NAME)}`, sessionCookie)
   if (check.status === 404) return false
-  console.log(`${PACKAGE_NAME} already installed - uninstalling first...`)
+  console.log(`${PACKAGE_NAME} already installed - uninstalling first..., now=${new Date().toISOString()}`)
   const del = await nodeRedRequest('DELETE', `/nodes/${encodeURIComponent(PACKAGE_NAME)}`, sessionCookie)
   if (del.status === 204) {
+    console.log(`Uninstall successful, waiting for Node-RED to restart..., now=${new Date().toISOString()}`)
     await waitForNodeRed(sessionCookie)
     return true
+  } else {
+    console.log(`Uninstall failed: ${del.status} ${del.body}, now=${new Date().toISOString()}`)
   }
   const body = JSON.parse(del.body || '{}')
   if (body.code === 'type_in_use') {
