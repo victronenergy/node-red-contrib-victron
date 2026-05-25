@@ -85,7 +85,9 @@ function createSwitchProperties (config, ifaceDesc, iface) {
         if (v & 0b100) parts.push('Remote UIs')
         return parts.length > 0 ? parts.join(' + ') : 'Hidden'
       }
-    }
+    },
+    // 0 = all settings (CustomName, Group) are read-only in the GUI; they are stored in the flow, not the UI
+    { name: 'Settings/Adjustable', type: 'i', value: 0, format: (v) => v === 0 ? 'Read-only' : 'Writable' }
   ]
 
   const switchType = Number(config.switch_1_type ?? 1)
