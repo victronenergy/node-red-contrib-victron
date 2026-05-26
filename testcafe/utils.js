@@ -4,7 +4,8 @@ const { fetchSessionCookie } = require('./vrm-auth.js')
 
 // Populated at fixture-before time by setupVrmFixture; safe to import statically
 // because test functions always run after fixture.before completes.
-export let NODE_RED_ENDPOINT = null
+// allow dynamic override for testing without VRM auth
+export let NODE_RED_ENDPOINT = process.env.NODE_RED_ENDPOINT || null
 let PROXY_DOMAIN = null
 
 // t.request uses TestCafe's own network stack, not the browser cookie jar,
@@ -18,25 +19,30 @@ function vrmRequestHeaders (t) {
 // Fetches a 24-hour session cookie once before the suite, then injects it
 // into the browser and into t.request headers before each test.
 export function setupVrmFixture (fixture) {
-  return fixture
-    .page('about:blank')
-    .before(async ctx => {
-      const { sessionCookie, proxyDomain } = await fetchSessionCookie()
-      ctx.sessionCookie = sessionCookie
-      PROXY_DOMAIN = proxyDomain
-      NODE_RED_ENDPOINT = `https://${proxyDomain}`
-    })
-    .beforeEach(async t => {
-      await t.setCookies([{
-        name: 'VRMPROXYSESSION',
-        value: t.fixtureCtx.sessionCookie,
-        domain: PROXY_DOMAIN,
-        path: '/',
-        secure: true,
-        httpOnly: true
-      }])
-      await t.navigateTo(NODE_RED_ENDPOINT)
-    })
+  if (NODE_RED_ENDPOINT) {
+    console.warn(`WARNING: Using NODE_RED_ENDPOINT from environment: ${NODE_RED_ENDPOINT}.`)
+    return fixture.page(NODE_RED_ENDPOINT)
+  } else {
+    return fixture
+      .page('about:blank')
+      .before(async ctx => {
+        const { sessionCookie, proxyDomain } = await fetchSessionCookie()
+        ctx.sessionCookie = sessionCookie
+        PROXY_DOMAIN = proxyDomain
+        NODE_RED_ENDPOINT = `https://${proxyDomain}`
+      })
+      .beforeEach(async t => {
+        await t.setCookies([{
+          name: 'VRMPROXYSESSION',
+          value: t.fixtureCtx.sessionCookie,
+          domain: PROXY_DOMAIN,
+          path: '/',
+          secure: true,
+          httpOnly: true
+        }])
+        await t.navigateTo(NODE_RED_ENDPOINT)
+      })
+  }
 }
 
 export async function setupFlow (t, flowName, nameOverride) {
