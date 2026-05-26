@@ -80,6 +80,9 @@ async function uninstallIfPresent (sessionCookie) {
     const check = await nodeRedRequest('GET', `/nodes/${encodeURIComponent(PACKAGE_NAME)}`, sessionCookie)
     console.log(`Checking if ${PACKAGE_NAME} is already installed: now=${new Date().toISOString()}, result:`, check)
     if (check.status === 404) return false
+    if (check.status !== 200) {
+      throw new Error(`Unexpected status ${check.status} from GET /nodes: ${check.body}`)
+    }
     console.log(`${PACKAGE_NAME} already installed - uninstalling first..., now=${new Date().toISOString()}`)
     const del = await nodeRedRequest('DELETE', `/nodes/${encodeURIComponent(PACKAGE_NAME)}`, sessionCookie)
     if (del.status === 204) {
