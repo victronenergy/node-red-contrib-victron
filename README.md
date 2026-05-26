@@ -82,6 +82,12 @@ To run an individual e2e / black box test, against Chrome, with live-reload:
 npx testcafe chrome testcafe/switches-config-test.js --live
 ```
 
+To run e2e tests against a local installation (without running via VRM), define `NODE_RED_ENDPOINT`:
+
+```bash
+NODE_RED_ENDPOINT=http://localhost:1880 npm run test:e2e
+```
+
 ## License
 
 [MIT](https://github.com/victronenergy/node-red-contrib-victron/blob/master/LICENSE)
