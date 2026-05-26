@@ -75,14 +75,27 @@ async function clearAllFlows (sessionCookie) {
   console.log(`Cleared all flows: ${postRes.status}`)
 }
 
+async function checkNodeInstalled (sessionCookie) {
+  const CHECK_RETRIES = 10
+  const CHECK_RETRY_DELAY_MS = 5000
+  for (let attempt = 1; attempt <= CHECK_RETRIES; attempt++) {
+    const check = await nodeRedRequest('GET', `/nodes/${encodeURIComponent(PACKAGE_NAME)}`, sessionCookie)
+    console.log(`Checking if ${PACKAGE_NAME} is already installed (attempt ${attempt}/${CHECK_RETRIES}): now=${new Date().toISOString()}, result:`, check)
+    if (check.status === 200) return check
+    if (check.status === 404) return check
+    if (check.status === 403 && attempt < CHECK_RETRIES) {
+      console.log(`Got 403 (tunnel instability), retrying in ${CHECK_RETRY_DELAY_MS / 1000}s...`)
+      await new Promise(resolve => setTimeout(resolve, CHECK_RETRY_DELAY_MS))
+      continue
+    }
+    throw new Error(`Unexpected status ${check.status} from GET /nodes: ${check.body}`)
+  }
+}
+
 async function uninstallIfPresent (sessionCookie) {
   try {
-    const check = await nodeRedRequest('GET', `/nodes/${encodeURIComponent(PACKAGE_NAME)}`, sessionCookie)
-    console.log(`Checking if ${PACKAGE_NAME} is already installed: now=${new Date().toISOString()}, result:`, check)
+    const check = await checkNodeInstalled(sessionCookie)
     if (check.status === 404) return false
-    if (check.status !== 200) {
-      throw new Error(`Unexpected status ${check.status} from GET /nodes: ${check.body}`)
-    }
     console.log(`${PACKAGE_NAME} already installed - uninstalling first..., now=${new Date().toISOString()}`)
     const del = await nodeRedRequest('DELETE', `/nodes/${encodeURIComponent(PACKAGE_NAME)}`, sessionCookie)
     if (del.status === 204) {
