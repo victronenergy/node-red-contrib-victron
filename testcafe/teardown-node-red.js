@@ -7,7 +7,7 @@
 // TODO: we do not call this at the moment from the gihhub workflow.
 
 const https = require('https')
-const { fetchSessionCookie, PROXY_DOMAIN } = require('./vrm-auth.js')
+const { fetchSessionCookie } = require('./vrm-auth.js')
 
 const PACKAGE_NAME = '@victronenergy/node-red-contrib-victron'
 const POLL_INTERVAL_MS = 3000
@@ -26,10 +26,10 @@ function httpsRequest (options, body) {
   })
 }
 
-function nodeRedRequest (method, path, sessionCookie, body, extraHeaders) {
+function nodeRedRequest (proxyDomain, method, path, sessionCookie, body, extraHeaders) {
   const bodyStr = body ? JSON.stringify(body) : undefined
   return httpsRequest({
-    hostname: PROXY_DOMAIN,
+    hostname: proxyDomain,
     path,
     method,
     headers: {
@@ -40,16 +40,16 @@ function nodeRedRequest (method, path, sessionCookie, body, extraHeaders) {
   }, bodyStr)
 }
 
-async function clearAllFlows (sessionCookie) {
+async function clearAllFlows (proxyDomain, sessionCookie) {
   console.log('Fetching current flows revision...')
-  const getRes = await nodeRedRequest('GET', '/flows', sessionCookie, null, { 'Node-RED-API-Version': 'v2' })
+  const getRes = await nodeRedRequest(proxyDomain, 'GET', '/flows', sessionCookie, null, { 'Node-RED-API-Version': 'v2' })
   if (getRes.status !== 200) {
     console.warn(`GET /flows returned ${getRes.status}, skipping flow cleanup`)
     return
   }
   const { rev } = JSON.parse(getRes.body)
   console.log(`Clearing all flows (rev ${rev})...`)
-  const postRes = await nodeRedRequest('POST', '/flows', sessionCookie, { flows: [], rev }, { 'Node-RED-API-Version': 'v2' })
+  const postRes = await nodeRedRequest(proxyDomain, 'POST', '/flows', sessionCookie, { flows: [], rev }, { 'Node-RED-API-Version': 'v2' })
   if (postRes.status === 200 || postRes.status === 204) {
     console.log('All flows cleared')
   } else {
@@ -57,9 +57,9 @@ async function clearAllFlows (sessionCookie) {
   }
 }
 
-async function uninstallPackage (sessionCookie) {
+async function uninstallPackage (proxyDomain, sessionCookie) {
   console.log(`Uninstalling ${PACKAGE_NAME}...`)
-  const res = await nodeRedRequest('DELETE', `/nodes/${encodeURIComponent(PACKAGE_NAME)}`, sessionCookie)
+  const res = await nodeRedRequest(proxyDomain, 'DELETE', `/nodes/${encodeURIComponent(PACKAGE_NAME)}`, sessionCookie)
   if (res.status === 204) {
     console.log('Package uninstalled')
   } else if (res.status === 404) {
@@ -69,13 +69,13 @@ async function uninstallPackage (sessionCookie) {
   }
 }
 
-async function waitForNodeRed (sessionCookie) {
+async function waitForNodeRed (proxyDomain, sessionCookie) {
   console.log('Waiting for Node-RED to restart after uninstall...')
   const deadline = Date.now() + MAX_WAIT_MS
   while (Date.now() < deadline) {
     await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL_MS))
     try {
-      const res = await nodeRedRequest('GET', '/', sessionCookie)
+      const res = await nodeRedRequest(proxyDomain, 'GET', '/', sessionCookie)
       if (res.status === 200) { console.log('Node-RED is ready'); return }
     } catch (_) { }
     process.stdout.write('.')
@@ -84,10 +84,10 @@ async function waitForNodeRed (sessionCookie) {
 }
 
 async function main () {
-  const sessionCookie = await fetchSessionCookie()
-  await clearAllFlows(sessionCookie)
-  await uninstallPackage(sessionCookie)
-  await waitForNodeRed(sessionCookie)
+  const { sessionCookie, proxyDomain } = await fetchSessionCookie()
+  await clearAllFlows(proxyDomain, sessionCookie)
+  await uninstallPackage(proxyDomain, sessionCookie)
+  await waitForNodeRed(proxyDomain, sessionCookie)
   console.log('Teardown complete')
 }
 

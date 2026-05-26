@@ -1,8 +1,11 @@
 const { readFileSync } = require('fs')
 const { Selector } = require('testcafe')
-const { fetchSessionCookie, NODE_RED_ENDPOINT, PROXY_DOMAIN } = require('./vrm-auth.js')
+const { fetchSessionCookie } = require('./vrm-auth.js')
 
-export { NODE_RED_ENDPOINT }
+// Populated at fixture-before time by setupVrmFixture; safe to import statically
+// because test functions always run after fixture.before completes.
+export let NODE_RED_ENDPOINT = null
+let PROXY_DOMAIN = null
 
 // t.request uses TestCafe's own network stack, not the browser cookie jar,
 // so we must add the session cookie explicitly to every request header.
@@ -18,7 +21,10 @@ export function setupVrmFixture (fixture) {
   return fixture
     .page('about:blank')
     .before(async ctx => {
-      ctx.sessionCookie = await fetchSessionCookie()
+      const { sessionCookie, proxyDomain } = await fetchSessionCookie()
+      ctx.sessionCookie = sessionCookie
+      PROXY_DOMAIN = proxyDomain
+      NODE_RED_ENDPOINT = `https://${proxyDomain}`
     })
     .beforeEach(async t => {
       await t.setCookies([{

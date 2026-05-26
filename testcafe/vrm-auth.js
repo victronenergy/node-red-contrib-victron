@@ -5,8 +5,6 @@ const https = require('https')
 const VRM_INSTALLATION_ID = process.env.VRM_INSTALLATION_ID || '445836'
 const VRM_API_TOKEN = process.env.VRM_API_TOKEN
 const VRM_API_HOST = 'vrmapi.victronenergy.com'
-const PROXY_DOMAIN = `${VRM_INSTALLATION_ID}-nodered.proxyrelay2.victronenergy.com`
-const NODE_RED_ENDPOINT = `https://${PROXY_DOMAIN}`
 
 function httpsRequest (options) {
   return new Promise((resolve, reject) => {
@@ -20,7 +18,7 @@ function httpsRequest (options) {
   })
 }
 
-async function fetchProxyToken () {
+async function fetchProxyTokenAndRelay () {
   if (!VRM_API_TOKEN) throw new Error('VRM_API_TOKEN environment variable is required')
   const res = await httpsRequest({
     hostname: VRM_API_HOST,
@@ -35,15 +33,18 @@ async function fetchProxyToken () {
   if (res.status !== 200) throw new Error(`proxy-relay request failed: ${res.status} ${res.body}`)
   const data = JSON.parse(res.body)
   if (!data.success || !data.token) throw new Error(`Unexpected proxy-relay response: ${res.body}`)
-  return data.token
+  // proxy_relay is e.g. "*.proxyrelay7.victronenergy.com"
+  const relayDomain = data.proxy_relay ? data.proxy_relay.replace(/^\*\./, '') : 'proxyrelay2.victronenergy.com'
+  const proxyDomain = `${VRM_INSTALLATION_ID}-nodered.${relayDomain}`
+  return { token: data.token, proxyDomain }
 }
 
-// Performs the two-step VRM proxy auth and returns the VRMPROXYSESSION cookie value.
-// The cookie is valid for 24 hours (Max-Age=86400), so one call per fixture is sufficient.
+// Performs the two-step VRM proxy auth and returns the VRMPROXYSESSION cookie value
+// and the proxy domain to use for subsequent requests.
 async function fetchSessionCookie () {
-  const proxyToken = await fetchProxyToken()
+  const { token: proxyToken, proxyDomain } = await fetchProxyTokenAndRelay()
   const res = await httpsRequest({
-    hostname: PROXY_DOMAIN,
+    hostname: proxyDomain,
     path: `/proxyauthorize?proxytoken=${proxyToken}`,
     method: 'GET',
     headers: { Accept: '*/*' }
@@ -53,8 +54,8 @@ async function fetchSessionCookie () {
   const cookieStr = Array.isArray(rawCookie) ? rawCookie.join('; ') : rawCookie
   const match = cookieStr.match(/VRMPROXYSESSION=([^;]+)/)
   if (!match) throw new Error(`VRMPROXYSESSION not found in Set-Cookie: ${cookieStr}`)
-  console.log(`VRM proxy session established for installation ${VRM_INSTALLATION_ID}`)
-  return match[1]
+  console.log(`VRM proxy session established for installation ${VRM_INSTALLATION_ID} via ${proxyDomain}`)
+  return { sessionCookie: match[1], proxyDomain }
 }
 
-module.exports = { fetchSessionCookie, NODE_RED_ENDPOINT, PROXY_DOMAIN, VRM_INSTALLATION_ID }
+module.exports = { fetchSessionCookie, VRM_INSTALLATION_ID }

@@ -9,7 +9,7 @@
 // GitHub Actions workflow this is produced by: npm pack && gh release create (prerelease).
 
 const https = require('https')
-const { fetchSessionCookie, PROXY_DOMAIN } = require('./vrm-auth.js')
+const { fetchSessionCookie } = require('./vrm-auth.js')
 
 const PACKAGE_NAME = '@victronenergy/node-red-contrib-victron'
 const POLL_INTERVAL_MS = 3000
@@ -36,10 +36,10 @@ function httpsRequest (options, body) {
   })
 }
 
-function nodeRedRequest (method, path, sessionCookie, body, extraHeaders) {
+function nodeRedRequest (proxyDomain, method, path, sessionCookie, body, extraHeaders) {
   const bodyStr = body ? JSON.stringify(body) : undefined
   return httpsRequest({
-    hostname: PROXY_DOMAIN,
+    hostname: proxyDomain,
     path,
     method,
     headers: {
@@ -50,13 +50,13 @@ function nodeRedRequest (method, path, sessionCookie, body, extraHeaders) {
   }, bodyStr)
 }
 
-async function waitForNodeRed (sessionCookie) {
+async function waitForNodeRed (proxyDomain, sessionCookie) {
   console.log(`Waiting for Node-RED to come back up (max ${MAX_WAIT_MS / 1000}s)...`)
   const deadline = Date.now() + MAX_WAIT_MS
   while (Date.now() < deadline) {
     await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL_MS))
     try {
-      const res = await nodeRedRequest('GET', '/', sessionCookie)
+      const res = await nodeRedRequest(proxyDomain, 'GET', '/', sessionCookie)
       if (res.status === 200) {
         console.log('Node-RED is ready')
         return
@@ -67,40 +67,27 @@ async function waitForNodeRed (sessionCookie) {
   throw new Error(`Node-RED did not become ready within ${MAX_WAIT_MS / 1000}s`)
 }
 
-async function clearAllFlows (sessionCookie) {
-  const getRes = await nodeRedRequest('GET', '/flows', sessionCookie, null, { 'Node-RED-API-Version': 'v2' })
+async function clearAllFlows (proxyDomain, sessionCookie) {
+  const getRes = await nodeRedRequest(proxyDomain, 'GET', '/flows', sessionCookie, null, { 'Node-RED-API-Version': 'v2' })
   if (getRes.status !== 200) return
   const { rev } = JSON.parse(getRes.body)
-  const postRes = await nodeRedRequest('POST', '/flows', sessionCookie, { flows: [], rev }, { 'Node-RED-API-Version': 'v2' })
+  const postRes = await nodeRedRequest(proxyDomain, 'POST', '/flows', sessionCookie, { flows: [], rev }, { 'Node-RED-API-Version': 'v2' })
   console.log(`Cleared all flows: ${postRes.status}`)
 }
 
-async function checkNodeInstalled (sessionCookie) {
-  const CHECK_RETRIES = 10
-  const CHECK_RETRY_DELAY_MS = 5000
-  for (let attempt = 1; attempt <= CHECK_RETRIES; attempt++) {
-    const check = await nodeRedRequest('GET', `/nodes/${encodeURIComponent(PACKAGE_NAME)}`, sessionCookie)
-    console.log(`Checking if ${PACKAGE_NAME} is already installed (attempt ${attempt}/${CHECK_RETRIES}): now=${new Date().toISOString()}, result:`, check)
-    if (check.status === 200) return check
-    if (check.status === 404) return check
-    if (check.status === 403 && attempt < CHECK_RETRIES) {
-      console.log(`Got 403 (tunnel instability), retrying in ${CHECK_RETRY_DELAY_MS / 1000}s...`)
-      await new Promise(resolve => setTimeout(resolve, CHECK_RETRY_DELAY_MS))
-      continue
-    }
-    throw new Error(`Unexpected status ${check.status} from GET /nodes: ${check.body}`)
-  }
-}
-
-async function uninstallIfPresent (sessionCookie) {
+async function uninstallIfPresent (proxyDomain, sessionCookie) {
   try {
-    const check = await checkNodeInstalled(sessionCookie)
+    const check = await nodeRedRequest(proxyDomain, 'GET', `/nodes/${encodeURIComponent(PACKAGE_NAME)}`, sessionCookie)
+    console.log(`Checking if ${PACKAGE_NAME} is already installed: now=${new Date().toISOString()}, result:`, check)
     if (check.status === 404) return false
+    if (check.status !== 200) {
+      throw new Error(`Unexpected status ${check.status} from GET /nodes: ${check.body}`)
+    }
     console.log(`${PACKAGE_NAME} already installed - uninstalling first..., now=${new Date().toISOString()}`)
-    const del = await nodeRedRequest('DELETE', `/nodes/${encodeURIComponent(PACKAGE_NAME)}`, sessionCookie)
+    const del = await nodeRedRequest(proxyDomain, 'DELETE', `/nodes/${encodeURIComponent(PACKAGE_NAME)}`, sessionCookie)
     if (del.status === 204) {
       console.log(`Uninstall successful, waiting for Node-RED to restart..., now=${new Date().toISOString()}`)
-      await waitForNodeRed(sessionCookie)
+      await waitForNodeRed(proxyDomain, sessionCookie)
       return true
     } else {
       console.log(`Uninstall failed: ${del.status} ${del.body}, now=${new Date().toISOString()}`)
@@ -108,11 +95,11 @@ async function uninstallIfPresent (sessionCookie) {
     const body = JSON.parse(del.body || '{}')
     if (body.code === 'type_in_use') {
       console.log('type_in_use: clearing all flows first, then retrying uninstall...')
-      await clearAllFlows(sessionCookie)
-      await waitForNodeRed(sessionCookie)
-      const retry = await nodeRedRequest('DELETE', `/nodes/${encodeURIComponent(PACKAGE_NAME)}`, sessionCookie)
+      await clearAllFlows(proxyDomain, sessionCookie)
+      await waitForNodeRed(proxyDomain, sessionCookie)
+      const retry = await nodeRedRequest(proxyDomain, 'DELETE', `/nodes/${encodeURIComponent(PACKAGE_NAME)}`, sessionCookie)
       if (retry.status !== 204) throw new Error(`DELETE /nodes retry failed: ${retry.status} ${retry.body}`)
-      await waitForNodeRed(sessionCookie)
+      await waitForNodeRed(proxyDomain, sessionCookie)
       return true
     }
     throw new Error(`DELETE /nodes failed: ${del.status} ${del.body}`)
@@ -123,9 +110,9 @@ async function uninstallIfPresent (sessionCookie) {
   }
 }
 
-async function installPackage (sessionCookie) {
+async function installPackage (proxyDomain, sessionCookie) {
   console.log(`Installing ${PACKAGE_NAME} from ${TARBALL_URL}`)
-  const res = await nodeRedRequest('POST', '/nodes', sessionCookie, {
+  const res = await nodeRedRequest(proxyDomain, 'POST', '/nodes', sessionCookie, {
     module: PACKAGE_NAME,
     url: TARBALL_URL
   })
@@ -134,10 +121,10 @@ async function installPackage (sessionCookie) {
 }
 
 async function main () {
-  const sessionCookie = await fetchSessionCookie()
-  await uninstallIfPresent(sessionCookie)
-  await installPackage(sessionCookie)
-  await waitForNodeRed(sessionCookie)
+  const { sessionCookie, proxyDomain } = await fetchSessionCookie()
+  await uninstallIfPresent(proxyDomain, sessionCookie)
+  await installPackage(proxyDomain, sessionCookie)
+  await waitForNodeRed(proxyDomain, sessionCookie)
   console.log('Node-RED setup complete')
 }
 
