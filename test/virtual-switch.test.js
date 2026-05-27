@@ -296,6 +296,30 @@ describe('createSwitchProperties - ShowUIControl', () => {
   })
 })
 
+describe('createSwitchProperties - Adjustable', () => {
+  const adjustableKey = 'SwitchableOutput/output_1/Settings/Adjustable'
+
+  test('sets Adjustable to 0 for all switch types (settings are read-only in GUI)', () => {
+    for (const switchType of Object.values(SWITCH_TYPE_MAP)) {
+      const ifaceDesc = { properties: {} }
+      const iface = {}
+      createSwitchProperties({ switch_1_type: switchType }, ifaceDesc, iface)
+      expect(iface[adjustableKey]).toBe(0)
+      expect(ifaceDesc.properties[adjustableKey]).toBeDefined()
+      expect(ifaceDesc.properties[adjustableKey].type).toBe('i')
+    }
+  })
+
+  test('formats Adjustable 0 as Read-only and non-zero as Writable', () => {
+    const ifaceDesc = { properties: {} }
+    const iface = {}
+    createSwitchProperties({ switch_1_type: SWITCH_TYPE_MAP.TOGGLE }, ifaceDesc, iface)
+    const { format } = ifaceDesc.properties[adjustableKey]
+    expect(format(0)).toBe('Read-only')
+    expect(format(1)).toBe('Writable')
+  })
+})
+
 describe('expandSwitchPayload', () => {
   test('plain number for toggle uses State path', () => {
     expect(expandSwitchPayload(1, SWITCH_TYPE_MAP.TOGGLE)).toEqual({ 'SwitchableOutput/output_1/State': 1 })

@@ -1,3 +1,5 @@
+const { debounce } = require('../services/utils.js')
+
 module.exports = function (RED) {
   const debug = require('debug')('node-red-contrib-victron:victron-nodes')
   const utils = require('../services/utils.js')
@@ -290,19 +292,8 @@ module.exports = function (RED) {
 
           const resultChanged = this.lastConditionalResult !== finalResult
 
-          if (this.debounce > 0 && resultChanged) {
-            const pendingResultChanged = this.pendingConditionalResult !== finalResult
-
-            if (pendingResultChanged) {
-              if (this.debounceTimer) {
-                clearTimeout(this.debounceTimer)
-              }
-              this.pendingConditionalResult = finalResult
-              this.debounceTimer = setTimeout(() => {
-                this.pendingConditionalResult = null
-                this.sendConditionalOutput(finalResult, resultChanged, topic, result1, result2, primaryValue)
-              }, this.debounce)
-            }
+          if (this.debounce > 0) {
+            this.sendConditionalOutputDebounced(finalResult, resultChanged, topic, result1, result2, primaryValue)
             // Show pending status on every value change so user sees current value
             if (this.configNode.showValues !== false) {
               this.node.status({ fill: 'yellow', shape: 'ring', text: formatStatusText(this.condition1CurrentValue, 'pending') })
@@ -371,6 +362,7 @@ module.exports = function (RED) {
             this.node.status({ fill: result ? 'green' : 'red', shape: 'dot', text: formatStatusText(this.condition1CurrentValue, result ? 'true' : 'false') })
           }
         }
+        this.sendConditionalOutputDebounced = debounce(this.sendConditionalOutput, this.debounce)
 
         // Apply throttling if rate limit is set
         const throttleMs = this.rateLimit > 0 ? Math.floor(1000 / this.rateLimit) : 0
