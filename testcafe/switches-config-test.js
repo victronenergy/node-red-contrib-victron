@@ -58,6 +58,7 @@ async function configureVirtualSwitchNode (t, nodeId, options) {
 async function assertSwitchValue (t, nodeId, path, expectedContains) {
   if (SKIP_MQTT) {
     console.log(`SKIP_MQTT_VERIFICATION: skipping assertion ${nodeId} ${path} contains "${expectedContains}"`)
+    await new Promise(resolve => setTimeout(resolve, 500)) // TODO: small delay seems to avoid 'write after end' hard crash of Node-RED process.
     return
   }
   const result = await mqtt_GetValue(`com.victronenergy.switch.virtual_${nodeId}`, path)
