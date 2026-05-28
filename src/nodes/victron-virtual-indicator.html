@@ -33,7 +33,7 @@
         },
         outputLabels: ['Passthrough'],
         oneditprepare: function () {
-            const { initializeTooltips, renderIndicatorDocBox, renderShowInUICheckboxes } = window.__victron
+            const { initializeTooltips, renderIndicatorDocBox, updateIndicatorLivePreview, renderShowInUICheckboxes } = window.__victron
 
             function updateVisibility () {
                 const type = parseInt($('#node-input-indicator_type').val())
@@ -48,9 +48,11 @@
                 $('#indicator-decimals-row').toggle(!isDiscrete)
 
                 renderIndicatorDocBox(type)
+                updateIndicatorLivePreview()
             }
 
             $('#node-input-indicator_type').on('change', updateVisibility)
+            $('#node-input-primary_label, #node-input-unit, #node-input-customname, #node-input-range_min, #node-input-range_max, #node-input-labels, #node-input-decimals').on('input', updateIndicatorLivePreview)
             updateVisibility()
 
             renderShowInUICheckboxes('indicator-show-ui', this.show_ui_input, 'node-input-show_ui_input')
@@ -78,7 +80,7 @@
 
         <div class="form-row">
             <label for="node-input-customname">Custom name
-                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Display name shown on the GX device. If the custom name gets changed on the GX device after initial deploy, that value will be overwritten on restart and re-deploy of Node-RED."></i>
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Display name shown on the GX device. When left empty, the GX device uses 'State' as the label. If changed on the GX device after deploy, it will be overwritten on restart."></i>
             </label>
             <input type="text" id="node-input-customname" placeholder="e.g. Solar power" required>
         </div>
@@ -92,7 +94,7 @@
 
         <div id="indicator-unit-row" class="form-row">
             <label for="node-input-unit">Unit
-                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Unit to display next to the value. Use /Temperature, /Speed or /Volume to follow GX system-wide unit settings."></i>
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Unit to display next to the value. Use /Temperature, /Speed or /Volume to follow GX system-wide unit settings. When using these reserved keywords, the Primary Label is overridden by the keyword name (e.g. /Temperature shows 'Temperature')."></i>
             </label>
             <input type="text" id="node-input-unit" placeholder="e.g. W, kWh, /Temperature" required>
         </div>
