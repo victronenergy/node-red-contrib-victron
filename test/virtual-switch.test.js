@@ -411,6 +411,12 @@ describe('shouldApplyPayloadToDBus', () => {
       expect(shouldApplyPayloadToDBus(config, makeIface(0), payload)).toBe(true)
     })
 
+    test('allows payload with leading-slash key that sets Auto=1 when in manual mode', () => {
+      const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE), switch_1_passthrough_mode: 'auto_only' }
+      const payload = { ['/' + autoKey]: 1 }
+      expect(shouldApplyPayloadToDBus(config, makeIface(0), payload)).toBe(true)
+    })
+
     test('defaults to always when mode is not set (backward compat for existing nodes)', () => {
       const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE) }
       expect(shouldApplyPayloadToDBus(config, makeIface(0))).toBe(true)
