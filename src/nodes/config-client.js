@@ -1,3 +1,5 @@
+// TODO: install unhandledRejection handler here, not in victron-virtual
+
 module.exports = function (RED) {
   'use strict'
 

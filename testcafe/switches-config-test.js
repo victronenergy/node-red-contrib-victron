@@ -9,7 +9,7 @@ setupVrmFixture(
   fixture('Virtual Switches')
 )
 
-function getSwitchTypeCodeForName (name) {
+function getSwitchTypeCodeForName(name) {
   for (const [code, typeName] of Object.entries(SWITCH_TYPE_NAMES)) {
     if (typeName === name) return code
   }
@@ -18,11 +18,11 @@ function getSwitchTypeCodeForName (name) {
 
 let nextNodeOffsetY = 200
 
-function resetSwitchNodeOffset () {
+function resetSwitchNodeOffset() {
   nextNodeOffsetY = 200
 }
 
-async function addVirtualSwitchNode (t) {
+async function addVirtualSwitchNode(t) {
   const existingNodeIds = await getExistingNodeIds()
   const paletteItem = Selector('.red-ui-palette-node[data-palette-type="victron-virtual-switch"]').find('.red-ui-palette-label')
   await t.dragToElement(paletteItem, Selector('#red-ui-workspace-chart'), {
@@ -38,7 +38,7 @@ async function addVirtualSwitchNode (t) {
   return newNodeIds[0]
 }
 
-async function configureVirtualSwitchNode (t, nodeId, options) {
+async function configureVirtualSwitchNode(t, nodeId, options) {
   const nodeSelector = Selector('g').withAttribute('id', nodeId)
   await t.doubleClick(nodeSelector)
   for (const { name, value, type = 'text' } of options) {
@@ -55,10 +55,10 @@ async function configureVirtualSwitchNode (t, nodeId, options) {
   }
 }
 
-async function assertSwitchValue (t, nodeId, path, expectedContains) {
+async function assertSwitchValue(t, nodeId, path, expectedContains) {
   if (SKIP_MQTT) {
     console.log(`SKIP_MQTT_VERIFICATION: skipping assertion ${nodeId} ${path} contains "${expectedContains}"`)
-    await new Promise(resolve => setTimeout(resolve, 500)) // TODO: small delay seems to avoid 'write after end' hard crash of Node-RED process.
+    // await new Promise(resolve => setTimeout(resolve, 500)) // TODO: small delay seems to avoid 'write after end' hard crash of Node-RED process.
     return
   }
   const result = await mqtt_GetValue(`com.victronenergy.switch.virtual_${nodeId}`, path)

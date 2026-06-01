@@ -119,6 +119,13 @@ class VictronDbusListener {
         this.bus = dbus.createClient({
           busAddress: this.address,
           authMethods: ['ANONYMOUS']
+        }, (err, _) => {
+          if (err) {
+            console.error(`Failed to create DBus client for address ${this.address}:`, err)
+            // reject(new Error(`Failed to create DBus client for address ${this.address}: ${err.message}`))
+          } else {
+            debug(`Successfully created DBus client for address ${this.address}`)
+          }
         })
       } else { // Connect via socket
         debug('Connecting to system socket.')

@@ -356,11 +356,29 @@ module.exports = function (RED) {
         self.bus = dbus.createClient({
           busAddress: self.address,
           authMethods: ['ANONYMOUS']
+        }, (err, _) => {
+          if (err) {
+            console.error(`Failed to create DBus client for address ${self.address}:`, err)
+          } else {
+            debug(`Successfully created DBus client for address ${self.address}`)
+          }
         })
       } else {
         self.bus = process.env.DBUS_SESSION_BUS_ADDRESS
-          ? dbus.sessionBus()
-          : dbus.systemBus()
+          ? dbus.sessionBus({}, (err) => {
+            if (err) {
+              console.error('Failed to connect to DBus session bus:', err)
+            } else {
+              console.log('Successfully connected to DBus session bus')
+            }
+          })
+          : dbus.systemBus({}, (err) => {
+            if (err) {
+              console.error('Failed to connect to DBus system bus:', err)
+            } else {
+              console.log('Successfully connected to DBus system bus')
+            }
+          })
       }
       if (!self.bus) {
         node.warn(
