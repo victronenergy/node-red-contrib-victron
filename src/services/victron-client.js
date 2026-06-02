@@ -24,10 +24,6 @@ class VictronClient {
 
     this.system = new SystemConfiguration()
     this.subscriptions = {} // an array of subscription objects [{ "topic": topic, "handler": function }, ...]
-
-    process.on('unhandledRejection', (reason, promise) => {
-      console.error('Unhandled Rejection at:', promise, 'reason:', reason)
-    })
   }
 
   /**
