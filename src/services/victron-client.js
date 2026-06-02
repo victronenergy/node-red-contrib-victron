@@ -171,6 +171,13 @@ class VictronClient {
 
     if (this.system.cache[msg.senderName + trail]) { dbusPaths = this.system.cache[msg.senderName + trail] }
 
+    // When a device instance is known, remove any stale no-trail entry for the same
+    // service. Such entries are created during _initService's async window (before
+    // GetValue returns the device instance) when ItemsChanged signals arrive with
+    // deviceInstance=undefined. Without this cleanup, both the stale entry and the
+    // correct trail entry match getNodeServices(), producing duplicate dropdown entries.
+    if (trail !== '') { delete this.system.cache[msg.senderName] }
+
     // some dbus messages are empty arrays [], and we interpret empty arrays as null values,
     // compare https://github.com/Chris927/dbus-native/commit/0080b9226a0ed9474be1e5ceeae58a9c78dfa046
     if (msg.value && msg.value.length === 0) { msg.value = null }

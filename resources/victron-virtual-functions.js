@@ -693,6 +693,13 @@
         </ol>
       </div>
     </div>
+    <div>
+      <div><strong>Generator Start/Stop:</strong>
+        <p>When a virtual generator is deployed, Venus OS automatically creates a <em>Generator Start/Stop</em> service (<code>com.victronenergy.generator</code>) for it. This service controls and monitors the generator from the Venus OS side &mdash; including auto-start conditions, manual start, and runtime tracking.</p>
+        <p>Use the <strong>input-generator</strong> node to read from that service (e.g. <code>/State</code>, <code>/Runtime</code>, <code>/RunningByConditionCode</code>) and the <strong>output-generator</strong> node to control it (e.g. <code>/ManualStart</code>, <code>/AutoStartEnabled</code>).</p>
+        <p>See the <a href="https://github.com/victronenergy/venus/wiki/dbus#generator-startstop" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS Generator Start/Stop documentation</a> for the full path list.</p>
+      </div>
+    </div>
   `,
       img: null
     },
