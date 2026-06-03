@@ -17,6 +17,8 @@ const {
   SWITCH_DEFAULT_PATH
 } = require('../nodes/victron-virtual-constants')
 
+const STEPPED_DEFAULT_MAX = 7
+
 const { hsbToRgb } = require('./color-utils')
 
 // Status bitmask bit names (index = bit position)
@@ -212,7 +214,7 @@ function createSwitchProperties (config, ifaceDesc, iface) {
       type: 'i',
       format: (v) => v != null ? `Option ${v}` : '',
       min: 0,
-      max: Number(config.switch_1_max ?? 7),
+      max: Number(config.switch_1_max || STEPPED_DEFAULT_MAX),
       persist: true
     }
     iface[dimmingKey] = 0
@@ -222,7 +224,7 @@ function createSwitchProperties (config, ifaceDesc, iface) {
       type: 'i',
       format: (v) => v != null ? `Options: ${v}` : ''
     }
-    iface[maxKey] = Number(config.switch_1_max ?? 7)
+    iface[maxKey] = Number(config.switch_1_max || STEPPED_DEFAULT_MAX)
   }
 
   if (switchType === SWITCH_TYPE_MAP.DROPDOWN) {
@@ -702,5 +704,6 @@ module.exports = {
   updateSwitchStatus,
   emitInitialSwitchOutputs,
   expandSwitchPayload,
-  shouldApplyPayloadToDBus
+  shouldApplyPayloadToDBus,
+  STEPPED_DEFAULT_MAX
 }
