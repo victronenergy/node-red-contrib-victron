@@ -9,8 +9,7 @@ import {
   SWITCH_THIRD_OUTPUT_LABEL
 } from './victron-virtual-constants'
 import { initializeTooltips } from './victron-common'
-/* global require */
-const escape = require('lodash/escape')
+import escape from 'lodash/escape'
 
 // Re-export for browser/test use
 export {
