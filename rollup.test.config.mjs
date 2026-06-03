@@ -14,8 +14,9 @@ export default {
       preferBuiltins: false // Don't try to resolve node built-ins
     }),
     commonjs({
-      include: ['src/nodes/**'], // Apply to all files in src/nodes
-      transformMixedEsModules: true // Handle mixed ES6/CommonJS
+      include: ['src/nodes/**', 'node_modules/lodash/**'],
+      transformMixedEsModules: true, // Handle mixed ES6/CommonJS
+      defaultIsModuleExports: 'auto'
     })
   ]
 }

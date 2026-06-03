@@ -298,6 +298,8 @@
 
   /* global $ */
 
+  /* global require */
+  const escape = require('lodash/escape');
 
   const COMMON_SWITCH_FIELDS = [
     { id: 'customname', type: 'text', placeholder: 'Name', title: 'Name', tooltip: 'Custom name for the switch. If the custom name gets changed in the gui after initial deploy, that value will be overwritten on restart and re-deploy of Node-RED.' },
@@ -1405,12 +1407,14 @@
     3: 'Temperature'
   };
 
-  function escapeHtml (str) {
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
+  const INDICATOR_TYPE = {
+    DISCRETE: 0,
+    VALUE_WITH_RANGE: 2,
+    TEMPERATURE: 3
+  };
+
+  function isTypeRange (type) {
+    return type === INDICATOR_TYPE.VALUE_WITH_RANGE || type === INDICATOR_TYPE.TEMPERATURE
   }
 
   function renderIndicatorDocBox (type) {
@@ -1441,40 +1445,30 @@
 
   function buildSimpleCardSvg (title, cardLabel, valueText) {
     const font = 'system-ui, -apple-system, sans-serif';
-    const safeTitle = escapeHtml(title);
-    const safeLabel = escapeHtml(cardLabel);
-    const safeValue = escapeHtml(valueText);
-    return (
-      '<svg width="368" height="88" viewBox="0 0 368 88" fill="none" xmlns="http://www.w3.org/2000/svg">' +
-      '<text x="16" y="24" font-family="' + font + '" font-size="12" fill="#1D1D1B">' + safeTitle + '</text>' +
-      '<line x1="8" y1="87.5" x2="360" y2="87.5" stroke="#E6E5E1"/>' +
-      '<rect x="16" y="34" width="336" height="40" rx="6" fill="#F0EFEB"/>' +
-      '<text x="36" y="59" font-family="' + font + '" font-size="14" fill="#64635F">' + safeLabel + '</text>' +
-      '<text x="340" y="59" text-anchor="end" font-family="' + font + '" font-size="14" fill="#1D1D1B">' + safeValue + '</text>' +
-      '</svg>'
-    )
+    return `<svg width="368" height="88" viewBox="0 0 368 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+<text x="16" y="24" font-family="${font}" font-size="12" fill="#1D1D1B">${escape(title)}</text>
+<line x1="8" y1="87.5" x2="360" y2="87.5" stroke="#E6E5E1"/>
+<rect x="16" y="34" width="336" height="40" rx="6" fill="#F0EFEB"/>
+<text x="36" y="59" font-family="${font}" font-size="14" fill="#64635F">${escape(cardLabel)}</text>
+<text x="340" y="59" text-anchor="end" font-family="${font}" font-size="14" fill="#1D1D1B">${escape(valueText)}</text>
+</svg>`
   }
 
   function buildRangeCardSvg (title, valueText) {
     const font = 'system-ui, -apple-system, sans-serif';
-    const safeTitle = escapeHtml(title);
-    const safeValue = escapeHtml(valueText);
-    // Bar leaves ~80px for the value text on the right
     const barWidth = 250;
     const barFill = Math.round(barWidth * 0.4);
-    return (
-      '<svg width="368" height="62" viewBox="0 0 368 62" fill="none" xmlns="http://www.w3.org/2000/svg">' +
-      '<text x="16" y="20" font-family="' + font + '" font-size="12" fill="#1D1D1B">' + safeTitle + '</text>' +
-      '<line x1="8" y1="61.5" x2="360" y2="61.5" stroke="#E6E5E1"/>' +
-      '<rect x="16" y="28" width="336" height="24" rx="6" fill="#F0EFEB"/>' +
-      '<defs><linearGradient id="bar-grad" x1="' + (24 + barWidth) + '" y1="40" x2="24" y2="40" gradientUnits="userSpaceOnUse">' +
-      '<stop stop-color="#D66A67"/><stop offset="0.47" stop-color="#7E6EB7"/><stop offset="1" stop-color="#5991CE"/>' +
-      '</linearGradient></defs>' +
-      '<rect x="24" y="36" width="' + barWidth + '" height="8" rx="4" fill="#BBCEE0"/>' +
-      '<rect x="24" y="36" width="' + barFill + '" height="8" rx="4" fill="url(#bar-grad)"/>' +
-      '<text x="348" y="44" text-anchor="end" font-family="' + font + '" font-size="14" fill="#1D1D1B">' + safeValue + '</text>' +
-      '</svg>'
-    )
+    return `<svg width="368" height="62" viewBox="0 0 368 62" fill="none" xmlns="http://www.w3.org/2000/svg">
+<text x="16" y="20" font-family="${font}" font-size="12" fill="#1D1D1B">${escape(title)}</text>
+<line x1="8" y1="61.5" x2="360" y2="61.5" stroke="#E6E5E1"/>
+<rect x="16" y="28" width="336" height="24" rx="6" fill="#F0EFEB"/>
+<defs><linearGradient id="bar-grad" x1="${24 + barWidth}" y1="40" x2="24" y2="40" gradientUnits="userSpaceOnUse">
+<stop stop-color="#D66A67"/><stop offset="0.47" stop-color="#7E6EB7"/><stop offset="1" stop-color="#5991CE"/>
+</linearGradient></defs>
+<rect x="24" y="36" width="${barWidth}" height="8" rx="4" fill="#BBCEE0"/>
+<rect x="24" y="36" width="${barFill}" height="8" rx="4" fill="url(#bar-grad)"/>
+<text x="348" y="44" text-anchor="end" font-family="${font}" font-size="14" fill="#1D1D1B">${escape(valueText)}</text>
+</svg>`
   }
 
   function updateIndicatorLivePreview () {
@@ -1482,8 +1476,8 @@
     if (!$preview.length) return
 
     const type = parseInt($('#node-input-indicator_type').val(), 10);
-    const isRange = type === 2 || type === 3;
-    const isTemperature = type === 3;
+    const isRange = isTypeRange(type);
+    const isTemperature = type === INDICATOR_TYPE.TEMPERATURE;
 
     function placeholderOf (selector) {
       return ($('#' + selector).attr('placeholder') || '').replace(/^e\.g\.\s*/i, '').split(',')[0].trim()
@@ -1495,7 +1489,7 @@
     let cardLabel;
     let valueText;
 
-    if (type === 0) {
+    if (type === INDICATOR_TYPE.DISCRETE) {
       const rawLabels = $('#node-input-labels').val() || '';
       cardLabel = $('#node-input-primary_label').val() || placeholderOf('node-input-primary_label') || 'State';
       valueText = rawLabels.split(',')[0].trim().replace(/^\//, '') || 'Off';
