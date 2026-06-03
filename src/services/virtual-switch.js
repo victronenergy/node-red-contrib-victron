@@ -85,7 +85,9 @@ function createSwitchProperties (config, ifaceDesc, iface) {
         if (v & 0b100) parts.push('Remote UIs')
         return parts.length > 0 ? parts.join(' + ') : 'Hidden'
       }
-    }
+    },
+    // 0 = all settings (CustomName, Group) are read-only in the GUI; they are stored in the flow, not the UI
+    { name: 'Settings/Adjustable', type: 'i', value: 0, format: (v) => v === 0 ? 'Read-only' : 'Writable' }
   ]
 
   const switchType = Number(config.switch_1_type ?? 1)
@@ -682,7 +684,7 @@ function shouldApplyPayloadToDBus (config, iface, payload) {
   const mode = config.switch_1_passthrough_mode ?? 'always'
   if (mode === 'always') return true
 
-  if (payload && payload['SwitchableOutput/output_1/Auto'] === 1) return true
+  if (payload && (payload['SwitchableOutput/output_1/Auto'] === 1 || payload['/SwitchableOutput/output_1/Auto'] === 1)) return true
 
   const autoValue = iface ? iface['SwitchableOutput/output_1/Auto'] : null
   const isAuto = autoValue === 1

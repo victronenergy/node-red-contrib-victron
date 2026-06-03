@@ -1,6 +1,4 @@
 <link rel="stylesheet" href="resources/@victronenergy/node-red-contrib-victron/victron-virtual-style.css">
-<script src="resources/@victronenergy/node-red-contrib-victron/victron-common.js"></script>
-<script src="resources/@victronenergy/node-red-contrib-victron/victron-virtual-functions.js"></script>
 <script type="text/javascript">
     RED.nodes.registerType('victron-virtual-indicator', {
         category: 'Victron Energy',
@@ -59,6 +57,13 @@
             initializeTooltips()
         }
     })
+
+    if (!document.querySelector('script[data-victron-vf]')) {
+        var _scr = document.createElement('script');
+        _scr.setAttribute('data-victron-vf', '');
+        _scr.src = 'resources/@victronenergy/node-red-contrib-victron/victron-virtual-functions.js';
+        document.head.appendChild(_scr);
+    }
 </script>
 
 <script type="text/html" data-template-name="victron-virtual-indicator">

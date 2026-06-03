@@ -1,3 +1,15 @@
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('=== UNHANDLED REJECTION (PREVENTING CRASH) ===')
+  console.error('Promise:', promise)
+  console.error('Reason:', reason)
+  console.error('Reason type:', typeof reason)
+  console.error('Is array:', Array.isArray(reason))
+  console.error('Array contents:', JSON.stringify(reason, null, 2))
+  console.error('Stack trace:')
+  console.trace()
+  console.error('=== END DEBUG ===')
+})
+
 module.exports = function (RED) {
   'use strict'
 
