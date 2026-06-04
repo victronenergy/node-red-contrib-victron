@@ -1,397 +1,907 @@
 (function () {
-  'use strict';
+	'use strict';
 
-  var victronVirtualConstants;
-  var hasRequiredVictronVirtualConstants;
+	var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
-  function requireVictronVirtualConstants () {
-  	if (hasRequiredVictronVirtualConstants) return victronVirtualConstants;
-  	hasRequiredVictronVirtualConstants = 1;
-  	const SWITCH_TYPE_MAP = {
-  	  MOMENTARY: 0,
-  	  TOGGLE: 1,
-  	  DIMMABLE: 2,
-  	  TEMPERATURE_SETPOINT: 3,
-  	  STEPPED: 4,
-  	  DROPDOWN: 6,
-  	  BASIC_SLIDER: 7,
-  	  NUMERIC_INPUT: 8,
-  	  THREE_STATE: 9,
-  	  BILGE_PUMP: 10,
-  	  RGB_COLOR_WHEEL: 11,
-  	  CCT_WHEEL: 12,
-  	  RGB_WHITE_DIMMER: 13
-  	};
+	function getDefaultExportFromCjs (x) {
+		return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+	}
 
-  	// Switch type names for Settings/Type display - RGB types all show as "RGB control"
-  	const SWITCH_TYPE_NAMES = {
-  	  [SWITCH_TYPE_MAP.MOMENTARY]: 'Momentary',
-  	  [SWITCH_TYPE_MAP.TOGGLE]: 'Toggle',
-  	  [SWITCH_TYPE_MAP.DIMMABLE]: 'Dimmable',
-  	  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'Temperature setpoint',
-  	  [SWITCH_TYPE_MAP.STEPPED]: 'Stepped switch',
-  	  [SWITCH_TYPE_MAP.DROPDOWN]: 'Dropdown',
-  	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Basic slider',
-  	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Numeric input',
-  	  [SWITCH_TYPE_MAP.THREE_STATE]: 'Three-state switch',
-  	  [SWITCH_TYPE_MAP.BILGE_PUMP]: 'Bilge pump control',
-  	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 'RGB control',
-  	  [SWITCH_TYPE_MAP.CCT_WHEEL]: 'RGB control',
-  	  [SWITCH_TYPE_MAP.RGB_WHITE_DIMMER]: 'RGB control'
-  	};
+	var victronVirtualConstants;
+	var hasRequiredVictronVirtualConstants;
 
-  	// Distinct names for ValidTypes bitmask display - RGB types show as distinct variants
-  	const SWITCH_TYPE_BITMASK_NAMES = {
-  	  [SWITCH_TYPE_MAP.MOMENTARY]: 'Momentary',
-  	  [SWITCH_TYPE_MAP.TOGGLE]: 'Toggle',
-  	  [SWITCH_TYPE_MAP.DIMMABLE]: 'Dimmable',
-  	  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'Temperature setpoint',
-  	  [SWITCH_TYPE_MAP.STEPPED]: 'Stepped switch',
-  	  [SWITCH_TYPE_MAP.DROPDOWN]: 'Dropdown',
-  	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Basic slider',
-  	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Numeric input',
-  	  [SWITCH_TYPE_MAP.THREE_STATE]: 'Three-state switch',
-  	  [SWITCH_TYPE_MAP.BILGE_PUMP]: 'Bilge pump control',
-  	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 'RGB wheel',
-  	  [SWITCH_TYPE_MAP.CCT_WHEEL]: 'CCT wheel',
-  	  [SWITCH_TYPE_MAP.RGB_WHITE_DIMMER]: 'RGB+W dimmer'
-  	};
+	function requireVictronVirtualConstants () {
+		if (hasRequiredVictronVirtualConstants) return victronVirtualConstants;
+		hasRequiredVictronVirtualConstants = 1;
+		const SWITCH_TYPE_MAP = {
+		  MOMENTARY: 0,
+		  TOGGLE: 1,
+		  DIMMABLE: 2,
+		  TEMPERATURE_SETPOINT: 3,
+		  STEPPED: 4,
+		  DROPDOWN: 6,
+		  BASIC_SLIDER: 7,
+		  NUMERIC_INPUT: 8,
+		  THREE_STATE: 9,
+		  BILGE_PUMP: 10,
+		  RGB_COLOR_WHEEL: 11,
+		  CCT_WHEEL: 12,
+		  RGB_WHITE_DIMMER: 13
+		};
 
-  	const SWITCH_OUTPUT_CONFIG = {
-  	  [SWITCH_TYPE_MAP.MOMENTARY]: 2, // passthrough + state
-  	  [SWITCH_TYPE_MAP.TOGGLE]: 2, // passthrough + state
-  	  [SWITCH_TYPE_MAP.DIMMABLE]: 3, // passthrough + state + dimming value
-  	  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 2, // passthrough + temperature value
-  	  [SWITCH_TYPE_MAP.STEPPED]: 3, // passthrough + state + stepped value
-  	  [SWITCH_TYPE_MAP.DROPDOWN]: 2, // passthrough + state
-  	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 2, // passthrough + slider value
-  	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 3, // passthrough + state + numeric value
-  	  [SWITCH_TYPE_MAP.THREE_STATE]: 3, // passthrough + state + auto
-  	  [SWITCH_TYPE_MAP.BILGE_PUMP]: 2, // passthrough + state (with msg.status)
-  	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 3, // passthrough + state + lightcontrols
-  	  [SWITCH_TYPE_MAP.CCT_WHEEL]: 3, // passthrough + state + lightcontrols
-  	  [SWITCH_TYPE_MAP.RGB_WHITE_DIMMER]: 3 // passthrough + state + lightcontrols
-  	};
+		// Switch type names for Settings/Type display - RGB types all show as "RGB control"
+		const SWITCH_TYPE_NAMES = {
+		  [SWITCH_TYPE_MAP.MOMENTARY]: 'Momentary',
+		  [SWITCH_TYPE_MAP.TOGGLE]: 'Toggle',
+		  [SWITCH_TYPE_MAP.DIMMABLE]: 'Dimmable',
+		  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'Temperature setpoint',
+		  [SWITCH_TYPE_MAP.STEPPED]: 'Stepped switch',
+		  [SWITCH_TYPE_MAP.DROPDOWN]: 'Dropdown',
+		  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Basic slider',
+		  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Numeric input',
+		  [SWITCH_TYPE_MAP.THREE_STATE]: 'Three-state switch',
+		  [SWITCH_TYPE_MAP.BILGE_PUMP]: 'Bilge pump control',
+		  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 'RGB control',
+		  [SWITCH_TYPE_MAP.CCT_WHEEL]: 'RGB control',
+		  [SWITCH_TYPE_MAP.RGB_WHITE_DIMMER]: 'RGB control'
+		};
 
-  	// Will default to 'State' if not defined here
-  	const SWITCH_SECOND_OUTPUT_LABEL = {
-  	  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'Temperature',
-  	  [SWITCH_TYPE_MAP.DROPDOWN]: 'Selected',
-  	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Value'
-  	};
+		// Distinct names for ValidTypes bitmask display - RGB types show as distinct variants
+		const SWITCH_TYPE_BITMASK_NAMES = {
+		  [SWITCH_TYPE_MAP.MOMENTARY]: 'Momentary',
+		  [SWITCH_TYPE_MAP.TOGGLE]: 'Toggle',
+		  [SWITCH_TYPE_MAP.DIMMABLE]: 'Dimmable',
+		  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'Temperature setpoint',
+		  [SWITCH_TYPE_MAP.STEPPED]: 'Stepped switch',
+		  [SWITCH_TYPE_MAP.DROPDOWN]: 'Dropdown',
+		  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Basic slider',
+		  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Numeric input',
+		  [SWITCH_TYPE_MAP.THREE_STATE]: 'Three-state switch',
+		  [SWITCH_TYPE_MAP.BILGE_PUMP]: 'Bilge pump control',
+		  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 'RGB wheel',
+		  [SWITCH_TYPE_MAP.CCT_WHEEL]: 'CCT wheel',
+		  [SWITCH_TYPE_MAP.RGB_WHITE_DIMMER]: 'RGB+W dimmer'
+		};
 
-  	const SWITCH_THIRD_OUTPUT_LABEL = {
-  	  [SWITCH_TYPE_MAP.DIMMABLE]: 'Dimming',
-  	  [SWITCH_TYPE_MAP.STEPPED]: 'Value',
-  	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Value',
-  	  [SWITCH_TYPE_MAP.THREE_STATE]: 'Auto mode',
-  	  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 'LightControls',
-  	  [SWITCH_TYPE_MAP.CCT_WHEEL]: 'LightControls',
-  	  [SWITCH_TYPE_MAP.RGB_WHITE_DIMMER]: 'LightControls'
-  	};
+		const SWITCH_OUTPUT_CONFIG = {
+		  [SWITCH_TYPE_MAP.MOMENTARY]: 2, // passthrough + state
+		  [SWITCH_TYPE_MAP.TOGGLE]: 2, // passthrough + state
+		  [SWITCH_TYPE_MAP.DIMMABLE]: 3, // passthrough + state + dimming value
+		  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 2, // passthrough + temperature value
+		  [SWITCH_TYPE_MAP.STEPPED]: 3, // passthrough + state + stepped value
+		  [SWITCH_TYPE_MAP.DROPDOWN]: 2, // passthrough + state
+		  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 2, // passthrough + slider value
+		  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 3, // passthrough + state + numeric value
+		  [SWITCH_TYPE_MAP.THREE_STATE]: 3, // passthrough + state + auto
+		  [SWITCH_TYPE_MAP.BILGE_PUMP]: 2, // passthrough + state (with msg.status)
+		  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 3, // passthrough + state + lightcontrols
+		  [SWITCH_TYPE_MAP.CCT_WHEEL]: 3, // passthrough + state + lightcontrols
+		  [SWITCH_TYPE_MAP.RGB_WHITE_DIMMER]: 3 // passthrough + state + lightcontrols
+		};
 
-  	// Default D-Bus path used when msg.payload is a plain value (not an object).
-  	// RGB types are omitted intentionally - they require an array and have no meaningful default.
-  	const SWITCH_DEFAULT_PATH = {
-  	  [SWITCH_TYPE_MAP.MOMENTARY]: 'SwitchableOutput/output_1/State',
-  	  [SWITCH_TYPE_MAP.TOGGLE]: 'SwitchableOutput/output_1/State',
-  	  [SWITCH_TYPE_MAP.DIMMABLE]: 'SwitchableOutput/output_1/Dimming',
-  	  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'SwitchableOutput/output_1/Dimming',
-  	  [SWITCH_TYPE_MAP.STEPPED]: 'SwitchableOutput/output_1/Dimming',
-  	  [SWITCH_TYPE_MAP.DROPDOWN]: 'SwitchableOutput/output_1/Dimming',
-  	  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'SwitchableOutput/output_1/Dimming',
-  	  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'SwitchableOutput/output_1/Dimming',
-  	  [SWITCH_TYPE_MAP.THREE_STATE]: 'SwitchableOutput/output_1/State',
-  	  [SWITCH_TYPE_MAP.BILGE_PUMP]: 'SwitchableOutput/output_1/State'
-  	};
+		// Will default to 'State' if not defined here
+		const SWITCH_SECOND_OUTPUT_LABEL = {
+		  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'Temperature',
+		  [SWITCH_TYPE_MAP.DROPDOWN]: 'Selected',
+		  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'Value'
+		};
 
-  	// Default debounce delay for virtual device property writes (in milliseconds)
-  	const DEBOUNCE_DELAY_MS = 100;
+		const SWITCH_THIRD_OUTPUT_LABEL = {
+		  [SWITCH_TYPE_MAP.DIMMABLE]: 'Dimming',
+		  [SWITCH_TYPE_MAP.STEPPED]: 'Value',
+		  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'Value',
+		  [SWITCH_TYPE_MAP.THREE_STATE]: 'Auto mode',
+		  [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: 'LightControls',
+		  [SWITCH_TYPE_MAP.CCT_WHEEL]: 'LightControls',
+		  [SWITCH_TYPE_MAP.RGB_WHITE_DIMMER]: 'LightControls'
+		};
 
-  	victronVirtualConstants = {
-  	  SWITCH_TYPE_MAP,
-  	  SWITCH_TYPE_NAMES,
-  	  SWITCH_TYPE_BITMASK_NAMES,
-  	  SWITCH_OUTPUT_CONFIG,
-  	  SWITCH_SECOND_OUTPUT_LABEL,
-  	  SWITCH_THIRD_OUTPUT_LABEL,
-  	  SWITCH_DEFAULT_PATH,
-  	  DEBOUNCE_DELAY_MS
-  	};
-  	return victronVirtualConstants;
-  }
+		// Default D-Bus path used when msg.payload is a plain value (not an object).
+		// RGB types are omitted intentionally - they require an array and have no meaningful default.
+		const SWITCH_DEFAULT_PATH = {
+		  [SWITCH_TYPE_MAP.MOMENTARY]: 'SwitchableOutput/output_1/State',
+		  [SWITCH_TYPE_MAP.TOGGLE]: 'SwitchableOutput/output_1/State',
+		  [SWITCH_TYPE_MAP.DIMMABLE]: 'SwitchableOutput/output_1/Dimming',
+		  [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: 'SwitchableOutput/output_1/Dimming',
+		  [SWITCH_TYPE_MAP.STEPPED]: 'SwitchableOutput/output_1/Dimming',
+		  [SWITCH_TYPE_MAP.DROPDOWN]: 'SwitchableOutput/output_1/Dimming',
+		  [SWITCH_TYPE_MAP.BASIC_SLIDER]: 'SwitchableOutput/output_1/Dimming',
+		  [SWITCH_TYPE_MAP.NUMERIC_INPUT]: 'SwitchableOutput/output_1/Dimming',
+		  [SWITCH_TYPE_MAP.THREE_STATE]: 'SwitchableOutput/output_1/State',
+		  [SWITCH_TYPE_MAP.BILGE_PUMP]: 'SwitchableOutput/output_1/State'
+		};
 
-  var victronVirtualConstantsExports = requireVictronVirtualConstants();
+		// Default debounce delay for virtual device property writes (in milliseconds)
+		const DEBOUNCE_DELAY_MS = 100;
 
-  /* global $ */
+		victronVirtualConstants = {
+		  SWITCH_TYPE_MAP,
+		  SWITCH_TYPE_NAMES,
+		  SWITCH_TYPE_BITMASK_NAMES,
+		  SWITCH_OUTPUT_CONFIG,
+		  SWITCH_SECOND_OUTPUT_LABEL,
+		  SWITCH_THIRD_OUTPUT_LABEL,
+		  SWITCH_DEFAULT_PATH,
+		  DEBOUNCE_DELAY_MS
+		};
+		return victronVirtualConstants;
+	}
 
-  // Service labels loaded from API
-  let serviceLabels = null;
+	var victronVirtualConstantsExports = requireVictronVirtualConstants();
 
-  /**
-   * Set service labels from API response
-   * @param {Object} labels - Service labels object from API
-   */
-  function setServiceLabels (labels) {
-    serviceLabels = labels;
-  }
+	/* global $ */
 
-  function initializeTooltips () {
-    $('.tooltip-container').remove();
-    $('.tooltip-icon').off('mouseenter mouseleave');
-    $('.tooltip-icon').on('mouseenter', function () {
-      const $icon = $(this);
-      const tooltipText = $icon.attr('data-tooltip');
-      const $tooltip = $('<div class="tooltip-container"></div>').text(tooltipText);
+	// Service labels loaded from API
+	let serviceLabels = null;
 
-      $('body').append($('<div class="victron-form"></div>').html($tooltip));
+	/**
+	 * Set service labels from API response
+	 * @param {Object} labels - Service labels object from API
+	 */
+	function setServiceLabels (labels) {
+	  serviceLabels = labels;
+	}
 
-      const iconOffset = $icon.offset();
-      const tooltipHeight = $tooltip.outerHeight();
-      const tooltipWidth = $tooltip.outerWidth();
+	function initializeTooltips () {
+	  $('.tooltip-container').remove();
+	  $('.tooltip-icon').off('mouseenter mouseleave');
+	  $('.tooltip-icon').on('mouseenter', function () {
+	    const $icon = $(this);
+	    const tooltipText = $icon.attr('data-tooltip');
+	    const $tooltip = $('<div class="tooltip-container"></div>').text(tooltipText);
 
-      $tooltip.css({
-        top: iconOffset.top - tooltipHeight - 8,
-        left: iconOffset.left - (tooltipWidth / 2) + ($icon.outerWidth() / 2)
-      });
+	    $('body').append($('<div class="victron-form"></div>').html($tooltip));
 
-      $icon.data('tooltip-element', $tooltip);
-    });
+	    const iconOffset = $icon.offset();
+	    const tooltipHeight = $tooltip.outerHeight();
+	    const tooltipWidth = $tooltip.outerWidth();
 
-    $('.tooltip-icon').on('mouseleave', function () {
-      const $icon = $(this);
-      const $tooltip = $icon.data('tooltip-element');
-      if ($tooltip) {
-        $tooltip.remove();
-        $icon.removeData('tooltip-element');
-      }
-    });
-  }
+	    $tooltip.css({
+	      top: iconOffset.top - tooltipHeight - 8,
+	      left: iconOffset.left - (tooltipWidth / 2) + ($icon.outerWidth() / 2)
+	    });
 
-  /**
-   * Filter services based on blacklist patterns
-   * @param {Array} services - Array of service objects
-   * @returns {Array} Filtered services
-   */
-  function filterBlacklistedServices (services) {
-    const blacklist = [
-      /^com\.victronenergy\.adc/,
-      /^com\.victronenergy\.ble/,
-      /^com\.victronenergy\.fronius/,
-      /^com\.victronenergy\.modbusclient\.tcp/,
-      /^com\.victronenergy\.shelly/,
-      /^com\.victronenergy\.vecan\./
-    ];
+	    $icon.data('tooltip-element', $tooltip);
+	  });
 
-    return services.filter(function (service) {
-      return !blacklist.some(function (pattern) {
-        return pattern.test(service.service)
-      })
-    })
-  }
+	  $('.tooltip-icon').on('mouseleave', function () {
+	    const $icon = $(this);
+	    const $tooltip = $icon.data('tooltip-element');
+	    if ($tooltip) {
+	      $tooltip.remove();
+	      $icon.removeData('tooltip-element');
+	    }
+	  });
+	}
 
-  /**
-   * Filter paths to only numeric types (for conditional comparisons)
-   * @param {Array} paths - Array of path objects
-   * @returns {Array} Filtered paths
-   */
-  function filterNumericPaths (paths) {
-    return paths.filter(function (path) {
-      return path.type === 'float' ||
-             path.type === 'integer' ||
-             path.type === 'boolean' ||
-             path.type === 'number'
-    })
-  }
+	/**
+	 * Filter services based on blacklist patterns
+	 * @param {Array} services - Array of service objects
+	 * @returns {Array} Filtered services
+	 */
+	function filterBlacklistedServices (services) {
+	  const blacklist = [
+	    /^com\.victronenergy\.adc/,
+	    /^com\.victronenergy\.ble/,
+	    /^com\.victronenergy\.fronius/,
+	    /^com\.victronenergy\.modbusclient\.tcp/,
+	    /^com\.victronenergy\.shelly/,
+	    /^com\.victronenergy\.vecan\./
+	  ];
 
-  /**
-   * Count services by name to determine if device instance should be shown
-   * @param {Array} services - Array of service objects
-   * @returns {Object} Map of service name to count
-   */
-  function countServicesByName (services) {
-    const counts = {};
-    services.forEach(function (service) {
-      counts[service.name] = (counts[service.name] || 0) + 1;
-    });
-    return counts
-  }
+	  return services.filter(function (service) {
+	    return !blacklist.some(function (pattern) {
+	      return pattern.test(service.service)
+	    })
+	  })
+	}
 
-  /**
-   * Get friendly service type name from D-Bus service path
-   * @param {string} servicePath - D-Bus service path (e.g., "com.victronenergy.tank.socketcan_can0_vi0_uc6536")
-   * @returns {string} Friendly service type name (e.g., "Tank Sensor")
-   */
-  function getServiceTypeName (servicePath) {
-    // Extract service type from path: com.victronenergy.{type}/{instance}
-    const match = servicePath.match(/^com\.victronenergy\.([^./]+)/);
-    if (match && match[1]) {
-      const serviceType = match[1];
-      // Use API labels if available, with label property from object
-      if (serviceLabels && serviceLabels[serviceType]) {
-        return serviceLabels[serviceType].label || serviceType
-      }
-      return serviceType
-    }
+	/**
+	 * Filter paths to only numeric types (for conditional comparisons)
+	 * @param {Array} paths - Array of path objects
+	 * @returns {Array} Filtered paths
+	 */
+	function filterNumericPaths (paths) {
+	  return paths.filter(function (path) {
+	    return path.type === 'float' ||
+	           path.type === 'integer' ||
+	           path.type === 'boolean' ||
+	           path.type === 'number'
+	  })
+	}
 
-    return servicePath
-  }
+	/**
+	 * Count services by name to determine if device instance should be shown
+	 * @param {Array} services - Array of service objects
+	 * @returns {Object} Map of service name to count
+	 */
+	function countServicesByName (services) {
+	  const counts = {};
+	  services.forEach(function (service) {
+	    counts[service.name] = (counts[service.name] || 0) + 1;
+	  });
+	  return counts
+	}
 
-  /**
-   * Build grouped service dropdown options with optgroups
-   * @param {Array} services - Array of service objects
-   * @param {jQuery} $dropdown - jQuery dropdown element to populate
-   * @returns {void}
-   */
-  function buildGroupedServiceDropdown (services, $dropdown) {
-    // Group services by D-Bus service TYPE (not device name)
-    const serviceGroups = {};
-    services.forEach(function (service) {
-      const serviceTypeName = getServiceTypeName(service.service);
-      if (!serviceGroups[serviceTypeName]) {
-        serviceGroups[serviceTypeName] = [];
-      }
-      serviceGroups[serviceTypeName].push(service);
-    });
+	/**
+	 * Get friendly service type name from D-Bus service path
+	 * @param {string} servicePath - D-Bus service path (e.g., "com.victronenergy.tank.socketcan_can0_vi0_uc6536")
+	 * @returns {string} Friendly service type name (e.g., "Tank Sensor")
+	 */
+	function getServiceTypeName (servicePath) {
+	  // Extract service type from path: com.victronenergy.{type}/{instance}
+	  const match = servicePath.match(/^com\.victronenergy\.([^./]+)/);
+	  if (match && match[1]) {
+	    const serviceType = match[1];
+	    // Use API labels if available, with label property from object
+	    if (serviceLabels && serviceLabels[serviceType]) {
+	      return serviceLabels[serviceType].label || serviceType
+	    }
+	    return serviceType
+	  }
 
-    const sortedGroupNames = Object.keys(serviceGroups).sort(function (a, b) {
-      return a.localeCompare(b, undefined, { sensitivity: 'base' })
-    });
+	  return servicePath
+	}
 
-    $dropdown.empty();
+	/**
+	 * Build grouped service dropdown options with optgroups
+	 * @param {Array} services - Array of service objects
+	 * @param {jQuery} $dropdown - jQuery dropdown element to populate
+	 * @returns {void}
+	 */
+	function buildGroupedServiceDropdown (services, $dropdown) {
+	  // Group services by D-Bus service TYPE (not device name)
+	  const serviceGroups = {};
+	  services.forEach(function (service) {
+	    const serviceTypeName = getServiceTypeName(service.service);
+	    if (!serviceGroups[serviceTypeName]) {
+	      serviceGroups[serviceTypeName] = [];
+	    }
+	    serviceGroups[serviceTypeName].push(service);
+	  });
 
-    sortedGroupNames.forEach(function (groupName) {
-      const groupServices = serviceGroups[groupName];
+	  const sortedGroupNames = Object.keys(serviceGroups).sort(function (a, b) {
+	    return a.localeCompare(b, undefined, { sensitivity: 'base' })
+	  });
 
-      groupServices.sort(function (a, b) {
-        return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
-      });
+	  $dropdown.empty();
 
-      const $optgroup = $('<optgroup/>').attr('label', groupName);
-      const showInstance = groupServices.length > 1;
+	  sortedGroupNames.forEach(function (groupName) {
+	    const groupServices = serviceGroups[groupName];
 
-      groupServices.forEach(function (service) {
-        const optionText = showInstance
-          ? service.name + ' (' + service.deviceInstance + ')'
-          : service.name;
-        const $option = $('<option/>')
-          .val(service.service)
-          .text(optionText)
-          .data(service);
-        $optgroup.append($option);
-      });
+	    groupServices.sort(function (a, b) {
+	      return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+	    });
 
-      $dropdown.append($optgroup);
-    });
-  }
+	    const $optgroup = $('<optgroup/>').attr('label', groupName);
+	    const showInstance = groupServices.length > 1;
 
-  if (typeof window !== 'undefined') {
-    window.__victronCommon = window.__victronCommon || {};
-    window.__victronCommon.initializeTooltips = initializeTooltips;
-    window.__victronCommon.setServiceLabels = setServiceLabels;
-    window.__victronCommon.filterBlacklistedServices = filterBlacklistedServices;
-    window.__victronCommon.filterNumericPaths = filterNumericPaths;
-    window.__victronCommon.countServicesByName = countServicesByName;
-    window.__victronCommon.getServiceTypeName = getServiceTypeName;
-    window.__victronCommon.buildGroupedServiceDropdown = buildGroupedServiceDropdown;
-  }
+	    groupServices.forEach(function (service) {
+	      const optionText = showInstance
+	        ? service.name + ' (' + service.deviceInstance + ')'
+	        : service.name;
+	      const $option = $('<option/>')
+	        .val(service.service)
+	        .text(optionText)
+	        .data(service);
+	      $optgroup.append($option);
+	    });
 
-  /* global $ */
+	    $dropdown.append($optgroup);
+	  });
+	}
+
+	if (typeof window !== 'undefined') {
+	  window.__victronCommon = window.__victronCommon || {};
+	  window.__victronCommon.initializeTooltips = initializeTooltips;
+	  window.__victronCommon.setServiceLabels = setServiceLabels;
+	  window.__victronCommon.filterBlacklistedServices = filterBlacklistedServices;
+	  window.__victronCommon.filterNumericPaths = filterNumericPaths;
+	  window.__victronCommon.countServicesByName = countServicesByName;
+	  window.__victronCommon.getServiceTypeName = getServiceTypeName;
+	  window.__victronCommon.buildGroupedServiceDropdown = buildGroupedServiceDropdown;
+	}
+
+	/**
+	 * The base implementation of `_.propertyOf` without support for deep paths.
+	 *
+	 * @private
+	 * @param {Object} object The object to query.
+	 * @returns {Function} Returns the new accessor function.
+	 */
+
+	var _basePropertyOf;
+	var hasRequired_basePropertyOf;
+
+	function require_basePropertyOf () {
+		if (hasRequired_basePropertyOf) return _basePropertyOf;
+		hasRequired_basePropertyOf = 1;
+		function basePropertyOf(object) {
+		  return function(key) {
+		    return object == null ? undefined : object[key];
+		  };
+		}
+
+		_basePropertyOf = basePropertyOf;
+		return _basePropertyOf;
+	}
+
+	var _escapeHtmlChar;
+	var hasRequired_escapeHtmlChar;
+
+	function require_escapeHtmlChar () {
+		if (hasRequired_escapeHtmlChar) return _escapeHtmlChar;
+		hasRequired_escapeHtmlChar = 1;
+		var basePropertyOf = require_basePropertyOf();
+
+		/** Used to map characters to HTML entities. */
+		var htmlEscapes = {
+		  '&': '&amp;',
+		  '<': '&lt;',
+		  '>': '&gt;',
+		  '"': '&quot;',
+		  "'": '&#39;'
+		};
+
+		/**
+		 * Used by `_.escape` to convert characters to HTML entities.
+		 *
+		 * @private
+		 * @param {string} chr The matched character to escape.
+		 * @returns {string} Returns the escaped character.
+		 */
+		var escapeHtmlChar = basePropertyOf(htmlEscapes);
+
+		_escapeHtmlChar = escapeHtmlChar;
+		return _escapeHtmlChar;
+	}
+
+	/** Detect free variable `global` from Node.js. */
+
+	var _freeGlobal;
+	var hasRequired_freeGlobal;
+
+	function require_freeGlobal () {
+		if (hasRequired_freeGlobal) return _freeGlobal;
+		hasRequired_freeGlobal = 1;
+		var freeGlobal = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
+
+		_freeGlobal = freeGlobal;
+		return _freeGlobal;
+	}
+
+	var _root;
+	var hasRequired_root;
+
+	function require_root () {
+		if (hasRequired_root) return _root;
+		hasRequired_root = 1;
+		var freeGlobal = require_freeGlobal();
+
+		/** Detect free variable `self`. */
+		var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+
+		/** Used as a reference to the global object. */
+		var root = freeGlobal || freeSelf || Function('return this')();
+
+		_root = root;
+		return _root;
+	}
+
+	var _Symbol;
+	var hasRequired_Symbol;
+
+	function require_Symbol () {
+		if (hasRequired_Symbol) return _Symbol;
+		hasRequired_Symbol = 1;
+		var root = require_root();
+
+		/** Built-in value references. */
+		var Symbol = root.Symbol;
+
+		_Symbol = Symbol;
+		return _Symbol;
+	}
+
+	/**
+	 * A specialized version of `_.map` for arrays without support for iteratee
+	 * shorthands.
+	 *
+	 * @private
+	 * @param {Array} [array] The array to iterate over.
+	 * @param {Function} iteratee The function invoked per iteration.
+	 * @returns {Array} Returns the new mapped array.
+	 */
+
+	var _arrayMap;
+	var hasRequired_arrayMap;
+
+	function require_arrayMap () {
+		if (hasRequired_arrayMap) return _arrayMap;
+		hasRequired_arrayMap = 1;
+		function arrayMap(array, iteratee) {
+		  var index = -1,
+		      length = array == null ? 0 : array.length,
+		      result = Array(length);
+
+		  while (++index < length) {
+		    result[index] = iteratee(array[index], index, array);
+		  }
+		  return result;
+		}
+
+		_arrayMap = arrayMap;
+		return _arrayMap;
+	}
+
+	/**
+	 * Checks if `value` is classified as an `Array` object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is an array, else `false`.
+	 * @example
+	 *
+	 * _.isArray([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isArray(document.body.children);
+	 * // => false
+	 *
+	 * _.isArray('abc');
+	 * // => false
+	 *
+	 * _.isArray(_.noop);
+	 * // => false
+	 */
+
+	var isArray_1;
+	var hasRequiredIsArray;
+
+	function requireIsArray () {
+		if (hasRequiredIsArray) return isArray_1;
+		hasRequiredIsArray = 1;
+		var isArray = Array.isArray;
+
+		isArray_1 = isArray;
+		return isArray_1;
+	}
+
+	var _getRawTag;
+	var hasRequired_getRawTag;
+
+	function require_getRawTag () {
+		if (hasRequired_getRawTag) return _getRawTag;
+		hasRequired_getRawTag = 1;
+		var Symbol = require_Symbol();
+
+		/** Used for built-in method references. */
+		var objectProto = Object.prototype;
+
+		/** Used to check objects for own properties. */
+		var hasOwnProperty = objectProto.hasOwnProperty;
+
+		/**
+		 * Used to resolve the
+		 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+		 * of values.
+		 */
+		var nativeObjectToString = objectProto.toString;
+
+		/** Built-in value references. */
+		var symToStringTag = Symbol ? Symbol.toStringTag : undefined;
+
+		/**
+		 * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
+		 *
+		 * @private
+		 * @param {*} value The value to query.
+		 * @returns {string} Returns the raw `toStringTag`.
+		 */
+		function getRawTag(value) {
+		  var isOwn = hasOwnProperty.call(value, symToStringTag),
+		      tag = value[symToStringTag];
+
+		  try {
+		    value[symToStringTag] = undefined;
+		    var unmasked = true;
+		  } catch (e) {}
+
+		  var result = nativeObjectToString.call(value);
+		  if (unmasked) {
+		    if (isOwn) {
+		      value[symToStringTag] = tag;
+		    } else {
+		      delete value[symToStringTag];
+		    }
+		  }
+		  return result;
+		}
+
+		_getRawTag = getRawTag;
+		return _getRawTag;
+	}
+
+	/** Used for built-in method references. */
+
+	var _objectToString;
+	var hasRequired_objectToString;
+
+	function require_objectToString () {
+		if (hasRequired_objectToString) return _objectToString;
+		hasRequired_objectToString = 1;
+		var objectProto = Object.prototype;
+
+		/**
+		 * Used to resolve the
+		 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+		 * of values.
+		 */
+		var nativeObjectToString = objectProto.toString;
+
+		/**
+		 * Converts `value` to a string using `Object.prototype.toString`.
+		 *
+		 * @private
+		 * @param {*} value The value to convert.
+		 * @returns {string} Returns the converted string.
+		 */
+		function objectToString(value) {
+		  return nativeObjectToString.call(value);
+		}
+
+		_objectToString = objectToString;
+		return _objectToString;
+	}
+
+	var _baseGetTag;
+	var hasRequired_baseGetTag;
+
+	function require_baseGetTag () {
+		if (hasRequired_baseGetTag) return _baseGetTag;
+		hasRequired_baseGetTag = 1;
+		var Symbol = require_Symbol(),
+		    getRawTag = require_getRawTag(),
+		    objectToString = require_objectToString();
+
+		/** `Object#toString` result references. */
+		var nullTag = '[object Null]',
+		    undefinedTag = '[object Undefined]';
+
+		/** Built-in value references. */
+		var symToStringTag = Symbol ? Symbol.toStringTag : undefined;
+
+		/**
+		 * The base implementation of `getTag` without fallbacks for buggy environments.
+		 *
+		 * @private
+		 * @param {*} value The value to query.
+		 * @returns {string} Returns the `toStringTag`.
+		 */
+		function baseGetTag(value) {
+		  if (value == null) {
+		    return value === undefined ? undefinedTag : nullTag;
+		  }
+		  return (symToStringTag && symToStringTag in Object(value))
+		    ? getRawTag(value)
+		    : objectToString(value);
+		}
+
+		_baseGetTag = baseGetTag;
+		return _baseGetTag;
+	}
+
+	/**
+	 * Checks if `value` is object-like. A value is object-like if it's not `null`
+	 * and has a `typeof` result of "object".
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+	 * @example
+	 *
+	 * _.isObjectLike({});
+	 * // => true
+	 *
+	 * _.isObjectLike([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObjectLike(_.noop);
+	 * // => false
+	 *
+	 * _.isObjectLike(null);
+	 * // => false
+	 */
+
+	var isObjectLike_1;
+	var hasRequiredIsObjectLike;
+
+	function requireIsObjectLike () {
+		if (hasRequiredIsObjectLike) return isObjectLike_1;
+		hasRequiredIsObjectLike = 1;
+		function isObjectLike(value) {
+		  return value != null && typeof value == 'object';
+		}
+
+		isObjectLike_1 = isObjectLike;
+		return isObjectLike_1;
+	}
+
+	var isSymbol_1;
+	var hasRequiredIsSymbol;
+
+	function requireIsSymbol () {
+		if (hasRequiredIsSymbol) return isSymbol_1;
+		hasRequiredIsSymbol = 1;
+		var baseGetTag = require_baseGetTag(),
+		    isObjectLike = requireIsObjectLike();
+
+		/** `Object#toString` result references. */
+		var symbolTag = '[object Symbol]';
+
+		/**
+		 * Checks if `value` is classified as a `Symbol` primitive or object.
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 4.0.0
+		 * @category Lang
+		 * @param {*} value The value to check.
+		 * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+		 * @example
+		 *
+		 * _.isSymbol(Symbol.iterator);
+		 * // => true
+		 *
+		 * _.isSymbol('abc');
+		 * // => false
+		 */
+		function isSymbol(value) {
+		  return typeof value == 'symbol' ||
+		    (isObjectLike(value) && baseGetTag(value) == symbolTag);
+		}
+
+		isSymbol_1 = isSymbol;
+		return isSymbol_1;
+	}
+
+	var _baseToString;
+	var hasRequired_baseToString;
+
+	function require_baseToString () {
+		if (hasRequired_baseToString) return _baseToString;
+		hasRequired_baseToString = 1;
+		var Symbol = require_Symbol(),
+		    arrayMap = require_arrayMap(),
+		    isArray = requireIsArray(),
+		    isSymbol = requireIsSymbol();
+
+		/** Used to convert symbols to primitives and strings. */
+		var symbolProto = Symbol ? Symbol.prototype : undefined,
+		    symbolToString = symbolProto ? symbolProto.toString : undefined;
+
+		/**
+		 * The base implementation of `_.toString` which doesn't convert nullish
+		 * values to empty strings.
+		 *
+		 * @private
+		 * @param {*} value The value to process.
+		 * @returns {string} Returns the string.
+		 */
+		function baseToString(value) {
+		  // Exit early for strings to avoid a performance hit in some environments.
+		  if (typeof value == 'string') {
+		    return value;
+		  }
+		  if (isArray(value)) {
+		    // Recursively convert values (susceptible to call stack limits).
+		    return arrayMap(value, baseToString) + '';
+		  }
+		  if (isSymbol(value)) {
+		    return symbolToString ? symbolToString.call(value) : '';
+		  }
+		  var result = (value + '');
+		  return (result == '0' && (1 / value) == -Infinity) ? '-0' : result;
+		}
+
+		_baseToString = baseToString;
+		return _baseToString;
+	}
+
+	var toString_1;
+	var hasRequiredToString;
+
+	function requireToString () {
+		if (hasRequiredToString) return toString_1;
+		hasRequiredToString = 1;
+		var baseToString = require_baseToString();
+
+		/**
+		 * Converts `value` to a string. An empty string is returned for `null`
+		 * and `undefined` values. The sign of `-0` is preserved.
+		 *
+		 * @static
+		 * @memberOf _
+		 * @since 4.0.0
+		 * @category Lang
+		 * @param {*} value The value to convert.
+		 * @returns {string} Returns the converted string.
+		 * @example
+		 *
+		 * _.toString(null);
+		 * // => ''
+		 *
+		 * _.toString(-0);
+		 * // => '-0'
+		 *
+		 * _.toString([1, 2, 3]);
+		 * // => '1,2,3'
+		 */
+		function toString(value) {
+		  return value == null ? '' : baseToString(value);
+		}
+
+		toString_1 = toString;
+		return toString_1;
+	}
+
+	var _escape;
+	var hasRequired_escape;
+
+	function require_escape () {
+		if (hasRequired_escape) return _escape;
+		hasRequired_escape = 1;
+		var escapeHtmlChar = require_escapeHtmlChar(),
+		    toString = requireToString();
+
+		/** Used to match HTML entities and HTML characters. */
+		var reUnescapedHtml = /[&<>"']/g,
+		    reHasUnescapedHtml = RegExp(reUnescapedHtml.source);
+
+		/**
+		 * Converts the characters "&", "<", ">", '"', and "'" in `string` to their
+		 * corresponding HTML entities.
+		 *
+		 * **Note:** No other characters are escaped. To escape additional
+		 * characters use a third-party library like [_he_](https://mths.be/he).
+		 *
+		 * Though the ">" character is escaped for symmetry, characters like
+		 * ">" and "/" don't need escaping in HTML and have no special meaning
+		 * unless they're part of a tag or unquoted attribute value. See
+		 * [Mathias Bynens's article](https://mathiasbynens.be/notes/ambiguous-ampersands)
+		 * (under "semi-related fun fact") for more details.
+		 *
+		 * When working with HTML you should always
+		 * [quote attribute values](http://wonko.com/post/html-escaping) to reduce
+		 * XSS vectors.
+		 *
+		 * @static
+		 * @since 0.1.0
+		 * @memberOf _
+		 * @category String
+		 * @param {string} [string=''] The string to escape.
+		 * @returns {string} Returns the escaped string.
+		 * @example
+		 *
+		 * _.escape('fred, barney, & pebbles');
+		 * // => 'fred, barney, &amp; pebbles'
+		 */
+		function escape(string) {
+		  string = toString(string);
+		  return (string && reHasUnescapedHtml.test(string))
+		    ? string.replace(reUnescapedHtml, escapeHtmlChar)
+		    : string;
+		}
+
+		_escape = escape;
+		return _escape;
+	}
+
+	var _escapeExports = require_escape();
+	var escape = /*@__PURE__*/getDefaultExportFromCjs(_escapeExports);
+
+	/* global $ */
 
 
-  const COMMON_SWITCH_FIELDS = [
-    { id: 'customname', type: 'text', placeholder: 'Name', title: 'Name', tooltip: 'Custom name for the switch. If the custom name gets changed in the gui after initial deploy, that value will be overwritten on restart and re-deploy of Node-RED.' },
-    { id: 'group', type: 'text', placeholder: 'Group', title: 'Group', tooltip: 'Group name for the switch. If the group gets changed in the gui after initial deploy, that value will be overwritten on restart and re-deploy of Node-RED.' }
-  ];
+	const COMMON_SWITCH_FIELDS = [
+	  { id: 'customname', type: 'text', placeholder: 'Name', title: 'Name', tooltip: 'Custom name for the switch. If the custom name gets changed in the gui after initial deploy, that value will be overwritten on restart and re-deploy of Node-RED.' },
+	  { id: 'group', type: 'text', placeholder: 'Group', title: 'Group', tooltip: 'Group name for the switch. If the group gets changed in the gui after initial deploy, that value will be overwritten on restart and re-deploy of Node-RED.' }
+	];
 
-  function checkGeneratorType () {
-    const generatorType = $('select#node-input-generator_type').val();
-    if (generatorType === 'dc') {
-      $('.dc-generator-only').show();
-      $('.ac-generator-only').hide();
-    } else {
-      $('.dc-generator-only').hide();
-      $('.ac-generator-only').show();
-    }
-  }
+	function checkGeneratorType () {
+	  const generatorType = $('select#node-input-generator_type').val();
+	  if (generatorType === 'dc') {
+	    $('.dc-generator-only').show();
+	    $('.ac-generator-only').hide();
+	  } else {
+	    $('.dc-generator-only').hide();
+	    $('.ac-generator-only').show();
+	  }
+	}
 
-  const SWITCH_TYPE_CONFIGS = {
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.MOMENTARY]: { label: 'Momentary', fields: [...COMMON_SWITCH_FIELDS] },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.TOGGLE]: { label: 'Toggle', fields: [...COMMON_SWITCH_FIELDS] },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.DIMMABLE]: { label: 'Dimmable', fields: [...COMMON_SWITCH_FIELDS] },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: {
-      label: 'Temperature setpoint',
-      fields: [
-        ...COMMON_SWITCH_FIELDS,
-        { id: 'min', type: 'number', placeholder: 'Min (°C)', title: 'Min (°C)' },
-        { id: 'max', type: 'number', placeholder: 'Max (°C)', title: 'Max (°C)' },
-        { id: 'step', type: 'number', placeholder: 'Step (°C)', title: 'Step (°C)' }
-      ]
-    },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED]: {
-      label: 'Stepped switch',
-      fields: [
-        ...COMMON_SWITCH_FIELDS,
-        { id: 'max', type: 'number', placeholder: 'Max steps', title: 'Max steps', min: 1, max: 7 }
-      ]
-    },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN]: {
-      label: 'Dropdown',
-      fields: [
-        ...COMMON_SWITCH_FIELDS,
-        {
-          id: 'count',
-          type: 'number',
-          placeholder: 'Number of options',
-          title: 'Number of dropdown options',
-          min: '2',
-          max: '10'
-        }
-      ]
-    },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.BASIC_SLIDER]: {
-      label: 'Basic slider',
-      fields: [
-        ...COMMON_SWITCH_FIELDS,
-        { id: 'min', type: 'number', placeholder: 'Min value', title: 'Slider minimum' },
-        { id: 'max', type: 'number', placeholder: 'Max value', title: 'Slider maximum' },
-        { id: 'step', type: 'number', placeholder: 'Step size', title: 'Step size' },
-        { id: 'unit', type: 'text', placeholder: 'Unit', title: 'Unit' }
-      ]
-    },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.NUMERIC_INPUT]: {
-      label: 'Numeric input',
-      fields: [
-        ...COMMON_SWITCH_FIELDS,
-        { id: 'min', type: 'number', placeholder: 'Min value', title: 'Slider minimum' },
-        { id: 'max', type: 'number', placeholder: 'Max value', title: 'Slider maximum' },
-        { id: 'step', type: 'number', placeholder: 'Step size', title: 'Step size' },
-        { id: 'unit', type: 'text', placeholder: 'Unit', title: 'Unit (center)' }
-      ]
-    },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.THREE_STATE]: {
-      label: 'Three-state switch',
-      fields: [...COMMON_SWITCH_FIELDS]
-    },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.BILGE_PUMP]: {
-      label: 'Bilge pump control',
-      fields: [...COMMON_SWITCH_FIELDS]
-    },
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: {
-      label: 'RGB control',
-      fields: [...COMMON_SWITCH_FIELDS],
-      isRgbControl: true
-    }
-  };
+	const SWITCH_TYPE_CONFIGS = {
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.MOMENTARY]: { label: 'Momentary', fields: [...COMMON_SWITCH_FIELDS] },
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.TOGGLE]: { label: 'Toggle', fields: [...COMMON_SWITCH_FIELDS] },
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.DIMMABLE]: { label: 'Dimmable', fields: [...COMMON_SWITCH_FIELDS] },
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: {
+	    label: 'Temperature setpoint',
+	    fields: [
+	      ...COMMON_SWITCH_FIELDS,
+	      { id: 'min', type: 'number', placeholder: 'Min (°C)', title: 'Min (°C)' },
+	      { id: 'max', type: 'number', placeholder: 'Max (°C)', title: 'Max (°C)' },
+	      { id: 'step', type: 'number', placeholder: 'Step (°C)', title: 'Step (°C)' }
+	    ]
+	  },
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED]: {
+	    label: 'Stepped switch',
+	    fields: [
+	      ...COMMON_SWITCH_FIELDS,
+	      { id: 'max', type: 'number', placeholder: 'Max steps', title: 'Max steps', min: 1, max: 7 }
+	    ]
+	  },
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN]: {
+	    label: 'Dropdown',
+	    fields: [
+	      ...COMMON_SWITCH_FIELDS,
+	      {
+	        id: 'count',
+	        type: 'number',
+	        placeholder: 'Number of options',
+	        title: 'Number of dropdown options',
+	        min: '2',
+	        max: '10'
+	      }
+	    ]
+	  },
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.BASIC_SLIDER]: {
+	    label: 'Basic slider',
+	    fields: [
+	      ...COMMON_SWITCH_FIELDS,
+	      { id: 'min', type: 'number', placeholder: 'Min value', title: 'Slider minimum' },
+	      { id: 'max', type: 'number', placeholder: 'Max value', title: 'Slider maximum' },
+	      { id: 'step', type: 'number', placeholder: 'Step size', title: 'Step size' },
+	      { id: 'unit', type: 'text', placeholder: 'Unit', title: 'Unit' }
+	    ]
+	  },
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.NUMERIC_INPUT]: {
+	    label: 'Numeric input',
+	    fields: [
+	      ...COMMON_SWITCH_FIELDS,
+	      { id: 'min', type: 'number', placeholder: 'Min value', title: 'Slider minimum' },
+	      { id: 'max', type: 'number', placeholder: 'Max value', title: 'Slider maximum' },
+	      { id: 'step', type: 'number', placeholder: 'Step size', title: 'Step size' },
+	      { id: 'unit', type: 'text', placeholder: 'Unit', title: 'Unit (center)' }
+	    ]
+	  },
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.THREE_STATE]: {
+	    label: 'Three-state switch',
+	    fields: [...COMMON_SWITCH_FIELDS]
+	  },
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.BILGE_PUMP]: {
+	    label: 'Bilge pump control',
+	    fields: [...COMMON_SWITCH_FIELDS]
+	  },
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: {
+	    label: 'RGB control',
+	    fields: [...COMMON_SWITCH_FIELDS],
+	    isRgbControl: true
+	  }
+	};
 
-  const INPUT_DOCS = `
+	const INPUT_DOCS = `
   <div>
     <strong>Input:</strong><ol><li>JavaScript object with at least one property/value. E.g. <code>{path: value}</code> or <code>{path1: value1, path2: value2}</code> pairs.</li></ol>
   </div>
 `;
 
-  const createDocTemplate = (paths, outputs, img) => ({
-    text: `
+	const createDocTemplate = (paths, outputs, img) => ({
+	  text: `
     ${INPUT_DOCS}
     <div>
       ${paths}
@@ -400,82 +910,82 @@
       ${outputs}
     </div>
   `,
-    img
-  });
+	  img
+	});
 
-  const STATUS_PATH_DOC = '<li><code>/SwitchableOutput/output_1/Status</code> &mdash; Bitmask: 0x00=Off, 0x09=On, 0x01=Powered, 0x02=Tripped, 0x04=Over temperature, 0x08=Output fault, 0x10=Short fault, 0x20=Disabled, 0x40=Bypassed, 0x80=Ext. control.</li>';
+	const STATUS_PATH_DOC = '<li><code>/SwitchableOutput/output_1/Status</code> &mdash; Bitmask: 0x00=Off, 0x09=On, 0x01=Powered, 0x02=Tripped, 0x04=Over temperature, 0x08=Output fault, 0x10=Short fault, 0x20=Disabled, 0x40=Bypassed, 0x80=Ext. control.</li>';
 
-  const DEFAULT_PATH_ICON = '<i class="fa fa-bolt tooltip-icon" data-tooltip="Shortcut: plain msg.payload sets this path."></i>';
+	const DEFAULT_PATH_ICON = '<i class="fa fa-bolt tooltip-icon" data-tooltip="Shortcut: plain msg.payload sets this path."></i>';
 
-  function makeBoltBullets ($container) {
-    if (!$container || typeof $container.find !== 'function') return
-    $container.find('li').each(function () {
-      const $li = $(this);
-      const $bolt = $li.find('.fa-bolt');
-      if ($bolt.length) {
-        $bolt.detach();
-        $li.addClass('victron-shortcut-bullet');
-        $li.prepend($bolt);
-      }
-    });
-  }
-  const STATE_WITH_STATUS_DOC = '<tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the switch. <tt>msg.status</tt> contains the raw Status value (<tt>msg.status.value</tt>) and decoded flags (see Status path above).';
+	function makeBoltBullets ($container) {
+	  if (!$container || typeof $container.find !== 'function') return
+	  $container.find('li').each(function () {
+	    const $li = $(this);
+	    const $bolt = $li.find('.fa-bolt');
+	    if ($bolt.length) {
+	      $bolt.detach();
+	      $li.addClass('victron-shortcut-bullet');
+	      $li.prepend($bolt);
+	    }
+	  });
+	}
+	const STATE_WITH_STATUS_DOC = '<tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the switch. <tt>msg.status</tt> contains the raw Status value (<tt>msg.status.value</tt>) and decoded flags (see Status path above).';
 
-  const SWITCH_TYPE_DOCS = {
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.MOMENTARY]: createDocTemplate(
-      `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/State</code></strong> &mdash; Requested on/off state of channel, separate from dimming. ${DEFAULT_PATH_ICON}</li>${STATUS_PATH_DOC}</ul></div>`,
-      `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li></ol></div>`,
-      '/resources/@victronenergy/node-red-contrib-victron/docs/momentary.svg'
-    ),
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.TOGGLE]: createDocTemplate(
-      `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/State</code></strong> &mdash; Requested on/off state of channel, separate from dimming. ${DEFAULT_PATH_ICON}</li>${STATUS_PATH_DOC}</ul></div>`,
-      `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li></ol></div>`,
-      '/resources/@victronenergy/node-red-contrib-victron/docs/toggle.svg'
-    ),
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.DIMMABLE]: createDocTemplate(
-      `<div><strong>Most relevant paths:</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; 0 to 100%, read/write. ${DEFAULT_PATH_ICON}</li>${STATUS_PATH_DOC}</ul></div>`,
-      `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li><li><code>Dimming</code> &mdash; <tt>msg.payload</tt> contains the dimming value</li></ol></div>`,
-      '/resources/@victronenergy/node-red-contrib-victron/docs/dimmable.svg'
-    ),
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: createDocTemplate(
-      `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; holds slider value in °C. ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Measurement</code> &mdash; holds temperature measurement, if available.<br>
+	const SWITCH_TYPE_DOCS = {
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.MOMENTARY]: createDocTemplate(
+	    `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/State</code></strong> &mdash; Requested on/off state of channel, separate from dimming. ${DEFAULT_PATH_ICON}</li>${STATUS_PATH_DOC}</ul></div>`,
+	    `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li></ol></div>`,
+	    '/resources/@victronenergy/node-red-contrib-victron/docs/momentary.svg'
+	  ),
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.TOGGLE]: createDocTemplate(
+	    `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/State</code></strong> &mdash; Requested on/off state of channel, separate from dimming. ${DEFAULT_PATH_ICON}</li>${STATUS_PATH_DOC}</ul></div>`,
+	    `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li></ol></div>`,
+	    '/resources/@victronenergy/node-red-contrib-victron/docs/toggle.svg'
+	  ),
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.DIMMABLE]: createDocTemplate(
+	    `<div><strong>Most relevant paths:</strong><ul><li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of channel, separate from dimming.</li><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; 0 to 100%, read/write. ${DEFAULT_PATH_ICON}</li>${STATUS_PATH_DOC}</ul></div>`,
+	    `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li><li><code>Dimming</code> &mdash; <tt>msg.payload</tt> contains the dimming value</li></ol></div>`,
+	    '/resources/@victronenergy/node-red-contrib-victron/docs/dimmable.svg'
+	  ),
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: createDocTemplate(
+	    `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; holds slider value in °C. ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Measurement</code> &mdash; holds temperature measurement, if available.<br>
       <span style="font-size:0.95em;color:#666;">If present, the actual value will be displayed on the control.</span>
     </li><li><code>/SwitchableOutput/x/Settings/DimmingMin</code> defines slider minimum value. 0 will be used if omitted.</li><li><code>/SwitchableOutput/x/Settings/DimmingMax</code> defines slider maximum value. 100 will be used if omitted.</li><li><code>/SwitchableOutput/x/Settings/StepSize</code> defines stepsize. Stepsize = 1°C if omitted.</li></ul></div>`,
-      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>Temperature</code> &mdash; <tt>msg.payload</tt> contains the temperature value</li></ol></div>',
-      '/resources/@victronenergy/node-red-contrib-victron/docs/temp_setpoint.svg'
-    ),
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED]: createDocTemplate(
-      `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; holds selected option. ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Settings/DimmingMax</code> &mdash; defines the number of options. Mandatory for this type.</li>${STATUS_PATH_DOC}</ul></div>`,
-      `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li><li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the stepped value</li></ol></div>`,
-      '/resources/@victronenergy/node-red-contrib-victron/docs/stepped.svg'
-    ),
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN]: createDocTemplate(
-      `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; holds selected option. ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Settings/Labels</code> &mdash; defines the labels as a string array: <tt>["Label 1", "Label 2", "Label 3"]</tt>. Mandatory for this type.</li></ul></div>`,
-      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>Selected</code> &mdash; <tt>msg.payload</tt> contains the index of the selected option (<tt>0</tt> for the first item in the list)</li></ol></div>',
-      '/resources/@victronenergy/node-red-contrib-victron/docs/dropdown.svg'
-    ),
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.BASIC_SLIDER]: createDocTemplate(
-      `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; holds the current slider value. ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Settings/Min</code> &mdash; defines slider minimum value. <tt>0</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/Max</code> &mdash; defines slider maximum value. <tt>100</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/StepSize</code> &mdash; defines stepsize. Stepsize = <tt>1</tt> if omitted.</li></ul></div>`,
-      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the slider value</li></ol></div>',
-      '/resources/@victronenergy/node-red-contrib-victron/docs/basic_slider.svg'
-    ),
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.NUMERIC_INPUT]: createDocTemplate(
-      `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; holds the current numeric value. ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Settings/Min</code> &mdash; defines the minimum value. <tt>0</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/Max</code> &mdash; defines the maximum value. <tt>100</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/StepSize</code> &mdash; defines stepsize. Stepsize = <tt>1</tt> if omitted.</li>${STATUS_PATH_DOC}</ul></div>`,
-      `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li><li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the numeric value</li></ol></div>`,
-      '/resources/@victronenergy/node-red-contrib-victron/docs/numeric_input.svg'
-    ),
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.THREE_STATE]: createDocTemplate(
-      `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/State</code></strong> &mdash; holds the current state (0=Off, 1=On). ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Auto</code> &mdash; holds the auto mode (0=Manual, 1=Auto). When in auto mode, the GX device controls the state.</li>${STATUS_PATH_DOC}</ul></div>`,
-      `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li><li><code>Auto mode</code> &mdash; <tt>msg.payload</tt> contains the auto mode (0=Manual, 1=Auto)</li></ol></div>`,
-      '/resources/@victronenergy/node-red-contrib-victron/docs/three_state.svg'
-    ),
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.BILGE_PUMP]: createDocTemplate(
-      `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/State</code></strong> &mdash; Pump state: 0=Auto, 1=On. ${DEFAULT_PATH_ICON}</li>${STATUS_PATH_DOC}</ul></div>`,
-      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains the pump state (0=Auto, 1=On). <tt>msg.status</tt> contains the raw Status value (<tt>msg.status.value</tt>) and decoded flags (see Status path above).</li></ol></div>',
-      '/resources/@victronenergy/node-red-contrib-victron/docs/bilge_pump.svg'
-    ),
-    [victronVirtualConstantsExports.SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: createDocTemplate(
-      `<div><strong>Most relevant paths:</strong><ul>
+	    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>Temperature</code> &mdash; <tt>msg.payload</tt> contains the temperature value</li></ol></div>',
+	    '/resources/@victronenergy/node-red-contrib-victron/docs/temp_setpoint.svg'
+	  ),
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED]: createDocTemplate(
+	    `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; holds selected option. ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Settings/DimmingMax</code> &mdash; defines the number of options. Mandatory for this type.</li>${STATUS_PATH_DOC}</ul></div>`,
+	    `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li><li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the stepped value</li></ol></div>`,
+	    '/resources/@victronenergy/node-red-contrib-victron/docs/stepped.svg'
+	  ),
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN]: createDocTemplate(
+	    `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; holds selected option. ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Settings/Labels</code> &mdash; defines the labels as a string array: <tt>["Label 1", "Label 2", "Label 3"]</tt>. Mandatory for this type.</li></ul></div>`,
+	    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>Selected</code> &mdash; <tt>msg.payload</tt> contains the index of the selected option (<tt>0</tt> for the first item in the list)</li></ol></div>',
+	    '/resources/@victronenergy/node-red-contrib-victron/docs/dropdown.svg'
+	  ),
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.BASIC_SLIDER]: createDocTemplate(
+	    `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; holds the current slider value. ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Settings/Min</code> &mdash; defines slider minimum value. <tt>0</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/Max</code> &mdash; defines slider maximum value. <tt>100</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/StepSize</code> &mdash; defines stepsize. Stepsize = <tt>1</tt> if omitted.</li></ul></div>`,
+	    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the slider value</li></ol></div>',
+	    '/resources/@victronenergy/node-red-contrib-victron/docs/basic_slider.svg'
+	  ),
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.NUMERIC_INPUT]: createDocTemplate(
+	    `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; holds the current numeric value. ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Settings/Min</code> &mdash; defines the minimum value. <tt>0</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/Max</code> &mdash; defines the maximum value. <tt>100</tt> will be used if omitted.</li><li><code>/SwitchableOutput/output_1/Settings/StepSize</code> &mdash; defines stepsize. Stepsize = <tt>1</tt> if omitted.</li>${STATUS_PATH_DOC}</ul></div>`,
+	    `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li><li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the numeric value</li></ol></div>`,
+	    '/resources/@victronenergy/node-red-contrib-victron/docs/numeric_input.svg'
+	  ),
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.THREE_STATE]: createDocTemplate(
+	    `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/State</code></strong> &mdash; holds the current state (0=Off, 1=On). ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Auto</code> &mdash; holds the auto mode (0=Manual, 1=Auto). When in auto mode, the GX device controls the state.</li>${STATUS_PATH_DOC}</ul></div>`,
+	    `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li><li><code>Auto mode</code> &mdash; <tt>msg.payload</tt> contains the auto mode (0=Manual, 1=Auto)</li></ol></div>`,
+	    '/resources/@victronenergy/node-red-contrib-victron/docs/three_state.svg'
+	  ),
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.BILGE_PUMP]: createDocTemplate(
+	    `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/State</code></strong> &mdash; Pump state: 0=Auto, 1=On. ${DEFAULT_PATH_ICON}</li>${STATUS_PATH_DOC}</ul></div>`,
+	    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains the pump state (0=Auto, 1=On). <tt>msg.status</tt> contains the raw Status value (<tt>msg.status.value</tt>) and decoded flags (see Status path above).</li></ol></div>',
+	    '/resources/@victronenergy/node-red-contrib-victron/docs/bilge_pump.svg'
+	  ),
+	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: createDocTemplate(
+	    `<div><strong>Most relevant paths:</strong><ul>
       <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of the light.</li>
       <li><code>/SwitchableOutput/output_1/LightControls</code> &mdash; Array of 5 integers: <tt>[Hue (0-360°), Saturation (0-100%), Brightness (0-100%), White (0-100%), ColorTemperature (0-6500K)]</tt>.
         <br><span style="font-size:0.95em;color:#666;">Array elements used depend on selected control types:<br>
@@ -484,16 +994,16 @@
         • RGB + white dimmer: Hue, Saturation, Brightness, White</span>
       </li>
     </ul></div>`,
-      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the light</li><li><code>LightControls</code> &mdash; <tt>msg.payload</tt> contains the 5-element array with color and brightness values. Additional convenience fields: <tt>msg.rgb</tt> (hex string, e.g. #FF0000), <tt>msg.hsb</tt> (object with hue, saturation, brightness), <tt>msg.white</tt> (0-100%), <tt>msg.colorTemperature</tt> (Kelvin)</li></ol></div>',
-      '/resources/@victronenergy/node-red-contrib-victron/docs/rgb_cct_control.svg'
-    )
-  };
+	    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the light</li><li><code>LightControls</code> &mdash; <tt>msg.payload</tt> contains the 5-element array with color and brightness values. Additional convenience fields: <tt>msg.rgb</tt> (hex string, e.g. #FF0000), <tt>msg.hsb</tt> (object with hue, saturation, brightness), <tt>msg.white</tt> (0-100%), <tt>msg.colorTemperature</tt> (Kelvin)</li></ol></div>',
+	    '/resources/@victronenergy/node-red-contrib-victron/docs/rgb_cct_control.svg'
+	  )
+	};
 
-  // Device type documentation
-  const DEVICE_TYPE_DOCS = {
-    acload: {
-      label: 'AC Load',
-      text: `
+	// Device type documentation
+	const DEVICE_TYPE_DOCS = {
+	  acload: {
+	    label: 'AC Load',
+	    text: `
     ${INPUT_DOCS}
     <div>
       <div><strong>Most relevant paths:</strong>
@@ -517,11 +1027,11 @@
       </div>
     </div>
   `,
-      img: null
-    },
-    battery: {
-      label: 'Battery',
-      text: `
+	    img: null
+	  },
+	  battery: {
+	    label: 'Battery',
+	    text: `
     ${INPUT_DOCS}
     <div>
       <div><strong>Most relevant paths:</strong>
@@ -546,11 +1056,11 @@
       </div>
     </div>
   `,
-      img: null
-    },
-    dcload: {
-      label: 'DC Load',
-      text: `
+	    img: null
+	  },
+	  dcload: {
+	    label: 'DC Load',
+	    text: `
     ${INPUT_DOCS}
     <div>
       <div><strong>Most relevant paths:</strong>
@@ -570,11 +1080,11 @@
       </div>
     </div>
   `,
-      img: null
-    },
-    ev: {
-      label: 'Electric Vehicle',
-      text: `
+	    img: null
+	  },
+	  ev: {
+	    label: 'Electric Vehicle',
+	    text: `
     ${INPUT_DOCS}
     <div>
       <div><strong>Most relevant paths:</strong>
@@ -602,11 +1112,11 @@
       </div>
     </div>
   `,
-      img: null
-    },
-    'e-drive': {
-      label: 'E-drive',
-      text: `
+	    img: null
+	  },
+	  'e-drive': {
+	    label: 'E-drive',
+	    text: `
     ${INPUT_DOCS}
     <div>
       <div><strong>Most relevant paths:</strong>
@@ -631,11 +1141,11 @@
       </div>
     </div>
   `,
-      img: null
-    },
-    gps: {
-      label: 'GPS',
-      text: `
+	    img: null
+	  },
+	  gps: {
+	    label: 'GPS',
+	    text: `
     ${INPUT_DOCS}
     <div>
       <div><strong>Most relevant paths:</strong>
@@ -659,11 +1169,11 @@
       </div>
     </div>
   `,
-      img: null
-    },
-    generator: {
-      label: 'Generator',
-      text: `
+	    img: null
+	  },
+	  generator: {
+	    label: 'Generator',
+	    text: `
     ${INPUT_DOCS}
     <div>
       <div><strong>Most relevant paths:</strong>
@@ -694,11 +1204,11 @@
       </div>
     </div>
   `,
-      img: null
-    },
-    grid: {
-      label: 'Grid meter',
-      text: `
+	    img: null
+	  },
+	  grid: {
+	    label: 'Grid meter',
+	    text: `
     ${INPUT_DOCS}
     <div>
       <div><strong>Most relevant paths:</strong>
@@ -726,11 +1236,11 @@
       </div>
     </div>
   `,
-      img: null
-    },
-    energymeter: {
-      label: 'Energy meter',
-      text: `
+	    img: null
+	  },
+	  energymeter: {
+	    label: 'Energy meter',
+	    text: `
     ${INPUT_DOCS}
     <div>
       <div><strong>Most relevant paths:</strong>
@@ -758,11 +1268,11 @@
       </div>
     </div>
   `,
-      img: null
-    },
-    meteo: {
-      label: 'Meteo',
-      text: `
+	    img: null
+	  },
+	  meteo: {
+	    label: 'Meteo',
+	    text: `
     ${INPUT_DOCS}
     <div>
       <div><strong>Most relevant paths:</strong>
@@ -784,11 +1294,11 @@
       </div>
     </div>
   `,
-      img: null
-    },
-    pvinverter: {
-      label: 'PV Inverter',
-      text: `
+	    img: null
+	  },
+	  pvinverter: {
+	    label: 'PV Inverter',
+	    text: `
     ${INPUT_DOCS}
     <div>
       <div><strong>Most relevant paths:</strong>
@@ -812,11 +1322,11 @@
       </div>
     </div>
   `,
-      img: null
-    },
-    tank: {
-      label: 'Tank sensor',
-      text: `
+	    img: null
+	  },
+	  tank: {
+	    label: 'Tank sensor',
+	    text: `
     ${INPUT_DOCS}
     <div>
       <div><strong>Most relevant paths:</strong>
@@ -839,11 +1349,11 @@
       </div>
     </div>
   `,
-      img: null
-    },
-    temperature: {
-      label: 'Temperature sensor',
-      text: `
+	    img: null
+	  },
+	  temperature: {
+	    label: 'Temperature sensor',
+	    text: `
     ${INPUT_DOCS}
     <div>
       <div><strong>Most relevant paths:</strong>
@@ -865,11 +1375,11 @@
       </div>
     </div>
   `,
-      img: null
-    },
-    pulsemeter: {
-      label: 'Pulse meter',
-      text: `
+	    img: null
+	  },
+	  pulsemeter: {
+	    label: 'Pulse meter',
+	    text: `
     ${INPUT_DOCS}
     <div>
       <div><strong>Most relevant paths:</strong>
@@ -890,21 +1400,21 @@
       </div>
     </div>
   `,
-      img: null
-    }
-  };
+	    img: null
+	  }
+	};
 
-  function renderShowInUICheckboxes (containerId, savedValue, targetInputId) {
-    const localId = `${containerId}-local`;
-    const remoteId = `${containerId}-remote`;
+	function renderShowInUICheckboxes (containerId, savedValue, targetInputId) {
+	  const localId = `${containerId}-local`;
+	  const remoteId = `${containerId}-remote`;
 
-    const savedInt = parseInt(savedValue ?? 1, 10);
-    const localChecked = !!(savedInt & 1) || !!(savedInt & 2);
-    const remoteChecked = !!(savedInt & 1) || !!(savedInt & 4);
+	  const savedInt = parseInt(savedValue ?? 1, 10);
+	  const localChecked = !!(savedInt & 1) || !!(savedInt & 2);
+	  const remoteChecked = !!(savedInt & 1) || !!(savedInt & 4);
 
-    const container = $(`#${containerId}`);
-    container.empty();
-    container.append(`
+	  const container = $(`#${containerId}`);
+	  container.empty();
+	  container.append(`
     <label style="font-weight:bold;"><i class="fa fa-eye"></i> Show in UI</label>
     <div class="form-row victron-checkbox">
       <input type="checkbox" id="${localId}">
@@ -920,62 +1430,62 @@
     </div>
   `);
 
-    $(`#${localId}`).prop('checked', localChecked);
-    $(`#${remoteId}`).prop('checked', remoteChecked);
+	  $(`#${localId}`).prop('checked', localChecked);
+	  $(`#${remoteId}`).prop('checked', remoteChecked);
 
-    if (targetInputId) {
-      const updateTarget = () => {
-        $(`#${targetInputId}`).val(getShowUIValue(containerId));
-      };
-      $(`#${localId}`).on('change', updateTarget);
-      $(`#${remoteId}`).on('change', updateTarget);
-      updateTarget();
-    }
-  }
+	  if (targetInputId) {
+	    const updateTarget = () => {
+	      $(`#${targetInputId}`).val(getShowUIValue(containerId));
+	    };
+	    $(`#${localId}`).on('change', updateTarget);
+	    $(`#${remoteId}`).on('change', updateTarget);
+	    updateTarget();
+	  }
+	}
 
-  function getShowUIValue (containerId) {
-    const local = $(`#${containerId}-local`).is(':checked');
-    const remote = $(`#${containerId}-remote`).is(':checked');
-    if (local && remote) return 1
-    if (local) return 2
-    if (remote) return 4
-    return 0
-  }
+	function getShowUIValue (containerId) {
+	  const local = $(`#${containerId}-local`).is(':checked');
+	  const remote = $(`#${containerId}-remote`).is(':checked');
+	  if (local && remote) return 1
+	  if (local) return 2
+	  if (remote) return 4
+	  return 0
+	}
 
-  function renderSwitchConfigRow (context) {
-    const typeOptions = Object.entries(SWITCH_TYPE_CONFIGS)
-      .map(([value, cfg]) => `<option value="${value}">${cfg.label}</option>`)
-      .join('');
-    const switchRow = $(`
+	function renderSwitchConfigRow (context) {
+	  const typeOptions = Object.entries(SWITCH_TYPE_CONFIGS)
+	    .map(([value, cfg]) => `<option value="${value}">${cfg.label}</option>`)
+	    .join('');
+	  const switchRow = $(`
         <div class="form-row">
             <label for="node-input-switch_1_type"><i class="fa fa-toggle-on"></i> Switch type</label>
             <select id="node-input-switch_1_type">${typeOptions}</select>
         </div>
     `);
-    $('#switch-config-container').append(switchRow);
+	  $('#switch-config-container').append(switchRow);
 
-    const savedType = context.switch_1_type !== undefined ? context.switch_1_type : victronVirtualConstantsExports.SWITCH_TYPE_MAP.TOGGLE;
-    $('#node-input-switch_1_type').val(String(savedType));
+	  const savedType = context.switch_1_type !== undefined ? context.switch_1_type : victronVirtualConstantsExports.SWITCH_TYPE_MAP.TOGGLE;
+	  $('#node-input-switch_1_type').val(String(savedType));
 
-    function renderTypeConfig () {
-      $('#switch-1-config-row').remove();
-      $('#switch-1-pairs-row').remove();
-      $('#switch-docs-container').empty();
+	  function renderTypeConfig () {
+	    $('#switch-1-config-row').remove();
+	    $('#switch-1-pairs-row').remove();
+	    $('#switch-docs-container').empty();
 
-      const type = $('#node-input-switch_1_type').val();
-      const cfg = SWITCH_TYPE_CONFIGS[type];
-      const doc = SWITCH_TYPE_DOCS[type];
+	    const type = $('#node-input-switch_1_type').val();
+	    const cfg = SWITCH_TYPE_CONFIGS[type];
+	    const doc = SWITCH_TYPE_DOCS[type];
 
-      if (cfg && cfg.fields.length) {
-        // Render each field as a separate row
-        const fieldsHtml = cfg.fields.map(field => {
-          const stepAttr = field.id === 'step' || field.id === 'stepsize' ? 'step="any"' : '';
-          const tooltipHtml = field.tooltip
-            ? `<i class="fa fa-info-circle tooltip-icon"
+	    if (cfg && cfg.fields.length) {
+	      // Render each field as a separate row
+	      const fieldsHtml = cfg.fields.map(field => {
+	        const stepAttr = field.id === 'step' || field.id === 'stepsize' ? 'step="any"' : '';
+	        const tooltipHtml = field.tooltip
+	          ? `<i class="fa fa-info-circle tooltip-icon"
                 data-tooltip="${field.tooltip}"></i>`
-            : '';
+	          : '';
 
-          return `
+	        return `
           <div class="form-row">
             <label for="node-input-switch_1_${field.id}">
               ${field.title || field.placeholder}${tooltipHtml}
@@ -985,82 +1495,82 @@
                   ${stepAttr} required>
           </div>
         `
-        }).join('');
+	      }).join('');
 
-        // Build the config row
-        const configRow = $(`
+	      // Build the config row
+	      const configRow = $(`
         <div id="switch-1-config-row">
           <label style="font-weight:bold;">${cfg.label} configuration</label>
           ${fieldsHtml}
         </div>
       `);
-        $('#node-input-switch_1_type').closest('.form-row').after(configRow);
+	      $('#node-input-switch_1_type').closest('.form-row').after(configRow);
 
-        // Restore saved values
-        cfg.fields.forEach(field => {
-          const val = context[`switch_1_${field.id}`];
-          if (typeof val !== 'undefined') {
-            $(`#node-input-switch_1_${field.id}`).val(val);
-          }
+	      // Restore saved values
+	      cfg.fields.forEach(field => {
+	        const val = context[`switch_1_${field.id}`];
+	        if (typeof val !== 'undefined') {
+	          $(`#node-input-switch_1_${field.id}`).val(val);
+	        }
 
-          const $input = $(`#node-input-switch_1_${field.id}`);
+	        const $input = $(`#node-input-switch_1_${field.id}`);
 
-          // Add validation for stepped switch max field
-          if (field.id === 'max' && Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED) {
-            $input.on('blur input', function () {
-              const val = $(this).val();
-              const maxVal = parseInt(val, 10);
+	        // Add validation for stepped switch max field
+	        if (field.id === 'max' && Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED) {
+	          $input.on('blur input', function () {
+	            const val = $(this).val();
+	            const maxVal = parseInt(val, 10);
 
-              if (!val) {
-                // Empty field - will be caught by required validation
-                this.setCustomValidity('This field is required');
-                this.reportValidity();
-              } else if (isNaN(maxVal) || maxVal < 1 || maxVal > 7) {
-                this.setCustomValidity('Max steps must be between 1 and 7');
-                this.reportValidity();
-              } else {
-                // Valid - clear any error
-                this.setCustomValidity('');
-              }
-            });
-          }
-        });
+	            if (!val) {
+	              // Empty field - will be caught by required validation
+	              this.setCustomValidity('This field is required');
+	              this.reportValidity();
+	            } else if (isNaN(maxVal) || maxVal < 1 || maxVal > 7) {
+	              this.setCustomValidity('Max steps must be between 1 and 7');
+	              this.reportValidity();
+	            } else {
+	              // Valid - clear any error
+	              this.setCustomValidity('');
+	            }
+	          });
+	        }
+	      });
 
-        // Special handling for dropdown type
-        if (String(type) === String(victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN)) {
-          // Restore count for dropdown options
-          let restoredCount = 2; // default
-          const savedLabel = context.switch_1_label;
-          if (!context.switch_1_count && savedLabel) {
-            try {
-              const parsed = JSON.parse(savedLabel);
-              // If legacy format (object), use its key count
-              if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-                restoredCount = Object.keys(parsed).length || 2;
-              }
-              // If new format (array), use its length
-              if (Array.isArray(parsed)) {
-                restoredCount = parsed.length || 2;
-              }
-            } catch (e) {
-              restoredCount = 2;
-            }
-            $('#node-input-switch_1_count').val(restoredCount);
-          } else if (context.switch_1_count) {
-            $('#node-input-switch_1_count').val(context.switch_1_count);
-          }
+	      // Special handling for dropdown type
+	      if (String(type) === String(victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN)) {
+	        // Restore count for dropdown options
+	        let restoredCount = 2; // default
+	        const savedLabel = context.switch_1_label;
+	        if (!context.switch_1_count && savedLabel) {
+	          try {
+	            const parsed = JSON.parse(savedLabel);
+	            // If legacy format (object), use its key count
+	            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+	              restoredCount = Object.keys(parsed).length || 2;
+	            }
+	            // If new format (array), use its length
+	            if (Array.isArray(parsed)) {
+	              restoredCount = parsed.length || 2;
+	            }
+	          } catch (e) {
+	            restoredCount = 2;
+	          }
+	          $('#node-input-switch_1_count').val(restoredCount);
+	        } else if (context.switch_1_count) {
+	          $('#node-input-switch_1_count').val(context.switch_1_count);
+	        }
 
-          renderDropdownLabels(context);
+	        renderDropdownLabels(context);
 
-          // Watch count field changes
-          $('#node-input-switch_1_count').on('change', () => {
-            renderDropdownLabels(context);
-          });
-        }
-      }
+	        // Watch count field changes
+	        $('#node-input-switch_1_count').on('change', () => {
+	          renderDropdownLabels(context);
+	        });
+	      }
+	    }
 
-      if (doc) {
-        const docRow = $(`
+	    if (doc) {
+	      const docRow = $(`
         <div class="form-row">
           <div id="switch-1-doc-row" class="victron-doc-box">
             <label>${cfg.label} usage</label>
@@ -1069,28 +1579,28 @@
           </div>
         </div>
       `);
-        // Append to the dedicated switch docs container (after default values)
-        $('#switch-docs-container').append(docRow);
-      }
+	      // Append to the dedicated switch docs container (after default values)
+	      $('#switch-docs-container').append(docRow);
+	    }
 
-      if (Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) {
-        // Add checkbox for Measurement path
-        const measurementToggle = $(`
+	    if (Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) {
+	      // Add checkbox for Measurement path
+	      const measurementToggle = $(`
         <div class="form-row victron-checkbox" id="switch-1-measurement-toggle-row">
           <input type="checkbox" id="node-input-switch_1_include_measurement">
           <label for="node-input-switch_1_include_measurement">Include Measurement path</label>
         </div>
       `);
-        $('#switch-1-config-row').append(measurementToggle);
+	      $('#switch-1-config-row').append(measurementToggle);
 
-        // Restore saved value if present
-        if (context.switch_1_include_measurement) {
-          $('#node-input-switch_1_include_measurement').prop('checked', true);
-        }
-      }
+	      // Restore saved value if present
+	      if (context.switch_1_include_measurement) {
+	        $('#node-input-switch_1_include_measurement').prop('checked', true);
+	      }
+	    }
 
-      if (Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.THREE_STATE) {
-        const passthroughRow = $(`
+	    if (Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.THREE_STATE) {
+	      const passthroughRow = $(`
         <div class="form-row" id="switch-1-passthrough-row">
           <label for="node-input-switch_1_passthrough_mode">
             Apply input
@@ -1102,15 +1612,15 @@
           </select>
         </div>
       `);
-        $('#switch-1-config-row').append(passthroughRow);
+	      $('#switch-1-config-row').append(passthroughRow);
 
-        const savedMode = context.switch_1_passthrough_mode || 'auto_only';
-        $('#node-input-switch_1_passthrough_mode').val(savedMode);
-      }
+	      const savedMode = context.switch_1_passthrough_mode || 'auto_only';
+	      $('#node-input-switch_1_passthrough_mode').val(savedMode);
+	    }
 
-      if (cfg && cfg.isRgbControl) {
-        // Add RGB control type checkboxes
-        const rgbCheckboxes = $(`
+	    if (cfg && cfg.isRgbControl) {
+	      // Add RGB control type checkboxes
+	      const rgbCheckboxes = $(`
         <div id="switch-1-rgb-checkboxes" style="margin-top:10px;">
           <label style="font-weight:bold;">Select RGB control types (at least one required):</label>
           <div class="form-row victron-checkbox">
@@ -1127,93 +1637,93 @@
           </div>
         </div>
       `);
-        $('#switch-1-config-row').append(rgbCheckboxes);
+	      $('#switch-1-config-row').append(rgbCheckboxes);
 
-        // Restore saved values or default to first checkbox
-        const hasAnySaved = context.switch_1_rgb_color_wheel || context.switch_1_cct_wheel || context.switch_1_rgb_white_dimmer;
+	      // Restore saved values or default to first checkbox
+	      const hasAnySaved = context.switch_1_rgb_color_wheel || context.switch_1_cct_wheel || context.switch_1_rgb_white_dimmer;
 
-        if (context.switch_1_rgb_color_wheel) {
-          $('#node-input-switch_1_rgb_color_wheel').prop('checked', true);
-        }
-        if (context.switch_1_cct_wheel) {
-          $('#node-input-switch_1_cct_wheel').prop('checked', true);
-        }
-        if (context.switch_1_rgb_white_dimmer) {
-          $('#node-input-switch_1_rgb_white_dimmer').prop('checked', true);
-        }
+	      if (context.switch_1_rgb_color_wheel) {
+	        $('#node-input-switch_1_rgb_color_wheel').prop('checked', true);
+	      }
+	      if (context.switch_1_cct_wheel) {
+	        $('#node-input-switch_1_cct_wheel').prop('checked', true);
+	      }
+	      if (context.switch_1_rgb_white_dimmer) {
+	        $('#node-input-switch_1_rgb_white_dimmer').prop('checked', true);
+	      }
 
-        // If no checkboxes are saved (new node), default to first one
-        if (!hasAnySaved) {
-          $('#node-input-switch_1_rgb_color_wheel').prop('checked', true);
-        }
+	      // If no checkboxes are saved (new node), default to first one
+	      if (!hasAnySaved) {
+	        $('#node-input-switch_1_rgb_color_wheel').prop('checked', true);
+	      }
 
-        // Add change handlers to prevent unchecking all boxes
-        const rgbCheckboxIds = [
-          '#node-input-switch_1_rgb_color_wheel',
-          '#node-input-switch_1_cct_wheel',
-          '#node-input-switch_1_rgb_white_dimmer'
-        ];
+	      // Add change handlers to prevent unchecking all boxes
+	      const rgbCheckboxIds = [
+	        '#node-input-switch_1_rgb_color_wheel',
+	        '#node-input-switch_1_cct_wheel',
+	        '#node-input-switch_1_rgb_white_dimmer'
+	      ];
 
-        rgbCheckboxIds.forEach(id => {
-          $(id).on('change', function () {
-            // Count how many are checked
-            const checkedCount = rgbCheckboxIds.filter(cbId => $(cbId).is(':checked')).length;
+	      rgbCheckboxIds.forEach(id => {
+	        $(id).on('change', function () {
+	          // Count how many are checked
+	          const checkedCount = rgbCheckboxIds.filter(cbId => $(cbId).is(':checked')).length;
 
-            // If trying to uncheck the last one, prevent it
-            if (checkedCount === 0) {
-              $(this).prop('checked', true);
-              this.setCustomValidity('At least one RGB control type must be selected');
-              this.reportValidity();
-            } else {
-              // Clear validation message when at least one is checked
-              rgbCheckboxIds.forEach(cbId => {
-                $(cbId)[0].setCustomValidity('');
-              });
-            }
-          });
-        });
-      }
+	          // If trying to uncheck the last one, prevent it
+	          if (checkedCount === 0) {
+	            $(this).prop('checked', true);
+	            this.setCustomValidity('At least one RGB control type must be selected');
+	            this.reportValidity();
+	          } else {
+	            // Clear validation message when at least one is checked
+	            rgbCheckboxIds.forEach(cbId => {
+	              $(cbId)[0].setCustomValidity('');
+	            });
+	          }
+	        });
+	      });
+	    }
 
-      makeBoltBullets($('#switch-docs-container'));
-      initializeTooltips();
-    }
+	    makeBoltBullets($('#switch-docs-container'));
+	    initializeTooltips();
+	  }
 
-    $('#node-input-switch_1_type').on('change', renderTypeConfig);
-    renderTypeConfig();
+	  $('#node-input-switch_1_type').on('change', renderTypeConfig);
+	  renderTypeConfig();
 
-    // Show in UI section (outside renderTypeConfig so it persists across type changes)
-    $('#switch-config-container').append('<div id="switch-show-ui" style="margin-top:10px;"></div>');
-    renderShowInUICheckboxes('switch-show-ui', context.switch_1_show_ui_input);
-  }
+	  // Show in UI section (outside renderTypeConfig so it persists across type changes)
+	  $('#switch-config-container').append('<div id="switch-show-ui" style="margin-top:10px;"></div>');
+	  renderShowInUICheckboxes('switch-show-ui', context.switch_1_show_ui_input);
+	}
 
-  function renderDropdownLabels (context) {
-    $('#switch-1-pairs-row').remove();
+	function renderDropdownLabels (context) {
+	  $('#switch-1-pairs-row').remove();
 
-    const count = parseInt($('#node-input-switch_1_count').val()) || 2;
+	  const count = parseInt($('#node-input-switch_1_count').val()) || 2;
 
-    // Create labels container
-    const labelsContainer = $(`
+	  // Create labels container
+	  const labelsContainer = $(`
     <div class="form-row" id="switch-1-pairs-row">
         <div id="switch-1-pairs-container" style="display:flex;flex-direction:column;gap:4px;"></div>
     </div>
   `);
-    $('#switch-1-config-row').after(labelsContainer);
+	  $('#switch-1-config-row').after(labelsContainer);
 
-    // Parse saved data from string array
-    let savedLabels = [];
-    const savedLabel = context.switch_1_label;
-    if (savedLabel) {
-      try {
-        savedLabels = JSON.parse(savedLabel);
-      } catch (e) {
-        savedLabels = [];
-      }
-    }
+	  // Parse saved data from string array
+	  let savedLabels = [];
+	  const savedLabel = context.switch_1_label;
+	  if (savedLabel) {
+	    try {
+	      savedLabels = JSON.parse(savedLabel);
+	    } catch (e) {
+	      savedLabels = [];
+	    }
+	  }
 
-    // Create label inputs
-    for (let j = 0; j < count; j++) {
-      const value = savedLabels[j] || '';
-      const labelHtml = $(`
+	  // Create label inputs
+	  for (let j = 0; j < count; j++) {
+	    const value = savedLabels[j] || '';
+	    const labelHtml = $(`
       <div class="form-row" style="align-items:center;">
         <label for="node-input-switch_1_value_${j}" style="min-width:120px;">Option ${j + 1}</label>
         <input type="text"
@@ -1223,123 +1733,123 @@
                value="${value}" required>
       </div>
     `);
-      $('#switch-1-pairs-container').append(labelHtml);
-    }
-  }
+	    $('#switch-1-pairs-container').append(labelHtml);
+	  }
+	}
 
-  function fetchSwitchNodeNameAndGroupFromCache (id) {
-    if (!id) {
-      return Promise.reject(new Error('id is required'))
-    }
+	function fetchSwitchNodeNameAndGroupFromCache (id) {
+	  if (!id) {
+	    return Promise.reject(new Error('id is required'))
+	  }
 
-    return fetch(`/victron/cache?filter_by_serial=${id}`)
-      .then(response => response.json())
-      .then(data => {
-        for (const key in data) {
-          if (key.match(/^com.victronenergy\./) && data[key]['/Serial'] === id) {
-            const name = data[key]['/SwitchableOutput/output_1/Settings/CustomName'];
-            const group = data[key]['/SwitchableOutput/output_1/Settings/Group'];
-            return { name, group }
-          }
-        }
-        // No matching entry found
-        return {}
-      })
-  }
+	  return fetch(`/victron/cache?filter_by_serial=${id}`)
+	    .then(response => response.json())
+	    .then(data => {
+	      for (const key in data) {
+	        if (key.match(/^com.victronenergy\./) && data[key]['/Serial'] === id) {
+	          const name = data[key]['/SwitchableOutput/output_1/Settings/CustomName'];
+	          const group = data[key]['/SwitchableOutput/output_1/Settings/Group'];
+	          return { name, group }
+	        }
+	      }
+	      // No matching entry found
+	      return {}
+	    })
+	}
 
-  function updateSwitchConfig (context) {
-    const container = $('#switch-config-container');
-    container.empty();
-    // Also clear the docs container
-    $('#switch-docs-container').empty();
-    if ($('select#node-input-device').val() !== 'switch') return
-    renderSwitchConfigRow(context);
+	function updateSwitchConfig (context) {
+	  const container = $('#switch-config-container');
+	  container.empty();
+	  // Also clear the docs container
+	  $('#switch-docs-container').empty();
+	  if ($('select#node-input-device').val() !== 'switch') return
+	  renderSwitchConfigRow(context);
 
-    // Add handler for switch type changes
-    $('#node-input-switch_1_type').on('change', (v) => {
-      context.switch_1_type = v.target.value;
-      updateOutputs(context);
-    });
-  }
+	  // Add handler for switch type changes
+	  $('#node-input-switch_1_type').on('change', (v) => {
+	    context.switch_1_type = v.target.value;
+	    updateOutputs(context);
+	  });
+	}
 
-  function updateBatteryVoltageVisibility () {
-    const defaultValues = $('#node-input-default_values-yes').is(':checked');
-    const preset = $('#node-input-battery_voltage_preset').val();
+	function updateBatteryVoltageVisibility () {
+	  const defaultValues = $('#node-input-default_values-yes').is(':checked');
+	  const preset = $('#node-input-battery_voltage_preset').val();
 
-    // Show voltage row only when default values is enabled
-    $('#battery-voltage-row').toggle(defaultValues);
+	  // Show voltage row only when default values is enabled
+	  $('#battery-voltage-row').toggle(defaultValues);
 
-    // Show custom input only when custom is selected
-    $('#node-input-battery_voltage_custom').toggle(preset === 'custom');
-    $('#battery-voltage-custom-label').toggle(preset === 'custom');
-  }
+	  // Show custom input only when custom is selected
+	  $('#node-input-battery_voltage_custom').toggle(preset === 'custom');
+	  $('#battery-voltage-custom-label').toggle(preset === 'custom');
+	}
 
-  function checkSelectedVirtualDevice (context) {
-    [
-      'acload', 'battery', 'ev', 'generator', 'gps', 'grid', 'e-drive',
-      'pvinverter', 'switch', 'tank', 'temperature', 'energymeter', 'pulsemeter'
-    ].forEach(x => { $('.input-' + x).hide(); });
+	function checkSelectedVirtualDevice (context) {
+	  [
+	    'acload', 'battery', 'ev', 'generator', 'gps', 'grid', 'e-drive',
+	    'pvinverter', 'switch', 'tank', 'temperature', 'energymeter', 'pulsemeter'
+	  ].forEach(x => { $('.input-' + x).hide(); });
 
-    const selected = $('select#node-input-device').val();
-    $('.input-' + selected).show();
+	  const selected = $('select#node-input-device').val();
+	  $('.input-' + selected).show();
 
-    if (selected === 'acload') {
-      $('#node-input-enable_s2support').off('change.s2support').on('change.s2support', function () {
-        context.enable_s2support = $(this).is(':checked');
-        updateOutputs(context);
-      });
-    }
+	  if (selected === 'acload') {
+	    $('#node-input-enable_s2support').off('change.s2support').on('change.s2support', function () {
+	      context.enable_s2support = $(this).is(':checked');
+	      updateOutputs(context);
+	    });
+	  }
 
-    if (selected === 'battery') {
-      $('input[name="default_values"]').off('change.battery-voltage').on('change.battery-voltage', updateBatteryVoltageVisibility);
-      $('#node-input-battery_voltage_preset').off('change.battery-voltage').on('change.battery-voltage', updateBatteryVoltageVisibility);
-      updateBatteryVoltageVisibility();
-    }
+	  if (selected === 'battery') {
+	    $('input[name="default_values"]').off('change.battery-voltage').on('change.battery-voltage', updateBatteryVoltageVisibility);
+	    $('#node-input-battery_voltage_preset').off('change.battery-voltage').on('change.battery-voltage', updateBatteryVoltageVisibility);
+	    updateBatteryVoltageVisibility();
+	  }
 
-    if (selected === 'temperature') {
-      $('#node-input-include_temp_battery').off('change').on('change', function () {
-        $('#battery-temp_voltage-row').toggle($(this).is(':checked'));
-      });
-      $('#battery-temp_voltage-row').toggle($('#node-input-include_temp_battery').is(':checked'));
-    }
+	  if (selected === 'temperature') {
+	    $('#node-input-include_temp_battery').off('change').on('change', function () {
+	      $('#battery-temp_voltage-row').toggle($(this).is(':checked'));
+	    });
+	    $('#battery-temp_voltage-row').toggle($('#node-input-include_temp_battery').is(':checked'));
+	  }
 
-    if (selected === 'tank') {
-      $('#node-input-include_tank_battery').off('change').on('change', function () {
-        $('#tank_battery-voltage-row').toggle($(this).is(':checked'));
-      });
-      $('#tank_battery-voltage-row').toggle($('#node-input-include_tank_battery').is(':checked'));
-    }
+	  if (selected === 'tank') {
+	    $('#node-input-include_tank_battery').off('change').on('change', function () {
+	      $('#tank_battery-voltage-row').toggle($(this).is(':checked'));
+	    });
+	    $('#tank_battery-voltage-row').toggle($('#node-input-include_tank_battery').is(':checked'));
+	  }
 
-    if (selected === 'pulsemeter') {
-      $('#node-input-auto_aggregate').off('change').on('change', function () {
-        $('#pulsemeter-multiplier-row').toggle($(this).is(':checked'));
-      });
-      $('#pulsemeter-multiplier-row').toggle($('#node-input-auto_aggregate').is(':checked'));
-    }
+	  if (selected === 'pulsemeter') {
+	    $('#node-input-auto_aggregate').off('change').on('change', function () {
+	      $('#pulsemeter-multiplier-row').toggle($(this).is(':checked'));
+	    });
+	    $('#pulsemeter-multiplier-row').toggle($('#node-input-auto_aggregate').is(':checked'));
+	  }
 
-    if (selected === 'generator') {
-      checkGeneratorType();
-    }
+	  if (selected === 'generator') {
+	    checkGeneratorType();
+	  }
 
-    if (selected === 'gps') {
-      $('#node-input-default_values-yes').prop('checked', false);
-      $('#node-input-default_values-no').prop('checked', true).prop('disabled', true);
-      $('#node-input-default_values-yes').prop('disabled', true);
-    } else {
-      $('input[name="default_values"]').prop('disabled', false);
-    }
+	  if (selected === 'gps') {
+	    $('#node-input-default_values-yes').prop('checked', false);
+	    $('#node-input-default_values-no').prop('checked', true).prop('disabled', true);
+	    $('#node-input-default_values-yes').prop('disabled', true);
+	  } else {
+	    $('input[name="default_values"]').prop('disabled', false);
+	  }
 
-    if (selected === 'switch') {
-      updateSwitchConfig(context);
-      $('#default-values-container').hide();
-    } else {
-      $('#default-values-container').show();
-      $('#switch-docs-container').empty();
+	  if (selected === 'switch') {
+	    updateSwitchConfig(context);
+	    $('#default-values-container').hide();
+	  } else {
+	    $('#default-values-container').show();
+	    $('#switch-docs-container').empty();
 
-      // Show device-specific documentation if available
-      const doc = DEVICE_TYPE_DOCS[selected];
-      if (doc) {
-        const docRow = $(`
+	    // Show device-specific documentation if available
+	    const doc = DEVICE_TYPE_DOCS[selected];
+	    if (doc) {
+	      const docRow = $(`
         <div class="form-row">
           <div id="device-doc-row" class="victron-doc-box">
             <label>${doc.label} usage</label>
@@ -1348,236 +1858,325 @@
           </div>
         </div>
       `);
-        $('#switch-docs-container').append(docRow);
-      }
-    }
-  }
+	      $('#switch-docs-container').append(docRow);
+	    }
+	  }
+	}
 
-  const INDICATOR_TYPE_DOCS = {
-    0: createDocTemplate(
-      '<div><strong>Most relevant paths:</strong><ul>' +
-      `<li><strong><code>/GenericInput/0/Value</code></strong> &mdash; Current discrete state (integer index, e.g. 0, 1, 2, ...) ${DEFAULT_PATH_ICON}</li>` +
-      '<li><code>/GenericInput/0/Status</code> &mdash; Indicator status: 0=OK, 1=Fault, 2=Battery low</li>' +
-      '<li><code>/GenericInput/0/Settings/Labels</code> &mdash; Array of label strings, one per discrete value. ' +
-      'Custom strings (e.g. <tt>"eco"</tt>) and reserved keywords (e.g. <tt>"/on"</tt>) can be mixed freely. ' +
-      'Reserved keywords: <tt>/off</tt>, <tt>/on</tt>, <tt>/open</tt>, <tt>/closed</tt>, <tt>/ok</tt>, <tt>/alarm</tt>, ' +
-      '<tt>/stopped</tt>, <tt>/running</tt>, <tt>/low</tt>, <tt>/high</tt></li>' +
-      '</ul></div>',
-      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li></ol></div>',
-      '/resources/@victronenergy/node-red-contrib-victron/docs/discrete.svg'
-    ),
-    1: createDocTemplate(
-      '<div><strong>Most relevant paths:</strong><ul>' +
-      `<li><strong><code>/GenericInput/0/Value</code></strong> &mdash; Numeric indicator reading ${DEFAULT_PATH_ICON}</li>` +
-      '<li><code>/GenericInput/0/Status</code> &mdash; Indicator status: 0=OK, 1=Fault, 2=Battery low</li>' +
-      '<li><code>/GenericInput/0/Settings/Unit</code> &mdash; Display unit, e.g. <tt>W</tt>, <tt>kWh</tt>. ' +
-      'Use <tt>/Temperature</tt>, <tt>/Speed</tt> or <tt>/Volume</tt> to follow GX system-wide unit settings</li>' +
-      '</ul></div>',
-      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li></ol></div>',
-      '/resources/@victronenergy/node-red-contrib-victron/docs/value.svg'
-    ),
-    2: createDocTemplate(
-      '<div><strong>Most relevant paths:</strong><ul>' +
-      `<li><strong><code>/GenericInput/0/Value</code></strong> &mdash; Numeric indicator reading ${DEFAULT_PATH_ICON}</li>` +
-      '<li><code>/GenericInput/0/Status</code> &mdash; Indicator status: 0=OK, 1=Fault, 2=Battery low</li>' +
-      '<li><code>/GenericInput/0/Settings/RangeMin</code> &mdash; Minimum value for the range indicator</li>' +
-      '<li><code>/GenericInput/0/Settings/RangeMax</code> &mdash; Maximum value for the range indicator</li>' +
-      '</ul></div>',
-      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li></ol></div>',
-      '/resources/@victronenergy/node-red-contrib-victron/docs/value_range.svg'
-    ),
-    3: createDocTemplate(
-      '<div><strong>Most relevant paths:</strong><ul>' +
-      `<li><strong><code>/GenericInput/0/Value</code></strong> &mdash; Temperature value in the unit selected in GX system settings ${DEFAULT_PATH_ICON}</li>` +
-      '<li><code>/GenericInput/0/Status</code> &mdash; Indicator status: 0=OK, 1=Fault, 2=Battery low</li>' +
-      '<li><code>/GenericInput/0/Settings/RangeMin</code> &mdash; Minimum value for the range indicator</li>' +
-      '<li><code>/GenericInput/0/Settings/RangeMax</code> &mdash; Maximum value for the range indicator</li>' +
-      '</ul></div>',
-      '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li></ol></div>',
-      '/resources/@victronenergy/node-red-contrib-victron/docs/temperature_indicator.svg'
-    )
-  };
+	const INDICATOR_TYPE_DOCS = {
+	  0: createDocTemplate(
+	    '<div><strong>Most relevant paths:</strong><ul>' +
+	    `<li><strong><code>/GenericInput/0/Value</code></strong> &mdash; Current discrete state (integer index, e.g. 0, 1, 2, ...) ${DEFAULT_PATH_ICON}</li>` +
+	    '<li><code>/GenericInput/0/Status</code> &mdash; Indicator status: 0=OK, 1=Fault, 2=Battery low</li>' +
+	    '<li><code>/GenericInput/0/Settings/Labels</code> &mdash; Array of label strings, one per discrete value. ' +
+	    'Custom strings (e.g. <tt>"eco"</tt>) and reserved keywords (e.g. <tt>"/on"</tt>) can be mixed freely. ' +
+	    'Reserved keywords: <tt>/off</tt>, <tt>/on</tt>, <tt>/open</tt>, <tt>/closed</tt>, <tt>/ok</tt>, <tt>/alarm</tt>, ' +
+	    '<tt>/stopped</tt>, <tt>/running</tt>, <tt>/low</tt>, <tt>/high</tt></li>' +
+	    '</ul></div>',
+	    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li></ol></div>',
+	    '/resources/@victronenergy/node-red-contrib-victron/docs/discrete.svg'
+	  ),
+	  1: createDocTemplate(
+	    '<div><strong>Most relevant paths:</strong><ul>' +
+	    `<li><strong><code>/GenericInput/0/Value</code></strong> &mdash; Numeric indicator reading ${DEFAULT_PATH_ICON}</li>` +
+	    '<li><code>/GenericInput/0/Status</code> &mdash; Indicator status: 0=OK, 1=Fault, 2=Battery low</li>' +
+	    '<li><code>/GenericInput/0/Settings/Unit</code> &mdash; Display unit, e.g. <tt>W</tt>, <tt>kWh</tt>. ' +
+	    'Use <tt>/Temperature</tt>, <tt>/Speed</tt> or <tt>/Volume</tt> to follow GX system-wide unit settings</li>' +
+	    '</ul></div>',
+	    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li></ol></div>',
+	    '/resources/@victronenergy/node-red-contrib-victron/docs/value.svg'
+	  ),
+	  2: createDocTemplate(
+	    '<div><strong>Most relevant paths:</strong><ul>' +
+	    `<li><strong><code>/GenericInput/0/Value</code></strong> &mdash; Numeric indicator reading ${DEFAULT_PATH_ICON}</li>` +
+	    '<li><code>/GenericInput/0/Status</code> &mdash; Indicator status: 0=OK, 1=Fault, 2=Battery low</li>' +
+	    '<li><code>/GenericInput/0/Settings/RangeMin</code> &mdash; Minimum value for the range indicator</li>' +
+	    '<li><code>/GenericInput/0/Settings/RangeMax</code> &mdash; Maximum value for the range indicator</li>' +
+	    '</ul></div>',
+	    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li></ol></div>',
+	    '/resources/@victronenergy/node-red-contrib-victron/docs/value_range.svg'
+	  ),
+	  3: createDocTemplate(
+	    '<div><strong>Most relevant paths:</strong><ul>' +
+	    `<li><strong><code>/GenericInput/0/Value</code></strong> &mdash; Temperature value in the unit selected in GX system settings ${DEFAULT_PATH_ICON}</li>` +
+	    '<li><code>/GenericInput/0/Status</code> &mdash; Indicator status: 0=OK, 1=Fault, 2=Battery low</li>' +
+	    '<li><code>/GenericInput/0/Settings/RangeMin</code> &mdash; Minimum value for the range indicator</li>' +
+	    '<li><code>/GenericInput/0/Settings/RangeMax</code> &mdash; Maximum value for the range indicator</li>' +
+	    '</ul></div>',
+	    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li></ol></div>',
+	    '/resources/@victronenergy/node-red-contrib-victron/docs/temperature_indicator.svg'
+	  )
+	};
 
-  const INDICATOR_TYPE_LABELS = {
-    0: 'Discrete',
-    1: 'Value',
-    2: 'Value with range',
-    3: 'Temperature'
-  };
+	const INDICATOR_TYPE_LABELS = {
+	  0: 'Discrete',
+	  1: 'Value',
+	  2: 'Value with range',
+	  3: 'Temperature'
+	};
 
-  function renderIndicatorDocBox (type) {
-    $('#indicator-docs-container').empty();
-    const typeKey = parseInt(type, 10);
-    const doc = INDICATOR_TYPE_DOCS[typeKey];
-    const label = INDICATOR_TYPE_LABELS[typeKey] || 'Indicator';
-    if (doc) {
-      const docRow = $(`
+	const INDICATOR_TYPE = {
+	  DISCRETE: 0,
+	  VALUE_WITH_RANGE: 2,
+	  TEMPERATURE: 3
+	};
+
+	function isTypeRange (type) {
+	  return type === INDICATOR_TYPE.VALUE_WITH_RANGE || type === INDICATOR_TYPE.TEMPERATURE
+	}
+
+	function renderIndicatorDocBox (type) {
+	  $('#indicator-docs-container').empty();
+	  const typeKey = parseInt(type, 10);
+	  const doc = INDICATOR_TYPE_DOCS[typeKey];
+	  const label = INDICATOR_TYPE_LABELS[typeKey] || 'Indicator';
+	  if (doc) {
+	    const docRow = $(`
       <div class="form-row">
         <div id="indicator-doc-row" class="victron-doc-box">
-          <label>${label} usage</label>
-          ${doc.img ? `<img src="${doc.img}" alt="${label} preview">` : ''}
+          <label>${label} usage
+            <i class="fa fa-info-circle tooltip-icon" data-tooltip="Approximate preview - actual appearance on the GX device may differ depending on system unit settings."></i>
+          </label>
+          <div id="indicator-live-preview" class="indicator-preview-card"></div>
           <div class="victron-doc-text">${doc.text}</div>
         </div>
       </div>
     `);
-      $('#indicator-docs-container').append(docRow);
-      makeBoltBullets($('#indicator-docs-container'));
-      initializeTooltips();
-    }
-  }
+	    $('#indicator-docs-container').append(docRow);
+	    makeBoltBullets($('#indicator-docs-container'));
+	    initializeTooltips();
+	  }
+	}
 
-  function validateSwitchConfig () {
-    const type = $('#node-input-switch_1_type').val();
-    const cfg = SWITCH_TYPE_CONFIGS[type];
+	const RESERVED_UNIT_LABELS = { '/Temperature': 'Temperature', '/Speed': 'Speed', '/Volume': 'Volume' };
+	const RESERVED_UNITS = { '/Temperature': '°C', '/Speed': 'km/h', '/Volume': 'L' };
 
-    if (cfg && cfg.fields.length) {
-      for (const field of cfg.fields) {
-        const $input = $(`#node-input-switch_1_${field.id}`);
-        if ($input.length && !$input.val()) {
-          $input[0].setCustomValidity('This field is required');
-          $input[0].reportValidity();
-          return false
-        } else if ($input.length) {
-          if (field.id === 'max' && Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED) {
-            const val = $input.val();
-            const maxVal = parseInt(val, 10);
-            if (isNaN(maxVal) || maxVal < 1 || maxVal > 7) {
-              $input[0].setCustomValidity('Max steps must be between 1 and 7');
-              $input[0].reportValidity();
-              return false
-            } else {
-              $input[0].setCustomValidity('');
-            }
-          } else {
-            $input[0].setCustomValidity('');
-          }
-        }
-      }
-    }
+	function buildSimpleCardSvg (title, cardLabel, valueText) {
+	  const font = 'system-ui, -apple-system, sans-serif';
+	  return `<svg width="368" height="88" viewBox="0 0 368 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+<text x="16" y="24" font-family="${font}" font-size="12" fill="#1D1D1B">${escape(title)}</text>
+<line x1="8" y1="87.5" x2="360" y2="87.5" stroke="#E6E5E1"/>
+<rect x="16" y="34" width="336" height="40" rx="6" fill="#F0EFEB"/>
+<text x="36" y="59" font-family="${font}" font-size="14" fill="#64635F">${escape(cardLabel)}</text>
+<text x="340" y="59" text-anchor="end" font-family="${font}" font-size="14" fill="#1D1D1B">${escape(valueText)}</text>
+</svg>`
+	}
 
-    // Special validation for dropdown type (6)
-    if (String(type) === String(victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN)) {
-      const pairCount = parseInt($('#node-input-switch_1_count').val()) || 2;
-      for (let j = 0; j < pairCount; j++) {
-        const $value = $(`#node-input-switch_1_value_${j}`);
-        if ($value.length && !$value.val()) {
-          $value[0].setCustomValidity('Label is required');
-          $value[0].reportValidity();
-          return false
-        }
-        if ($value.length) $value[0].setCustomValidity('');
-      }
-    }
+	function buildRangeCardSvg (title, valueText) {
+	  const font = 'system-ui, -apple-system, sans-serif';
+	  const barWidth = 250;
+	  const barFill = Math.round(barWidth * 0.4);
+	  return `<svg width="368" height="62" viewBox="0 0 368 62" fill="none" xmlns="http://www.w3.org/2000/svg">
+<text x="16" y="20" font-family="${font}" font-size="12" fill="#1D1D1B">${escape(title)}</text>
+<line x1="8" y1="61.5" x2="360" y2="61.5" stroke="#E6E5E1"/>
+<rect x="16" y="28" width="336" height="24" rx="6" fill="#F0EFEB"/>
+<defs><linearGradient id="bar-grad" x1="${24 + barWidth}" y1="40" x2="24" y2="40" gradientUnits="userSpaceOnUse">
+<stop stop-color="#D66A67"/><stop offset="0.47" stop-color="#7E6EB7"/><stop offset="1" stop-color="#5991CE"/>
+</linearGradient></defs>
+<rect x="24" y="36" width="${barWidth}" height="8" rx="4" fill="#BBCEE0"/>
+<rect x="24" y="36" width="${barFill}" height="8" rx="4" fill="url(#bar-grad)"/>
+<text x="348" y="44" text-anchor="end" font-family="${font}" font-size="14" fill="#1D1D1B">${escape(valueText)}</text>
+</svg>`
+	}
 
-    // Special validation for RGB control - at least one checkbox must be selected
-    if (cfg && cfg.isRgbControl) {
-      const rgbColorWheel = $('#node-input-switch_1_rgb_color_wheel').is(':checked');
-      const cctWheel = $('#node-input-switch_1_cct_wheel').is(':checked');
-      const rgbWhiteDimmer = $('#node-input-switch_1_rgb_white_dimmer').is(':checked');
+	function updateIndicatorLivePreview () {
+	  const $preview = $('#indicator-live-preview');
+	  if (!$preview.length) return
 
-      if (!rgbColorWheel && !cctWheel && !rgbWhiteDimmer) {
-        const $checkbox = $('#node-input-switch_1_rgb_color_wheel')[0];
-        if ($checkbox) {
-          $checkbox.setCustomValidity('At least one RGB control type must be selected');
-          $checkbox.reportValidity();
-        }
-        return false
-      } else {
-        // Clear any previous validation messages on all checkboxes
-        $('#node-input-switch_1_rgb_color_wheel')[0]?.setCustomValidity('');
-        $('#node-input-switch_1_cct_wheel')[0]?.setCustomValidity('');
-        $('#node-input-switch_1_rgb_white_dimmer')[0]?.setCustomValidity('');
-      }
-    }
+	  const type = parseInt($('#node-input-indicator_type').val(), 10);
+	  const isRange = isTypeRange(type);
+	  const isTemperature = type === INDICATOR_TYPE.TEMPERATURE;
 
-    return true
-  }
+	  function placeholderOf (selector) {
+	    return ($('#' + selector).attr('placeholder') || '').replace(/^e\.g\.\s*/i, '').split(',')[0].trim()
+	  }
 
-  const DEVICE_TYPE_TO_NUM_OUTPUTS = {
-    switch: (config) => {
-      // determine outputs based on type
-      const switchType = config?.switch_1_type;
+	  const customname = $('#node-input-customname').val() || '';
+	  const title = customname || placeholderOf('node-input-customname') || 'State';
 
-      // Parse switch type (handle both string and number)
-      const typeKey = switchType !== undefined ? parseInt(switchType, 10) : victronVirtualConstantsExports.SWITCH_TYPE_MAP.TOGGLE;
+	  let cardLabel;
+	  let valueText;
 
-      // Look up outputs from config, default to 2 (passthrough + state)
-      return victronVirtualConstantsExports.SWITCH_OUTPUT_CONFIG[typeKey] || 2
-    },
-    acload: (config) => {
-      if (config.enable_s2support) {
-        return 2 // passthrough + signals
-      }
-      return 1
-    },
-    pulsemeter: () => 2
-  };
+	  if (type === INDICATOR_TYPE.DISCRETE) {
+	    const rawLabels = $('#node-input-labels').val() || '';
+	    cardLabel = $('#node-input-primary_label').val() || placeholderOf('node-input-primary_label') || 'State';
+	    valueText = rawLabels.split(',')[0].trim().replace(/^\//, '') || 'Off';
+	  } else if (isRange) {
+	    cardLabel = title;
+	    const rawUnit = $('#node-input-unit').val() || '';
+	    const decimalsRaw = $('#node-input-decimals').val();
+	    const decimals = decimalsRaw !== '' && !isNaN(decimalsRaw) ? parseInt(decimalsRaw, 10) : 1;
+	    const unit = isTemperature ? '°C' : (RESERVED_UNITS[rawUnit] || rawUnit);
+	    valueText = (21.5).toFixed(decimals) + (unit ? ' ' + unit : '');
+	  } else {
+	    const rawUnit = $('#node-input-unit').val() || '';
+	    cardLabel = RESERVED_UNIT_LABELS[rawUnit] || $('#node-input-primary_label').val() || placeholderOf('node-input-primary_label') || 'State';
+	    const decimalsRaw = $('#node-input-decimals').val();
+	    const decimals = decimalsRaw !== '' && !isNaN(decimalsRaw) ? parseInt(decimalsRaw, 10) : 1;
+	    const unit = RESERVED_UNITS[rawUnit] || rawUnit;
+	    valueText = (21.5).toFixed(decimals) + (unit ? ' ' + unit : '');
+	  }
 
-  /**
-   * Calculate the number of outputs for a virtual device
-   * @param {string} device - Device type (e.g., 'battery', 'switch', 'gps')
-   * @param {object} config - Device configuration object
-   * @returns {number} Number of outputs (minimum 1)
-   */
-  function calculateOutputs (device, config) {
-    if (DEVICE_TYPE_TO_NUM_OUTPUTS[device]) {
-      return DEVICE_TYPE_TO_NUM_OUTPUTS[device](config)
-    } else {
-      return 1
-    }
-  }
+	  if (isRange) {
+	    $preview.html(buildRangeCardSvg(title, valueText));
+	  } else {
+	    $preview.html(buildSimpleCardSvg(title, cardLabel, valueText));
+	  }
+	}
 
-  /**
-   * Update the outputs property in the Node-RED editor context
-   * This is a thin wrapper around calculateOutputs that handles DOM manipulation
-   * @param {object} context - Node-RED editor context (this)
-   */
-  function updateOutputs (context) {
-    const device = context.device;
-    const config = {
-      switch_1_type: context.switch_1_type,
-      enable_s2support: context.enable_s2support
-    };
-    const outputs = calculateOutputs(device, config);
+	function validateSwitchConfig () {
+	  const type = $('#node-input-switch_1_type').val();
+	  const cfg = SWITCH_TYPE_CONFIGS[type];
 
-    // Update BOTH the context AND the hidden input field
-    context.outputs = outputs;
-    $('#node-input-outputs').val(outputs);
-  }
+	  if (cfg && cfg.fields.length) {
+	    for (const field of cfg.fields) {
+	      const $input = $(`#node-input-switch_1_${field.id}`);
+	      if ($input.length && !$input.val()) {
+	        $input[0].setCustomValidity('This field is required');
+	        $input[0].reportValidity();
+	        return false
+	      } else if ($input.length) {
+	        if (field.id === 'max' && Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED) {
+	          const val = $input.val();
+	          const maxVal = parseInt(val, 10);
+	          if (isNaN(maxVal) || maxVal < 1 || maxVal > 7) {
+	            $input[0].setCustomValidity('Max steps must be between 1 and 7');
+	            $input[0].reportValidity();
+	            return false
+	          } else {
+	            $input[0].setCustomValidity('');
+	          }
+	        } else {
+	          $input[0].setCustomValidity('');
+	        }
+	      }
+	    }
+	  }
 
-  /**
-   * Returns the Node-RED palette label for a virtual node.
-   * Priority: name -> customname + group + typeName -> fallback + typeName
-   * @param {{ name?: string, customname?: string, group?: string, typeName?: string, fallback?: string }} opts
-   * @returns {string}
-   */
-  function getVirtualNodeLabel ({ name, customname, group, typeName, fallback = 'Virtual' } = {}) {
-    if (name) return name
-    const parts = [customname || fallback];
-    if (group) parts.push('(' + group + ')');
-    if (typeName) parts.push('[' + typeName + ']');
-    return parts.join(' ')
-  }
+	  // Special validation for dropdown type (6)
+	  if (String(type) === String(victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN)) {
+	    const pairCount = parseInt($('#node-input-switch_1_count').val()) || 2;
+	    for (let j = 0; j < pairCount; j++) {
+	      const $value = $(`#node-input-switch_1_value_${j}`);
+	      if ($value.length && !$value.val()) {
+	        $value[0].setCustomValidity('Label is required');
+	        $value[0].reportValidity();
+	        return false
+	      }
+	      if ($value.length) $value[0].setCustomValidity('');
+	    }
+	  }
 
-  // src/nodes/victron-virtual-browser.js
+	  // Special validation for RGB control - at least one checkbox must be selected
+	  if (cfg && cfg.isRgbControl) {
+	    const rgbColorWheel = $('#node-input-switch_1_rgb_color_wheel').is(':checked');
+	    const cctWheel = $('#node-input-switch_1_cct_wheel').is(':checked');
+	    const rgbWhiteDimmer = $('#node-input-switch_1_rgb_white_dimmer').is(':checked');
 
-  window.__victron = {
-    checkGeneratorType,
-    SWITCH_TYPE_CONFIGS,
-    INDICATOR_TYPE_LABELS,
-    renderSwitchConfigRow,
-    updateSwitchConfig,
-    checkSelectedVirtualDevice,
-    validateSwitchConfig,
-    fetchSwitchNodeNameAndGroupFromCache,
-    updateBatteryVoltageVisibility,
-    calculateOutputs,
-    updateOutputs,
-    renderIndicatorDocBox,
-    renderShowInUICheckboxes,
-    getShowUIValue,
-    initializeTooltips,
-    getVirtualNodeLabel
-  };
+	    if (!rgbColorWheel && !cctWheel && !rgbWhiteDimmer) {
+	      const $checkbox = $('#node-input-switch_1_rgb_color_wheel')[0];
+	      if ($checkbox) {
+	        $checkbox.setCustomValidity('At least one RGB control type must be selected');
+	        $checkbox.reportValidity();
+	      }
+	      return false
+	    } else {
+	      // Clear any previous validation messages on all checkboxes
+	      $('#node-input-switch_1_rgb_color_wheel')[0]?.setCustomValidity('');
+	      $('#node-input-switch_1_cct_wheel')[0]?.setCustomValidity('');
+	      $('#node-input-switch_1_rgb_white_dimmer')[0]?.setCustomValidity('');
+	    }
+	  }
+
+	  return true
+	}
+
+	const DEVICE_TYPE_TO_NUM_OUTPUTS = {
+	  switch: (config) => {
+	    // determine outputs based on type
+	    const switchType = config?.switch_1_type;
+
+	    // Parse switch type (handle both string and number)
+	    const typeKey = switchType !== undefined ? parseInt(switchType, 10) : victronVirtualConstantsExports.SWITCH_TYPE_MAP.TOGGLE;
+
+	    // Look up outputs from config, default to 2 (passthrough + state)
+	    return victronVirtualConstantsExports.SWITCH_OUTPUT_CONFIG[typeKey] || 2
+	  },
+	  acload: (config) => {
+	    if (config.enable_s2support) {
+	      return 2 // passthrough + signals
+	    }
+	    return 1
+	  },
+	  pulsemeter: () => 2
+	};
+
+	/**
+	 * Calculate the number of outputs for a virtual device
+	 * @param {string} device - Device type (e.g., 'battery', 'switch', 'gps')
+	 * @param {object} config - Device configuration object
+	 * @returns {number} Number of outputs (minimum 1)
+	 */
+	function calculateOutputs (device, config) {
+	  if (DEVICE_TYPE_TO_NUM_OUTPUTS[device]) {
+	    return DEVICE_TYPE_TO_NUM_OUTPUTS[device](config)
+	  } else {
+	    return 1
+	  }
+	}
+
+	/**
+	 * Update the outputs property in the Node-RED editor context
+	 * This is a thin wrapper around calculateOutputs that handles DOM manipulation
+	 * @param {object} context - Node-RED editor context (this)
+	 */
+	function updateOutputs (context) {
+	  const device = context.device;
+	  const config = {
+	    switch_1_type: context.switch_1_type,
+	    enable_s2support: context.enable_s2support
+	  };
+	  const outputs = calculateOutputs(device, config);
+
+	  // Update BOTH the context AND the hidden input field
+	  context.outputs = outputs;
+	  $('#node-input-outputs').val(outputs);
+	}
+
+	/**
+	 * Returns the Node-RED palette label for a virtual node.
+	 * Priority: name -> customname + group + typeName -> fallback + typeName
+	 * @param {{ name?: string, customname?: string, group?: string, typeName?: string, fallback?: string }} opts
+	 * @returns {string}
+	 */
+	function getVirtualNodeLabel ({ name, customname, group, typeName, fallback = 'Virtual' } = {}) {
+	  if (name) return name
+	  const parts = [customname || fallback];
+	  if (group) parts.push('(' + group + ')');
+	  if (typeName) parts.push('[' + typeName + ']');
+	  return parts.join(' ')
+	}
+
+	// src/nodes/victron-virtual-browser.js
+
+	window.__victron = {
+	  checkGeneratorType,
+	  SWITCH_TYPE_CONFIGS,
+	  INDICATOR_TYPE_LABELS,
+	  renderSwitchConfigRow,
+	  updateSwitchConfig,
+	  checkSelectedVirtualDevice,
+	  validateSwitchConfig,
+	  fetchSwitchNodeNameAndGroupFromCache,
+	  updateBatteryVoltageVisibility,
+	  calculateOutputs,
+	  updateOutputs,
+	  renderIndicatorDocBox,
+	  updateIndicatorLivePreview,
+	  renderShowInUICheckboxes,
+	  getShowUIValue,
+	  initializeTooltips,
+	  getVirtualNodeLabel
+	};
 
 })();
