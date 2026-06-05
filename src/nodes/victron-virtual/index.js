@@ -194,21 +194,26 @@ module.exports = function (RED) {
     const { shouldApplyImmediately, getDebouncedSetter } = createDebouncedSetters(node, debounce, DEBOUNCE_DELAY_MS)
 
     function handleInput (msg, done) {
-      // Send passthrough message FIRST, before any validation
-      const userSetConnected = msg.connected !== undefined
-      if (!userSetConnected) {
-        msg.connected = node.presenceConnected
-      }
-      const outputs = [msg]
-      // Fill remaining outputs with null
-      for (let i = 1; i < config.outputs; i++) {
-        outputs.push(null)
-      }
-      node.send(outputs)
+      // S2 signal messages are internal control - never pass through to any output
+      if (msg.payload && msg.payload.s2Signal !== undefined) {
+        // Fall through to s2Signal handler below
+      } else {
+        // Send passthrough message FIRST, before any validation
+        const userSetConnected = msg.connected !== undefined
+        if (!userSetConnected) {
+          msg.connected = node.presenceConnected
+        }
+        const outputs = [msg]
+        // Fill remaining outputs with null
+        for (let i = 1; i < config.outputs; i++) {
+          outputs.push(null)
+        }
+        node.send(outputs)
 
-      if (userSetConnected) {
-        node.setPresence(!!msg.connected, done)
-        return
+        if (userSetConnected) {
+          node.setPresence(!!msg.connected, done)
+          return
+        }
       }
 
       // Now do validation with more helpful messages
@@ -270,7 +275,6 @@ module.exports = function (RED) {
       }
 
       if (msg.payload.s2Signal !== undefined) {
-        console.warn('About to send s2Signal', msg.payload)
         switch (msg.payload.s2Signal) {
           case 'Message':
             if (!msg.payload.message) {
@@ -284,6 +288,31 @@ module.exports = function (RED) {
             }
             node.emitS2Signal(msg.payload.s2Signal, [msg.payload.reason])
             return successAndDone('Sent s2Signal "Disconnect"', done)
+          case 'PowerMeasurementStart': {
+            node._s2PowerMeasurementActive = true
+            node._s2PowerMeasurementCemId = msg.cemId
+            // Emit current values immediately so the CEM doesn't wait for the first change
+            const measurementProps = node.ifaceDesc && node.ifaceDesc.__s2PowerMeasurementProps
+            if (measurementProps && node.iface) {
+              const values = Object.entries(measurementProps)
+                .filter(([pName]) => node.iface[pName] !== null && node.iface[pName] !== undefined)
+                .map(([pName, commodityQuantity]) => ({ commodity_quantity: commodityQuantity, value: node.iface[pName] }))
+              if (values.length > 0) {
+                node.send([null, {
+                  payload: {
+                    command: 'PowerMeasurement',
+                    cemId: node._s2PowerMeasurementCemId,
+                    values
+                  }
+                }])
+              }
+            }
+            return successAndDone('Power measurement started', done)
+          }
+          case 'PowerMeasurementStop':
+            node._s2PowerMeasurementActive = false
+            node._s2PowerMeasurementCemId = null
+            return successAndDone('Power measurement stopped', done)
           default:
             return failAndDone(`s2Signal "${msg.payload.s2Signal}" not implemented`, done)
         }
@@ -687,6 +716,25 @@ module.exports = function (RED) {
           // Legacy support: Handle outputs for existing Virtual Device (switch) nodes
           if (config.device === 'switch') {
             handleSwitchOutputs(config, node, propName, propValue)
+          }
+
+          // S2 power measurement: when any tracked property changes, emit a snapshot of all tracked values
+          if (node._s2PowerMeasurementActive &&
+              ifaceDesc.__s2PowerMeasurementProps &&
+              ifaceDesc.__s2PowerMeasurementProps[propName] !== undefined &&
+              propValue !== null && propValue !== undefined) {
+            const values = Object.entries(ifaceDesc.__s2PowerMeasurementProps)
+              .filter(([pName]) => iface[pName] !== null && iface[pName] !== undefined)
+              .map(([pName, commodityQuantity]) => ({ commodity_quantity: commodityQuantity, value: iface[pName] }))
+            if (values.length > 0) {
+              node.send([null, {
+                payload: {
+                  command: 'PowerMeasurement',
+                  cemId: node._s2PowerMeasurementCemId,
+                  values
+                }
+              }])
+            }
           }
         }
 

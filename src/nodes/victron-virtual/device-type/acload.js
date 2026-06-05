@@ -59,7 +59,7 @@ function initialize (config, ifaceDesc, iface, node) {
   }
 
   if (config.enable_s2support) {
-    console.warn('S2 support for acload virtual device is not yet implemented.')
+    console.warn('S2 support for acload virtual device is experimental.')
 
     Object.entries(additionalS2Properties).forEach(([key, desc]) => {
       ifaceDesc.properties[key] = desc
@@ -68,11 +68,23 @@ function initialize (config, ifaceDesc, iface, node) {
 
     ifaceDesc.__enableS2 = true
     // Maps D-Bus property names to S2 CommodityQuantity values for power measurement reporting
-    ifaceDesc.__s2PowerMeasurementProps = {
-      'Ac/Power': 'ELECTRIC.POWER.3_PHASE_SYMMETRIC'
+    const measurementType = config.s2_measurement_type || '3_PHASE_SYMMETRIC'
+    const measurementPropsMap = {
+      '3_PHASE_SYMMETRIC': { 'Ac/Power': 'ELECTRIC.POWER.3_PHASE_SYMMETRIC' },
+      L1_L2_L3: {
+        'Ac/L1/Power': 'ELECTRIC.POWER.L1',
+        'Ac/L2/Power': 'ELECTRIC.POWER.L2',
+        'Ac/L3/Power': 'ELECTRIC.POWER.L3'
+      },
+      L1: { 'Ac/L1/Power': 'ELECTRIC.POWER.L1' },
+      L2: { 'Ac/L2/Power': 'ELECTRIC.POWER.L2' },
+      L3: { 'Ac/L3/Power': 'ELECTRIC.POWER.L3' }
     }
+    ifaceDesc.__s2PowerMeasurementProps = measurementPropsMap[measurementType] || measurementPropsMap['3_PHASE_SYMMETRIC']
     ifaceDesc.__s2Handlers = {
       Connect: function (cemId, timeout) {
+        node._s2PowerMeasurementActive = false
+        node._s2PowerMeasurementCemId = null
         console.log('Connect received for CEM ID:', cemId, 'timeout', timeout)
         node.send([
           null,
@@ -86,6 +98,8 @@ function initialize (config, ifaceDesc, iface, node) {
         ])
       },
       Disconnect: function (cemId) {
+        node._s2PowerMeasurementActive = false
+        node._s2PowerMeasurementCemId = null
         node.send([
           null,
           {

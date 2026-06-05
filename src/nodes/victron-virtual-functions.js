@@ -1006,10 +1006,16 @@ export function checkSelectedVirtualDevice (context) {
   $('.input-' + selected).show()
 
   if (selected === 'acload') {
+    function updateS2SectionVisibility () {
+      const s2enabled = $('#node-input-enable_s2support').is(':checked')
+      $('.input-acload-s2').toggle(s2enabled)
+    }
     $('#node-input-enable_s2support').off('change.s2support').on('change.s2support', function () {
       context.enable_s2support = $(this).is(':checked')
       updateOutputs(context)
+      updateS2SectionVisibility()
     })
+    updateS2SectionVisibility()
   }
 
   if (selected === 'battery') {
