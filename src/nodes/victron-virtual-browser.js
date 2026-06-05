@@ -12,6 +12,7 @@ import {
   calculateOutputs,
   updateOutputs,
   renderIndicatorDocBox,
+  updateIndicatorLivePreview,
   renderShowInUICheckboxes,
   getShowUIValue,
   getVirtualNodeLabel
@@ -31,6 +32,7 @@ window.__victron = {
   calculateOutputs,
   updateOutputs,
   renderIndicatorDocBox,
+  updateIndicatorLivePreview,
   renderShowInUICheckboxes,
   getShowUIValue,
   initializeTooltips,

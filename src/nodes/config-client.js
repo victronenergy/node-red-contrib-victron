@@ -1,6 +1,16 @@
-// TODO: install unhandledRejection handler here, not in victron-virtual
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('=== UNHANDLED REJECTION (PREVENTING CRASH) ===')
+  console.error('Promise:', promise)
+  console.error('Reason:', reason)
+  console.error('Reason type:', typeof reason)
+  console.error('Is array:', Array.isArray(reason))
+  console.error('Array contents:', JSON.stringify(reason, null, 2))
+  console.error('Stack trace:')
+  console.trace()
+  console.error('=== END DEBUG ===')
+})
 
-module.exports = function (RED) {
+module.exports = function(RED) {
   'use strict'
 
   const utils = require('../services/utils.js')
@@ -64,7 +74,7 @@ module.exports = function (RED) {
      * It keeps track of incoming status messages and updates
      * listening nodes' status in the UI accordingly.
      */
-  function ConfigVictronClient (config) {
+  function ConfigVictronClient(config) {
     debug('ConfigVictronClient constructor called')
     debug('NODE_RED_DBUS_ADDRESS:', process.env.NODE_RED_DBUS_ADDRESS)
 
