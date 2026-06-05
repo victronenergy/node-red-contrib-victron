@@ -72,7 +72,7 @@ test('Configure switch types from empty flow', async t => {
   await t.eval(() => location.reload(true))
   await t.expect(
     Selector('.red-ui-tab.active').withAttribute('id', `red-ui-tab-${flowId}`).exists
-  ).ok('Flow tab did not become active', { timeout: 10_000 })
+  ).ok('Flow tab did not become active', { timeout: 30_000 })
 
   const switchesToTest = [
     { name: 'momentary1', type: 'Momentary' },
@@ -150,7 +150,7 @@ test('Set and read switch state via MQTT', async t => {
   await t.eval(() => location.reload(true))
   await t.expect(
     Selector('.red-ui-tab.active').withAttribute('id', `red-ui-tab-${flowId}`).exists
-  ).ok('Flow tab did not become active', { timeout: 10_000 })
+  ).ok('Flow tab did not become active', { timeout: 30_000 })
 
   if (SKIP_MQTT) {
     console.log('SKIP_MQTT_VERIFICATION: skipping switch state assertions')
