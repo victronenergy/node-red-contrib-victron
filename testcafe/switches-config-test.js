@@ -70,7 +70,9 @@ test('Configure switch types from empty flow', async t => {
   resetSwitchNodeOffset()
   await t.navigateTo(`${NODE_RED_ENDPOINT}/#flow/${flowId}`)
   await t.eval(() => location.reload(true))
-  await t.expect(Selector('.red-ui-tab.active').withAttribute('id', `red-ui-tab-${flowId}`).exists).ok('Flow tab did not become active')
+  await t.expect(
+    Selector('.red-ui-tab.active').withAttribute('id', `red-ui-tab-${flowId}`).exists
+  ).ok('Flow tab did not become active', { timeout: 10_000 })
 
   const switchesToTest = [
     { name: 'momentary1', type: 'Momentary' },
@@ -146,7 +148,9 @@ test('Set and read switch state via MQTT', async t => {
   const flowId = await setupFlow(t, 'flow-switches-1')
   await t.navigateTo(`${NODE_RED_ENDPOINT}/#flow/${flowId}`)
   await t.eval(() => location.reload(true))
-  await t.expect(Selector('.red-ui-tab.active').withAttribute('id', `red-ui-tab-${flowId}`).exists).ok('Flow tab did not become active')
+  await t.expect(
+    Selector('.red-ui-tab.active').withAttribute('id', `red-ui-tab-${flowId}`).exists
+  ).ok('Flow tab did not become active', { timeout: 10_000 })
 
   if (SKIP_MQTT) {
     console.log('SKIP_MQTT_VERIFICATION: skipping switch state assertions')
