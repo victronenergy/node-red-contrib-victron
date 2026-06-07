@@ -1,4 +1,4 @@
-const { setupFlow, NODE_RED_ENDPOINT, addNodeToCurrentFlow, resetFlowNodeOffset, confirmNodeDialog, deploy, setupVrmFixture } = require('./utils.js')
+const { setupFlow, getNodeRedEndpoint, addNodeToCurrentFlow, resetFlowNodeOffset, confirmNodeDialog, deploy, setupVrmFixture } = require('./utils.js')
 const { Selector } = require('testcafe')
 
 setupVrmFixture(
@@ -38,7 +38,7 @@ test('Deploy virtual devices', async t => {
   const flowId = await setupFlow(t, 'empty-flow', 'Virtual Devices')
   console.log('Flow deployed with ID:', flowId)
 
-  await t.navigateTo(`${NODE_RED_ENDPOINT}/#flow/${flowId}`)
+  await t.navigateTo(`${getNodeRedEndpoint()}/#flow/${flowId}`)
   await t.eval(() => location.reload(true))
   await t.expect(Selector('.red-ui-tab.active').withAttribute('id', `red-ui-tab-${flowId}`).exists).ok('Flow tab did not become active')
 

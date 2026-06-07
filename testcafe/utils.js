@@ -5,7 +5,7 @@ const { fetchSessionCookie } = require('./vrm-auth.js')
 // Populated at fixture-before time by setupVrmFixture; safe to import statically
 // because test functions always run after fixture.before completes.
 // allow dynamic override for testing without VRM auth
-export let NODE_RED_ENDPOINT = process.env.NODE_RED_ENDPOINT || null
+let NODE_RED_ENDPOINT = process.env.NODE_RED_ENDPOINT || null
 let PROXY_DOMAIN = null
 
 export function getNodeRedEndpoint () {
