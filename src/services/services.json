@@ -2972,6 +2972,11 @@
         "path": "/Speed",
         "type": "float",
         "name": "Speed (m/s)"
+      },
+      {
+        "path": "/UtcTime",
+        "type": "integer",
+        "name": "UTC Time (ms since midnight)"
       }
     ],
     "communityTag": "gps"

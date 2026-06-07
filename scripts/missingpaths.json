@@ -603,9 +603,9 @@
             "dbusPath": "/NrOfSatellites",
             "dataType": "integer"
         },
-        "/UtcTimestamp": {
-            "description": "UTC Timestamp",
-            "dbusPath": "/UtcTimestamp",
+        "/UtcTime": {
+            "description": "UTC Time (ms since midnight)",
+            "dbusPath": "/UtcTime",
             "dataType": "integer"
         }
     },

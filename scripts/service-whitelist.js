@@ -308,7 +308,7 @@ module.exports = {
       '/Position/Latitude',
       '/Position/Longitude',
       '/Speed',
-      '/UtcTimestamp'
+      '/UtcTime'
     ]
   },
   'input-ess': {

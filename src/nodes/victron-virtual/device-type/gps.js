@@ -6,6 +6,7 @@ const properties = {
   'Position/Longitude': { type: 'd', format: (v) => v != null ? v.toFixed(6) + '°' : '', persist: 300 },
   Speed: { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'm/s' : '' },
   Course: { type: 'd', format: (v) => v != null ? v.toFixed(1) + '°' : '' },
+  UtcTime: { type: 'i', format: (v) => v != null ? v : '' },
   Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
 }
 
