@@ -1,4 +1,4 @@
-const { setupFlow, NODE_RED_ENDPOINT, getExistingNodeIds, confirmNodeDialog, deploy, setupVrmFixture } = require('./utils.js')
+const { setupFlow, getNodeRedEndpoint, getExistingNodeIds, confirmNodeDialog, deploy, setupVrmFixture } = require('./utils.js')
 const { mqtt_GetValue, mqtt_SetValue } = require('./mqtt-verify.js')
 const { Selector } = require('testcafe')
 const { SWITCH_TYPE_NAMES } = require('../src/nodes/victron-virtual-constants.js')
@@ -9,7 +9,7 @@ setupVrmFixture(
   fixture('Virtual Switches')
 )
 
-function getSwitchTypeCodeForName(name) {
+function getSwitchTypeCodeForName (name) {
   for (const [code, typeName] of Object.entries(SWITCH_TYPE_NAMES)) {
     if (typeName === name) return code
   }
@@ -18,11 +18,11 @@ function getSwitchTypeCodeForName(name) {
 
 let nextNodeOffsetY = 200
 
-function resetSwitchNodeOffset() {
+function resetSwitchNodeOffset () {
   nextNodeOffsetY = 200
 }
 
-async function addVirtualSwitchNode(t) {
+async function addVirtualSwitchNode (t) {
   const existingNodeIds = await getExistingNodeIds()
   const paletteItem = Selector('.red-ui-palette-node[data-palette-type="victron-virtual-switch"]').find('.red-ui-palette-label')
   await t.dragToElement(paletteItem, Selector('#red-ui-workspace-chart'), {
@@ -38,7 +38,7 @@ async function addVirtualSwitchNode(t) {
   return newNodeIds[0]
 }
 
-async function configureVirtualSwitchNode(t, nodeId, options) {
+async function configureVirtualSwitchNode (t, nodeId, options) {
   const nodeSelector = Selector('g').withAttribute('id', nodeId)
   await t.doubleClick(nodeSelector)
   for (const { name, value, type = 'text' } of options) {
@@ -55,7 +55,7 @@ async function configureVirtualSwitchNode(t, nodeId, options) {
   }
 }
 
-async function assertSwitchValue(t, nodeId, path, expectedContains) {
+async function assertSwitchValue (t, nodeId, path, expectedContains) {
   if (SKIP_MQTT) {
     console.log(`SKIP_MQTT_VERIFICATION: skipping assertion ${nodeId} ${path} contains "${expectedContains}"`)
     // await new Promise(resolve => setTimeout(resolve, 500)) // TODO: small delay seems to avoid 'write after end' hard crash of Node-RED process.
@@ -68,7 +68,9 @@ async function assertSwitchValue(t, nodeId, path, expectedContains) {
 test('Configure switch types from empty flow', async t => {
   const flowId = await setupFlow(t, 'empty-flow')
   resetSwitchNodeOffset()
-  await t.navigateTo(`${NODE_RED_ENDPOINT}/#flow/${flowId}`)
+  const flowUrl = `${getNodeRedEndpoint()}/#flow/${flowId}`
+  console.log(`Flow URL: ${flowUrl}`)
+  await t.navigateTo(flowUrl)
   await t.eval(() => location.reload(true))
   await t.expect(
     Selector('.red-ui-tab.active').withAttribute('id', `red-ui-tab-${flowId}`).exists
@@ -146,7 +148,7 @@ test('Configure switch types from empty flow', async t => {
 
 test('Set and read switch state via MQTT', async t => {
   const flowId = await setupFlow(t, 'flow-switches-1')
-  await t.navigateTo(`${NODE_RED_ENDPOINT}/#flow/${flowId}`)
+  await t.navigateTo(`${getNodeRedEndpoint()}/#flow/${flowId}`)
   await t.eval(() => location.reload(true))
   await t.expect(
     Selector('.red-ui-tab.active').withAttribute('id', `red-ui-tab-${flowId}`).exists

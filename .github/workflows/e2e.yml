@@ -51,6 +51,7 @@ jobs:
 
       - name: List browsers available for E2E tests
         run: npm run test:e2e -- --list-browsers
+
       - name: Run E2E tests
         env:
           VRM_API_TOKEN: ${{ secrets.VRM_API_TOKEN }}

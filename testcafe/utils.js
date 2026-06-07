@@ -8,6 +8,13 @@ const { fetchSessionCookie } = require('./vrm-auth.js')
 export let NODE_RED_ENDPOINT = process.env.NODE_RED_ENDPOINT || null
 let PROXY_DOMAIN = null
 
+export function getNodeRedEndpoint () {
+  if (!NODE_RED_ENDPOINT) {
+    throw new Error('NODE_RED_ENDPOINT is not set. Make sure to call setupVrmFixture on your fixture, or set NODE_RED_ENDPOINT in the environment.')
+  }
+  return NODE_RED_ENDPOINT
+}
+
 // t.request uses TestCafe's own network stack, not the browser cookie jar,
 // so we must add the session cookie explicitly to every request header.
 function vrmRequestHeaders (t) {
@@ -30,6 +37,7 @@ export function setupVrmFixture (fixture) {
         ctx.sessionCookie = sessionCookie
         PROXY_DOMAIN = proxyDomain
         NODE_RED_ENDPOINT = `https://${proxyDomain}`
+        console.log(`Fetched VRM session cookie, proxy domain: ${proxyDomain}, Node-RED endpoint: ${NODE_RED_ENDPOINT}`)
       })
       .beforeEach(async t => {
         await t.setCookies([{
