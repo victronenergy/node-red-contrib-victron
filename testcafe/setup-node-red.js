@@ -38,6 +38,7 @@ function httpsRequest (options, body) {
 
 function nodeRedRequest (proxyDomain, method, path, sessionCookie, body, extraHeaders) {
   const bodyStr = body ? JSON.stringify(body) : undefined
+  console.log(`Making Node-RED request: ${method} ${path}, body=${bodyStr}, extraHeaders=${JSON.stringify(extraHeaders)}, proxyDomain=${proxyDomain}, sessionCookie=${sessionCookie}`)
   return httpsRequest({
     hostname: proxyDomain,
     path,
