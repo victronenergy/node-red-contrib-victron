@@ -6,7 +6,8 @@ import {
   SWITCH_TYPE_BITMASK_NAMES,
   SWITCH_OUTPUT_CONFIG,
   SWITCH_SECOND_OUTPUT_LABEL,
-  SWITCH_THIRD_OUTPUT_LABEL
+  SWITCH_THIRD_OUTPUT_LABEL,
+  STEPPED_DEFAULT_MAX
 } from './victron-virtual-constants'
 import { initializeTooltips } from './victron-common'
 import escape from 'lodash/escape'
@@ -722,10 +723,16 @@ export function renderSwitchConfigRow (context) {
       `)
       $('#node-input-switch_1_type').closest('.form-row').after(configRow)
 
-      // Restore saved values; on type change, skip type-specific fields
+      // Restore saved values; on type change, skip type-specific fields.
+      // Also restore if the rendered type matches the saved type (handles spurious change events
+      // triggered by Node-RED's post-oneditprepare field population).
       cfg.fields.forEach(field => {
         const isCommonField = COMMON_SWITCH_FIELDS.some(f => f.id === field.id)
-        const val = (isInitialRender || isCommonField) ? context[`switch_1_${field.id}`] : undefined
+        const typeUnchanged = Number(type) === Number(context.switch_1_type)
+        let val = (isInitialRender || isCommonField || typeUnchanged) ? context[`switch_1_${field.id}`] : undefined
+        if (!val && field.id === 'max' && Number(type) === SWITCH_TYPE_MAP.STEPPED) {
+          val = STEPPED_DEFAULT_MAX
+        }
         if (typeof val !== 'undefined') {
           $(`#node-input-switch_1_${field.id}`).val(val)
         }

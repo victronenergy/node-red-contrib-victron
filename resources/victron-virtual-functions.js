@@ -114,6 +114,9 @@
 		// Default debounce delay for virtual device property writes (in milliseconds)
 		const DEBOUNCE_DELAY_MS = 100;
 
+		// Maximum number of steps for a STEPPED switch (range 1-7 inclusive)
+		const STEPPED_DEFAULT_MAX = 7;
+
 		victronVirtualConstants = {
 		  SWITCH_TYPE_MAP,
 		  SWITCH_TYPE_NAMES,
@@ -122,7 +125,8 @@
 		  SWITCH_SECOND_OUTPUT_LABEL,
 		  SWITCH_THIRD_OUTPUT_LABEL,
 		  SWITCH_DEFAULT_PATH,
-		  DEBOUNCE_DELAY_MS
+		  DEBOUNCE_DELAY_MS,
+		  STEPPED_DEFAULT_MAX
 		};
 		return victronVirtualConstants;
 	}
@@ -1510,10 +1514,16 @@
       `);
 	      $('#node-input-switch_1_type').closest('.form-row').after(configRow);
 
-	      // Restore saved values; on type change, skip type-specific fields
+	      // Restore saved values; on type change, skip type-specific fields.
+	      // Also restore if the rendered type matches the saved type (handles spurious change events
+	      // triggered by Node-RED's post-oneditprepare field population).
 	      cfg.fields.forEach(field => {
 	        const isCommonField = COMMON_SWITCH_FIELDS.some(f => f.id === field.id);
-	        const val = (isInitialRender || isCommonField) ? context[`switch_1_${field.id}`] : undefined;
+	        const typeUnchanged = Number(type) === Number(context.switch_1_type);
+	        let val = (isInitialRender || isCommonField || typeUnchanged) ? context[`switch_1_${field.id}`] : undefined;
+	        if (!val && field.id === 'max' && Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED) {
+	          val = victronVirtualConstantsExports.STEPPED_DEFAULT_MAX;
+	        }
 	        if (typeof val !== 'undefined') {
 	          $(`#node-input-switch_1_${field.id}`).val(val);
 	        }

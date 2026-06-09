@@ -14,10 +14,9 @@ const {
   SWITCH_TYPE_BITMASK_NAMES,
   SWITCH_SECOND_OUTPUT_LABEL,
   SWITCH_THIRD_OUTPUT_LABEL,
-  SWITCH_DEFAULT_PATH
+  SWITCH_DEFAULT_PATH,
+  STEPPED_DEFAULT_MAX
 } = require('../nodes/victron-virtual-constants')
-
-const STEPPED_DEFAULT_MAX = 7
 
 const { hsbToRgb } = require('./color-utils')
 
@@ -215,7 +214,8 @@ function createSwitchProperties (config, ifaceDesc, iface) {
       format: (v) => v != null ? `Option ${v}` : '',
       min: 0,
       max: Number(config.switch_1_max || STEPPED_DEFAULT_MAX),
-      persist: true
+      persist: true,
+      immediate: true
     }
     iface[dimmingKey] = 0
 

@@ -99,6 +99,9 @@ const SWITCH_DEFAULT_PATH = {
 // Default debounce delay for virtual device property writes (in milliseconds)
 const DEBOUNCE_DELAY_MS = 100
 
+// Maximum number of steps for a STEPPED switch (range 1-7 inclusive)
+const STEPPED_DEFAULT_MAX = 7
+
 module.exports = {
   SWITCH_TYPE_MAP,
   SWITCH_TYPE_NAMES,
@@ -107,5 +110,6 @@ module.exports = {
   SWITCH_SECOND_OUTPUT_LABEL,
   SWITCH_THIRD_OUTPUT_LABEL,
   SWITCH_DEFAULT_PATH,
-  DEBOUNCE_DELAY_MS
+  DEBOUNCE_DELAY_MS,
+  STEPPED_DEFAULT_MAX
 }
