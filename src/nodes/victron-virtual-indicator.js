@@ -10,6 +10,14 @@ const { createIndicatorProperties, updateIndicatorStatus, expandIndicatorPayload
 const { filterInactiveVirtualDevices } = require('../services/virtual-device-cleanup')
 const { getTcpBusAddress, callAddSettingsWithRetry, getDeviceInstance, registerInputHandler, flushPendingInputs, createDebouncedSetters } = require('./victron-virtual-dbus-helpers')
 
+function createClientCallback (err) {
+  if (err) {
+    console.error('[VictronVirtualIndicatorNode] Failed to create DBus client:', err)
+  } else {
+    debug('[VictronDbusListener] Successfully created DBus client.')
+  }
+}
+
 module.exports = function (RED) {
   let hasRunOnce = false
   let globalTimeoutHandle = null
@@ -108,7 +116,9 @@ module.exports = function (RED) {
         })
       } else {
         // TODO: must add callbacks here, too. Compare ./victron-virtual/index.js createClient
-        self.bus = process.env.DBUS_SESSION_BUS_ADDRESS ? dbus.sessionBus() : dbus.systemBus()
+        self.bus = process.env.DBUS_SESSION_BUS_ADDRESS
+          ? dbus.sessionBus({}, createClientCallback)
+          : dbus.systemBus({}, createClientCallback)
       }
 
       if (!self.bus) {
