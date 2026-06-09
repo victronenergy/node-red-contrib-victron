@@ -313,4 +313,15 @@ a.blue-link {
   .form-row label .tooltip-icon:hover {
     color: #666;
   }
+
+  .indicator-preview-card {
+    margin-bottom: 12px;
+    max-width: 368px;
+  }
+
+  .indicator-preview-card svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
 }

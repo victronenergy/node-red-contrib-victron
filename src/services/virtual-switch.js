@@ -686,7 +686,7 @@ function shouldApplyPayloadToDBus (config, iface, payload) {
   const mode = config.switch_1_passthrough_mode ?? 'always'
   if (mode === 'always') return true
 
-  if (payload && payload['SwitchableOutput/output_1/Auto'] === 1) return true
+  if (payload && (payload['SwitchableOutput/output_1/Auto'] === 1 || payload['/SwitchableOutput/output_1/Auto'] === 1)) return true
 
   const autoValue = iface ? iface['SwitchableOutput/output_1/Auto'] : null
   const isAuto = autoValue === 1
