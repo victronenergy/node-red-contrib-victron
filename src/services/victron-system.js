@@ -126,7 +126,7 @@ class SystemConfiguration {
                 this.cache[service]['/ProductName'] ||
                 service.split('.').pop()
 
-      const deviceInstance = this.cache[service]['/DeviceInstance'] || service.split('/')[1] || '-'
+      const deviceInstance = this.cache[service]['/DeviceInstance'] ?? service.split('/')[1] ?? '-'
 
       return utils.TEMPLATE(service, name, deviceInstance, pathObjects)
     }

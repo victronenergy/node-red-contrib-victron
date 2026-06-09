@@ -51,7 +51,7 @@ class VictronClient {
     const messageHandler = messages => {
       messages.forEach(msg => {
         _this.saveToCache(msg)
-        const trail = ('/' + (msg.deviceInstance != null ? msg.deviceInstance : '')).replace(/\/$/, '')
+        const trail = msg.deviceInstance == null ? '' : `/${msg.deviceInstance}`
         const msgKey = `${msg.senderName}${trail}:${msg.path}`
         debug(`[MESSAGE HANDLER] ${msgKey} | ${JSON.stringify(msg, null, 2)}`)
         // we remove msg.text, as we don't use it, and removing it makes it "in line" with what
@@ -167,7 +167,7 @@ class VictronClient {
   saveToCache (msg) {
     let dbusPaths = {}
 
-    const trail = ('/' + (msg.deviceInstance != null ? msg.deviceInstance : '')).replace(/\/$/, '')
+    const trail = msg.deviceInstance == null ? '' : `/${msg.deviceInstance}`
 
     if (this.system.cache[msg.senderName + trail]) { dbusPaths = this.system.cache[msg.senderName + trail] }
 

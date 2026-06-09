@@ -100,6 +100,20 @@ describe('saveToCache - stale no-trail entry cleanup', () => {
     expect(client.system.cache['com.victronenergy.generator']).toBeDefined()
   })
 
+  it('treats undefined deviceInstance as no suffix (loose == null, not strict === null)', () => {
+    // During _initService's async window, msg.deviceInstance is undefined (not null).
+    // Strict === null would produce trail '/undefined'; loose == null correctly gives ''.
+    client.saveToCache({
+      senderName: 'com.victronenergy.generator',
+      path: '/State',
+      value: 0,
+      deviceInstance: undefined
+    })
+
+    expect(client.system.cache['com.victronenergy.generator/undefined']).toBeUndefined()
+    expect(client.system.cache['com.victronenergy.generator']).toBeDefined()
+  })
+
   it('does not delete anything when no stale entry exists', () => {
     client.saveToCache({
       senderName: 'com.victronenergy.generator',
