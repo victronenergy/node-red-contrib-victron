@@ -1,5 +1,6 @@
+/* globals fixture, test */
 const { setupFlow, getNodeRedEndpoint, getExistingNodeIds, confirmNodeDialog, deploy, setupVrmFixture } = require('./utils.js')
-const { mqtt_GetValue, mqtt_SetValue } = require('./mqtt-verify.js')
+const { mqttGetValue, mqttSetValue } = require('./mqtt-verify.js')
 const { Selector } = require('testcafe')
 const { SWITCH_TYPE_NAMES } = require('../src/nodes/victron-virtual-constants.js')
 
@@ -61,7 +62,7 @@ async function assertSwitchValue (t, nodeId, path, expectedContains) {
     // await new Promise(resolve => setTimeout(resolve, 500)) // TODO: small delay seems to avoid 'write after end' hard crash of Node-RED process.
     return
   }
-  const result = await mqtt_GetValue(`com.victronenergy.switch.virtual_${nodeId}`, path)
+  const result = await mqttGetValue(`com.victronenergy.switch.virtual_${nodeId}`, path)
   await t.expect(JSON.stringify(result)).contains(String(expectedContains))
 }
 
@@ -71,7 +72,7 @@ test('Configure switch types from empty flow', async t => {
   const flowUrl = `${getNodeRedEndpoint()}/#flow/${flowId}`
   console.log(`Flow URL: ${flowUrl}`)
   await t.navigateTo(flowUrl)
-  await t.eval(() => location.reload(true))
+  await t.eval(() => location.reload(true)) // eslint-disable-line no-undef
   await t.expect(
     Selector('.red-ui-tab.active').withAttribute('id', `red-ui-tab-${flowId}`).exists
   ).ok('Flow tab did not become active', { timeout: 30_000 })
@@ -149,7 +150,7 @@ test('Configure switch types from empty flow', async t => {
 test('Set and read switch state via MQTT', async t => {
   const flowId = await setupFlow(t, 'flow-switches-1')
   await t.navigateTo(`${getNodeRedEndpoint()}/#flow/${flowId}`)
-  await t.eval(() => location.reload(true))
+  await t.eval(() => location.reload(true)) // eslint-disable-line no-undef
   await t.expect(
     Selector('.red-ui-tab.active').withAttribute('id', `red-ui-tab-${flowId}`).exists
   ).ok('Flow tab did not become active', { timeout: 30_000 })
@@ -159,11 +160,11 @@ test('Set and read switch state via MQTT', async t => {
     return
   }
 
-  await mqtt_SetValue('com.victronenergy.switch.virtual_switch1', '/SwitchableOutput/output_1/State', 1)
-  const stateOn = await mqtt_GetValue('com.victronenergy.switch.virtual_switch1', '/SwitchableOutput/output_1/State')
+  await mqttSetValue('com.victronenergy.switch.virtual_switch1', '/SwitchableOutput/output_1/State', 1)
+  const stateOn = await mqttGetValue('com.victronenergy.switch.virtual_switch1', '/SwitchableOutput/output_1/State')
   await t.expect(JSON.stringify(stateOn)).contains('1')
 
-  await mqtt_SetValue('com.victronenergy.switch.virtual_switch1', '/SwitchableOutput/output_1/State', 0)
-  const stateOff = await mqtt_GetValue('com.victronenergy.switch.virtual_switch1', '/SwitchableOutput/output_1/State')
+  await mqttSetValue('com.victronenergy.switch.virtual_switch1', '/SwitchableOutput/output_1/State', 0)
+  const stateOff = await mqttGetValue('com.victronenergy.switch.virtual_switch1', '/SwitchableOutput/output_1/State')
   await t.expect(JSON.stringify(stateOff)).contains('0')
 })
