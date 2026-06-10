@@ -114,6 +114,9 @@
 		// Default debounce delay for virtual device property writes (in milliseconds)
 		const DEBOUNCE_DELAY_MS = 100;
 
+		// Maximum number of steps for a STEPPED switch (range 1-7 inclusive)
+		const STEPPED_DEFAULT_MAX = 7;
+
 		victronVirtualConstants = {
 		  SWITCH_TYPE_MAP,
 		  SWITCH_TYPE_NAMES,
@@ -122,7 +125,8 @@
 		  SWITCH_SECOND_OUTPUT_LABEL,
 		  SWITCH_THIRD_OUTPUT_LABEL,
 		  SWITCH_DEFAULT_PATH,
-		  DEBOUNCE_DELAY_MS
+		  DEBOUNCE_DELAY_MS,
+		  STEPPED_DEFAULT_MAX
 		};
 		return victronVirtualConstants;
 	}
@@ -1474,6 +1478,8 @@
 	  const savedType = context.switch_1_type !== undefined ? context.switch_1_type : victronVirtualConstantsExports.SWITCH_TYPE_MAP.TOGGLE;
 	  $('#node-input-switch_1_type').val(String(savedType));
 
+	  let isInitialRender = true;
+
 	  function renderTypeConfig () {
 	    $('#switch-1-config-row').remove();
 	    $('#switch-1-pairs-row').remove();
@@ -1487,6 +1493,8 @@
 	      // Render each field as a separate row
 	      const fieldsHtml = cfg.fields.map(field => {
 	        const stepAttr = field.id === 'step' || field.id === 'stepsize' ? 'step="any"' : '';
+	        const minAttr = field.min !== undefined ? `min="${field.min}"` : '';
+	        const maxAttr = field.max !== undefined ? `max="${field.max}"` : '';
 	        const tooltipHtml = field.tooltip
 	          ? `<i class="fa fa-info-circle tooltip-icon"
                 data-tooltip="${field.tooltip}"></i>`
@@ -1499,7 +1507,7 @@
             </label>
             <input type="${field.type}" id="node-input-switch_1_${field.id}"
                   placeholder="${field.placeholder}"
-                  ${stepAttr} required>
+                  ${minAttr} ${maxAttr} ${stepAttr} required>
           </div>
         `
 	      }).join('');
@@ -1513,9 +1521,16 @@
       `);
 	      $('#node-input-switch_1_type').closest('.form-row').after(configRow);
 
-	      // Restore saved values
+	      // Restore saved values; on type change, skip type-specific fields.
+	      // Also restore if the rendered type matches the saved type (handles spurious change events
+	      // triggered by Node-RED's post-oneditprepare field population).
 	      cfg.fields.forEach(field => {
-	        const val = context[`switch_1_${field.id}`];
+	        const isCommonField = COMMON_SWITCH_FIELDS.some(f => f.id === field.id);
+	        const isTypeUnchanged = Number(type) === Number(context.switch_1_type);
+	        let val = (isInitialRender || isCommonField || isTypeUnchanged) ? context[`switch_1_${field.id}`] : undefined;
+	        if (!val && field.id === 'max' && Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED) {
+	          val = victronVirtualConstantsExports.STEPPED_DEFAULT_MAX;
+	        }
 	        if (typeof val !== 'undefined') {
 	          $(`#node-input-switch_1_${field.id}`).val(val);
 	        }
@@ -1693,6 +1708,7 @@
 
 	    makeBoltBullets($('#switch-docs-container'));
 	    initializeTooltips();
+	    isInitialRender = false;
 	  }
 
 	  $('#node-input-switch_1_type').on('change', renderTypeConfig);

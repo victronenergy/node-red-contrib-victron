@@ -6,7 +6,8 @@ import {
   SWITCH_TYPE_BITMASK_NAMES,
   SWITCH_OUTPUT_CONFIG,
   SWITCH_SECOND_OUTPUT_LABEL,
-  SWITCH_THIRD_OUTPUT_LABEL
+  SWITCH_THIRD_OUTPUT_LABEL,
+  STEPPED_DEFAULT_MAX
 } from './victron-virtual-constants'
 import { initializeTooltips } from './victron-common'
 import escape from 'lodash/escape'
@@ -686,6 +687,8 @@ export function renderSwitchConfigRow (context) {
   const savedType = context.switch_1_type !== undefined ? context.switch_1_type : SWITCH_TYPE_MAP.TOGGLE
   $('#node-input-switch_1_type').val(String(savedType))
 
+  let isInitialRender = true
+
   function renderTypeConfig () {
     $('#switch-1-config-row').remove()
     $('#switch-1-pairs-row').remove()
@@ -699,6 +702,8 @@ export function renderSwitchConfigRow (context) {
       // Render each field as a separate row
       const fieldsHtml = cfg.fields.map(field => {
         const stepAttr = field.id === 'step' || field.id === 'stepsize' ? 'step="any"' : ''
+        const minAttr = field.min !== undefined ? `min="${field.min}"` : ''
+        const maxAttr = field.max !== undefined ? `max="${field.max}"` : ''
         const tooltipHtml = field.tooltip
           ? `<i class="fa fa-info-circle tooltip-icon"
                 data-tooltip="${field.tooltip}"></i>`
@@ -711,7 +716,7 @@ export function renderSwitchConfigRow (context) {
             </label>
             <input type="${field.type}" id="node-input-switch_1_${field.id}"
                   placeholder="${field.placeholder}"
-                  ${stepAttr} required>
+                  ${minAttr} ${maxAttr} ${stepAttr} required>
           </div>
         `
       }).join('')
@@ -725,9 +730,16 @@ export function renderSwitchConfigRow (context) {
       `)
       $('#node-input-switch_1_type').closest('.form-row').after(configRow)
 
-      // Restore saved values
+      // Restore saved values; on type change, skip type-specific fields.
+      // Also restore if the rendered type matches the saved type (handles spurious change events
+      // triggered by Node-RED's post-oneditprepare field population).
       cfg.fields.forEach(field => {
-        const val = context[`switch_1_${field.id}`]
+        const isCommonField = COMMON_SWITCH_FIELDS.some(f => f.id === field.id)
+        const isTypeUnchanged = Number(type) === Number(context.switch_1_type)
+        let val = (isInitialRender || isCommonField || isTypeUnchanged) ? context[`switch_1_${field.id}`] : undefined
+        if (!val && field.id === 'max' && Number(type) === SWITCH_TYPE_MAP.STEPPED) {
+          val = STEPPED_DEFAULT_MAX
+        }
         if (typeof val !== 'undefined') {
           $(`#node-input-switch_1_${field.id}`).val(val)
         }
@@ -905,6 +917,7 @@ export function renderSwitchConfigRow (context) {
 
     makeBoltBullets($('#switch-docs-container'))
     initializeTooltips()
+    isInitialRender = false
   }
 
   $('#node-input-switch_1_type').on('change', renderTypeConfig)
