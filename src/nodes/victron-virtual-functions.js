@@ -6,9 +6,11 @@ import {
   SWITCH_TYPE_BITMASK_NAMES,
   SWITCH_OUTPUT_CONFIG,
   SWITCH_SECOND_OUTPUT_LABEL,
-  SWITCH_THIRD_OUTPUT_LABEL
+  SWITCH_THIRD_OUTPUT_LABEL,
+  STEPPED_DEFAULT_MAX
 } from './victron-virtual-constants'
 import { initializeTooltips } from './victron-common'
+import escape from 'lodash/escape'
 
 // Re-export for browser/test use
 export {
@@ -414,6 +416,13 @@ export const DEVICE_TYPE_DOCS = {
         </ol>
       </div>
     </div>
+    <div>
+      <div><strong>Generator Start/Stop:</strong>
+        <p>When a virtual generator is deployed, Venus OS automatically creates a <em>Generator Start/Stop</em> service (<code>com.victronenergy.generator</code>) for it. This service controls and monitors the generator from the Venus OS side &mdash; including auto-start conditions, manual start, and runtime tracking.</p>
+        <p>Use the <strong>input-generator</strong> node to read from that service (e.g. <code>/State</code>, <code>/Runtime</code>, <code>/RunningByConditionCode</code>) and the <strong>output-generator</strong> node to control it (e.g. <code>/ManualStart</code>, <code>/AutoStartEnabled</code>).</p>
+        <p>See the <a href="https://github.com/victronenergy/venus/wiki/dbus#generator-startstop" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS Generator Start/Stop documentation</a> for the full path list.</p>
+      </div>
+    </div>
   `,
     img: null
   },
@@ -678,6 +687,8 @@ export function renderSwitchConfigRow (context) {
   const savedType = context.switch_1_type !== undefined ? context.switch_1_type : SWITCH_TYPE_MAP.TOGGLE
   $('#node-input-switch_1_type').val(String(savedType))
 
+  let isInitialRender = true
+
   function renderTypeConfig () {
     $('#switch-1-config-row').remove()
     $('#switch-1-pairs-row').remove()
@@ -691,6 +702,8 @@ export function renderSwitchConfigRow (context) {
       // Render each field as a separate row
       const fieldsHtml = cfg.fields.map(field => {
         const stepAttr = field.id === 'step' || field.id === 'stepsize' ? 'step="any"' : ''
+        const minAttr = field.min !== undefined ? `min="${field.min}"` : ''
+        const maxAttr = field.max !== undefined ? `max="${field.max}"` : ''
         const tooltipHtml = field.tooltip
           ? `<i class="fa fa-info-circle tooltip-icon"
                 data-tooltip="${field.tooltip}"></i>`
@@ -703,7 +716,7 @@ export function renderSwitchConfigRow (context) {
             </label>
             <input type="${field.type}" id="node-input-switch_1_${field.id}"
                   placeholder="${field.placeholder}"
-                  ${stepAttr} required>
+                  ${minAttr} ${maxAttr} ${stepAttr} required>
           </div>
         `
       }).join('')
@@ -717,9 +730,16 @@ export function renderSwitchConfigRow (context) {
       `)
       $('#node-input-switch_1_type').closest('.form-row').after(configRow)
 
-      // Restore saved values
+      // Restore saved values; on type change, skip type-specific fields.
+      // Also restore if the rendered type matches the saved type (handles spurious change events
+      // triggered by Node-RED's post-oneditprepare field population).
       cfg.fields.forEach(field => {
-        const val = context[`switch_1_${field.id}`]
+        const isCommonField = COMMON_SWITCH_FIELDS.some(f => f.id === field.id)
+        const isTypeUnchanged = Number(type) === Number(context.switch_1_type)
+        let val = (isInitialRender || isCommonField || isTypeUnchanged) ? context[`switch_1_${field.id}`] : undefined
+        if (!val && field.id === 'max' && Number(type) === SWITCH_TYPE_MAP.STEPPED) {
+          val = STEPPED_DEFAULT_MAX
+        }
         if (typeof val !== 'undefined') {
           $(`#node-input-switch_1_${field.id}`).val(val)
         }
@@ -897,6 +917,7 @@ export function renderSwitchConfigRow (context) {
 
     makeBoltBullets($('#switch-docs-container'))
     initializeTooltips()
+    isInitialRender = false
   }
 
   $('#node-input-switch_1_type').on('change', renderTypeConfig)
@@ -1126,6 +1147,17 @@ export const INDICATOR_TYPE_LABELS = {
   3: 'Temperature'
 }
 
+export const INDICATOR_TYPE = {
+  DISCRETE: 0,
+  VALUE: 1,
+  VALUE_WITH_RANGE: 2,
+  TEMPERATURE: 3
+}
+
+function isTypeRange (type) {
+  return type === INDICATOR_TYPE.VALUE_WITH_RANGE || type === INDICATOR_TYPE.TEMPERATURE
+}
+
 export function renderIndicatorDocBox (type) {
   $('#indicator-docs-container').empty()
   const typeKey = parseInt(type, 10)
@@ -1135,8 +1167,10 @@ export function renderIndicatorDocBox (type) {
     const docRow = $(`
       <div class="form-row">
         <div id="indicator-doc-row" class="victron-doc-box">
-          <label>${label} usage</label>
-          ${doc.img ? `<img src="${doc.img}" alt="${label} preview">` : ''}
+          <label>${label} usage
+            <i class="fa fa-info-circle tooltip-icon" data-tooltip="Approximate preview - actual appearance on the GX device may differ depending on system unit settings."></i>
+          </label>
+          <div id="indicator-live-preview" class="indicator-preview-card"></div>
           <div class="victron-doc-text">${doc.text}</div>
         </div>
       </div>
@@ -1144,6 +1178,82 @@ export function renderIndicatorDocBox (type) {
     $('#indicator-docs-container').append(docRow)
     makeBoltBullets($('#indicator-docs-container'))
     initializeTooltips()
+  }
+}
+
+const RESERVED_UNIT_LABELS = { '/Temperature': 'Temperature', '/Speed': 'Speed', '/Volume': 'Volume' }
+const RESERVED_UNITS = { '/Temperature': '°C', '/Speed': 'km/h', '/Volume': 'L' }
+
+function buildSimpleCardSvg (title, cardLabel, valueText) {
+  const font = 'system-ui, -apple-system, sans-serif'
+  return `<svg width="368" height="88" viewBox="0 0 368 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+<text x="16" y="24" font-family="${font}" font-size="12" fill="#1D1D1B">${escape(title)}</text>
+<line x1="8" y1="87.5" x2="360" y2="87.5" stroke="#E6E5E1"/>
+<rect x="16" y="34" width="336" height="40" rx="6" fill="#F0EFEB"/>
+<text x="36" y="59" font-family="${font}" font-size="14" fill="#64635F">${escape(cardLabel)}</text>
+<text x="340" y="59" text-anchor="end" font-family="${font}" font-size="14" fill="#1D1D1B">${escape(valueText)}</text>
+</svg>`
+}
+
+function buildRangeCardSvg (title, valueText) {
+  const font = 'system-ui, -apple-system, sans-serif'
+  const barWidth = 250
+  const barFill = Math.round(barWidth * 0.4)
+  return `<svg width="368" height="62" viewBox="0 0 368 62" fill="none" xmlns="http://www.w3.org/2000/svg">
+<text x="16" y="20" font-family="${font}" font-size="12" fill="#1D1D1B">${escape(title)}</text>
+<line x1="8" y1="61.5" x2="360" y2="61.5" stroke="#E6E5E1"/>
+<rect x="16" y="28" width="336" height="24" rx="6" fill="#F0EFEB"/>
+<defs><linearGradient id="bar-grad" x1="${24 + barWidth}" y1="40" x2="24" y2="40" gradientUnits="userSpaceOnUse">
+<stop stop-color="#D66A67"/><stop offset="0.47" stop-color="#7E6EB7"/><stop offset="1" stop-color="#5991CE"/>
+</linearGradient></defs>
+<rect x="24" y="36" width="${barWidth}" height="8" rx="4" fill="#BBCEE0"/>
+<rect x="24" y="36" width="${barFill}" height="8" rx="4" fill="url(#bar-grad)"/>
+<text x="348" y="44" text-anchor="end" font-family="${font}" font-size="14" fill="#1D1D1B">${escape(valueText)}</text>
+</svg>`
+}
+
+export function updateIndicatorLivePreview () {
+  const $preview = $('#indicator-live-preview')
+  if (!$preview.length) return
+
+  const type = parseInt($('#node-input-indicator_type').val(), 10)
+  const isRange = isTypeRange(type)
+  const isTemperature = type === INDICATOR_TYPE.TEMPERATURE
+
+  function placeholderOf (selector) {
+    return ($('#' + selector).attr('placeholder') || '').replace(/^e\.g\.\s*/i, '').split(',')[0].trim()
+  }
+
+  const customname = $('#node-input-customname').val() || ''
+  const title = customname || placeholderOf('node-input-customname') || 'State'
+
+  let cardLabel
+  let valueText
+
+  if (type === INDICATOR_TYPE.DISCRETE) {
+    const rawLabels = $('#node-input-labels').val() || ''
+    cardLabel = $('#node-input-primary_label').val() || placeholderOf('node-input-primary_label') || 'State'
+    valueText = rawLabels.split(',')[0].trim().replace(/^\//, '') || 'Off'
+  } else if (isRange) {
+    cardLabel = title
+    const rawUnit = $('#node-input-unit').val() || ''
+    const decimalsRaw = $('#node-input-decimals').val()
+    const decimals = decimalsRaw !== '' && !isNaN(decimalsRaw) ? parseInt(decimalsRaw, 10) : 1
+    const unit = isTemperature ? '°C' : (RESERVED_UNITS[rawUnit] || rawUnit)
+    valueText = (21.5).toFixed(decimals) + (unit ? ' ' + unit : '')
+  } else {
+    const rawUnit = $('#node-input-unit').val() || ''
+    cardLabel = RESERVED_UNIT_LABELS[rawUnit] || $('#node-input-primary_label').val() || placeholderOf('node-input-primary_label') || 'State'
+    const decimalsRaw = $('#node-input-decimals').val()
+    const decimals = decimalsRaw !== '' && !isNaN(decimalsRaw) ? parseInt(decimalsRaw, 10) : 1
+    const unit = RESERVED_UNITS[rawUnit] || rawUnit
+    valueText = (21.5).toFixed(decimals) + (unit ? ' ' + unit : '')
+  }
+
+  if (isRange) {
+    $preview.html(buildRangeCardSvg(title, valueText))
+  } else {
+    $preview.html(buildSimpleCardSvg(title, cardLabel, valueText))
   }
 }
 

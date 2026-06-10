@@ -14,7 +14,8 @@ const {
   SWITCH_TYPE_BITMASK_NAMES,
   SWITCH_SECOND_OUTPUT_LABEL,
   SWITCH_THIRD_OUTPUT_LABEL,
-  SWITCH_DEFAULT_PATH
+  SWITCH_DEFAULT_PATH,
+  STEPPED_DEFAULT_MAX
 } = require('../nodes/victron-virtual-constants')
 
 const { hsbToRgb } = require('./color-utils')
@@ -212,8 +213,9 @@ function createSwitchProperties (config, ifaceDesc, iface) {
       type: 'i',
       format: (v) => v != null ? `Option ${v}` : '',
       min: 0,
-      max: Number(config.switch_1_max ?? 7),
-      persist: true
+      max: Number(config.switch_1_max || STEPPED_DEFAULT_MAX),
+      persist: true,
+      immediate: true
     }
     iface[dimmingKey] = 0
 
@@ -222,7 +224,7 @@ function createSwitchProperties (config, ifaceDesc, iface) {
       type: 'i',
       format: (v) => v != null ? `Options: ${v}` : ''
     }
-    iface[maxKey] = Number(config.switch_1_max ?? 7)
+    iface[maxKey] = Number(config.switch_1_max || STEPPED_DEFAULT_MAX)
   }
 
   if (switchType === SWITCH_TYPE_MAP.DROPDOWN) {
@@ -702,5 +704,6 @@ module.exports = {
   updateSwitchStatus,
   emitInitialSwitchOutputs,
   expandSwitchPayload,
-  shouldApplyPayloadToDBus
+  shouldApplyPayloadToDBus,
+  STEPPED_DEFAULT_MAX
 }

@@ -56,3 +56,74 @@ describe('victron-client', () => {
 
 })
 
+describe('saveToCache - stale no-trail entry cleanup', () => {
+  let client
+
+  beforeEach(() => {
+    jest.useFakeTimers()
+    client = new VictronClient('mock-client-id', { enablePolling: false })
+  })
+
+  afterEach(() => {
+    jest.runOnlyPendingTimers()
+    jest.useRealTimers()
+  })
+
+  it('removes stale no-trail entry when a trail entry is saved for the same service', () => {
+    // Simulate the stale no-trail entry created during _initService async window
+    client.system.cache['com.victronenergy.generator'] = { '/State': 0 }
+
+    // Simulate _requestRoot completing with the correct device instance
+    client.saveToCache({
+      senderName: 'com.victronenergy.generator',
+      path: '/State',
+      value: 0,
+      deviceInstance: 1
+    })
+
+    expect(client.system.cache['com.victronenergy.generator']).toBeUndefined()
+    expect(client.system.cache['com.victronenergy.generator/1']).toBeDefined()
+  })
+
+  it('does not remove trail entries when saving a no-trail entry', () => {
+    // Services without device instances (e.g. settings) must not lose trail entries
+    client.system.cache['com.victronenergy.generator/0'] = { '/State': 0 }
+
+    client.saveToCache({
+      senderName: 'com.victronenergy.generator',
+      path: '/State',
+      value: 1,
+      deviceInstance: null
+    })
+
+    expect(client.system.cache['com.victronenergy.generator/0']).toBeDefined()
+    expect(client.system.cache['com.victronenergy.generator']).toBeDefined()
+  })
+
+  it('treats undefined deviceInstance as no suffix (loose == null, not strict === null)', () => {
+    // During _initService's async window, msg.deviceInstance is undefined (not null).
+    // Strict === null would produce trail '/undefined'; loose == null correctly gives ''.
+    client.saveToCache({
+      senderName: 'com.victronenergy.generator',
+      path: '/State',
+      value: 0,
+      deviceInstance: undefined
+    })
+
+    expect(client.system.cache['com.victronenergy.generator/undefined']).toBeUndefined()
+    expect(client.system.cache['com.victronenergy.generator']).toBeDefined()
+  })
+
+  it('does not delete anything when no stale entry exists', () => {
+    client.saveToCache({
+      senderName: 'com.victronenergy.generator',
+      path: '/State',
+      value: 0,
+      deviceInstance: 0
+    })
+
+    expect(client.system.cache['com.victronenergy.generator']).toBeUndefined()
+    expect(client.system.cache['com.victronenergy.generator/0']).toBeDefined()
+  })
+})
+

@@ -3,7 +3,8 @@ const {
   checkGeneratorType,
   updateSwitchConfig,
   checkSelectedVirtualDevice,
-  updateBatteryVoltageVisibility
+  updateBatteryVoltageVisibility,
+  updateIndicatorLivePreview
 } = require('./fixtures/victron-virtual-functions.cjs')
 
 const { SWITCH_TYPE_MAP } = require('../src/nodes/victron-virtual-constants')
@@ -495,5 +496,200 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       expect(mockBatteryVoltageCustom.toggle).toHaveBeenCalledWith(false)
       expect(mockBatteryVoltageCustomLabel.toggle).toHaveBeenCalledWith(false)
     })
+  })
+})
+
+describe('updateIndicatorLivePreview', () => {
+  const PLACEHOLDERS = {
+    '#node-input-customname': 'e.g. Solar power',
+    '#node-input-primary_label': 'e.g. Power',
+    '#node-input-unit': 'e.g. W, kWh, /Temperature'
+  }
+
+  function setup (type, { primaryLabel = '', unit = '', customname = '', rangeMin = '', rangeMax = '', decimals = '' } = {}) {
+    const mockPreview = { length: 1, html: jest.fn() }
+    global.$.mockImplementation((selector) => {
+      const vals = {
+        '#node-input-indicator_type': String(type),
+        '#node-input-primary_label': primaryLabel,
+        '#node-input-unit': unit,
+        '#node-input-customname': customname,
+        '#node-input-range_min': rangeMin,
+        '#node-input-range_max': rangeMax,
+        '#node-input-decimals': String(decimals)
+      }
+      if (selector === '#indicator-live-preview') return mockPreview
+      if (selector in vals) {
+        return {
+          val: () => vals[selector],
+          attr: (name) => name === 'placeholder' ? (PLACEHOLDERS[selector] || '') : ''
+        }
+      }
+      return createMockElement()
+    })
+    return mockPreview
+  }
+
+  beforeEach(() => { jest.clearAllMocks() })
+
+  test('does nothing when preview element is absent', () => {
+    global.$.mockImplementation((selector) => {
+      if (selector === '#indicator-live-preview') return { length: 0 }
+      return createMockElement()
+    })
+    expect(() => updateIndicatorLivePreview()).not.toThrow()
+  })
+
+  test('renders primary label and unit for type 1 (Value)', () => {
+    const mock = setup(1, { primaryLabel: 'Power', unit: 'W' })
+    updateIndicatorLivePreview()
+    expect(mock.html).toHaveBeenCalled()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('<svg')
+    expect(html).toContain('Power')
+    expect(html).toContain('W')
+    expect(html).toContain('21.5')
+  })
+
+  test('uses customname for type 2 (Value with range), not primary_label', () => {
+    const mock = setup(2, { primaryLabel: 'Power', unit: 'W', customname: 'Solar Panel' })
+    updateIndicatorLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('Solar Panel')
+    expect(html).not.toContain('Power')
+  })
+
+  test('uses customname and °C for type 3 (Temperature), ignores unit field', () => {
+    const mock = setup(3, { customname: 'Room Temp', unit: 'ignored' })
+    updateIndicatorLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('Room Temp')
+    expect(html).toContain('°C')
+    expect(html).not.toContain('ignored')
+  })
+
+  test('uses placeholder text when primary_label is empty', () => {
+    const mock = setup(1, { primaryLabel: '', unit: 'W', customname: 'Solar' })
+    updateIndicatorLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('Power')
+    expect(html).not.toContain('State')
+  })
+
+  test('escapes HTML in label to prevent XSS', () => {
+    const mock = setup(1, { primaryLabel: '<script>alert(1)</script>', unit: 'W' })
+    updateIndicatorLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).not.toContain('<script>')
+    expect(html).toContain('&lt;script&gt;')
+  })
+
+  test('shows first discrete state for type 0 (Discrete)', () => {
+    const mock = setup(0, { primaryLabel: 'Mode', unit: '' })
+    updateIndicatorLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('Mode')
+    expect(html).not.toContain('21.5')
+  })
+
+  test('shows progress bar for type 2 (Value with range)', () => {
+    const mock = setup(2, { primaryLabel: 'Power', unit: 'W', customname: 'Solar' })
+    updateIndicatorLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('Solar')
+    expect(html).toContain('21.5')
+    expect(html).toContain('rect')
+    // label appears only once (title), not duplicated inside the card
+    expect(html.match(/Solar/g).length).toBe(1)
+  })
+
+  test('resolves reserved unit to symbol for type 2 (Value with range)', () => {
+    const mock = setup(2, { customname: 'Solar', unit: '/Temperature', decimals: '2' })
+    updateIndicatorLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('21.50')
+    expect(html).toContain('°C')
+    expect(html).not.toContain('/Temperature')
+  })
+
+  test('shows progress bar for type 3 (Temperature)', () => {
+    const mock = setup(3, { customname: 'Outdoor' })
+    updateIndicatorLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('Outdoor')
+    expect(html).toContain('°C')
+    expect(html).toContain('rect')
+  })
+
+  test('formats value with 0 decimals', () => {
+    const mock = setup(1, { primaryLabel: 'Power', unit: 'W', decimals: '0' })
+    updateIndicatorLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('22')
+    expect(html).not.toContain('21.5')
+  })
+
+  test('formats value with 2 decimals', () => {
+    const mock = setup(1, { primaryLabel: 'Power', unit: 'W', decimals: '2' })
+    updateIndicatorLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('21.50')
+  })
+
+  test('applies decimals to range type value', () => {
+    const mock = setup(2, { customname: 'Solar', unit: 'W', decimals: '1' })
+    updateIndicatorLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('21.5')
+    expect(html).not.toContain('21.50')
+  })
+
+  test('resolves /Temperature to °C in value and Temperature as card label', () => {
+    const mock = setup(1, { primaryLabel: 'Room', unit: '/Temperature' })
+    updateIndicatorLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('°C')
+    expect(html).toContain('Temperature')
+    expect(html).not.toContain('/Temperature')
+    expect(html).not.toContain('Room')
+  })
+
+  test('uses customname as title and primary_label as card label for type 1', () => {
+    const mock = setup(1, { primaryLabel: 'Power', unit: 'W', customname: 'My Sensor' })
+    updateIndicatorLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('My Sensor')
+    expect(html).toContain('Power')
+  })
+
+  test('uses placeholder text when customname is empty', () => {
+    const mock = setup(1, { primaryLabel: 'Power', unit: 'W', customname: '' })
+    updateIndicatorLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('Solar power')
+    expect(html).toContain('Power')
+  })
+
+  test('resolves /Speed to km/h in preview', () => {
+    const mock = setup(1, { primaryLabel: 'Wind', unit: '/Speed' })
+    updateIndicatorLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('km/h')
+    expect(html).not.toContain('/Speed')
+  })
+
+  test('resolves /Volume to L in preview', () => {
+    const mock = setup(1, { primaryLabel: 'Tank', unit: '/Volume' })
+    updateIndicatorLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('L')
+    expect(html).not.toContain('/Volume')
+  })
+
+  test('leaves plain unit unchanged', () => {
+    const mock = setup(1, { primaryLabel: 'Power', unit: 'kWh' })
+    updateIndicatorLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('kWh')
   })
 })

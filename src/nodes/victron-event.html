@@ -1,5 +1,4 @@
 <link rel="stylesheet" href="resources/@victronenergy/node-red-contrib-victron/victron-styles.css">
-<script src="resources/@victronenergy/node-red-contrib-victron/victron-common.js"></script>
 
 <script type="text/javascript">
     RED.nodes.registerType('victron-event', {
@@ -27,6 +26,13 @@
             }
         }
     });
+
+    if (!document.querySelector('script[data-victron-common]')) {
+        var _scr = document.createElement('script');
+        _scr.setAttribute('data-victron-common', '');
+        _scr.src = 'resources/@victronenergy/node-red-contrib-victron/victron-common.js';
+        document.head.appendChild(_scr);
+    }
 </script>
 
 <script type="text/html" data-template-name="victron-event">
