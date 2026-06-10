@@ -80,7 +80,7 @@ function initialize (config, ifaceDesc, iface, node) {
       L2: { 'Ac/L2/Power': 'ELECTRIC.POWER.L2' },
       L3: { 'Ac/L3/Power': 'ELECTRIC.POWER.L3' }
     }
-    ifaceDesc.__s2PowerMeasurementProps = measurementPropsMap[measurementType] || measurementPropsMap['3_PHASE_SYMMETRIC']
+    ifaceDesc.__s2PowerMeasurementProps = measurementPropsMap[measurementType]
     ifaceDesc.__s2Handlers = {
       Connect: function (cemId, timeout) {
         node._s2PowerMeasurementActive = false

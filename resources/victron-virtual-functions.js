@@ -2150,6 +2150,39 @@
 	}
 
 	/**
+	 * Return the label for a single output port of a virtual device node.
+	 * @param {{ device?: string, enable_s2support?: boolean, switch_1_type?: number|string }} node
+	 * @param {number} index - Zero-based output index
+	 * @returns {string}
+	 */
+	function determineOutputLabel (node, index) {
+	  if (index === 0) return 'Passthrough'
+
+	  if (node.device === 'pulsemeter') {
+	    return 'Aggregate'
+	  }
+
+	  if (node.device === 'acload' && node.enable_s2support) {
+	    return 'S2 communication'
+	  }
+
+	  if (node.device === 'switch') {
+	    const switchType = Number(node.switch_1_type !== undefined ? node.switch_1_type : victronVirtualConstantsExports.SWITCH_TYPE_MAP.TOGGLE);
+	    const outputCount = victronVirtualConstantsExports.SWITCH_OUTPUT_CONFIG[switchType] || 2;
+
+	    if (index === 1) {
+	      return victronVirtualConstantsExports.SWITCH_SECOND_OUTPUT_LABEL[switchType] || 'State'
+	    }
+
+	    if (index === 2 && outputCount >= 3) {
+	      return victronVirtualConstantsExports.SWITCH_THIRD_OUTPUT_LABEL[switchType] || 'Value'
+	    }
+	  }
+
+	  return 'Output ' + (index + 1)
+	}
+
+	/**
 	 * Returns the Node-RED palette label for a virtual node.
 	 * Priority: name -> customname + group + typeName -> fallback + typeName
 	 * @param {{ name?: string, customname?: string, group?: string, typeName?: string, fallback?: string }} opts
@@ -2182,7 +2215,8 @@
 	  renderShowInUICheckboxes,
 	  getShowUIValue,
 	  initializeTooltips,
-	  getVirtualNodeLabel
+	  getVirtualNodeLabel,
+	  determineOutputLabel
 	};
 
 })();
