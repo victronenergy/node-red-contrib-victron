@@ -1,5 +1,5 @@
 // test/virtual-switch.test.js
-const { updateSwitchStatus, emitInitialSwitchOutputs, handleSwitchOutputs, createSwitchProperties, expandSwitchPayload, shouldApplyPayloadToDBus } = require('../src/services/virtual-switch')
+const { updateSwitchStatus, emitInitialSwitchOutputs, handleSwitchOutputs, createSwitchProperties, expandSwitchPayload, shouldApplyPayloadToDBus, STEPPED_DEFAULT_MAX } = require('../src/services/virtual-switch')
 const { SWITCH_TYPE_MAP } = require('../src/nodes/victron-virtual-constants')
 
 function makeNode (ifaceOverrides = {}, ifaceDescOverrides = {}) {
@@ -317,6 +317,29 @@ describe('createSwitchProperties - Adjustable', () => {
     const { format } = ifaceDesc.properties[adjustableKey]
     expect(format(0)).toBe('Read-only')
     expect(format(1)).toBe('Writable')
+  })
+})
+
+describe('createSwitchProperties - STEPPED DimmingMax', () => {
+  const maxKey = 'SwitchableOutput/output_1/Settings/DimmingMax'
+
+  function run (config) {
+    const ifaceDesc = { properties: {} }
+    const iface = {}
+    createSwitchProperties({ switch_1_type: SWITCH_TYPE_MAP.STEPPED, ...config }, ifaceDesc, iface)
+    return iface[maxKey]
+  }
+
+  test('defaults to STEPPED_DEFAULT_MAX when switch_1_max is not set', () => {
+    expect(run({})).toBe(STEPPED_DEFAULT_MAX)
+  })
+
+  test('defaults to STEPPED_DEFAULT_MAX when switch_1_max is empty string', () => {
+    expect(run({ switch_1_max: '' })).toBe(STEPPED_DEFAULT_MAX)
+  })
+
+  test('uses switch_1_max when set to a valid value', () => {
+    expect(run({ switch_1_max: '3' })).toBe(3)
   })
 })
 
