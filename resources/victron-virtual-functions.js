@@ -1519,8 +1519,8 @@
 	      // triggered by Node-RED's post-oneditprepare field population).
 	      cfg.fields.forEach(field => {
 	        const isCommonField = COMMON_SWITCH_FIELDS.some(f => f.id === field.id);
-	        const typeUnchanged = Number(type) === Number(context.switch_1_type);
-	        let val = (isInitialRender || isCommonField || typeUnchanged) ? context[`switch_1_${field.id}`] : undefined;
+	        const isTypeUnchanged = Number(type) === Number(context.switch_1_type);
+	        let val = (isInitialRender || isCommonField || isTypeUnchanged) ? context[`switch_1_${field.id}`] : undefined;
 	        if (!val && field.id === 'max' && Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED) {
 	          val = victronVirtualConstantsExports.STEPPED_DEFAULT_MAX;
 	        }
