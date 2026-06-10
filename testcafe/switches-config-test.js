@@ -4,8 +4,6 @@ const { mqttGetValue, mqttSetValue } = require('./mqtt-verify.js')
 const { Selector } = require('testcafe')
 const { SWITCH_TYPE_NAMES } = require('../src/nodes/victron-virtual-constants.js')
 
-const SKIP_MQTT = process.env.SKIP_MQTT_VERIFICATION === 'true'
-
 setupVrmFixture(
   fixture('Virtual Switches')
 )
@@ -57,11 +55,6 @@ async function configureVirtualSwitchNode (t, nodeId, options) {
 }
 
 async function assertSwitchValue (t, nodeId, path, expectedContains) {
-  if (SKIP_MQTT) {
-    console.log(`SKIP_MQTT_VERIFICATION: skipping assertion ${nodeId} ${path} contains "${expectedContains}"`)
-    // await new Promise(resolve => setTimeout(resolve, 500)) // TODO: small delay seems to avoid 'write after end' hard crash of Node-RED process.
-    return
-  }
   const result = await mqttGetValue(`com.victronenergy.switch.virtual_${nodeId}`, path)
   await t.expect(JSON.stringify(result)).contains(String(expectedContains))
 }
@@ -154,11 +147,6 @@ test('Set and read switch state via MQTT', async t => {
   await t.expect(
     Selector('.red-ui-tab.active').withAttribute('id', `red-ui-tab-${flowId}`).exists
   ).ok('Flow tab did not become active', { timeout: 30_000 })
-
-  if (SKIP_MQTT) {
-    console.log('SKIP_MQTT_VERIFICATION: skipping switch state assertions')
-    return
-  }
 
   await mqttSetValue('com.victronenergy.switch.virtual_switch1', '/SwitchableOutput/output_1/State', 1)
   const stateOn = await mqttGetValue('com.victronenergy.switch.virtual_switch1', '/SwitchableOutput/output_1/State')
