@@ -324,8 +324,8 @@ class VictronDbusListener {
         } else {
           const oldOwner = msg.body[1]
           if (oldOwner && this.services[oldOwner]) {
-            const trail = ('/' + (this.services[oldOwner].deviceInstance != null ? this.services[oldOwner].deviceInstance : '')).replace(/\.$/, '')
-            const svcName = this.services[oldOwner].name.split('.').splice(0, 3).join('.') + trail
+            const deviceInstanceSuffix = ('/' + (this.services[oldOwner].deviceInstance != null ? this.services[oldOwner].deviceInstance : '')).replace(/\.$/, '')
+            const svcName = this.services[oldOwner].name.split('.').splice(0, 3).join('.') + deviceInstanceSuffix
             this.eventHandler('DELETE', this.services[oldOwner].name)
             delete this.services[oldOwner]
             this.eventHandler('DELETE', svcName)
