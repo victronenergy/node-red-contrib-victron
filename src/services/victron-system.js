@@ -68,7 +68,7 @@ class SystemConfiguration {
 
           expandedPaths.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
 
-          const deviceInstance = cachedPaths['/DeviceInstance'] || ''
+          const deviceInstance = cachedPaths['/DeviceInstance'] != null ? cachedPaths['/DeviceInstance'] : ''
           if (expandedPaths.length) {
             acc.push(utils.TEMPLATE(dbusInterface, name, deviceInstance, expandedPaths, communityTag))
           }
@@ -126,7 +126,7 @@ class SystemConfiguration {
                 this.cache[service]['/ProductName'] ||
                 service.split('.').pop()
 
-      const deviceInstance = this.cache[service]['/DeviceInstance'] || service.split('/')[1] || '-'
+      const deviceInstance = this.cache[service]['/DeviceInstance'] ?? service.split('/')[1] ?? '-'
 
       return utils.TEMPLATE(service, name, deviceInstance, pathObjects)
     }

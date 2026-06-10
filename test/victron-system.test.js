@@ -117,6 +117,66 @@ describe('getNodeServices null value handling', () => {
   })
 })
 
+describe('generator input node - device instance display', () => {
+  let systemConfig
+
+  beforeEach(() => {
+    systemConfig = new SystemConfiguration()
+  })
+
+  test('device instance 0 is returned as string "0", not empty string', () => {
+    systemConfig.cache = {
+      'com.victronenergy.generator/0': {
+        '/ProductName': 'Generator Start/Stop',
+        '/DeviceInstance': 0,
+        '/State': 0
+      }
+    }
+    const result = systemConfig.getNodeServices('input-generator')
+    expect(result.services).toHaveLength(1)
+    expect(result.services[0].deviceInstance).toBe('0')
+  })
+
+  test('two generator controllers produce two distinct dropdown entries with device instances', () => {
+    systemConfig.cache = {
+      'com.victronenergy.generator/0': {
+        '/ProductName': 'Generator Start/Stop',
+        '/DeviceInstance': 0,
+        '/State': 0
+      },
+      'com.victronenergy.generator/1': {
+        '/ProductName': 'Generator Start/Stop',
+        '/DeviceInstance': 1,
+        '/State': 0
+      }
+    }
+    const result = systemConfig.getNodeServices('input-generator')
+    expect(result.services).toHaveLength(2)
+    const instances = result.services.map(s => s.deviceInstance).sort()
+    expect(instances).toEqual(['0', '1'])
+  })
+
+  test('stale no-trail entry alongside trail entry returns two services (cache dedup is in saveToCache)', () => {
+    // This documents the expected behavior when the cache has BOTH a stale no-trail
+    // entry and a correct trail entry. The fix (in saveToCache) prevents this state
+    // from occurring. If it does occur, getNodeServices shows both.
+    systemConfig.cache = {
+      'com.victronenergy.generator': {
+        '/ProductName': 'Generator Start/Stop',
+        '/State': 0
+      },
+      'com.victronenergy.generator/0': {
+        '/ProductName': 'Generator Start/Stop',
+        '/DeviceInstance': 0,
+        '/State': 0
+      }
+    }
+    const result = systemConfig.getNodeServices('input-generator')
+    // Both entries are found - this confirms what the bug looks like
+    expect(result.services).toHaveLength(2)
+  })
+})
+
 describe('getCachedServices null value handling (custom nodes)', () => {
   let systemConfig
 

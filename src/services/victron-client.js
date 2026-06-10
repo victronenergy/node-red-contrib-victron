@@ -47,8 +47,8 @@ class VictronClient {
     const messageHandler = messages => {
       messages.forEach(msg => {
         _this.saveToCache(msg)
-        const trail = ('/' + (msg.deviceInstance != null ? msg.deviceInstance : '')).replace(/\/$/, '')
-        const msgKey = `${msg.senderName}${trail}:${msg.path}`
+        const deviceInstanceSuffix = msg.deviceInstance == null ? '' : `/${msg.deviceInstance}`
+        const msgKey = `${msg.senderName}${deviceInstanceSuffix}:${msg.path}`
         debug(`[MESSAGE HANDLER] ${msgKey} | ${JSON.stringify(msg, null, 2)}`)
         // we remove msg.text, as we don't use it, and removing it makes it "in line" with what
         // we do in case of using regular callbacks from the cache, instead of polling (see
@@ -163,9 +163,16 @@ class VictronClient {
   saveToCache (msg) {
     let dbusPaths = {}
 
-    const trail = ('/' + (msg.deviceInstance != null ? msg.deviceInstance : '')).replace(/\/$/, '')
+    const deviceInstanceSuffix = msg.deviceInstance == null ? '' : `/${msg.deviceInstance}`
 
-    if (this.system.cache[msg.senderName + trail]) { dbusPaths = this.system.cache[msg.senderName + trail] }
+    if (this.system.cache[msg.senderName + deviceInstanceSuffix]) { dbusPaths = this.system.cache[msg.senderName + deviceInstanceSuffix] }
+
+    // When a device instance is known, remove any stale no-suffix entry for the same
+    // service. Such entries are created during _initService's async window (before
+    // GetValue returns the device instance) when ItemsChanged signals arrive with
+    // deviceInstance=undefined. Without this cleanup, both the stale entry and the
+    // correct suffixed entry match getNodeServices(), producing duplicate dropdown entries.
+    if (deviceInstanceSuffix !== '') { delete this.system.cache[msg.senderName] }
 
     // some dbus messages are empty arrays [], and we interpret empty arrays as null values,
     // compare https://github.com/Chris927/dbus-native/commit/0080b9226a0ed9474be1e5ceeae58a9c78dfa046
@@ -173,13 +180,13 @@ class VictronClient {
 
     // We need to update the nodes on new paths
     // e.g. in the case of system relays, which might or might not be there
-    const sender = msg.senderName.split('.').splice(0, 3).join('.') + trail
+    const sender = msg.senderName.split('.').splice(0, 3).join('.') + deviceInstanceSuffix
 
     // TODO: this.onStatusUpdate() is a noop, can perhaps be removed
     if (!(msg.path in dbusPaths)) { this.onStatusUpdate({ service: sender, path: msg.path }, utils.STATUS.PATH_ADD) }
 
     dbusPaths[msg.path] = msg.value
-    this.system.cache[msg.senderName + trail] = dbusPaths
+    this.system.cache[msg.senderName + deviceInstanceSuffix] = dbusPaths
   }
 
   /**
