@@ -1026,10 +1026,16 @@ export function checkSelectedVirtualDevice (context) {
   $('.input-' + selected).show()
 
   if (selected === 'acload') {
+    function updateS2SectionVisibility () {
+      const s2enabled = $('#node-input-enable_s2support').is(':checked')
+      $('.input-acload-s2').toggle(s2enabled)
+    }
     $('#node-input-enable_s2support').off('change.s2support').on('change.s2support', function () {
       context.enable_s2support = $(this).is(':checked')
       updateOutputs(context)
+      updateS2SectionVisibility()
     })
+    updateS2SectionVisibility()
   }
 
   if (selected === 'battery') {
@@ -1374,6 +1380,39 @@ export function updateOutputs (context) {
   // Update BOTH the context AND the hidden input field
   context.outputs = outputs
   $('#node-input-outputs').val(outputs)
+}
+
+/**
+ * Return the label for a single output port of a virtual device node.
+ * @param {{ device?: string, enable_s2support?: boolean, switch_1_type?: number|string }} node
+ * @param {number} index - Zero-based output index
+ * @returns {string}
+ */
+export function determineOutputLabel (node, index) {
+  if (index === 0) return 'Passthrough'
+
+  if (node.device === 'pulsemeter') {
+    return 'Aggregate'
+  }
+
+  if (node.device === 'acload' && node.enable_s2support) {
+    return 'S2 communication'
+  }
+
+  if (node.device === 'switch') {
+    const switchType = Number(node.switch_1_type !== undefined ? node.switch_1_type : SWITCH_TYPE_MAP.TOGGLE)
+    const outputCount = SWITCH_OUTPUT_CONFIG[switchType] || 2
+
+    if (index === 1) {
+      return SWITCH_SECOND_OUTPUT_LABEL[switchType] || 'State'
+    }
+
+    if (index === 2 && outputCount >= 3) {
+      return SWITCH_THIRD_OUTPUT_LABEL[switchType] || 'Value'
+    }
+  }
+
+  return 'Output ' + (index + 1)
 }
 
 /**
