@@ -1595,8 +1595,10 @@
 	      const docRow = $(`
         <div class="form-row">
           <div id="switch-1-doc-row" class="victron-doc-box">
-            <label>${cfg.label} usage</label>
-            ${doc.img ? `<img src="${doc.img}" alt="Switch type preview">` : ''}
+            <label>${cfg.label} usage
+              <i class="fa fa-info-circle tooltip-icon" data-tooltip="Approximate preview - actual appearance on the GX device may differ."></i>
+            </label>
+            <div id="switch-live-preview" class="indicator-preview-card"></div>
             <div class="victron-doc-text">${doc.text}</div>
           </div>
         </div>
@@ -1605,8 +1607,20 @@
 	      $('#switch-docs-container').append(docRow);
 	    }
 
+	    // Wire live preview - re-attach each time since the config row is rebuilt on type change
+	    $('#node-input-switch_1_customname, #node-input-switch_1_group').on('input', updateSwitchLivePreview);
+	    if (Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED) {
+	      $('#node-input-switch_1_max').on('input', updateSwitchLivePreview);
+	    }
+	    if (Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.BASIC_SLIDER || Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.NUMERIC_INPUT) {
+	      $('#node-input-switch_1_unit').on('input', updateSwitchLivePreview);
+	    }
+	    if (Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN) {
+	      $('#node-input-switch_1_value_0').on('input', updateSwitchLivePreview);
+	    }
 	    if (Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) {
-	      // Add checkbox for Measurement path
+	      $('#node-input-switch_1_min, #node-input-switch_1_max').on('input', updateSwitchLivePreview);
+	      // Add checkbox before updateSwitchLivePreview so it exists in DOM when the preview reads it
 	      const measurementToggle = $(`
         <div class="form-row victron-checkbox" id="switch-1-measurement-toggle-row">
           <input type="checkbox" id="node-input-switch_1_include_measurement">
@@ -1614,12 +1628,12 @@
         </div>
       `);
 	      $('#switch-1-config-row').append(measurementToggle);
-
-	      // Restore saved value if present
 	      if (context.switch_1_include_measurement) {
 	        $('#node-input-switch_1_include_measurement').prop('checked', true);
 	      }
+	      $('#node-input-switch_1_include_measurement').on('change', updateSwitchLivePreview);
 	    }
+	    updateSwitchLivePreview();
 
 	    if (Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.THREE_STATE) {
 	      const passthroughRow = $(`
@@ -1977,34 +1991,43 @@
 	  }
 	}
 
+	const SVG_FONT = 'system-ui, -apple-system, sans-serif';
+	const SVG_COLOR_TEXT = '#1D1D1B';
+	const SVG_COLOR_TEXT_DIM = '#64635F';
+	const SVG_COLOR_CARD_BG = '#F0EFEB';
+	const SVG_COLOR_SEPARATOR = '#E6E5E1';
+	const SVG_COLOR_CTRL_BG = '#BBCEE0';
+	const SVG_COLOR_ACTIVE = '#387DC5';
+	const SVG_ACTIVE_FILL_OPACITY = 0.7;
+	const SVG_COLOR_TEMP_COLD = '#5991CE';
+	const SVG_COLOR_TEMP_MID = '#7E6EB7';
+	const SVG_COLOR_TEMP_HOT = '#D66A67';
 	const RESERVED_UNIT_LABELS = { '/Temperature': 'Temperature', '/Speed': 'Speed', '/Volume': 'Volume' };
 	const RESERVED_UNITS = { '/Temperature': '°C', '/Speed': 'km/h', '/Volume': 'L' };
 
 	function buildSimpleCardSvg (title, cardLabel, valueText) {
-	  const font = 'system-ui, -apple-system, sans-serif';
 	  return `<svg width="368" height="88" viewBox="0 0 368 88" fill="none" xmlns="http://www.w3.org/2000/svg">
-<text x="16" y="24" font-family="${font}" font-size="12" fill="#1D1D1B">${escape(title)}</text>
-<line x1="8" y1="87.5" x2="360" y2="87.5" stroke="#E6E5E1"/>
-<rect x="16" y="34" width="336" height="40" rx="6" fill="#F0EFEB"/>
-<text x="36" y="59" font-family="${font}" font-size="14" fill="#64635F">${escape(cardLabel)}</text>
-<text x="340" y="59" text-anchor="end" font-family="${font}" font-size="14" fill="#1D1D1B">${escape(valueText)}</text>
+<text x="16" y="24" font-family="${SVG_FONT}" font-size="12" fill="${SVG_COLOR_TEXT}">${escape(title)}</text>
+<line x1="8" y1="87.5" x2="360" y2="87.5" stroke="${SVG_COLOR_SEPARATOR}"/>
+<rect x="16" y="34" width="336" height="40" rx="6" fill="${SVG_COLOR_CARD_BG}"/>
+<text x="36" y="59" font-family="${SVG_FONT}" font-size="14" fill="${SVG_COLOR_TEXT_DIM}">${escape(cardLabel)}</text>
+<text x="340" y="59" text-anchor="end" font-family="${SVG_FONT}" font-size="14" fill="${SVG_COLOR_TEXT}">${escape(valueText)}</text>
 </svg>`
 	}
 
 	function buildRangeCardSvg (title, valueText) {
-	  const font = 'system-ui, -apple-system, sans-serif';
 	  const barWidth = 250;
 	  const barFill = Math.round(barWidth * 0.4);
 	  return `<svg width="368" height="62" viewBox="0 0 368 62" fill="none" xmlns="http://www.w3.org/2000/svg">
-<text x="16" y="20" font-family="${font}" font-size="12" fill="#1D1D1B">${escape(title)}</text>
-<line x1="8" y1="61.5" x2="360" y2="61.5" stroke="#E6E5E1"/>
-<rect x="16" y="28" width="336" height="24" rx="6" fill="#F0EFEB"/>
+<text x="16" y="20" font-family="${SVG_FONT}" font-size="12" fill="${SVG_COLOR_TEXT}">${escape(title)}</text>
+<line x1="8" y1="61.5" x2="360" y2="61.5" stroke="${SVG_COLOR_SEPARATOR}"/>
+<rect x="16" y="28" width="336" height="24" rx="6" fill="${SVG_COLOR_CARD_BG}"/>
 <defs><linearGradient id="bar-grad" x1="${24 + barWidth}" y1="40" x2="24" y2="40" gradientUnits="userSpaceOnUse">
-<stop stop-color="#D66A67"/><stop offset="0.47" stop-color="#7E6EB7"/><stop offset="1" stop-color="#5991CE"/>
+<stop stop-color="${SVG_COLOR_TEMP_HOT}"/><stop offset="0.47" stop-color="${SVG_COLOR_TEMP_MID}"/><stop offset="1" stop-color="${SVG_COLOR_TEMP_COLD}"/>
 </linearGradient></defs>
-<rect x="24" y="36" width="${barWidth}" height="8" rx="4" fill="#BBCEE0"/>
+<rect x="24" y="36" width="${barWidth}" height="8" rx="4" fill="${SVG_COLOR_CTRL_BG}"/>
 <rect x="24" y="36" width="${barFill}" height="8" rx="4" fill="url(#bar-grad)"/>
-<text x="348" y="44" text-anchor="end" font-family="${font}" font-size="14" fill="#1D1D1B">${escape(valueText)}</text>
+<text x="348" y="44" text-anchor="end" font-family="${SVG_FONT}" font-size="14" fill="${SVG_COLOR_TEXT}">${escape(valueText)}</text>
 </svg>`
 	}
 
@@ -2051,6 +2074,289 @@
 	  } else {
 	    $preview.html(buildSimpleCardSvg(title, cardLabel, valueText));
 	  }
+	}
+
+	// SVG card layout constants for switch live preview
+	const SWITCH_CARD_WIDTH = 320;
+	const SWITCH_CARD_HEIGHT = 96;
+	const SWITCH_CARD_NAME_Y = 38;
+	const SWITCH_CTL_X = 8;
+	const SWITCH_CTL_Y = 48;
+	const SWITCH_CTL_W = 304; // SWITCH_CARD_WIDTH - 2 * SWITCH_CTL_X
+	const SWITCH_CTL_H = 28;
+	const SWITCH_CTL_RX = 5;
+	const SWITCH_CTL_RIGHT = SWITCH_CTL_X + SWITCH_CTL_W;
+	const SWITCH_CTL_BOT = SWITCH_CTL_Y + SWITCH_CTL_H;
+	const SWITCH_CTL_MID_X = SWITCH_CTL_X + Math.round(SWITCH_CTL_W / 2);
+	const SWITCH_CTL_TEXT_Y = SWITCH_CTL_Y + Math.round(SWITCH_CTL_H * 0.65);
+	const NUMERIC_BTN_W = 70;
+	const TEMP_DOT_SIZE = 4;
+	const TEMP_DIVISIONS = 14;
+	const TEMP_MEASUREMENT_OFFSET = 1;
+	const STEPS_MIN_COUNT = 1;
+	const STEPS_PREVIEW_DEFAULT = 4;
+	const SLIDER_PREVIEW_PCT = 60;
+	const NUMERIC_PREVIEW_VALUE = 42;
+
+	function buildSwitchCardSvg (title, label, controlSvg) {
+	  // Group icon: virtual switch device (phone/remote shape with pill + dot)
+	  const icon = `<svg x="8" y="3" width="14" height="14" viewBox="0 0 24 24" fill="none">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M13 6.2C13 5.53726 12.5523 5 12 5C11.4477 5 11 5.53726 11 6.2V9.8C11 10.4627 11.4477 11 12 11C12.5523 11 13 10.4627 13 9.8V6.2ZM13 16C13 16.5523 12.5523 17 12 17C11.4477 17 11 16.5523 11 16C11 15.4477 11.4477 15 12 15C12.5523 15 13 15.4477 13 16ZM15 16C15 17.6569 13.6569 19 12 19C10.3431 19 9 17.6569 9 16C9 14.3431 10.3431 13 12 13C13.6569 13 15 14.3431 15 16Z" fill="${SVG_COLOR_TEXT_DIM}"/>
+<rect x="7" y="3" width="10" height="18" rx="3" stroke="${SVG_COLOR_TEXT_DIM}" stroke-width="2"/>
+</svg>`;
+	  return `<svg width="${SWITCH_CARD_WIDTH}" height="${SWITCH_CARD_HEIGHT}" viewBox="0 0 ${SWITCH_CARD_WIDTH} ${SWITCH_CARD_HEIGHT}" fill="none" xmlns="http://www.w3.org/2000/svg">
+${icon}
+<text x="28" y="16" font-family="${SVG_FONT}" font-size="12" fill="${SVG_COLOR_TEXT_DIM}">${escape(title)}</text>
+<text x="${SWITCH_CTL_X}" y="${SWITCH_CARD_NAME_Y}" font-family="${SVG_FONT}" font-size="14" fill="${SVG_COLOR_TEXT}">${escape(label)}</text>
+${controlSvg}
+</svg>`
+	}
+
+	function buildToggleControl (isOn) {
+	  const halfW = SWITCH_CTL_MID_X - SWITCH_CTL_X;
+	  const activeX = SWITCH_CTL_X;
+	  const leftTextFill = 'white';
+	  const rightTextFill = SVG_COLOR_TEXT_DIM;
+	  return `<defs><clipPath id="sw-ctrl-clip"><rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${SWITCH_CTL_W}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}"/></clipPath></defs>
+<rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${SWITCH_CTL_W}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}" fill="${SVG_COLOR_CTRL_BG}" stroke="${SVG_COLOR_ACTIVE}" stroke-width="2"/>
+<rect x="${activeX}" y="${SWITCH_CTL_Y}" width="${halfW}" height="${SWITCH_CTL_H}" fill="${SVG_COLOR_ACTIVE}" clip-path="url(#sw-ctrl-clip)"/>
+<line x1="${SWITCH_CTL_MID_X}" y1="${SWITCH_CTL_Y}" x2="${SWITCH_CTL_MID_X}" y2="${SWITCH_CTL_BOT}" stroke="white" stroke-width="1.5"/>
+<text x="${(SWITCH_CTL_X + SWITCH_CTL_MID_X) / 2}" y="${SWITCH_CTL_TEXT_Y}" text-anchor="middle" font-family="${SVG_FONT}" font-size="13" fill="${leftTextFill}">Off</text>
+<text x="${(SWITCH_CTL_MID_X + SWITCH_CTL_RIGHT) / 2}" y="${SWITCH_CTL_TEXT_Y}" text-anchor="middle" font-family="${SVG_FONT}" font-size="13" fill="${rightTextFill}">On</text>`
+	}
+
+	function buildMomentaryControl () {
+	  return `<rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${SWITCH_CTL_W}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}" fill="${SVG_COLOR_CTRL_BG}" stroke="${SVG_COLOR_ACTIVE}" stroke-width="2"/>
+<text x="${SWITCH_CTL_MID_X}" y="${SWITCH_CTL_TEXT_Y}" text-anchor="middle" font-family="${SVG_FONT}" font-size="13" fill="${SVG_COLOR_TEXT}">Press</text>`
+	}
+
+	function buildSliderControl (unit, showOff = false) {
+	  const fillW = Math.round(SWITCH_CTL_W * SLIDER_PREVIEW_PCT / 100);
+	  const markerX = SWITCH_CTL_X + fillW;
+	  const valueText = unit ? `${SLIDER_PREVIEW_PCT} ${escape(unit)}` : `${SLIDER_PREVIEW_PCT}%`;
+	  const offLabel = showOff ? `<text x="${SWITCH_CTL_X + 10}" y="${SWITCH_CTL_TEXT_Y}" font-family="${SVG_FONT}" font-size="13" fill="white">Off</text>` : '';
+	  return `<text x="${SWITCH_CTL_RIGHT}" y="${SWITCH_CARD_NAME_Y}" text-anchor="end" font-family="${SVG_FONT}" font-size="14" fill="${SVG_COLOR_TEXT_DIM}">${valueText}</text>
+<defs><clipPath id="sw-ctrl-clip"><rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${SWITCH_CTL_W}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}"/></clipPath></defs>
+<rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${SWITCH_CTL_W}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}" fill="${SVG_COLOR_CTRL_BG}" stroke="${SVG_COLOR_ACTIVE}" stroke-width="2"/>
+<rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${fillW}" height="${SWITCH_CTL_H}" fill="${SVG_COLOR_ACTIVE}" clip-path="url(#sw-ctrl-clip)"/>
+<rect x="${markerX - 2}" y="${SWITCH_CTL_Y + 4}" width="4" height="${SWITCH_CTL_H - 8}" rx="2" fill="white"/>
+${offLabel}`
+	}
+
+	function buildTempSliderControl (min = 0, max = 100, includeMeasurement = false) {
+	  const setpoint = (min + max) / 2;
+	  const measurement = setpoint - TEMP_MEASUREMENT_OFFSET;
+	  const valueText = includeMeasurement
+	    ? `${setpoint.toFixed(1)}/${measurement.toFixed(1)}°C`
+	    : `${setpoint.toFixed(1)}°C`;
+	  const step = SWITCH_CTL_W / TEMP_DIVISIONS;
+	  const dotY = SWITCH_CTL_Y + Math.round(SWITCH_CTL_H / 2) - Math.round(TEMP_DOT_SIZE / 2);
+	  const dots = [];
+	  for (let i = 1; i < TEMP_DIVISIONS; i++) {
+	    const x = Math.round(SWITCH_CTL_X + i * step);
+	    if (i === TEMP_DIVISIONS / 2) {
+	      dots.push(`<rect x="${x - 2}" y="${SWITCH_CTL_Y + 4}" width="4" height="${SWITCH_CTL_H - 8}" rx="2" fill="white"/>`);
+	    } else {
+	      dots.push(`<rect x="${x - 2}" y="${dotY}" width="${TEMP_DOT_SIZE}" height="${TEMP_DOT_SIZE}" rx="2" fill="white"/>`);
+	    }
+	  }
+	  return `<text x="${SWITCH_CTL_RIGHT}" y="${SWITCH_CARD_NAME_Y}" text-anchor="end" font-family="${SVG_FONT}" font-size="14" fill="${SVG_COLOR_TEXT_DIM}">${escape(valueText)}</text>
+<defs>
+<linearGradient id="sw-temp-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" stop-color="${SVG_COLOR_TEMP_COLD}"/>
+<stop offset="50%" stop-color="${SVG_COLOR_TEMP_MID}"/>
+<stop offset="100%" stop-color="${SVG_COLOR_TEMP_HOT}"/>
+</linearGradient>
+</defs>
+<rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${SWITCH_CTL_W}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}" fill="url(#sw-temp-grad)"/>
+<text x="${SWITCH_CTL_X + 8}" y="${SWITCH_CTL_TEXT_Y}" font-family="${SVG_FONT}" font-size="13" fill="white">Min</text>
+<text x="${SWITCH_CTL_RIGHT - 8}" y="${SWITCH_CTL_TEXT_Y}" text-anchor="end" font-family="${SVG_FONT}" font-size="13" fill="white">Max</text>
+${dots.join('\n')}`
+	}
+
+	function buildStepsControl (steps) {
+	  const stepsCount = Math.max(STEPS_MIN_COUNT, Math.min(victronVirtualConstantsExports.STEPPED_DEFAULT_MAX, steps));
+	  const count = stepsCount + 1; // +1 for the implicit "Off" segment at position 0
+	  const sectionW = SWITCH_CTL_W / count;
+	  const highlightIdx = Math.min(1, count - 1);
+	  const highlightX = Math.round(SWITCH_CTL_X + highlightIdx * sectionW);
+	  const highlightW = Math.round(sectionW);
+	  const dividers = [];
+	  const labels = [];
+	  for (let i = 1; i < count; i++) {
+	    const x = Math.round(SWITCH_CTL_X + i * sectionW);
+	    dividers.push(`<line x1="${x}" y1="${SWITCH_CTL_Y}" x2="${x}" y2="${SWITCH_CTL_BOT}" stroke="white" stroke-width="1.5"/>`);
+	  }
+	  for (let i = 0; i < count; i++) {
+	    const segMidX = Math.round(SWITCH_CTL_X + i * sectionW + sectionW / 2);
+	    const label = i === 0 ? 'Off' : String(i);
+	    const textFill = i === highlightIdx ? 'white' : SVG_COLOR_TEXT;
+	    labels.push(`<text x="${segMidX}" y="${SWITCH_CTL_TEXT_Y}" text-anchor="middle" font-family="${SVG_FONT}" font-size="13" fill="${textFill}">${label}</text>`);
+	  }
+	  return `<defs><clipPath id="sw-ctrl-clip"><rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${SWITCH_CTL_W}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}"/></clipPath></defs>
+<rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${SWITCH_CTL_W}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}" fill="${SVG_COLOR_CTRL_BG}" stroke="${SVG_COLOR_ACTIVE}" stroke-width="2"/>
+<rect x="${highlightX}" y="${SWITCH_CTL_Y}" width="${highlightW}" height="${SWITCH_CTL_H}" fill="${SVG_COLOR_ACTIVE}" clip-path="url(#sw-ctrl-clip)"/>
+${dividers.join('\n')}
+${labels.join('\n')}`
+	}
+
+	function buildDropdownControl (firstLabel) {
+	  const text = firstLabel ? escape(firstLabel.substring(0, 20)) : 'Option 1';
+	  const chevX = SWITCH_CTL_RIGHT - 20;
+	  const chevMidY = SWITCH_CTL_Y + Math.round(SWITCH_CTL_H / 2);
+	  return `<rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${SWITCH_CTL_W}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}" fill="${SVG_COLOR_CTRL_BG}" stroke="${SVG_COLOR_ACTIVE}" stroke-width="2"/>
+<text x="${SWITCH_CTL_X + 12}" y="${SWITCH_CTL_TEXT_Y}" font-family="${SVG_FONT}" font-size="13" fill="${SVG_COLOR_TEXT}">${text}</text>
+<path d="M${chevX} ${chevMidY - 3} L${chevX + 8} ${chevMidY - 3} L${chevX + 4} ${chevMidY + 4} Z" fill="${SVG_COLOR_TEXT_DIM}"/>`
+	}
+
+	function buildNumericControl (unit) {
+	  const unitText = unit ? ` ${escape(unit.substring(0, 4))}` : '';
+	  const midLeft = SWITCH_CTL_X + NUMERIC_BTN_W;
+	  const midRight = SWITCH_CTL_RIGHT - NUMERIC_BTN_W;
+	  const strokeInset = 1;
+	  return `<rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${SWITCH_CTL_W}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}" fill="${SVG_COLOR_CTRL_BG}" stroke="${SVG_COLOR_ACTIVE}" stroke-width="2"/>
+<rect x="${midLeft}" y="${SWITCH_CTL_Y + strokeInset}" width="${midRight - midLeft}" height="${SWITCH_CTL_H - strokeInset * 2}" fill="white"/>
+<line x1="${midLeft}" y1="${SWITCH_CTL_Y}" x2="${midLeft}" y2="${SWITCH_CTL_BOT}" stroke="${SVG_COLOR_ACTIVE}" stroke-width="1.5"/>
+<line x1="${midRight}" y1="${SWITCH_CTL_Y}" x2="${midRight}" y2="${SWITCH_CTL_BOT}" stroke="${SVG_COLOR_ACTIVE}" stroke-width="1.5"/>
+<text x="${SWITCH_CTL_X + Math.round(NUMERIC_BTN_W / 2)}" y="${SWITCH_CTL_TEXT_Y}" text-anchor="middle" font-family="${SVG_FONT}" font-size="16" fill="${SVG_COLOR_TEXT}">-</text>
+<text x="${Math.round((midLeft + midRight) / 2)}" y="${SWITCH_CTL_TEXT_Y}" text-anchor="middle" font-family="${SVG_FONT}" font-size="13" fill="${SVG_COLOR_TEXT}">${NUMERIC_PREVIEW_VALUE}${unitText}</text>
+<text x="${midRight + Math.round(NUMERIC_BTN_W / 2)}" y="${SWITCH_CTL_TEXT_Y}" text-anchor="middle" font-family="${SVG_FONT}" font-size="16" fill="${SVG_COLOR_TEXT}">+</text>`
+	}
+
+	function buildThreeStateControl () {
+	  const btnGap = 5;
+	  const autoW = 100;
+	  const toggleW = SWITCH_CTL_W - btnGap - autoW; // Off|On joined container (199px)
+	  const autoX = SWITCH_CTL_X + toggleW + btnGap;
+	  const halfW = Math.round(toggleW / 2); // Off half width
+	  const divX = SWITCH_CTL_X + halfW; // divider between Off and On
+	  const offMidX = Math.round(SWITCH_CTL_X + halfW / 2);
+	  const onHalfW = toggleW - halfW;
+	  const onMidX = Math.round(divX + onHalfW / 2);
+	  const autoMidX = autoX + Math.round(autoW / 2);
+	  return `<defs><clipPath id="sw-ctrl-clip"><rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${toggleW}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}"/></clipPath></defs>
+<rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${toggleW}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}" fill="${SVG_COLOR_CTRL_BG}" stroke="${SVG_COLOR_ACTIVE}" stroke-width="2"/>
+<rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${halfW}" height="${SWITCH_CTL_H}" fill="${SVG_COLOR_ACTIVE}" fill-opacity="${SVG_ACTIVE_FILL_OPACITY}" clip-path="url(#sw-ctrl-clip)"/>
+<text x="${offMidX}" y="${SWITCH_CTL_TEXT_Y}" text-anchor="middle" font-family="${SVG_FONT}" font-size="13" fill="white">Off</text>
+<text x="${onMidX}" y="${SWITCH_CTL_TEXT_Y}" text-anchor="middle" font-family="${SVG_FONT}" font-size="13" fill="${SVG_COLOR_TEXT_DIM}">On</text>
+<rect x="${autoX}" y="${SWITCH_CTL_Y}" width="${autoW}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}" fill="${SVG_COLOR_CTRL_BG}" stroke="${SVG_COLOR_ACTIVE}" stroke-width="2"/>
+<text x="${autoMidX}" y="${SWITCH_CTL_TEXT_Y}" text-anchor="middle" font-family="${SVG_FONT}" font-size="13" fill="${SVG_COLOR_TEXT_DIM}">Auto</text>`
+	}
+
+	function buildBilgePumpControl () {
+	  const badgeW = 88;
+	  const badgeH = 18;
+	  const badgeX = SWITCH_CTL_RIGHT - badgeW;
+	  const badgeY = SWITCH_CARD_NAME_Y - badgeH + 2;
+	  const badgeMidX = badgeX + Math.round(badgeW / 2);
+	  const badgeTextY = SWITCH_CARD_NAME_Y - 3;
+	  return `<defs><clipPath id="sw-ctrl-clip"><rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${SWITCH_CTL_W}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}"/></clipPath></defs>
+<rect x="${badgeX}" y="${badgeY}" width="${badgeW}" height="${badgeH}" rx="${Math.round(badgeH / 2)}" fill="${SVG_COLOR_SEPARATOR}"/>
+<text x="${badgeMidX}" y="${badgeTextY}" text-anchor="middle" font-family="${SVG_FONT}" font-size="11" fill="${SVG_COLOR_TEXT_DIM}">Not running</text>
+<rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${SWITCH_CTL_W}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}" fill="${SVG_COLOR_CTRL_BG}" stroke="${SVG_COLOR_ACTIVE}" stroke-width="2"/>
+<rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${SWITCH_CTL_MID_X - SWITCH_CTL_X}" height="${SWITCH_CTL_H}" fill="${SVG_COLOR_ACTIVE}" clip-path="url(#sw-ctrl-clip)"/>
+<text x="${(SWITCH_CTL_X + SWITCH_CTL_MID_X) / 2}" y="${SWITCH_CTL_TEXT_Y}" text-anchor="middle" font-family="${SVG_FONT}" font-size="13" fill="white">Auto</text>
+<text x="${(SWITCH_CTL_MID_X + SWITCH_CTL_RIGHT) / 2}" y="${SWITCH_CTL_TEXT_Y}" text-anchor="middle" font-family="${SVG_FONT}" font-size="13" fill="${SVG_COLOR_TEXT_DIM}">On</text>`
+	}
+
+	function buildRgbControl () {
+	  const swatchW = 28;
+	  const swatchGap = 4;
+	  const offBtnW = 40;
+	  const mainCtlW = SWITCH_CTL_W - swatchW - swatchGap;
+	  const swatchX = SWITCH_CTL_X + mainCtlW + swatchGap;
+	  const sliderX = SWITCH_CTL_X + offBtnW;
+	  const sliderW = mainCtlW - offBtnW;
+	  const offMidX = Math.round(SWITCH_CTL_X + offBtnW / 2);
+	  const previewBrightness = 42;
+	  const brightnessLineX = sliderX + Math.round(sliderW * previewBrightness / 100);
+	  const previewColor = '#FF5500';
+	  const fillW = brightnessLineX - SWITCH_CTL_X; // filled area spans Off button + brightness fill
+	  const swatchBorder = 2;
+	  const swatchWhite = 1;
+	  const swatchInner = swatchBorder + swatchWhite;
+	  return `<text x="${SWITCH_CTL_RIGHT}" y="${SWITCH_CARD_NAME_Y}" text-anchor="end" font-family="${SVG_FONT}" font-size="12" fill="${SVG_COLOR_TEXT_DIM}">${previewBrightness}%</text>
+<defs><clipPath id="sw-ctrl-clip"><rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${mainCtlW}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}"/></clipPath></defs>
+<rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${mainCtlW}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}" fill="${SVG_COLOR_CTRL_BG}" stroke="${SVG_COLOR_ACTIVE}" stroke-width="2"/>
+<rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${fillW}" height="${SWITCH_CTL_H}" fill="${SVG_COLOR_ACTIVE}" fill-opacity="${SVG_ACTIVE_FILL_OPACITY}" clip-path="url(#sw-ctrl-clip)"/>
+<line x1="${sliderX}" y1="${SWITCH_CTL_Y}" x2="${sliderX}" y2="${SWITCH_CTL_BOT}" stroke="white" stroke-width="1.5"/>
+<text x="${offMidX}" y="${SWITCH_CTL_TEXT_Y}" text-anchor="middle" font-family="${SVG_FONT}" font-size="13" fill="white">Off</text>
+<line x1="${brightnessLineX}" y1="${SWITCH_CTL_Y}" x2="${brightnessLineX}" y2="${SWITCH_CTL_BOT}" stroke="white" stroke-width="2"/>
+<rect x="${swatchX}" y="${SWITCH_CTL_Y}" width="${swatchW}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}" fill="${SVG_COLOR_ACTIVE}"/>
+<rect x="${swatchX + swatchBorder}" y="${SWITCH_CTL_Y + swatchBorder}" width="${swatchW - swatchBorder * 2}" height="${SWITCH_CTL_H - swatchBorder * 2}" rx="${SWITCH_CTL_RX - swatchBorder}" fill="white"/>
+<rect x="${swatchX + swatchInner}" y="${SWITCH_CTL_Y + swatchInner}" width="${swatchW - swatchInner * 2}" height="${SWITCH_CTL_H - swatchInner * 2}" rx="${SWITCH_CTL_RX - swatchInner}" fill="${previewColor}"/>`
+	}
+
+	function updateSwitchLivePreview () {
+	  const $preview = $('#switch-live-preview');
+	  if (!$preview.length) return
+
+	  const type = parseInt($('#node-input-switch_1_type').val(), 10);
+
+	  function placeholderOf (selector) {
+	    return ($('#' + selector).attr('placeholder') || '').replace(/^e\.g\.\s*/i, '').split(',')[0].trim()
+	  }
+
+	  const groupVal = $('#node-input-switch_1_group').val() || '';
+	  const title = groupVal || placeholderOf('node-input-switch_1_group') || 'Group';
+
+	  const customnameVal = $('#node-input-switch_1_customname').val() || '';
+	  const label = customnameVal || placeholderOf('node-input-switch_1_customname') || 'Name';
+
+	  let controlSvg;
+	  switch (type) {
+	    case victronVirtualConstantsExports.SWITCH_TYPE_MAP.TOGGLE:
+	      controlSvg = buildToggleControl();
+	      break
+	    case victronVirtualConstantsExports.SWITCH_TYPE_MAP.MOMENTARY:
+	      controlSvg = buildMomentaryControl();
+	      break
+	    case victronVirtualConstantsExports.SWITCH_TYPE_MAP.DIMMABLE:
+	      controlSvg = buildSliderControl('%', true);
+	      break
+	    case victronVirtualConstantsExports.SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT: {
+	      const min = parseFloat($('#node-input-switch_1_min').val()) || 0;
+	      const max = parseFloat($('#node-input-switch_1_max').val()) || 100;
+	      const includeMeasurement = $('#node-input-switch_1_include_measurement').is(':checked');
+	      controlSvg = buildTempSliderControl(min, max, includeMeasurement);
+	      break
+	    }
+	    case victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED: {
+	      const steps = parseInt($('#node-input-switch_1_max').val(), 10) || STEPS_PREVIEW_DEFAULT;
+	      controlSvg = buildStepsControl(steps);
+	      break
+	    }
+	    case victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN: {
+	      const firstLabel = $('#node-input-switch_1_value_0').val() || '';
+	      controlSvg = buildDropdownControl(firstLabel);
+	      break
+	    }
+	    case victronVirtualConstantsExports.SWITCH_TYPE_MAP.BASIC_SLIDER: {
+	      const unit = $('#node-input-switch_1_unit').val() || '';
+	      controlSvg = buildSliderControl(unit);
+	      break
+	    }
+	    case victronVirtualConstantsExports.SWITCH_TYPE_MAP.NUMERIC_INPUT: {
+	      const unit = $('#node-input-switch_1_unit').val() || '';
+	      controlSvg = buildNumericControl(unit);
+	      break
+	    }
+	    case victronVirtualConstantsExports.SWITCH_TYPE_MAP.THREE_STATE:
+	      controlSvg = buildThreeStateControl();
+	      break
+	    case victronVirtualConstantsExports.SWITCH_TYPE_MAP.BILGE_PUMP:
+	      controlSvg = buildBilgePumpControl();
+	      break
+	    case victronVirtualConstantsExports.SWITCH_TYPE_MAP.RGB_COLOR_WHEEL:
+	    case victronVirtualConstantsExports.SWITCH_TYPE_MAP.CCT_WHEEL:
+	    case victronVirtualConstantsExports.SWITCH_TYPE_MAP.RGB_WHITE_DIMMER:
+	      controlSvg = buildRgbControl();
+	      break
+	    default:
+	      controlSvg = buildToggleControl();
+	  }
+
+	  $preview.html(buildSwitchCardSvg(title, label, controlSvg));
 	}
 
 	function validateSwitchConfig () {

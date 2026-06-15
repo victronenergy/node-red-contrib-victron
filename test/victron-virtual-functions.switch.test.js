@@ -24,6 +24,8 @@ function createMockElement (customValues = {}) {
 
   return {
     val: jest.fn().mockReturnValue(customValues.val || ''),
+    attr: jest.fn().mockReturnValue(customValues.attr || ''),
+    html: jest.fn().mockReturnThis(),
     show: jest.fn().mockReturnThis(),
     hide: jest.fn().mockReturnThis(),
     append: jest.fn().mockReturnThis(),
