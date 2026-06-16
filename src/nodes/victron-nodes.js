@@ -95,6 +95,11 @@ module.exports = function (RED) {
       this.debounceTimer = null
 
       this.configNode = RED.nodes.getNode('victron-client-id')
+      if (!this.configNode) {
+        this.error('No Victron client config node found. Drag any Victron node from the palette to auto-create it, then deploy.')
+        this.status({ fill: 'red', shape: 'ring', text: 'no config' })
+        return
+      }
       this.client = this.configNode.client
 
       this.subscription = null
@@ -467,6 +472,11 @@ module.exports = function (RED) {
       this.initialValue = initialValue
 
       this.configNode = RED.nodes.getNode('victron-client-id')
+      if (!this.configNode) {
+        this.error('No Victron client config node found. Drag any Victron node from the palette to auto-create it, then deploy.')
+        this.status({ fill: 'red', shape: 'ring', text: 'no config' })
+        return
+      }
       this.client = this.configNode.client
 
       const handlerId = this.configNode.addStatusListener(this, this.service, this.path)
