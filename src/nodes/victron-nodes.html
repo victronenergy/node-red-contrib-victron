@@ -423,8 +423,7 @@
         // Restore saved conditional mode state
         if (node.conditionalMode) {
             $conditionalMode.prop('checked', true);
-            $conditionalPanel.show();
-            $('#conditional-mode-info').show();
+            $conditionalPanel.removeClass('hidden').show();
 
             // Restore condition 1 values
             if (node.condition1Operator) $('#node-input-condition1-operator').val(node.condition1Operator);
@@ -454,9 +453,9 @@
 
             // Restore hysteresis state
             if (node.condition1HysteresisEnabled) {
-                $('#hysteresis-panel').removeClass('hidden').show();
-                $('#hysteresis-chevron').removeClass('fa-chevron-right').addClass('fa-chevron-down');
                 $('#node-input-condition1HysteresisEnabled').prop('checked', true);
+                $('#hysteresis-panel').removeClass('hidden').show();
+                $('#hysteresis-chevron').toggleClass('fa-chevron-right fa-chevron-down');
                 $('#hysteresis-threshold-row').removeClass('hidden').show();
                 if (node.condition1HysteresisThreshold !== undefined) {
                     $('#node-input-condition1HysteresisThreshold').val(node.condition1HysteresisThreshold);
@@ -473,37 +472,39 @@
         // Toggle hysteresis advanced panel
         $('#toggle-hysteresis-btn').on('click', function() {
             const $panel = $('#hysteresis-panel');
-            const $chevron = $('#hysteresis-chevron');
             if ($panel.is(':visible')) {
                 $panel.slideUp(200);
-                $chevron.removeClass('fa-chevron-down').addClass('fa-chevron-right');
             } else {
                 $panel.removeClass('hidden').slideDown(200);
-                $chevron.removeClass('fa-chevron-right').addClass('fa-chevron-down');
             }
+            $('#hysteresis-chevron').toggleClass('fa-chevron-right fa-chevron-down');
         });
 
         // Show/hide hysteresis threshold field based on checkbox
+        const $hysteresisThresholdRow = $('#hysteresis-threshold-row');
         $('#node-input-condition1HysteresisEnabled').on('change', function() {
             if ($(this).is(':checked')) {
-                $('#hysteresis-threshold-row').removeClass('hidden').slideDown(200);
+                $hysteresisThresholdRow.removeClass('hidden').slideDown(200);
             } else {
-                $('#hysteresis-threshold-row').slideUp(200, function() {
-                    $('#hysteresis-threshold-row').addClass('hidden');
+                $hysteresisThresholdRow.slideUp(200, function() {
+                    $hysteresisThresholdRow.addClass('hidden');
                     $('#node-input-condition1HysteresisThreshold').val('');
                 });
             }
             validateHysteresisThreshold();
         });
 
-        // Toggle conditional mode panel
+        // Toggle conditional mode panel, run validation, and start/stop live preview
         $conditionalMode.on('change', function() {
             if ($(this).is(':checked')) {
-                $conditionalPanel.slideDown(200);
-                $('#conditional-mode-info').slideDown(200);
+                $conditionalPanel.removeClass('hidden').slideDown(200);
+                validateThreshold();
+                validateHysteresisThreshold();
+                setTimeout(startLivePreview, 100);
             } else {
                 $conditionalPanel.slideUp(200);
-                $('#conditional-mode-info').slideUp(200);
+                validateThreshold();
+                validateHysteresisThreshold();
             }
         });
 
@@ -602,20 +603,6 @@
 
         $('#node-input-condition1HysteresisThreshold').on('input change', function() {
             validateHysteresisThreshold();
-        });
-
-        // Start preview and fetch initial data when conditional mode is enabled
-        $conditionalMode.on('change', function() {
-            if ($(this).is(':checked')) {
-                validateThreshold();
-                validateHysteresisThreshold();
-                setTimeout(function() {
-                    startLivePreview();
-                }, 100);
-            } else {
-                validateThreshold();
-                validateHysteresisThreshold();
-            }
         });
 
         // Fetch new data when a service or path is changed

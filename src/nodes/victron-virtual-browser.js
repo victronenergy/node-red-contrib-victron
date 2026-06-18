@@ -15,7 +15,8 @@ import {
   updateIndicatorLivePreview,
   renderShowInUICheckboxes,
   getShowUIValue,
-  getVirtualNodeLabel
+  getVirtualNodeLabel,
+  determineOutputLabel
 } from './victron-virtual-functions.js'
 import { initializeTooltips } from './victron-common.js'
 
@@ -36,5 +37,6 @@ window.__victron = {
   renderShowInUICheckboxes,
   getShowUIValue,
   initializeTooltips,
-  getVirtualNodeLabel
+  getVirtualNodeLabel,
+  determineOutputLabel
 }

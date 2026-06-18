@@ -4,12 +4,13 @@ const {
   updateSwitchConfig,
   checkSelectedVirtualDevice,
   updateBatteryVoltageVisibility,
-  updateIndicatorLivePreview
+  updateIndicatorLivePreview,
+  updateSwitchLivePreview
 } = require('./fixtures/victron-virtual-functions.cjs')
 
 const { SWITCH_TYPE_MAP } = require('../src/nodes/victron-virtual-constants')
 
-function createMockElement(customValues = {}) {
+function createMockElement (customValues = {}) {
   const mockDOMElement = {
     setCustomValidity: jest.fn(),
     reportValidity: jest.fn().mockReturnValue(customValues.reportValidity !== false)
@@ -17,6 +18,8 @@ function createMockElement(customValues = {}) {
 
   return {
     val: jest.fn().mockReturnValue(customValues.val || ''),
+    attr: jest.fn().mockReturnValue(customValues.attr || ''),
+    html: jest.fn().mockReturnThis(),
     show: jest.fn().mockReturnThis(),
     hide: jest.fn().mockReturnThis(),
     toggle: jest.fn().mockReturnThis(),
@@ -45,7 +48,7 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
     test('shows DC elements and hides AC elements when DC generator selected', () => {
       const mockDCElements = createMockElement()
       const mockACElements = createMockElement()
-      
+
       global.$.mockImplementation((selector) => {
         if (selector === 'select#node-input-generator_type') {
           return createMockElement({ val: 'dc' })
@@ -68,7 +71,7 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
     test('shows AC elements and hides DC elements when AC generator selected', () => {
       const mockDCElements = createMockElement()
       const mockACElements = createMockElement()
-      
+
       global.$.mockImplementation((selector) => {
         if (selector === 'select#node-input-generator_type') {
           return createMockElement({ val: 'ac' })
@@ -93,7 +96,7 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
     test('handles non-DC generator type (AC path)', () => {
       const mockDCElements = createMockElement()
       const mockACElements = createMockElement()
-      
+
       global.$.mockImplementation((selector) => {
         if (selector === 'select#node-input-generator_type') {
           return createMockElement({ val: 'ac' }) // Non-DC value
@@ -117,7 +120,7 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
     test('handles undefined generator type (defaults to AC)', () => {
       const mockDCElements = createMockElement()
       const mockACElements = createMockElement()
-      
+
       global.$.mockImplementation((selector) => {
         if (selector === 'select#node-input-generator_type') {
           return createMockElement({ val: undefined })
@@ -169,7 +172,7 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       const mockBatteryInput = createMockElement()
       const mockGeneratorInput = createMockElement()
       const mockSwitchInput = createMockElement()
-      
+
       global.$.mockImplementation((selector) => {
         if (selector === 'select#node-input-device') {
           return createMockElement({ val: 'battery' })
@@ -195,7 +198,7 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
 
     test('shows selected device input', () => {
       const mockSelectedInput = createMockElement()
-      
+
       global.$.mockImplementation((selector) => {
         if (selector === 'select#node-input-device') {
           return createMockElement({ val: 'battery' })
@@ -244,7 +247,7 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
     test('handles generator device selection', () => {
       const mockDCElements = createMockElement()
       const mockACElements = createMockElement()
-      
+
       global.$.mockImplementation((selector) => {
         if (selector === 'select#node-input-device') {
           return createMockElement({ val: 'generator' })
@@ -361,7 +364,6 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
 
       expect(mockContainer.empty).toHaveBeenCalled()
     })
-
   })
 
   describe('updateBatteryVoltageVisibility', () => {
@@ -371,7 +373,7 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       const mockBatteryVoltageRow = createMockElement()
       const mockBatteryVoltageCustom = createMockElement()
       const mockBatteryVoltageCustomLabel = createMockElement()
-      
+
       global.$.mockImplementation((selector) => {
         if (selector === '#node-input-default_values-yes') {
           return mockDefaultValues
@@ -404,7 +406,7 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       const mockBatteryVoltageRow = createMockElement()
       const mockBatteryVoltageCustom = createMockElement()
       const mockBatteryVoltageCustomLabel = createMockElement()
-      
+
       global.$.mockImplementation((selector) => {
         if (selector === '#node-input-default_values-yes') {
           return mockDefaultValues
@@ -437,7 +439,7 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       const mockBatteryVoltageRow = createMockElement()
       const mockBatteryVoltageCustom = createMockElement()
       const mockBatteryVoltageCustomLabel = createMockElement()
-      
+
       global.$.mockImplementation((selector) => {
         if (selector === '#node-input-default_values-yes') {
           return mockDefaultValues
@@ -470,7 +472,7 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       const mockBatteryVoltageRow = createMockElement()
       const mockBatteryVoltageCustom = createMockElement()
       const mockBatteryVoltageCustomLabel = createMockElement()
-      
+
       global.$.mockImplementation((selector) => {
         if (selector === '#node-input-default_values-yes') {
           return mockDefaultValues
@@ -691,5 +693,188 @@ describe('updateIndicatorLivePreview', () => {
     updateIndicatorLivePreview()
     const html = mock.html.mock.calls[0][0]
     expect(html).toContain('kWh')
+  })
+})
+
+describe('updateSwitchLivePreview', () => {
+  const PLACEHOLDERS = {
+    '#node-input-switch_1_customname': 'e.g. Name',
+    '#node-input-switch_1_group': 'e.g. Group',
+    '#node-input-switch_1_unit': 'e.g. %, °C, RPM'
+  }
+
+  function setup (type, { customname = '', group = '', unit = '', min = '', max = '', value0 = '', includeMeasurement = false } = {}) {
+    const mockPreview = { length: 1, html: jest.fn() }
+    const vals = {
+      '#node-input-switch_1_type': String(type),
+      '#node-input-switch_1_customname': customname,
+      '#node-input-switch_1_group': group,
+      '#node-input-switch_1_unit': unit,
+      '#node-input-switch_1_min': min,
+      '#node-input-switch_1_max': max,
+      '#node-input-switch_1_value_0': value0
+    }
+    const checkboxes = {
+      '#node-input-switch_1_include_measurement': includeMeasurement
+    }
+    global.$.mockImplementation((selector) => {
+      if (selector === '#switch-live-preview') return mockPreview
+      if (selector in vals) {
+        return {
+          val: () => vals[selector],
+          attr: (name) => name === 'placeholder' ? (PLACEHOLDERS[selector] || '') : ''
+        }
+      }
+      if (selector in checkboxes) {
+        return { is: () => checkboxes[selector] }
+      }
+      return createMockElement()
+    })
+    return mockPreview
+  }
+
+  beforeEach(() => { jest.clearAllMocks() })
+
+  test('does nothing when preview element is absent', () => {
+    global.$.mockImplementation((selector) => {
+      if (selector === '#switch-live-preview') return { length: 0 }
+      return createMockElement()
+    })
+    expect(() => updateSwitchLivePreview()).not.toThrow()
+  })
+
+  test('renders group as title and customname as label for Toggle', () => {
+    const mock = setup(SWITCH_TYPE_MAP.TOGGLE, { customname: 'Pump', group: 'Irrigation' })
+    updateSwitchLivePreview()
+    expect(mock.html).toHaveBeenCalled()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('<svg')
+    expect(html).toContain('Pump')
+    expect(html).toContain('Irrigation')
+  })
+
+  test('uses placeholder when group is empty', () => {
+    const mock = setup(SWITCH_TYPE_MAP.TOGGLE, { customname: 'Light', group: '' })
+    updateSwitchLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('Light')
+    expect(html).toContain('Group')
+  })
+
+  test('uses placeholder when customname is empty', () => {
+    const mock = setup(SWITCH_TYPE_MAP.TOGGLE, { customname: '', group: 'Lights' })
+    updateSwitchLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('Lights')
+    expect(html).toContain('Name')
+  })
+
+  test('escapes HTML in fields to prevent XSS', () => {
+    const mock = setup(SWITCH_TYPE_MAP.TOGGLE, { customname: '<script>alert(1)</script>', group: 'Test' })
+    updateSwitchLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).not.toContain('<script>')
+    expect(html).toContain('&lt;script&gt;')
+  })
+
+  test('renders SVG for MOMENTARY type', () => {
+    const mock = setup(SWITCH_TYPE_MAP.MOMENTARY, { customname: 'Bell', group: 'Entry' })
+    updateSwitchLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('<svg')
+    expect(html).toContain('Bell')
+    expect(html).toContain('Entry')
+  })
+
+  test('renders SVG for DIMMABLE type', () => {
+    const mock = setup(SWITCH_TYPE_MAP.DIMMABLE, { customname: 'Dimmer', group: 'Lights' })
+    updateSwitchLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('<svg')
+    expect(html).toContain('Dimmer')
+  })
+
+  test('renders temperature indicator (°C) for TEMPERATURE_SETPOINT type', () => {
+    const mock = setup(SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT, { customname: 'Thermostat', group: 'HVAC', min: '10', max: '30' })
+    updateSwitchLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('<svg')
+    expect(html).toContain('°C')
+    expect(html).toContain('Thermostat')
+    expect(html).toContain('20.0')
+  })
+
+  test('renders setpoint/measurement when includeMeasurement is checked for TEMPERATURE_SETPOINT', () => {
+    const mock = setup(SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT, { customname: 'Thermostat', group: 'HVAC', min: '10', max: '30', includeMeasurement: true })
+    updateSwitchLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('20.0/19.0')
+    expect(html).toContain('°C')
+  })
+
+  test('renders step segments for STEPPED type', () => {
+    const mock = setup(SWITCH_TYPE_MAP.STEPPED, { customname: 'Fan', group: 'Ventilation', max: '3' })
+    updateSwitchLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('<svg')
+    expect(html).toContain('Fan')
+    expect(html).toContain('<rect')
+    expect(html).toContain('Off')
+  })
+
+  test('renders dropdown control for DROPDOWN type', () => {
+    const mock = setup(SWITCH_TYPE_MAP.DROPDOWN, { customname: 'Mode', group: 'Settings', value0: 'Eco' })
+    updateSwitchLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('<svg')
+    expect(html).toContain('Mode')
+    expect(html).toContain('Eco')
+  })
+
+  test('renders slider with unit for BASIC_SLIDER type', () => {
+    const mock = setup(SWITCH_TYPE_MAP.BASIC_SLIDER, { customname: 'Speed', group: 'Motor', unit: 'RPM' })
+    updateSwitchLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('<svg')
+    expect(html).toContain('Speed')
+    expect(html).toContain('RPM')
+  })
+
+  test('renders numeric control with unit for NUMERIC_INPUT type', () => {
+    const mock = setup(SWITCH_TYPE_MAP.NUMERIC_INPUT, { customname: 'Setpoint', group: 'HVAC', unit: '°C' })
+    updateSwitchLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('<svg')
+    expect(html).toContain('Setpoint')
+    expect(html).toContain('°C')
+  })
+
+  test('renders three-state segments for THREE_STATE type', () => {
+    const mock = setup(SWITCH_TYPE_MAP.THREE_STATE, { customname: 'Pump', group: 'Pool' })
+    updateSwitchLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('<svg')
+    expect(html).toContain('Pump')
+    expect(html).toContain('Off')
+    expect(html).toContain('On')
+    expect(html).toContain('Auto')
+  })
+
+  test('renders SVG for BILGE_PUMP type', () => {
+    const mock = setup(SWITCH_TYPE_MAP.BILGE_PUMP, { customname: 'Bilge', group: 'Boat' })
+    updateSwitchLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('<svg')
+    expect(html).toContain('Bilge')
+  })
+
+  test('renders RGB control with Off button and color swatch for RGB_COLOR_WHEEL type', () => {
+    const mock = setup(SWITCH_TYPE_MAP.RGB_COLOR_WHEEL, { customname: 'Accent', group: 'Lights' })
+    updateSwitchLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('<svg')
+    expect(html).toContain('Accent')
+    expect(html).toContain('Off')
+    expect(html).toContain('%')
   })
 })

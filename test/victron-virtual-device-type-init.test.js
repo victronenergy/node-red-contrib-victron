@@ -61,6 +61,90 @@ describe('acload', () => {
       expect(iface['Ac/Power']).toBeUndefined()
     })
   })
+
+  describe('S2 support', () => {
+    test('sets __enableS2 and __s2PowerMeasurementProps when enabled', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      acload.initialize({ acload_nrofphases: 1, enable_s2support: true }, ifaceDesc, iface, node)
+      expect(ifaceDesc.__enableS2).toBe(true)
+      expect(ifaceDesc.__s2PowerMeasurementProps).toEqual({
+        'Ac/Power': 'ELECTRIC.POWER.3_PHASE_SYMMETRIC'
+      })
+    })
+
+    test('uses 3_PHASE_SYMMETRIC props when s2_measurement_type is absent', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      acload.initialize({ acload_nrofphases: 3, enable_s2support: true }, ifaceDesc, iface, node)
+      expect(ifaceDesc.__s2PowerMeasurementProps).toEqual({
+        'Ac/Power': 'ELECTRIC.POWER.3_PHASE_SYMMETRIC'
+      })
+    })
+
+    test('uses per-phase props when s2_measurement_type is L1_L2_L3', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      acload.initialize({ acload_nrofphases: 3, enable_s2support: true, s2_measurement_type: 'L1_L2_L3' }, ifaceDesc, iface, node)
+      expect(ifaceDesc.__s2PowerMeasurementProps).toEqual({
+        'Ac/L1/Power': 'ELECTRIC.POWER.L1',
+        'Ac/L2/Power': 'ELECTRIC.POWER.L2',
+        'Ac/L3/Power': 'ELECTRIC.POWER.L3'
+      })
+    })
+
+    test.each([
+      ['L1', { 'Ac/L1/Power': 'ELECTRIC.POWER.L1' }],
+      ['L2', { 'Ac/L2/Power': 'ELECTRIC.POWER.L2' }],
+      ['L3', { 'Ac/L3/Power': 'ELECTRIC.POWER.L3' }]
+    ])('uses single-phase props when s2_measurement_type is %s', (type, expected) => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      acload.initialize({ acload_nrofphases: 1, enable_s2support: true, s2_measurement_type: type }, ifaceDesc, iface, node)
+      expect(ifaceDesc.__s2PowerMeasurementProps).toEqual(expected)
+    })
+
+    test('sets __s2Handlers with all four methods when enabled', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      acload.initialize({ acload_nrofphases: 1, enable_s2support: true }, ifaceDesc, iface, node)
+      expect(typeof ifaceDesc.__s2Handlers.Connect).toBe('function')
+      expect(typeof ifaceDesc.__s2Handlers.Disconnect).toBe('function')
+      expect(typeof ifaceDesc.__s2Handlers.Message).toBe('function')
+      expect(typeof ifaceDesc.__s2Handlers.KeepAlive).toBe('function')
+    })
+
+    test('does not set S2 properties when disabled', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      acload.initialize({ acload_nrofphases: 1, enable_s2support: false }, ifaceDesc, iface, node)
+      expect(ifaceDesc.__enableS2).toBeUndefined()
+      expect(ifaceDesc.__s2PowerMeasurementProps).toBeUndefined()
+      expect(ifaceDesc.__s2Handlers).toBeUndefined()
+    })
+
+    test('Connect handler resets power measurement state and sends command on port 2', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      node.send = jest.fn()
+      node._s2PowerMeasurementActive = true
+      node._s2PowerMeasurementCemId = 'old-cem'
+      acload.initialize({ acload_nrofphases: 1, enable_s2support: true }, ifaceDesc, iface, node)
+      ifaceDesc.__s2Handlers.Connect('cem-1', 30)
+      expect(node._s2PowerMeasurementActive).toBe(false)
+      expect(node._s2PowerMeasurementCemId).toBeNull()
+      expect(node.send).toHaveBeenCalledWith([null, {
+        payload: { command: 'Connect', cemId: 'cem-1', keepAliveInterval: 30 }
+      }])
+    })
+
+    test('Disconnect handler resets power measurement state and sends command on port 2', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      node.send = jest.fn()
+      node._s2PowerMeasurementActive = true
+      node._s2PowerMeasurementCemId = 'cem-1'
+      acload.initialize({ acload_nrofphases: 1, enable_s2support: true }, ifaceDesc, iface, node)
+      ifaceDesc.__s2Handlers.Disconnect('cem-1')
+      expect(node._s2PowerMeasurementActive).toBe(false)
+      expect(node._s2PowerMeasurementCemId).toBeNull()
+      expect(node.send).toHaveBeenCalledWith([null, {
+        payload: { command: 'Disconnect', cemId: 'cem-1' }
+      }])
+    })
+  })
 })
 
 // ---------------------------------------------------------------------------
