@@ -11,11 +11,12 @@ const {
   getFirstRgbType,
   formatLightControls,
   formatBitmask,
-  fetchSwitchNodeNameAndGroupFromCache
+  fetchSwitchNodeNameAndGroupFromCache,
+  determineOutputLabel
 } = require('./fixtures/victron-virtual-functions.cjs')
 
 // Helper to create mock jQuery element
-function createMockElement(customValues = {}) {
+function createMockElement (customValues = {}) {
   const mockDOMElement = {
     setCustomValidity: jest.fn(),
     reportValidity: jest.fn().mockReturnValue(customValues.reportValidity !== false)
@@ -23,6 +24,8 @@ function createMockElement(customValues = {}) {
 
   return {
     val: jest.fn().mockReturnValue(customValues.val || ''),
+    attr: jest.fn().mockReturnValue(customValues.attr || ''),
+    html: jest.fn().mockReturnThis(),
     show: jest.fn().mockReturnThis(),
     hide: jest.fn().mockReturnThis(),
     append: jest.fn().mockReturnThis(),
@@ -42,23 +45,22 @@ function createMockElement(customValues = {}) {
 global.$ = jest.fn()
 
 describe('fetchSwitchNodeNameAndGroupFromCache', () => {
-  const originalFetch = global.fetch;
+  const originalFetch = global.fetch
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
   afterAll(() => {
-    global.fetch = originalFetch;
+    global.fetch = originalFetch
   })
 
   test('returns name and group when found in cache', async () => {
-
     const mockCache = {
       'com.victronenergy.123': {
         '/Serial': '12345',
         '/SwitchableOutput/output_1/Settings/CustomName': 'Test Switch',
-        '/SwitchableOutput/output_1/Settings/Group': 'Test Group',
-      },
+        '/SwitchableOutput/output_1/Settings/Group': 'Test Group'
+      }
     }
 
     global.fetch = jest.fn(() => Promise.resolve({
@@ -75,9 +77,9 @@ describe('fetchSwitchNodeNameAndGroupFromCache', () => {
     // expect it to fail if no id given
     try {
       await fetchSwitchNodeNameAndGroupFromCache()
-      expect(true).toBe(false); // should not reach here
+      expect(true).toBe(false) // should not reach here
     } catch (e) {
-      expect(e.message).toMatch('id is required');
+      expect(e.message).toMatch('id is required')
     }
 
     // expect it to fail if fetch fails
@@ -89,12 +91,11 @@ describe('fetchSwitchNodeNameAndGroupFromCache', () => {
 
     try {
       await fetchSwitchNodeNameAndGroupFromCache('12345')
-      expect(true).toBe(false); // should not reach here
+      expect(true).toBe(false) // should not reach here
     } catch (e) {
-      expect(e.message).toBeDefined();
+      expect(e.message).toBeDefined()
     }
   })
-
 })
 
 describe('Switch Configuration Tests', () => {
@@ -105,9 +106,9 @@ describe('Switch Configuration Tests', () => {
   describe('SWITCH_TYPE_CONFIGS', () => {
     test('has correct switch type configurations', () => {
       Object.values(SWITCH_TYPE_CONFIGS).forEach(cfg => {
-        expect(cfg.fields[0].id).toBe('customname');
-        expect(cfg.fields[1].id).toBe('group');
-      });
+        expect(cfg.fields[0].id).toBe('customname')
+        expect(cfg.fields[1].id).toBe('group')
+      })
 
       expect(SWITCH_TYPE_CONFIGS[4]).toBeDefined()
       expect(SWITCH_TYPE_CONFIGS[4].label).toBe('Stepped switch')
@@ -278,7 +279,6 @@ describe('Switch Configuration Tests', () => {
       expect(result).toBe(false)
       expect(mockValueField[0].setCustomValidity).toHaveBeenCalledWith('Label is required')
     })
-
   })
 
   describe('edge cases', () => {
@@ -571,5 +571,62 @@ describe('Switch Configuration Tests', () => {
       })
     })
   })
+})
 
+describe('determineOutputLabel', () => {
+  test('index 0 is always Passthrough', () => {
+    expect(determineOutputLabel({}, 0)).toBe('Passthrough')
+    expect(determineOutputLabel({ device: 'battery' }, 0)).toBe('Passthrough')
+    expect(determineOutputLabel({ device: 'switch', switch_1_type: SWITCH_TYPE_MAP.TOGGLE }, 0)).toBe('Passthrough')
+  })
+
+  test('pulsemeter index 1 is Aggregate', () => {
+    expect(determineOutputLabel({ device: 'pulsemeter' }, 1)).toBe('Aggregate')
+  })
+
+  test('acload with s2 index 1 is S2 communication', () => {
+    expect(determineOutputLabel({ device: 'acload', enable_s2support: true }, 1)).toBe('S2 communication')
+  })
+
+  test('acload without s2 index 1 falls back to Output 2', () => {
+    expect(determineOutputLabel({ device: 'acload', enable_s2support: false }, 1)).toBe('Output 2')
+    expect(determineOutputLabel({ device: 'acload' }, 1)).toBe('Output 2')
+  })
+
+  test('generic device index > 0 returns Output N+1', () => {
+    expect(determineOutputLabel({ device: 'battery' }, 1)).toBe('Output 2')
+    expect(determineOutputLabel({ device: 'battery' }, 2)).toBe('Output 3')
+  })
+
+  test('switch toggle returns State for index 1', () => {
+    expect(determineOutputLabel({ device: 'switch', switch_1_type: SWITCH_TYPE_MAP.TOGGLE }, 1)).toBe('State')
+  })
+
+  test('switch dimmable returns State/Dimming for index 1/2', () => {
+    const node = { device: 'switch', switch_1_type: SWITCH_TYPE_MAP.DIMMABLE }
+    expect(determineOutputLabel(node, 1)).toBe('State')
+    expect(determineOutputLabel(node, 2)).toBe('Dimming')
+  })
+
+  test('switch temperature setpoint returns Temperature for index 1', () => {
+    expect(determineOutputLabel({ device: 'switch', switch_1_type: SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT }, 1)).toBe('Temperature')
+  })
+
+  test('switch dropdown returns Selected for index 1', () => {
+    expect(determineOutputLabel({ device: 'switch', switch_1_type: SWITCH_TYPE_MAP.DROPDOWN }, 1)).toBe('Selected')
+  })
+
+  test('switch basic slider returns Value for index 1', () => {
+    expect(determineOutputLabel({ device: 'switch', switch_1_type: SWITCH_TYPE_MAP.BASIC_SLIDER }, 1)).toBe('Value')
+  })
+
+  test('switch stepped returns State/Value for index 1/2', () => {
+    const node = { device: 'switch', switch_1_type: SWITCH_TYPE_MAP.STEPPED }
+    expect(determineOutputLabel(node, 1)).toBe('State')
+    expect(determineOutputLabel(node, 2)).toBe('Value')
+  })
+
+  test('switch with no type defaults to toggle behavior', () => {
+    expect(determineOutputLabel({ device: 'switch' }, 1)).toBe('State')
+  })
 })

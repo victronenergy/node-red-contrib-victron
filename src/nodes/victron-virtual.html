@@ -12,6 +12,7 @@
             // acload
             acload_nrofphases: {value: 1, required: false},
             enable_s2support: {value: false, required: false},
+            s2_measurement_type: {value: '3_PHASE_SYMMETRIC', required: false},
             // battery
             battery_capacity: {value: 25, required: false},
             include_battery_temperature: {value: false},
@@ -88,54 +89,7 @@
             return (this.name||"Virtual "+this.device)
         },
         outputLabels: function(index) {
-            // Inline logic since window.getOutputLabels may not be loaded yet
-            if (this.device === 'pulsemeter') {
-                return index === 0 ? 'Passthrough' : 'Aggregate'
-            }
-            if (!this.device || this.device !== 'switch') {
-                return index === 0 ? 'Passthrough' : 'Output ' + (index + 1)
-            }
-
-            const switchType = this.switch_1_type
-            const typeKey = switchType !== undefined ? parseInt(switchType, 10) : 1 // TOGGLE = 1
-
-            // Map of second output labels (for switches that don't have "State")
-            const secondLabels = {
-                3: 'Temperature',  // TEMPERATURE_SETPOINT
-                6: 'Selected',     // DROPDOWN
-                7: 'Value'         // BASIC_SLIDER
-            }
-
-            // Map of third output labels (only for switches with 3 outputs)
-            const thirdLabels = {
-                2: 'Dimming',      // DIMMABLE
-                4: 'Value',        // STEPPED
-                8: 'Value',        // NUMERIC_INPUT
-                11: 'LightControls', // RGB_COLOR_WHEEL
-                12: 'LightControls', // CCT_WHEEL
-                13: 'LightControls'  // RGB_WHITE_DIMMER
-            }
-
-            // Output count map
-            const outputCounts = {
-                0: 2, 1: 2, 2: 3, 3: 2, 4: 3, 6: 2, 7: 2, 8: 3, 9: 2, 10: 2, 11: 3, 12: 3, 13: 3
-            }
-
-            if (index === 0) return 'Passthrough'
-
-            if (index === 1) {
-                return secondLabels[typeKey] || 'State'
-            }
-
-            if (index === 2) {
-                // Only return third label if this switch type actually has 3 outputs
-                const outputCount = outputCounts[typeKey] || 2
-                if (outputCount >= 3) {
-                    return thirdLabels[typeKey] || 'Value'
-                }
-            }
-
-            return 'Output ' + (index + 1)
+            return window.__victron.determineOutputLabel(this, index)
         },
         oneditprepare: function oneditprepare() {
             const self = this;
@@ -302,6 +256,18 @@
                 S2 support
                 <i class="fa fa-info-circle tooltip-icon" data-tooltip="Enable Victron S2 protocol support for smart charging"></i>
             </label>
+        </div>
+        <div class="form-row input-acload input-acload-s2" style="display:none">
+            <label for="node-input-s2_measurement_type"><i class="fa fa-bar-chart"></i> S2 Measurement
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="How power is reported to the CEM. Must match the RM's Power Measurement setting."></i>
+            </label>
+            <select id="node-input-s2_measurement_type">
+                <option value="3_PHASE_SYMMETRIC">3-phase symmetric</option>
+                <option value="L1_L2_L3">Per phase (L1/L2/L3)</option>
+                <option value="L1">Single phase L1</option>
+                <option value="L2">Single phase L2</option>
+                <option value="L3">Single phase L3</option>
+            </select>
         </div>
         <div class="input-battery">
             <div class="form-row" id="battery-capacity">
