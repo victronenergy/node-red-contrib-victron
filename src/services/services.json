@@ -4653,6 +4653,93 @@
         "name": "Serial (System)"
       },
       {
+        "path": "/SystemState/BatteryLife",
+        "type": "enum",
+        "name": "ESS battery status: BatteryLife active",
+        "enum": {
+          "0": "Inactive",
+          "1": "Active"
+        }
+      },
+      {
+        "path": "/SystemState/ChargeDisabled",
+        "type": "enum",
+        "name": "ESS battery status: BMS disabled charging",
+        "enum": {
+          "0": "No",
+          "1": "Yes"
+        }
+      },
+      {
+        "path": "/SystemState/DischargeDisabled",
+        "type": "enum",
+        "name": "ESS battery status: BMS disabled discharge",
+        "enum": {
+          "0": "No",
+          "1": "Yes"
+        }
+      },
+      {
+        "path": "/SystemState/LowSoc",
+        "type": "enum",
+        "name": "ESS battery status: SOC is low",
+        "enum": {
+          "0": "No",
+          "1": "Yes"
+        }
+      },
+      {
+        "path": "/SystemState/SlowCharge",
+        "type": "enum",
+        "name": "ESS battery status: Slow charge in progress",
+        "enum": {
+          "0": "No",
+          "1": "Yes"
+        }
+      },
+      {
+        "path": "/SystemState/State",
+        "type": "enum",
+        "name": "System state",
+        "enum": {
+          "0": "Off",
+          "1": "Low power",
+          "2": "VE.Bus fault",
+          "3": "Bulk charging",
+          "4": "Absorption",
+          "5": "Float",
+          "6": "Storage",
+          "7": "Equalisation",
+          "8": "Passthru",
+          "9": "Inverting",
+          "10": "Assisting",
+          "244": "Battery sustain",
+          "252": "External control",
+          "256": "Discharging",
+          "257": "Sustain",
+          "258": "Recharge",
+          "259": "Scheduled recharge"
+        }
+      },
+      {
+        "path": "/SystemState/UserChargeLimited",
+        "type": "enum",
+        "name": "ESS battery status: User charge limit zero",
+        "enum": {
+          "0": "No",
+          "1": "Yes"
+        }
+      },
+      {
+        "path": "/SystemState/UserDischargeLimited",
+        "type": "enum",
+        "name": "ESS battery status: User discharge limit zero",
+        "enum": {
+          "0": "No",
+          "1": "Yes"
+        }
+      },
+      {
         "path": "/SystemType",
         "type": "string",
         "name": "System type"
