@@ -87,17 +87,31 @@ async function getClient () {
   if (sharedClient && sharedClient.connected) return sharedClient
   if (sharedClient) { sharedClient.end(true); sharedClient = null }
 
-  const username = await getMqttUsername()
-  const brokerUrl = getBrokerUrl()
+  let client
 
-  const client = mqtt.connect(brokerUrl, {
-    username,
-    password: `Token ${VRM_API_TOKEN}`,
-    protocolVersion: 4,
-    clean: true,
-    connectTimeout: CONNECT_TIMEOUT_MS,
-    reconnectPeriod: 0
-  })
+  const brokerUrl = process.env.LOCAL_MQTT_ENDPOINT || getBrokerUrl()
+
+  if (process.env.LOCAL_MQTT_ENDPOINT) {
+    console.warn('Using LOCAL_MQTT_ENDPOINT for MQTT connection: ', brokerUrl)
+
+    client = mqtt.connect(brokerUrl, {
+      protocolVersion: 4,
+      clean: true,
+      connectTimeout: CONNECT_TIMEOUT_MS,
+      reconnectPeriod: 0
+    })
+  } else {
+    const username = await getMqttUsername()
+
+    client = mqtt.connect(brokerUrl, {
+      username,
+      password: `Token ${VRM_API_TOKEN}`,
+      protocolVersion: 4,
+      clean: true,
+      connectTimeout: CONNECT_TIMEOUT_MS,
+      reconnectPeriod: 0
+    })
+  }
 
   await new Promise((resolve, reject) => {
     const t = setTimeout(() => reject(new Error(`MQTT connect timeout (${brokerUrl})`)), CONNECT_TIMEOUT_MS)

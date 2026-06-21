@@ -85,7 +85,7 @@ npx testcafe chrome testcafe/switches-config-test.js --live
 To run e2e tests against a local installation (without running via VRM), define `NODE_RED_ENDPOINT`:
 
 ```bash
-NODE_RED_ENDPOINT=http://localhost:1880 npm run test:e2e
+VRM_PORTAL_ID=my-portal-id LOCAL_MQTT_ENDPOINT=mqtt://localhost:1883 NODE_RED_ENDPOINT=http://localhost:1880 npm run test:e2e
 ```
 
 ## License
