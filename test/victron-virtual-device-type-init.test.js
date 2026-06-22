@@ -767,6 +767,39 @@ describe('pvinverter', () => {
       const result = pvinverter.initialize({ pvinverter_nrofphases: 3 }, ifaceDesc, iface, node)
       expect(result).toBe('Virtual 3-phase pvinverter')
     })
+
+    test('sets persist on Ac/Energy/Forward when pvinverter_auto_energy is true', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      ifaceDesc.properties['Ac/Energy/Forward'] = { type: 'd' }
+      pvinverter.initialize({ pvinverter_nrofphases: 1, pvinverter_auto_energy: true }, ifaceDesc, iface, node)
+      expect(ifaceDesc.properties['Ac/Energy/Forward'].persist).toBeDefined()
+    })
+
+    test('does not set persist on Ac/Energy/Forward when pvinverter_auto_energy is false', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      ifaceDesc.properties['Ac/Energy/Forward'] = { type: 'd' }
+      pvinverter.initialize({ pvinverter_nrofphases: 1, pvinverter_auto_energy: false }, ifaceDesc, iface, node)
+      expect(ifaceDesc.properties['Ac/Energy/Forward'].persist).toBeUndefined()
+    })
+
+    test('does not set persist when pvinverter_auto_energy is undefined (existing flow migration)', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      ifaceDesc.properties['Ac/Energy/Forward'] = { type: 'd' }
+      pvinverter.initialize({ pvinverter_nrofphases: 1 }, ifaceDesc, iface, node)
+      expect(ifaceDesc.properties['Ac/Energy/Forward'].persist).toBeUndefined()
+    })
+
+    test('sets persist on per-phase Ac/L1/Energy/Forward when pvinverter_auto_energy is true', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      pvinverter.initialize({ pvinverter_nrofphases: 1, pvinverter_auto_energy: true }, ifaceDesc, iface, node)
+      expect(ifaceDesc.properties['Ac/L1/Energy/Forward'].persist).toBeDefined()
+    })
+
+    test('does not set persist on phase energy properties when pvinverter_auto_energy is false', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      pvinverter.initialize({ pvinverter_nrofphases: 1, pvinverter_auto_energy: false }, ifaceDesc, iface, node)
+      expect(ifaceDesc.properties['Ac/L1/Energy/Forward'].persist).toBeUndefined()
+    })
   })
 
   describe('format', () => {
