@@ -291,3 +291,39 @@ describe('SystemConfiguration path sorting', () => {
     expect(paths[3].name).toBe('Watt (W)')
   })
 })
+
+describe('ESS battery status reason codes (issue #342)', () => {
+  const ESS_REASON_PATHS = [
+    '/SystemState/LowSoc',
+    '/SystemState/BatteryLife',
+    '/SystemState/ChargeDisabled',
+    '/SystemState/DischargeDisabled',
+    '/SystemState/SlowCharge',
+    '/SystemState/UserChargeLimited',
+    '/SystemState/UserDischargeLimited'
+  ]
+
+  test.each(ESS_REASON_PATHS)('%s is in services.json system section as an enum', (path) => {
+    const item = servicesJson.system.system.find(p => p.path === path)
+    expect(item).toBeDefined()
+    expect(item.type).toBe('enum')
+    expect(item.enum).toHaveProperty('0')
+    expect(item.enum).toHaveProperty('1')
+  })
+
+  test('input-system node exposes all ESS reason code paths when present in cache', () => {
+    const systemConfig = new SystemConfiguration()
+    const cacheValues = Object.fromEntries(ESS_REASON_PATHS.map(p => [p, 0]))
+    systemConfig.cache = {
+      'com.victronenergy.system/0': {
+        '/DeviceInstance': 0,
+        ...cacheValues
+      }
+    }
+    const result = systemConfig.getNodeServices('input-system')
+    const exposedPaths = result.services[0].paths.map(p => p.path)
+    for (const essPath of ESS_REASON_PATHS) {
+      expect(exposedPaths).toContain(essPath)
+    }
+  })
+})
