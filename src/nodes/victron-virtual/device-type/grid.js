@@ -1,6 +1,8 @@
+const ENERGY_PERSIST_SECONDS = 60
+
 const properties = {
-  'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', value: 0 },
-  'Ac/Energy/Reverse': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', value: 0 },
+  'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', value: 0, persist: ENERGY_PERSIST_SECONDS },
+  'Ac/Energy/Reverse': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', value: 0, persist: ENERGY_PERSIST_SECONDS },
   'Ac/Frequency': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'Hz' : '' },
   'Ac/N/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
   'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
@@ -23,10 +25,14 @@ function initialize (config, ifaceDesc, iface, node) {
     const phase = `L${i}`
     phaseProperties.forEach(({ name, unit }) => {
       const key = `Ac/${phase}/${name}`
-      ifaceDesc.properties[key] = {
+      const propDef = {
         type: 'd',
         format: (v) => v != null ? v.toFixed(2) + unit : ''
       }
+      if (name.startsWith('Energy/')) {
+        propDef.persist = ENERGY_PERSIST_SECONDS
+      }
+      ifaceDesc.properties[key] = propDef
       iface[key] = 0
     })
   }
