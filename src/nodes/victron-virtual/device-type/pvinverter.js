@@ -1,3 +1,6 @@
+const WATT_MILLISECONDS_PER_KWH = 3_600_000_000
+const ENERGY_PERSIST_SECONDS = 60
+
 const properties = {
   'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
   'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
@@ -52,12 +55,19 @@ function initialize (config, ifaceDesc, iface, node) {
     const phase = `L${i}`
     phaseProperties.forEach(({ name, unit }) => {
       const key = `Ac/${phase}/${name}`
-      ifaceDesc.properties[key] = {
+      const propDef = {
         type: 'd',
         format: (v) => v != null ? v.toFixed(2) + unit : ''
       }
+      if (name === 'Energy/Forward') {
+        propDef.persist = ENERGY_PERSIST_SECONDS
+      }
+      ifaceDesc.properties[key] = propDef
       iface[key] = 0
     })
+  }
+  if (ifaceDesc.properties['Ac/Energy/Forward']) {
+    ifaceDesc.properties['Ac/Energy/Forward'].persist = ENERGY_PERSIST_SECONDS
   }
   if (config.default_values) {
     iface['Ac/Power'] = 0
@@ -70,4 +80,48 @@ function initialize (config, ifaceDesc, iface, node) {
   return `Virtual ${iface.NrOfPhases}-phase pvinverter`
 }
 
-module.exports = { properties, initialize, label: 'PV inverter' }
+function accumulateDelta (changes, instance, energyKey, oldPower, lastTs, now) {
+  if (lastTs != null && oldPower != null && !(energyKey in changes)) {
+    const deltaKwh = Math.max(0, oldPower) * (now - lastTs) / WATT_MILLISECONDS_PER_KWH
+    if (deltaKwh > 0) {
+      changes[energyKey] = (instance[energyKey] || 0) + deltaKwh
+    }
+  }
+}
+
+function onPropertiesChanged ({ changes, instance, config }) {
+  if (!config.pvinverter_auto_energy) return changes
+
+  const now = Date.now()
+  const nrOfPhases = Number(config.pvinverter_nrofphases ?? 1)
+  let anyPhaseUpdated = false
+  let phaseTotal = 0
+
+  for (let i = 1; i <= nrOfPhases; i++) {
+    const powerKey = `Ac/L${i}/Power`
+    const energyKey = `Ac/L${i}/Energy/Forward`
+    const tsKey = `_lastL${i}PowerTimestamp`
+    if (powerKey in changes) {
+      accumulateDelta(changes, instance, energyKey, instance[powerKey], instance[tsKey], now)
+      instance[tsKey] = now
+      anyPhaseUpdated = true
+    }
+    phaseTotal += energyKey in changes ? changes[energyKey] : (instance[energyKey] || 0)
+  }
+
+  if (anyPhaseUpdated && !('Ac/Energy/Forward' in changes)) {
+    changes['Ac/Energy/Forward'] = phaseTotal
+  }
+
+  if ('Ac/Power' in changes) {
+    if (!anyPhaseUpdated) {
+      accumulateDelta(changes, instance, 'Ac/Energy/Forward', instance['Ac/Power'], instance._lastPowerTimestamp, now)
+    }
+    // Always update; prevents stale-delta spike when switching from per-phase to total-power reporting.
+    instance._lastPowerTimestamp = now
+  }
+
+  return changes
+}
+
+module.exports = { properties, initialize, onPropertiesChanged, label: 'PV inverter' }

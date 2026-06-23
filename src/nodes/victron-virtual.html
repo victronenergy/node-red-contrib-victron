@@ -38,6 +38,7 @@
             // pvinverter
             position: { value: 0, required: false},
             pvinverter_nrofphases: {value: 1, required: false},
+            pvinverter_auto_energy: {value: true, required: false},
             // switch
             switch_1_type: {value: 1, required: false},
             switch_1_min: {value: 0, required: false},
@@ -475,6 +476,12 @@
                     <option value="1">1</option>
                     <option value="3">3</option>
                 </select>
+            </div>
+            <div class="form-row victron-checkbox">
+                <input type="checkbox" id="node-input-pvinverter_auto_energy">
+                <label for="node-input-pvinverter_auto_energy">Auto-calculate energy (Ac/Energy/Forward)
+                    <i class="fa fa-info-circle tooltip-icon" data-tooltip="Integrates power over time to estimate energy. Precision improves with higher update frequency."></i>
+                </label>
             </div>
         </div>
 

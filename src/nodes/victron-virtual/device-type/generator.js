@@ -1,3 +1,5 @@
+const ENERGY_PERSIST_SECONDS = 60
+
 const commonGeneratorProperties = {
   AutoStart: { type: 'i', format: (v) => v != null ? v : '', value: 1, persist: true },
   Start: { type: 'i', format: (v) => v != null ? v : '', value: 0, persist: true, immediate: true },
@@ -52,7 +54,7 @@ const properties = {
   genset: {
     ...commonGeneratorProperties,
     'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
-    'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
+    'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', persist: ENERGY_PERSIST_SECONDS },
     'Ac/Frequency': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'Hz' : '' },
     NrOfPhases: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
   },
@@ -61,7 +63,7 @@ const properties = {
     'Dc/0/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
     'Dc/0/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
     'Dc/0/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
-    'History/EnergyOut': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
+    'History/EnergyOut': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', persist: ENERGY_PERSIST_SECONDS },
     State: {
       type: 'i',
       format: (v) => ({
