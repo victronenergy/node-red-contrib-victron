@@ -59,14 +59,14 @@ function initialize (config, ifaceDesc, iface, node) {
         type: 'd',
         format: (v) => v != null ? v.toFixed(2) + unit : ''
       }
-      if (config.pvinverter_auto_energy && name === 'Energy/Forward') {
+      if (name === 'Energy/Forward') {
         propDef.persist = ENERGY_PERSIST_SECONDS
       }
       ifaceDesc.properties[key] = propDef
       iface[key] = 0
     })
   }
-  if (config.pvinverter_auto_energy && ifaceDesc.properties['Ac/Energy/Forward']) {
+  if (ifaceDesc.properties['Ac/Energy/Forward']) {
     ifaceDesc.properties['Ac/Energy/Forward'].persist = ENERGY_PERSIST_SECONDS
   }
   if (config.default_values) {

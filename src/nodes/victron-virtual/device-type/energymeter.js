@@ -1,5 +1,7 @@
 const debug = require('debug')('victron-virtual')
 
+const ENERGY_PERSIST_SECONDS = 60
+
 const ROLE_TO_SERVICE_TYPE = {
   gridmeter: 'grid',
   inverter: 'pvinverter',
@@ -10,8 +12,8 @@ const ROLE_TO_SERVICE_TYPE = {
 }
 
 const sharedProperties = {
-  'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
-  'Ac/Energy/Reverse': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '' },
+  'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', persist: ENERGY_PERSIST_SECONDS },
+  'Ac/Energy/Reverse': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', persist: ENERGY_PERSIST_SECONDS },
   'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
   'Ac/PowerFactor': { type: 'd', format: (v) => v != null ? v.toFixed(2) : '' },
   Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
@@ -44,8 +46,8 @@ function buildProperties (config) {
 
 const phaseProperties = [
   { name: 'Current', unit: 'A' },
-  { name: 'Energy/Forward', unit: 'kWh' },
-  { name: 'Energy/Reverse', unit: 'kWh' },
+  { name: 'Energy/Forward', unit: 'kWh', persist: ENERGY_PERSIST_SECONDS },
+  { name: 'Energy/Reverse', unit: 'kWh', persist: ENERGY_PERSIST_SECONDS },
   { name: 'Power', unit: 'W' },
   { name: 'PowerFactor', unit: '' },
   { name: 'Voltage', unit: 'V' }
@@ -55,12 +57,14 @@ function initialize (config, ifaceDesc, iface, node) {
   iface.NrOfPhases = Number(config.energymeter_nrofphases ?? 1)
   for (let i = 1; i <= iface.NrOfPhases; i++) {
     const phase = `L${i}`
-    phaseProperties.forEach(({ name, unit }) => {
+    phaseProperties.forEach(({ name, unit, persist }) => {
       const key = `Ac/${phase}/${name}`
-      ifaceDesc.properties[key] = {
+      const propDef = {
         type: 'd',
-        format: (v) => v != null ? v.toFixed(2) + unit : ''
+        format: (v) => v != null ? v.toFixed(2) + unit : '',
+        ...(persist && { persist })
       }
+      ifaceDesc.properties[key] = propDef
       iface[key] = 0
     })
   }
