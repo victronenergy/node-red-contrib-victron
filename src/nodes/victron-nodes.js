@@ -1,5 +1,16 @@
 const { debounce } = require('../services/utils.js')
 
+/*
+ * If a service name in the Node-RED node differs from the actual service name used
+ * in the dbus, we can define a mapping here.
+ * We need this for now for system input nodes: Previously, they had '/0' appended,
+ * but due to PR#511 (https://github.com/victronenergy/node-red-contrib-victron/pull/511)
+ * their service name is now just 'com.victronenergy.system'.
+ */
+const serviceNameMappings = {
+  'com.victronenergy.system/0': 'com.victronenergy.system'
+}
+
 module.exports = function (RED) {
   const debug = require('debug')('node-red-contrib-victron:victron-nodes')
   const utils = require('../services/utils.js')
@@ -112,6 +123,10 @@ module.exports = function (RED) {
 
       const handlerId = this.configNode.addStatusListener(this, this.service, this.path)
       let handlerId2 = null
+
+      if (serviceNameMappings[this.service]) {
+        this.service = serviceNameMappings[this.service]
+      }
 
       if (this.service && this.path) {
         // The following is for migration purposes
