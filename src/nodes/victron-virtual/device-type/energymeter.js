@@ -46,8 +46,8 @@ function buildProperties (config) {
 
 const phaseProperties = [
   { name: 'Current', unit: 'A' },
-  { name: 'Energy/Forward', unit: 'kWh' },
-  { name: 'Energy/Reverse', unit: 'kWh' },
+  { name: 'Energy/Forward', unit: 'kWh', persist: ENERGY_PERSIST_SECONDS },
+  { name: 'Energy/Reverse', unit: 'kWh', persist: ENERGY_PERSIST_SECONDS },
   { name: 'Power', unit: 'W' },
   { name: 'PowerFactor', unit: '' },
   { name: 'Voltage', unit: 'V' }
@@ -57,14 +57,12 @@ function initialize (config, ifaceDesc, iface, node) {
   iface.NrOfPhases = Number(config.energymeter_nrofphases ?? 1)
   for (let i = 1; i <= iface.NrOfPhases; i++) {
     const phase = `L${i}`
-    phaseProperties.forEach(({ name, unit }) => {
+    phaseProperties.forEach(({ name, unit, persist }) => {
       const key = `Ac/${phase}/${name}`
       const propDef = {
         type: 'd',
-        format: (v) => v != null ? v.toFixed(2) + unit : ''
-      }
-      if (name.startsWith('Energy/')) {
-        propDef.persist = ENERGY_PERSIST_SECONDS
+        format: (v) => v != null ? v.toFixed(2) + unit : '',
+        ...(persist && { persist })
       }
       ifaceDesc.properties[key] = propDef
       iface[key] = 0
