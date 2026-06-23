@@ -62,9 +62,8 @@ module.exports = function (RED) {
         done()
         return
       }
-      msg.payload = expanded
 
-      const validation = validateVirtualDevicePayload(msg.payload)
+      const validation = validateVirtualDevicePayload(expanded)
       if (!validation.valid) {
         node.warn(validation.error)
         node.status({
@@ -78,8 +77,8 @@ module.exports = function (RED) {
         return
       }
 
-      if (msg.payload['SwitchableOutput/output_1/LightControls']) {
-        const lightControlsValidation = validateLightControls(msg.payload['SwitchableOutput/output_1/LightControls'])
+      if (expanded['SwitchableOutput/output_1/LightControls']) {
+        const lightControlsValidation = validateLightControls(expanded['SwitchableOutput/output_1/LightControls'])
         if (!lightControlsValidation.valid) {
           node.warn(lightControlsValidation.error)
           node.status({
@@ -92,21 +91,21 @@ module.exports = function (RED) {
         }
       }
 
-      if (!shouldApplyPayloadToDBus(config, node.iface, msg.payload)) {
+      if (!shouldApplyPayloadToDBus(config, node.iface, expanded)) {
         updateSwitchStatus(config, node, `Ignored: switch in manual mode (${node.iface.DeviceInstance})`)
         done()
         return
       }
 
       try {
-        debugInput(`Setting values locally for node ${node.id}:`, msg.payload)
+        debugInput(`Setting values locally for node ${node.id}:`, expanded)
 
-        if (Object.keys(msg.payload).length > 0) {
-          node.setValuesLocally(msg.payload)
-          debugInput(`Applied ${Object.keys(msg.payload).length} properties`)
+        if (Object.keys(expanded).length > 0) {
+          node.setValuesLocally(expanded)
+          debugInput(`Applied ${Object.keys(expanded).length} properties`)
         }
 
-        const pathCount = Object.keys(msg.payload).length
+        const pathCount = Object.keys(expanded).length
         const pathWord = pathCount === 1 ? 'path' : 'paths'
 
         updateSwitchStatus(config, node, `Updated ${pathCount} ${pathWord} (${node.iface.DeviceInstance})`)
