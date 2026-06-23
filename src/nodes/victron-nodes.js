@@ -43,6 +43,15 @@ module.exports = function (RED) {
     }
   }
 
+  const isConfigNodePresent = (node) => {
+    if (node.configNode) {
+      return true
+    }
+    node.error('No Victron client config node found. Drag any Victron node from the palette to auto-create it, then deploy.')
+    node.status({ fill: 'red', shape: 'ring', text: 'no config' })
+    return false
+  }
+
   // Helper function to format status text consistently
   const formatStatusText = (value, suffix) => {
     const valueText = value !== null && value !== undefined
@@ -95,6 +104,7 @@ module.exports = function (RED) {
       this.debounceTimer = null
 
       this.configNode = RED.nodes.getNode('victron-client-id')
+      if (!isConfigNodePresent(this)) return
       this.client = this.configNode.client
 
       this.subscription = null
@@ -467,6 +477,7 @@ module.exports = function (RED) {
       this.initialValue = initialValue
 
       this.configNode = RED.nodes.getNode('victron-client-id')
+      if (!isConfigNodePresent(this)) return
       this.client = this.configNode.client
 
       const handlerId = this.configNode.addStatusListener(this, this.service, this.path)
