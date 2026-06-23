@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const { addVictronInterfaces, addSettings } = require('dbus-victron-virtual')
-const { needsPersistedState, hasPersistedState, loadPersistedState, savePersistedState } = require('../persist')
+const { needsPersistedState, hasPersistedState, loadPersistedState, savePersistedState, flushPersistedState } = require('../persist')
 const dbus = require('dbus-native-victron')
 const debug = require('debug')('victron-virtual')
 const debugInput = require('debug')('victron-virtual:input')
@@ -859,6 +859,10 @@ module.exports = function (RED) {
       }
 
       function finishClose () {
+        if (node.iface && node.ifaceDesc) {
+          flushPersistedState(RED, node.id, node.iface, node.ifaceDesc)
+        }
+
         // TODO: previously, we called end() on the connection only if no nodeInstances
         // were left. Calling end() here resolves an issue with the VictronDbusListener
         // not responding to ItemsChanged signals any more after a redeploy here:

@@ -178,9 +178,19 @@ async function savePersistedState (RED, id, iface, ifaceDesc, propName) {
   }
 }
 
+function flushPersistedState (RED, id, iface, ifaceDesc) {
+  if (!timers[id]) return
+  clearTimeout(timers[id].timeout)
+  delete timers[id]
+  savePersistedState(RED, id, iface, ifaceDesc).catch(err => {
+    console.error(`Failed to flush persisted state for ${id}:`, err)
+  })
+}
+
 module.exports = {
   hasPersistedState,
   needsPersistedState,
   loadPersistedState,
-  savePersistedState
+  savePersistedState,
+  flushPersistedState
 }
