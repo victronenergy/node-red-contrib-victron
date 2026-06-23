@@ -81,9 +81,11 @@ function initialize (config, ifaceDesc, iface, node) {
 }
 
 function accumulateDelta (changes, instance, energyKey, oldPower, lastTs, now) {
-  if (lastTs != null && oldPower != null && oldPower > 0 && !(energyKey in changes)) {
-    const deltaKwh = oldPower * (now - lastTs) / WATT_MILLISECONDS_PER_KWH
-    changes[energyKey] = (instance[energyKey] || 0) + deltaKwh
+  if (lastTs != null && oldPower != null && !(energyKey in changes)) {
+    const deltaKwh = Math.max(0, oldPower) * (now - lastTs) / WATT_MILLISECONDS_PER_KWH
+    if (deltaKwh > 0) {
+      changes[energyKey] = (instance[energyKey] || 0) + deltaKwh
+    }
   }
 }
 

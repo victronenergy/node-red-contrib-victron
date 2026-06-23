@@ -95,6 +95,18 @@ describe('pvinverter device module', () => {
       expect(result['Ac/Energy/Forward']).toBeUndefined()
     })
 
+    test('does not accumulate energy when old power is negative (clamps to zero)', () => {
+      const instance = { 'Ac/Power': -100, 'Ac/Energy/Forward': 2.0 }
+      instance._lastPowerTimestamp = Date.now() - 3_600_000
+
+      const result = pvinverter.onPropertiesChanged({
+        changes: { 'Ac/Power': -100 },
+        instance,
+        config: { pvinverter_auto_energy: true, pvinverter_nrofphases: 1 }
+      })
+      expect(result['Ac/Energy/Forward']).toBeUndefined()
+    })
+
     test('skips energy injection when old power is null', () => {
       const instance = { 'Ac/Power': null, 'Ac/Energy/Forward': 0 }
       instance._lastPowerTimestamp = Date.now() - 3_600_000
@@ -283,8 +295,8 @@ describe('pvinverter device module', () => {
         instance,
         config: { pvinverter_auto_energy: true, pvinverter_nrofphases: 1 }
       })
-      // Delta should be tiny (milliseconds), not hours
-      expect(result['Ac/Energy/Forward']).toBeCloseTo(0, 3)
+      // Delta should be tiny (or zero/absent if same-tick), not hours
+      expect(result['Ac/Energy/Forward'] ?? 0).toBeCloseTo(0, 3)
     })
   })
 })
