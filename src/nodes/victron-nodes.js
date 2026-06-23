@@ -1,20 +1,20 @@
 const { debounce } = require('../services/utils.js')
+const { serviceNamesWithoutDeviceInstance } = require('../services/dbus-listener.js')
 
-/*
- * If a service name in the Node-RED node differs from the actual service name used
- * in the dbus, we can define a mapping here.
- * We need this for now for system input nodes: Previously, they had '/0' appended,
- * but due to PR#511 (https://github.com/victronenergy/node-red-contrib-victron/pull/511)
- * their service name is now just 'com.victronenergy.system'.
+/* Those service names which should not have a device instance any more may still have
+ * a device instance in a pre-existing node definition. We therefore strip the device
+ * instance from the service name for those services.
+ * See PR#511 (https://github.com/victronenergy/node-red-contrib-victron/pull/511)
+ * for details.
  */
-const serviceNameMappings = {
-  'com.victronenergy.system/0': 'com.victronenergy.system'
+function mustRemoveDeviceInstanceFromService (service) {
+  const serviceNameBare = service.split('/')[0] // Remove any device instance suffix
+  return serviceNamesWithoutDeviceInstance.includes(serviceNameBare)
 }
 
 module.exports = function (RED) {
   const debug = require('debug')('node-red-contrib-victron:victron-nodes')
   const utils = require('../services/utils.js')
-  const { serviceNamesWithoutDeviceInstance } = require('../services/dbus-listener.js')
 
   const migrateSubscriptions = (x) => {
     // Check if client is fully initialized
@@ -124,12 +124,11 @@ module.exports = function (RED) {
       const handlerId = this.configNode.addStatusListener(this, this.service, this.path)
       let handlerId2 = null
 
-      if (serviceNameMappings[this.service]) {
-        this.service = serviceNameMappings[this.service]
-      }
-
       if (this.service && this.path) {
         // The following is for migration purposes
+        if (mustRemoveDeviceInstanceFromService(this.service)) {
+          this.service = this.service.replace(/\/\d+$/, '')
+        }
         if (!this.service.match(/\/\d+$/) && !serviceNamesWithoutDeviceInstance.includes(this.service)) {
           this.deviceInstance = this.service.replace(/^.*\.(\d+)$/, '$1')
           this.service = this.service.replace(/\.\d+$/, '')
