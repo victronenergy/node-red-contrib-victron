@@ -6570,6 +6570,69 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">Serial (System)<span class="property-type">string</span></dt>
   <dd>Dbus path: <b>/Serial</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">ESS battery status: BatteryLife active<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SystemState/BatteryLife</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Inactive</li>
+  <li>1 - Active</li>
+</ul></dd>
+  <dt class="optional">ESS battery status: BMS disabled charging<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SystemState/ChargeDisabled</b><span class="property-mode"></span>
+<ul>
+  <li>0 - No</li>
+  <li>1 - Yes</li>
+</ul></dd>
+  <dt class="optional">ESS battery status: BMS disabled discharge<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SystemState/DischargeDisabled</b><span class="property-mode"></span>
+<ul>
+  <li>0 - No</li>
+  <li>1 - Yes</li>
+</ul></dd>
+  <dt class="optional">ESS battery status: SOC is low<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SystemState/LowSoc</b><span class="property-mode"></span>
+<ul>
+  <li>0 - No</li>
+  <li>1 - Yes</li>
+</ul></dd>
+  <dt class="optional">ESS battery status: Slow charge in progress<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SystemState/SlowCharge</b><span class="property-mode"></span>
+<ul>
+  <li>0 - No</li>
+  <li>1 - Yes</li>
+</ul></dd>
+  <dt class="optional">System state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SystemState/State</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - Low power</li>
+  <li>2 - VE.Bus fault</li>
+  <li>3 - Bulk charging</li>
+  <li>4 - Absorption</li>
+  <li>5 - Float</li>
+  <li>6 - Storage</li>
+  <li>7 - Equalisation</li>
+  <li>8 - Passthru</li>
+  <li>9 - Inverting</li>
+  <li>10 - Assisting</li>
+  <li>244 - Battery sustain</li>
+  <li>252 - External control</li>
+  <li>256 - Discharging</li>
+  <li>257 - Sustain</li>
+  <li>258 - Recharge</li>
+  <li>259 - Scheduled recharge</li>
+</ul></dd>
+  <dt class="optional">ESS battery status: User charge limit zero<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SystemState/UserChargeLimited</b><span class="property-mode"></span>
+<ul>
+  <li>0 - No</li>
+  <li>1 - Yes</li>
+</ul></dd>
+  <dt class="optional">ESS battery status: User discharge limit zero<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/SystemState/UserDischargeLimited</b><span class="property-mode"></span>
+<ul>
+  <li>0 - No</li>
+  <li>1 - Yes</li>
+</ul></dd>
   <dt class="optional">System type<span class="property-type">string</span></dt>
   <dd>Dbus path: <b>/SystemType</b><span class="property-mode"></span>
 </dd>

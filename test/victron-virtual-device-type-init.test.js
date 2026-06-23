@@ -60,6 +60,20 @@ describe('acload', () => {
       acload.initialize({ acload_nrofphases: 1, default_values: false }, ifaceDesc, iface, node)
       expect(iface['Ac/Power']).toBeUndefined()
     })
+
+    test('energy properties in static properties have persist set', () => {
+      expect(acload.properties['Ac/Energy/Forward'].persist).toBeDefined()
+      expect(acload.properties['Ac/Energy/Reverse'].persist).toBeDefined()
+    })
+
+    test('phase energy properties added by initialize have persist set', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      acload.initialize({ acload_nrofphases: 2 }, ifaceDesc, iface, node)
+      expect(ifaceDesc.properties['Ac/L1/Energy/Forward'].persist).toBeDefined()
+      expect(ifaceDesc.properties['Ac/L1/Energy/Reverse'].persist).toBeDefined()
+      expect(ifaceDesc.properties['Ac/L2/Energy/Forward'].persist).toBeDefined()
+      expect(ifaceDesc.properties['Ac/L2/Energy/Reverse'].persist).toBeDefined()
+    })
   })
 
   describe('S2 support', () => {
@@ -495,6 +509,14 @@ describe('generator', () => {
       const result = generator.initialize({ generator_type: 'dc' }, ifaceDesc, iface, node)
       expect(result).toBe('Virtual DC generator')
     })
+
+    test('genset Ac/Energy/Forward has persist set', () => {
+      expect(generator.properties.genset['Ac/Energy/Forward'].persist).toBeDefined()
+    })
+
+    test('dcgenset History/EnergyOut has persist set', () => {
+      expect(generator.properties.dcgenset['History/EnergyOut'].persist).toBeDefined()
+    })
   })
 
   describe('format', () => {
@@ -559,6 +581,20 @@ describe('grid', () => {
       expect(iface['Ac/Power']).toBe(0)
       expect(iface['Ac/Frequency']).toBe(50)
       expect(iface['Ac/N/Current']).toBe(0)
+    })
+
+    test('static energy properties have persist set', () => {
+      expect(grid.properties['Ac/Energy/Forward'].persist).toBeDefined()
+      expect(grid.properties['Ac/Energy/Reverse'].persist).toBeDefined()
+    })
+
+    test('phase energy properties added by initialize have persist set', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      grid.initialize({ grid_nrofphases: 2 }, ifaceDesc, iface, node)
+      expect(ifaceDesc.properties['Ac/L1/Energy/Forward'].persist).toBeDefined()
+      expect(ifaceDesc.properties['Ac/L1/Energy/Reverse'].persist).toBeDefined()
+      expect(ifaceDesc.properties['Ac/L2/Energy/Forward'].persist).toBeDefined()
+      expect(ifaceDesc.properties['Ac/L2/Energy/Reverse'].persist).toBeDefined()
     })
   })
 })
@@ -766,6 +802,26 @@ describe('pvinverter', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
       const result = pvinverter.initialize({ pvinverter_nrofphases: 3 }, ifaceDesc, iface, node)
       expect(result).toBe('Virtual 3-phase pvinverter')
+    })
+
+    test('sets persist on Ac/Energy/Forward regardless of pvinverter_auto_energy', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      ifaceDesc.properties['Ac/Energy/Forward'] = { type: 'd' }
+      pvinverter.initialize({ pvinverter_nrofphases: 1, pvinverter_auto_energy: false }, ifaceDesc, iface, node)
+      expect(ifaceDesc.properties['Ac/Energy/Forward'].persist).toBeDefined()
+    })
+
+    test('sets persist on Ac/Energy/Forward when pvinverter_auto_energy is absent (existing flow migration)', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      ifaceDesc.properties['Ac/Energy/Forward'] = { type: 'd' }
+      pvinverter.initialize({ pvinverter_nrofphases: 1 }, ifaceDesc, iface, node)
+      expect(ifaceDesc.properties['Ac/Energy/Forward'].persist).toBeDefined()
+    })
+
+    test('sets persist on per-phase Ac/L1/Energy/Forward regardless of pvinverter_auto_energy', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      pvinverter.initialize({ pvinverter_nrofphases: 1, pvinverter_auto_energy: false }, ifaceDesc, iface, node)
+      expect(ifaceDesc.properties['Ac/L1/Energy/Forward'].persist).toBeDefined()
     })
   })
 
@@ -1053,6 +1109,20 @@ describe('energymeter', () => {
       expect(iface['Ac/Power']).toBe(0)
       expect(iface['Ac/Energy/Forward']).toBe(0)
       expect(iface['Ac/Energy/Reverse']).toBe(0)
+    })
+
+    it('shared energy properties have persist set', () => {
+      expect(energymeter.__sharedProperties['Ac/Energy/Forward'].persist).toBeDefined()
+      expect(energymeter.__sharedProperties['Ac/Energy/Reverse'].persist).toBeDefined()
+    })
+
+    it('phase energy properties added by initialize have persist set', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      energymeter.initialize({ energymeter_nrofphases: 2 }, ifaceDesc, iface, node)
+      expect(ifaceDesc.properties['Ac/L1/Energy/Forward'].persist).toBeDefined()
+      expect(ifaceDesc.properties['Ac/L1/Energy/Reverse'].persist).toBeDefined()
+      expect(ifaceDesc.properties['Ac/L2/Energy/Forward'].persist).toBeDefined()
+      expect(ifaceDesc.properties['Ac/L2/Energy/Reverse'].persist).toBeDefined()
     })
   })
 })
