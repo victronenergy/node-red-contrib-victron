@@ -1,9 +1,20 @@
 const { debounce } = require('../services/utils.js')
+const { serviceNamesWithoutDeviceInstance } = require('../services/dbus-listener.js')
+
+/* Those service names which should not have a device instance any more may still have
+ * a device instance in a pre-existing node definition. We therefore strip the device
+ * instance from the service name for those services.
+ * See PR#511 (https://github.com/victronenergy/node-red-contrib-victron/pull/511)
+ * for details.
+ */
+function mustRemoveDeviceInstanceFromService (service) {
+  const serviceNameBare = service.split('/')[0] // Remove any device instance suffix
+  return serviceNamesWithoutDeviceInstance.includes(serviceNameBare)
+}
 
 module.exports = function (RED) {
   const debug = require('debug')('node-red-contrib-victron:victron-nodes')
   const utils = require('../services/utils.js')
-  const { serviceNamesWithoutDeviceInstance } = require('../services/dbus-listener.js')
 
   const migrateSubscriptions = (x) => {
     // Check if client is fully initialized
@@ -115,6 +126,9 @@ module.exports = function (RED) {
 
       if (this.service && this.path) {
         // The following is for migration purposes
+        if (mustRemoveDeviceInstanceFromService(this.service)) {
+          this.service = this.service.replace(/\/\d+$/, '')
+        }
         if (!this.service.match(/\/\d+$/) && !serviceNamesWithoutDeviceInstance.includes(this.service)) {
           this.deviceInstance = this.service.replace(/^.*\.(\d+)$/, '$1')
           this.service = this.service.replace(/\.\d+$/, '')
