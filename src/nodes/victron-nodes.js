@@ -219,9 +219,9 @@ module.exports = function (RED) {
             topic
           }
           let text = msg.value
-          if (this.node.pathObj.type === 'enum') {
-            outmsg.textvalue = this.node.pathObj.enum[msg.value] || ''
-            text = `${msg.value} (${this.node.pathObj.enum[msg.value]})`
+          if (this.pathObj && this.pathObj.type === 'enum' && this.pathObj.enum) {
+            outmsg.textvalue = this.pathObj.enum[msg.value] || ''
+            text = `${msg.value} (${this.pathObj.enum[msg.value]})`
           }
 
           // If conditional mode is enabled, send raw value to output 1 and evaluate for output 2
@@ -520,6 +520,11 @@ module.exports = function (RED) {
 
         if (!/^\/.*/.test(writepath)) {
           writepath = '/' + writepath
+        }
+
+        if (!this.pathObj) {
+          this.node.status({ fill: 'red', shape, text: 'Path not configured' })
+          return
         }
 
         if (!this.pathObj.disabled && this.service && writepath) {

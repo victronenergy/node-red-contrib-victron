@@ -3,6 +3,7 @@ const { serviceNamesWithoutDeviceInstance } = require('../src/services/dbus-list
 
 function buildMockRED ({ services = {}, connected = true, hasConfigNode = true } = {}) {
   const subscribe = jest.fn()
+  const publish = jest.fn()
   const mockRED = {
     nodes: {
       registerType: jest.fn(),
@@ -22,6 +23,7 @@ function buildMockRED ({ services = {}, connected = true, hasConfigNode = true }
             addStatusListener: jest.fn(),
             client: {
               subscribe,
+              publish,
               subscriptions: {},
               system: { cache: {} },
               onStatusUpdate: jest.fn(),
@@ -38,7 +40,7 @@ function buildMockRED ({ services = {}, connected = true, hasConfigNode = true }
   const BaseInputNode = mockRED.nodes.registerType.mock.calls[0][1]
   const outputCallIndex = mockRED.nodes.registerType.mock.calls.findIndex(c => c[0].startsWith('victron-output-'))
   const BaseOutputNode = mockRED.nodes.registerType.mock.calls[outputCallIndex][1]
-  return { mockRED, BaseInputNode, BaseOutputNode, subscribe }
+  return { mockRED, BaseInputNode, BaseOutputNode, subscribe, publish }
 }
 
 describe('victron-nodes migration', () => {
@@ -243,6 +245,42 @@ describe('victron-nodes', () => {
     // ... and we expect the status to be set to 'null'
     expect(handleStatus.mock.calls.length).toBe(2)
     expect(handleStatus.mock.calls[1][1].text).toEqual('null')
+  })
+})
+
+describe('victron-nodes pathObj guard', () => {
+  it('BaseInputNode does not crash and still emits value when pathObj is undefined', () => {
+    const { BaseInputNode, subscribe } = buildMockRED()
+
+    const node = new BaseInputNode({
+      name: 'Test',
+      service: 'com.victronenergy.battery',
+      path: '/Soc',
+      serviceObj: { name: 'Battery' },
+      pathObj: undefined
+    })
+
+    const processMessage = subscribe.mock.calls[0][2]
+    expect(() => processMessage({ value: 42 })).not.toThrow()
+    expect(node.send).toHaveBeenCalledWith(expect.objectContaining({ payload: 42 }))
+  })
+
+  it('BaseOutputNode shows error status and does not publish when pathObj is undefined', () => {
+    const { BaseOutputNode, publish } = buildMockRED()
+
+    const node = new BaseOutputNode({
+      name: 'Test',
+      service: 'com.victronenergy.system',
+      path: '/Relay/0/State',
+      serviceObj: { name: 'System' },
+      pathObj: undefined
+    })
+
+    const inputHandler = node.on.mock.calls.find(c => c[0] === 'input')[1]
+    inputHandler({ payload: 1 })
+
+    expect(node.status).toHaveBeenCalledWith(expect.objectContaining({ fill: 'red' }))
+    expect(publish).not.toHaveBeenCalled()
   })
 })
 
