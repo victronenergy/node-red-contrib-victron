@@ -284,15 +284,15 @@ class VictronDbusListener {
           ? null
           : (data['/DeviceInstance'] != null ? data['/DeviceInstance'] : service.deviceInstance)
 
-        const messages = _.keys(data).map(path => {
-          return {
+        const messages = _.keys(data)
+          .filter(path => data[path] !== null)
+          .map(path => ({
             path: '/' + path.replace(/^\/+/, ''),
             senderName: service.name.split('.').splice(0, 3).join('.'),
             value: data[path],
             deviceInstance,
             fluidType: service.fluidType
-          }
-        })
+          }))
         debug('requestRoot, messages', messages)
         this.messageHandler(messages)
         resolve()
