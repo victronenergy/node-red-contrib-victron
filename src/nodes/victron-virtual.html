@@ -74,6 +74,7 @@
             // ev
             ev_vin: {value: "", required: false},
             ev_battery_capacity: {value: "", required: false},
+            ev_evcs_device_instance: {value: null, required: false},
             // temperature
             temperature_type: {value: 2, required: false},
             include_humidity: { value: false },
@@ -134,6 +135,22 @@
 
                     updateOutputs(self);
                     checkSelectedVirtualDevice(self);
+
+                    // Populate EV charger dropdown from live D-Bus cache
+                    window.__victron.fetchEvChargers(baseUrl)
+                        .then(function(chargers) {
+                            var $evcsSelect = $('#node-input-ev_evcs_device_instance');
+                            chargers.forEach(function(c) {
+                                $evcsSelect.append($('<option>', {
+                                    value: c.deviceInstance,
+                                    text: c.name + ' (' + c.deviceInstance + ')'
+                                }));
+                            });
+                            if (self.ev_evcs_device_instance != null) {
+                                $evcsSelect.val(self.ev_evcs_device_instance);
+                            }
+                        })
+                        .catch(function() {});
 
                     if (typeof initializeTooltips === 'function') {
                         initializeTooltips();
@@ -220,6 +237,11 @@
                     });
                 }
             }
+            if (this.device === 'ev') {
+                var evcsVal = $('#node-input-ev_evcs_device_instance').val();
+                this.ev_evcs_device_instance = (evcsVal !== '' && evcsVal != null) ? parseInt(evcsVal, 10) : null;
+            }
+
             updateOutputs(this);
         }
     });
@@ -309,6 +331,15 @@
             <div class="form-row">
                 <label for="node-input-ev_battery_capacity"><i class="fa fa-flask"></i> Battery Capacity (kWh)</label>
                 <input type="number" id="node-input-ev_battery_capacity" min="0" step="0.1">
+            </div>
+            <div class="form-row">
+                <label for="node-input-ev_evcs_device_instance">
+                    <i class="fa fa-bolt"></i> EV Charger
+                    <i class="fa fa-info-circle tooltip-icon" data-tooltip="Select the EV charger this vehicle connects to. Dynamic ESS uses this to determine the optimal charging schedule. Mgmt/Connection is automatically set when AtSite is 1 and cleared when AtSite is 0."></i>
+                </label>
+                <select id="node-input-ev_evcs_device_instance">
+                    <option value="">(none)</option>
+                </select>
             </div>
         </div>
 
