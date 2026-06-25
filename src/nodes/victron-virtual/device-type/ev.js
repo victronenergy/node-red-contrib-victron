@@ -44,9 +44,7 @@ const properties = (config) => ({
   'LastUpdated/EvContact': { type: 'i', format: formatTimestamp, persist: 300 },
   'Alarms/StarterBatteryLow': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
   Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
-  'Mgmt/Connection': hasEvcsInstance(config)
-    ? { type: 'i' }
-    : { type: 's', value: 'Node-RED' }
+  'Mgmt/Connection': { type: 's', value: hasEvcsInstance(config) ? null : 'Node-RED' }
 })
 
 function initialize (config, _ifaceDesc, iface, _node) {
@@ -76,7 +74,7 @@ function onPropertiesChanged ({ changes, instance, config }) {
   }
 
   if ('AtSite' in changes && hasEvcsInstance(config)) {
-    changes['Mgmt/Connection'] = changes.AtSite === 1 ? config.ev_evcs_device_instance : null
+    changes['Mgmt/Connection'] = changes.AtSite === 1 ? String(config.ev_evcs_device_instance) : null
   }
 
   return changes

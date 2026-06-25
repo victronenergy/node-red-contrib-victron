@@ -10,8 +10,8 @@ describe('ev device module', () => {
   })
 
   describe('Mgmt/Connection property type', () => {
-    test('is integer when ev_evcs_device_instance is configured', () => {
-      expect(ev.properties({ ev_evcs_device_instance: 40 })['Mgmt/Connection']).toEqual({ type: 'i' })
+    test('is string with null value when ev_evcs_device_instance is configured', () => {
+      expect(ev.properties({ ev_evcs_device_instance: 40 })['Mgmt/Connection']).toEqual({ type: 's', value: null })
     })
 
     test('is string defaulting to Node-RED when ev_evcs_device_instance is null', () => {
@@ -130,7 +130,7 @@ describe('ev device module', () => {
           instance: {},
           config: { ev_evcs_device_instance: 40 }
         })
-        expect(result['Mgmt/Connection']).toBe(40)
+        expect(result['Mgmt/Connection']).toBe('40')
       })
 
       test('clears Mgmt/Connection when AtSite becomes 0', () => {
