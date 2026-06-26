@@ -55,7 +55,7 @@ export function setupVrmFixture (fixture) {
 
 export async function setupFlow (t, flowName, nameOverride) {
   console.log(`Setting up flow: ${flowName}`)
-  const flowAsText = readFileSync(`./testcafe/setup/${flowName}.json`, 'utf8')
+  const flowAsText = readFileSync(`./e2etest/setup/${flowName}.json`, 'utf8')
   const flow = JSON.parse(flowAsText)
   if (nameOverride) flow.label = nameOverride
 

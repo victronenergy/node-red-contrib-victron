@@ -1,5 +1,5 @@
 {
-  "src": ["testcafe/*test.js"],
+  "src": ["e2etest/*test.js"],
   "browsers": ["chrome:headless --no-sandbox --disable-dev-shm-usage"],
   "selectorTimeout": 20000,
   "assertionTimeout": 20000,

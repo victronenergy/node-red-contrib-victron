@@ -1,3 +1,5 @@
+/* global fixture, test, location */
+
 const { setupFlow, getNodeRedEndpoint, addNodeToCurrentFlow, resetFlowNodeOffset, confirmNodeDialog, deploy, setupVrmFixture } = require('./utils.js')
 const { Selector } = require('testcafe')
 

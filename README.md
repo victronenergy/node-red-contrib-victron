@@ -79,7 +79,7 @@ Black box testing, currently experimental, can be run with `npm run test:e2e`. T
 To run an individual e2e / black box test, against Chrome, with live-reload:
 
 ```bash
-npx testcafe chrome testcafe/switches-config-test.js --live
+npx testcafe chrome e2etest/switches-config-test.js --live
 ```
 
 To run e2e tests against a local installation (without running via VRM), define `NODE_RED_ENDPOINT`:
