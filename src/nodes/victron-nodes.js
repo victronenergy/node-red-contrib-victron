@@ -125,10 +125,14 @@ module.exports = function (RED) {
       let handlerId2 = null
 
       if (this.service && this.path) {
-        // The following is for migration purposes
         if (mustRemoveDeviceInstanceFromService(this.service)) {
-          this.service = this.service.replace(/\/\d+$/, '')
+          const newServiceName = this.service.replace(/\/\d+$/, '')
+          if (newServiceName !== this.service) {
+            console.warn(`[MIGRATE] Removing device instance from service name: ${this.service} -> ${newServiceName} (node ${this.id}). Please update this node's service in the editor to avoid this warning.`)
+            this.service = newServiceName
+          }
         }
+
         if (!this.service.match(/\/\d+$/) && !serviceNamesWithoutDeviceInstance.includes(this.service)) {
           this.deviceInstance = this.service.replace(/^.*\.(\d+)$/, '$1')
           this.service = this.service.replace(/\.\d+$/, '')
