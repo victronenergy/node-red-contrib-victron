@@ -95,7 +95,12 @@ const initServiceAllowlistRegexes = [
   /^com\.victronenergy\..+/ // anything beginning with 'com.victronenergy.' is allowed
 ]
 
-const serviceNamesWithoutDeviceInstance = ['com.victronenergy.settings']
+const serviceNamesWithoutDeviceInstance = [
+  'com.victronenergy.settings',
+  'com.victronenergy.platform',
+  'com.victronenergy.system',
+  'com.victronenergy.dynamicess'
+]
 
 class VictronDbusListener {
   constructor (address, callbacks) {
@@ -285,11 +290,15 @@ class VictronDbusListener {
           service.fluidType = data.FluidType
         }
 
-        if (!service.deviceInstance && data['/DeviceInstance'] != null) {
+        const needsDeviceInstance = !serviceNamesWithoutDeviceInstance.includes(service.name)
+
+        if (needsDeviceInstance && !service.deviceInstance && data['/DeviceInstance'] != null) {
           service.deviceInstance = data['/DeviceInstance']
         }
 
-        const deviceInstance = data['/DeviceInstance'] != null ? data['/DeviceInstance'] : service.deviceInstance
+        const deviceInstance = needsDeviceInstance
+          ? (data['/DeviceInstance'] != null ? data['/DeviceInstance'] : service.deviceInstance)
+          : null
 
         const messages = _.keys(data).map(path => {
           return {

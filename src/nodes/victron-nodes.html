@@ -1055,7 +1055,8 @@
             delete(node.serviceObj.paths);
             delete(node.serviceObj.deviceInstance);
         }
-        node.pathObj = $('#node-input-path').find(':selected').data();
+        const selectedPathData = $('#node-input-path').find(':selected').data();
+        node.pathObj = (selectedPathData && selectedPathData.path) ? selectedPathData : undefined;
 
         // Determine if this is an output node based on the node type
         const isOutputNode = node.type.includes('-output-');
@@ -1175,7 +1176,7 @@
     function buildNodeLabel(node, nodeName) {
         var altName = nodeName;
 
-        if (node.serviceObj && node.path) {
+        if (node.serviceObj && node.pathObj) {
             var svc = node.serviceObj.name;
             var path = node.pathObj.name;
             altName = "".concat(svc, " | ").concat(path);
