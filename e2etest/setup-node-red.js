@@ -38,7 +38,7 @@ function httpsRequest (options, body) {
 
 function nodeRedRequest (proxyDomain, method, path, sessionCookie, body, extraHeaders) {
   const bodyStr = body ? JSON.stringify(body) : undefined
-  console.log(`Making Node-RED request: ${method} ${path}, body=${bodyStr}, extraHeaders=${JSON.stringify(extraHeaders)}, proxyDomain=${proxyDomain}, sessionCookie=${sessionCookie}`)
+  console.log(`Making Node-RED request: ${method} ${path}, body=${bodyStr}, extraHeaders=${JSON.stringify(extraHeaders)}, proxyDomain=${proxyDomain}`)
   return httpsRequest({
     hostname: proxyDomain,
     path,
@@ -62,7 +62,7 @@ async function waitForNodeRed (proxyDomain, sessionCookie) {
         console.log('Node-RED is ready')
         return
       }
-    } catch (_) {}
+    } catch (_) { }
     process.stdout.write('.')
   }
   throw new Error(`Node-RED did not become ready within ${MAX_WAIT_MS / 1000}s`)

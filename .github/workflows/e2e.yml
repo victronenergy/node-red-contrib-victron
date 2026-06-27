@@ -57,7 +57,6 @@ jobs:
         env:
           VRM_API_TOKEN: ${{ secrets.VRM_API_TOKEN }}
           VRM_INSTALLATION_ID: ${{ secrets.VRM_INSTALLATION_ID }}
-          SKIP_MQTT_VERIFICATION: 'true'
         run: npm run test:e2e
 
       # We do not teardown, so that we can see the state of Node-RED and the flows after the test run.

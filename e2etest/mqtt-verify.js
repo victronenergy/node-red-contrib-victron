@@ -17,8 +17,9 @@
 const https = require('https')
 const mqtt = require('mqtt')
 
-const VRM_PORTAL_ID = process.env.VRM_PORTAL_ID || 'c0619ab4e242'
-const VRM_API_TOKEN = process.env.VRM_API_TOKEN
+const { VRM_PORTAL_ID, VRM_API_TOKEN } = process.env
+
+if (!VRM_PORTAL_ID) throw new Error('VRM_PORTAL_ID env var is required')
 
 const VALUE_TIMEOUT_MS = 15_000
 const CONNECT_TIMEOUT_MS = 15_000
@@ -39,6 +40,7 @@ function getBrokerUrl () {
 
 function httpsGet (path) {
   return new Promise((resolve, reject) => {
+    if (!VRM_API_TOKEN) throw new Error('VRM_API_TOKEN env var is required')
     const req = https.request({
       hostname: 'vrmapi.victronenergy.com',
       path,
@@ -58,7 +60,6 @@ let cachedMqttUsername = process.env.VRM_MQTT_USERNAME || null
 
 async function getMqttUsername () {
   if (cachedMqttUsername) return cachedMqttUsername
-  if (!VRM_API_TOKEN) throw new Error('VRM_API_TOKEN env var is required')
   const res = await httpsGet('/v2/users/me')
   if (res.status !== 200) throw new Error(`VRM /users/me returned ${res.status}: ${res.body}`)
   const data = JSON.parse(res.body)

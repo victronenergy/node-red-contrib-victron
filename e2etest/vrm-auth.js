@@ -2,8 +2,10 @@
 
 const https = require('https')
 
-const VRM_INSTALLATION_ID = process.env.VRM_INSTALLATION_ID || '445836'
-const VRM_API_TOKEN = process.env.VRM_API_TOKEN
+const { VRM_INSTALLATION_ID, VRM_API_TOKEN } = process.env
+
+if (!VRM_INSTALLATION_ID) throw new Error('VRM_INSTALLATION_ID environment variable is required')
+
 const VRM_API_HOST = 'vrmapi.victronenergy.com'
 
 function httpsRequest (options) {
