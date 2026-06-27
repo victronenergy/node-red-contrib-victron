@@ -8,7 +8,7 @@ const { DEBOUNCE_DELAY_MS } = require('./victron-virtual-constants')
 const { validateVirtualDevicePayload, debounce } = require('../services/utils')
 const { createIndicatorProperties, updateIndicatorStatus, expandIndicatorPayload, INDICATOR_INPUT_KEY } = require('../services/virtual-indicator')
 const { filterInactiveVirtualDevices } = require('../services/virtual-device-cleanup')
-const { getTcpBusAddress, callAddSettingsWithRetry, getDeviceInstance, registerInputHandler, flushPendingInputs, createDebouncedSetters } = require('./victron-virtual-dbus-helpers')
+const { sanitizeIdForDbus, getTcpBusAddress, callAddSettingsWithRetry, getDeviceInstance, registerInputHandler, flushPendingInputs, createDebouncedSetters } = require('./victron-virtual-dbus-helpers')
 
 module.exports = function (RED) {
   let hasRunOnce = false
@@ -111,7 +111,8 @@ module.exports = function (RED) {
       // The indicator uses the switch service type: a digital switching device
       // typically has both inputs and outputs; the indicator only uses the input
       // side, but it is the closest available fit on Venus OS.
-      const serviceName = `com.victronenergy.switch.vindic_${self.id}`
+      const dbusId = sanitizeIdForDbus(self.id)
+      const serviceName = `com.victronenergy.switch.vindic_${dbusId}`
       const interfaceName = serviceName
       const objectPath = `/${serviceName.replace(/\./g, '/')}`
 
@@ -166,7 +167,7 @@ module.exports = function (RED) {
         let settingsResult = null
         try {
           settingsResult = await callAddSettingsWithRetry(usedBus, [{
-            path: `/Settings/Devices/vindic_${node.id}/ClassAndVrmInstance`,
+            path: `/Settings/Devices/vindic_${dbusId}/ClassAndVrmInstance`,
             default: 'switch:100',
             type: 's'
           }])
