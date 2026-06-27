@@ -1,3 +1,5 @@
+'use strict'
+
 const { readFileSync } = require('fs')
 const https = require('https')
 const { Selector } = require('testcafe')
