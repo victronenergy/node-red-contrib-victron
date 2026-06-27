@@ -8,8 +8,8 @@
 // The tarball URL must be publicly reachable from the GX device. In the
 // GitHub Actions workflow this is produced by: npm pack && gh release create (prerelease).
 
-const https = require('https')
 const { fetchSessionCookie } = require('./vrm-auth.js')
+const { nodeRedRequest } = require('./utils.js')
 
 const PACKAGE_NAME = '@victronenergy/node-red-contrib-victron'
 const POLL_INTERVAL_MS = 3000
@@ -22,34 +22,6 @@ if (urlFlag === -1 || !args[urlFlag + 1]) {
   process.exit(1)
 }
 const TARBALL_URL = args[urlFlag + 1]
-
-function httpsRequest (options, body) {
-  return new Promise((resolve, reject) => {
-    const req = https.request(options, res => {
-      let data = ''
-      res.on('data', chunk => { data += chunk })
-      res.on('end', () => resolve({ status: res.statusCode, headers: res.headers, body: data }))
-    })
-    req.on('error', reject)
-    if (body) req.write(body)
-    req.end()
-  })
-}
-
-function nodeRedRequest (proxyDomain, method, path, sessionCookie, body, extraHeaders) {
-  const bodyStr = body ? JSON.stringify(body) : undefined
-  console.log(`Making Node-RED request: ${method} ${path}, body=${bodyStr}, extraHeaders=${JSON.stringify(extraHeaders)}, proxyDomain=${proxyDomain}`)
-  return httpsRequest({
-    hostname: proxyDomain,
-    path,
-    method,
-    headers: {
-      cookie: `VRMPROXYSESSION=${sessionCookie}`,
-      ...(bodyStr ? { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(bodyStr) } : {}),
-      ...(extraHeaders || {})
-    }
-  }, bodyStr)
-}
 
 async function waitForNodeRed (proxyDomain, sessionCookie) {
   console.log(`Waiting for Node-RED to come back up (max ${MAX_WAIT_MS / 1000}s)...`)

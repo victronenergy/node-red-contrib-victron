@@ -6,56 +6,12 @@
 
 // TODO: we do not call this at the moment from the gihhub workflow.
 
-const https = require('https')
 const { fetchSessionCookie } = require('./vrm-auth.js')
+const { nodeRedRequest, clearAllFlows } = require('./utils.js')
 
 const PACKAGE_NAME = '@victronenergy/node-red-contrib-victron'
 const POLL_INTERVAL_MS = 3000
 const MAX_WAIT_MS = 60000
-
-function httpsRequest (options, body) {
-  return new Promise((resolve, reject) => {
-    const req = https.request(options, res => {
-      let data = ''
-      res.on('data', chunk => { data += chunk })
-      res.on('end', () => resolve({ status: res.statusCode, headers: res.headers, body: data }))
-    })
-    req.on('error', reject)
-    if (body) req.write(body)
-    req.end()
-  })
-}
-
-function nodeRedRequest (proxyDomain, method, path, sessionCookie, body, extraHeaders) {
-  const bodyStr = body ? JSON.stringify(body) : undefined
-  return httpsRequest({
-    hostname: proxyDomain,
-    path,
-    method,
-    headers: {
-      cookie: `VRMPROXYSESSION=${sessionCookie}`,
-      ...(bodyStr ? { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(bodyStr) } : {}),
-      ...(extraHeaders || {})
-    }
-  }, bodyStr)
-}
-
-async function clearAllFlows (proxyDomain, sessionCookie) {
-  console.log('Fetching current flows revision...')
-  const getRes = await nodeRedRequest(proxyDomain, 'GET', '/flows', sessionCookie, null, { 'Node-RED-API-Version': 'v2' })
-  if (getRes.status !== 200) {
-    console.warn(`GET /flows returned ${getRes.status}, skipping flow cleanup`)
-    return
-  }
-  const { rev } = JSON.parse(getRes.body)
-  console.log(`Clearing all flows (rev ${rev})...`)
-  const postRes = await nodeRedRequest(proxyDomain, 'POST', '/flows', sessionCookie, { flows: [], rev }, { 'Node-RED-API-Version': 'v2' })
-  if (postRes.status === 200 || postRes.status === 204) {
-    console.log('All flows cleared')
-  } else {
-    console.warn(`POST /flows returned ${postRes.status}: ${postRes.body}`)
-  }
-}
 
 async function uninstallPackage (proxyDomain, sessionCookie) {
   console.log(`Uninstalling ${PACKAGE_NAME}...`)
