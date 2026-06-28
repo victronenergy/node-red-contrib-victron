@@ -6,8 +6,7 @@
 
 // TODO: we do not call this at the moment from the gihhub workflow.
 
-const { fetchSessionCookie } = require('./vrm-auth.js')
-const { nodeRedRequest, clearAllFlows } = require('./utils.js')
+const { nodeRedRequest, clearAllFlows, fetchSessionCookie } = require('./utils.js')
 
 const PACKAGE_NAME = '@victronenergy/node-red-contrib-victron'
 const POLL_INTERVAL_MS = 3000

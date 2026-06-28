@@ -1,9 +1,8 @@
 'use strict'
 
-const { readFileSync } = require('fs')
-const https = require('https')
-const { Selector } = require('testcafe')
-const { fetchSessionCookie } = require('./vrm-auth.js')
+import https from 'https'
+import { readFileSync } from 'fs'
+import Selector from 'testcafe'
 
 function httpsRequest (options, body) {
   return new Promise((resolve, reject) => {
@@ -49,9 +48,6 @@ export async function clearAllFlows (proxyDomain, sessionCookie) {
   }
 }
 
-// Populated at fixture-before time by setupVrmFixture; safe to import statically
-// because test functions always run after fixture.before completes.
-// allow dynamic override for testing without VRM auth
 let NODE_RED_ENDPOINT = process.env.NODE_RED_ENDPOINT || null
 let PROXY_DOMAIN = null
 
@@ -176,4 +172,50 @@ export async function addNodeToCurrentFlow (t, nodePaletteType) {
     throw new Error(`Expected exactly one new node, found ${newNodeIds.length}. Before: [${existingNodeIds.join(', ')}], after: [${nodeIdsAfter.join(', ')}]`)
   }
   return newNodeIds[0]
+}
+
+// Performs the two-step VRM proxy auth and returns the VRMPROXYSESSION cookie value
+// and the proxy domain to use for subsequent requests.
+export async function fetchSessionCookie () {
+  const { token: proxyToken, proxyDomain } = await fetchProxyTokenAndRelay()
+  const res = await httpsRequest({
+    hostname: proxyDomain,
+    path: `/proxyauthorize?proxytoken=${proxyToken}`,
+    method: 'GET',
+    headers: { Accept: '*/*' }
+  })
+  const rawCookie = res.headers['set-cookie']
+  if (!rawCookie) throw new Error('No Set-Cookie header in proxyauthorize response')
+  const cookieStr = Array.isArray(rawCookie) ? rawCookie.join('; ') : rawCookie
+  const match = cookieStr.match(/VRMPROXYSESSION=([^;]+)/)
+  if (!match) throw new Error(`VRMPROXYSESSION not found in Set-Cookie: ${cookieStr}`)
+  console.log(`VRM proxy session established for installation ${VRM_INSTALLATION_ID} via ${proxyDomain}`)
+  return { sessionCookie: match[1], proxyDomain }
+}
+
+const { VRM_INSTALLATION_ID, VRM_API_TOKEN } = process.env
+
+if (!VRM_INSTALLATION_ID) throw new Error('VRM_INSTALLATION_ID environment variable is required')
+
+const VRM_API_HOST = 'vrmapi.victronenergy.com'
+
+export async function fetchProxyTokenAndRelay () {
+  if (!VRM_API_TOKEN) throw new Error('VRM_API_TOKEN environment variable is required')
+  const res = await httpsRequest({
+    hostname: VRM_API_HOST,
+    path: `/v2/installations/${VRM_INSTALLATION_ID}/proxy-relay/nodered`,
+    method: 'POST',
+    headers: {
+      'x-authorization': `Token ${VRM_API_TOKEN}`,
+      'Content-Type': 'application/json',
+      'Content-Length': 0
+    }
+  })
+  if (res.status !== 200) throw new Error(`proxy-relay request failed: ${res.status} ${res.body}`)
+  const data = JSON.parse(res.body)
+  if (!data.success || !data.token) throw new Error(`Unexpected proxy-relay response: ${res.body}`)
+  // proxy_relay is e.g. "*.proxyrelay7.victronenergy.com"
+  const relayDomain = data.proxy_relay ? data.proxy_relay.replace(/^\*\./, '') : 'proxyrelay2.victronenergy.com'
+  const proxyDomain = `${VRM_INSTALLATION_ID}-nodered.${relayDomain}`
+  return { token: data.token, proxyDomain }
 }

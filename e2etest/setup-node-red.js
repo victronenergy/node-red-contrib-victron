@@ -8,8 +8,7 @@
 // The tarball URL must be publicly reachable from the GX device. In the
 // GitHub Actions workflow this is produced by: npm pack && gh release create (prerelease).
 
-const { fetchSessionCookie } = require('./vrm-auth.js')
-const { nodeRedRequest } = require('./utils.js')
+const { nodeRedRequest, fetchSessionCookie } = require('./utils.js')
 
 const PACKAGE_NAME = '@victronenergy/node-red-contrib-victron'
 const POLL_INTERVAL_MS = 3000
