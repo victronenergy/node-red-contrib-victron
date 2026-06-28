@@ -2,7 +2,9 @@
 
 import https from 'https'
 import { readFileSync } from 'fs'
-import Selector from 'testcafe'
+import testcafe from 'testcafe'
+
+const { Selector } = testcafe
 
 function httpsRequest (options, body) {
   return new Promise((resolve, reject) => {
