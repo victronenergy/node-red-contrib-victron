@@ -128,7 +128,7 @@ module.exports = function (RED) {
     function instantiateDbus (self) {
       debug('instantiateDbus called for node:', self.id)
       // Connect to the dbus
-      function createClientCallback (err, bus) {
+      function createClientCallback (err, _bus) {
         if (err) {
           console.error(`[VictronVirtualSwitchNode] Failed to create DBus client self.address=${self.address}:`, err)
           self.bus = null
