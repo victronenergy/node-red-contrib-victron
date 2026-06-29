@@ -1,12 +1,23 @@
 // test/victron-virtual-gps.test.js
 /* eslint-env jest */
 const gps = require('../src/nodes/victron-virtual/device-type/gps')
+const { __private__: { wrapValue } } = require('dbus-victron-virtual')
 
 describe('gps device module', () => {
   test('exports required contract', () => {
     expect(typeof gps.properties).toBe('object')
     expect(typeof gps.initialize).toBe('function')
     expect(typeof gps.onPropertiesChanged).toBe('function')
+  })
+
+  describe('UtcTime property', () => {
+    test('type is compatible with dbus-victron-virtual wrapValue', () => {
+      const value = 43200000
+      const result = wrapValue(gps.properties.UtcTime, value)
+      expect(Array.isArray(result)).toBe(true)
+      expect(result).toHaveLength(2)
+      expect(result[1]).toBe(value)
+    })
   })
 
   describe('UtcTime format', () => {
