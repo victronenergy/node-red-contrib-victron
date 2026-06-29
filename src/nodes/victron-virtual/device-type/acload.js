@@ -89,6 +89,7 @@ function initialize (config, ifaceDesc, iface, node) {
       Connect: function (cemId, timeout) {
         node._s2PowerMeasurementActive = false
         node._s2PowerMeasurementCemId = null
+        node.setValuesLocally({ 'S2/0/Active': 1, 'S2/0/Rm': cemId })
         console.log('Connect received for CEM ID:', cemId, 'timeout', timeout)
         node.send([
           null,
@@ -104,6 +105,7 @@ function initialize (config, ifaceDesc, iface, node) {
       Disconnect: function (cemId) {
         node._s2PowerMeasurementActive = false
         node._s2PowerMeasurementCemId = null
+        node.setValuesLocally({ 'S2/0/Active': 0, 'S2/0/Rm': '' })
         node.send([
           null,
           {
