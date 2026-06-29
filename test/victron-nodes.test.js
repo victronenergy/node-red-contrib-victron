@@ -283,3 +283,19 @@ describe('victron-nodes pathObj guard', () => {
     expect(publish).not.toHaveBeenCalled()
   })
 })
+
+describe('victron-nodes', () => {
+  it('maps service names, if name is in mappings', () => {
+    const { BaseInputNode } = buildMockRED()
+
+    const oldStyleSystemInputNode = new BaseInputNode({
+      name: 'Test',
+      service: 'com.victronenergy.system/0',
+      path: '/SomePath/Foo',
+      serviceObj: { name: 'SomePath' },
+      pathObj: { name: 'Foo' }
+    })
+    expect(oldStyleSystemInputNode).toBeDefined()
+    expect(oldStyleSystemInputNode.service).toEqual('com.victronenergy.system')
+  })
+})
