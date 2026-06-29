@@ -8,7 +8,7 @@
 // The tarball URL must be publicly reachable from the GX device. In the
 // GitHub Actions workflow this is produced by: npm pack && gh release create (prerelease).
 
-const { nodeRedRequest, fetchSessionCookie } = require('./utils.js')
+const { nodeRedRequest, fetchSessionCookie, clearAllFlows } = require('./utils.js')
 
 const PACKAGE_NAME = '@victronenergy/node-red-contrib-victron'
 const POLL_INTERVAL_MS = 3000
@@ -37,14 +37,6 @@ async function waitForNodeRed (proxyDomain, sessionCookie) {
     process.stdout.write('.')
   }
   throw new Error(`Node-RED did not become ready within ${MAX_WAIT_MS / 1000}s`)
-}
-
-async function clearAllFlows (proxyDomain, sessionCookie) {
-  const getRes = await nodeRedRequest(proxyDomain, 'GET', '/flows', sessionCookie, null, { 'Node-RED-API-Version': 'v2' })
-  if (getRes.status !== 200) return
-  const { rev } = JSON.parse(getRes.body)
-  const postRes = await nodeRedRequest(proxyDomain, 'POST', '/flows', sessionCookie, { flows: [], rev }, { 'Node-RED-API-Version': 'v2' })
-  console.log(`Cleared all flows: ${postRes.status}`)
 }
 
 async function uninstallIfPresent (proxyDomain, sessionCookie) {
@@ -94,6 +86,11 @@ async function installPackage (proxyDomain, sessionCookie) {
 
 async function main () {
   const { sessionCookie, proxyDomain } = await fetchSessionCookie()
+  try {
+    await clearAllFlows(proxyDomain, sessionCookie)
+  } catch (err) {
+    console.warn('Error clearing flows, continuing anyway:', err.message)
+  }
   await uninstallIfPresent(proxyDomain, sessionCookie)
   await installPackage(proxyDomain, sessionCookie)
   await waitForNodeRed(proxyDomain, sessionCookie)
