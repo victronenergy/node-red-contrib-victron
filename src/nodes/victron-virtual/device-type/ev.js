@@ -1,10 +1,12 @@
+const hasEvcsInstance = (config) => config != null && config.ev_evcs_device_instance != null && config.ev_evcs_device_instance !== ''
+
 const formatTimestamp = (v) => {
   if (v == null) return ''
   const date = new Date(v * 1000)
   return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`
 }
 
-const properties = {
+const properties = (config) => ({
   'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'W' : '' },
   Soc: { type: 'd', format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: true },
   TargetSoc: { type: 'd', format: (v) => v != null ? v.toFixed(0) + '%' : '', persist: true },
@@ -41,8 +43,9 @@ const properties = {
   'LastUpdated/Charging': { type: 'i', format: formatTimestamp, persist: 300 },
   'LastUpdated/EvContact': { type: 'i', format: formatTimestamp, persist: 300 },
   'Alarms/StarterBatteryLow': { type: 'i', format: (v) => v != null ? v : '', value: 0 },
-  Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
-}
+  Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
+  'Mgmt/Connection': { type: 's', value: hasEvcsInstance(config) ? null : 'Node-RED' }
+})
 
 function initialize (config, _ifaceDesc, iface, _node) {
   if (config.ev_vin) {
@@ -54,7 +57,7 @@ function initialize (config, _ifaceDesc, iface, _node) {
   return 'Virtual EV'
 }
 
-function onPropertiesChanged ({ changes, instance }) {
+function onPropertiesChanged ({ changes, instance, config }) {
   const now = Math.floor(Date.now() / 1000)
 
   if (!changes['LastUpdated/EvContact']) {
@@ -68,6 +71,10 @@ function onPropertiesChanged ({ changes, instance }) {
 
   if ('ChargingState' in changes && changes.ChargingState !== instance.ChargingState && !changes['LastUpdated/Charging']) {
     changes['LastUpdated/Charging'] = now
+  }
+
+  if ('AtSite' in changes && hasEvcsInstance(config) && changes['Mgmt/Connection'] === undefined) {
+    changes['Mgmt/Connection'] = changes.AtSite === 1 ? String(config.ev_evcs_device_instance) : null
   }
 
   return changes

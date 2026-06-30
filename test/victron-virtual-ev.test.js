@@ -4,13 +4,31 @@ const ev = require('../src/nodes/victron-virtual/device-type/ev')
 
 describe('ev device module', () => {
   test('exports required contract', () => {
-    expect(typeof ev.properties).toBe('object')
+    expect(typeof ev.properties).toBe('function')
     expect(typeof ev.initialize).toBe('function')
     expect(typeof ev.onPropertiesChanged).toBe('function')
   })
 
+  describe('Mgmt/Connection property type', () => {
+    test('is string with null value when ev_evcs_device_instance is configured', () => {
+      expect(ev.properties({ ev_evcs_device_instance: 40 })['Mgmt/Connection']).toEqual({ type: 's', value: null })
+    })
+
+    test('is string defaulting to Node-RED when ev_evcs_device_instance is null', () => {
+      expect(ev.properties({ ev_evcs_device_instance: null })['Mgmt/Connection']).toEqual({ type: 's', value: 'Node-RED' })
+    })
+
+    test('is string defaulting to Node-RED when ev_evcs_device_instance is absent', () => {
+      expect(ev.properties({})['Mgmt/Connection']).toEqual({ type: 's', value: 'Node-RED' })
+    })
+
+    test('is string defaulting to Node-RED when ev_evcs_device_instance is empty string', () => {
+      expect(ev.properties({ ev_evcs_device_instance: '' })['Mgmt/Connection']).toEqual({ type: 's', value: 'Node-RED' })
+    })
+  })
+
   describe('ChargingState format', () => {
-    const fmt = ev.properties.ChargingState.format
+    const fmt = ev.properties({}).ChargingState.format
 
     test.each([
       [0, 'Not charging'],
@@ -103,6 +121,67 @@ describe('ev device module', () => {
     test('does not include msg in result', () => {
       const result = ev.onPropertiesChanged({ changes: { Soc: 50 }, instance: {} })
       expect(result).not.toHaveProperty('msg')
+    })
+
+    describe('Mgmt/Connection from AtSite', () => {
+      test('sets Mgmt/Connection to EVCS device instance when AtSite becomes 1', () => {
+        const result = ev.onPropertiesChanged({
+          changes: { AtSite: 1 },
+          instance: {},
+          config: { ev_evcs_device_instance: 40 }
+        })
+        expect(result['Mgmt/Connection']).toBe('40')
+      })
+
+      test('clears Mgmt/Connection when AtSite becomes 0', () => {
+        const result = ev.onPropertiesChanged({
+          changes: { AtSite: 0 },
+          instance: {},
+          config: { ev_evcs_device_instance: 40 }
+        })
+        expect(result['Mgmt/Connection']).toBeNull()
+      })
+
+      test('does not set Mgmt/Connection when no EVCS configured', () => {
+        const result = ev.onPropertiesChanged({
+          changes: { AtSite: 1 },
+          instance: {},
+          config: {}
+        })
+        expect(result).not.toHaveProperty('Mgmt/Connection')
+      })
+
+      test('does not set Mgmt/Connection when ev_evcs_device_instance is empty string', () => {
+        const result = ev.onPropertiesChanged({
+          changes: { AtSite: 1 },
+          instance: {},
+          config: { ev_evcs_device_instance: '' }
+        })
+        expect(result).not.toHaveProperty('Mgmt/Connection')
+      })
+
+      test('does not set Mgmt/Connection when AtSite not in changes', () => {
+        const result = ev.onPropertiesChanged({
+          changes: { Soc: 80 },
+          instance: {},
+          config: { ev_evcs_device_instance: 40 }
+        })
+        expect(result).not.toHaveProperty('Mgmt/Connection')
+      })
+
+      test('does not set Mgmt/Connection when config is absent', () => {
+        const result = ev.onPropertiesChanged({ changes: { AtSite: 1 }, instance: {} })
+        expect(result).not.toHaveProperty('Mgmt/Connection')
+      })
+
+      test('does not override explicit Mgmt/Connection when AtSite also changes', () => {
+        const result = ev.onPropertiesChanged({
+          changes: { AtSite: 1, 'Mgmt/Connection': 'custom' },
+          instance: {},
+          config: { ev_evcs_device_instance: 40 }
+        })
+        expect(result['Mgmt/Connection']).toBe('custom')
+      })
     })
   })
 })
