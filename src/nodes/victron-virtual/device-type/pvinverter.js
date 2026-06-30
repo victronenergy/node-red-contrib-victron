@@ -1,4 +1,4 @@
-const WATT_MILLISECONDS_PER_KWH = 3_600_000_000
+const { accumulateDelta } = require('../energy-utils')
 const ENERGY_PERSIST_SECONDS = 60
 
 const properties = {
@@ -78,15 +78,6 @@ function initialize (config, ifaceDesc, iface, node) {
     iface.StatusCode = 0
   }
   return `Virtual ${iface.NrOfPhases}-phase pvinverter`
-}
-
-function accumulateDelta (changes, instance, energyKey, oldPower, lastTs, now) {
-  if (lastTs != null && oldPower != null && !(energyKey in changes)) {
-    const deltaKwh = Math.max(0, oldPower) * (now - lastTs) / WATT_MILLISECONDS_PER_KWH
-    if (deltaKwh > 0) {
-      changes[energyKey] = (instance[energyKey] || 0) + deltaKwh
-    }
-  }
 }
 
 function onPropertiesChanged ({ changes, instance, config }) {

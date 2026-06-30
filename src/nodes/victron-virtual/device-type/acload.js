@@ -1,3 +1,4 @@
+const { accumulateDelta } = require('../energy-utils')
 const ENERGY_PERSIST_SECONDS = 60
 
 const properties = {
@@ -146,4 +147,39 @@ function initialize (config, ifaceDesc, iface, node) {
   return `Virtual ${iface.NrOfPhases}-phase AC load`
 }
 
-module.exports = { properties, initialize, label: 'AC Load' }
+function onPropertiesChanged ({ changes, instance, config }) {
+  if (!config.acload_auto_energy) return changes
+
+  const now = Date.now()
+  const nrOfPhases = Number(config.acload_nrofphases ?? 1)
+  let anyPhaseUpdated = false
+  let phaseTotal = 0
+
+  for (let i = 1; i <= nrOfPhases; i++) {
+    const powerKey = `Ac/L${i}/Power`
+    const energyKey = `Ac/L${i}/Energy/Forward`
+    const tsKey = `_lastL${i}PowerTimestamp`
+    if (powerKey in changes) {
+      accumulateDelta(changes, instance, energyKey, instance[powerKey], instance[tsKey], now)
+      instance[tsKey] = now
+      anyPhaseUpdated = true
+    }
+    phaseTotal += energyKey in changes ? changes[energyKey] : (instance[energyKey] || 0)
+  }
+
+  if (anyPhaseUpdated && !('Ac/Energy/Forward' in changes)) {
+    changes['Ac/Energy/Forward'] = phaseTotal
+  }
+
+  if ('Ac/Power' in changes) {
+    if (!anyPhaseUpdated) {
+      accumulateDelta(changes, instance, 'Ac/Energy/Forward', instance['Ac/Power'], instance._lastPowerTimestamp, now)
+    }
+    // Always update; prevents stale-delta spike when switching from per-phase to total-power reporting.
+    instance._lastPowerTimestamp = now
+  }
+
+  return changes
+}
+
+module.exports = { properties, initialize, onPropertiesChanged, label: 'AC Load' }
