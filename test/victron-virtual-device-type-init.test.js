@@ -131,29 +131,33 @@ describe('acload', () => {
       expect(ifaceDesc.__s2Handlers).toBeUndefined()
     })
 
-    test('Connect handler resets power measurement state and sends command on port 2', () => {
+    test('Connect handler resets power measurement state, updates S2 active/rm, and sends command on port 2', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
       node.send = jest.fn()
+      node.setValuesLocally = jest.fn()
       node._s2PowerMeasurementActive = true
       node._s2PowerMeasurementCemId = 'old-cem'
       acload.initialize({ acload_nrofphases: 1, enable_s2support: true }, ifaceDesc, iface, node)
       ifaceDesc.__s2Handlers.Connect('cem-1', 30)
       expect(node._s2PowerMeasurementActive).toBe(false)
       expect(node._s2PowerMeasurementCemId).toBeNull()
+      expect(node.setValuesLocally).toHaveBeenCalledWith({ 'S2/0/Active': 1, 'S2/0/Rm': 'CEM: cem-1' })
       expect(node.send).toHaveBeenCalledWith([null, {
         payload: { command: 'Connect', cemId: 'cem-1', keepAliveInterval: 30 }
       }])
     })
 
-    test('Disconnect handler resets power measurement state and sends command on port 2', () => {
+    test('Disconnect handler resets power measurement state, clears S2 active/rm, and sends command on port 2', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
       node.send = jest.fn()
+      node.setValuesLocally = jest.fn()
       node._s2PowerMeasurementActive = true
       node._s2PowerMeasurementCemId = 'cem-1'
       acload.initialize({ acload_nrofphases: 1, enable_s2support: true }, ifaceDesc, iface, node)
       ifaceDesc.__s2Handlers.Disconnect('cem-1')
       expect(node._s2PowerMeasurementActive).toBe(false)
       expect(node._s2PowerMeasurementCemId).toBeNull()
+      expect(node.setValuesLocally).toHaveBeenCalledWith({ 'S2/0/Active': 0, 'S2/0/Rm': '' })
       expect(node.send).toHaveBeenCalledWith([null, {
         payload: { command: 'Disconnect', cemId: 'cem-1' }
       }])
