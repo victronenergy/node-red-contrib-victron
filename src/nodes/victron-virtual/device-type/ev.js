@@ -73,7 +73,7 @@ function onPropertiesChanged ({ changes, instance, config }) {
     changes['LastUpdated/Charging'] = now
   }
 
-  if ('AtSite' in changes && hasEvcsInstance(config)) {
+  if ('AtSite' in changes && hasEvcsInstance(config) && changes['Mgmt/Connection'] === undefined) {
     changes['Mgmt/Connection'] = changes.AtSite === 1 ? String(config.ev_evcs_device_instance) : null
   }
 

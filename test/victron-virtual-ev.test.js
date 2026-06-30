@@ -173,6 +173,15 @@ describe('ev device module', () => {
         const result = ev.onPropertiesChanged({ changes: { AtSite: 1 }, instance: {} })
         expect(result).not.toHaveProperty('Mgmt/Connection')
       })
+
+      test('does not override explicit Mgmt/Connection when AtSite also changes', () => {
+        const result = ev.onPropertiesChanged({
+          changes: { AtSite: 1, 'Mgmt/Connection': 'custom' },
+          instance: {},
+          config: { ev_evcs_device_instance: 40 }
+        })
+        expect(result['Mgmt/Connection']).toBe('custom')
+      })
     })
   })
 })
