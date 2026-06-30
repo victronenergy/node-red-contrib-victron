@@ -141,7 +141,7 @@ describe('acload', () => {
       ifaceDesc.__s2Handlers.Connect('cem-1', 30)
       expect(node._s2PowerMeasurementActive).toBe(false)
       expect(node._s2PowerMeasurementCemId).toBeNull()
-      expect(node.setValuesLocally).toHaveBeenCalledWith({ 'S2/0/Active': 1, 'S2/0/Rm': 'cem-1' })
+      expect(node.setValuesLocally).toHaveBeenCalledWith({ 'S2/0/Active': 1, 'S2/0/Rm': 'CEM: cem-1' })
       expect(node.send).toHaveBeenCalledWith([null, {
         payload: { command: 'Connect', cemId: 'cem-1', keepAliveInterval: 30 }
       }])
