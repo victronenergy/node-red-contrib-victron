@@ -10,6 +10,14 @@ const { createIndicatorProperties, updateIndicatorStatus, expandIndicatorPayload
 const { filterInactiveVirtualDevices } = require('../services/virtual-device-cleanup')
 const { sanitizeIdForDbus, getTcpBusAddress, callAddSettingsWithRetry, getDeviceInstance, registerInputHandler, flushPendingInputs, createDebouncedSetters } = require('./victron-virtual-dbus-helpers')
 
+function createClientCallback (err) {
+  if (err) {
+    console.error('[VictronVirtualIndicatorNode] Failed to create DBus client:', err)
+  } else {
+    debug('[VictronDbusListener] Successfully created DBus client.')
+  }
+}
+
 module.exports = function (RED) {
   let hasRunOnce = false
   let globalTimeoutHandle = null
@@ -97,9 +105,20 @@ module.exports = function (RED) {
 
     function instantiateDbus (self) {
       if (self.address) {
-        self.bus = dbus.createClient({ busAddress: self.address, authMethods: ['ANONYMOUS'] })
+        self.bus = dbus.createClient({ busAddress: self.address, authMethods: ['ANONYMOUS'] }, (err) => {
+          if (err) {
+            console.error(`Failed to connect to DBus at ${self.address}:`, err)
+            node.warn(`Failed to connect to DBus at ${self.address}: ${err.message || err}`)
+            node.status({ color: 'red', shape: 'dot', text: `Failed to connect to DBus at ${self.address}` })
+          } else {
+            debugConnection(`Connected to DBus at ${self.address}`)
+          }
+        })
       } else {
-        self.bus = process.env.DBUS_SESSION_BUS_ADDRESS ? dbus.sessionBus() : dbus.systemBus()
+        // TODO: must add callbacks here, too. Compare ./victron-virtual/index.js createClient
+        self.bus = process.env.DBUS_SESSION_BUS_ADDRESS
+          ? dbus.sessionBus({}, createClientCallback)
+          : dbus.systemBus({}, createClientCallback)
       }
 
       if (!self.bus) {

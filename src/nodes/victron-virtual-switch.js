@@ -127,16 +127,24 @@ module.exports = function (RED) {
     function instantiateDbus (self) {
       debug('instantiateDbus called for node:', self.id)
       // Connect to the dbus
+      function createClientCallback (err, _bus) {
+        if (err) {
+          console.error(`[VictronVirtualSwitchNode] Failed to create DBus client self.address=${self.address}:`, err)
+          self.bus = null
+        } else {
+          debug(`Successfully created DBus client for address ${self.address}`)
+        }
+      }
       if (self.address) {
         debug(`Connecting to TCP address ${self.address}.`)
         self.bus = dbus.createClient({
           busAddress: self.address,
           authMethods: ['ANONYMOUS']
-        })
+        }, createClientCallback)
       } else {
         self.bus = process.env.DBUS_SESSION_BUS_ADDRESS
-          ? dbus.sessionBus()
-          : dbus.systemBus()
+          ? dbus.sessionBus({}, createClientCallback)
+          : dbus.systemBus({}, createClientCallback)
       }
       if (!self.bus) {
         node.warn(

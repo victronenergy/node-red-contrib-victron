@@ -1,0 +1,73 @@
+name: e2e
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/e2e-testcafe-vrm
+      - master
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Pack and publish temporary release
+        id: pack
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          npm pack
+          TARBALL=$(ls *.tgz | head -1)
+          TAG="ci-e2e-tmp-${{ github.run_id }}"
+          gh release create "${TAG}" "${TARBALL}" \
+            --prerelease \
+            --title "CI E2E temp (${{ github.run_id }})" \
+            --notes "Temporary build artifact - deleted after tests complete"
+          URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/${TARBALL}"
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          echo "url=${URL}" >> $GITHUB_OUTPUT
+          echo "Tarball published at: ${URL}"
+
+      - name: Install package on Node-RED
+        env:
+          VRM_API_TOKEN: ${{ secrets.VRM_API_TOKEN }}
+          VRM_INSTALLATION_ID: ${{ secrets.VRM_INSTALLATION_ID }}
+          VRM_PORTAL_ID: ${{ secrets.VRM_PORTAL_ID }}
+        run: |
+          node e2etest/setup-node-red.js --url "${{ steps.pack.outputs.url }}"
+          echo "Giving Node-RED 15s to fully initialise after restart..."
+          sleep 15
+
+      - name: List browsers available for E2E tests
+        run: npm run test:e2e -- --list-browsers
+
+      - name: Run E2E tests
+        env:
+          VRM_API_TOKEN: ${{ secrets.VRM_API_TOKEN }}
+          VRM_INSTALLATION_ID: ${{ secrets.VRM_INSTALLATION_ID }}
+          VRM_PORTAL_ID: ${{ secrets.VRM_PORTAL_ID }}
+        run: npm run test:e2e
+
+      - name: Delete temporary release
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ steps.pack.outputs.tag }}"
+          if [ -n "${TAG}" ]; then
+            gh release delete "${TAG}" --yes 2>/dev/null || true
+            git push origin ":refs/tags/${TAG}" 2>/dev/null || true
+          fi
