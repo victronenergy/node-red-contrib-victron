@@ -160,7 +160,7 @@ function onPropertiesChanged ({ changes, instance, config }) {
     const energyKey = `Ac/L${i}/Energy/Forward`
     const tsKey = `_lastL${i}PowerTimestamp`
     if (powerKey in changes) {
-      accumulateDelta(changes, instance, energyKey, instance[powerKey], instance[tsKey], now)
+      accumulateDelta({ changes, instance, energyKey, oldPower: instance[powerKey], lastTs: instance[tsKey], now })
       instance[tsKey] = now
       anyPhaseUpdated = true
     }
@@ -173,7 +173,7 @@ function onPropertiesChanged ({ changes, instance, config }) {
 
   if ('Ac/Power' in changes) {
     if (!anyPhaseUpdated) {
-      accumulateDelta(changes, instance, 'Ac/Energy/Forward', instance['Ac/Power'], instance._lastPowerTimestamp, now)
+      accumulateDelta({ changes, instance, energyKey: 'Ac/Energy/Forward', oldPower: instance['Ac/Power'], lastTs: instance._lastPowerTimestamp, now })
     }
     // Always update; prevents stale-delta spike when switching from per-phase to total-power reporting.
     instance._lastPowerTimestamp = now

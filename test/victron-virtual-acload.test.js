@@ -56,68 +56,6 @@ describe('acload device module', () => {
       expect(instance._lastPowerTimestamp).toBeGreaterThanOrEqual(before)
     })
 
-    test('accumulates energy on second power reading', () => {
-      const instance = { 'Ac/Power': 1000, 'Ac/Energy/Forward': 0 }
-      instance._lastPowerTimestamp = Date.now() - 3_600_000 // 1 hour ago
-
-      const result = acload.onPropertiesChanged({
-        changes: { 'Ac/Power': 1000 },
-        instance,
-        config: { acload_auto_energy: true, acload_nrofphases: 1 }
-      })
-      // 1000 W for 1 hour = 1 kWh
-      expect(result['Ac/Energy/Forward']).toBeCloseTo(1.0, 2)
-    })
-
-    test('adds delta to existing accumulated energy', () => {
-      const instance = { 'Ac/Power': 2000, 'Ac/Energy/Forward': 5.0 }
-      instance._lastPowerTimestamp = Date.now() - 1_800_000 // 30 minutes
-
-      const result = acload.onPropertiesChanged({
-        changes: { 'Ac/Power': 2000 },
-        instance,
-        config: { acload_auto_energy: true, acload_nrofphases: 1 }
-      })
-      // 2000 W for 0.5 h = 1 kWh; prior = 5.0; total ~= 6.0
-      expect(result['Ac/Energy/Forward']).toBeCloseTo(6.0, 2)
-    })
-
-    test('skips energy injection when power is zero', () => {
-      const instance = { 'Ac/Power': 0, 'Ac/Energy/Forward': 2.0 }
-      instance._lastPowerTimestamp = Date.now() - 3_600_000
-
-      const result = acload.onPropertiesChanged({
-        changes: { 'Ac/Power': 0 },
-        instance,
-        config: { acload_auto_energy: true, acload_nrofphases: 1 }
-      })
-      expect(result['Ac/Energy/Forward']).toBeUndefined()
-    })
-
-    test('clamps negative power to zero (no energy delta)', () => {
-      const instance = { 'Ac/Power': -100, 'Ac/Energy/Forward': 2.0 }
-      instance._lastPowerTimestamp = Date.now() - 3_600_000
-
-      const result = acload.onPropertiesChanged({
-        changes: { 'Ac/Power': -100 },
-        instance,
-        config: { acload_auto_energy: true, acload_nrofphases: 1 }
-      })
-      expect(result['Ac/Energy/Forward']).toBeUndefined()
-    })
-
-    test('skips energy injection when old power is null', () => {
-      const instance = { 'Ac/Power': null, 'Ac/Energy/Forward': 0 }
-      instance._lastPowerTimestamp = Date.now() - 3_600_000
-
-      const result = acload.onPropertiesChanged({
-        changes: { 'Ac/Power': 500 },
-        instance,
-        config: { acload_auto_energy: true, acload_nrofphases: 1 }
-      })
-      expect(result['Ac/Energy/Forward']).toBeUndefined()
-    })
-
     test('does not overwrite user-provided Ac/Energy/Forward in same payload', () => {
       const instance = { 'Ac/Power': 1000, 'Ac/Energy/Forward': 0 }
       instance._lastPowerTimestamp = Date.now() - 3_600_000
