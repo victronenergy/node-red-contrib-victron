@@ -16,7 +16,7 @@ const debugConnection = require('debug')('victron-virtual-switch:connection')
 const { validateVirtualDevicePayload, validateLightControls } = require('../services/utils')
 const { createSwitchProperties, handleSwitchOutputs, updateSwitchStatus, emitInitialSwitchOutputs, expandSwitchPayload, shouldApplyPayloadToDBus } = require('../services/virtual-switch')
 const { filterInactiveVirtualDevices } = require('../services/virtual-device-cleanup')
-const { getTcpBusAddress, callAddSettingsWithRetry, getDeviceInstance, registerInputHandler, flushPendingInputs } = require('./victron-virtual-dbus-helpers')
+const { sanitizeIdForDbus, getTcpBusAddress, callAddSettingsWithRetry, getDeviceInstance, registerInputHandler, flushPendingInputs } = require('./victron-virtual-dbus-helpers')
 
 module.exports = function (RED) {
   // Shared state across all instances
@@ -150,7 +150,8 @@ module.exports = function (RED) {
         return
       }
 
-      const serviceName = `com.victronenergy.switch.virtual_${self.id}`
+      const dbusId = sanitizeIdForDbus(self.id)
+      const serviceName = `com.victronenergy.switch.virtual_${dbusId}`
       const interfaceName = serviceName
       const objectPath = `/${serviceName.replace(/\./g, '/')}`
 
@@ -228,7 +229,7 @@ module.exports = function (RED) {
         try {
           settingsResult = await callAddSettingsWithRetry(usedBus, [
             {
-              path: `/Settings/Devices/virtual_${node.id}/ClassAndVrmInstance`,
+              path: `/Settings/Devices/virtual_${dbusId}/ClassAndVrmInstance`,
               default: 'switch:100',
               type: 's'
             }

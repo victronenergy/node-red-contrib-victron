@@ -13,7 +13,7 @@ const { validateVirtualDevicePayload, validateLightControls, debounce } = requir
 const { handleSwitchOutputs } = require('../../services/virtual-switch')
 const { filterInactiveVirtualDevices } = require('../../services/virtual-device-cleanup')
 const { makeSetPresence } = require('./helpers')
-const { registerInputHandler, flushPendingInputs, createDebouncedSetters } = require('../victron-virtual-dbus-helpers')
+const { sanitizeIdForDbus, registerInputHandler, flushPendingInputs, createDebouncedSetters } = require('../victron-virtual-dbus-helpers')
 
 const acloadModule = require('./device-type/acload')
 const batteryModule = require('./device-type/battery')
@@ -395,7 +395,8 @@ module.exports = function (RED) {
       const dbusServiceType = deviceModules[config.device]?.getServiceType?.(config) ?? actualDeviceType
       const onPropertiesChanged = deviceModules[config.device]?.onPropertiesChanged
 
-      const serviceName = `com.victronenergy.${dbusServiceType}.virtual_${self.id}`
+      const dbusId = sanitizeIdForDbus(self.id)
+      const serviceName = `com.victronenergy.${dbusServiceType}.virtual_${dbusId}`
       const interfaceName = serviceName
       const objectPath = `/${serviceName.replace(/\./g, '/')}`
 
@@ -536,7 +537,7 @@ module.exports = function (RED) {
           // First we use addSettings to claim a deviceInstance
           settingsResult = await callAddSettingsWithRetry(usedBus, [
             {
-              path: `/Settings/Devices/virtual_${node.id}/ClassAndVrmInstance`,
+              path: `/Settings/Devices/virtual_${dbusId}/ClassAndVrmInstance`,
               default: `${dbusServiceType}:100`,
               type: 's'
             }
@@ -601,7 +602,7 @@ module.exports = function (RED) {
             const newValue = `${dbusServiceType}:${vrmInstance}`
             const migrationSucceeded = await new Promise(resolve => {
               usedBus.invoke({
-                path: `/Settings/Devices/virtual_${node.id}/ClassAndVrmInstance`,
+                path: `/Settings/Devices/virtual_${dbusId}/ClassAndVrmInstance`,
                 destination: 'com.victronenergy.settings',
                 interface: 'com.victronenergy.BusItem',
                 member: 'SetValue',
@@ -622,7 +623,7 @@ module.exports = function (RED) {
               // the VRM instance if the target class already had a conflict.
               try {
                 const updatedResult = await callAddSettingsWithRetry(usedBus, [{
-                  path: `/Settings/Devices/virtual_${node.id}/ClassAndVrmInstance`,
+                  path: `/Settings/Devices/virtual_${dbusId}/ClassAndVrmInstance`,
                   default: `${actualDeviceType}:${vrmInstance}`,
                   type: 's'
                 }])
