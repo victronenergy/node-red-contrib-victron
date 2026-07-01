@@ -89,7 +89,7 @@ async function main () {
   try {
     await clearAllFlows(proxyDomain, sessionCookie)
   } catch (err) {
-    console.warn('Error clearing flows, continuing anyway:', err.message)
+    console.warn('::warning file=e2etest/setup-node-red.js,line=92::Error clearing flows, continuing anyway:', err.message)
   }
   await uninstallIfPresent(proxyDomain, sessionCookie)
   await installPackage(proxyDomain, sessionCookie)
