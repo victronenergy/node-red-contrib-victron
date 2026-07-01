@@ -1,4 +1,4 @@
-const WATT_MILLISECONDS_PER_KWH = 3_600_000_000
+const { accumulateDelta } = require('../energy-utils')
 const ENERGY_PERSIST_SECONDS = 60
 
 const properties = {
@@ -80,15 +80,6 @@ function initialize (config, ifaceDesc, iface, node) {
   return `Virtual ${iface.NrOfPhases}-phase pvinverter`
 }
 
-function accumulateDelta (changes, instance, energyKey, oldPower, lastTs, now) {
-  if (lastTs != null && oldPower != null && !(energyKey in changes)) {
-    const deltaKwh = Math.max(0, oldPower) * (now - lastTs) / WATT_MILLISECONDS_PER_KWH
-    if (deltaKwh > 0) {
-      changes[energyKey] = (instance[energyKey] || 0) + deltaKwh
-    }
-  }
-}
-
 function onPropertiesChanged ({ changes, instance, config }) {
   if (!config.pvinverter_auto_energy) return changes
 
@@ -102,7 +93,7 @@ function onPropertiesChanged ({ changes, instance, config }) {
     const energyKey = `Ac/L${i}/Energy/Forward`
     const tsKey = `_lastL${i}PowerTimestamp`
     if (powerKey in changes) {
-      accumulateDelta(changes, instance, energyKey, instance[powerKey], instance[tsKey], now)
+      accumulateDelta({ changes, instance, energyKey, oldPower: instance[powerKey], lastTs: instance[tsKey], now })
       instance[tsKey] = now
       anyPhaseUpdated = true
     }
@@ -115,7 +106,7 @@ function onPropertiesChanged ({ changes, instance, config }) {
 
   if ('Ac/Power' in changes) {
     if (!anyPhaseUpdated) {
-      accumulateDelta(changes, instance, 'Ac/Energy/Forward', instance['Ac/Power'], instance._lastPowerTimestamp, now)
+      accumulateDelta({ changes, instance, energyKey: 'Ac/Energy/Forward', oldPower: instance['Ac/Power'], lastTs: instance._lastPowerTimestamp, now })
     }
     // Always update; prevents stale-delta spike when switching from per-phase to total-power reporting.
     instance._lastPowerTimestamp = now

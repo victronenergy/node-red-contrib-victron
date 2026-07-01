@@ -11,6 +11,7 @@
             default_values: {value: true, required: false},
             // acload
             acload_nrofphases: {value: 1, required: false},
+            acload_auto_energy: {value: true, required: false},
             enable_s2support: {value: false, required: false},
             s2_measurement_type: {value: '3_PHASE_SYMMETRIC', required: false},
             // battery
@@ -272,6 +273,12 @@
                 <option value="2">Split phase</option>
                 <option value="3">3 phase</option>
             </select>
+        </div>
+        <div class="form-row input-acload victron-checkbox" class="hidden-row">
+            <input type="checkbox" id="node-input-acload_auto_energy">
+            <label for="node-input-acload_auto_energy">Auto-calculate energy (Ac/Energy/Forward)
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Integrates power over time to estimate energy. Precision improves with higher update frequency."></i>
+            </label>
         </div>
         <div class="form-row input-acload victron-checkbox" class="hidden-row">
             <input type="checkbox" id="node-input-enable_s2support" class="s2-checkbox">
