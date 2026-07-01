@@ -408,6 +408,16 @@ describe('expandSwitchPayload', () => {
   test('null payload is returned as-is', () => {
     expect(expandSwitchPayload(null, SWITCH_TYPE_MAP.TOGGLE)).toBeNull()
   })
+
+  test('plain string for momentary returns new object, does not mutate original msg', () => {
+    const msg = { payload: 'Hello world', topic: '' }
+    const expanded = expandSwitchPayload(msg.payload, SWITCH_TYPE_MAP.MOMENTARY)
+    // The caller must use expanded directly - never assign back to msg.payload,
+    // because msg was already sent to the passthrough output.
+    expect(msg.payload).toBe('Hello world')
+    expect(expanded).toEqual({ 'SwitchableOutput/output_1/State': 'Hello world' })
+    expect(expanded).not.toBe(msg.payload)
+  })
 })
 
 describe('shouldApplyPayloadToDBus', () => {

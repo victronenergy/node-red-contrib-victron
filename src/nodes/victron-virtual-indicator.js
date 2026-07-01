@@ -8,7 +8,15 @@ const { DEBOUNCE_DELAY_MS } = require('./victron-virtual-constants')
 const { validateVirtualDevicePayload, debounce } = require('../services/utils')
 const { createIndicatorProperties, updateIndicatorStatus, expandIndicatorPayload, INDICATOR_INPUT_KEY } = require('../services/virtual-indicator')
 const { filterInactiveVirtualDevices } = require('../services/virtual-device-cleanup')
-const { getTcpBusAddress, callAddSettingsWithRetry, getDeviceInstance, registerInputHandler, flushPendingInputs, createDebouncedSetters } = require('./victron-virtual-dbus-helpers')
+const { sanitizeIdForDbus, getTcpBusAddress, callAddSettingsWithRetry, getDeviceInstance, registerInputHandler, flushPendingInputs, createDebouncedSetters } = require('./victron-virtual-dbus-helpers')
+
+function createClientCallback (err) {
+  if (err) {
+    console.error('[VictronVirtualIndicatorNode] Failed to create DBus client:', err)
+  } else {
+    debug('[VictronDbusListener] Successfully created DBus client.')
+  }
+}
 
 module.exports = function (RED) {
   let hasRunOnce = false
@@ -97,9 +105,20 @@ module.exports = function (RED) {
 
     function instantiateDbus (self) {
       if (self.address) {
-        self.bus = dbus.createClient({ busAddress: self.address, authMethods: ['ANONYMOUS'] })
+        self.bus = dbus.createClient({ busAddress: self.address, authMethods: ['ANONYMOUS'] }, (err) => {
+          if (err) {
+            console.error(`Failed to connect to DBus at ${self.address}:`, err)
+            node.warn(`Failed to connect to DBus at ${self.address}: ${err.message || err}`)
+            node.status({ color: 'red', shape: 'dot', text: `Failed to connect to DBus at ${self.address}` })
+          } else {
+            debugConnection(`Connected to DBus at ${self.address}`)
+          }
+        })
       } else {
-        self.bus = process.env.DBUS_SESSION_BUS_ADDRESS ? dbus.sessionBus() : dbus.systemBus()
+        // TODO: must add callbacks here, too. Compare ./victron-virtual/index.js createClient
+        self.bus = process.env.DBUS_SESSION_BUS_ADDRESS
+          ? dbus.sessionBus({}, createClientCallback)
+          : dbus.systemBus({}, createClientCallback)
       }
 
       if (!self.bus) {
@@ -111,7 +130,8 @@ module.exports = function (RED) {
       // The indicator uses the switch service type: a digital switching device
       // typically has both inputs and outputs; the indicator only uses the input
       // side, but it is the closest available fit on Venus OS.
-      const serviceName = `com.victronenergy.switch.vindic_${self.id}`
+      const dbusId = sanitizeIdForDbus(self.id)
+      const serviceName = `com.victronenergy.switch.vindic_${dbusId}`
       const interfaceName = serviceName
       const objectPath = `/${serviceName.replace(/\./g, '/')}`
 
@@ -166,7 +186,7 @@ module.exports = function (RED) {
         let settingsResult = null
         try {
           settingsResult = await callAddSettingsWithRetry(usedBus, [{
-            path: `/Settings/Devices/vindic_${node.id}/ClassAndVrmInstance`,
+            path: `/Settings/Devices/vindic_${dbusId}/ClassAndVrmInstance`,
             default: 'switch:100',
             type: 's'
           }])

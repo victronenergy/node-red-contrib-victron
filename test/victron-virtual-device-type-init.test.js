@@ -131,29 +131,33 @@ describe('acload', () => {
       expect(ifaceDesc.__s2Handlers).toBeUndefined()
     })
 
-    test('Connect handler resets power measurement state and sends command on port 2', () => {
+    test('Connect handler resets power measurement state, updates S2 active/rm, and sends command on port 2', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
       node.send = jest.fn()
+      node.setValuesLocally = jest.fn()
       node._s2PowerMeasurementActive = true
       node._s2PowerMeasurementCemId = 'old-cem'
       acload.initialize({ acload_nrofphases: 1, enable_s2support: true }, ifaceDesc, iface, node)
       ifaceDesc.__s2Handlers.Connect('cem-1', 30)
       expect(node._s2PowerMeasurementActive).toBe(false)
       expect(node._s2PowerMeasurementCemId).toBeNull()
+      expect(node.setValuesLocally).toHaveBeenCalledWith({ 'S2/0/Active': 1, 'S2/0/Rm': 'CEM: cem-1' })
       expect(node.send).toHaveBeenCalledWith([null, {
         payload: { command: 'Connect', cemId: 'cem-1', keepAliveInterval: 30 }
       }])
     })
 
-    test('Disconnect handler resets power measurement state and sends command on port 2', () => {
+    test('Disconnect handler resets power measurement state, clears S2 active/rm, and sends command on port 2', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
       node.send = jest.fn()
+      node.setValuesLocally = jest.fn()
       node._s2PowerMeasurementActive = true
       node._s2PowerMeasurementCemId = 'cem-1'
       acload.initialize({ acload_nrofphases: 1, enable_s2support: true }, ifaceDesc, iface, node)
       ifaceDesc.__s2Handlers.Disconnect('cem-1')
       expect(node._s2PowerMeasurementActive).toBe(false)
       expect(node._s2PowerMeasurementCemId).toBeNull()
+      expect(node.setValuesLocally).toHaveBeenCalledWith({ 'S2/0/Active': 0, 'S2/0/Rm': '' })
       expect(node.send).toHaveBeenCalledWith([null, {
         payload: { command: 'Disconnect', cemId: 'cem-1' }
       }])
@@ -324,22 +328,24 @@ describe('ev', () => {
   })
 
   describe('format', () => {
+    const evProps = ev.properties({})
+
     test('Ac/Power formats watts', () => {
-      expect(ev.properties['Ac/Power'].format(8000)).toBe('8000W')
-      expect(ev.properties['Ac/Power'].format(null)).toBe('')
+      expect(evProps['Ac/Power'].format(8000)).toBe('8000W')
+      expect(evProps['Ac/Power'].format(null)).toBe('')
     })
 
     test('Soc formats percentage', () => {
-      expect(ev.properties.Soc.format(70)).toBe('70%')
-      expect(ev.properties.Soc.format(null)).toBe('')
+      expect(evProps.Soc.format(70)).toBe('70%')
+      expect(evProps.Soc.format(null)).toBe('')
     })
 
     test('TargetSoc formats percentage', () => {
-      expect(ev.properties.TargetSoc.format(80)).toBe('80%')
-      expect(ev.properties.TargetSoc.format(null)).toBe('')
+      expect(evProps.TargetSoc.format(80)).toBe('80%')
+      expect(evProps.TargetSoc.format(null)).toBe('')
     })
 
-    const chargingStateFmt = ev.properties.ChargingState.format
+    const chargingStateFmt = evProps.ChargingState.format
     test.each([
       [0, 'Not charging'],
       [1, 'Low power mode'],
@@ -357,31 +363,31 @@ describe('ev', () => {
     })
 
     test('BatteryCapacity formats kWh', () => {
-      expect(ev.properties.BatteryCapacity.format(60)).toBe('60kWh')
-      expect(ev.properties.BatteryCapacity.format(null)).toBe('')
+      expect(evProps.BatteryCapacity.format(60)).toBe('60kWh')
+      expect(evProps.BatteryCapacity.format(null)).toBe('')
     })
 
     test('Odometer formats km', () => {
-      expect(ev.properties.Odometer.format(21989)).toBe('21989km')
-      expect(ev.properties.Odometer.format(null)).toBe('')
+      expect(evProps.Odometer.format(21989)).toBe('21989km')
+      expect(evProps.Odometer.format(null)).toBe('')
     })
 
     test('RangeToGo formats km', () => {
-      expect(ev.properties.RangeToGo.format(266)).toBe('266km')
-      expect(ev.properties.RangeToGo.format(null)).toBe('')
+      expect(evProps.RangeToGo.format(266)).toBe('266km')
+      expect(evProps.RangeToGo.format(null)).toBe('')
     })
 
     test('Position/Latitude formats degrees', () => {
-      expect(ev.properties['Position/Latitude'].format(52.123456)).toBe('52.123456°')
-      expect(ev.properties['Position/Latitude'].format(null)).toBe('')
+      expect(evProps['Position/Latitude'].format(52.123456)).toBe('52.123456°')
+      expect(evProps['Position/Latitude'].format(null)).toBe('')
     })
 
     test('Position/Longitude formats degrees', () => {
-      expect(ev.properties['Position/Longitude'].format(4.654321)).toBe('4.654321°')
-      expect(ev.properties['Position/Longitude'].format(null)).toBe('')
+      expect(evProps['Position/Longitude'].format(4.654321)).toBe('4.654321°')
+      expect(evProps['Position/Longitude'].format(null)).toBe('')
     })
 
-    const atSiteFmt = ev.properties.AtSite.format
+    const atSiteFmt = evProps.AtSite.format
     test.each([
       [0, 'No'],
       [1, 'Yes'],
@@ -391,23 +397,23 @@ describe('ev', () => {
     })
 
     test('LastUpdated/EvContact formats null as empty string', () => {
-      expect(ev.properties['LastUpdated/EvContact'].format(null)).toBe('')
+      expect(evProps['LastUpdated/EvContact'].format(null)).toBe('')
     })
 
     test('LastUpdated/EvContact formats unix timestamp as date string', () => {
       // 2025-01-15 12:00:00 UTC
-      const result = ev.properties['LastUpdated/EvContact'].format(1736942400)
+      const result = evProps['LastUpdated/EvContact'].format(1736942400)
       expect(result).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)
     })
 
     test('Alarms/StarterBatteryLow returns value as-is', () => {
-      expect(ev.properties['Alarms/StarterBatteryLow'].format(0)).toBe(0)
-      expect(ev.properties['Alarms/StarterBatteryLow'].format(1)).toBe(1)
+      expect(evProps['Alarms/StarterBatteryLow'].format(0)).toBe(0)
+      expect(evProps['Alarms/StarterBatteryLow'].format(1)).toBe(1)
     })
 
     test('Connected returns value as-is', () => {
-      expect(ev.properties.Connected.format(1)).toBe(1)
-      expect(ev.properties.Connected.format(0)).toBe(0)
+      expect(evProps.Connected.format(1)).toBe(1)
+      expect(evProps.Connected.format(0)).toBe(0)
     })
   })
 })

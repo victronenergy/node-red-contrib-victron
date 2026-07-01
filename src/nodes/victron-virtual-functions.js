@@ -971,6 +971,28 @@ function renderDropdownLabels (context) {
   }
 }
 
+export function fetchEvChargers (baseUrl) {
+  const url = (baseUrl || '') + '/victron/cache'
+  return fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      const result = []
+      for (const service in data) {
+        if (service.indexOf('com.victronenergy.evcharger') === 0) {
+          const paths = data[service]
+          const deviceInstance = paths['/DeviceInstance'] != null
+            ? paths['/DeviceInstance']
+            : parseInt(service.split('/')[1], 10)
+          const name = paths['/CustomName'] || 'EV Charger'
+          if (deviceInstance != null && !isNaN(deviceInstance)) {
+            result.push({ deviceInstance, name })
+          }
+        }
+      }
+      return result
+    })
+}
+
 export function fetchSwitchNodeNameAndGroupFromCache (id) {
   if (!id) {
     return Promise.reject(new Error('id is required'))

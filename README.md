@@ -64,6 +64,30 @@ This library is community-supported. For help:
 
 Contributions are welcome! See our [Contributing Guide](https://github.com/victronenergy/node-red-contrib-victron/blob/master/CONTRIBUTING.md) for details.
 
+## Development
+
+### Setup
+
+TBD
+
+### Testing
+
+Unit tests can be run with `npm test`, see ./package.json for details.
+
+Black box testing, currently experimental, can be run with `npm run test:e2e`. To run it with live-reload, use `npm run test:e2e -- --live`.
+
+To run an individual e2e / black box test, against Chrome, with live-reload:
+
+```bash
+npx testcafe chrome e2etest/switches-config-test.js --live
+```
+
+To run e2e tests against a local installation (without running via VRM), define `NODE_RED_ENDPOINT`:
+
+```bash
+VRM_PORTAL_ID=my-portal-id LOCAL_MQTT_ENDPOINT=mqtt://localhost:1883 NODE_RED_ENDPOINT=http://localhost:1880 npm run test:e2e
+```
+
 ## License
 
 [MIT](https://github.com/victronenergy/node-red-contrib-victron/blob/master/LICENSE)

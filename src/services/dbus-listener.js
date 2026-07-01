@@ -31,6 +31,14 @@ const _ = require('lodash')
         .catch(err => console.error)
  */
 
+function createClientCallback (err) {
+  if (err) {
+    console.error('[VictronDbusListener] Failed to create DBus client:', err)
+  } else {
+    debug('[VictronDbusListener] Successfully created DBus client.')
+  }
+}
+
 function searchHaystack (stack, needle, fallback) {
   // First try to find exact match with device instance
   for (const key in stack) {
@@ -124,12 +132,20 @@ class VictronDbusListener {
         this.bus = dbus.createClient({
           busAddress: this.address,
           authMethods: ['ANONYMOUS']
+        }, (err, _) => {
+          if (err) {
+            console.error(`Failed to create DBus client for address ${this.address}:`, err)
+            // reject(new Error(`Failed to create DBus client for address ${this.address}: ${err.message}`))
+          } else {
+            debug(`Successfully created DBus client for address ${this.address}`)
+          }
         })
       } else { // Connect via socket
         debug('Connecting to system socket.')
+        const opts = {}
         this.bus = process.env.DBUS_SESSION_BUS_ADDRESS
-          ? dbus.sessionBus()
-          : dbus.systemBus()
+          ? dbus.sessionBus(opts, createClientCallback)
+          : dbus.systemBus(opts, createClientCallback)
       }
 
       if (!this.bus) { throw new Error('Could not connect to the D-Bus') }

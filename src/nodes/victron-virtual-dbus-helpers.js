@@ -2,6 +2,15 @@ const { addSettings } = require('dbus-victron-virtual')
 const debug = require('debug')('victron-virtual')
 
 /**
+ * Replaces any character that is not alphanumeric or underscore with '_',
+ * producing a string safe for use in D-Bus object path elements and service names.
+ * The original node.id is preserved for filesystem persistence.
+ */
+function sanitizeIdForDbus (id) {
+  return id.replace(/[^A-Za-z0-9_]/g, '_')
+}
+
+/**
  * Parses NODE_RED_DBUS_ADDRESS and returns a tcp: bus address string,
  * or null if not set (caller should fall back to session/system bus).
  */
@@ -125,4 +134,4 @@ function createDebouncedSetters (node, debounce, delayMs) {
   return { shouldApplyImmediately, getDebouncedSetter }
 }
 
-module.exports = { getTcpBusAddress, callAddSettingsWithRetry, getDeviceInstance, registerInputHandler, flushPendingInputs, createDebouncedSetters }
+module.exports = { sanitizeIdForDbus, getTcpBusAddress, callAddSettingsWithRetry, getDeviceInstance, registerInputHandler, flushPendingInputs, createDebouncedSetters }

@@ -3,10 +3,10 @@
 const gps = require('../src/nodes/victron-virtual/device-type/gps')
 
 describe('gps device module', () => {
-  test('exports required contract', () => {
-    expect(typeof gps.properties).toBe('object')
-    expect(typeof gps.initialize).toBe('function')
-    expect(typeof gps.onPropertiesChanged).toBe('function')
+  describe('UtcTime property', () => {
+    test('type is u (uint32), not s (string)', () => {
+      expect(gps.properties.UtcTime.type).toBe('u')
+    })
   })
 
   describe('UtcTime format', () => {
