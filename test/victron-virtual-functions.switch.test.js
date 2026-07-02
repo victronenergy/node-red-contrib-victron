@@ -585,12 +585,24 @@ describe('determineOutputLabel', () => {
   })
 
   test('acload with s2 index 1 is S2 communication', () => {
-    expect(determineOutputLabel({ device: 'acload', enable_s2support: true }, 1)).toBe('S2 communication')
+    const caps = { acload: { supportsS2: true } }
+    expect(determineOutputLabel({ device: 'acload', enable_s2support: true }, 1, caps)).toBe('S2 communication')
   })
 
   test('acload without s2 index 1 falls back to Output 2', () => {
-    expect(determineOutputLabel({ device: 'acload', enable_s2support: false }, 1)).toBe('Output 2')
-    expect(determineOutputLabel({ device: 'acload' }, 1)).toBe('Output 2')
+    const caps = { acload: { supportsS2: true } }
+    expect(determineOutputLabel({ device: 'acload', enable_s2support: false }, 1, caps)).toBe('Output 2')
+    expect(determineOutputLabel({ device: 'acload' }, 1, caps)).toBe('Output 2')
+  })
+
+  test('a non-acload device with declared supportsS2 capability also gets S2 communication', () => {
+    const caps = { 'my-custom-acload': { supportsS2: true } }
+    expect(determineOutputLabel({ device: 'my-custom-acload', enable_s2support: true }, 1, caps)).toBe('S2 communication')
+  })
+
+  test('a device without a declared supportsS2 capability falls back to generic label even with enable_s2support set', () => {
+    expect(determineOutputLabel({ device: 'my-custom-acload', enable_s2support: true }, 1, { 'my-custom-acload': { supportsS2: false } })).toBe('Output 2')
+    expect(determineOutputLabel({ device: 'unknown-device', enable_s2support: true }, 1, {})).toBe('Output 2')
   })
 
   test('generic device index > 0 returns Output N+1', () => {

@@ -124,6 +124,27 @@ describe('calculateOutputs', () => {
       })
     })
   })
+
+  describe('S2-capable devices (generic, capability-driven)', () => {
+    test('device with supportsS2 capability and enable_s2support has 2 outputs', () => {
+      const caps = { acload: { supportsS2: true } }
+      expect(calculateOutputs('acload', { enable_s2support: true }, caps)).toBe(2)
+    })
+
+    test('device with supportsS2 capability but enable_s2support false has 1 output', () => {
+      const caps = { acload: { supportsS2: true } }
+      expect(calculateOutputs('acload', { enable_s2support: false }, caps)).toBe(1)
+    })
+
+    test('an external device type with supportsS2 gets 2 outputs generically', () => {
+      const caps = { 'my-custom-acload': { supportsS2: true } }
+      expect(calculateOutputs('my-custom-acload', { enable_s2support: true }, caps)).toBe(2)
+    })
+
+    test('a device without a capabilities entry defaults to 1 output regardless of enable_s2support', () => {
+      expect(calculateOutputs('unknown-device', { enable_s2support: true }, {})).toBe(1)
+    })
+  })
 })
 
 describe('getOutputLabels', () => {

@@ -111,6 +111,7 @@
                         $select.append($('<option>', { value: dt.value, text: dt.label }));
                     });
                     if (self.device) $select.val(self.device);
+                    window.__victron.setDeviceCapabilities(deviceTypes);
                 })
                 .fail(function() {
                     console.error('Failed to load virtual device types');
@@ -280,14 +281,14 @@
                 <i class="fa fa-info-circle tooltip-icon" data-tooltip="Integrates power over time to estimate energy. Precision improves with higher update frequency."></i>
             </label>
         </div>
-        <div class="form-row input-acload victron-checkbox" class="hidden-row">
+        <div class="form-row input-s2support victron-checkbox" style="display:none">
             <input type="checkbox" id="node-input-enable_s2support" class="s2-checkbox">
             <label for="node-input-enable_s2support">
                 S2 support
                 <i class="fa fa-info-circle tooltip-icon" data-tooltip="Enable Victron S2 protocol support for smart charging"></i>
             </label>
         </div>
-        <div class="form-row input-acload input-acload-s2" style="display:none">
+        <div class="form-row input-s2support input-s2support-measurement" style="display:none">
             <label for="node-input-s2_measurement_type"><i class="fa fa-bar-chart"></i> S2 Measurement
                 <i class="fa fa-info-circle tooltip-icon" data-tooltip="How power is reported to the CEM. Must match the RM's Power Measurement setting."></i>
             </label>

@@ -343,6 +343,66 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       // Only check that the switch config container is emptied for a switch device
       expect(mockContainer.empty).toHaveBeenCalled()
     })
+
+    test('shows S2 section and wires the change handler for a device with supportsS2 capability', () => {
+      const mockS2Section = createMockElement()
+      const mockS2Checkbox = createMockElement({ is: false })
+      const context = {}
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'acload' })
+        }
+        if (selector === '.input-s2support') {
+          return mockS2Section
+        }
+        if (selector === '#node-input-enable_s2support') {
+          return mockS2Checkbox
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice(context, { acload: { supportsS2: true } })
+
+      expect(mockS2Section.show).toHaveBeenCalled()
+      expect(mockS2Checkbox.off).toHaveBeenCalledWith('change.s2support')
+      expect(mockS2Checkbox.on).toHaveBeenCalledWith('change.s2support', expect.any(Function))
+    })
+
+    test('hides S2 section and does not wire the change handler for a device without supportsS2 capability', () => {
+      const mockS2Section = createMockElement()
+      const mockS2Measurement = createMockElement()
+      const mockS2Checkbox = createMockElement({ is: false })
+      const context = {}
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'battery' })
+        }
+        if (selector === '.input-s2support') {
+          return mockS2Section
+        }
+        if (selector === '.input-s2support-measurement') {
+          return mockS2Measurement
+        }
+        if (selector === '#node-input-enable_s2support') {
+          return mockS2Checkbox
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice(context, { acload: { supportsS2: true } })
+
+      expect(mockS2Section.hide).toHaveBeenCalled()
+      expect(mockS2Measurement.hide).toHaveBeenCalled()
+      expect(mockS2Checkbox.off).not.toHaveBeenCalledWith('change.s2support')
+    })
   })
 
   describe('updateSwitchConfig', () => {
