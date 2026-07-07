@@ -12,6 +12,10 @@ function mustRemoveDeviceInstanceFromService (service) {
   return serviceNamesWithoutDeviceInstance.includes(serviceNameBare)
 }
 
+// Logged at most once per process: see the legacy global context key fallback in
+// BaseInputNode's processMessage (issue #535).
+let hasWarnedAboutLegacyGlobalContextKey = false
+
 module.exports = function (RED) {
   const debug = require('debug')('node-red-contrib-victron:victron-nodes')
   const utils = require('../services/utils.js')
@@ -213,7 +217,28 @@ module.exports = function (RED) {
               })
             }
             const globalContext = this.node.context().global
-            globalContext.set(transform(`${this.service}${this.path}`), msg.value)
+            const key = transform(`${this.service}${this.path}`)
+            globalContext.set(key, msg.value)
+
+            // Singleton services (system, settings, platform, dynamicess) no longer carry
+            // a '/0' device instance suffix (see #518), so they no longer produce a '._0'
+            // segment here. Flows/dashboards built against the old key would silently stop
+            // updating, so we keep writing that legacy key alongside the new one (#535).
+            if (serviceNamesWithoutDeviceInstance.includes(this.service)) {
+              const legacyKey = transform(`${this.service}/0${this.path}`)
+              if (legacyKey !== key) {
+                globalContext.set(legacyKey, msg.value)
+                if (!hasWarnedAboutLegacyGlobalContextKey) {
+                  console.warn(
+                    `[DEPRECATED] Global context key '${legacyKey}' is only written for backward ` +
+                    'compatibility. If any of your flows/dashboards still read that key, switch them ' +
+                    `to '${key}' - the legacy key may be removed in a future release. ` +
+                    'Shown once per Node-RED run; safe to ignore if nothing reads the old key.'
+                  )
+                  hasWarnedAboutLegacyGlobalContextKey = true
+                }
+              }
+            }
           }
           this.node.previousvalue = msg.value
 

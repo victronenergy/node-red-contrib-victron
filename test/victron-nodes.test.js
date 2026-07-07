@@ -1,7 +1,7 @@
 const victronNodesInitFunction = require('../src/nodes/victron-nodes')
 const { serviceNamesWithoutDeviceInstance } = require('../src/services/dbus-listener')
 
-function buildMockRED ({ services = {}, connected = true, hasConfigNode = true } = {}) {
+function buildMockRED ({ services = {}, connected = true, hasConfigNode = true, initFn = victronNodesInitFunction } = {}) {
   const subscribe = jest.fn()
   const publish = jest.fn()
   const mockRED = {
@@ -36,7 +36,7 @@ function buildMockRED ({ services = {}, connected = true, hasConfigNode = true }
       }
     }
   }
-  victronNodesInitFunction(mockRED)
+  initFn(mockRED)
   const BaseInputNode = mockRED.nodes.registerType.mock.calls[0][1]
   const outputCallIndex = mockRED.nodes.registerType.mock.calls.findIndex(c => c[0].startsWith('victron-output-'))
   const BaseOutputNode = mockRED.nodes.registerType.mock.calls[outputCallIndex][1]
@@ -297,5 +297,75 @@ describe('victron-nodes', () => {
     })
     expect(oldStyleSystemInputNode).toBeDefined()
     expect(oldStyleSystemInputNode.service).toEqual('com.victronenergy.system')
+  })
+})
+
+describe('victron-nodes global context regression (#535)', () => {
+  it('writes both the bare and legacy "_0" global context keys for singleton services', () => {
+    const { BaseInputNode, subscribe } = buildMockRED()
+
+    const node = new BaseInputNode({
+      name: 'Test',
+      service: 'com.victronenergy.system',
+      path: '/Serial',
+      serviceObj: { name: 'System' },
+      pathObj: { name: 'Serial' }
+    })
+
+    const globalContext = node.context().global
+    const processMessage = subscribe.mock.calls[0][2]
+    processMessage({ value: 'abc123' })
+
+    expect(globalContext.set).toHaveBeenCalledWith('victronenergy.system.Serial', 'abc123')
+    expect(globalContext.set).toHaveBeenCalledWith('victronenergy.system._0.Serial', 'abc123')
+  })
+
+  it('writes only a single global context key for non-singleton services', () => {
+    const { BaseInputNode, subscribe } = buildMockRED()
+
+    const node = new BaseInputNode({
+      name: 'Test',
+      service: 'com.victronenergy.battery/512',
+      path: '/Soc',
+      serviceObj: { name: 'Battery' },
+      pathObj: { name: 'SoC' }
+    })
+
+    const globalContext = node.context().global
+    const processMessage = subscribe.mock.calls[0][2]
+    processMessage({ value: 55 })
+
+    expect(globalContext.set).toHaveBeenCalledTimes(1)
+    expect(globalContext.set).toHaveBeenCalledWith('victronenergy.battery._512.Soc', 55)
+  })
+
+  it('logs the legacy key deprecation warning only once, even across multiple nodes', () => {
+    let freshInitFn
+    jest.isolateModules(() => {
+      freshInitFn = require('../src/nodes/victron-nodes')
+    })
+
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      const emitOnce = (path) => {
+        const { BaseInputNode, subscribe } = buildMockRED({ initFn: freshInitFn })
+        new BaseInputNode({ // eslint-disable-line no-new
+          name: 'Test',
+          service: 'com.victronenergy.system',
+          path,
+          serviceObj: { name: 'System' },
+          pathObj: { name: path }
+        })
+        subscribe.mock.calls[0][2]({ value: 'x' })
+      }
+
+      emitOnce('/Serial')
+      emitOnce('/ProductName')
+
+      const legacyWarnings = warnSpy.mock.calls.filter(([msg]) => msg.includes('[DEPRECATED]'))
+      expect(legacyWarnings).toHaveLength(1)
+    } finally {
+      warnSpy.mockRestore()
+    }
   })
 })
