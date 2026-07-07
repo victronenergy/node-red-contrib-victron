@@ -97,6 +97,11 @@
         oneditprepare: function oneditprepare() {
             const self = this;
             const { checkSelectedVirtualDevice, updateOutputs, initializeTooltips } = window.__victron;
+            // Keyed by device value, e.g. { acload: { value: 'acload', label: 'AC Load', supportsS2: true } }.
+            // Populated once the device-types fetch below resolves; stashed on self so oneditsave
+            // (a separate function, not sharing this closure) can thread the same data through too.
+            const deviceCapabilities = {};
+            self.__deviceCapabilities = deviceCapabilities;
 
             if (self.device === 'motordrive') {
                 self.device = 'e-drive';
@@ -109,9 +114,9 @@
                     $select.empty();
                     deviceTypes.forEach(function(dt) {
                         $select.append($('<option>', { value: dt.value, text: dt.label }));
+                        deviceCapabilities[dt.value] = dt;
                     });
                     if (self.device) $select.val(self.device);
-                    window.__victron.setDeviceCapabilities(deviceTypes);
                 })
                 .fail(function() {
                     console.error('Failed to load virtual device types');
@@ -124,9 +129,9 @@
                     }
 
                     $('#node-input-device').on('change', (v) => {
-                        checkSelectedVirtualDevice(self);
+                        checkSelectedVirtualDevice(self, deviceCapabilities);
                         self.device = v.target.value;
-                        updateOutputs(self);
+                        updateOutputs(self, deviceCapabilities);
                     });
 
                     if (self.default_values === true) {
@@ -135,8 +140,8 @@
                         $('#node-input-default_values-no').prop('checked', true);
                     }
 
-                    updateOutputs(self);
-                    checkSelectedVirtualDevice(self);
+                    updateOutputs(self, deviceCapabilities);
+                    checkSelectedVirtualDevice(self, deviceCapabilities);
 
                     // Populate EV charger dropdown from live D-Bus cache
                     window.__victron.fetchEvChargers(baseUrl)
@@ -244,7 +249,7 @@
                 this.ev_evcs_device_instance = (evcsVal !== '' && evcsVal != null) ? parseInt(evcsVal, 10) : null;
             }
 
-            updateOutputs(this);
+            updateOutputs(this, this.__deviceCapabilities || {});
         }
     });
 
