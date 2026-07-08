@@ -1784,6 +1784,17 @@
 	    })
 	}
 
+	/**
+	 * Fetch device-type capability metadata (e.g. { value, label, supportsS2 }) from
+	 * GET /victron/virtual-device-types. Callers are responsible for keying the result by device
+	 * value and threading it into checkSelectedVirtualDevice/calculateOutputs/determineOutputLabel -
+	 * this module holds no capability state of its own.
+	 */
+	function fetchDeviceCapabilities (baseUrl) {
+	  return fetch((baseUrl || '') + '/victron/virtual-device-types')
+	    .then(response => response.json())
+	}
+
 	function fetchSwitchNodeNameAndGroupFromCache (id) {
 	  if (!id) {
 	    return Promise.reject(new Error('id is required'))
@@ -1831,7 +1842,7 @@
 	  $('#battery-voltage-custom-label').toggle(preset === 'custom');
 	}
 
-	function checkSelectedVirtualDevice (context) {
+	function checkSelectedVirtualDevice (context, deviceCapabilities = {}) {
 	  [
 	    'acload', 'battery', 'ev', 'generator', 'gps', 'grid', 'e-drive',
 	    'pvinverter', 'switch', 'tank', 'temperature', 'energymeter', 'pulsemeter'
@@ -1840,17 +1851,21 @@
 	  const selected = $('select#node-input-device').val();
 	  $('.input-' + selected).show();
 
-	  if (selected === 'acload') {
+	  if (deviceCapabilities[selected]?.supportsS2) {
 	    function updateS2SectionVisibility () {
 	      const s2enabled = $('#node-input-enable_s2support').is(':checked');
-	      $('.input-acload-s2').toggle(s2enabled);
+	      $('.input-s2support-measurement').toggle(s2enabled);
 	    }
+	    $('.input-s2support').show();
 	    $('#node-input-enable_s2support').off('change.s2support').on('change.s2support', function () {
 	      context.enable_s2support = $(this).is(':checked');
-	      updateOutputs(context);
+	      updateOutputs(context, deviceCapabilities);
 	      updateS2SectionVisibility();
 	    });
 	    updateS2SectionVisibility();
+	  } else {
+	    $('.input-s2support').hide();
+	    $('.input-s2support-measurement').hide();
 	  }
 
 	  if (selected === 'battery') {
@@ -2442,12 +2457,6 @@ ${labels.join('\n')}`
 	    // Look up outputs from config, default to 2 (passthrough + state)
 	    return victronVirtualConstantsExports.SWITCH_OUTPUT_CONFIG[typeKey] || 2
 	  },
-	  acload: (config) => {
-	    if (config.enable_s2support) {
-	      return 2 // passthrough + signals
-	    }
-	    return 1
-	  },
 	  pulsemeter: () => 2
 	};
 
@@ -2455,28 +2464,32 @@ ${labels.join('\n')}`
 	 * Calculate the number of outputs for a virtual device
 	 * @param {string} device - Device type (e.g., 'battery', 'switch', 'gps')
 	 * @param {object} config - Device configuration object
+	 * @param {object} [deviceCapabilities] - Capability metadata keyed by device value
 	 * @returns {number} Number of outputs (minimum 1)
 	 */
-	function calculateOutputs (device, config) {
+	function calculateOutputs (device, config, deviceCapabilities = {}) {
 	  if (DEVICE_TYPE_TO_NUM_OUTPUTS[device]) {
 	    return DEVICE_TYPE_TO_NUM_OUTPUTS[device](config)
-	  } else {
-	    return 1
 	  }
+	  if (deviceCapabilities[device]?.supportsS2 && config?.enable_s2support) {
+	    return 2 // passthrough + S2 signals
+	  }
+	  return 1
 	}
 
 	/**
 	 * Update the outputs property in the Node-RED editor context
 	 * This is a thin wrapper around calculateOutputs that handles DOM manipulation
 	 * @param {object} context - Node-RED editor context (this)
+	 * @param {object} [deviceCapabilities] - Capability metadata keyed by device value
 	 */
-	function updateOutputs (context) {
+	function updateOutputs (context, deviceCapabilities = {}) {
 	  const device = context.device;
 	  const config = {
 	    switch_1_type: context.switch_1_type,
 	    enable_s2support: context.enable_s2support
 	  };
-	  const outputs = calculateOutputs(device, config);
+	  const outputs = calculateOutputs(device, config, deviceCapabilities);
 
 	  // Update BOTH the context AND the hidden input field
 	  context.outputs = outputs;
@@ -2487,16 +2500,17 @@ ${labels.join('\n')}`
 	 * Return the label for a single output port of a virtual device node.
 	 * @param {{ device?: string, enable_s2support?: boolean, switch_1_type?: number|string }} node
 	 * @param {number} index - Zero-based output index
+	 * @param {object} [deviceCapabilities] - Capability metadata keyed by device value
 	 * @returns {string}
 	 */
-	function determineOutputLabel (node, index) {
+	function determineOutputLabel (node, index, deviceCapabilities = {}) {
 	  if (index === 0) return 'Passthrough'
 
 	  if (node.device === 'pulsemeter') {
 	    return 'Aggregate'
 	  }
 
-	  if (node.device === 'acload' && node.enable_s2support) {
+	  if (deviceCapabilities[node.device]?.supportsS2 && node.enable_s2support) {
 	    return 'S2 communication'
 	  }
 
@@ -2532,6 +2546,15 @@ ${labels.join('\n')}`
 
 	// src/nodes/victron-virtual-browser.js
 
+	// Node-RED can call a node's outputLabels(index) (-> determineOutputLabel) to draw port
+	// tooltips for any node already on the canvas, independent of whether its edit dialog has
+	// ever been opened. That callback only receives an index, so there is no call site through
+	// which fresh capability data could be threaded in - it must be readable synchronously from
+	// somewhere. This object is that one place; every other call site (oneditprepare,
+	// checkSelectedVirtualDevice, updateOutputs) fetches its own copy and threads it through
+	// explicitly instead of reading from here.
+	const canvasDeviceCapabilities = {};
+
 	window.__victron = {
 	  checkGeneratorType,
 	  SWITCH_TYPE_CONFIGS,
@@ -2551,7 +2574,20 @@ ${labels.join('\n')}`
 	  getShowUIValue,
 	  initializeTooltips,
 	  getVirtualNodeLabel,
-	  determineOutputLabel
+	  determineOutputLabel: (node, index) => determineOutputLabel(node, index, canvasDeviceCapabilities),
+	  fetchDeviceCapabilities
 	};
+
+	// Warm canvasDeviceCapabilities as soon as this script loads rather than waiting for
+	// oneditprepare, so outputLabels() has S2 capability data available for nodes whose dialog
+	// hasn't been opened this session. If this hasn't resolved yet when a label is requested,
+	// determineOutputLabel falls back to its non-S2 default and self-corrects on the next render
+	// once the fetch completes.
+	try {
+	  const baseUrl = (window.RED?.settings?.httpNodeRoot || window.RED?.settings?.httpAdminRoot || '').replace(/\/$/, '');
+	  fetchDeviceCapabilities(baseUrl)
+	    .then(list => { (list || []).forEach(dt => { canvasDeviceCapabilities[dt.value] = dt; }); })
+	    .catch(() => {});
+	} catch (e) { /* RED not ready yet; outputLabels falls back to non-S2 defaults until this resolves */ }
 
 })();
