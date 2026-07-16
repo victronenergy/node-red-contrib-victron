@@ -1,4 +1,5 @@
 const { accumulateDelta } = require('../energy-utils')
+const { enableS2Support } = require('../s2-support')
 const ENERGY_PERSIST_SECONDS = 60
 
 const properties = {
@@ -24,21 +25,19 @@ const phaseProperties = [
   { name: 'PowerFactor', unit: '' }
 ]
 
-const additionalS2Properties = {
-  'S2/0/Active': { type: 'i' },
+// acload's S2 resource settings: a simple on/off consumer controlled by hysteresis thresholds
+// around a power setpoint. Other resource types (a producer's curtailment limit, storage's
+// charge/discharge bounds) would define their own shape and pass it to enableS2Support.
+const S2_RESOURCE_PROPERTIES = {
   'S2/0/RmSettings/OffHysteresis': { type: 'i' },
   'S2/0/RmSettings/OnHysteresis': { type: 'i' },
-  'S2/0/RmSettings/PowerSetting': { type: 'i' },
-  'S2/0/Rm': { type: 's', format: (v) => v != null ? v : '' }
+  'S2/0/RmSettings/PowerSetting': { type: 'i' }
 }
 
-const s2Defaults = {
-  'S2/0/Active': 0,
+const S2_RESOURCE_DEFAULTS = {
   'S2/0/RmSettings/OffHysteresis': 30,
   'S2/0/RmSettings/OnHysteresis': 30,
-  'S2/0/RmSettings/PowerSetting': 1000,
-  'S2/0/Priority': null,
-  'S2/0/Rm': ''
+  'S2/0/RmSettings/PowerSetting': 1000
 }
 
 function initialize (config, ifaceDesc, iface, node) {
@@ -63,88 +62,15 @@ function initialize (config, ifaceDesc, iface, node) {
     iface['Ac/Energy/Reverse'] = 0
   }
 
-  if (config.enable_s2support) {
-    console.warn('S2 support for acload virtual device is experimental.')
-
-    Object.entries(additionalS2Properties).forEach(([key, desc]) => {
-      ifaceDesc.properties[key] = desc
-      iface[key] = s2Defaults[key]
-    })
-
-    ifaceDesc.__enableS2 = true
-    // Maps D-Bus property names to S2 CommodityQuantity values for power measurement reporting
-    const measurementType = config.s2_measurement_type || '3_PHASE_SYMMETRIC'
-    const measurementPropsMap = {
-      '3_PHASE_SYMMETRIC': { 'Ac/Power': 'ELECTRIC.POWER.3_PHASE_SYMMETRIC' },
-      L1_L2_L3: {
-        'Ac/L1/Power': 'ELECTRIC.POWER.L1',
-        'Ac/L2/Power': 'ELECTRIC.POWER.L2',
-        'Ac/L3/Power': 'ELECTRIC.POWER.L3'
-      },
-      L1: { 'Ac/L1/Power': 'ELECTRIC.POWER.L1' },
-      L2: { 'Ac/L2/Power': 'ELECTRIC.POWER.L2' },
-      L3: { 'Ac/L3/Power': 'ELECTRIC.POWER.L3' }
-    }
-    ifaceDesc.__s2PowerMeasurementProps = measurementPropsMap[measurementType]
-    ifaceDesc.__s2Handlers = {
-      Connect: function (cemId, timeout) {
-        node._s2PowerMeasurementActive = false
-        node._s2PowerMeasurementCemId = null
-        node.setValuesLocally({ 'S2/0/Active': 1, 'S2/0/Rm': 'CEM: ' + cemId })
-        console.log('Connect received for CEM ID:', cemId, 'timeout', timeout)
-        node.send([
-          null,
-          {
-            payload: {
-              command: 'Connect',
-              cemId,
-              keepAliveInterval: timeout
-            }
-          }
-        ])
-      },
-      Disconnect: function (cemId) {
-        node._s2PowerMeasurementActive = false
-        node._s2PowerMeasurementCemId = null
-        node.setValuesLocally({ 'S2/0/Active': 0, 'S2/0/Rm': '' })
-        node.send([
-          null,
-          {
-            payload: {
-              command: 'Disconnect',
-              cemId
-            }
-          }
-        ])
-      },
-      Message: function (cemId, message) {
-        node.send([
-          null,
-          {
-            payload: {
-              command: 'Message',
-              cemId,
-              message
-            }
-          }
-        ])
-      },
-      KeepAlive: function (cemId) {
-        console.log('KeepAlive received for CEM ID:', cemId)
-        node.send([
-          null,
-          {
-            payload: {
-              command: 'KeepAlive',
-              cemId
-            }
-          }
-        ])
-        // D-Bus method must return a value - return true to indicate RM is alive
-        return true
-      }
-    }
-  }
+  enableS2Support({
+    config,
+    ifaceDesc,
+    iface,
+    node,
+    deviceLabel: 'acload',
+    resourceProperties: S2_RESOURCE_PROPERTIES,
+    resourceDefaults: S2_RESOURCE_DEFAULTS
+  })
 
   return `Virtual ${iface.NrOfPhases}-phase AC load`
 }
@@ -184,4 +110,4 @@ function onPropertiesChanged ({ changes, instance, config }) {
   return changes
 }
 
-module.exports = { properties, initialize, onPropertiesChanged, label: 'AC Load' }
+module.exports = { properties, initialize, onPropertiesChanged, label: 'AC Load', supportsS2: true }

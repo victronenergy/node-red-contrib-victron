@@ -101,6 +101,14 @@ try {
   console.error('Failed to load virtual device types:', err)
 }
 
+// Annotates DEVICE_TYPES with capability flags declared by each module (e.g. supportsS2), so the
+// editor can generalize S2-support UI/output wiring without hardcoding device names.
+function annotateDeviceTypesWithCapabilities (deviceTypes, modules) {
+  deviceTypes.forEach(dt => { dt.supportsS2 = modules[dt.value]?.supportsS2 === true })
+  return deviceTypes
+}
+annotateDeviceTypesWithCapabilities(DEVICE_TYPES, deviceModules)
+
 function getActualDeviceType (type, subtype) {
   if (type === 'generator') return subtype === 'dc' ? 'dcgenset' : 'genset'
   if (type === 'e-drive') return 'motordrive'
@@ -905,3 +913,6 @@ module.exports = function (RED) {
 
   RED.nodes.registerType('victron-virtual', VictronVirtualNode)
 }
+
+// Exported for direct unit testing without needing a full RED/D-Bus mock.
+module.exports.annotateDeviceTypesWithCapabilities = annotateDeviceTypesWithCapabilities

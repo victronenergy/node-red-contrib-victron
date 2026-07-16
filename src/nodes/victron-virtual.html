@@ -97,6 +97,11 @@
         oneditprepare: function oneditprepare() {
             const self = this;
             const { checkSelectedVirtualDevice, updateOutputs, initializeTooltips } = window.__victron;
+            // Keyed by device value, e.g. { acload: { value: 'acload', label: 'AC Load', supportsS2: true } }.
+            // Populated once the device-types fetch below resolves; stashed on self so oneditsave
+            // (a separate function, not sharing this closure) can thread the same data through too.
+            const deviceCapabilities = {};
+            self.__deviceCapabilities = deviceCapabilities;
 
             if (self.device === 'motordrive') {
                 self.device = 'e-drive';
@@ -109,6 +114,7 @@
                     $select.empty();
                     deviceTypes.forEach(function(dt) {
                         $select.append($('<option>', { value: dt.value, text: dt.label }));
+                        deviceCapabilities[dt.value] = dt;
                     });
                     if (self.device) $select.val(self.device);
                 })
@@ -123,9 +129,9 @@
                     }
 
                     $('#node-input-device').on('change', (v) => {
-                        checkSelectedVirtualDevice(self);
+                        checkSelectedVirtualDevice(self, deviceCapabilities);
                         self.device = v.target.value;
-                        updateOutputs(self);
+                        updateOutputs(self, deviceCapabilities);
                     });
 
                     if (self.default_values === true) {
@@ -134,8 +140,8 @@
                         $('#node-input-default_values-no').prop('checked', true);
                     }
 
-                    updateOutputs(self);
-                    checkSelectedVirtualDevice(self);
+                    updateOutputs(self, deviceCapabilities);
+                    checkSelectedVirtualDevice(self, deviceCapabilities);
 
                     // Populate EV charger dropdown from live D-Bus cache
                     window.__victron.fetchEvChargers(baseUrl)
@@ -243,7 +249,7 @@
                 this.ev_evcs_device_instance = (evcsVal !== '' && evcsVal != null) ? parseInt(evcsVal, 10) : null;
             }
 
-            updateOutputs(this);
+            updateOutputs(this, this.__deviceCapabilities || {});
         }
     });
 
@@ -280,14 +286,14 @@
                 <i class="fa fa-info-circle tooltip-icon" data-tooltip="Integrates power over time to estimate energy. Precision improves with higher update frequency."></i>
             </label>
         </div>
-        <div class="form-row input-acload victron-checkbox" class="hidden-row">
+        <div class="form-row input-s2support victron-checkbox" style="display:none">
             <input type="checkbox" id="node-input-enable_s2support" class="s2-checkbox">
             <label for="node-input-enable_s2support">
                 S2 support
                 <i class="fa fa-info-circle tooltip-icon" data-tooltip="Enable Victron S2 protocol support for smart charging"></i>
             </label>
         </div>
-        <div class="form-row input-acload input-acload-s2" style="display:none">
+        <div class="form-row input-s2support input-s2support-measurement" style="display:none">
             <label for="node-input-s2_measurement_type"><i class="fa fa-bar-chart"></i> S2 Measurement
                 <i class="fa fa-info-circle tooltip-icon" data-tooltip="How power is reported to the CEM. Must match the RM's Power Measurement setting."></i>
             </label>

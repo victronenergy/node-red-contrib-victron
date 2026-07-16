@@ -993,6 +993,17 @@ export function fetchEvChargers (baseUrl) {
     })
 }
 
+/**
+ * Fetch device-type capability metadata (e.g. { value, label, supportsS2 }) from
+ * GET /victron/virtual-device-types. Callers are responsible for keying the result by device
+ * value and threading it into checkSelectedVirtualDevice/calculateOutputs/determineOutputLabel -
+ * this module holds no capability state of its own.
+ */
+export function fetchDeviceCapabilities (baseUrl) {
+  return fetch((baseUrl || '') + '/victron/virtual-device-types')
+    .then(response => response.json())
+}
+
 export function fetchSwitchNodeNameAndGroupFromCache (id) {
   if (!id) {
     return Promise.reject(new Error('id is required'))
@@ -1040,7 +1051,7 @@ export function updateBatteryVoltageVisibility () {
   $('#battery-voltage-custom-label').toggle(preset === 'custom')
 }
 
-export function checkSelectedVirtualDevice (context) {
+export function checkSelectedVirtualDevice (context, deviceCapabilities = {}) {
   [
     'acload', 'battery', 'ev', 'generator', 'gps', 'grid', 'e-drive',
     'pvinverter', 'switch', 'tank', 'temperature', 'energymeter', 'pulsemeter'
@@ -1049,17 +1060,21 @@ export function checkSelectedVirtualDevice (context) {
   const selected = $('select#node-input-device').val()
   $('.input-' + selected).show()
 
-  if (selected === 'acload') {
+  if (deviceCapabilities[selected]?.supportsS2) {
     function updateS2SectionVisibility () {
       const s2enabled = $('#node-input-enable_s2support').is(':checked')
-      $('.input-acload-s2').toggle(s2enabled)
+      $('.input-s2support-measurement').toggle(s2enabled)
     }
+    $('.input-s2support').show()
     $('#node-input-enable_s2support').off('change.s2support').on('change.s2support', function () {
       context.enable_s2support = $(this).is(':checked')
-      updateOutputs(context)
+      updateOutputs(context, deviceCapabilities)
       updateS2SectionVisibility()
     })
     updateS2SectionVisibility()
+  } else {
+    $('.input-s2support').hide()
+    $('.input-s2support-measurement').hide()
   }
 
   if (selected === 'battery') {
@@ -1652,12 +1667,6 @@ const DEVICE_TYPE_TO_NUM_OUTPUTS = {
     // Look up outputs from config, default to 2 (passthrough + state)
     return SWITCH_OUTPUT_CONFIG[typeKey] || 2
   },
-  acload: (config) => {
-    if (config.enable_s2support) {
-      return 2 // passthrough + signals
-    }
-    return 1
-  },
   pulsemeter: () => 2
 }
 
@@ -1665,28 +1674,32 @@ const DEVICE_TYPE_TO_NUM_OUTPUTS = {
  * Calculate the number of outputs for a virtual device
  * @param {string} device - Device type (e.g., 'battery', 'switch', 'gps')
  * @param {object} config - Device configuration object
+ * @param {object} [deviceCapabilities] - Capability metadata keyed by device value
  * @returns {number} Number of outputs (minimum 1)
  */
-export function calculateOutputs (device, config) {
+export function calculateOutputs (device, config, deviceCapabilities = {}) {
   if (DEVICE_TYPE_TO_NUM_OUTPUTS[device]) {
     return DEVICE_TYPE_TO_NUM_OUTPUTS[device](config)
-  } else {
-    return 1
   }
+  if (deviceCapabilities[device]?.supportsS2 && config?.enable_s2support) {
+    return 2 // passthrough + S2 signals
+  }
+  return 1
 }
 
 /**
  * Update the outputs property in the Node-RED editor context
  * This is a thin wrapper around calculateOutputs that handles DOM manipulation
  * @param {object} context - Node-RED editor context (this)
+ * @param {object} [deviceCapabilities] - Capability metadata keyed by device value
  */
-export function updateOutputs (context) {
+export function updateOutputs (context, deviceCapabilities = {}) {
   const device = context.device
   const config = {
     switch_1_type: context.switch_1_type,
     enable_s2support: context.enable_s2support
   }
-  const outputs = calculateOutputs(device, config)
+  const outputs = calculateOutputs(device, config, deviceCapabilities)
 
   // Update BOTH the context AND the hidden input field
   context.outputs = outputs
@@ -1697,16 +1710,17 @@ export function updateOutputs (context) {
  * Return the label for a single output port of a virtual device node.
  * @param {{ device?: string, enable_s2support?: boolean, switch_1_type?: number|string }} node
  * @param {number} index - Zero-based output index
+ * @param {object} [deviceCapabilities] - Capability metadata keyed by device value
  * @returns {string}
  */
-export function determineOutputLabel (node, index) {
+export function determineOutputLabel (node, index, deviceCapabilities = {}) {
   if (index === 0) return 'Passthrough'
 
   if (node.device === 'pulsemeter') {
     return 'Aggregate'
   }
 
-  if (node.device === 'acload' && node.enable_s2support) {
+  if (deviceCapabilities[node.device]?.supportsS2 && node.enable_s2support) {
     return 'S2 communication'
   }
 
