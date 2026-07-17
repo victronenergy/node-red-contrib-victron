@@ -166,12 +166,22 @@ export async function redeployFlow (t, flowId) {
   })
   await t.expect(getRes.status).eql(200)
 
+  const flow = getRes.body
+
+  // Node-RED's deploy diffing only restarts nodes whose config actually
+  // changed. Nudge each node's y position by 1px so every node in this
+  // flow is treated as modified and gets torn down and re-created, without
+  // changing any functional behavior.
+  for (const node of flow.nodes) {
+    if (typeof node.y === 'number') node.y += 1
+  }
+
   const putRes = await t.request.put(`${NODE_RED_ENDPOINT}/flow/${flowId}`, {
     headers: {
       'Content-Type': 'application/json',
       ...vrmRequestHeaders(t)
     },
-    body: getRes.body
+    body: flow
   })
   await t.expect(putRes.status).eql(200)
 }
