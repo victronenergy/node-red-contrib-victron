@@ -154,6 +154,32 @@ export async function deploy (t) {
   await t.expect(notification).eql('Successfully deployed')
 }
 
+// Forces Node-RED to stop and re-create every node (as opposed to only
+// nodes affected by a config change), by re-posting the current flows with
+// a 'full' deploy type. Used to verify node state that is expected to
+// survive a restart (e.g. persisted virtual device/switch values).
+export async function fullRedeploy (t) {
+  const getRes = await t.request.get(`${NODE_RED_ENDPOINT}/flows`, {
+    headers: {
+      'Node-RED-API-Version': 'v2',
+      ...vrmRequestHeaders(t)
+    }
+  })
+  await t.expect(getRes.status).eql(200)
+  const { flows, rev } = getRes.body
+
+  const postRes = await t.request.post(`${NODE_RED_ENDPOINT}/flows`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Node-RED-API-Version': 'v2',
+      'Node-RED-Deploy-Type': 'full',
+      ...vrmRequestHeaders(t)
+    },
+    body: { flows, rev }
+  })
+  await t.expect(postRes.status).eql(200)
+}
+
 let nextNodeOffsetY = 200
 
 export function resetFlowNodeOffset () {

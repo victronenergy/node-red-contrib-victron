@@ -1,0 +1,28 @@
+{
+  "label": "TestCafe Flow Switches Dropdown Persist",
+  "nodes": [
+    {
+      "id": "swdropdownpersist1",
+      "type": "victron-virtual-switch",
+      "z": "51e29eef710f16fe",
+      "name": "",
+      "outputs": 2,
+      "switch_1_type": 6,
+      "switch_1_min": 0,
+      "switch_1_max": "",
+      "switch_1_initial": 0,
+      "switch_1_label": "[\"one\",\"two\",\"three\"]",
+      "switch_1_unit": "",
+      "switch_1_step": 1,
+      "switch_1_customname": "flow-switches-dropdown-persist-switch1",
+      "switch_1_group": "switches-dropdown-persist",
+      "switch_1_include_measurement": false,
+      "switch_1_rgb_color_wheel": false,
+      "switch_1_cct_wheel": false,
+      "switch_1_rgb_white_dimmer": false,
+      "x": 120,
+      "y": 60,
+      "wires": [[], []]
+    }
+  ]
+}

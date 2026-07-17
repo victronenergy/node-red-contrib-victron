@@ -224,4 +224,16 @@ async function mqttSetValue (serviceName, path, value) {
   await echoPromise
 }
 
-module.exports = { mqttGetValue, mqttSetValue }
+// Drops any cached value for a topic, so a subsequent mqttGetValue() call
+// only resolves once the device actually (re-)publishes the topic, rather
+// than returning a value cached from before (e.g. a restart).
+async function invalidateMqttValue (serviceName, path) {
+  await getClient()
+  const { serviceType, suffix } = parseServiceName(serviceName)
+  const deviceInstance = await resolveDeviceInstance(suffix, serviceType)
+  const cleanPath = path.replace(/^\//, '')
+  const topic = `N/${VRM_PORTAL_ID}/${serviceType}/${deviceInstance}/${cleanPath}`
+  valueCache.delete(topic)
+}
+
+module.exports = { mqttGetValue, mqttSetValue, invalidateMqttValue }
