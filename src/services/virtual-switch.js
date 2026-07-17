@@ -253,7 +253,8 @@ function createSwitchProperties (config, ifaceDesc, iface) {
         } catch (e) {
           return v || ''
         }
-      }
+      },
+      persist: true
     }
     iface[dimmingKey] = 0
 
