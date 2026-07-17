@@ -169,11 +169,12 @@ export async function redeployFlow (t, flowId) {
   const flow = getRes.body
 
   // Node-RED's deploy diffing only restarts nodes whose config actually
-  // changed. Nudge each node's y position by 1px so every node in this
-  // flow is treated as modified and gets torn down and re-created, without
-  // changing any functional behavior.
+  // changed - position (x/y) is treated as a "move", not a change, and
+  // does not trigger a restart on its own. Touch the node's name instead,
+  // a real config property every node type has, so each node in this flow
+  // is treated as modified and gets torn down and re-created.
   for (const node of flow.nodes) {
-    if (typeof node.y === 'number') node.y += 1
+    node.name = `${node.name || ''} (redeployed ${Date.now()})`
   }
 
   const putRes = await t.request.put(`${NODE_RED_ENDPOINT}/flow/${flowId}`, {
