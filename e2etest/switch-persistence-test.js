@@ -26,6 +26,13 @@ test('Dropdown switch value survives a redeploy restart', async t => {
   console.log('Value before restart:', beforeRestart)
   await t.expect(JSON.stringify(beforeRestart)).contains('2')
 
+  // The MQTT echo above only confirms the external D-Bus<->MQTT bridge saw
+  // the write - it says nothing about whether Node-RED's own listener
+  // (which persists the value to disk) has run yet, since both react to
+  // the same D-Bus signal independently. Give it a moment to flush before
+  // tearing the node down, or we'd be restarting before the save happens.
+  await t.wait(2000)
+
   // Drop the cached value so the next read can only resolve once the node
   // republishes after restarting, proving the persisted value was actually
   // reloaded rather than just replaying what MQTT had cached before.
