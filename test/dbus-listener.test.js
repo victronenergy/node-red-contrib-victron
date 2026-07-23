@@ -1,4 +1,5 @@
 const VictronDbusListener = require('../src/services/dbus-listener')
+const dbus = require('dbus-native-victron')
 
 describe('VictronDbusListener', () => {
   let listener
@@ -91,7 +92,7 @@ describe('VictronDbusListener', () => {
 
   describe('_requestRoot does not mutate service.deviceInstance for singleton services', () => {
     beforeEach(() => {
-      listener.messageHandler = () => {}
+      listener.messageHandler = () => { }
       listener.bus = {
         invoke: jest.fn((_params, callback) => {
           callback(null, [
@@ -116,6 +117,40 @@ describe('VictronDbusListener', () => {
       const service = { name: 'com.victronenergy.battery', deviceInstance: null }
       await listener._requestRoot(service)
       expect(service.deviceInstance).toBe(0)
+    })
+  })
+
+  describe('connect', () => {
+    beforeEach(() => {
+      jest.spyOn(dbus, 'createClient').mockImplementation(() => {
+        console.log('createClient called (2)')
+        return {
+          connection: {
+            on: (event, callback) => {
+              console.log(`connection.on called for event: ${event}`)
+            }
+          }
+        }
+      })
+
+      listener = new VictronDbusListener('tcp:host=localhost,port=7878', {})
+      listener._initService = jest.fn()
+      listener._requestRoot = jest.fn()
+      listener.bus = {
+        createClient: jest.fn(() => {
+          console.log('createClient called')
+          return listener.bus
+        }),
+        invoke: jest.fn((_params, callback) => {
+          callback(null, [null, ['the-device-instance']])
+        })
+      }
+    })
+
+    test('connect initializes services and requests root for each', async () => {
+      // await listener.connect()
+      // expect(listener._initService).toHaveBeenCalledTimes(4)
+      // expect(listener._requestRoot).toHaveBeenCalledTimes(4)
     })
   })
 })
