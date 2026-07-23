@@ -125,6 +125,11 @@ class VictronDbusListener {
 
   connect () {
     return new Promise((resolve, reject) => {
+      // TODO: below comment is outdated, but in case of this.address being falsey, we
+      // use createClientCallback, which is yet another callpath.
+      // Next step is to refactor createClientCallback, so that we resolves or rejects
+      // the promise as well.
+      //
       // this promise never resolves. The retry mechanism depends on us rejecting when
       // we get disconnected, see VictronClient.promiseRetry().
       if (this.address) { // Connect via TCP
