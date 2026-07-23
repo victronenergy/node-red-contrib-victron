@@ -124,20 +124,26 @@ class VictronDbusListener {
   }
 
   connect () {
-    return new Promise((_resolve, reject) => {
+    return new Promise((resolve, reject) => {
+      // TODO: below comment is outdated, but in case of this.address being falsey, we
+      // use createClientCallback, which is yet another callpath.
+      // Next step is to refactor createClientCallback, so that we resolves or rejects
+      // the promise as well.
+      //
       // this promise never resolves. The retry mechanism depends on us rejecting when
       // we get disconnected, see VictronClient.promiseRetry().
       if (this.address) { // Connect via TCP
-        debug(`Connecting to TCP address ${this.address}.`)
+        console.log(`Connecting to TCP address ${this.address}.`)
         this.bus = dbus.createClient({
           busAddress: this.address,
           authMethods: ['ANONYMOUS']
         }, (err, _) => {
           if (err) {
             console.error(`Failed to create DBus client for address ${this.address}:`, err)
-            // reject(new Error(`Failed to create DBus client for address ${this.address}: ${err.message}`))
+            reject(new Error(`Failed to create DBus client for address ${this.address}: ${err.message}`))
           } else {
             debug(`Successfully created DBus client for address ${this.address}`)
+            resolve()
           }
         })
       } else { // Connect via socket
