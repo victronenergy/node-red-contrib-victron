@@ -163,7 +163,6 @@ describe('VictronDbusListener', () => {
       })
 
       listener = new VictronDbusListener('tcp:host=localhost,port=7878', {})
-      listener._initService = jest.fn()
       listener._requestRoot = jest.fn()
       listener.bus = {
         createClient: jest.fn((opts, cb) => {
@@ -180,8 +179,24 @@ describe('VictronDbusListener', () => {
 
     test('connect initializes services and requests root for each', async () => {
       await listener.connect()
-      // expect(listener._initService).toHaveBeenCalledTimes(4)
-      // expect(listener._requestRoot).toHaveBeenCalledTimes(4)
+      expect(listener._requestRoot).toHaveBeenCalledTimes(5)
+    })
+
+    describe('when no address is provided', () => {
+      beforeEach(() => {
+        expect(listener.address).toBe('tcp:host=localhost,port=7878')
+        listener.address = null
+      })
+
+      // TODO: this tests the dbus-listener when using the systemBus. If
+      // env variable DBUS_SYSTEM_BUS_ADDRESS is set, dbus.sessionBus will
+      // be used, and we have no test for that yet.
+      test('connect succeeds and defines the bus', async () => {
+        await listener.connect()
+        expect(listener.address).toBeNull()
+        expect(listener.bus).toBeDefined()
+        expect(listener._requestRoot).toHaveBeenCalledTimes(5)
+      })
     })
   })
 })

@@ -31,12 +31,17 @@ const _ = require('lodash')
         .catch(err => console.error)
  */
 
-function createClientCallback (err) {
-  if (err) {
-    console.error('[VictronDbusListener] Failed to create DBus client:', err)
-  } else {
-    debug('[VictronDbusListener] Successfully created DBus client.')
+function createClientCallbackFn (resolve, reject) {
+  function createClientCallback (err) {
+    if (err) {
+      console.error('[VictronDbusListener] Failed to create DBus client:', err)
+      reject(new Error(`Failed to create DBus client: ${err.message}`))
+    } else {
+      debug('[VictronDbusListener] Successfully created DBus client.')
+      resolve()
+    }
   }
+  return createClientCallback
 }
 
 function searchHaystack (stack, needle, fallback) {
@@ -147,11 +152,11 @@ class VictronDbusListener {
           }
         })
       } else { // Connect via socket
-        debug('Connecting to system socket.')
+        console.log(`Connecting to system socket. DBUS_SESSION_BUS_ADDRESS=${process.env.DBUS_SESSION_BUS_ADDRESS}`)
         const opts = {}
         this.bus = process.env.DBUS_SESSION_BUS_ADDRESS
-          ? dbus.sessionBus(opts, createClientCallback)
-          : dbus.systemBus(opts, createClientCallback)
+          ? dbus.sessionBus(opts, createClientCallbackFn(resolve, reject))
+          : dbus.systemBus(createClientCallbackFn(resolve, reject))
       }
 
       if (!this.bus) { throw new Error('Could not connect to the D-Bus') }
