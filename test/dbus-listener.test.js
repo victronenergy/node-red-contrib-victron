@@ -182,15 +182,35 @@ describe('VictronDbusListener', () => {
       expect(listener._requestRoot).toHaveBeenCalledTimes(5)
     })
 
+    describe('when using session bus', () => {
+      const originalEnv = process.env
+
+      beforeEach(() => {
+        jest.resetModules()
+        process.env = { ...process.env }
+        process.env.DBUS_SESSION_BUS_ADDRESS = 'some-address'
+        expect(listener.address).toBe('tcp:host=localhost,port=7878')
+        listener.address = null
+      })
+
+      afterAll(() => {
+        process.env = originalEnv
+      })
+
+      it('connect succeeds and defines the bus', async () => {
+        await listener.connect()
+        expect(listener.address).toBeNull()
+        expect(listener.bus).toBeDefined()
+        expect(listener._requestRoot).toHaveBeenCalledTimes(5)
+      })
+    })
+
     describe('when no address is provided', () => {
       beforeEach(() => {
         expect(listener.address).toBe('tcp:host=localhost,port=7878')
         listener.address = null
       })
 
-      // TODO: this tests the dbus-listener when using the systemBus. If
-      // env variable DBUS_SYSTEM_BUS_ADDRESS is set, dbus.sessionBus will
-      // be used, and we have no test for that yet.
       test('connect succeeds and defines the bus', async () => {
         await listener.connect()
         expect(listener.address).toBeNull()
