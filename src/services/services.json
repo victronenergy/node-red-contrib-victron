@@ -165,6 +165,15 @@
         "name": "{line} Voltage (V AC)"
       },
       {
+        "path": "/Position",
+        "type": "enum",
+        "name": "Position",
+        "enum": {
+          "0": "AC output",
+          "1": "AC input"
+        }
+      },
+      {
         "path": "/Serial",
         "type": "string",
         "name": "Serial number"

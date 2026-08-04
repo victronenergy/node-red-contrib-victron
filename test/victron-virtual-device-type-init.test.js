@@ -47,6 +47,18 @@ describe('acload', () => {
       expect(ifaceDesc.properties['Ac/L3/Current']).toBeDefined()
     })
 
+    test('sets Position from config', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      acload.initialize({ acload_nrofphases: 1, acload_position: 1 }, ifaceDesc, iface, node)
+      expect(iface.Position).toBe(1)
+    })
+
+    test('defaults Position to 0 when not set', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      acload.initialize({ acload_nrofphases: 1 }, ifaceDesc, iface, node)
+      expect(iface.Position).toBe(0)
+    })
+
     test('sets default values when enabled', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
       acload.initialize({ acload_nrofphases: 1, default_values: true }, ifaceDesc, iface, node)
@@ -161,6 +173,16 @@ describe('acload', () => {
       expect(node.send).toHaveBeenCalledWith([null, {
         payload: { command: 'Disconnect', cemId: 'cem-1' }
       }])
+    })
+  })
+
+  describe('format', () => {
+    test.each([
+      [0, 'AC output'],
+      [1, 'AC input'],
+      [99, 'unknown']
+    ])('Position %i -> %s', (v, expected) => {
+      expect(acload.properties.Position.format(v)).toBe(expected)
     })
   })
 })

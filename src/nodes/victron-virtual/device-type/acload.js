@@ -13,7 +13,14 @@ const properties = {
   'Ac/L1/Voltage': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '' },
   'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
   'Ac/Frequency': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'Hz' : '' },
-  Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
+  Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1 },
+  Position: {
+    type: 'i',
+    format: (v) => ({
+      0: 'AC output',
+      1: 'AC input'
+    }[v] || 'unknown')
+  }
 }
 
 const phaseProperties = [
@@ -41,6 +48,7 @@ const S2_RESOURCE_DEFAULTS = {
 }
 
 function initialize (config, ifaceDesc, iface, node) {
+  iface.Position = Number(config.acload_position ?? 0)
   iface.NrOfPhases = Number(config.acload_nrofphases ?? 1)
   for (let i = 1; i <= iface.NrOfPhases; i++) {
     const phase = `L${i}`
