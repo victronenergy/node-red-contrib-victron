@@ -141,6 +141,20 @@ describe('acload device module', () => {
       expect(result['Ac/Energy/Forward']).toBeCloseTo(1.3 + 2.0 + 3.0, 2)
     })
 
+    test('accumulates energy on the relabeled phase for a single-phase config with acload_phasesetting', () => {
+      const instance = { 'Ac/L3/Power': 500 }
+      instance._lastL3PowerTimestamp = Date.now() - 3_600_000
+
+      const result = acload.onPropertiesChanged({
+        changes: { 'Ac/L3/Power': 500 },
+        instance,
+        config: { acload_auto_energy: true, acload_nrofphases: 1, acload_phasesetting: 3 }
+      })
+      // 500 W for 1 h = 0.5 kWh
+      expect(result['Ac/L3/Energy/Forward']).toBeCloseTo(0.5, 2)
+      expect(result['Ac/L1/Energy/Forward']).toBeUndefined()
+    })
+
     test('does not accumulate phase energy beyond configured nrOfPhases', () => {
       const instance = { 'Ac/L3/Power': 500 }
       instance._lastL3PowerTimestamp = Date.now() - 3_600_000

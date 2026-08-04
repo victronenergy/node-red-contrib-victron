@@ -12,6 +12,7 @@
             // acload
             acload_position: {value: 0, required: false},
             acload_nrofphases: {value: 1, required: false},
+            acload_phasesetting: {value: 1, required: false},
             acload_auto_energy: {value: true, required: false},
             enable_s2support: {value: false, required: false},
             s2_measurement_type: {value: '3_PHASE_SYMMETRIC', required: false},
@@ -32,6 +33,7 @@
             energymeter_nrofphases: {value: 1, required: false},
             energymeter_role: {value: "gridmeter", required: false},
             energymeter_position: {value: 0, required: false},
+            energymeter_phasesetting: {value: 1, required: false},
             // motordrive
             include_motor_temp: {value: false},
             include_controller_temp: {value: false},
@@ -289,6 +291,14 @@
                 <option value="3">3 phase</option>
             </select>
         </div>
+        <div class="form-row input-acload" id="acload-phasesetting-row" class="hidden-row">
+            <label for="node-input-acload_phasesetting"><i class="fa fa-plug"></i> Phase</label>
+            <select id="node-input-acload_phasesetting">
+                <option value="1">L1</option>
+                <option value="2">L2</option>
+                <option value="3">L3</option>
+            </select>
+        </div>
         <div class="form-row input-acload victron-checkbox" class="hidden-row">
             <input type="checkbox" id="node-input-acload_auto_energy">
             <label for="node-input-acload_auto_energy">Auto-calculate energy (Ac/Energy/Forward)
@@ -433,6 +443,14 @@
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
+                </select>
+            </div>
+            <div class="form-row" id="energymeter-phasesetting-row">
+                <label for="node-input-energymeter_phasesetting"><i class="fa fa-plug"></i> Phase</label>
+                <select id="node-input-energymeter_phasesetting">
+                    <option value="1">L1</option>
+                    <option value="2">L2</option>
+                    <option value="3">L3</option>
                 </select>
             </div>
         </div>

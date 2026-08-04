@@ -11,7 +11,8 @@ const ROLE_TO_SERVICE_TYPE = {
   heatpump: 'heatpump'
 }
 
-// Position is only meaningfully configurable for these roles: 0=AC output, 1=AC input.
+// Position (0=AC output, 1=AC input) and, for single-phase configs, PhaseSetting (which physical
+// phase it's wired to) are only meaningfully configurable for these roles.
 // - gridmeter/generator (grid/genset) stay fixed at 0 per the Venus OS dbus spec, "1=AC input" is
 //   only valid for acload.
 // - inverter (pvinverter) uses a different 3-value Position enum and is handled by the dedicated
@@ -61,12 +62,22 @@ const phaseProperties = [
 ]
 
 function initialize (config, ifaceDesc, iface, node) {
-  if (POSITION_CONFIGURABLE_ROLES.includes(config.energymeter_role)) {
+  const isPositionConfigurableRole = POSITION_CONFIGURABLE_ROLES.includes(config.energymeter_role)
+  if (isPositionConfigurableRole) {
     iface.Position = Number(config.energymeter_position ?? 0)
   }
   iface.NrOfPhases = Number(config.energymeter_nrofphases ?? 1)
+
+  const isSinglePhase = iface.NrOfPhases === 1
+  let singlePhaseNumber = 1
+  if (isSinglePhase && isPositionConfigurableRole) {
+    singlePhaseNumber = Number(config.energymeter_phasesetting ?? 1)
+    iface.PhaseSetting = singlePhaseNumber
+    ifaceDesc.properties.PhaseSetting = { type: 'i', format: (v) => v != null ? 'L' + v : '' }
+  }
+
   for (let i = 1; i <= iface.NrOfPhases; i++) {
-    const phase = `L${i}`
+    const phase = `L${isSinglePhase ? singlePhaseNumber : i}`
     phaseProperties.forEach(({ name, unit, persist }) => {
       const key = `Ac/${phase}/${name}`
       const propDef = {

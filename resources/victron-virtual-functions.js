@@ -1842,7 +1842,8 @@
 	  $('#battery-voltage-custom-label').toggle(preset === 'custom');
 	}
 
-	// Mirrors POSITION_CONFIGURABLE_ROLES in src/nodes/victron-virtual/device-type/energymeter.js
+	// Mirrors POSITION_CONFIGURABLE_ROLES in src/nodes/victron-virtual/device-type/energymeter.js -
+	// gates both the Position and (for single-phase configs) PhaseSetting rows.
 	const ENERGYMETER_POSITION_CONFIGURABLE_ROLES = ['acload', 'evcharger', 'heatpump'];
 
 	function checkSelectedVirtualDevice (context, deviceCapabilities = {}) {
@@ -1898,12 +1899,25 @@
 	    $('#pulsemeter-multiplier-row').toggle($('#node-input-auto_aggregate').is(':checked'));
 	  }
 
+	  if (selected === 'acload') {
+	    const updateAcloadPhaseSettingVisibility = () => {
+	      const nrOfPhases = $('#node-input-acload_nrofphases').val();
+	      $('#acload-phasesetting-row').toggle(nrOfPhases === '1');
+	    };
+	    $('#node-input-acload_nrofphases').off('change.acload-phasesetting').on('change.acload-phasesetting', updateAcloadPhaseSettingVisibility);
+	    updateAcloadPhaseSettingVisibility();
+	  }
+
 	  if (selected === 'energymeter') {
 	    const updateEnergymeterPositionVisibility = () => {
 	      const role = $('#node-input-energymeter_role').val();
-	      $('#energymeter-position-row').toggle(ENERGYMETER_POSITION_CONFIGURABLE_ROLES.includes(role));
+	      const nrOfPhases = $('#node-input-energymeter_nrofphases').val();
+	      const isConfigurableRole = ENERGYMETER_POSITION_CONFIGURABLE_ROLES.includes(role);
+	      $('#energymeter-position-row').toggle(isConfigurableRole);
+	      $('#energymeter-phasesetting-row').toggle(isConfigurableRole && nrOfPhases === '1');
 	    };
 	    $('#node-input-energymeter_role').off('change.energymeter-position').on('change.energymeter-position', updateEnergymeterPositionVisibility);
+	    $('#node-input-energymeter_nrofphases').off('change.energymeter-position').on('change.energymeter-position', updateEnergymeterPositionVisibility);
 	    updateEnergymeterPositionVisibility();
 	  }
 

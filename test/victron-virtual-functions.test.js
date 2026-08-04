@@ -244,6 +244,58 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       expect(mockBatteryRow.toggle).toHaveBeenCalledWith(true)
     })
 
+    test('shows acload PhaseSetting row for a 1-phase config', () => {
+      const mockNrOfPhasesSelect = createMockElement({ val: '1' })
+      const mockPhaseSettingRow = createMockElement()
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'acload' })
+        }
+        if (selector === '#node-input-acload_nrofphases') {
+          return mockNrOfPhasesSelect
+        }
+        if (selector === '#acload-phasesetting-row') {
+          return mockPhaseSettingRow
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(mockNrOfPhasesSelect.off).toHaveBeenCalledWith('change.acload-phasesetting')
+      expect(mockNrOfPhasesSelect.on).toHaveBeenCalledWith('change.acload-phasesetting', expect.any(Function))
+      expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(true)
+    })
+
+    test('hides acload PhaseSetting row for a multi-phase config', () => {
+      const mockNrOfPhasesSelect = createMockElement({ val: '3' })
+      const mockPhaseSettingRow = createMockElement()
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'acload' })
+        }
+        if (selector === '#node-input-acload_nrofphases') {
+          return mockNrOfPhasesSelect
+        }
+        if (selector === '#acload-phasesetting-row') {
+          return mockPhaseSettingRow
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(false)
+    })
+
     test('shows energymeter Position row for a role where it is configurable', () => {
       const mockRoleSelect = createMockElement({ val: 'acload' })
       const mockPositionRow = createMockElement()
@@ -294,6 +346,93 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       checkSelectedVirtualDevice()
 
       expect(mockPositionRow.toggle).toHaveBeenCalledWith(false)
+    })
+
+    test('shows energymeter PhaseSetting row for a configurable role with 1 phase', () => {
+      const mockRoleSelect = createMockElement({ val: 'acload' })
+      const mockNrOfPhasesSelect = createMockElement({ val: '1' })
+      const mockPhaseSettingRow = createMockElement()
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'energymeter' })
+        }
+        if (selector === '#node-input-energymeter_role') {
+          return mockRoleSelect
+        }
+        if (selector === '#node-input-energymeter_nrofphases') {
+          return mockNrOfPhasesSelect
+        }
+        if (selector === '#energymeter-phasesetting-row') {
+          return mockPhaseSettingRow
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(true)
+    })
+
+    test('hides energymeter PhaseSetting row for a configurable role with 3 phases', () => {
+      const mockRoleSelect = createMockElement({ val: 'acload' })
+      const mockNrOfPhasesSelect = createMockElement({ val: '3' })
+      const mockPhaseSettingRow = createMockElement()
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'energymeter' })
+        }
+        if (selector === '#node-input-energymeter_role') {
+          return mockRoleSelect
+        }
+        if (selector === '#node-input-energymeter_nrofphases') {
+          return mockNrOfPhasesSelect
+        }
+        if (selector === '#energymeter-phasesetting-row') {
+          return mockPhaseSettingRow
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(false)
+    })
+
+    test('hides energymeter PhaseSetting row for a role where Position is not configurable', () => {
+      const mockRoleSelect = createMockElement({ val: 'gridmeter' })
+      const mockNrOfPhasesSelect = createMockElement({ val: '1' })
+      const mockPhaseSettingRow = createMockElement()
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'energymeter' })
+        }
+        if (selector === '#node-input-energymeter_role') {
+          return mockRoleSelect
+        }
+        if (selector === '#node-input-energymeter_nrofphases') {
+          return mockNrOfPhasesSelect
+        }
+        if (selector === '#energymeter-phasesetting-row') {
+          return mockPhaseSettingRow
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(false)
     })
 
     test('handles generator device selection', () => {
