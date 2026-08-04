@@ -244,6 +244,58 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       expect(mockBatteryRow.toggle).toHaveBeenCalledWith(true)
     })
 
+    test('shows energymeter Position row for a role where it is configurable', () => {
+      const mockRoleSelect = createMockElement({ val: 'acload' })
+      const mockPositionRow = createMockElement()
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'energymeter' })
+        }
+        if (selector === '#node-input-energymeter_role') {
+          return mockRoleSelect
+        }
+        if (selector === '#energymeter-position-row') {
+          return mockPositionRow
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(mockRoleSelect.off).toHaveBeenCalledWith('change.energymeter-position')
+      expect(mockRoleSelect.on).toHaveBeenCalledWith('change.energymeter-position', expect.any(Function))
+      expect(mockPositionRow.toggle).toHaveBeenCalledWith(true)
+    })
+
+    test('hides energymeter Position row for a role where it is fixed', () => {
+      const mockRoleSelect = createMockElement({ val: 'gridmeter' })
+      const mockPositionRow = createMockElement()
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'energymeter' })
+        }
+        if (selector === '#node-input-energymeter_role') {
+          return mockRoleSelect
+        }
+        if (selector === '#energymeter-position-row') {
+          return mockPositionRow
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(mockPositionRow.toggle).toHaveBeenCalledWith(false)
+    })
+
     test('handles generator device selection', () => {
       const mockDCElements = createMockElement()
       const mockACElements = createMockElement()

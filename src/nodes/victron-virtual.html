@@ -31,6 +31,7 @@
             // energymeter
             energymeter_nrofphases: {value: 1, required: false},
             energymeter_role: {value: "gridmeter", required: false},
+            energymeter_position: {value: 0, required: false},
             // motordrive
             include_motor_temp: {value: false},
             include_controller_temp: {value: false},
@@ -417,6 +418,13 @@
                     <option value="acload">AC load</option>
                     <option value="evcharger">EV charger</option>
                     <option value="heatpump">Heat pump</option>
+                </select>
+            </div>
+            <div class="form-row" id="energymeter-position-row">
+                <label for="node-input-energymeter_position"><i class="fa fa-sliders"></i> Position</label>
+                <select id="node-input-energymeter_position">
+                    <option value="0">AC output</option>
+                    <option value="1">AC input</option>
                 </select>
             </div>
             <div class="form-row">

@@ -1051,6 +1051,9 @@ export function updateBatteryVoltageVisibility () {
   $('#battery-voltage-custom-label').toggle(preset === 'custom')
 }
 
+// Mirrors POSITION_CONFIGURABLE_ROLES in src/nodes/victron-virtual/device-type/energymeter.js
+const ENERGYMETER_POSITION_CONFIGURABLE_ROLES = ['acload', 'evcharger', 'heatpump']
+
 export function checkSelectedVirtualDevice (context, deviceCapabilities = {}) {
   [
     'acload', 'battery', 'ev', 'generator', 'gps', 'grid', 'e-drive',
@@ -1102,6 +1105,15 @@ export function checkSelectedVirtualDevice (context, deviceCapabilities = {}) {
       $('#pulsemeter-multiplier-row').toggle($(this).is(':checked'))
     })
     $('#pulsemeter-multiplier-row').toggle($('#node-input-auto_aggregate').is(':checked'))
+  }
+
+  if (selected === 'energymeter') {
+    const updateEnergymeterPositionVisibility = () => {
+      const role = $('#node-input-energymeter_role').val()
+      $('#energymeter-position-row').toggle(ENERGYMETER_POSITION_CONFIGURABLE_ROLES.includes(role))
+    }
+    $('#node-input-energymeter_role').off('change.energymeter-position').on('change.energymeter-position', updateEnergymeterPositionVisibility)
+    updateEnergymeterPositionVisibility()
   }
 
   if (selected === 'generator') {

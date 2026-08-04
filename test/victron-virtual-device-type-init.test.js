@@ -1152,5 +1152,23 @@ describe('energymeter', () => {
       expect(ifaceDesc.properties['Ac/L2/Energy/Forward'].persist).toBeDefined()
       expect(ifaceDesc.properties['Ac/L2/Energy/Reverse'].persist).toBeDefined()
     })
+
+    it.each(['acload', 'evcharger', 'heatpump'])('sets Position from config for role "%s"', (role) => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      energymeter.initialize({ energymeter_role: role, energymeter_position: 1 }, ifaceDesc, iface, node)
+      expect(iface.Position).toBe(1)
+    })
+
+    it.each(['acload', 'evcharger', 'heatpump'])('defaults Position to 0 for role "%s" when not set', (role) => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      energymeter.initialize({ energymeter_role: role }, ifaceDesc, iface, node)
+      expect(iface.Position).toBe(0)
+    })
+
+    it.each(['gridmeter', 'generator', 'inverter'])('ignores energymeter_position for role "%s"', (role) => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      energymeter.initialize({ energymeter_role: role, energymeter_position: 1 }, ifaceDesc, iface, node)
+      expect(iface.Position).toBeUndefined()
+    })
   })
 })

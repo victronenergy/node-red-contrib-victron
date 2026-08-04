@@ -11,6 +11,13 @@ const ROLE_TO_SERVICE_TYPE = {
   heatpump: 'heatpump'
 }
 
+// Position is only meaningfully configurable for these roles: 0=AC output, 1=AC input.
+// - gridmeter/generator (grid/genset) stay fixed at 0 per the Venus OS dbus spec, "1=AC input" is
+//   only valid for acload.
+// - inverter (pvinverter) uses a different 3-value Position enum and is handled by the dedicated
+//   pvinverter device type; left untouched here for now.
+const POSITION_CONFIGURABLE_ROLES = ['acload', 'evcharger', 'heatpump']
+
 const sharedProperties = {
   'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', persist: ENERGY_PERSIST_SECONDS },
   'Ac/Energy/Reverse': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', persist: ENERGY_PERSIST_SECONDS },
@@ -54,6 +61,9 @@ const phaseProperties = [
 ]
 
 function initialize (config, ifaceDesc, iface, node) {
+  if (POSITION_CONFIGURABLE_ROLES.includes(config.energymeter_role)) {
+    iface.Position = Number(config.energymeter_position ?? 0)
+  }
   iface.NrOfPhases = Number(config.energymeter_nrofphases ?? 1)
   for (let i = 1; i <= iface.NrOfPhases; i++) {
     const phase = `L${i}`
