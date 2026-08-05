@@ -165,6 +165,21 @@
         "name": "{line} Voltage (V AC)"
       },
       {
+        "path": "/IsGenericEnergyMeter",
+        "type": "integer",
+        "name": "Is generic energy meter"
+      },
+      {
+        "path": "/PhaseSetting",
+        "type": "enum",
+        "name": "Phase",
+        "enum": {
+          "1": "L1",
+          "2": "L2",
+          "3": "L3"
+        }
+      },
+      {
         "path": "/Position",
         "type": "enum",
         "name": "Position",

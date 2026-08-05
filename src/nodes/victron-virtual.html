@@ -276,14 +276,14 @@
             <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
             <select id="node-input-device" required></select>
         </div>
-        <div class="form-row input-acload" class="hidden-row">
+        <div class="form-row input-acload hidden-row">
             <label for="node-input-acload_position"><i class="fa fa-sliders"></i> Position</label>
             <select id="node-input-acload_position">
                 <option value="0">AC output</option>
                 <option value="1">AC input</option>
             </select>
         </div>
-        <div class="form-row input-acload" class="hidden-row">
+        <div class="form-row input-acload hidden-row">
             <label for="node-input-acload_nrofphases"><i class="fa fa-plug"></i> Number of phases</label>
             <select id="node-input-acload_nrofphases">
                 <option value="1">1 phase</option>
@@ -291,7 +291,7 @@
                 <option value="3">3 phase</option>
             </select>
         </div>
-        <div class="form-row input-acload" id="acload-phasesetting-row" class="hidden-row">
+        <div class="form-row input-acload hidden-row" id="acload-phasesetting-row">
             <label for="node-input-acload_phasesetting"><i class="fa fa-plug"></i> Phase</label>
             <select id="node-input-acload_phasesetting">
                 <option value="1">L1</option>
@@ -299,7 +299,7 @@
                 <option value="3">L3</option>
             </select>
         </div>
-        <div class="form-row input-acload victron-checkbox" class="hidden-row">
+        <div class="form-row input-acload victron-checkbox hidden-row">
             <input type="checkbox" id="node-input-acload_auto_energy">
             <label for="node-input-acload_auto_energy">Auto-calculate energy (Ac/Energy/Forward)
                 <i class="fa fa-info-circle tooltip-icon" data-tooltip="Integrates power over time to estimate energy. Precision improves with higher update frequency."></i>

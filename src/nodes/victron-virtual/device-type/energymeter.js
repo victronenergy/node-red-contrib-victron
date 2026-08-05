@@ -15,8 +15,10 @@ const ROLE_TO_SERVICE_TYPE = {
 // phase it's wired to) are only meaningfully configurable for these roles.
 // - gridmeter/generator (grid/genset) stay fixed at 0 per the Venus OS dbus spec, "1=AC input" is
 //   only valid for acload.
-// - inverter (pvinverter) uses a different 3-value Position enum and is handled by the dedicated
-//   pvinverter device type; left untouched here for now.
+// - inverter (pvinverter) is intentionally excluded: buildProperties()'s "default" case below still
+//   gives it a Position property, but with this module's generic 2-value output/input format, not
+//   pvinverter's real 3-value enum (0=AC input 1, 1=AC output, 2=AC input 2, see the dedicated
+//   pvinverter device type). That mismatch predates this change and is left as-is for now.
 const POSITION_CONFIGURABLE_ROLES = ['acload', 'evcharger', 'heatpump']
 
 const sharedProperties = {
