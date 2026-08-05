@@ -10,7 +10,9 @@
             device: {value:"", required: true},
             default_values: {value: true, required: false},
             // acload
+            acload_position: {value: 0, required: false},
             acload_nrofphases: {value: 1, required: false},
+            acload_phasesetting: {value: 1, required: false},
             acload_auto_energy: {value: true, required: false},
             enable_s2support: {value: false, required: false},
             s2_measurement_type: {value: '3_PHASE_SYMMETRIC', required: false},
@@ -30,6 +32,8 @@
             // energymeter
             energymeter_nrofphases: {value: 1, required: false},
             energymeter_role: {value: "gridmeter", required: false},
+            energymeter_position: {value: 0, required: false},
+            energymeter_phasesetting: {value: 1, required: false},
             // motordrive
             include_motor_temp: {value: false},
             include_controller_temp: {value: false},
@@ -272,7 +276,14 @@
             <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
             <select id="node-input-device" required></select>
         </div>
-        <div class="form-row input-acload" class="hidden-row">
+        <div class="form-row input-acload hidden-row">
+            <label for="node-input-acload_position"><i class="fa fa-sliders"></i> Position</label>
+            <select id="node-input-acload_position">
+                <option value="0">AC output</option>
+                <option value="1">AC input</option>
+            </select>
+        </div>
+        <div class="form-row input-acload hidden-row">
             <label for="node-input-acload_nrofphases"><i class="fa fa-plug"></i> Number of phases</label>
             <select id="node-input-acload_nrofphases">
                 <option value="1">1 phase</option>
@@ -280,7 +291,15 @@
                 <option value="3">3 phase</option>
             </select>
         </div>
-        <div class="form-row input-acload victron-checkbox" class="hidden-row">
+        <div class="form-row input-acload hidden-row" id="acload-phasesetting-row">
+            <label for="node-input-acload_phasesetting"><i class="fa fa-plug"></i> Phase</label>
+            <select id="node-input-acload_phasesetting">
+                <option value="1">L1</option>
+                <option value="2">L2</option>
+                <option value="3">L3</option>
+            </select>
+        </div>
+        <div class="form-row input-acload victron-checkbox hidden-row">
             <input type="checkbox" id="node-input-acload_auto_energy">
             <label for="node-input-acload_auto_energy">Auto-calculate energy (Ac/Energy/Forward)
                 <i class="fa fa-info-circle tooltip-icon" data-tooltip="Integrates power over time to estimate energy. Precision improves with higher update frequency."></i>
@@ -411,12 +430,27 @@
                     <option value="heatpump">Heat pump</option>
                 </select>
             </div>
+            <div class="form-row" id="energymeter-position-row">
+                <label for="node-input-energymeter_position"><i class="fa fa-sliders"></i> Position</label>
+                <select id="node-input-energymeter_position">
+                    <option value="0">AC output</option>
+                    <option value="1">AC input</option>
+                </select>
+            </div>
             <div class="form-row">
                 <label for="node-input-energymeter_nrofphases"><i class="fa fa-plug"></i> Nr of phases</label>
                 <select id="node-input-energymeter_nrofphases">
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
+                </select>
+            </div>
+            <div class="form-row" id="energymeter-phasesetting-row">
+                <label for="node-input-energymeter_phasesetting"><i class="fa fa-plug"></i> Phase</label>
+                <select id="node-input-energymeter_phasesetting">
+                    <option value="1">L1</option>
+                    <option value="2">L2</option>
+                    <option value="3">L3</option>
                 </select>
             </div>
         </div>

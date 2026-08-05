@@ -47,6 +47,59 @@ describe('acload', () => {
       expect(ifaceDesc.properties['Ac/L3/Current']).toBeDefined()
     })
 
+    test('labels single-phase properties with the configured PhaseSetting', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      acload.initialize({ acload_nrofphases: 1, acload_phasesetting: 3 }, ifaceDesc, iface, node)
+      expect(ifaceDesc.properties['Ac/L3/Current']).toBeDefined()
+      expect(iface['Ac/L3/Current']).toBe(0)
+      expect(iface.PhaseSetting).toBe(3)
+    })
+
+    test('defaults PhaseSetting to 1 (L1) when not set', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      acload.initialize({ acload_nrofphases: 1 }, ifaceDesc, iface, node)
+      expect(iface.PhaseSetting).toBe(1)
+      expect(ifaceDesc.properties['Ac/L1/Current']).toBeDefined()
+    })
+
+    test('removes the stale static L1 property set when relabeled to a different phase', () => {
+      const { iface, node } = makeFixtures()
+      const ifaceDesc = { properties: { 'Ac/L1/Current': { type: 'd' }, 'Ac/L1/Power': { type: 'd' } } }
+      iface['Ac/L1/Current'] = 0
+
+      acload.initialize({ acload_nrofphases: 1, acload_phasesetting: 2 }, ifaceDesc, iface, node)
+
+      expect(ifaceDesc.properties['Ac/L1/Current']).toBeUndefined()
+      expect(iface['Ac/L1/Current']).toBeUndefined()
+      expect(ifaceDesc.properties['Ac/L2/Current']).toBeDefined()
+    })
+
+    test('does not add PhaseSetting for multi-phase configs, and phases are labeled L1-L3 in order', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      acload.initialize({ acload_nrofphases: 3, acload_phasesetting: 2 }, ifaceDesc, iface, node)
+      expect(iface.PhaseSetting).toBeUndefined()
+      expect(ifaceDesc.properties.PhaseSetting).toBeUndefined()
+      expect(ifaceDesc.properties['Ac/L1/Current']).toBeDefined()
+      expect(ifaceDesc.properties['Ac/L2/Current']).toBeDefined()
+      expect(ifaceDesc.properties['Ac/L3/Current']).toBeDefined()
+    })
+
+    test('static properties declare IsGenericEnergyMeter as 1', () => {
+      expect(acload.properties.IsGenericEnergyMeter.value).toBe(1)
+    })
+
+    test('sets Position from config', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      acload.initialize({ acload_nrofphases: 1, acload_position: 1 }, ifaceDesc, iface, node)
+      expect(iface.Position).toBe(1)
+    })
+
+    test('defaults Position to 0 when not set', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      acload.initialize({ acload_nrofphases: 1 }, ifaceDesc, iface, node)
+      expect(iface.Position).toBe(0)
+    })
+
     test('sets default values when enabled', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
       acload.initialize({ acload_nrofphases: 1, default_values: true }, ifaceDesc, iface, node)
@@ -161,6 +214,16 @@ describe('acload', () => {
       expect(node.send).toHaveBeenCalledWith([null, {
         payload: { command: 'Disconnect', cemId: 'cem-1' }
       }])
+    })
+  })
+
+  describe('format', () => {
+    test.each([
+      [0, 'AC output'],
+      [1, 'AC input'],
+      [99, 'unknown']
+    ])('Position %i -> %s', (v, expected) => {
+      expect(acload.properties.Position.format(v)).toBe(expected)
     })
   })
 })
@@ -1129,6 +1192,57 @@ describe('energymeter', () => {
       expect(ifaceDesc.properties['Ac/L1/Energy/Reverse'].persist).toBeDefined()
       expect(ifaceDesc.properties['Ac/L2/Energy/Forward'].persist).toBeDefined()
       expect(ifaceDesc.properties['Ac/L2/Energy/Reverse'].persist).toBeDefined()
+    })
+
+    it.each(['acload', 'evcharger', 'heatpump'])('sets Position from config for role "%s"', (role) => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      energymeter.initialize({ energymeter_role: role, energymeter_position: 1 }, ifaceDesc, iface, node)
+      expect(iface.Position).toBe(1)
+    })
+
+    it.each(['acload', 'evcharger', 'heatpump'])('defaults Position to 0 for role "%s" when not set', (role) => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      energymeter.initialize({ energymeter_role: role }, ifaceDesc, iface, node)
+      expect(iface.Position).toBe(0)
+    })
+
+    it.each(['gridmeter', 'generator', 'inverter'])('ignores energymeter_position for role "%s"', (role) => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      energymeter.initialize({ energymeter_role: role, energymeter_position: 1 }, ifaceDesc, iface, node)
+      expect(iface.Position).toBeUndefined()
+    })
+
+    it.each(['acload', 'evcharger', 'heatpump'])('labels single-phase properties with the configured phasesetting for role "%s"', (role) => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      energymeter.initialize({ energymeter_role: role, energymeter_nrofphases: 1, energymeter_phasesetting: 3 }, ifaceDesc, iface, node)
+      expect(ifaceDesc.properties['Ac/L3/Current']).toBeDefined()
+      expect(ifaceDesc.properties['Ac/L1/Current']).toBeUndefined()
+      expect(iface.PhaseSetting).toBe(3)
+    })
+
+    it.each(['acload', 'evcharger', 'heatpump'])('defaults phasesetting to 1 (L1) for role "%s" when not set', (role) => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      energymeter.initialize({ energymeter_role: role, energymeter_nrofphases: 1 }, ifaceDesc, iface, node)
+      expect(iface.PhaseSetting).toBe(1)
+      expect(ifaceDesc.properties['Ac/L1/Current']).toBeDefined()
+    })
+
+    it.each(['gridmeter', 'generator', 'inverter'])('ignores energymeter_phasesetting for role "%s"', (role) => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      energymeter.initialize({ energymeter_role: role, energymeter_nrofphases: 1, energymeter_phasesetting: 3 }, ifaceDesc, iface, node)
+      expect(iface.PhaseSetting).toBeUndefined()
+      expect(ifaceDesc.properties.PhaseSetting).toBeUndefined()
+      expect(ifaceDesc.properties['Ac/L1/Current']).toBeDefined()
+    })
+
+    it('does not add PhaseSetting for multi-phase acload role', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      energymeter.initialize({ energymeter_role: 'acload', energymeter_nrofphases: 3, energymeter_phasesetting: 2 }, ifaceDesc, iface, node)
+      expect(iface.PhaseSetting).toBeUndefined()
+      expect(ifaceDesc.properties.PhaseSetting).toBeUndefined()
+      expect(ifaceDesc.properties['Ac/L1/Current']).toBeDefined()
+      expect(ifaceDesc.properties['Ac/L2/Current']).toBeDefined()
+      expect(ifaceDesc.properties['Ac/L3/Current']).toBeDefined()
     })
   })
 })

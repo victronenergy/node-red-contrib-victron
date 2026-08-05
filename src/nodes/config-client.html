@@ -425,6 +425,22 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code> Voltage (V AC)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{line}</code>/Voltage</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">Is generic energy meter<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/IsGenericEnergyMeter</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Phase<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/PhaseSetting</b><span class="property-mode"></span>
+<ul>
+  <li>1 - L1</li>
+  <li>2 - L2</li>
+  <li>3 - L3</li>
+</ul></dd>
+  <dt class="optional">Position<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Position</b><span class="property-mode"></span>
+<ul>
+  <li>0 - AC output</li>
+  <li>1 - AC input</li>
+</ul></dd>
   <dt class="optional">Serial number<span class="property-type">string</span></dt>
   <dd>Dbus path: <b>/Serial</b><span class="property-mode"></span>
 </dd>

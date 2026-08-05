@@ -32,8 +32,45 @@ function createMockElement (customValues = {}) {
     remove: jest.fn().mockReturnThis(),
     closest: jest.fn().mockReturnThis(),
     after: jest.fn().mockReturnThis(),
+    find: jest.fn().mockReturnValue({ each: jest.fn().mockReturnThis() }),
     length: customValues.length !== undefined ? customValues.length : 1,
     0: mockDOMElement
+  }
+}
+
+// Builds a mock for #node-input-s2_measurement_type that behaves closely enough to a real jQuery
+// <select> for updateAcloadS2MeasurementOptions(): .val() acts as getter/setter, and
+// .find('option').each(fn) invokes fn with `this` bound to a stand-in option element that the
+// test's global.$ mock must route back to wrapMockS2Option() (see usages below).
+const S2_MEASUREMENT_OPTION_VALUES = ['3_PHASE_SYMMETRIC', 'L1_L2_L3', 'L1', 'L2', 'L3']
+
+function createMockS2MeasurementSelect (initialValue) {
+  let currentValue = initialValue
+  const toggleCallsByValue = {}
+  S2_MEASUREMENT_OPTION_VALUES.forEach((v) => { toggleCallsByValue[v] = [] })
+  const optionElements = S2_MEASUREMENT_OPTION_VALUES.map((value) => ({ __mockOptionValue: value }))
+
+  const mockS2Select = {
+    val: jest.fn((newValue) => {
+      if (newValue === undefined) return currentValue
+      currentValue = newValue
+      return mockS2Select
+    }),
+    find: jest.fn().mockReturnValue({
+      each: jest.fn((fn) => {
+        optionElements.forEach((el) => fn.call(el))
+      })
+    })
+  }
+
+  return { mockS2Select, toggleCallsByValue }
+}
+
+function wrapMockS2Option (element, toggleCallsByValue) {
+  const value = element.__mockOptionValue
+  return {
+    val: jest.fn().mockReturnValue(value),
+    toggle: jest.fn((visible) => { toggleCallsByValue[value].push(visible) })
   }
 }
 
@@ -242,6 +279,318 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       expect(mockBatteryCheckbox.off).toHaveBeenCalledWith('change')
       expect(mockBatteryCheckbox.on).toHaveBeenCalledWith('change', expect.any(Function))
       expect(mockBatteryRow.toggle).toHaveBeenCalledWith(true)
+    })
+
+    test('shows acload PhaseSetting row for a 1-phase config', () => {
+      const mockNrOfPhasesSelect = createMockElement({ val: '1' })
+      const mockPhaseSettingRow = createMockElement()
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'acload' })
+        }
+        if (selector === '#node-input-acload_nrofphases') {
+          return mockNrOfPhasesSelect
+        }
+        if (selector === '#acload-phasesetting-row') {
+          return mockPhaseSettingRow
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(mockNrOfPhasesSelect.off).toHaveBeenCalledWith('change.acload-phasesetting')
+      expect(mockNrOfPhasesSelect.on).toHaveBeenCalledWith('change.acload-phasesetting', expect.any(Function))
+      expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(true)
+    })
+
+    test('filters S2 Measurement to 3-phase-symmetric and the matching single phase, auto-syncing an out-of-date single-phase selection', () => {
+      const mockNrOfPhasesSelect = createMockElement({ val: '1' })
+      const mockPhaseSettingSelect = createMockElement({ val: '2' })
+      const mockPhaseSettingRow = createMockElement()
+      const { mockS2Select, toggleCallsByValue } = createMockS2MeasurementSelect('L1')
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'acload' })
+        }
+        if (selector === '#node-input-acload_nrofphases') {
+          return mockNrOfPhasesSelect
+        }
+        if (selector === '#node-input-acload_phasesetting') {
+          return mockPhaseSettingSelect
+        }
+        if (selector === '#acload-phasesetting-row') {
+          return mockPhaseSettingRow
+        }
+        if (selector === '#node-input-s2_measurement_type') {
+          return mockS2Select
+        }
+        if (typeof selector === 'object') {
+          return wrapMockS2Option(selector, toggleCallsByValue)
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      // Per-phase reporting and the two non-matching single-phase options are hidden; the total
+      // (3-phase symmetric) and the phase actually wired (L2) stay visible.
+      expect(toggleCallsByValue['3_PHASE_SYMMETRIC']).toEqual([true])
+      expect(toggleCallsByValue.L1_L2_L3).toEqual([false])
+      expect(toggleCallsByValue.L1).toEqual([false])
+      expect(toggleCallsByValue.L2).toEqual([true])
+      expect(toggleCallsByValue.L3).toEqual([false])
+      // The previously-selected "Single phase L1" no longer matches Phase=L2, so it's auto-synced.
+      expect(mockS2Select.val()).toBe('L2')
+    })
+
+    test('leaves 3-phase-symmetric S2 Measurement selection untouched for a single-phase config', () => {
+      const mockNrOfPhasesSelect = createMockElement({ val: '1' })
+      const mockPhaseSettingSelect = createMockElement({ val: '2' })
+      const mockPhaseSettingRow = createMockElement()
+      const { mockS2Select, toggleCallsByValue } = createMockS2MeasurementSelect('3_PHASE_SYMMETRIC')
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'acload' })
+        }
+        if (selector === '#node-input-acload_nrofphases') {
+          return mockNrOfPhasesSelect
+        }
+        if (selector === '#node-input-acload_phasesetting') {
+          return mockPhaseSettingSelect
+        }
+        if (selector === '#acload-phasesetting-row') {
+          return mockPhaseSettingRow
+        }
+        if (selector === '#node-input-s2_measurement_type') {
+          return mockS2Select
+        }
+        if (typeof selector === 'object') {
+          return wrapMockS2Option(selector, toggleCallsByValue)
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(mockS2Select.val()).toBe('3_PHASE_SYMMETRIC')
+    })
+
+    test('does not filter S2 Measurement options for a multi-phase config', () => {
+      const mockNrOfPhasesSelect = createMockElement({ val: '3' })
+      const mockPhaseSettingSelect = createMockElement({ val: '1' })
+      const mockPhaseSettingRow = createMockElement()
+      const { mockS2Select, toggleCallsByValue } = createMockS2MeasurementSelect('L1')
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'acload' })
+        }
+        if (selector === '#node-input-acload_nrofphases') {
+          return mockNrOfPhasesSelect
+        }
+        if (selector === '#node-input-acload_phasesetting') {
+          return mockPhaseSettingSelect
+        }
+        if (selector === '#acload-phasesetting-row') {
+          return mockPhaseSettingRow
+        }
+        if (selector === '#node-input-s2_measurement_type') {
+          return mockS2Select
+        }
+        if (typeof selector === 'object') {
+          return wrapMockS2Option(selector, toggleCallsByValue)
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(toggleCallsByValue['3_PHASE_SYMMETRIC']).toEqual([true])
+      expect(toggleCallsByValue.L1_L2_L3).toEqual([true])
+      expect(toggleCallsByValue.L1).toEqual([true])
+      expect(toggleCallsByValue.L2).toEqual([true])
+      expect(toggleCallsByValue.L3).toEqual([true])
+      expect(mockS2Select.val()).toBe('L1')
+    })
+
+    test('hides acload PhaseSetting row for a multi-phase config', () => {
+      const mockNrOfPhasesSelect = createMockElement({ val: '3' })
+      const mockPhaseSettingRow = createMockElement()
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'acload' })
+        }
+        if (selector === '#node-input-acload_nrofphases') {
+          return mockNrOfPhasesSelect
+        }
+        if (selector === '#acload-phasesetting-row') {
+          return mockPhaseSettingRow
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(false)
+    })
+
+    test('shows energymeter Position row for a role where it is configurable', () => {
+      const mockRoleSelect = createMockElement({ val: 'acload' })
+      const mockPositionRow = createMockElement()
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'energymeter' })
+        }
+        if (selector === '#node-input-energymeter_role') {
+          return mockRoleSelect
+        }
+        if (selector === '#energymeter-position-row') {
+          return mockPositionRow
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(mockRoleSelect.off).toHaveBeenCalledWith('change.energymeter-position')
+      expect(mockRoleSelect.on).toHaveBeenCalledWith('change.energymeter-position', expect.any(Function))
+      expect(mockPositionRow.toggle).toHaveBeenCalledWith(true)
+    })
+
+    test('hides energymeter Position row for a role where it is fixed', () => {
+      const mockRoleSelect = createMockElement({ val: 'gridmeter' })
+      const mockPositionRow = createMockElement()
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'energymeter' })
+        }
+        if (selector === '#node-input-energymeter_role') {
+          return mockRoleSelect
+        }
+        if (selector === '#energymeter-position-row') {
+          return mockPositionRow
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(mockPositionRow.toggle).toHaveBeenCalledWith(false)
+    })
+
+    test('shows energymeter PhaseSetting row for a configurable role with 1 phase', () => {
+      const mockRoleSelect = createMockElement({ val: 'acload' })
+      const mockNrOfPhasesSelect = createMockElement({ val: '1' })
+      const mockPhaseSettingRow = createMockElement()
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'energymeter' })
+        }
+        if (selector === '#node-input-energymeter_role') {
+          return mockRoleSelect
+        }
+        if (selector === '#node-input-energymeter_nrofphases') {
+          return mockNrOfPhasesSelect
+        }
+        if (selector === '#energymeter-phasesetting-row') {
+          return mockPhaseSettingRow
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(true)
+    })
+
+    test('hides energymeter PhaseSetting row for a configurable role with 3 phases', () => {
+      const mockRoleSelect = createMockElement({ val: 'acload' })
+      const mockNrOfPhasesSelect = createMockElement({ val: '3' })
+      const mockPhaseSettingRow = createMockElement()
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'energymeter' })
+        }
+        if (selector === '#node-input-energymeter_role') {
+          return mockRoleSelect
+        }
+        if (selector === '#node-input-energymeter_nrofphases') {
+          return mockNrOfPhasesSelect
+        }
+        if (selector === '#energymeter-phasesetting-row') {
+          return mockPhaseSettingRow
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(false)
+    })
+
+    test('hides energymeter PhaseSetting row for a role where Position is not configurable', () => {
+      const mockRoleSelect = createMockElement({ val: 'gridmeter' })
+      const mockNrOfPhasesSelect = createMockElement({ val: '1' })
+      const mockPhaseSettingRow = createMockElement()
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'energymeter' })
+        }
+        if (selector === '#node-input-energymeter_role') {
+          return mockRoleSelect
+        }
+        if (selector === '#node-input-energymeter_nrofphases') {
+          return mockNrOfPhasesSelect
+        }
+        if (selector === '#energymeter-phasesetting-row') {
+          return mockPhaseSettingRow
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(false)
     })
 
     test('handles generator device selection', () => {

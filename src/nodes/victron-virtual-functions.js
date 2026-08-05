@@ -1051,6 +1051,10 @@ export function updateBatteryVoltageVisibility () {
   $('#battery-voltage-custom-label').toggle(preset === 'custom')
 }
 
+// Mirrors POSITION_CONFIGURABLE_ROLES in src/nodes/victron-virtual/device-type/energymeter.js -
+// gates both the Position and (for single-phase configs) PhaseSetting rows.
+const ENERGYMETER_POSITION_CONFIGURABLE_ROLES = ['acload', 'evcharger', 'heatpump']
+
 export function checkSelectedVirtualDevice (context, deviceCapabilities = {}) {
   [
     'acload', 'battery', 'ev', 'generator', 'gps', 'grid', 'e-drive',
@@ -1102,6 +1106,53 @@ export function checkSelectedVirtualDevice (context, deviceCapabilities = {}) {
       $('#pulsemeter-multiplier-row').toggle($(this).is(':checked'))
     })
     $('#pulsemeter-multiplier-row').toggle($('#node-input-auto_aggregate').is(':checked'))
+  }
+
+  if (selected === 'acload') {
+    // Keeps the S2 Measurement dropdown consistent with the acload's actual phase(s): for a
+    // single-phase config, only "3-phase symmetric" (reads the Ac/Power total) and the single
+    // phase option matching the configured Phase are valid - the other single-phase options and
+    // "Per phase" would read an Ac/L{n}/Power path that doesn't exist on the device.
+    const updateAcloadS2MeasurementOptions = (isSinglePhase) => {
+      const phaseSetting = $('#node-input-acload_phasesetting').val()
+      const matchingSingleValue = 'L' + phaseSetting
+      const $select = $('#node-input-s2_measurement_type')
+
+      $select.find('option').each(function () {
+        const val = $(this).val()
+        const isPerPhaseOption = val === 'L1_L2_L3'
+        const isMismatchedSinglePhaseOption = ['L1', 'L2', 'L3'].includes(val) && val !== matchingSingleValue
+        $(this).toggle(!isSinglePhase || (!isPerPhaseOption && !isMismatchedSinglePhaseOption))
+      })
+
+      if (isSinglePhase && ['L1', 'L2', 'L3'].includes($select.val()) && $select.val() !== matchingSingleValue) {
+        $select.val(matchingSingleValue)
+      }
+    }
+
+    const updateAcloadPhaseSettingVisibility = () => {
+      const isSinglePhase = $('#node-input-acload_nrofphases').val() === '1'
+      $('#acload-phasesetting-row').toggle(isSinglePhase)
+      updateAcloadS2MeasurementOptions(isSinglePhase)
+    }
+    $('#node-input-acload_nrofphases').off('change.acload-phasesetting').on('change.acload-phasesetting', updateAcloadPhaseSettingVisibility)
+    $('#node-input-acload_phasesetting').off('change.acload-s2measurement').on('change.acload-s2measurement', () => {
+      updateAcloadS2MeasurementOptions($('#node-input-acload_nrofphases').val() === '1')
+    })
+    updateAcloadPhaseSettingVisibility()
+  }
+
+  if (selected === 'energymeter') {
+    const updateEnergymeterPositionVisibility = () => {
+      const role = $('#node-input-energymeter_role').val()
+      const nrOfPhases = $('#node-input-energymeter_nrofphases').val()
+      const isConfigurableRole = ENERGYMETER_POSITION_CONFIGURABLE_ROLES.includes(role)
+      $('#energymeter-position-row').toggle(isConfigurableRole)
+      $('#energymeter-phasesetting-row').toggle(isConfigurableRole && nrOfPhases === '1')
+    }
+    $('#node-input-energymeter_role').off('change.energymeter-position').on('change.energymeter-position', updateEnergymeterPositionVisibility)
+    $('#node-input-energymeter_nrofphases').off('change.energymeter-position').on('change.energymeter-position', updateEnergymeterPositionVisibility)
+    updateEnergymeterPositionVisibility()
   }
 
   if (selected === 'generator') {
