@@ -114,6 +114,16 @@ describe('saveToCache - stale no-trail entry cleanup', () => {
     expect(client.system.cache['com.victronenergy.generator']).toBeDefined()
   })
 
+  it('converts empty-array D-Bus null values to null in cache', () => {
+    client.saveToCache({
+      senderName: 'com.victronenergy.battery',
+      path: '/Relay/0/State',
+      value: [],
+      deviceInstance: 0
+    })
+    expect(client.system.cache['com.victronenergy.battery/0']['/Relay/0/State']).toBeNull()
+  })
+
   it('does not delete anything when no stale entry exists', () => {
     client.saveToCache({
       senderName: 'com.victronenergy.generator',
