@@ -31,11 +31,19 @@ const _ = require('lodash')
         .catch(err => console.error)
  */
 
-function createClientCallback (err) {
-  if (err) {
-    console.error('[VictronDbusListener] Failed to create DBus client:', err)
-  } else {
-    debug('[VictronDbusListener] Successfully created DBus client.')
+/**
+  * higher-order function to create a callback for dbus.createClient that resolves or rejects a promise
+  */
+function createClientCallbackFn (resolve, reject) {
+  return function createClientCallback (err) {
+    if (err) {
+      const message = `Failed to create DBus client: ${err.message}`
+      console.error('[VictronDbusListener]', message)
+      reject(new Error(message))
+    } else {
+      debug('[VictronDbusListener] Successfully created DBus client.')
+      resolve()
+    }
   }
 }
 
@@ -120,13 +128,11 @@ class VictronDbusListener {
     // since they can be invoked elsewhere
     this.getValue = this.getValue.bind(this)
     this.setValue = this.setValue.bind(this)
-    this._signalRecieve = this._signalRecieve.bind(this)
+    this._signalReceive = this._signalReceive.bind(this)
   }
 
   connect () {
-    return new Promise((_resolve, reject) => {
-      // this promise never resolves. The retry mechanism depends on us rejecting when
-      // we get disconnected, see VictronClient.promiseRetry().
+    return new Promise((resolve, reject) => {
       if (this.address) { // Connect via TCP
         debug(`Connecting to TCP address ${this.address}.`)
         this.bus = dbus.createClient({
@@ -134,18 +140,20 @@ class VictronDbusListener {
           authMethods: ['ANONYMOUS']
         }, (err, _) => {
           if (err) {
-            console.error(`Failed to create DBus client for address ${this.address}:`, err)
-            // reject(new Error(`Failed to create DBus client for address ${this.address}: ${err.message}`))
+            const errorMessage = `Failed to create DBus client for address ${this.address}: ${err.message}`
+            console.error(errorMessage, err)
+            reject(new Error(errorMessage))
           } else {
             debug(`Successfully created DBus client for address ${this.address}`)
+            resolve()
           }
         })
       } else { // Connect via socket
-        debug('Connecting to system socket.')
+        debug(`Connecting to system socket. DBUS_SESSION_BUS_ADDRESS=${process.env.DBUS_SESSION_BUS_ADDRESS}`)
         const opts = {}
         this.bus = process.env.DBUS_SESSION_BUS_ADDRESS
-          ? dbus.sessionBus(opts, createClientCallback)
-          : dbus.systemBus(opts, createClientCallback)
+          ? dbus.sessionBus(opts, createClientCallbackFn(resolve, reject))
+          : dbus.systemBus(createClientCallbackFn(resolve, reject))
       }
 
       if (!this.bus) { throw new Error('Could not connect to the D-Bus') }
@@ -192,7 +200,7 @@ class VictronDbusListener {
 
         // The following callbacks should be initialized
         // only after dbus connection
-        this.bus.connection.on('message', this._signalRecieve)
+        this.bus.connection.on('message', this._signalReceive)
         this.bus.connection.on('end', () => {
           if (this.rootPoller) {
             clearInterval(this.rootPoller)
@@ -334,7 +342,7 @@ class VictronDbusListener {
     debug(`_requestAllRoots, duration=${end - start} milliseconds`)
   }
 
-  _signalRecieve (msg) {
+  _signalReceive (msg) {
     if (msg.interface !== 'com.victronenergy.BusItem') {
       if (msg.interface === 'org.freedesktop.DBus' &&
         msg.member === 'NameOwnerChanged') {

@@ -1,4 +1,5 @@
 const VictronDbusListener = require('../src/services/dbus-listener')
+const dbus = require('dbus-native-victron')
 
 describe('VictronDbusListener', () => {
   let listener
@@ -91,7 +92,7 @@ describe('VictronDbusListener', () => {
 
   describe('_requestRoot does not mutate service.deviceInstance for singleton services', () => {
     beforeEach(() => {
-      listener.messageHandler = () => {}
+      listener.messageHandler = () => { }
       listener.bus = {
         invoke: jest.fn((_params, callback) => {
           callback(null, [
@@ -116,6 +117,106 @@ describe('VictronDbusListener', () => {
       const service = { name: 'com.victronenergy.battery', deviceInstance: null }
       await listener._requestRoot(service)
       expect(service.deviceInstance).toBe(0)
+    })
+  })
+
+  describe('connect', () => {
+    beforeEach(() => {
+      jest.spyOn(dbus, 'createClient').mockImplementation((opts, cb) => {
+        console.log('createClient called (2)')
+        // TODO: createClient has an odd anatomy: It returns a MessageBus object
+        // synchronously, but also calls the callback asynchronously. We need
+        // to simulate that behavior here.
+
+        setTimeout(() => {
+          console.log('createClient, calling callback')
+          // cb(new Error('Simulated createClient error'))
+          cb(null)
+        }, 10)
+
+        return {
+          connection: {
+            on: (event, callback) => {
+              console.log(`connection.on called for event: ${event}`)
+              if (event === 'connect') {
+                process.nextTick(() => callback(new Error('Simulated connection error')))
+              }
+            }
+          },
+          addMatch: jest.fn((match, callback) => {
+            console.log(`addMatch called with match: ${match}`)
+            callback(null)
+          }),
+          listNames: jest.fn((callback) => {
+            console.log('listNames called')
+            callback(null, ['com.victronenergy.battery', 'com.victronenergy.system', 'com.victronenergy.platform', 'com.victronenergy.dynamicess'])
+          }),
+          invoke: jest.fn((params, callback) => {
+            console.log(`invoke called with params: ${JSON.stringify(params)}`)
+            callback(null, [null, ['the-device-instance']])
+          }),
+          getNameOwner: jest.fn((name, callback) => {
+            console.log(`getNameOwner called with name: ${name}`)
+            callback(null, 'the-owner')
+          })
+        }
+      })
+
+      listener = new VictronDbusListener('tcp:host=localhost,port=7878', {})
+      listener._requestRoot = jest.fn()
+      listener.bus = {
+        createClient: jest.fn((opts, cb) => {
+          process.nextTick(() => cb(null))
+        }),
+        invoke: jest.fn((_params, callback) => {
+          callback(null, [null, ['the-device-instance']])
+        }),
+        addMatch: jest.fn((_match, callback) => {
+          callback(null)
+        })
+      }
+    })
+
+    test('connect initializes services and requests root for each', async () => {
+      await listener.connect()
+      expect(listener._requestRoot).toHaveBeenCalledTimes(5)
+    })
+
+    describe('when using session bus', () => {
+      const originalEnv = process.env
+
+      beforeEach(() => {
+        jest.resetModules()
+        process.env = { ...process.env }
+        process.env.DBUS_SESSION_BUS_ADDRESS = 'some-address'
+        expect(listener.address).toBe('tcp:host=localhost,port=7878')
+        listener.address = null
+      })
+
+      afterAll(() => {
+        process.env = originalEnv
+      })
+
+      it('connect succeeds and defines the bus', async () => {
+        await listener.connect()
+        expect(listener.address).toBeNull()
+        expect(listener.bus).toBeDefined()
+        expect(listener._requestRoot).toHaveBeenCalledTimes(5)
+      })
+    })
+
+    describe('when no address is provided', () => {
+      beforeEach(() => {
+        expect(listener.address).toBe('tcp:host=localhost,port=7878')
+        listener.address = null
+      })
+
+      test('connect succeeds and defines the bus', async () => {
+        await listener.connect()
+        expect(listener.address).toBeNull()
+        expect(listener.bus).toBeDefined()
+        expect(listener._requestRoot).toHaveBeenCalledTimes(5)
+      })
     })
   })
 })
