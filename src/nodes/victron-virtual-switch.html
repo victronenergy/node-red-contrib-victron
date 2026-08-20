@@ -97,7 +97,8 @@
                 initializeTooltips();
             }
 
-            fetchSwitchNodeNameAndGroupFromCache(this.id).then(({name, group}) => {
+            const baseUrl = (RED.settings.httpNodeRoot || RED.settings.httpAdminRoot || "").replace(/\/$/, "");
+            fetchSwitchNodeNameAndGroupFromCache(this.id, baseUrl).then(({name, group}) => {
                 if (name) {
                     $(`#node-input-switch_1_customname`).val(name);
                 }

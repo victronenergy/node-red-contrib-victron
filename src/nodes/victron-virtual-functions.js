@@ -1004,12 +1004,12 @@ export function fetchDeviceCapabilities (baseUrl) {
     .then(response => response.json())
 }
 
-export function fetchSwitchNodeNameAndGroupFromCache (id) {
+export function fetchSwitchNodeNameAndGroupFromCache (id, baseUrl) {
   if (!id) {
     return Promise.reject(new Error('id is required'))
   }
 
-  return fetch(`/victron/cache?filter_by_serial=${id}`)
+  return fetch(`${baseUrl || ''}/victron/cache?filter_by_serial=${id}`)
     .then(response => response.json())
     .then(data => {
       for (const key in data) {
