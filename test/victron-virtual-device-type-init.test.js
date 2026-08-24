@@ -630,6 +630,12 @@ describe('generator', () => {
       expect(props['Ac/Power']).toBeDefined()
     })
 
+    test('IsGenericEnergyMeter is 1 for genset grid meter only, 0 for full genset/dcgenset', () => {
+      expect(generator.properties.genset({ generator_grid_meter_only: true }).IsGenericEnergyMeter.value).toBe(1)
+      expect(generator.properties.genset({ generator_grid_meter_only: false }).IsGenericEnergyMeter.value).toBe(0)
+      expect(generator.properties.dcgenset.IsGenericEnergyMeter.value).toBe(0)
+    })
+
     test('initialize returns grid meter mode label and skips engine/alarm setup', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
       const result = generator.initialize({ generator_type: 'ac', generator_nrofphases: 3, generator_grid_meter_only: true }, ifaceDesc, iface, node)

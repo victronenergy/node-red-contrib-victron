@@ -49,7 +49,8 @@ const commonGeneratorProperties = {
   StarterVoltage: { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'V' : '', persist: true, immediate: true },
   FirmwareVersion: { type: 's', format: (v) => v != null ? v : '', persist: true },
   Model: { type: 's', format: (v) => v != null ? v : '', persist: true },
-  Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1, immediate: true }
+  Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1, immediate: true },
+  IsGenericEnergyMeter: { type: 'i', format: (v) => v != null ? v : '', value: 0 }
 }
 
 const gensetProperties = {
