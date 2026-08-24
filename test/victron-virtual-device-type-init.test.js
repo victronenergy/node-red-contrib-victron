@@ -62,18 +62,6 @@ describe('acload', () => {
       expect(ifaceDesc.properties['Ac/L1/Current']).toBeDefined()
     })
 
-    test('removes the stale static L1 property set when relabeled to a different phase', () => {
-      const { iface, node } = makeFixtures()
-      const ifaceDesc = { properties: { 'Ac/L1/Current': { type: 'd' }, 'Ac/L1/Power': { type: 'd' } } }
-      iface['Ac/L1/Current'] = 0
-
-      acload.initialize({ acload_nrofphases: 1, acload_phasesetting: 2 }, ifaceDesc, iface, node)
-
-      expect(ifaceDesc.properties['Ac/L1/Current']).toBeUndefined()
-      expect(iface['Ac/L1/Current']).toBeUndefined()
-      expect(ifaceDesc.properties['Ac/L2/Current']).toBeDefined()
-    })
-
     test('does not add PhaseSetting for multi-phase configs, and phases are labeled L1-L3 in order', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
       acload.initialize({ acload_nrofphases: 3, acload_phasesetting: 2 }, ifaceDesc, iface, node)
@@ -84,8 +72,12 @@ describe('acload', () => {
       expect(ifaceDesc.properties['Ac/L3/Current']).toBeDefined()
     })
 
-    test('static properties declare IsGenericEnergyMeter as 1', () => {
-      expect(acload.properties.IsGenericEnergyMeter.value).toBe(1)
+    test('static properties declare IsGenericEnergyMeter as 0 in normal mode', () => {
+      expect(acload.properties({}).IsGenericEnergyMeter.value).toBe(0)
+    })
+
+    test('static properties declare IsGenericEnergyMeter as 1 in grid meter only mode', () => {
+      expect(acload.properties({ acload_grid_meter_only: true }).IsGenericEnergyMeter.value).toBe(1)
     })
 
     test('sets Position from config', () => {
@@ -106,6 +98,7 @@ describe('acload', () => {
       expect(iface['Ac/Power']).toBe(0)
       expect(iface['Ac/Energy/Forward']).toBe(0)
       expect(iface['Ac/Energy/Reverse']).toBe(0)
+      expect(iface['Ac/PowerFactor']).toBe(0)
     })
 
     test('does not set default values when disabled', () => {
@@ -115,8 +108,8 @@ describe('acload', () => {
     })
 
     test('energy properties in static properties have persist set', () => {
-      expect(acload.properties['Ac/Energy/Forward'].persist).toBeDefined()
-      expect(acload.properties['Ac/Energy/Reverse'].persist).toBeDefined()
+      expect(acload.properties({})['Ac/Energy/Forward'].persist).toBeDefined()
+      expect(acload.properties({})['Ac/Energy/Reverse'].persist).toBeDefined()
     })
 
     test('phase energy properties added by initialize have persist set', () => {
@@ -223,7 +216,7 @@ describe('acload', () => {
       [1, 'AC input'],
       [99, 'unknown']
     ])('Position %i -> %s', (v, expected) => {
-      expect(acload.properties.Position.format(v)).toBe(expected)
+      expect(acload.properties({}).Position.format(v)).toBe(expected)
     })
   })
 })
@@ -487,8 +480,17 @@ describe('ev', () => {
 
 describe('generator', () => {
   describe('productType', () => {
-    it('does not export productType so the library resolves it from the service name', () => {
-      expect(generator.productType).toBeUndefined()
+    it('returns genset/dcgenset outside grid meter only mode', () => {
+      expect(generator.productType({ generator_type: 'ac' })).toBe('genset')
+      expect(generator.productType({ generator_type: 'dc' })).toBe('dcgenset')
+    })
+
+    it('returns grid for AC in grid meter only mode', () => {
+      expect(generator.productType({ generator_type: 'ac', generator_grid_meter_only: true })).toBe('grid')
+    })
+
+    it('ignores generator_grid_meter_only for DC', () => {
+      expect(generator.productType({ generator_type: 'dc', generator_grid_meter_only: true })).toBe('dcgenset')
     })
   })
 
@@ -580,7 +582,7 @@ describe('generator', () => {
     })
 
     test('genset Ac/Energy/Forward has persist set', () => {
-      expect(generator.properties.genset['Ac/Energy/Forward'].persist).toBeDefined()
+      expect(generator.properties.genset({})['Ac/Energy/Forward'].persist).toBeDefined()
     })
 
     test('dcgenset History/EnergyOut has persist set', () => {
@@ -589,7 +591,7 @@ describe('generator', () => {
   })
 
   describe('format', () => {
-    const fmt = generator.properties.genset.StatusCode.format
+    const fmt = generator.properties.genset({}).StatusCode.format
     test.each([
       [0, 'Standby'],
       [8, 'Running'],
@@ -605,6 +607,35 @@ describe('generator', () => {
       expect(stateFmt(0)).toBe('Stopped')
       expect(stateFmt(1)).toBe('Running')
       expect(stateFmt(99)).toBe('unknown')
+    })
+  })
+
+  describe('grid meter only mode (AC only)', () => {
+    test('getServiceType still returns genset for AC when enabled', () => {
+      expect(generator.getServiceType({ generator_type: 'ac', generator_grid_meter_only: true })).toBe('genset')
+    })
+
+    test('getServiceType returns genset for AC when disabled', () => {
+      expect(generator.getServiceType({ generator_type: 'ac', generator_grid_meter_only: false })).toBe('genset')
+    })
+
+    test('getServiceType ignores generator_grid_meter_only for DC', () => {
+      expect(generator.getServiceType({ generator_type: 'dc', generator_grid_meter_only: true })).toBe('dcgenset')
+    })
+
+    test('genset properties omit Position and engine/alarm data when enabled', () => {
+      const props = generator.properties.genset({ generator_grid_meter_only: true })
+      expect(props.Position).toBeUndefined()
+      expect(props['Engine/OperatingHours']).toBeUndefined()
+      expect(props['Ac/Power']).toBeDefined()
+    })
+
+    test('initialize returns grid meter mode label and skips engine/alarm setup', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      const result = generator.initialize({ generator_type: 'ac', generator_nrofphases: 3, generator_grid_meter_only: true }, ifaceDesc, iface, node)
+      expect(result).toBe('Virtual 3-phase AC generator (grid meter mode)')
+      expect(ifaceDesc.properties['Engine/OperatingHours']).toBeUndefined()
+      expect(ifaceDesc.properties['Ac/L1/Power']).toBeDefined()
     })
   })
 })
@@ -1104,6 +1135,14 @@ describe('energymeter', () => {
       expect(energymeter.properties({}).Position.format(0)).toBe('output')
       expect(energymeter.properties({}).Position.format(1)).toBe('input')
     })
+
+    it.each(['acload', 'heatpump', 'evcharger', 'inverter', 'generator'])('declares IsGenericEnergyMeter as 0 for role "%s"', (role) => {
+      expect(energymeter.properties({ energymeter_role: role }).IsGenericEnergyMeter.value).toBe(0)
+    })
+
+    it('declares IsGenericEnergyMeter as 1 for role "gridmeter"', () => {
+      expect(energymeter.properties({ energymeter_role: 'gridmeter' }).IsGenericEnergyMeter.value).toBe(1)
+    })
   })
 
   describe('getServiceType', () => {
@@ -1178,6 +1217,7 @@ describe('energymeter', () => {
       expect(iface['Ac/Power']).toBe(0)
       expect(iface['Ac/Energy/Forward']).toBe(0)
       expect(iface['Ac/Energy/Reverse']).toBe(0)
+      expect(iface['Ac/PowerFactor']).toBe(0)
     })
 
     it('shared energy properties have persist set', () => {

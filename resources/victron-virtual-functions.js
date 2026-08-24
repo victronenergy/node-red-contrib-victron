@@ -1376,6 +1376,62 @@
   `,
 	    img: null
 	  },
+	  heatpump: {
+	    label: 'Heat pump',
+	    text: `
+    ${INPUT_DOCS}
+    <div>
+      <div><strong>Most relevant paths:</strong>
+        <ul>
+          <li><code>/Ac/{line}/Power</code> &mdash; Power per phase in watts, where <code>{line}</code> is <code>L1</code>, <code>L2</code>, or <code>L3</code>.</li>
+          <li><code>/Ac/{line}/Voltage</code> &mdash; Voltage per phase in volts.</li>
+          <li><code>/Ac/{line}/Current</code> &mdash; Current per phase in amperes.</li>
+          <li><code>/Ac/{line}/Energy/Forward</code> &mdash; Energy consumed per phase in kWh.</li>
+          <li><code>/Ac/Frequency</code> &mdash; AC frequency in Hz.</li>
+          <li><code>/Ac/PowerFactor</code> &mdash; Overall power factor.</li>
+          <li><code>/Ac/{line}/PowerFactor</code> &mdash; Power factor per phase.</li>
+        </ul>
+        <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
+      </div>
+    </div>
+    <div>
+      <div><strong>Output:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+        </ol>
+      </div>
+    </div>
+  `,
+	    img: null
+	  },
+	  evcs: {
+	    label: 'EV charger',
+	    text: `
+    ${INPUT_DOCS}
+    <div>
+      <div><strong>Most relevant paths:</strong>
+        <ul>
+          <li><code>/Ac/Power</code> &mdash; Total AC power in watts.</li>
+          <li><code>/Ac/{line}/Power</code> &mdash; Power per phase in watts, where <code>{line}</code> is <code>L1</code>, <code>L2</code>, or <code>L3</code>.</li>
+          <li><code>/Ac/{line}/Voltage</code> &mdash; Voltage per phase in volts.</li>
+          <li><code>/Ac/{line}/Current</code> &mdash; Current per phase in amperes.</li>
+          <li><code>/Ac/{line}/Energy/Forward</code> &mdash; Energy consumed per phase in kWh.</li>
+          <li><code>/Ac/Frequency</code> &mdash; AC frequency in Hz.</li>
+        </ul>
+        <p>Measurement-only - does not simulate a full EVSE (no charging session or connector state). Registers as <code>com.victronenergy.evcharger</code>.</p>
+        <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
+      </div>
+    </div>
+    <div>
+      <div><strong>Output:</strong>
+        <ol>
+          <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+        </ol>
+      </div>
+    </div>
+  `,
+	    img: null
+	  },
 	  pulsemeter: {
 	    label: 'Pulse meter',
 	    text: `
@@ -1842,14 +1898,75 @@
 	  $('#battery-voltage-custom-label').toggle(preset === 'custom');
 	}
 
-	// Mirrors POSITION_CONFIGURABLE_ROLES in src/nodes/victron-virtual/device-type/energymeter.js -
-	// gates both the Position and (for single-phase configs) PhaseSetting rows.
-	const ENERGYMETER_POSITION_CONFIGURABLE_ROLES = ['acload', 'evcharger', 'heatpump'];
+	// Keeps the S2 Measurement dropdown consistent with the device's actual phase(s): for a
+	// single-phase config, only "3-phase symmetric" (reads the Ac/Power total) and the single
+	// phase option matching the configured Phase are valid - the other single-phase options and
+	// "Per phase" would read an Ac/L{n}/Power path that doesn't exist on the device. Shared by
+	// acload and heatpump, which have identical phase/position config shapes.
+	function updatePhaseSettingVisibility (prefix) {
+	  const updateS2MeasurementOptions = (isSinglePhase) => {
+	    const phaseSetting = $(`#node-input-${prefix}_phasesetting`).val();
+	    const matchingSingleValue = 'L' + phaseSetting;
+	    const $select = $('#node-input-s2_measurement_type');
+
+	    $select.find('option').each(function () {
+	      const val = $(this).val();
+	      const isPerPhaseOption = val === 'L1_L2_L3';
+	      const isMismatchedSinglePhaseOption = ['L1', 'L2', 'L3'].includes(val) && val !== matchingSingleValue;
+	      $(this).toggle(!isSinglePhase || (!isPerPhaseOption && !isMismatchedSinglePhaseOption));
+	    });
+
+	    if (isSinglePhase && ['L1', 'L2', 'L3'].includes($select.val()) && $select.val() !== matchingSingleValue) {
+	      $select.val(matchingSingleValue);
+	    }
+	  };
+
+	  const updatePhaseSetting = () => {
+	    const isSinglePhase = $(`#node-input-${prefix}_nrofphases`).val() === '1';
+	    $(`#${prefix}-phasesetting-row`).toggle(isSinglePhase);
+	    updateS2MeasurementOptions(isSinglePhase);
+	  };
+	  $(`#node-input-${prefix}_nrofphases`).off('change.phasesetting').on('change.phasesetting', updatePhaseSetting);
+	  $(`#node-input-${prefix}_phasesetting`).off('change.s2measurement').on('change.s2measurement', () => {
+	    updateS2MeasurementOptions($(`#node-input-${prefix}_nrofphases`).val() === '1');
+	  });
+	  updatePhaseSetting();
+	}
+
+	// AC Load, Heat pump, and Generator can optionally present as a plain measurement-only "grid
+	// meter" shape (still under their own dbus service type - see minimal-meter.js). When checked,
+	// hide the options that don't apply to that minimal shape: S2 support for acload/heatpump,
+	// engine/starter monitoring for generator.
+	function updateGridMeterOnlyVisibility (prefix) {
+	  const $checkbox = $(`#node-input-${prefix}_grid_meter_only`);
+
+	  const apply = () => {
+	    const gridMeterOnly = $checkbox.is(':checked');
+
+	    if (prefix === 'generator') {
+	      $('#node-input-include_engine_hours').closest('.form-row').toggle(!gridMeterOnly);
+	      $('#node-input-include_starter_voltage').closest('.form-row').toggle(!gridMeterOnly);
+	      return
+	    }
+
+	    $(`#node-input-${prefix}_auto_energy`).closest('.form-row').toggle(!gridMeterOnly);
+	    if (gridMeterOnly) {
+	      $('.input-s2support').hide();
+	      $('.input-s2support-measurement').hide();
+	    } else {
+	      $('.input-s2support').show();
+	      $('.input-s2support-measurement').toggle($('#node-input-enable_s2support').is(':checked'));
+	    }
+	  };
+
+	  $checkbox.off('change.grid-meter-only').on('change.grid-meter-only', apply);
+	  apply();
+	}
 
 	function checkSelectedVirtualDevice (context, deviceCapabilities = {}) {
 	  [
 	    'acload', 'battery', 'ev', 'generator', 'gps', 'grid', 'e-drive',
-	    'pvinverter', 'switch', 'tank', 'temperature', 'energymeter', 'pulsemeter'
+	    'pvinverter', 'switch', 'tank', 'temperature', 'heatpump', 'evcs', 'pulsemeter'
 	  ].forEach(x => { $('.input-' + x).hide(); });
 
 	  const selected = $('select#node-input-device').val();
@@ -1899,55 +2016,14 @@
 	    $('#pulsemeter-multiplier-row').toggle($('#node-input-auto_aggregate').is(':checked'));
 	  }
 
-	  if (selected === 'acload') {
-	    // Keeps the S2 Measurement dropdown consistent with the acload's actual phase(s): for a
-	    // single-phase config, only "3-phase symmetric" (reads the Ac/Power total) and the single
-	    // phase option matching the configured Phase are valid - the other single-phase options and
-	    // "Per phase" would read an Ac/L{n}/Power path that doesn't exist on the device.
-	    const updateAcloadS2MeasurementOptions = (isSinglePhase) => {
-	      const phaseSetting = $('#node-input-acload_phasesetting').val();
-	      const matchingSingleValue = 'L' + phaseSetting;
-	      const $select = $('#node-input-s2_measurement_type');
-
-	      $select.find('option').each(function () {
-	        const val = $(this).val();
-	        const isPerPhaseOption = val === 'L1_L2_L3';
-	        const isMismatchedSinglePhaseOption = ['L1', 'L2', 'L3'].includes(val) && val !== matchingSingleValue;
-	        $(this).toggle(!isSinglePhase || (!isPerPhaseOption && !isMismatchedSinglePhaseOption));
-	      });
-
-	      if (isSinglePhase && ['L1', 'L2', 'L3'].includes($select.val()) && $select.val() !== matchingSingleValue) {
-	        $select.val(matchingSingleValue);
-	      }
-	    };
-
-	    const updateAcloadPhaseSettingVisibility = () => {
-	      const isSinglePhase = $('#node-input-acload_nrofphases').val() === '1';
-	      $('#acload-phasesetting-row').toggle(isSinglePhase);
-	      updateAcloadS2MeasurementOptions(isSinglePhase);
-	    };
-	    $('#node-input-acload_nrofphases').off('change.acload-phasesetting').on('change.acload-phasesetting', updateAcloadPhaseSettingVisibility);
-	    $('#node-input-acload_phasesetting').off('change.acload-s2measurement').on('change.acload-s2measurement', () => {
-	      updateAcloadS2MeasurementOptions($('#node-input-acload_nrofphases').val() === '1');
-	    });
-	    updateAcloadPhaseSettingVisibility();
-	  }
-
-	  if (selected === 'energymeter') {
-	    const updateEnergymeterPositionVisibility = () => {
-	      const role = $('#node-input-energymeter_role').val();
-	      const nrOfPhases = $('#node-input-energymeter_nrofphases').val();
-	      const isConfigurableRole = ENERGYMETER_POSITION_CONFIGURABLE_ROLES.includes(role);
-	      $('#energymeter-position-row').toggle(isConfigurableRole);
-	      $('#energymeter-phasesetting-row').toggle(isConfigurableRole && nrOfPhases === '1');
-	    };
-	    $('#node-input-energymeter_role').off('change.energymeter-position').on('change.energymeter-position', updateEnergymeterPositionVisibility);
-	    $('#node-input-energymeter_nrofphases').off('change.energymeter-position').on('change.energymeter-position', updateEnergymeterPositionVisibility);
-	    updateEnergymeterPositionVisibility();
+	  if (selected === 'acload' || selected === 'heatpump') {
+	    updatePhaseSettingVisibility(selected);
+	    updateGridMeterOnlyVisibility(selected);
 	  }
 
 	  if (selected === 'generator') {
 	    checkGeneratorType();
+	    updateGridMeterOnlyVisibility('generator');
 	  }
 
 	  if (selected === 'gps') {

@@ -303,8 +303,8 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
 
       checkSelectedVirtualDevice()
 
-      expect(mockNrOfPhasesSelect.off).toHaveBeenCalledWith('change.acload-phasesetting')
-      expect(mockNrOfPhasesSelect.on).toHaveBeenCalledWith('change.acload-phasesetting', expect.any(Function))
+      expect(mockNrOfPhasesSelect.off).toHaveBeenCalledWith('change.phasesetting')
+      expect(mockNrOfPhasesSelect.on).toHaveBeenCalledWith('change.phasesetting', expect.any(Function))
       expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(true)
     })
 
@@ -441,145 +441,6 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
           return mockNrOfPhasesSelect
         }
         if (selector === '#acload-phasesetting-row') {
-          return mockPhaseSettingRow
-        }
-        if (selector.startsWith('.input-')) {
-          return createMockElement()
-        }
-        return createMockElement()
-      })
-
-      checkSelectedVirtualDevice()
-
-      expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(false)
-    })
-
-    test('shows energymeter Position row for a role where it is configurable', () => {
-      const mockRoleSelect = createMockElement({ val: 'acload' })
-      const mockPositionRow = createMockElement()
-
-      global.$.mockImplementation((selector) => {
-        if (selector === 'select#node-input-device') {
-          return createMockElement({ val: 'energymeter' })
-        }
-        if (selector === '#node-input-energymeter_role') {
-          return mockRoleSelect
-        }
-        if (selector === '#energymeter-position-row') {
-          return mockPositionRow
-        }
-        if (selector.startsWith('.input-')) {
-          return createMockElement()
-        }
-        return createMockElement()
-      })
-
-      checkSelectedVirtualDevice()
-
-      expect(mockRoleSelect.off).toHaveBeenCalledWith('change.energymeter-position')
-      expect(mockRoleSelect.on).toHaveBeenCalledWith('change.energymeter-position', expect.any(Function))
-      expect(mockPositionRow.toggle).toHaveBeenCalledWith(true)
-    })
-
-    test('hides energymeter Position row for a role where it is fixed', () => {
-      const mockRoleSelect = createMockElement({ val: 'gridmeter' })
-      const mockPositionRow = createMockElement()
-
-      global.$.mockImplementation((selector) => {
-        if (selector === 'select#node-input-device') {
-          return createMockElement({ val: 'energymeter' })
-        }
-        if (selector === '#node-input-energymeter_role') {
-          return mockRoleSelect
-        }
-        if (selector === '#energymeter-position-row') {
-          return mockPositionRow
-        }
-        if (selector.startsWith('.input-')) {
-          return createMockElement()
-        }
-        return createMockElement()
-      })
-
-      checkSelectedVirtualDevice()
-
-      expect(mockPositionRow.toggle).toHaveBeenCalledWith(false)
-    })
-
-    test('shows energymeter PhaseSetting row for a configurable role with 1 phase', () => {
-      const mockRoleSelect = createMockElement({ val: 'acload' })
-      const mockNrOfPhasesSelect = createMockElement({ val: '1' })
-      const mockPhaseSettingRow = createMockElement()
-
-      global.$.mockImplementation((selector) => {
-        if (selector === 'select#node-input-device') {
-          return createMockElement({ val: 'energymeter' })
-        }
-        if (selector === '#node-input-energymeter_role') {
-          return mockRoleSelect
-        }
-        if (selector === '#node-input-energymeter_nrofphases') {
-          return mockNrOfPhasesSelect
-        }
-        if (selector === '#energymeter-phasesetting-row') {
-          return mockPhaseSettingRow
-        }
-        if (selector.startsWith('.input-')) {
-          return createMockElement()
-        }
-        return createMockElement()
-      })
-
-      checkSelectedVirtualDevice()
-
-      expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(true)
-    })
-
-    test('hides energymeter PhaseSetting row for a configurable role with 3 phases', () => {
-      const mockRoleSelect = createMockElement({ val: 'acload' })
-      const mockNrOfPhasesSelect = createMockElement({ val: '3' })
-      const mockPhaseSettingRow = createMockElement()
-
-      global.$.mockImplementation((selector) => {
-        if (selector === 'select#node-input-device') {
-          return createMockElement({ val: 'energymeter' })
-        }
-        if (selector === '#node-input-energymeter_role') {
-          return mockRoleSelect
-        }
-        if (selector === '#node-input-energymeter_nrofphases') {
-          return mockNrOfPhasesSelect
-        }
-        if (selector === '#energymeter-phasesetting-row') {
-          return mockPhaseSettingRow
-        }
-        if (selector.startsWith('.input-')) {
-          return createMockElement()
-        }
-        return createMockElement()
-      })
-
-      checkSelectedVirtualDevice()
-
-      expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(false)
-    })
-
-    test('hides energymeter PhaseSetting row for a role where Position is not configurable', () => {
-      const mockRoleSelect = createMockElement({ val: 'gridmeter' })
-      const mockNrOfPhasesSelect = createMockElement({ val: '1' })
-      const mockPhaseSettingRow = createMockElement()
-
-      global.$.mockImplementation((selector) => {
-        if (selector === 'select#node-input-device') {
-          return createMockElement({ val: 'energymeter' })
-        }
-        if (selector === '#node-input-energymeter_role') {
-          return mockRoleSelect
-        }
-        if (selector === '#node-input-energymeter_nrofphases') {
-          return mockNrOfPhasesSelect
-        }
-        if (selector === '#energymeter-phasesetting-row') {
           return mockPhaseSettingRow
         }
         if (selector.startsWith('.input-')) {

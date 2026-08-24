@@ -79,6 +79,9 @@ const DEVICE_TYPES = [
   { value: 'temperature', label: 'Temperature sensor' }
 ]
 
+// Kept working for already-deployed nodes, but no longer offered for new ones.
+const LEGACY_ONLY_DEVICE_TYPES = new Set(['energymeter'])
+
 const registeredModules = new Set(Object.keys(deviceModules))
 try {
   fs.readdirSync(path.join(__dirname, 'device-type'))
@@ -90,6 +93,10 @@ try {
         const mod = require(path.join(__dirname, 'device-type', name))
         deviceModules[name] = mod
         properties[name] = mod.properties
+        if (LEGACY_ONLY_DEVICE_TYPES.has(name)) {
+          debug(`Loaded legacy-only virtual device type: ${name} (not advertised)`)
+          return
+        }
         const label = mod.label || (name.charAt(0).toUpperCase() + name.slice(1))
         DEVICE_TYPES.push({ value: name, label })
         debug(`Loaded virtual device type: ${name} (${label})`)
@@ -100,6 +107,8 @@ try {
 } catch (err) {
   console.error('Failed to load virtual device types:', err)
 }
+
+DEVICE_TYPES.sort((a, b) => a.label.localeCompare(b.label))
 
 // Annotates DEVICE_TYPES with capability flags declared by each module (e.g. supportsS2), so the
 // editor can generalize S2-support UI/output wiring without hardcoding device names.
@@ -529,7 +538,7 @@ module.exports = function (RED) {
 
         const moduleProductType = deviceModules[config.device]?.productType
         if (moduleProductType) {
-          ifaceDesc.productType = moduleProductType
+          ifaceDesc.productType = typeof moduleProductType === 'function' ? moduleProductType(config) : moduleProductType
         }
 
         // Then we need to create the interface implementation (with actual functions)
@@ -916,3 +925,5 @@ module.exports = function (RED) {
 
 // Exported for direct unit testing without needing a full RED/D-Bus mock.
 module.exports.annotateDeviceTypesWithCapabilities = annotateDeviceTypesWithCapabilities
+module.exports.DEVICE_TYPES = DEVICE_TYPES
+module.exports.deviceModules = deviceModules

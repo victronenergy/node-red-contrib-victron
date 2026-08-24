@@ -1,3 +1,5 @@
+const { buildMinimalMeterProperties, initializeMinimalMeter } = require('./shared/minimal-meter')
+
 const ENERGY_PERSIST_SECONDS = 60
 
 const commonGeneratorProperties = {
@@ -50,14 +52,17 @@ const commonGeneratorProperties = {
   Connected: { type: 'i', format: (v) => v != null ? v : '', value: 1, immediate: true }
 }
 
+const gensetProperties = {
+  ...commonGeneratorProperties,
+  'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
+  'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', persist: ENERGY_PERSIST_SECONDS },
+  'Ac/Frequency': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'Hz' : '' },
+  NrOfPhases: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
+}
+
 const properties = {
-  genset: {
-    ...commonGeneratorProperties,
-    'Ac/Power': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'W' : '' },
-    'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', persist: ENERGY_PERSIST_SECONDS },
-    'Ac/Frequency': { type: 'd', format: (v) => v != null ? v.toFixed(1) + 'Hz' : '' },
-    NrOfPhases: { type: 'i', format: (v) => v != null ? v : '', value: 1 }
-  },
+  // "Use as grid meter only" switches to the minimal meter shape - see minimal-meter.js.
+  genset: (config) => config.generator_grid_meter_only ? buildMinimalMeterProperties({ includePosition: false }) : gensetProperties,
   dcgenset: {
     ...commonGeneratorProperties,
     'Dc/0/Current': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'A' : '' },
@@ -75,6 +80,19 @@ const properties = {
   }
 }
 
+// Mirrors the genset/dcgenset ternary in index.js's getActualDeviceType(). D-Bus service stays
+// genset/dcgenset even in "Use as grid meter only" mode - see productType below.
+function getServiceType (config) {
+  return config.generator_type === 'dc' ? 'dcgenset' : 'genset'
+}
+
+// "Use as grid meter only" (AC only) keeps the D-Bus service as com.victronenergy.genset (see
+// getServiceType), but the reported ProductId should still reflect a grid meter when used as one.
+function productType (config) {
+  if (config.generator_type !== 'dc' && config.generator_grid_meter_only) return 'grid'
+  return config.generator_type === 'dc' ? 'dcgenset' : 'genset'
+}
+
 const acPhaseProperties = [
   { name: 'Current', unit: 'A' },
   { name: 'Power', unit: 'W' },
@@ -83,6 +101,15 @@ const acPhaseProperties = [
 
 function initialize (config, ifaceDesc, iface, node) {
   const generatorType = config.generator_type === 'dc' ? 'dcgenset' : 'genset'
+
+  if (generatorType === 'genset' && config.generator_grid_meter_only) {
+    initializeMinimalMeter(config, ifaceDesc, iface, {
+      nrOfPhases: config.generator_nrofphases,
+      includePosition: false
+    })
+    return `Virtual ${iface.NrOfPhases}-phase AC generator (grid meter mode)`
+  }
+
   const nrOfPhases = Number(config.generator_nrofphases ?? 1)
 
   if (generatorType === 'genset') {
@@ -147,4 +174,4 @@ function initialize (config, ifaceDesc, iface, node) {
   return `Virtual ${generatorType === 'dcgenset' ? 'DC' : `${nrOfPhases}-phase AC`} generator`
 }
 
-module.exports = { properties, initialize, label: 'Generator' }
+module.exports = { properties, getServiceType, productType, initialize, label: 'Generator' }

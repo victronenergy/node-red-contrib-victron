@@ -14,8 +14,17 @@
             acload_nrofphases: {value: 1, required: false},
             acload_phasesetting: {value: 1, required: false},
             acload_auto_energy: {value: true, required: false},
+            acload_grid_meter_only: {value: false, required: false},
             enable_s2support: {value: false, required: false},
             s2_measurement_type: {value: '3_PHASE_SYMMETRIC', required: false},
+            // heatpump
+            heatpump_position: {value: 0, required: false},
+            heatpump_nrofphases: {value: 1, required: false},
+            heatpump_phasesetting: {value: 1, required: false},
+            heatpump_auto_energy: {value: true, required: false},
+            heatpump_grid_meter_only: {value: false, required: false},
+            // evcs
+            evcs_nrofphases: {value: 1, required: false},
             // battery
             battery_capacity: {value: 25, required: false},
             include_battery_temperature: {value: false},
@@ -27,13 +36,9 @@
             include_engine_hours: {value: false},
             include_starter_voltage: {value: false},
             include_history_energy: {value: false},
+            generator_grid_meter_only: {value: false, required: false},
             // grid
             grid_nrofphases: {value: 1, required: false},
-            // energymeter
-            energymeter_nrofphases: {value: 1, required: false},
-            energymeter_role: {value: "gridmeter", required: false},
-            energymeter_position: {value: 0, required: false},
-            energymeter_phasesetting: {value: 1, required: false},
             // motordrive
             include_motor_temp: {value: false},
             include_controller_temp: {value: false},
@@ -300,16 +305,69 @@
             </select>
         </div>
         <div class="form-row input-acload victron-checkbox hidden-row">
+            <input type="checkbox" id="node-input-acload_grid_meter_only">
+            <label for="node-input-acload_grid_meter_only">Use as grid meter only
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Reports minimal measurements only (no S2, no auto-energy), for use as a grid meter. Stays registered as com.victronenergy.acload on D-Bus."></i>
+            </label>
+        </div>
+        <div class="form-row input-acload victron-checkbox hidden-row">
             <input type="checkbox" id="node-input-acload_auto_energy">
             <label for="node-input-acload_auto_energy">Auto-calculate energy (Ac/Energy/Forward)
                 <i class="fa fa-info-circle tooltip-icon" data-tooltip="Integrates power over time to estimate energy. Precision improves with higher update frequency."></i>
             </label>
         </div>
+        <div class="input-heatpump">
+            <div class="form-row hidden-row">
+                <label for="node-input-heatpump_position"><i class="fa fa-sliders"></i> Position</label>
+                <select id="node-input-heatpump_position">
+                    <option value="0">AC output</option>
+                    <option value="1">AC input</option>
+                </select>
+            </div>
+            <div class="form-row hidden-row">
+                <label for="node-input-heatpump_nrofphases"><i class="fa fa-plug"></i> Number of phases</label>
+                <select id="node-input-heatpump_nrofphases">
+                    <option value="1">1 phase</option>
+                    <option value="2">Split phase</option>
+                    <option value="3">3 phase</option>
+                </select>
+            </div>
+            <div class="form-row hidden-row" id="heatpump-phasesetting-row">
+                <label for="node-input-heatpump_phasesetting"><i class="fa fa-plug"></i> Phase</label>
+                <select id="node-input-heatpump_phasesetting">
+                    <option value="1">L1</option>
+                    <option value="2">L2</option>
+                    <option value="3">L3</option>
+                </select>
+            </div>
+            <div class="form-row victron-checkbox hidden-row">
+                <input type="checkbox" id="node-input-heatpump_grid_meter_only">
+                <label for="node-input-heatpump_grid_meter_only">Use as grid meter only
+                    <i class="fa fa-info-circle tooltip-icon" data-tooltip="Reports minimal measurements only (no S2, no auto-energy), for use as a grid meter. Stays registered as com.victronenergy.heatpump on D-Bus."></i>
+                </label>
+            </div>
+            <div class="form-row victron-checkbox hidden-row">
+                <input type="checkbox" id="node-input-heatpump_auto_energy">
+                <label for="node-input-heatpump_auto_energy">Auto-calculate energy (Ac/Energy/Forward)
+                    <i class="fa fa-info-circle tooltip-icon" data-tooltip="Integrates power over time to estimate energy. Precision improves with higher update frequency."></i>
+                </label>
+            </div>
+        </div>
+        <div class="input-evcs">
+            <div class="form-row">
+                <label for="node-input-evcs_nrofphases"><i class="fa fa-plug"></i> Nr of phases</label>
+                <select id="node-input-evcs_nrofphases">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
+            </div>
+        </div>
         <div class="form-row input-s2support victron-checkbox" style="display:none">
             <input type="checkbox" id="node-input-enable_s2support" class="s2-checkbox">
             <label for="node-input-enable_s2support">
                 S2 support
-                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Enable Victron S2 protocol support for smart charging"></i>
+                <i class="fa fa-info-circle tooltip-icon" data-tooltip="Enable Victron S2 protocol support for smart control"></i>
             </label>
         </div>
         <div class="form-row input-s2support input-s2support-measurement" style="display:none">
@@ -390,6 +448,12 @@
                     <option value="3">3</option>
                 </select>
             </div>
+            <div class="form-row victron-checkbox ac-generator-only">
+                <input type="checkbox" id="node-input-generator_grid_meter_only">
+                <label for="node-input-generator_grid_meter_only">Use as grid meter only
+                    <i class="fa fa-info-circle tooltip-icon" data-tooltip="Reports minimal measurements only (no engine/alarm data), for use as a grid meter. Stays registered as com.victronenergy.genset on D-Bus."></i>
+                </label>
+            </div>
             <div class="form-row victron-checkbox">
                 <input type="checkbox" id="node-input-include_engine_hours">
                 <label for="node-input-include_engine_hours">Include engine hours</label>
@@ -414,43 +478,6 @@
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="input-energymeter">
-            <div class="form-row">
-                <label for="node-input-energymeter_role"><i class="fa fa-cog"></i> Role</label>
-                <select id="node-input-energymeter_role">
-                    <option value="gridmeter">Grid meter</option>
-                    <option value="inverter">PV inverter</option>
-                    <option value="generator">Generator</option>
-                    <option value="acload">AC load</option>
-                    <option value="evcharger">EV charger</option>
-                    <option value="heatpump">Heat pump</option>
-                </select>
-            </div>
-            <div class="form-row" id="energymeter-position-row">
-                <label for="node-input-energymeter_position"><i class="fa fa-sliders"></i> Position</label>
-                <select id="node-input-energymeter_position">
-                    <option value="0">AC output</option>
-                    <option value="1">AC input</option>
-                </select>
-            </div>
-            <div class="form-row">
-                <label for="node-input-energymeter_nrofphases"><i class="fa fa-plug"></i> Nr of phases</label>
-                <select id="node-input-energymeter_nrofphases">
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                </select>
-            </div>
-            <div class="form-row" id="energymeter-phasesetting-row">
-                <label for="node-input-energymeter_phasesetting"><i class="fa fa-plug"></i> Phase</label>
-                <select id="node-input-energymeter_phasesetting">
-                    <option value="1">L1</option>
-                    <option value="2">L2</option>
-                    <option value="3">L3</option>
                 </select>
             </div>
         </div>
@@ -651,9 +678,11 @@ device type needs to be selected. At the moment the system supports:
 - AC Load
 - Battery
 - E-drive
+- EV charger
 - Generator
 - GPS
 - Grid meter
+- Heat pump
 - Meteo
 - PV inverter
 - Tank sensor
@@ -735,7 +764,11 @@ The AC Load device can be configured by selecting the number of phases (1 or 3)
 that are available on the device.
 
 Note that the S2 support is experimental and subject to change. Only enable it
-if you really know what you are doing.
+if you know what you are doing.
+
+_Use as grid meter only_ reports minimal measurements only (no S2, no
+auto-energy), for use as a grid meter. It stays registered as
+com.victronenergy.acload on D-Bus.
 
 ### Battery
 
@@ -760,6 +793,10 @@ Optional monitoring parameters include:
 
 The device includes alarm monitoring for temperature, oil pressure, coolant level, fuel level, and other critical parameters. Status codes indicate the current operational state from standby through startup phases to running or error conditions.
 
+_Use as grid meter only_ (AC generators only) drops all of the above for
+minimal measurements only (no engine/alarm data), for use as a grid meter.
+It stays registered as com.victronenergy.genset on D-Bus.
+
 ### GPS
 
 The GPS device does not have any specific configuration options. It is used to
@@ -781,6 +818,21 @@ There are multiple [officially supported
 meters](https://www.victronenergy.com/meters-and-sensors/energy-meter) that can
 be used in a Victron ESS system. Using other meters has proven too often to
 lead to issues related with stability.
+
+### EV charger
+
+The EV charger device is measurement-only - it does not simulate a full EVSE
+(no charging session or connector state), with just the number of phases to
+configure. It registers as com.victronenergy.evcharger on D-Bus.
+
+### Heat pump
+
+The Heat pump device is configured the same way as the AC Load device: number
+of phases (1 or 3), position, optional S2 support, and a _use as grid meter
+only_ checkbox.
+
+Note that the S2 support is experimental and subject to change. Only enable it
+if you know what you are doing.
 
 ### Meteo
 
