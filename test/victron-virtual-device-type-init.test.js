@@ -177,7 +177,7 @@ describe('acload', () => {
       expect(ifaceDesc.__s2Handlers).toBeUndefined()
     })
 
-    test('Connect handler resets power measurement state, updates S2 active/rm, and sends command on port 2', () => {
+    test('Connect handler resets power measurement state, updates S2 rm, and sends command on port 2', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
       node.send = jest.fn()
       node.setValuesLocally = jest.fn()
@@ -187,7 +187,7 @@ describe('acload', () => {
       ifaceDesc.__s2Handlers.Connect('cem-1', 30)
       expect(node._s2PowerMeasurementActive).toBe(false)
       expect(node._s2PowerMeasurementCemId).toBeNull()
-      expect(node.setValuesLocally).toHaveBeenCalledWith({ 'S2/0/Active': 1, 'S2/0/Rm': 'CEM: cem-1' })
+      expect(node.setValuesLocally).toHaveBeenCalledWith({ 'S2/0/Rm': 'CEM: cem-1' })
       expect(node.send).toHaveBeenCalledWith([null, {
         payload: { command: 'Connect', cemId: 'cem-1', keepAliveInterval: 30 }
       }])
