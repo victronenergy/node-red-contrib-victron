@@ -309,51 +309,7 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(true)
     })
 
-    test('filters S2 Measurement to 3-phase-symmetric and the matching single phase, auto-syncing an out-of-date single-phase selection', () => {
-      const mockNrOfPhasesSelect = createMockElement({ val: '1' })
-      const mockPhaseSettingSelect = createMockElement({ val: '2' })
-      const mockPhaseSettingRow = createMockElement()
-      const { mockS2Select, toggleCallsByValue } = createMockS2MeasurementSelect('L1')
-
-      global.$.mockImplementation((selector) => {
-        if (selector === 'select#node-input-device') {
-          return createMockElement({ val: 'acload' })
-        }
-        if (selector === '#node-input-acload_nrofphases') {
-          return mockNrOfPhasesSelect
-        }
-        if (selector === '#node-input-acload_phasesetting') {
-          return mockPhaseSettingSelect
-        }
-        if (selector === '#acload-phasesetting-row') {
-          return mockPhaseSettingRow
-        }
-        if (selector === '#node-input-s2_measurement_type') {
-          return mockS2Select
-        }
-        if (typeof selector === 'object') {
-          return wrapMockS2Option(selector, toggleCallsByValue)
-        }
-        if (selector.startsWith('.input-')) {
-          return createMockElement()
-        }
-        return createMockElement()
-      })
-
-      checkSelectedVirtualDevice()
-
-      // Per-phase reporting and the two non-matching single-phase options are hidden; the total
-      // (3-phase symmetric) and the phase actually wired (L2) stay visible.
-      expect(toggleCallsByValue['3_PHASE_SYMMETRIC']).toEqual([true])
-      expect(toggleCallsByValue.L1_L2_L3).toEqual([false])
-      expect(toggleCallsByValue.L1).toEqual([false])
-      expect(toggleCallsByValue.L2).toEqual([true])
-      expect(toggleCallsByValue.L3).toEqual([false])
-      // The previously-selected "Single phase L1" no longer matches Phase=L2, so it's auto-synced.
-      expect(mockS2Select.val()).toBe('L2')
-    })
-
-    test('leaves 3-phase-symmetric S2 Measurement selection untouched for a single-phase config', () => {
+    test('locks S2 Measurement to the matching single phase for a 1-phase config, overriding any prior selection', () => {
       const mockNrOfPhasesSelect = createMockElement({ val: '1' })
       const mockPhaseSettingSelect = createMockElement({ val: '2' })
       const mockPhaseSettingRow = createMockElement()
@@ -386,11 +342,60 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
 
       checkSelectedVirtualDevice()
 
+      // Only the phase actually wired (L2) stays visible - re-picking phase type in S2
+      // Measurement would just duplicate what Number of phases/Phase already say.
+      expect(toggleCallsByValue['3_PHASE_SYMMETRIC']).toEqual([false])
+      expect(toggleCallsByValue.L1_L2_L3).toEqual([false])
+      expect(toggleCallsByValue.L1).toEqual([false])
+      expect(toggleCallsByValue.L2).toEqual([true])
+      expect(toggleCallsByValue.L3).toEqual([false])
+      expect(mockS2Select.val()).toBe('L2')
+    })
+
+    test('offers only 3-phase-symmetric/per-phase for a 3-phase config, resetting an invalid single-phase selection', () => {
+      const mockNrOfPhasesSelect = createMockElement({ val: '3' })
+      const mockPhaseSettingSelect = createMockElement({ val: '1' })
+      const mockPhaseSettingRow = createMockElement()
+      const { mockS2Select, toggleCallsByValue } = createMockS2MeasurementSelect('L1')
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'acload' })
+        }
+        if (selector === '#node-input-acload_nrofphases') {
+          return mockNrOfPhasesSelect
+        }
+        if (selector === '#node-input-acload_phasesetting') {
+          return mockPhaseSettingSelect
+        }
+        if (selector === '#acload-phasesetting-row') {
+          return mockPhaseSettingRow
+        }
+        if (selector === '#node-input-s2_measurement_type') {
+          return mockS2Select
+        }
+        if (typeof selector === 'object') {
+          return wrapMockS2Option(selector, toggleCallsByValue)
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(toggleCallsByValue['3_PHASE_SYMMETRIC']).toEqual([true])
+      expect(toggleCallsByValue.L1_L2_L3).toEqual([true])
+      expect(toggleCallsByValue.L1).toEqual([false])
+      expect(toggleCallsByValue.L2).toEqual([false])
+      expect(toggleCallsByValue.L3).toEqual([false])
+      // "Single phase L1" no longer applies to a 3-phase config, so it's reset.
       expect(mockS2Select.val()).toBe('3_PHASE_SYMMETRIC')
     })
 
-    test('does not filter S2 Measurement options for a multi-phase config', () => {
-      const mockNrOfPhasesSelect = createMockElement({ val: '3' })
+    test('does not filter S2 Measurement options for a split-phase config', () => {
+      const mockNrOfPhasesSelect = createMockElement({ val: '2' })
       const mockPhaseSettingSelect = createMockElement({ val: '1' })
       const mockPhaseSettingRow = createMockElement()
       const { mockS2Select, toggleCallsByValue } = createMockS2MeasurementSelect('L1')

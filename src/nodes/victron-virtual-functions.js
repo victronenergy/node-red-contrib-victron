@@ -1107,38 +1107,46 @@ export function updateBatteryVoltageVisibility () {
   $('#battery-voltage-custom-label').toggle(preset === 'custom')
 }
 
-// Keeps the S2 Measurement dropdown consistent with the device's actual phase(s): for a
-// single-phase config, only "3-phase symmetric" (reads the Ac/Power total) and the single
-// phase option matching the configured Phase are valid - the other single-phase options and
-// "Per phase" would read an Ac/L{n}/Power path that doesn't exist on the device. Shared by
-// acload and heatpump, which have identical phase/position config shapes.
+// Keeps the S2 Measurement dropdown consistent with the device's actual phase(s), so the
+// phase info already given via Number of phases/Phase doesn't need re-confirming: a 1-phase
+// config is locked to the single matching phase, a 3-phase config offers only "3-phase
+// symmetric"/"Per phase" (no single-phase reading applies), split phase leaves all options
+// open. Shared by acload and heatpump, which have identical phase/position config shapes.
 function updatePhaseSettingVisibility (prefix) {
-  const updateS2MeasurementOptions = (isSinglePhase) => {
+  const updateS2MeasurementOptions = (nrOfPhases) => {
     const phaseSetting = $(`#node-input-${prefix}_phasesetting`).val()
     const matchingSingleValue = 'L' + phaseSetting
     const $select = $('#node-input-s2_measurement_type')
 
     $select.find('option').each(function () {
       const val = $(this).val()
+      const isSymmetricOption = val === '3_PHASE_SYMMETRIC'
       const isPerPhaseOption = val === 'L1_L2_L3'
-      const isMismatchedSinglePhaseOption = ['L1', 'L2', 'L3'].includes(val) && val !== matchingSingleValue
-      $(this).toggle(!isSinglePhase || (!isPerPhaseOption && !isMismatchedSinglePhaseOption))
+
+      const visible = nrOfPhases === 1
+        ? val === matchingSingleValue
+        : nrOfPhases === 3
+          ? (isSymmetricOption || isPerPhaseOption)
+          : true
+      $(this).toggle(visible)
     })
 
-    if (isSinglePhase && ['L1', 'L2', 'L3'].includes($select.val()) && $select.val() !== matchingSingleValue) {
+    if (nrOfPhases === 1) {
       $select.val(matchingSingleValue)
+    } else if (nrOfPhases === 3 && ['L1', 'L2', 'L3'].includes($select.val())) {
+      $select.val('3_PHASE_SYMMETRIC')
     }
   }
 
   const updatePhaseSetting = () => {
     const gridMeterOnly = $(`#node-input-${prefix}_grid_meter_only`).is(':checked')
-    const isSinglePhase = $(`#node-input-${prefix}_nrofphases`).val() === '1'
-    $(`#${prefix}-phasesetting-row`).toggle(isSinglePhase && !gridMeterOnly)
-    updateS2MeasurementOptions(isSinglePhase)
+    const nrOfPhases = Number($(`#node-input-${prefix}_nrofphases`).val())
+    $(`#${prefix}-phasesetting-row`).toggle(nrOfPhases === 1 && !gridMeterOnly)
+    updateS2MeasurementOptions(nrOfPhases)
   }
   $(`#node-input-${prefix}_nrofphases`).off('change.phasesetting').on('change.phasesetting', updatePhaseSetting)
   $(`#node-input-${prefix}_phasesetting`).off('change.s2measurement').on('change.s2measurement', () => {
-    updateS2MeasurementOptions($(`#node-input-${prefix}_nrofphases`).val() === '1')
+    updateS2MeasurementOptions(Number($(`#node-input-${prefix}_nrofphases`).val()))
   })
   updatePhaseSetting()
 }
