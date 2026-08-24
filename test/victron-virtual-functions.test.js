@@ -27,6 +27,7 @@ function createMockElement (customValues = {}) {
     is: jest.fn().mockReturnValue(customValues.is || false),
     off: jest.fn().mockReturnThis(),
     on: jest.fn().mockReturnThis(),
+    trigger: jest.fn().mockReturnThis(),
     append: jest.fn().mockReturnThis(),
     empty: jest.fn().mockReturnThis(),
     remove: jest.fn().mockReturnThis(),
@@ -452,6 +453,40 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       checkSelectedVirtualDevice()
 
       expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(false)
+    })
+
+    test('hides Position and PhaseSetting row for acload grid meter only, even for a 1-phase config', () => {
+      const mockNrOfPhasesSelect = createMockElement({ val: '1' })
+      const mockPhaseSettingRow = createMockElement()
+      const mockPositionRow = createMockElement()
+      const mockGridMeterOnlyCheckbox = createMockElement({ is: true })
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'acload' })
+        }
+        if (selector === '#node-input-acload_nrofphases') {
+          return mockNrOfPhasesSelect
+        }
+        if (selector === '#acload-phasesetting-row') {
+          return mockPhaseSettingRow
+        }
+        if (selector === '#node-input-acload_grid_meter_only') {
+          return mockGridMeterOnlyCheckbox
+        }
+        if (selector === '#node-input-acload_position') {
+          return mockPositionRow
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(false)
+      expect(mockPositionRow.toggle).toHaveBeenCalledWith(false)
     })
 
     test('handles generator device selection', () => {

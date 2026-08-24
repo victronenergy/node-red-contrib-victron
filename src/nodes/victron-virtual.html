@@ -122,6 +122,11 @@
                     const $select = $('#node-input-device');
                     $select.empty();
                     deviceTypes.forEach(function(dt) {
+                        // Legacy-only types (e.g. retired "Energy meter") aren't offered for new
+                        // nodes, but still need to appear as an option so an existing node using
+                        // one resolves/displays correctly instead of silently falling back to
+                        // whatever option happens to be first in the list.
+                        if (dt.legacyOnly && dt.value !== self.device) return;
                         $select.append($('<option>', { value: dt.value, text: dt.label }));
                         deviceCapabilities[dt.value] = dt;
                     });

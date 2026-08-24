@@ -9,9 +9,15 @@ describe('virtual device picker', () => {
     expect(values).toContain('evcs')
   })
 
-  test('DEVICE_TYPES no longer offers energymeter', () => {
-    const values = DEVICE_TYPES.map(dt => dt.value)
-    expect(values).not.toContain('energymeter')
+  test('DEVICE_TYPES includes energymeter flagged legacyOnly, not offered for new nodes', () => {
+    const energymeter = DEVICE_TYPES.find(dt => dt.value === 'energymeter')
+    expect(energymeter).toBeDefined()
+    expect(energymeter.legacyOnly).toBe(true)
+  })
+
+  test('DEVICE_TYPES does not flag current device types as legacyOnly', () => {
+    const nonLegacy = DEVICE_TYPES.filter(dt => dt.value !== 'energymeter')
+    expect(nonLegacy.every(dt => !dt.legacyOnly)).toBe(true)
   })
 
   test('deviceModules still resolves energymeter for already-deployed nodes', () => {

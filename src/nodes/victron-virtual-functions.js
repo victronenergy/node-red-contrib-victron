@@ -1131,8 +1131,9 @@ function updatePhaseSettingVisibility (prefix) {
   }
 
   const updatePhaseSetting = () => {
+    const gridMeterOnly = $(`#node-input-${prefix}_grid_meter_only`).is(':checked')
     const isSinglePhase = $(`#node-input-${prefix}_nrofphases`).val() === '1'
-    $(`#${prefix}-phasesetting-row`).toggle(isSinglePhase)
+    $(`#${prefix}-phasesetting-row`).toggle(isSinglePhase && !gridMeterOnly)
     updateS2MeasurementOptions(isSinglePhase)
   }
   $(`#node-input-${prefix}_nrofphases`).off('change.phasesetting').on('change.phasesetting', updatePhaseSetting)
@@ -1158,6 +1159,8 @@ function updateGridMeterOnlyVisibility (prefix) {
       return
     }
 
+    $(`#node-input-${prefix}_position`).closest('.form-row').toggle(!gridMeterOnly)
+    $(`#node-input-${prefix}_nrofphases`).trigger('change.phasesetting')
     $(`#node-input-${prefix}_auto_energy`).closest('.form-row').toggle(!gridMeterOnly)
     if (gridMeterOnly) {
       $('.input-s2support').hide()
