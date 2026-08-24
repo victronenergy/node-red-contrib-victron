@@ -1898,11 +1898,14 @@
 	  $('#battery-voltage-custom-label').toggle(preset === 'custom');
 	}
 
-	// Keeps the S2 Measurement dropdown consistent with the device's actual phase(s), so the
-	// phase info already given via Number of phases/Phase doesn't need re-confirming: a 1-phase
-	// config is locked to the single matching phase, a 3-phase config offers only "3-phase
-	// symmetric"/"Per phase" (no single-phase reading applies), split phase leaves all options
-	// open. Shared by acload and heatpump, which have identical phase/position config shapes.
+	// Keeps Position/Phase and the S2 Measurement dropdown consistent with the device's actual
+	// configuration for acload/heatpump: enabling S2 support is what promotes the device from a
+	// plain generic energy meter to its own full type, adding Position (and, for a 1-phase
+	// config, which phase it's wired to) - see acload.js/heatpump.js isFullDevice(). The S2
+	// Measurement dropdown mirrors Number of phases/Phase so that info doesn't need
+	// re-confirming: a 1-phase config is locked to the single matching phase, a 3-phase config
+	// offers only "3-phase symmetric"/"Per phase" (no single-phase reading applies), split phase
+	// leaves all options open.
 	function updatePhaseSettingVisibility (prefix) {
 	  const updateS2MeasurementOptions = (nrOfPhases) => {
 	    const phaseSetting = $(`#node-input-${prefix}_phasesetting`).val();
@@ -1929,45 +1932,31 @@
 	    }
 	  };
 
-	  const updatePhaseSetting = () => {
-	    const gridMeterOnly = $(`#node-input-${prefix}_grid_meter_only`).is(':checked');
+	  const update = () => {
+	    const isFull = $('#node-input-enable_s2support').is(':checked');
 	    const nrOfPhases = Number($(`#node-input-${prefix}_nrofphases`).val());
-	    $(`#${prefix}-phasesetting-row`).toggle(nrOfPhases === 1 && !gridMeterOnly);
+	    $(`#node-input-${prefix}_position`).closest('.form-row').toggle(isFull);
+	    $(`#${prefix}-phasesetting-row`).toggle(isFull && nrOfPhases === 1);
 	    updateS2MeasurementOptions(nrOfPhases);
 	  };
-	  $(`#node-input-${prefix}_nrofphases`).off('change.phasesetting').on('change.phasesetting', updatePhaseSetting);
+	  $(`#node-input-${prefix}_nrofphases`).off('change.phasesetting').on('change.phasesetting', update);
 	  $(`#node-input-${prefix}_phasesetting`).off('change.s2measurement').on('change.s2measurement', () => {
 	    updateS2MeasurementOptions(Number($(`#node-input-${prefix}_nrofphases`).val()));
 	  });
-	  updatePhaseSetting();
+	  $('#node-input-enable_s2support').off(`change.${prefix}-full`).on(`change.${prefix}-full`, update);
+	  update();
 	}
 
-	// AC Load, Heat pump, and Generator can optionally present as a plain measurement-only "grid
-	// meter" shape (still under their own dbus service type - see minimal-meter.js). When checked,
-	// hide the options that don't apply to that minimal shape: S2 support for acload/heatpump,
-	// engine/starter monitoring for generator.
+	// Generator (AC) can optionally present as a plain measurement-only "generic energy meter"
+	// shape, still under com.victronenergy.genset (see minimal-meter.js). When checked, hide the
+	// engine/starter monitoring options that don't apply to that minimal shape.
 	function updateGridMeterOnlyVisibility (prefix) {
 	  const $checkbox = $(`#node-input-${prefix}_grid_meter_only`);
 
 	  const apply = () => {
 	    const gridMeterOnly = $checkbox.is(':checked');
-
-	    if (prefix === 'generator') {
-	      $('#node-input-include_engine_hours').closest('.form-row').toggle(!gridMeterOnly);
-	      $('#node-input-include_starter_voltage').closest('.form-row').toggle(!gridMeterOnly);
-	      return
-	    }
-
-	    $(`#node-input-${prefix}_position`).closest('.form-row').toggle(!gridMeterOnly);
-	    $(`#node-input-${prefix}_nrofphases`).trigger('change.phasesetting');
-	    $(`#node-input-${prefix}_auto_energy`).closest('.form-row').toggle(!gridMeterOnly);
-	    if (gridMeterOnly) {
-	      $('.input-s2support').hide();
-	      $('.input-s2support-measurement').hide();
-	    } else {
-	      $('.input-s2support').show();
-	      $('.input-s2support-measurement').toggle($('#node-input-enable_s2support').is(':checked'));
-	    }
+	    $('#node-input-include_engine_hours').closest('.form-row').toggle(!gridMeterOnly);
+	    $('#node-input-include_starter_voltage').closest('.form-row').toggle(!gridMeterOnly);
 	  };
 
 	  $checkbox.off('change.grid-meter-only').on('change.grid-meter-only', apply);
@@ -2029,7 +2018,6 @@
 
 	  if (selected === 'acload' || selected === 'heatpump') {
 	    updatePhaseSettingVisibility(selected);
-	    updateGridMeterOnlyVisibility(selected);
 	  }
 
 	  if (selected === 'generator') {

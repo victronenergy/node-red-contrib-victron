@@ -2,13 +2,18 @@ const { accumulateDelta } = require('../energy-utils')
 const { enableS2Support } = require('../s2-support')
 const { buildMinimalMeterProperties, initializeMinimalMeter } = require('./shared/minimal-meter')
 
-// "Use as grid meter only" reports a minimal measurement set (see minimal-meter.js) for use as
-// the system's grid meter, but stays registered as com.victronenergy.acload on D-Bus rather than
-// switching to com.victronenergy.grid.
+// Presents as a plain generic energy meter by default (see minimal-meter.js). Enabling S2
+// support is the only thing that adds extra paths (Position/PhaseSetting plus the S2 paths
+// themselves), promoting it to its own full AC load device.
+function isFullDevice (config) {
+  return !!config.enable_s2support
+}
+
 function properties (config) {
+  const isFull = isFullDevice(config)
   return buildMinimalMeterProperties({
-    includePosition: !config.acload_grid_meter_only,
-    isGenericEnergyMeter: !!config.acload_grid_meter_only
+    includePosition: isFull,
+    isGenericEnergyMeter: !isFull
   })
 }
 
@@ -18,9 +23,9 @@ function getServiceType () {
 
 // The D-Bus service stays com.victronenergy.acload (see getServiceType above), but the
 // ProductId/ProductName dbus-victron-virtual reports on it should still reflect a grid meter
-// when used as one.
+// when presenting as a plain generic energy meter.
 function productType (config) {
-  return config.acload_grid_meter_only ? 'grid' : 'acload'
+  return isFullDevice(config) ? 'acload' : 'grid'
 }
 
 // For a single-phase acload, the physical phase it's wired to is configurable (acload_phasesetting)
@@ -30,17 +35,17 @@ function resolvePhase (config, i) {
 }
 
 function initialize (config, ifaceDesc, iface, node) {
-  const gridMeterOnly = !!config.acload_grid_meter_only
+  const isFull = isFullDevice(config)
 
   initializeMinimalMeter(config, ifaceDesc, iface, {
     nrOfPhases: config.acload_nrofphases,
-    includePosition: !gridMeterOnly,
+    includePosition: isFull,
     position: config.acload_position,
     phaseSetting: config.acload_phasesetting
   })
 
-  if (gridMeterOnly) {
-    return `Virtual ${iface.NrOfPhases}-phase AC load (grid meter mode)`
+  if (!isFull) {
+    return `Virtual ${iface.NrOfPhases}-phase AC load (generic energy meter)`
   }
 
   enableS2Support({
@@ -55,7 +60,7 @@ function initialize (config, ifaceDesc, iface, node) {
 }
 
 function onPropertiesChanged ({ changes, instance, config }) {
-  if (!config.acload_auto_energy || config.acload_grid_meter_only) return changes
+  if (!config.acload_auto_energy) return changes
 
   const now = Date.now()
   const nrOfPhases = Number(config.acload_nrofphases ?? 1)

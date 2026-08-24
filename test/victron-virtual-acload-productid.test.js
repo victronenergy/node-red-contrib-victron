@@ -21,18 +21,18 @@ function makeIfaceDesc (name, productType) {
 }
 
 // The AC load's D-Bus service always stays com.victronenergy.acload (see acload.js
-// getServiceType) even in "Use as grid meter only" mode, so the productType override is what
+// getServiceType) even as a plain generic energy meter, so the productType override is what
 // makes the reported ProductId reflect a grid meter instead of an AC load.
 describe('virtual acload ProductId', () => {
-  test('normal mode: acload productType gives AC load ProductId', () => {
+  test('full device (S2 enabled): acload productType gives AC load ProductId', () => {
     const iface = { emit: jest.fn(), Connected: 1 }
-    addVictronInterfaces(makeBus(), makeIfaceDesc('com.victronenergy.acload.virtual_test', acload.productType({})), iface, true, null)
+    addVictronInterfaces(makeBus(), makeIfaceDesc('com.victronenergy.acload.virtual_test', acload.productType({ enable_s2support: true })), iface, true, null)
     expect(iface.ProductId).toBe(0xc06a)
   })
 
-  test('grid meter only mode: grid productType gives grid meter ProductId', () => {
+  test('generic energy meter mode: grid productType gives grid meter ProductId', () => {
     const iface = { emit: jest.fn(), Connected: 1 }
-    addVictronInterfaces(makeBus(), makeIfaceDesc('com.victronenergy.acload.virtual_test', acload.productType({ acload_grid_meter_only: true })), iface, true, null)
+    addVictronInterfaces(makeBus(), makeIfaceDesc('com.victronenergy.acload.virtual_test', acload.productType({})), iface, true, null)
     expect(iface.ProductId).toBe(0xc062)
   })
 })

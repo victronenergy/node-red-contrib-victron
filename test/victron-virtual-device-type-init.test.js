@@ -33,7 +33,7 @@ describe('acload', () => {
   describe('initialize', () => {
     test('adds L1 phase properties for 1-phase', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
-      const result = acload.initialize({ acload_nrofphases: 1 }, ifaceDesc, iface, node)
+      const result = acload.initialize({ acload_nrofphases: 1, enable_s2support: true }, ifaceDesc, iface, node)
       expect(ifaceDesc.properties['Ac/L1/Current']).toBeDefined()
       expect(ifaceDesc.properties['Ac/L2/Current']).toBeUndefined()
       expect(result).toBe('Virtual 1-phase AC load')
@@ -49,7 +49,7 @@ describe('acload', () => {
 
     test('labels single-phase properties with the configured PhaseSetting', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
-      acload.initialize({ acload_nrofphases: 1, acload_phasesetting: 3 }, ifaceDesc, iface, node)
+      acload.initialize({ acload_nrofphases: 1, acload_phasesetting: 3, enable_s2support: true }, ifaceDesc, iface, node)
       expect(ifaceDesc.properties['Ac/L3/Current']).toBeDefined()
       expect(iface['Ac/L3/Current']).toBe(0)
       expect(iface.PhaseSetting).toBe(3)
@@ -57,14 +57,14 @@ describe('acload', () => {
 
     test('defaults PhaseSetting to 1 (L1) when not set', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
-      acload.initialize({ acload_nrofphases: 1 }, ifaceDesc, iface, node)
+      acload.initialize({ acload_nrofphases: 1, enable_s2support: true }, ifaceDesc, iface, node)
       expect(iface.PhaseSetting).toBe(1)
       expect(ifaceDesc.properties['Ac/L1/Current']).toBeDefined()
     })
 
     test('does not add PhaseSetting for multi-phase configs, and phases are labeled L1-L3 in order', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
-      acload.initialize({ acload_nrofphases: 3, acload_phasesetting: 2 }, ifaceDesc, iface, node)
+      acload.initialize({ acload_nrofphases: 3, acload_phasesetting: 2, enable_s2support: true }, ifaceDesc, iface, node)
       expect(iface.PhaseSetting).toBeUndefined()
       expect(ifaceDesc.properties.PhaseSetting).toBeUndefined()
       expect(ifaceDesc.properties['Ac/L1/Current']).toBeDefined()
@@ -72,23 +72,23 @@ describe('acload', () => {
       expect(ifaceDesc.properties['Ac/L3/Current']).toBeDefined()
     })
 
-    test('static properties declare IsGenericEnergyMeter as 0 in normal mode', () => {
-      expect(acload.properties({}).IsGenericEnergyMeter.value).toBe(0)
+    test('static properties declare IsGenericEnergyMeter as 1 by default (generic energy meter)', () => {
+      expect(acload.properties({}).IsGenericEnergyMeter.value).toBe(1)
     })
 
-    test('static properties declare IsGenericEnergyMeter as 1 in grid meter only mode', () => {
-      expect(acload.properties({ acload_grid_meter_only: true }).IsGenericEnergyMeter.value).toBe(1)
+    test('static properties declare IsGenericEnergyMeter as 0 when S2 support is enabled', () => {
+      expect(acload.properties({ enable_s2support: true }).IsGenericEnergyMeter.value).toBe(0)
     })
 
     test('sets Position from config', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
-      acload.initialize({ acload_nrofphases: 1, acload_position: 1 }, ifaceDesc, iface, node)
+      acload.initialize({ acload_nrofphases: 1, acload_position: 1, enable_s2support: true }, ifaceDesc, iface, node)
       expect(iface.Position).toBe(1)
     })
 
     test('defaults Position to 0 when not set', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
-      acload.initialize({ acload_nrofphases: 1 }, ifaceDesc, iface, node)
+      acload.initialize({ acload_nrofphases: 1, enable_s2support: true }, ifaceDesc, iface, node)
       expect(iface.Position).toBe(0)
     })
 
@@ -216,7 +216,7 @@ describe('acload', () => {
       [1, 'AC input'],
       [99, 'unknown']
     ])('Position %i -> %s', (v, expected) => {
-      expect(acload.properties({}).Position.format(v)).toBe(expected)
+      expect(acload.properties({ enable_s2support: true }).Position.format(v)).toBe(expected)
     })
   })
 })

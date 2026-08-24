@@ -21,18 +21,18 @@ function makeIfaceDesc (name, productType) {
 }
 
 // The heatpump's D-Bus service always stays com.victronenergy.heatpump (see heatpump.js
-// getServiceType) even in "Use as grid meter only" mode, so the productType override is what
+// getServiceType) even as a plain generic energy meter, so the productType override is what
 // makes the reported ProductId reflect a grid meter instead of a heat pump.
 describe('virtual heatpump ProductId', () => {
-  test('normal mode: heatpump productType gives heatpump ProductId', () => {
+  test('full device (S2 enabled): heatpump productType gives heatpump ProductId', () => {
     const iface = { emit: jest.fn(), Connected: 1 }
-    addVictronInterfaces(makeBus(), makeIfaceDesc('com.victronenergy.heatpump.virtual_test', heatpump.productType({})), iface, true, null)
+    addVictronInterfaces(makeBus(), makeIfaceDesc('com.victronenergy.heatpump.virtual_test', heatpump.productType({ enable_s2support: true })), iface, true, null)
     expect(iface.ProductId).toBe(0xc064)
   })
 
-  test('grid meter only mode: grid productType gives grid meter ProductId', () => {
+  test('generic energy meter mode: grid productType gives grid meter ProductId', () => {
     const iface = { emit: jest.fn(), Connected: 1 }
-    addVictronInterfaces(makeBus(), makeIfaceDesc('com.victronenergy.heatpump.virtual_test', heatpump.productType({ heatpump_grid_meter_only: true })), iface, true, null)
+    addVictronInterfaces(makeBus(), makeIfaceDesc('com.victronenergy.heatpump.virtual_test', heatpump.productType({})), iface, true, null)
     expect(iface.ProductId).toBe(0xc062)
   })
 })

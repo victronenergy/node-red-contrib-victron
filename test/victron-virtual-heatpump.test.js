@@ -20,28 +20,26 @@ describe('heatpump device module', () => {
     expect(heatpump.supportsS2).toBe(true)
   })
 
-  describe('normal mode', () => {
+  describe('full device (S2 support enabled)', () => {
     test('getServiceType returns heatpump', () => {
-      expect(heatpump.getServiceType({})).toBe('heatpump')
-      expect(heatpump.getServiceType({ heatpump_grid_meter_only: false })).toBe('heatpump')
+      expect(heatpump.getServiceType({ enable_s2support: true })).toBe('heatpump')
     })
 
     test('productType returns heatpump', () => {
-      expect(heatpump.productType({})).toBe('heatpump')
-      expect(heatpump.productType({ heatpump_grid_meter_only: false })).toBe('heatpump')
+      expect(heatpump.productType({ enable_s2support: true })).toBe('heatpump')
     })
 
     test('properties include Position', () => {
-      expect(heatpump.properties({}).Position).toBeDefined()
+      expect(heatpump.properties({ enable_s2support: true }).Position).toBeDefined()
     })
 
     test('properties declare IsGenericEnergyMeter as 0', () => {
-      expect(heatpump.properties({}).IsGenericEnergyMeter.value).toBe(0)
+      expect(heatpump.properties({ enable_s2support: true }).IsGenericEnergyMeter.value).toBe(0)
     })
 
     test('initialize sets Position/PhaseSetting for single phase', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
-      const result = heatpump.initialize({ heatpump_nrofphases: 1, heatpump_phasesetting: 2 }, ifaceDesc, iface, node)
+      const result = heatpump.initialize({ heatpump_nrofphases: 1, heatpump_phasesetting: 2, enable_s2support: true }, ifaceDesc, iface, node)
       expect(iface.Position).toBe(0)
       expect(iface.PhaseSetting).toBe(2)
       expect(ifaceDesc.properties['Ac/L2/Power']).toBeDefined()
@@ -50,7 +48,7 @@ describe('heatpump device module', () => {
 
     test('initialize adds L1-L3 for 3-phase', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
-      heatpump.initialize({ heatpump_nrofphases: 3 }, ifaceDesc, iface, node)
+      heatpump.initialize({ heatpump_nrofphases: 3, enable_s2support: true }, ifaceDesc, iface, node)
       expect(ifaceDesc.properties['Ac/L1/Power']).toBeDefined()
       expect(ifaceDesc.properties['Ac/L2/Power']).toBeDefined()
       expect(ifaceDesc.properties['Ac/L3/Power']).toBeDefined()
@@ -70,7 +68,7 @@ describe('heatpump device module', () => {
       const result = heatpump.onPropertiesChanged({
         changes,
         instance,
-        config: { heatpump_auto_energy: true, heatpump_nrofphases: 1 }
+        config: { heatpump_auto_energy: true, heatpump_nrofphases: 1, enable_s2support: true }
       })
       expect(result).toBe(changes)
     })
@@ -81,47 +79,47 @@ describe('heatpump device module', () => {
       const result = heatpump.onPropertiesChanged({
         changes,
         instance,
-        config: { heatpump_auto_energy: false, heatpump_nrofphases: 1 }
+        config: { heatpump_auto_energy: false, heatpump_nrofphases: 1, enable_s2support: true }
       })
       expect(result['Ac/Energy/Forward']).toBeUndefined()
     })
   })
 
-  describe('grid meter only mode', () => {
+  describe('generic energy meter mode (S2 support disabled)', () => {
     test('getServiceType still returns heatpump', () => {
-      expect(heatpump.getServiceType({ heatpump_grid_meter_only: true })).toBe('heatpump')
+      expect(heatpump.getServiceType({})).toBe('heatpump')
     })
 
     test('productType returns grid', () => {
-      expect(heatpump.productType({ heatpump_grid_meter_only: true })).toBe('grid')
+      expect(heatpump.productType({})).toBe('grid')
     })
 
     test('properties omit Position', () => {
-      expect(heatpump.properties({ heatpump_grid_meter_only: true }).Position).toBeUndefined()
+      expect(heatpump.properties({}).Position).toBeUndefined()
     })
 
     test('properties declare IsGenericEnergyMeter as 1', () => {
-      expect(heatpump.properties({ heatpump_grid_meter_only: true }).IsGenericEnergyMeter.value).toBe(1)
+      expect(heatpump.properties({}).IsGenericEnergyMeter.value).toBe(1)
     })
 
     test('initialize does not add Position/PhaseSetting or S2 support', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
-      const result = heatpump.initialize({ heatpump_nrofphases: 1, heatpump_grid_meter_only: true, enable_s2support: true }, ifaceDesc, iface, node)
+      const result = heatpump.initialize({ heatpump_nrofphases: 1 }, ifaceDesc, iface, node)
       expect(iface.Position).toBeUndefined()
       expect(iface.PhaseSetting).toBeUndefined()
       expect(ifaceDesc.__enableS2).toBeUndefined()
-      expect(result).toBe('Virtual 1-phase heat pump (grid meter mode)')
+      expect(result).toBe('Virtual 1-phase heat pump (generic energy meter)')
     })
 
-    test('onPropertiesChanged is a no-op even when heatpump_auto_energy is true', () => {
+    test('onPropertiesChanged still accumulates energy when heatpump_auto_energy is true', () => {
       const instance = { 'Ac/L1/Power': 500 }
       const changes = { 'Ac/L1/Power': 600 }
       const result = heatpump.onPropertiesChanged({
         changes,
         instance,
-        config: { heatpump_auto_energy: true, heatpump_grid_meter_only: true, heatpump_nrofphases: 1 }
+        config: { heatpump_auto_energy: true, heatpump_nrofphases: 1 }
       })
-      expect(result['Ac/Energy/Forward']).toBeUndefined()
+      expect(result['Ac/Energy/Forward']).toBeDefined()
     })
   })
 })

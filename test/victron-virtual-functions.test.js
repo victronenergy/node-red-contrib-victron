@@ -282,9 +282,10 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       expect(mockBatteryRow.toggle).toHaveBeenCalledWith(true)
     })
 
-    test('shows acload PhaseSetting row for a 1-phase config', () => {
+    test('shows acload PhaseSetting row for a 1-phase config with S2 support enabled', () => {
       const mockNrOfPhasesSelect = createMockElement({ val: '1' })
       const mockPhaseSettingRow = createMockElement()
+      const mockS2Checkbox = createMockElement({ is: true })
 
       global.$.mockImplementation((selector) => {
         if (selector === 'select#node-input-device') {
@@ -295,6 +296,9 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
         }
         if (selector === '#acload-phasesetting-row') {
           return mockPhaseSettingRow
+        }
+        if (selector === '#node-input-enable_s2support') {
+          return mockS2Checkbox
         }
         if (selector.startsWith('.input-')) {
           return createMockElement()
@@ -307,6 +311,36 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       expect(mockNrOfPhasesSelect.off).toHaveBeenCalledWith('change.phasesetting')
       expect(mockNrOfPhasesSelect.on).toHaveBeenCalledWith('change.phasesetting', expect.any(Function))
       expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(true)
+    })
+
+    test('hides acload Position/PhaseSetting row for a 1-phase config when S2 support is disabled', () => {
+      const mockNrOfPhasesSelect = createMockElement({ val: '1' })
+      const mockPhaseSettingRow = createMockElement()
+      const mockPositionRow = createMockElement()
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'acload' })
+        }
+        if (selector === '#node-input-acload_nrofphases') {
+          return mockNrOfPhasesSelect
+        }
+        if (selector === '#acload-phasesetting-row') {
+          return mockPhaseSettingRow
+        }
+        if (selector === '#node-input-acload_position') {
+          return mockPositionRow
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(false)
+      expect(mockPositionRow.toggle).toHaveBeenCalledWith(false)
     })
 
     test('locks S2 Measurement to the matching single phase for a 1-phase config, overriding any prior selection', () => {
