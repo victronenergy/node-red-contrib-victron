@@ -114,27 +114,35 @@
                 self.device = 'e-drive';
             }
 
+            // Once deployed, the device type can't be changed (see the disabled-select
+            // handling below) - so a deployed node only ever needs its own entry resolved,
+            // legacy or not, rather than the full new-node list with legacy types filtered out.
+            const isDeployed = !!(self.id && self.changed === false && self.device);
+
             var baseUrl = (RED.settings.httpNodeRoot || RED.settings.httpAdminRoot || "").replace(/\/$/, "");
             $.getJSON(baseUrl + '/victron/virtual-device-types')
                 .done(function(deviceTypes) {
                     const $select = $('#node-input-device');
                     $select.empty();
-                    deviceTypes.forEach(function(dt) {
-                        // Legacy-only types (e.g. retired "Energy meter") aren't offered for new
-                        // nodes, but still need to appear as an option so an existing node using
-                        // one resolves/displays correctly instead of silently falling back to
-                        // whatever option happens to be first in the list.
-                        if (dt.legacyOnly && dt.value !== self.device) return;
-                        $select.append($('<option>', { value: dt.value, text: dt.label }));
-                        deviceCapabilities[dt.value] = dt;
-                    });
+                    if (isDeployed) {
+                        const current = deviceTypes.find(dt => dt.value === self.device) ||
+                            { value: self.device, label: self.device };
+                        deviceCapabilities[current.value] = current;
+                        $select.append($('<option>', { value: current.value, text: current.label }));
+                    } else {
+                        deviceTypes.forEach(function(dt) {
+                            if (dt.legacyOnly) return;
+                            $select.append($('<option>', { value: dt.value, text: dt.label }));
+                            deviceCapabilities[dt.value] = dt;
+                        });
+                    }
                     if (self.device) $select.val(self.device);
                 })
                 .fail(function() {
                     console.error('Failed to load virtual device types');
                 })
                 .always(function() {
-                    if (self.id && self.changed === false && self.device && self.device !== '') {
+                    if (isDeployed) {
                         $('#node-input-device')
                             .prop('disabled', true)
                             .attr('title', 'Device type cannot be changed after deployment.');
