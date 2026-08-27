@@ -41,7 +41,10 @@ function buildProperties (config) {
   debug('Building properties for energy meter with config: %o', config)
 
   // make copy of sharedProperties to avoid modifying the original object
-  const properties = { ...sharedProperties }
+  const properties = {
+    ...sharedProperties,
+    IsGenericEnergyMeter: { ...sharedProperties.IsGenericEnergyMeter, value: config.energymeter_role === 'gridmeter' ? 1 : 0 }
+  }
 
   switch (config.energymeter_role) {
     case 'gridmeter':
@@ -95,6 +98,7 @@ function initialize (config, ifaceDesc, iface, node) {
     iface['Ac/Power'] = 0
     iface['Ac/Energy/Forward'] = 0
     iface['Ac/Energy/Reverse'] = 0
+    iface['Ac/PowerFactor'] = 0
   }
   return `Virtual ${iface.NrOfPhases}-phase energy meter`
 }
