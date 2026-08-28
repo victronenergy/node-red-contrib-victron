@@ -15,8 +15,13 @@
         </div>
         <div class="form-info hidden" id="duplicatesinfo"></div>
         <div class="form-row" id="path-row">
-            <label for="node-input-path">Measurement</label>
-            <select id="node-input-path"></select>
+            <label for="node-input-path-combobox">Measurement</label>
+            <div class="victron-path-container">
+                <input type="text" id="node-input-path-combobox" class="victron-combobox-input"
+                       placeholder="Type to search..." autocomplete="off" spellcheck="false">
+                <ul class="victron-combobox-list" id="node-input-path-list"></ul>
+                <select id="node-input-path" style="display:none"></select>
+            </div>
         </div>
         <div class="form-warning hidden" id="warningmessage"></div>
         <div class="form-warning hidden" id="statusmessage"></div>
@@ -811,10 +816,104 @@
             selector.trigger('change');
         };
 
+        var comboboxInput = $('#node-input-path-combobox');
+        var comboboxList = $('#node-input-path-list');
+        var activeComboIndex = -1;
+
+        var syncComboboxDisplay = function syncComboboxDisplay() {
+            comboboxInput.val(pathElem.find(':selected').text() || '');
+        };
+
+        var buildComboboxItems = function buildComboboxItems(filter) {
+            comboboxList.empty();
+            activeComboIndex = -1;
+            var options = pathElem.find('option');
+            var filtered = filter
+                ? options.filter(function() {
+                    return $(this).text().toLowerCase().indexOf(filter.toLowerCase()) !== -1;
+                })
+                : options;
+            if (filtered.length === 0) {
+                comboboxList.append($('<li>').addClass('victron-combobox-no-results').text('No results'));
+                return;
+            }
+            filtered.each(function() {
+                var val = $(this).val();
+                var li = $('<li>').text($(this).text()).attr('data-value', val);
+                li.on('mousedown', function(e) {
+                    e.preventDefault();
+                    pathElem.val(val).trigger('change');
+                    comboboxList.hide();
+                    syncComboboxDisplay();
+                });
+                comboboxList.append(li);
+            });
+        };
+
+        var setActiveComboItem = function setActiveComboItem(index) {
+            var items = comboboxList.find('li:not(.victron-combobox-no-results)');
+            items.removeClass('victron-combobox-active');
+            if (index >= 0 && index < items.length) {
+                activeComboIndex = index;
+                var item = items.eq(index);
+                item.addClass('victron-combobox-active');
+                item[0].scrollIntoView({ block: 'nearest' });
+            } else {
+                activeComboIndex = -1;
+            }
+        };
+
+        comboboxInput.on('focus', function() {
+            $(this).select();
+            buildComboboxItems('');
+            comboboxList.show();
+            var currentVal = pathElem.val();
+            comboboxList.find('li').each(function() {
+                if ($(this).attr('data-value') === currentVal) {
+                    this.scrollIntoView({ block: 'nearest' });
+                }
+            });
+        }).on('input', function() {
+            buildComboboxItems($(this).val());
+            comboboxList.show();
+        }).on('keydown', function(e) {
+            var items = comboboxList.find('li:not(.victron-combobox-no-results)');
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setActiveComboItem(Math.min(activeComboIndex + 1, items.length - 1));
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setActiveComboItem(activeComboIndex - 1);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                var targetIndex = activeComboIndex >= 0 ? activeComboIndex : 0;
+                if (items.length > 0) {
+                    var val = items.eq(targetIndex).attr('data-value');
+                    pathElem.val(val).trigger('change');
+                    comboboxList.hide();
+                    syncComboboxDisplay();
+                }
+            } else if (e.key === 'Escape') {
+                comboboxList.hide();
+                syncComboboxDisplay();
+            }
+        }).on('blur', function() {
+            setTimeout(function() {
+                if (document.activeElement !== comboboxInput[0]) {
+                    comboboxList.hide();
+                    syncComboboxDisplay();
+                }
+            }, 150);
+        });
+
         var updatePaths = function updatePaths() {
+            comboboxList.hide();
             var serviceData = serviceElem.find(':selected').data();
-            if (serviceData && serviceData.paths) populateSelect(pathElem, serviceData.paths);
+            if (serviceData && serviceData.paths) {
+                populateSelect(pathElem, serviceData.paths);
+            }
             pathElem.val($('#selectedpath').text());
+            syncComboboxDisplay();
             // Show/hide status message based on whether the disconnected service is selected
             if (serviceElem.val() === node.service && serviceElem.find(':selected').text().includes('[disconnected]')) {
                 $('#statusmessage').show();
@@ -917,6 +1016,7 @@
         var showStatusMessage = function showStatusMessage(msg) {
             serviceElem.attr('disabled', 'disabled');
             pathElem.attr('disabled', 'disabled');
+            comboboxInput.prop('disabled', true);
             initialValueElem.attr('disabled', 'disabled');
             changeStatusText($('#statusmessage'), 'fa-exclamation-circle', msg);
         };
@@ -1007,6 +1107,7 @@
             updatePaths();
             serviceElem.change(updatePaths);
             if (node.path) pathElem.val(node.path);
+            syncComboboxDisplay();
 
             // a change on pathElem dropdown triggers updateEnums()
             // which renders the enum value info box on demand
@@ -1208,7 +1309,10 @@
             paletteLabel: nodePaletteLabel,
             defaults: {
                 service: { value: "", required: true },
-                path: { value: "", required: true },
+                path: { value: "", validate: function(v) {
+                    $('#node-input-path-combobox').toggleClass('input-error', !v);
+                    return !!v;
+                }},
                 serviceObj: { value: undefined },
                 pathObj: { value: undefined },
                 initial: { value: undefined },
