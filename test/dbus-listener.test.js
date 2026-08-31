@@ -11,6 +11,10 @@ describe('VictronDbusListener', () => {
     expect(listener.address).toBe('the-address')
   })
 
+  test('initServiceDenylist does not exclude com.victronenergy.shelly (regression)', () => {
+    expect(VictronDbusListener.initServiceDenylist).not.toContain('com.victronenergy.shelly')
+  })
+
   describe('_initService', () => {
     beforeEach(() => {
       listener.bus = {
