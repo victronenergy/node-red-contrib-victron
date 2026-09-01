@@ -4,7 +4,7 @@ const { buildMinimalMeterProperties, initializeMinimalMeter } = require('./share
 
 // Presents as a plain generic energy meter by default (see minimal-meter.js). Enabling S2
 // support is the only thing that adds extra paths (Position/PhaseSetting plus the S2 paths
-// themselves), promoting it to its own full AC load device.
+// themselves), promoting it to its own full heat pump device.
 function isFullDevice (config) {
   return !!config.enable_s2support
 }
@@ -18,34 +18,34 @@ function properties (config) {
 }
 
 function getServiceType () {
-  return 'acload'
+  return 'heatpump'
 }
 
-// The D-Bus service stays com.victronenergy.acload (see getServiceType above), but the
+// The D-Bus service stays com.victronenergy.heatpump (see getServiceType above), but the
 // ProductId/ProductName dbus-victron-virtual reports on it should still reflect a grid meter
 // when presenting as a plain generic energy meter.
 function productType (config) {
-  return isFullDevice(config) ? 'acload' : 'grid'
+  return isFullDevice(config) ? 'heatpump' : 'grid'
 }
 
-// For a single-phase acload, the physical phase it's wired to is configurable (acload_phasesetting)
-// instead of always being L1. Multi-phase configs always start at L1.
+// For a single-phase heat pump, the physical phase it's wired to is configurable
+// (heatpump_phasesetting) instead of always being L1. Multi-phase configs always start at L1.
 function resolvePhase (config, i) {
-  return Number(config.acload_nrofphases ?? 1) === 1 ? Number(config.acload_phasesetting ?? 1) : i
+  return Number(config.heatpump_nrofphases ?? 1) === 1 ? Number(config.heatpump_phasesetting ?? 1) : i
 }
 
 function initialize (config, ifaceDesc, iface, node) {
   const isFull = isFullDevice(config)
 
   initializeMinimalMeter(config, ifaceDesc, iface, {
-    nrOfPhases: config.acload_nrofphases,
+    nrOfPhases: config.heatpump_nrofphases,
     includePosition: isFull,
-    position: config.acload_position,
-    phaseSetting: config.acload_phasesetting
+    position: config.heatpump_position,
+    phaseSetting: config.heatpump_phasesetting
   })
 
   if (!isFull) {
-    return `Virtual ${iface.NrOfPhases}-phase AC load (generic energy meter)`
+    return `Virtual ${iface.NrOfPhases}-phase heat pump (generic energy meter)`
   }
 
   enableS2Support({
@@ -53,17 +53,17 @@ function initialize (config, ifaceDesc, iface, node) {
     ifaceDesc,
     iface,
     node,
-    deviceLabel: 'acload'
+    deviceLabel: 'heatpump'
   })
 
-  return `Virtual ${iface.NrOfPhases}-phase AC load`
+  return `Virtual ${iface.NrOfPhases}-phase heat pump`
 }
 
 function onPropertiesChanged ({ changes, instance, config }) {
-  if (!config.acload_auto_energy) return changes
+  if (!config.heatpump_auto_energy) return changes
 
   const now = Date.now()
-  const nrOfPhases = Number(config.acload_nrofphases ?? 1)
+  const nrOfPhases = Number(config.heatpump_nrofphases ?? 1)
   let anyPhaseUpdated = false
   let phaseTotal = 0
 
@@ -95,4 +95,4 @@ function onPropertiesChanged ({ changes, instance, config }) {
   return changes
 }
 
-module.exports = { properties, getServiceType, productType, initialize, onPropertiesChanged, label: 'AC Load', supportsS2: true }
+module.exports = { properties, getServiceType, productType, initialize, onPropertiesChanged, label: 'Heat pump', supportsS2: true }

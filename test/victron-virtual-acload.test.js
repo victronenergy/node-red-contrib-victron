@@ -4,7 +4,9 @@ const acload = require('../src/nodes/victron-virtual/device-type/acload')
 
 describe('acload device module', () => {
   test('exports required contract', () => {
-    expect(typeof acload.properties).toBe('object')
+    expect(typeof acload.properties).toBe('function')
+    expect(typeof acload.getServiceType).toBe('function')
+    expect(typeof acload.productType).toBe('function')
     expect(typeof acload.initialize).toBe('function')
     expect(typeof acload.onPropertiesChanged).toBe('function')
   })
@@ -243,6 +245,69 @@ describe('acload device module', () => {
         config: { acload_auto_energy: true, acload_nrofphases: 1 }
       })
       expect(result['Ac/Energy/Forward'] ?? 0).toBeCloseTo(0, 3)
+    })
+  })
+
+  describe('generic energy meter vs full device (S2 support)', () => {
+    test('getServiceType always returns acload', () => {
+      expect(acload.getServiceType({ enable_s2support: true })).toBe('acload')
+      expect(acload.getServiceType({ enable_s2support: false })).toBe('acload')
+      expect(acload.getServiceType({})).toBe('acload')
+    })
+
+    test('productType returns acload when S2 enabled, grid otherwise', () => {
+      expect(acload.productType({ enable_s2support: true })).toBe('acload')
+      expect(acload.productType({ enable_s2support: false })).toBe('grid')
+      expect(acload.productType({})).toBe('grid')
+    })
+
+    test('properties include Position when S2 enabled, omit it otherwise', () => {
+      expect(acload.properties({ enable_s2support: true }).Position).toBeDefined()
+      expect(acload.properties({ enable_s2support: false }).Position).toBeUndefined()
+      expect(acload.properties({}).Position).toBeUndefined()
+    })
+
+    test('properties declare IsGenericEnergyMeter as 0 when S2 enabled, 1 otherwise', () => {
+      expect(acload.properties({ enable_s2support: true }).IsGenericEnergyMeter.value).toBe(0)
+      expect(acload.properties({ enable_s2support: false }).IsGenericEnergyMeter.value).toBe(1)
+      expect(acload.properties({}).IsGenericEnergyMeter.value).toBe(1)
+    })
+
+    test('properties do not expose S2/0/RmSettings/* in either mode', () => {
+      const generic = acload.properties({ enable_s2support: false })
+      const full = acload.properties({ enable_s2support: true })
+      expect(Object.keys(generic).some(k => k.startsWith('S2/0/RmSettings/'))).toBe(false)
+      expect(Object.keys(full).some(k => k.startsWith('S2/0/RmSettings/'))).toBe(false)
+    })
+
+    test('initialize does not add Position/PhaseSetting when S2 is disabled', () => {
+      const ifaceDesc = { properties: {} }
+      const iface = {}
+      const node = { error: jest.fn() }
+      acload.initialize({ acload_nrofphases: 1 }, ifaceDesc, iface, node)
+      expect(iface.Position).toBeUndefined()
+      expect(iface.PhaseSetting).toBeUndefined()
+      expect(ifaceDesc.properties.PhaseSetting).toBeUndefined()
+      expect(ifaceDesc.properties['Ac/L1/Power']).toBeDefined()
+    })
+
+    test('initialize returns the generic energy meter label when S2 is disabled', () => {
+      const ifaceDesc = { properties: {} }
+      const iface = {}
+      const node = { error: jest.fn() }
+      const result = acload.initialize({ acload_nrofphases: 1 }, ifaceDesc, iface, node)
+      expect(result).toBe('Virtual 1-phase AC load (generic energy meter)')
+    })
+
+    test('onPropertiesChanged still accumulates energy in generic energy meter mode', () => {
+      const instance = { 'Ac/L1/Power': 500 }
+      const changes = { 'Ac/L1/Power': 600 }
+      const result = acload.onPropertiesChanged({
+        changes,
+        instance,
+        config: { acload_auto_energy: true, acload_nrofphases: 1 }
+      })
+      expect(result['Ac/Energy/Forward']).toBeDefined()
     })
   })
 })
