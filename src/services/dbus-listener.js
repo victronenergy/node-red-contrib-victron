@@ -87,7 +87,6 @@ const initServiceDenylist = [
   'com.victronenergy.fronius',
   'com.victronenergy.modbusclient.tcp',
   'com.victronenergy.modbustcp',
-  'com.victronenergy.shelly',
   'com.victronenergy.logger'
 ]
 
@@ -486,3 +485,4 @@ class VictronDbusListener {
 
 module.exports = VictronDbusListener
 module.exports.serviceNamesWithoutDeviceInstance = serviceNamesWithoutDeviceInstance
+module.exports.initServiceDenylist = initServiceDenylist
