@@ -132,6 +132,21 @@ rows.forEach(row => {
   }
 })
 
+const excluded = fs.readFileSync('scripts/exclude.txt', 'utf8')
+  .split('\n')
+  .map(line => line.trim())
+  .filter(line => line.length > 0 && !line.startsWith('#') && line.includes(':'))
+  .map(line => {
+    const idx = line.indexOf(':')
+    const rawNode = line.slice(0, idx)
+    const path = line.slice(idx + 1)
+
+    const node = rawNode.replace(/^(input|output)-/, '')
+    const iface = Object.keys(IFACE_TO_NODE).find(key => IFACE_TO_NODE[key] === node) || node
+
+    return { iface, path }
+  })
+
 console.log('// Checking services.json for entries not present in attributes.csv')
 for (const [node, nodeData] of Object.entries(services)) {
   for (const [iface, entries] of Object.entries(nodeData)) {
@@ -142,6 +157,8 @@ for (const [node, nodeData] of Object.entries(services)) {
       if (entry.path.match(/\/Relay\//)) return // relay coverage in the csv is spotty, skip
 
       const regex = templateToRegex(entry.path)
+      if (excluded.some(ex => ex.iface === iface && regex.test(ex.path))) return
+
       const found = rows.some(row => row.service === dbusServiceName && regex.test(row.path))
       if (!found) {
         console.log(`${node}:${iface}:${entry.path}`)
