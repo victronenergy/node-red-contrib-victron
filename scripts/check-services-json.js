@@ -46,14 +46,25 @@ const SKIP_IFACES = new Set([
 
 const services = JSON.parse(fs.readFileSync(servicesJSON))
 
-const rows = fs.readFileSync(csvFile, 'utf8')
-  .split('\n')
-  .map(line => line.trim())
-  .filter(line => line.length > 0)
-  .map(line => {
-    const [service, path, type, unitOrEnum, register, datatype, scale, access] = line.split(',')
-    return { service, path, type, unitOrEnum, register, datatype, scale, access }
-  })
+const parse = require('csv-parse/lib/sync')
+
+const rows = parse(fs.readFileSync(csvFile, 'utf8'), {
+  relax_column_count: true,
+  skip_empty_lines: true,
+  trim: true,
+  comment: '#'
+})
+  .map(([service, path, type, unitOrEnum, register, datatype, scale, access]) => ({
+    service,
+    path,
+    type,
+    unitOrEnum,
+    register,
+    datatype,
+    scale,
+    access
+  }))
+  .filter(row => row.service && row.service.startsWith('com.victronenergy.'))
 
 function guessType (row) {
   if (row.unitOrEnum && row.unitOrEnum.includes(';')) return 'enum'
