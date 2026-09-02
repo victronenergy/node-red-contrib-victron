@@ -1207,6 +1207,7 @@
             category: 'Victron Energy',
             paletteLabel: nodePaletteLabel,
             defaults: {
+                outputs: { value: isOutputNode ? 0 : 1 }, // must be in defaults for Node-RED to persist it across reloads (#557)
                 service: { value: "", required: true },
                 path: { value: "", required: true },
                 serviceObj: { value: undefined },
