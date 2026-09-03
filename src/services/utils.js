@@ -193,8 +193,8 @@ function expandWildcardPaths (pathObj, cachedPaths, serviceName) {
           }
         }
 
-        // For switches, try custom names (only for 'type' wildcard)
-        if (serviceName === 'switch' && wildcardName === 'type') {
+        // For switches (and switch-like SwitchableOutput services, e.g. heatpump), try custom names (only for 'type' wildcard)
+        if ((serviceName === 'switch' || serviceName === 'heatpump') && wildcardName === 'type') {
           const customNamePath = `/SwitchableOutput/${wildcardValue}/Settings/CustomName`
           const namePath = `/SwitchableOutput/${wildcardValue}/Name`
           const customName = cachedPaths[customNamePath] || cachedPaths[namePath]
