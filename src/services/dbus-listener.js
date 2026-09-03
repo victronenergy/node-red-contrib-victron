@@ -344,15 +344,15 @@ class VictronDbusListener {
           if (newOwner) {
             this._initService(newOwner, name)
             this.eventHandler('INITIALIZE', name)
-          }
-        } else {
-          const oldOwner = msg.body[1]
-          if (oldOwner && this.services[oldOwner]) {
-            const deviceInstanceSuffix = ('/' + (this.services[oldOwner].deviceInstance != null ? this.services[oldOwner].deviceInstance : '')).replace(/\.$/, '')
-            const svcName = this.services[oldOwner].name.split('.').splice(0, 3).join('.') + deviceInstanceSuffix
-            this.eventHandler('DELETE', this.services[oldOwner].name)
-            delete this.services[oldOwner]
-            this.eventHandler('DELETE', svcName)
+          } else {
+            const oldOwner = msg.body[1]
+            if (oldOwner && this.services[oldOwner]) {
+              const deviceInstanceSuffix = ('/' + (this.services[oldOwner].deviceInstance != null ? this.services[oldOwner].deviceInstance : '')).replace(/\.$/, '')
+              const svcName = this.services[oldOwner].name.split('.').splice(0, 3).join('.') + deviceInstanceSuffix
+              this.eventHandler('DELETE', this.services[oldOwner].name)
+              delete this.services[oldOwner]
+              this.eventHandler('DELETE', svcName)
+            }
           }
         }
       }
