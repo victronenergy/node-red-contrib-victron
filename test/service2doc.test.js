@@ -1,4 +1,4 @@
-const { generateDocumentation, generateWildcardExplanation, highlightWildcards } = require('../scripts/service2doc.js')
+const { generateDocumentation, generateWildcardExplanation, highlightWildcards, dedupePathDocs } = require('../scripts/service2doc.js')
 
 describe('Service Documentation Generator', () => {
   const testServicesData = {
@@ -13,8 +13,8 @@ describe('Service Documentation Generator', () => {
           path: '/SwitchableOutput/{type}/State',
           type: 'enum',
           enum: {
-            '0': 'Off',
-            '1': 'On'
+            0: 'Off',
+            1: 'On'
           },
           name: '{type} state',
           mode: 'both'
@@ -31,7 +31,7 @@ describe('Service Documentation Generator', () => {
 
   test('generates wildcard explanation for HTML format', () => {
     const explanation = generateWildcardExplanation('nodered')
-    
+
     expect(explanation).toContain('Wildcard Paths')
     expect(explanation).toContain('<code>{type}</code>')
     expect(explanation).toContain('Switch types (output_1, output_2')
@@ -40,7 +40,7 @@ describe('Service Documentation Generator', () => {
 
   test('generates wildcard explanation for markdown format', () => {
     const explanation = generateWildcardExplanation('md')
-    
+
     expect(explanation).toContain('**📝 Wildcard Paths:**')
     expect(explanation).toContain('`{type}`')
     expect(explanation).toContain('Switch types (output_1, output_2')
@@ -49,7 +49,7 @@ describe('Service Documentation Generator', () => {
   test('highlights wildcards in HTML format', () => {
     const text = 'Power for tracker {tracker} on phase {phase}'
     const highlighted = highlightWildcards(text, 'nodered')
-    
+
     expect(highlighted).toContain('<code style="background-color: #e1f5fe')
     expect(highlighted).toContain('{tracker}')
     expect(highlighted).toContain('{phase}')
@@ -58,7 +58,7 @@ describe('Service Documentation Generator', () => {
   test('highlights wildcards in markdown format', () => {
     const text = 'Power for tracker {tracker} on phase {phase}'
     const highlighted = highlightWildcards(text, 'md')
-    
+
     expect(highlighted).toContain('`{tracker}`')
     expect(highlighted).toContain('`{phase}`')
   })
@@ -107,5 +107,62 @@ describe('Service Documentation Generator', () => {
     expect(doc).toContain('Battery voltage (V DC)')
     expect(doc).toContain('/Dc/0/Voltage')
     expect(doc).not.toContain('Wildcard Paths')
+  })
+
+  test('merges multiple sub-categories of one service into a single help block per node type', () => {
+    // Mirrors services.json's switch/acload/heatpump shape: several
+    // sub-categories under one node, each redeclaring /State.
+    const multiCategoryService = {
+      switch: {
+        help: { both: '<p>Switch node.</p>' },
+        switch: [
+          { path: '/SwitchableOutput/{type}/Auto', type: 'enum', name: '{type} auto mode', mode: 'both' },
+          { path: '/SwitchableOutput/{type}/State', type: 'enum', name: '{type} state', mode: 'both' }
+        ],
+        acload: [
+          { path: '/SwitchableOutput/{type}/State', type: 'enum', name: '{type} state', mode: 'both' }
+        ],
+        heatpump: [
+          { path: '/SwitchableOutput/{type}/State', type: 'enum', name: '{type} state', mode: 'both' }
+        ]
+      }
+    }
+    const registeredNodes = { inputNodes: new Set(['switch']), outputNodes: new Set(['switch']) }
+    const doc = generateDocumentation(multiCategoryService, registeredNodes, 'nodered')
+
+    const inputBlockCount = doc.split('data-help-name="victron-input-switch"').length - 1
+    const outputBlockCount = doc.split('data-help-name="victron-output-switch"').length - 1
+    expect(inputBlockCount).toBe(1)
+    expect(outputBlockCount).toBe(1)
+
+    // The property redeclared by switch/acload/heatpump appears once per
+    // node type block (not once per sub-category that declared it).
+    const stateDdCount = doc.split('/State</b>').length - 1
+    expect(stateDdCount).toBe(2) // once in the input block, once in the output block
+    expect(doc).toContain('auto mode')
+  })
+
+  test('dedupePathDocs keeps the first declaration for exact path duplicates', () => {
+    const paths = [
+      { path: '/Relay/0/State', name: 'Relay on the charger' },
+      { path: '/Relay/0/State', name: 'Relay status' }
+    ]
+    expect(dedupePathDocs(paths)).toEqual([{ path: '/Relay/0/State', name: 'Relay on the charger' }])
+  })
+
+  test('dedupePathDocs prefers a wildcard path over a concrete path of the same shape', () => {
+    const paths = [
+      { path: '/Relay/0/State', name: 'Relay on the charger' },
+      { path: '/Relay/{relay}/State', name: 'Venus relay {relay} state' }
+    ]
+    expect(dedupePathDocs(paths)).toEqual([{ path: '/Relay/{relay}/State', name: 'Venus relay {relay} state' }])
+  })
+
+  test('dedupePathDocs keeps unrelated paths untouched', () => {
+    const paths = [
+      { path: '/Dc/0/Voltage', name: 'Battery voltage' },
+      { path: '/Dc/0/Current', name: 'Battery current' }
+    ]
+    expect(dedupePathDocs(paths)).toEqual(paths)
   })
 })

@@ -152,84 +152,128 @@ function generatePathDoc (pathObj, format) {
 }
 
 /**
+ * Normalize a D-Bus path for duplicate detection: wildcard placeholders and
+ * concrete numeric path segments both collapse to the same token, so e.g.
+ * /Relay/{relay}/State and /Relay/0/State are recognised as the same shape.
+ */
+function normalizePathForDedup (dbusPath) {
+  return dbusPath
+    .replace(/\{[^}]+\}/g, '*')
+    .replace(/\/\d+(?=\/|$)/g, '/*')
+}
+
+/**
+ * Merge path definitions from multiple service sub-categories into a single
+ * list, one entry per distinct D-Bus property.
+ *
+ * Sub-categories often redeclare the same property - e.g. switch/acload both
+ * define /SwitchableOutput/{type}/State, or relay's per-device categories
+ * all define /Relay/0/State under a different name - so the first
+ * declaration encountered wins. When both a wildcard path and a concrete
+ * path normalize to the same shape (e.g. /Relay/{relay}/State vs
+ * /Relay/0/State), the wildcard version is kept since it documents the
+ * property generically instead of tying it to one device.
+ */
+function dedupePathDocs (pathObjs) {
+  const firstByExactPath = []
+  const seenExactPaths = new Set()
+  for (const pathObj of pathObjs) {
+    if (seenExactPaths.has(pathObj.path)) continue
+    seenExactPaths.add(pathObj.path)
+    firstByExactPath.push(pathObj)
+  }
+
+  const groupsByShape = new Map()
+  for (const pathObj of firstByExactPath) {
+    const shape = normalizePathForDedup(pathObj.path)
+    if (!groupsByShape.has(shape)) groupsByShape.set(shape, [])
+    groupsByShape.get(shape).push(pathObj)
+  }
+
+  return Array.from(groupsByShape.values()).map(group =>
+    group.find(pathObj => pathObj.path.includes('{')) || group[0]
+  )
+}
+
+/**
  * Generate documentation for a service
  */
 function generateServiceDoc (serviceName, serviceData, registeredNodes, format, nodeTypeFilter) {
   const nodeTypes = nodeTypeFilter ? [nodeTypeFilter] : ['input', 'output']
   let doc = ''
 
-  // Process each service type within the service
-  Object.entries(serviceData).forEach(([serviceType, serviceTypeData]) => {
-    if (serviceType === 'help' || serviceType === 'communityTag') return // Skip help section and communityTag
+  // Merge path definitions from every sub-category (e.g. switch/acload/
+  // heatpump, or relay's per-device categories) into one list per node
+  // type, so each node type gets a single documentation block instead of
+  // one per sub-category.
+  const allPathObjs = Object.entries(serviceData)
+    .filter(([serviceType]) => serviceType !== 'help' && serviceType !== 'communityTag')
+    .flatMap(([, serviceTypeData]) => Array.isArray(serviceTypeData) ? serviceTypeData : [])
 
-    const paths = serviceTypeData || []
-    if (!Array.isArray(paths) || paths.length === 0) return
+  for (const nodeType of nodeTypes) {
+    const relevantPaths = dedupePathDocs(
+      allPathObjs.filter(pathObj => !pathObj.mode || pathObj.mode === 'both' || pathObj.mode === nodeType)
+    )
 
-    for (const nodeType of nodeTypes) {
-      const relevantPaths = paths.filter(pathObj =>
-        !pathObj.mode || pathObj.mode === 'both' || pathObj.mode === nodeType
-      )
+    if (relevantPaths.length === 0) continue
 
-      if (relevantPaths.length === 0) continue
+    // Check if the node is actually registered
+    const nodeSet = nodeType === 'input' ? registeredNodes.inputNodes : registeredNodes.outputNodes
+    if (!nodeSet.has(serviceName)) continue
 
-      // Check if the node is actually registered
-      const nodeSet = nodeType === 'input' ? registeredNodes.inputNodes : registeredNodes.outputNodes
-      if (!nodeSet.has(serviceName)) continue
+    const nodeName = `victron-${nodeType}-${serviceName}`
+    const title = serviceName === 'motordrive' ? 'E-drive' : serviceName.charAt(0).toUpperCase() + serviceName.slice(1)
 
-      const nodeName = `victron-${nodeType}-${serviceName}`
-      const title = serviceName === 'motordrive' ? 'E-drive' : serviceName.charAt(0).toUpperCase() + serviceName.slice(1)
+    if (format === 'md') {
+      doc += `\n## ${title} (${nodeType})\n`
 
-      if (format === 'md') {
-        doc += `\n## ${title} (${nodeType})\n`
-
-        if (hasWildcards(relevantPaths)) {
-          doc += generateWildcardExplanation(format)
-        }
-
-        // Add help text if available
-        const helpText = serviceData.help?.[nodeType] || serviceData.help?.both
-        if (helpText) {
-          // Strip HTML tags for markdown and clean up
-          const cleanHelp = helpText.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
-          if (cleanHelp) {
-            doc += `\n${cleanHelp}\n`
-          }
-        }
-
-        relevantPaths.forEach(pathObj => {
-          doc += '\n' + generatePathDoc(pathObj, format) + '\n'
-        })
-      } else {
-        doc += `\n<script type="text/x-red" data-help-name="${nodeName}">\n`
-        doc += '<h3>Details</h3>\n'
-
-        // Add standard details text
-        const nodeTypeText = nodeType === 'input' ? 'input' : 'output'
-        doc += `<p>The <strong>${nodeTypeText} nodes</strong> have two selectable inputs: the devices select and measurement select. `
-        doc += 'The available options are dynamically updated based on the data that is actually available on the Venus device.</p>\n'
-
-        if (hasWildcards(relevantPaths)) {
-          doc += generateWildcardExplanation(format)
-        }
-
-        // Add help text if available
-        const helpText = serviceData.help?.[nodeType] || serviceData.help?.both
-        if (helpText) {
-          doc += helpText + '\n'
-        }
-
-        doc += `<h3>${title}</h3>\n`
-        doc += '<dl class="message-properties">\n'
-
-        relevantPaths.forEach(pathObj => {
-          doc += generatePathDoc(pathObj, format)
-        })
-
-        doc += '</dl>\n'
-        doc += '</script>\n'
+      if (hasWildcards(relevantPaths)) {
+        doc += generateWildcardExplanation(format)
       }
+
+      // Add help text if available
+      const helpText = serviceData.help?.[nodeType] || serviceData.help?.both
+      if (helpText) {
+        // Strip HTML tags for markdown and clean up
+        const cleanHelp = helpText.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+        if (cleanHelp) {
+          doc += `\n${cleanHelp}\n`
+        }
+      }
+
+      relevantPaths.forEach(pathObj => {
+        doc += '\n' + generatePathDoc(pathObj, format) + '\n'
+      })
+    } else {
+      doc += `\n<script type="text/x-red" data-help-name="${nodeName}">\n`
+      doc += '<h3>Details</h3>\n'
+
+      // Add standard details text
+      const nodeTypeText = nodeType === 'input' ? 'input' : 'output'
+      doc += `<p>The <strong>${nodeTypeText} nodes</strong> have two selectable inputs: the devices select and measurement select. `
+      doc += 'The available options are dynamically updated based on the data that is actually available on the Venus device.</p>\n'
+
+      if (hasWildcards(relevantPaths)) {
+        doc += generateWildcardExplanation(format)
+      }
+
+      // Add help text if available
+      const helpText = serviceData.help?.[nodeType] || serviceData.help?.both
+      if (helpText) {
+        doc += helpText + '\n'
+      }
+
+      doc += `<h3>${title}</h3>\n`
+      doc += '<dl class="message-properties">\n'
+
+      relevantPaths.forEach(pathObj => {
+        doc += generatePathDoc(pathObj, format)
+      })
+
+      doc += '</dl>\n'
+      doc += '</script>\n'
     }
-  })
+  }
 
   return doc
 }
@@ -780,5 +824,6 @@ module.exports = {
   highlightWildcards,
   loadDeviceTypeModules,
   generateDeviceTypesTable,
-  generateSpecialNodesDoc
+  generateSpecialNodesDoc,
+  dedupePathDocs
 }
