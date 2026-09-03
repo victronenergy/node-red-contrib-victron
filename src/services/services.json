@@ -240,7 +240,7 @@
         "name": "Input frequency (Hz)"
       },
       {
-        "path": "/Ac/Out/{phase}}/V",
+        "path": "/Ac/Out/{phase}/V",
         "type": "float",
         "name": "Output voltage {phase} (V AC)"
       },
@@ -299,6 +299,16 @@
         "path": "/Ess/ActiveSocLimit",
         "type": "float",
         "name": "ESS Active SOC Limit (%)"
+      },
+      {
+        "path": "/Pv/Disable",
+        "type": "enum",
+        "name": "PV enabled",
+        "enum": {
+          "0": "PV enabled",
+          "1": "PV Disabled"
+        },
+        "mode": "both"
       },
       {
         "path": "/Settings/Ac/In/CurrentLimitEnergyMeter",
@@ -533,9 +543,29 @@
         }
       },
       {
+        "path": "/Alarms/BmsCable",
+        "type": "enum",
+        "name": "BMS cable alarm",
+        "enum": {
+          "0": "No alarm",
+          "1": "Warning",
+          "2": "Alarm"
+        }
+      },
+      {
         "path": "/Alarms/CellImbalance",
         "type": "enum",
         "name": "Cell Imbalance alarm",
+        "enum": {
+          "0": "No alarm",
+          "1": "Warning",
+          "2": "Alarm"
+        }
+      },
+      {
+        "path": "/Alarms/Contactor",
+        "type": "enum",
+        "name": "Contactor alarm",
         "enum": {
           "0": "No alarm",
           "1": "Warning",
@@ -565,6 +595,16 @@
         "path": "/Alarms/HighChargeTemperature",
         "type": "enum",
         "name": "High charge temperature alarm",
+        "enum": {
+          "0": "No alarm",
+          "1": "Warning",
+          "2": "Alarm"
+        }
+      },
+      {
+        "path": "/Alarms/HighCurrent",
+        "type": "enum",
+        "name": "High current alarm",
         "enum": {
           "0": "No alarm",
           "1": "Warning",
@@ -1617,6 +1657,24 @@
     },
     "system": [
       {
+        "path": "/DynamicEss/Active",
+        "type": "enum",
+        "name": "Dynamic ESS active",
+        "enum": {
+          "0": "Off",
+          "1": "Active"
+        }
+      },
+      {
+        "path": "/DynamicEss/AllowGridFeedIn",
+        "type": "enum",
+        "name": "Grid feed-in allowed",
+        "enum": {
+          "0": "Not allowed",
+          "1": "Allowed"
+        }
+      },
+      {
         "path": "/DynamicEss/Available",
         "type": "enum",
         "name": "Is Dynamic ESS available",
@@ -1624,6 +1682,11 @@
           "0": "System is not capable of doing DynamicEss",
           "1": "System is capable of doing DynamicEss"
         }
+      },
+      {
+        "path": "/DynamicEss/ChargeRate",
+        "type": "float",
+        "name": "Battery charge rate (kW)"
       },
       {
         "path": "/DynamicEss/ErrorCode",
@@ -2883,6 +2946,11 @@
         "name": "DC current (DC A)"
       },
       {
+        "path": "/Dc/0/Voltage",
+        "type": "float",
+        "name": "DC voltage (DC V)"
+      },
+      {
         "path": "/Engine/CoolantTemperature",
         "type": "float",
         "name": "Engine coolant temperature (Degrees celsius)"
@@ -2933,6 +3001,20 @@
         "name": "Heatsink temperature (Degrees celsius)"
       },
       {
+        "path": "/ProductId",
+        "type": "float",
+        "name": "Generator model"
+      },
+      {
+        "path": "/RemoteStartModeEnabled",
+        "type": "enum",
+        "name": "Remote start mode",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        }
+      },
+      {
         "path": "/Start",
         "type": "enum",
         "name": "Start generator",
@@ -2946,6 +3028,128 @@
         "path": "/StarterVoltage",
         "type": "float",
         "name": "Starter battery voltage (DC V)"
+      },
+      {
+        "path": "/StatusCode",
+        "type": "enum",
+        "name": "Status",
+        "enum": {
+          "0": "Standby",
+          "1": "Startup 1",
+          "2": "Startup 2",
+          "3": "Startup 3",
+          "4": "Startup 4",
+          "5": "Startup 5",
+          "6": "Startup 6",
+          "7": "Startup 7",
+          "8": "Running",
+          "9": "Stopping",
+          "10": "Error"
+        }
+      },
+      {
+        "path": "/ErrorCode",
+        "type": "enum",
+        "name": "Error",
+        "enum": {
+          "0": "No error",
+          "1": "AC voltage L1 too low",
+          "2": "AC frequency L1 too low",
+          "3": "AC current too low",
+          "4": "AC power too low",
+          "5": "Emergency stop",
+          "6": "Servo current too low",
+          "7": "Oil pressure too low",
+          "8": "Engine temperature too low",
+          "9": "Winding temperature too low",
+          "10": "Exhaust temperature too low",
+          "13": "Starter current too low",
+          "14": "Glow current too low",
+          "15": "Glow current too low",
+          "16": "Fuel holding magnet current too low",
+          "17": "Stop solenoid hold coil current too low",
+          "18": "Stop solenoid pull coil current too low",
+          "19": "Optional DC out current too low",
+          "20": "5V output voltage too low",
+          "21": "Boost output current too low",
+          "22": "Panel supply current too high",
+          "25": "Starter battery voltage too low",
+          "26": "Startup aborted (rotation too low)",
+          "28": "Rotation too low",
+          "29": "Power contactor current too low",
+          "30": "AC voltage L2 too low",
+          "31": "AC frequency L2 too low",
+          "32": "AC current L2 too low",
+          "33": "AC power L2 too low",
+          "34": "AC voltage L3 too low",
+          "35": "AC frequency L3 too low",
+          "36": "AC current L3 too low",
+          "37": "AC power L3 too low",
+          "62": "Fuel temperature too low",
+          "63": "Fuel level too low",
+          "65": "AC voltage L1 too high",
+          "66": "AC frequency too high",
+          "67": "AC current too high",
+          "68": "AC power too high",
+          "70": "Servo current too high",
+          "71": "Oil pressure too high",
+          "72": "Engine temperature too high",
+          "73": "Winding temperature too high",
+          "74": "Exhaust temperature too low",
+          "77": "Starter current too low",
+          "78": "Glow current too high",
+          "79": "Glow current too high",
+          "80": "Fuel holding magnet current too high",
+          "81": "Stop solenoid hold coil current too high",
+          "82": "Stop solenoid pull coil current too high",
+          "83": "Optional DC out current too high",
+          "84": "5V output voltage too high",
+          "85": "Boost output current too high",
+          "89": "Starter battery voltage too high",
+          "90": "Startup aborted (rotation too high)",
+          "92": "Rotation too high",
+          "93": "Power contactor current too high",
+          "94": "AC voltage L2 too high",
+          "95": "AC frequency L2 too high",
+          "96": "AC current L2 too high",
+          "97": "AC power L2 too high",
+          "98": "AC voltage L3 too high",
+          "99": "AC frequency L3 too high",
+          "100": "AC current L3 too high",
+          "101": "AC power L3 too high",
+          "126": "Fuel temperature too high",
+          "127": "Fuel level too high",
+          "130": "Lost control unit",
+          "131": "Lost panel",
+          "132": "Service needed",
+          "133": "Lost 3-phase module",
+          "134": "Lost AGT module",
+          "135": "Synchronization failure",
+          "137": "Intake airfilter",
+          "139": "Lost sync. module",
+          "140": "Load-balance failed",
+          "141": "Sync-mode deactivated",
+          "142": "Engine controller",
+          "148": "Rotating field wrong",
+          "149": "Fuel level sensor lost",
+          "150": "Init failed",
+          "151": "Watchdog",
+          "152": "Out: winding",
+          "153": "Out: exhaust",
+          "154": "Out: Cyl. head",
+          "155": "Inverter over temperature",
+          "156": "Inverter overload",
+          "157": "Inverter communication lost",
+          "158": "Inverter sync failed",
+          "159": "CAN communication lost",
+          "160": "L1 overload",
+          "161": "L2 overload",
+          "162": "L3 overload",
+          "163": "DC overload",
+          "164": "DC overvoltage",
+          "165": "Emergency stop",
+          "166": "No connection"
+        }
       },
       {
         "path": "/History/EnergyOut",
@@ -4393,9 +4597,9 @@
         }
       },
       {
-        "path": "/Pv/0/MppOperationMode",
+        "path": "/Pv/{tracker}/MppOperationMode",
         "type": "enum",
-        "name": "MPP operation mode tracker 1",
+        "name": "MPP operation mode tracker {tracker}",
         "enum": {
           "0": "Off",
           "1": "Voltage/current limited",
@@ -4421,6 +4625,11 @@
         "path": "/Pv/{tracker}/V",
         "type": "float",
         "name": "Tracker {tracker} voltage"
+      },
+      {
+        "path": "/Pv/I",
+        "type": "float",
+        "name": "PV current (A)"
       },
       {
         "path": "/Pv/V",
@@ -4892,6 +5101,11 @@
         "name": "Humidity (%)"
       },
       {
+        "path": "/IAQS",
+        "type": "float",
+        "name": "Indoor air quality score"
+      },
+      {
         "path": "/Luminosity",
         "type": "float",
         "name": "Luminosity (lux)"
@@ -4994,6 +5208,12 @@
           "1": "AC Input 2",
           "240": "Disconnected"
         }
+      },
+      {
+        "path": "/Ac/ActiveIn/CurrentLimit",
+        "type": "float",
+        "name": "Active input current limit (A)",
+        "mode": "both"
       },
       {
         "path": "/Ac/ActiveIn/L{index}/F",
