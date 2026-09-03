@@ -62,7 +62,7 @@ This library is community-supported. For help:
 
 ## Contributing
 
-Contributions are welcome! See our [Contributing Guide](https://github.com/victronenergy/node-red-contrib-victron/blob/master/CONTRIBUTING.md) for details.
+Contributions are welcome! See our [Contributing Guide](docs/DEVELOPMENT.md#contributing-guidelines) for details.
 
 ## Development
 
