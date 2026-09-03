@@ -46,7 +46,7 @@ const SKIP_IFACES = new Set([
 
 const services = JSON.parse(fs.readFileSync(servicesJSON))
 
-const parse = require('csv-parse/lib/sync')
+const { parse } = require('csv-parse/sync')
 
 const rows = parse(fs.readFileSync(csvFile, 'utf8'), {
   relax_column_count: true,
