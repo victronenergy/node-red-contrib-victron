@@ -138,7 +138,7 @@ module.exports = function (RED) {
       return id
     }
 
-    this.removeStatusListener = id => { statusListeners = statusListeners.filter(o => o.id === id) }
+    this.removeStatusListener = id => { statusListeners = statusListeners.filter(o => o.id !== id) }
   }
 
   RED.nodes.registerType('victron-client', ConfigVictronClient)
