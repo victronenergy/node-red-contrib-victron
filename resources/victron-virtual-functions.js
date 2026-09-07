@@ -1933,6 +1933,7 @@
 
 	  const update = () => {
 	    const nrOfPhases = Number($(`#node-input-${prefix}_nrofphases`).val());
+	    $(`#node-input-${prefix}_position`).closest('.form-row').show();
 	    $(`#${prefix}-phasesetting-row`).toggle(nrOfPhases === 1);
 	    updateS2MeasurementOptions(nrOfPhases);
 	  };
