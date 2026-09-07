@@ -241,7 +241,7 @@ class VictronDbusListener {
           if (res) {
             const deviceInstance = res[1]?.[0]
             if (deviceInstance === undefined) {
-              console.error(`deviceInstance could not be assigned because res[1][0] is undefined owner=${owner} services[owner]=${JSON.stringify(this.services[owner])} (${this.services[owner].name})`)
+              console.error(`deviceInstance could not be assigned because res[1][0] is undefined owner=${owner} services[owner]=${JSON.stringify(this.services[owner])}`)
             }
             return resolve(deviceInstance)
           }
@@ -249,6 +249,13 @@ class VictronDbusListener {
         })
       }
     })
+
+    // the owner may have disconnected (NameOwnerChanged) while GetValue was in flight,
+    // in which case the entry was already removed from this.services
+    if (!this.services[owner]) {
+      console.warn(`initService ${name}, owner ${owner} was removed from services while GetValue was in flight, skipping`)
+      return
+    }
 
     this.services[owner].deviceInstance = deviceInstance
 

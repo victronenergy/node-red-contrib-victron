@@ -94,19 +94,19 @@ describe('heatpump device module', () => {
       expect(heatpump.productType({})).toBe('grid')
     })
 
-    test('properties omit Position', () => {
-      expect(heatpump.properties({}).Position).toBeUndefined()
+    test('properties still include Position', () => {
+      expect(heatpump.properties({}).Position).toBeDefined()
     })
 
     test('properties declare IsGenericEnergyMeter as 1', () => {
       expect(heatpump.properties({}).IsGenericEnergyMeter.value).toBe(1)
     })
 
-    test('initialize does not add Position/PhaseSetting or S2 support', () => {
+    test('initialize still adds Position/PhaseSetting, but no S2 support', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
-      const result = heatpump.initialize({ heatpump_nrofphases: 1 }, ifaceDesc, iface, node)
-      expect(iface.Position).toBeUndefined()
-      expect(iface.PhaseSetting).toBeUndefined()
+      const result = heatpump.initialize({ heatpump_nrofphases: 1, heatpump_position: 1, heatpump_phasesetting: 2 }, ifaceDesc, iface, node)
+      expect(iface.Position).toBe(1)
+      expect(iface.PhaseSetting).toBe(2)
       expect(ifaceDesc.__enableS2).toBeUndefined()
       expect(result).toBe('Virtual 1-phase heat pump (generic energy meter)')
     })

@@ -1899,9 +1899,8 @@
 	}
 
 	// Keeps Position/Phase and the S2 Measurement dropdown consistent with the device's actual
-	// configuration for acload/heatpump: enabling S2 support is what promotes the device from a
-	// plain generic energy meter to its own full type, adding Position (and, for a 1-phase
-	// config, which phase it's wired to) - see acload.js/heatpump.js isFullDevice(). The S2
+	// configuration for acload/heatpump: Position (and, for a 1-phase config, which phase it's
+	// wired to) is configurable regardless of S2 support - see acload.js/heatpump.js. The S2
 	// Measurement dropdown mirrors Number of phases/Phase so that info doesn't need
 	// re-confirming: a 1-phase config is locked to the single matching phase, a 3-phase config
 	// offers only "3-phase symmetric"/"Per phase" (no single-phase reading applies), split phase
@@ -1933,17 +1932,15 @@
 	  };
 
 	  const update = () => {
-	    const isFull = $('#node-input-enable_s2support').is(':checked');
 	    const nrOfPhases = Number($(`#node-input-${prefix}_nrofphases`).val());
-	    $(`#node-input-${prefix}_position`).closest('.form-row').toggle(isFull);
-	    $(`#${prefix}-phasesetting-row`).toggle(isFull && nrOfPhases === 1);
+	    $(`#node-input-${prefix}_position`).closest('.form-row').show();
+	    $(`#${prefix}-phasesetting-row`).toggle(nrOfPhases === 1);
 	    updateS2MeasurementOptions(nrOfPhases);
 	  };
 	  $(`#node-input-${prefix}_nrofphases`).off('change.phasesetting').on('change.phasesetting', update);
 	  $(`#node-input-${prefix}_phasesetting`).off('change.s2measurement').on('change.s2measurement', () => {
 	    updateS2MeasurementOptions(Number($(`#node-input-${prefix}_nrofphases`).val()));
 	  });
-	  $('#node-input-enable_s2support').off(`change.${prefix}-full`).on(`change.${prefix}-full`, update);
 	  update();
 	}
 

@@ -261,10 +261,10 @@ describe('acload device module', () => {
       expect(acload.productType({})).toBe('grid')
     })
 
-    test('properties include Position when S2 enabled, omit it otherwise', () => {
+    test('properties include Position regardless of S2 support', () => {
       expect(acload.properties({ enable_s2support: true }).Position).toBeDefined()
-      expect(acload.properties({ enable_s2support: false }).Position).toBeUndefined()
-      expect(acload.properties({}).Position).toBeUndefined()
+      expect(acload.properties({ enable_s2support: false }).Position).toBeDefined()
+      expect(acload.properties({}).Position).toBeDefined()
     })
 
     test('properties declare IsGenericEnergyMeter as 0 when S2 enabled, 1 otherwise', () => {
@@ -280,15 +280,15 @@ describe('acload device module', () => {
       expect(Object.keys(full).some(k => k.startsWith('S2/0/RmSettings/'))).toBe(false)
     })
 
-    test('initialize does not add Position/PhaseSetting when S2 is disabled', () => {
+    test('initialize still adds Position/PhaseSetting when S2 is disabled', () => {
       const ifaceDesc = { properties: {} }
       const iface = {}
       const node = { error: jest.fn() }
-      acload.initialize({ acload_nrofphases: 1 }, ifaceDesc, iface, node)
-      expect(iface.Position).toBeUndefined()
-      expect(iface.PhaseSetting).toBeUndefined()
-      expect(ifaceDesc.properties.PhaseSetting).toBeUndefined()
-      expect(ifaceDesc.properties['Ac/L1/Power']).toBeDefined()
+      acload.initialize({ acload_nrofphases: 1, acload_position: 1, acload_phasesetting: 2 }, ifaceDesc, iface, node)
+      expect(iface.Position).toBe(1)
+      expect(iface.PhaseSetting).toBe(2)
+      expect(ifaceDesc.properties.PhaseSetting).toBeDefined()
+      expect(ifaceDesc.properties['Ac/L2/Power']).toBeDefined()
     })
 
     test('initialize returns the generic energy meter label when S2 is disabled', () => {
