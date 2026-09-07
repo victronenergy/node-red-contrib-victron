@@ -80,7 +80,7 @@ describe('enableS2Support', () => {
     expect(typeof ifaceDesc.__s2Handlers.KeepAlive).toBe('function')
   })
 
-  test('Connect handler updates S2 active/rm and sends command on port 2', () => {
+  test('Connect handler updates S2 rm and sends command on port 2, leaves Active for the flow to set', () => {
     const { ifaceDesc, iface, node } = makeFixtures()
     enableS2Support({ config: { enable_s2support: true }, ifaceDesc, iface, node })
     node._s2PowerMeasurementActive = true
@@ -88,7 +88,7 @@ describe('enableS2Support', () => {
     ifaceDesc.__s2Handlers.Connect('cem-1', 30)
     expect(node._s2PowerMeasurementActive).toBe(false)
     expect(node._s2PowerMeasurementCemId).toBeNull()
-    expect(node.setValuesLocally).toHaveBeenCalledWith({ 'S2/0/Active': 1, 'S2/0/Rm': 'CEM: cem-1' })
+    expect(node.setValuesLocally).toHaveBeenCalledWith({ 'S2/0/Rm': 'CEM: cem-1' })
     expect(node.send).toHaveBeenCalledWith([null, {
       payload: { command: 'Connect', cemId: 'cem-1', keepAliveInterval: 30 }
     }])

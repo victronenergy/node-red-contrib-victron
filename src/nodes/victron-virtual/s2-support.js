@@ -66,7 +66,9 @@ function enableS2Support ({ config, ifaceDesc, iface, node, deviceLabel, resourc
     Connect: function (cemId, timeout) {
       node._s2PowerMeasurementActive = false
       node._s2PowerMeasurementCemId = null
-      node.setValuesLocally({ 'S2/0/Active': 1, 'S2/0/Rm': 'CEM: ' + cemId })
+      // Per spec, Active reflects a selected control type other than NO_CONTROL, not mere
+      // transport connection - the flow sets it once it activates one.
+      node.setValuesLocally({ 'S2/0/Rm': 'CEM: ' + cemId })
       console.log('Connect received for CEM ID:', cemId, 'timeout', timeout)
       node.send([
         null,

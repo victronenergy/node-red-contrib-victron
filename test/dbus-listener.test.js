@@ -11,6 +11,10 @@ describe('VictronDbusListener', () => {
     expect(listener.address).toBe('the-address')
   })
 
+  test('initServiceDenylist does not exclude com.victronenergy.shelly (regression)', () => {
+    expect(VictronDbusListener.initServiceDenylist).not.toContain('com.victronenergy.shelly')
+  })
+
   describe('_initService', () => {
     beforeEach(() => {
       listener.bus = {
@@ -46,6 +50,25 @@ describe('VictronDbusListener', () => {
     test('service "com.victronenergy.dynamicess" won\'t get a deviceInstance', async () => {
       await listener._initService('the-dynamicess-owner', 'com.victronenergy.dynamicess')
       expect(listener.services['the-dynamicess-owner'].deviceInstance).toBe(null)
+    })
+
+    test('does not throw when the service disconnects before GetValue resolves (regression)', async () => {
+      let invokeCallback
+      listener.bus = {
+        invoke: jest.fn((_params, callback) => {
+          invokeCallback = callback
+        })
+      }
+
+      const initPromise = listener._initService('the-owner', 'the-name')
+
+      // simulate NameOwnerChanged deleting the service while GetValue is still in flight
+      delete listener.services['the-owner']
+
+      invokeCallback(new Error('NoReply'), null)
+
+      await expect(initPromise).resolves.not.toThrow()
+      expect(listener.services['the-owner']).toBeUndefined()
     })
   })
 

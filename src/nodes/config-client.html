@@ -489,7 +489,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dd>Dbus path: <b>/Ac/In/1/L1/F</b><span class="property-mode"></span>
 </dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Output voltage <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{phase}</code> (V AC)<span class="property-type">float</span></dt>
-  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/Out/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{phase}</code>}/V</b><span class="property-mode"></span>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/Out/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{phase}</code>/V</b><span class="property-mode"></span>
 </dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Output current <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{phase}</code> (A AC)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/Out/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{phase}</code>/I</b><span class="property-mode"></span>
@@ -526,6 +526,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">ESS Active SOC Limit (%)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Ess/ActiveSocLimit</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">PV enabled<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Pv/Disable</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>0 - PV enabled</li>
+  <li>1 - PV Disabled</li>
+</ul></dd>
   <dt class="optional">Ac current limit at grid meter (A)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Settings/Ac/In/CurrentLimitEnergyMeter</b><span class="property-mode"> (Mode: both)</span>
 </dd>
@@ -599,7 +605,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dd>Dbus path: <b>/Ac/In/1/L1/F</b><span class="property-mode"></span>
 </dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Output voltage <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{phase}</code> (V AC)<span class="property-type">float</span></dt>
-  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/Out/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{phase}</code>}/V</b><span class="property-mode"></span>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/Out/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{phase}</code>/V</b><span class="property-mode"></span>
 </dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Output current <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{phase}</code> (A AC)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/Out/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{phase}</code>/I</b><span class="property-mode"></span>
@@ -636,6 +642,12 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">ESS Active SOC Limit (%)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Ess/ActiveSocLimit</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">PV enabled<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Pv/Disable</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>0 - PV enabled</li>
+  <li>1 - PV Disabled</li>
+</ul></dd>
   <dt class="optional">Ac current limit at grid meter (A)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Settings/Ac/In/CurrentLimitEnergyMeter</b><span class="property-mode"> (Mode: both)</span>
 </dd>
@@ -972,8 +984,22 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - Alarm active</li>
   <li>2 - Alarm</li>
 </ul></dd>
+  <dt class="optional">BMS cable alarm<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Alarms/BmsCable</b><span class="property-mode"></span>
+<ul>
+  <li>0 - No alarm</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul></dd>
   <dt class="optional">Cell Imbalance alarm<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Alarms/CellImbalance</b><span class="property-mode"></span>
+<ul>
+  <li>0 - No alarm</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul></dd>
+  <dt class="optional">Contactor alarm<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Alarms/Contactor</b><span class="property-mode"></span>
 <ul>
   <li>0 - No alarm</li>
   <li>1 - Warning</li>
@@ -994,6 +1020,13 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 </ul></dd>
   <dt class="optional">High charge temperature alarm<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Alarms/HighChargeTemperature</b><span class="property-mode"></span>
+<ul>
+  <li>0 - No alarm</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul></dd>
+  <dt class="optional">High current alarm<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Alarms/HighCurrent</b><span class="property-mode"></span>
 <ul>
   <li>0 - No alarm</li>
   <li>1 - Warning</li>
@@ -1464,8 +1497,22 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - Alarm active</li>
   <li>2 - Alarm</li>
 </ul></dd>
+  <dt class="optional">BMS cable alarm<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Alarms/BmsCable</b><span class="property-mode"></span>
+<ul>
+  <li>0 - No alarm</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul></dd>
   <dt class="optional">Cell Imbalance alarm<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Alarms/CellImbalance</b><span class="property-mode"></span>
+<ul>
+  <li>0 - No alarm</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul></dd>
+  <dt class="optional">Contactor alarm<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Alarms/Contactor</b><span class="property-mode"></span>
 <ul>
   <li>0 - No alarm</li>
   <li>1 - Warning</li>
@@ -1486,6 +1533,13 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 </ul></dd>
   <dt class="optional">High charge temperature alarm<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Alarms/HighChargeTemperature</b><span class="property-mode"></span>
+<ul>
+  <li>0 - No alarm</li>
+  <li>1 - Warning</li>
+  <li>2 - Alarm</li>
+</ul></dd>
+  <dt class="optional">High current alarm<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Alarms/HighCurrent</b><span class="property-mode"></span>
 <ul>
   <li>0 - No alarm</li>
   <li>1 - Warning</li>
@@ -2278,12 +2332,27 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <p>Dynamic ESS input node.</p>
 <h3>Dess</h3>
 <dl class="message-properties">
+  <dt class="optional">Dynamic ESS active<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/DynamicEss/Active</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - Active</li>
+</ul></dd>
+  <dt class="optional">Grid feed-in allowed<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/DynamicEss/AllowGridFeedIn</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Not allowed</li>
+  <li>1 - Allowed</li>
+</ul></dd>
   <dt class="optional">Is Dynamic ESS available<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/DynamicEss/Available</b><span class="property-mode"></span>
 <ul>
   <li>0 - System is not capable of doing DynamicEss</li>
   <li>1 - System is capable of doing DynamicEss</li>
 </ul></dd>
+  <dt class="optional">Battery charge rate (kW)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/DynamicEss/ChargeRate</b><span class="property-mode"></span>
+</dd>
   <dt class="optional">Error<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/DynamicEss/ErrorCode</b><span class="property-mode"></span>
 <ul>
@@ -2322,12 +2391,27 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
  
 <h3>Dess</h3>
 <dl class="message-properties">
+  <dt class="optional">Dynamic ESS active<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/DynamicEss/Active</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - Active</li>
+</ul></dd>
+  <dt class="optional">Grid feed-in allowed<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/DynamicEss/AllowGridFeedIn</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Not allowed</li>
+  <li>1 - Allowed</li>
+</ul></dd>
   <dt class="optional">Is Dynamic ESS available<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/DynamicEss/Available</b><span class="property-mode"></span>
 <ul>
   <li>0 - System is not capable of doing DynamicEss</li>
   <li>1 - System is capable of doing DynamicEss</li>
 </ul></dd>
+  <dt class="optional">Battery charge rate (kW)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/DynamicEss/ChargeRate</b><span class="property-mode"></span>
+</dd>
   <dt class="optional">Error<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/DynamicEss/ErrorCode</b><span class="property-mode"></span>
 <ul>
@@ -4056,6 +4140,9 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">DC current (DC A)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Dc/0/Current</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">DC voltage (DC V)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Dc/0/Voltage</b><span class="property-mode"></span>
+</dd>
   <dt class="optional">Engine coolant temperature (Degrees celsius)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Engine/CoolantTemperature</b><span class="property-mode"></span>
 </dd>
@@ -4086,6 +4173,15 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">Heatsink temperature (Degrees celsius)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/HeatsinkTemperature</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">Generator model<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/ProductId</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Remote start mode<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/RemoteStartModeEnabled</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
+</ul></dd>
   <dt class="optional">Start generator<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Start</b><span class="property-mode"> (Mode: both)</span>
 <ul>
@@ -4095,6 +4191,122 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">Starter battery voltage (DC V)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/StarterVoltage</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">Status<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/StatusCode</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Standby</li>
+  <li>1 - Startup 1</li>
+  <li>2 - Startup 2</li>
+  <li>3 - Startup 3</li>
+  <li>4 - Startup 4</li>
+  <li>5 - Startup 5</li>
+  <li>6 - Startup 6</li>
+  <li>7 - Startup 7</li>
+  <li>8 - Running</li>
+  <li>9 - Stopping</li>
+  <li>10 - Error</li>
+</ul></dd>
+  <dt class="optional">Error<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/ErrorCode</b><span class="property-mode"></span>
+<ul>
+  <li>0 - No error</li>
+  <li>1 - AC voltage L1 too low</li>
+  <li>2 - AC frequency L1 too low</li>
+  <li>3 - AC current too low</li>
+  <li>4 - AC power too low</li>
+  <li>5 - Emergency stop</li>
+  <li>6 - Servo current too low</li>
+  <li>7 - Oil pressure too low</li>
+  <li>8 - Engine temperature too low</li>
+  <li>9 - Winding temperature too low</li>
+  <li>10 - Exhaust temperature too low</li>
+  <li>13 - Starter current too low</li>
+  <li>14 - Glow current too low</li>
+  <li>15 - Glow current too low</li>
+  <li>16 - Fuel holding magnet current too low</li>
+  <li>17 - Stop solenoid hold coil current too low</li>
+  <li>18 - Stop solenoid pull coil current too low</li>
+  <li>19 - Optional DC out current too low</li>
+  <li>20 - 5V output voltage too low</li>
+  <li>21 - Boost output current too low</li>
+  <li>22 - Panel supply current too high</li>
+  <li>25 - Starter battery voltage too low</li>
+  <li>26 - Startup aborted (rotation too low)</li>
+  <li>28 - Rotation too low</li>
+  <li>29 - Power contactor current too low</li>
+  <li>30 - AC voltage L2 too low</li>
+  <li>31 - AC frequency L2 too low</li>
+  <li>32 - AC current L2 too low</li>
+  <li>33 - AC power L2 too low</li>
+  <li>34 - AC voltage L3 too low</li>
+  <li>35 - AC frequency L3 too low</li>
+  <li>36 - AC current L3 too low</li>
+  <li>37 - AC power L3 too low</li>
+  <li>62 - Fuel temperature too low</li>
+  <li>63 - Fuel level too low</li>
+  <li>65 - AC voltage L1 too high</li>
+  <li>66 - AC frequency too high</li>
+  <li>67 - AC current too high</li>
+  <li>68 - AC power too high</li>
+  <li>70 - Servo current too high</li>
+  <li>71 - Oil pressure too high</li>
+  <li>72 - Engine temperature too high</li>
+  <li>73 - Winding temperature too high</li>
+  <li>74 - Exhaust temperature too low</li>
+  <li>77 - Starter current too low</li>
+  <li>78 - Glow current too high</li>
+  <li>79 - Glow current too high</li>
+  <li>80 - Fuel holding magnet current too high</li>
+  <li>81 - Stop solenoid hold coil current too high</li>
+  <li>82 - Stop solenoid pull coil current too high</li>
+  <li>83 - Optional DC out current too high</li>
+  <li>84 - 5V output voltage too high</li>
+  <li>85 - Boost output current too high</li>
+  <li>89 - Starter battery voltage too high</li>
+  <li>90 - Startup aborted (rotation too high)</li>
+  <li>92 - Rotation too high</li>
+  <li>93 - Power contactor current too high</li>
+  <li>94 - AC voltage L2 too high</li>
+  <li>95 - AC frequency L2 too high</li>
+  <li>96 - AC current L2 too high</li>
+  <li>97 - AC power L2 too high</li>
+  <li>98 - AC voltage L3 too high</li>
+  <li>99 - AC frequency L3 too high</li>
+  <li>100 - AC current L3 too high</li>
+  <li>101 - AC power L3 too high</li>
+  <li>126 - Fuel temperature too high</li>
+  <li>127 - Fuel level too high</li>
+  <li>130 - Lost control unit</li>
+  <li>131 - Lost panel</li>
+  <li>132 - Service needed</li>
+  <li>133 - Lost 3-phase module</li>
+  <li>134 - Lost AGT module</li>
+  <li>135 - Synchronization failure</li>
+  <li>137 - Intake airfilter</li>
+  <li>139 - Lost sync. module</li>
+  <li>140 - Load-balance failed</li>
+  <li>141 - Sync-mode deactivated</li>
+  <li>142 - Engine controller</li>
+  <li>148 - Rotating field wrong</li>
+  <li>149 - Fuel level sensor lost</li>
+  <li>150 - Init failed</li>
+  <li>151 - Watchdog</li>
+  <li>152 - Out: winding</li>
+  <li>153 - Out: exhaust</li>
+  <li>154 - Out: Cyl. head</li>
+  <li>155 - Inverter over temperature</li>
+  <li>156 - Inverter overload</li>
+  <li>157 - Inverter communication lost</li>
+  <li>158 - Inverter sync failed</li>
+  <li>159 - CAN communication lost</li>
+  <li>160 - L1 overload</li>
+  <li>161 - L2 overload</li>
+  <li>162 - L3 overload</li>
+  <li>163 - DC overload</li>
+  <li>164 - DC overvoltage</li>
+  <li>165 - Emergency stop</li>
+  <li>166 - No connection</li>
+</ul></dd>
   <dt class="optional">Total energy produced (kWh)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/History/EnergyOut</b><span class="property-mode"></span>
 </dd>
@@ -4124,6 +4336,9 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">DC current (DC A)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Dc/0/Current</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">DC voltage (DC V)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Dc/0/Voltage</b><span class="property-mode"></span>
+</dd>
   <dt class="optional">Engine coolant temperature (Degrees celsius)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Engine/CoolantTemperature</b><span class="property-mode"></span>
 </dd>
@@ -4154,6 +4369,15 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">Heatsink temperature (Degrees celsius)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/HeatsinkTemperature</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">Generator model<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/ProductId</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Remote start mode<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/RemoteStartModeEnabled</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
+</ul></dd>
   <dt class="optional">Start generator<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/Start</b><span class="property-mode"> (Mode: both)</span>
 <ul>
@@ -4163,6 +4387,122 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">Starter battery voltage (DC V)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/StarterVoltage</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">Status<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/StatusCode</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Standby</li>
+  <li>1 - Startup 1</li>
+  <li>2 - Startup 2</li>
+  <li>3 - Startup 3</li>
+  <li>4 - Startup 4</li>
+  <li>5 - Startup 5</li>
+  <li>6 - Startup 6</li>
+  <li>7 - Startup 7</li>
+  <li>8 - Running</li>
+  <li>9 - Stopping</li>
+  <li>10 - Error</li>
+</ul></dd>
+  <dt class="optional">Error<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/ErrorCode</b><span class="property-mode"></span>
+<ul>
+  <li>0 - No error</li>
+  <li>1 - AC voltage L1 too low</li>
+  <li>2 - AC frequency L1 too low</li>
+  <li>3 - AC current too low</li>
+  <li>4 - AC power too low</li>
+  <li>5 - Emergency stop</li>
+  <li>6 - Servo current too low</li>
+  <li>7 - Oil pressure too low</li>
+  <li>8 - Engine temperature too low</li>
+  <li>9 - Winding temperature too low</li>
+  <li>10 - Exhaust temperature too low</li>
+  <li>13 - Starter current too low</li>
+  <li>14 - Glow current too low</li>
+  <li>15 - Glow current too low</li>
+  <li>16 - Fuel holding magnet current too low</li>
+  <li>17 - Stop solenoid hold coil current too low</li>
+  <li>18 - Stop solenoid pull coil current too low</li>
+  <li>19 - Optional DC out current too low</li>
+  <li>20 - 5V output voltage too low</li>
+  <li>21 - Boost output current too low</li>
+  <li>22 - Panel supply current too high</li>
+  <li>25 - Starter battery voltage too low</li>
+  <li>26 - Startup aborted (rotation too low)</li>
+  <li>28 - Rotation too low</li>
+  <li>29 - Power contactor current too low</li>
+  <li>30 - AC voltage L2 too low</li>
+  <li>31 - AC frequency L2 too low</li>
+  <li>32 - AC current L2 too low</li>
+  <li>33 - AC power L2 too low</li>
+  <li>34 - AC voltage L3 too low</li>
+  <li>35 - AC frequency L3 too low</li>
+  <li>36 - AC current L3 too low</li>
+  <li>37 - AC power L3 too low</li>
+  <li>62 - Fuel temperature too low</li>
+  <li>63 - Fuel level too low</li>
+  <li>65 - AC voltage L1 too high</li>
+  <li>66 - AC frequency too high</li>
+  <li>67 - AC current too high</li>
+  <li>68 - AC power too high</li>
+  <li>70 - Servo current too high</li>
+  <li>71 - Oil pressure too high</li>
+  <li>72 - Engine temperature too high</li>
+  <li>73 - Winding temperature too high</li>
+  <li>74 - Exhaust temperature too low</li>
+  <li>77 - Starter current too low</li>
+  <li>78 - Glow current too high</li>
+  <li>79 - Glow current too high</li>
+  <li>80 - Fuel holding magnet current too high</li>
+  <li>81 - Stop solenoid hold coil current too high</li>
+  <li>82 - Stop solenoid pull coil current too high</li>
+  <li>83 - Optional DC out current too high</li>
+  <li>84 - 5V output voltage too high</li>
+  <li>85 - Boost output current too high</li>
+  <li>89 - Starter battery voltage too high</li>
+  <li>90 - Startup aborted (rotation too high)</li>
+  <li>92 - Rotation too high</li>
+  <li>93 - Power contactor current too high</li>
+  <li>94 - AC voltage L2 too high</li>
+  <li>95 - AC frequency L2 too high</li>
+  <li>96 - AC current L2 too high</li>
+  <li>97 - AC power L2 too high</li>
+  <li>98 - AC voltage L3 too high</li>
+  <li>99 - AC frequency L3 too high</li>
+  <li>100 - AC current L3 too high</li>
+  <li>101 - AC power L3 too high</li>
+  <li>126 - Fuel temperature too high</li>
+  <li>127 - Fuel level too high</li>
+  <li>130 - Lost control unit</li>
+  <li>131 - Lost panel</li>
+  <li>132 - Service needed</li>
+  <li>133 - Lost 3-phase module</li>
+  <li>134 - Lost AGT module</li>
+  <li>135 - Synchronization failure</li>
+  <li>137 - Intake airfilter</li>
+  <li>139 - Lost sync. module</li>
+  <li>140 - Load-balance failed</li>
+  <li>141 - Sync-mode deactivated</li>
+  <li>142 - Engine controller</li>
+  <li>148 - Rotating field wrong</li>
+  <li>149 - Fuel level sensor lost</li>
+  <li>150 - Init failed</li>
+  <li>151 - Watchdog</li>
+  <li>152 - Out: winding</li>
+  <li>153 - Out: exhaust</li>
+  <li>154 - Out: Cyl. head</li>
+  <li>155 - Inverter over temperature</li>
+  <li>156 - Inverter overload</li>
+  <li>157 - Inverter communication lost</li>
+  <li>158 - Inverter sync failed</li>
+  <li>159 - CAN communication lost</li>
+  <li>160 - L1 overload</li>
+  <li>161 - L2 overload</li>
+  <li>162 - L3 overload</li>
+  <li>163 - DC overload</li>
+  <li>164 - DC overvoltage</li>
+  <li>165 - Emergency stop</li>
+  <li>166 - No connection</li>
+</ul></dd>
   <dt class="optional">Total energy produced (kWh)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/History/EnergyOut</b><span class="property-mode"></span>
 </dd>
@@ -6036,8 +6376,8 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>2 - MPPT Tracker active</li>
   <li>255 - Not available</li>
 </ul></dd>
-  <dt class="optional">MPP operation mode tracker 1<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/0/MppOperationMode</b><span class="property-mode"></span>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">MPP operation mode tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code><span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/MppOperationMode</b><span class="property-mode"></span>
 <ul>
   <li>0 - Off</li>
   <li>1 - Voltage/current limited</li>
@@ -6055,6 +6395,9 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 </dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> voltage<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/V</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">PV current (A)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Pv/I</b><span class="property-mode"></span>
 </dd>
   <dt class="optional">PV voltage<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Pv/V</b><span class="property-mode"></span>
@@ -6248,8 +6591,8 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>2 - MPPT Tracker active</li>
   <li>255 - Not available</li>
 </ul></dd>
-  <dt class="optional">MPP operation mode tracker 1<span class="property-type">enum</span></dt>
-  <dd>Dbus path: <b>/Pv/0/MppOperationMode</b><span class="property-mode"></span>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;">MPP operation mode tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code><span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/MppOperationMode</b><span class="property-mode"></span>
 <ul>
   <li>0 - Off</li>
   <li>1 - Voltage/current limited</li>
@@ -6267,6 +6610,9 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 </dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Tracker <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code> voltage<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Pv/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{tracker}</code>/V</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">PV current (A)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Pv/I</b><span class="property-mode"></span>
 </dd>
   <dt class="optional">PV voltage<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Pv/V</b><span class="property-mode"></span>
@@ -6737,6 +7083,9 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">Humidity (%)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Humidity</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">Indoor air quality score<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/IAQS</b><span class="property-mode"></span>
+</dd>
   <dt class="optional">Luminosity (lux)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Luminosity</b><span class="property-mode"></span>
 </dd>
@@ -6829,6 +7178,9 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - AC Input 2</li>
   <li>240 - Disconnected</li>
 </ul></dd>
+  <dt class="optional">Active input current limit (A)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Ac/ActiveIn/CurrentLimit</b><span class="property-mode"> (Mode: both)</span>
+</dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Input frequency phase <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code> (Hz)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/ActiveIn/L<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code>/F</b><span class="property-mode"></span>
 </dd>
@@ -7141,6 +7493,9 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>1 - AC Input 2</li>
   <li>240 - Disconnected</li>
 </ul></dd>
+  <dt class="optional">Active input current limit (A)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/Ac/ActiveIn/CurrentLimit</b><span class="property-mode"> (Mode: both)</span>
+</dd>
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;">Input frequency phase <code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code> (Hz)<span class="property-type">float</span></dt>
   <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/Ac/ActiveIn/L<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{index}</code>/F</b><span class="property-mode"></span>
 </dd>

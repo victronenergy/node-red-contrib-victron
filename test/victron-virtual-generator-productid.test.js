@@ -1,6 +1,7 @@
 // test/victron-virtual-generator-productid.test.js
 /* eslint-env jest */
 const { addVictronInterfaces } = require('dbus-victron-virtual')
+const generator = require('../src/nodes/victron-virtual/device-type/generator')
 
 function makeBus () {
   return { exportInterface: jest.fn() }
@@ -82,5 +83,22 @@ describe('virtual energy meter ProductId (970cf0c0 regression)', () => {
     const iface = { emit: jest.fn(), Connected: 1 }
     addVictronInterfaces(makeBus(), makeIfaceDesc('com.victronenergy.grid.virtual_test', 'energymeter'), iface, true, null)
     expect(iface.ProductId).toBe(0xc06f)
+  })
+})
+
+// The genset's D-Bus service stays com.victronenergy.genset even in "Use as grid meter only"
+// mode (see generator.js getServiceType), so the productType override is what makes the
+// reported ProductId reflect a grid meter instead of a genset.
+describe('virtual generator (genset) ProductId in grid meter only mode', () => {
+  test('normal mode: genset productType gives genset ProductId', () => {
+    const iface = { emit: jest.fn(), Connected: 1 }
+    addVictronInterfaces(makeBus(), makeIfaceDesc('com.victronenergy.genset.virtual_test', generator.productType({ generator_type: 'ac' })), iface, true, null)
+    expect(iface.ProductId).toBe(0xc06b)
+  })
+
+  test('grid meter only mode: grid productType gives grid meter ProductId', () => {
+    const iface = { emit: jest.fn(), Connected: 1 }
+    addVictronInterfaces(makeBus(), makeIfaceDesc('com.victronenergy.genset.virtual_test', generator.productType({ generator_type: 'ac', generator_grid_meter_only: true })), iface, true, null)
+    expect(iface.ProductId).toBe(0xc062)
   })
 })
