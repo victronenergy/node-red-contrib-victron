@@ -219,7 +219,10 @@ function dedupePathDocs (pathObjs) {
 
     const coveringWildcard = Array.from(wildcardsByShape.values())
       .find(wildcardObj => wildcardCoversPath(wildcardObj.path, pathObj.path))
-    if (coveringWildcard) continue
+    if (coveringWildcard) {
+      console.warn(`service2doc: dropping "${pathObj.path}" (${pathObj.name}) from generated docs - covered by wildcard "${coveringWildcard.path}"`)
+      continue
+    }
 
     result.push(pathObj)
   }
