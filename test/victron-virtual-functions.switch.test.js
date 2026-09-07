@@ -96,6 +96,60 @@ describe('fetchSwitchNodeNameAndGroupFromCache', () => {
       expect(e.message).toBeDefined()
     }
   })
+
+  // Regression coverage for #471.
+  //
+  // The /victron/cache endpoint is registered on RED.httpNode (see config-client.js), so
+  // when the user configures an httpNodeRoot (e.g. '/local-dev') Node-RED serves it at
+  // '/local-dev/victron/cache' - NOT at '/victron/cache'. The original code fetched the
+  // bare '/victron/cache', which 404s and returns Node-RED's HTML error page; calling
+  // response.json() on that HTML throws "SyntaxError: Unexpected token '<'" - the exact
+  // error reported in #471. The fix threads the editor's httpNodeRoot base URL through the
+  // request, matching the sibling fetchEvChargers()/fetchDeviceCapabilities() helpers.
+  describe('#471 - respects httpNodeRoot when requesting the cache', () => {
+    // A real node id from the bug report, to keep the reproduction concrete.
+    const NODE_ID = '2cdd7d25339e162f'
+
+    function mockCacheResponse (body) {
+      global.fetch = jest.fn(() => Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(body)
+      }))
+    }
+
+    test('SOLVES #471: prefixes the httpNodeRoot base URL so the request reaches the real endpoint', async () => {
+      mockCacheResponse({})
+
+      await fetchSwitchNodeNameAndGroupFromCache(NODE_ID, '/local-dev')
+
+      // Requests the path where httpNodeRoot actually serves the endpoint...
+      expect(global.fetch).toHaveBeenCalledWith(`/local-dev/victron/cache?filter_by_serial=${NODE_ID}`)
+      // ...and never the bare path that 404s once httpNodeRoot is non-default.
+      expect(global.fetch).not.toHaveBeenCalledWith(`/victron/cache?filter_by_serial=${NODE_ID}`)
+    })
+
+    test('default httpNodeRoot: with no base URL, keeps the root-relative path (unchanged behaviour)', async () => {
+      mockCacheResponse({})
+
+      await fetchSwitchNodeNameAndGroupFromCache(NODE_ID)
+
+      expect(global.fetch).toHaveBeenCalledWith(`/victron/cache?filter_by_serial=${NODE_ID}`)
+    })
+
+    test('RECREATES #471: a 404 HTML response (the pre-fix symptom) rejects the lookup', async () => {
+      // Before the fix, the un-prefixed request 404'd and returned Node-RED's HTML error
+      // page; response.json() on HTML rejects with a SyntaxError, which surfaced as the
+      // console error in the bug report. Assert that failure path explicitly.
+      global.fetch = jest.fn(() => Promise.resolve({
+        ok: false,
+        status: 404,
+        json: () => Promise.reject(new SyntaxError("Unexpected token '<'"))
+      }))
+
+      await expect(fetchSwitchNodeNameAndGroupFromCache(NODE_ID, '/local-dev'))
+        .rejects.toThrow(/Unexpected token '<'/)
+    })
+  })
 })
 
 describe('Switch Configuration Tests', () => {
