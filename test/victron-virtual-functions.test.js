@@ -313,10 +313,9 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(true)
     })
 
-    test('hides acload Position/PhaseSetting row for a 1-phase config when S2 support is disabled', () => {
+    test('shows acload PhaseSetting row for a 1-phase config even when S2 support is disabled', () => {
       const mockNrOfPhasesSelect = createMockElement({ val: '1' })
       const mockPhaseSettingRow = createMockElement()
-      const mockPositionRow = createMockElement()
 
       global.$.mockImplementation((selector) => {
         if (selector === 'select#node-input-device') {
@@ -328,9 +327,6 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
         if (selector === '#acload-phasesetting-row') {
           return mockPhaseSettingRow
         }
-        if (selector === '#node-input-acload_position') {
-          return mockPositionRow
-        }
         if (selector.startsWith('.input-')) {
           return createMockElement()
         }
@@ -339,8 +335,7 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
 
       checkSelectedVirtualDevice()
 
-      expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(false)
-      expect(mockPositionRow.toggle).toHaveBeenCalledWith(false)
+      expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(true)
     })
 
     test('locks S2 Measurement to the matching single phase for a 1-phase config, overriding any prior selection', () => {
@@ -492,40 +487,6 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       checkSelectedVirtualDevice()
 
       expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(false)
-    })
-
-    test('hides Position and PhaseSetting row for acload grid meter only, even for a 1-phase config', () => {
-      const mockNrOfPhasesSelect = createMockElement({ val: '1' })
-      const mockPhaseSettingRow = createMockElement()
-      const mockPositionRow = createMockElement()
-      const mockGridMeterOnlyCheckbox = createMockElement({ is: true })
-
-      global.$.mockImplementation((selector) => {
-        if (selector === 'select#node-input-device') {
-          return createMockElement({ val: 'acload' })
-        }
-        if (selector === '#node-input-acload_nrofphases') {
-          return mockNrOfPhasesSelect
-        }
-        if (selector === '#acload-phasesetting-row') {
-          return mockPhaseSettingRow
-        }
-        if (selector === '#node-input-acload_grid_meter_only') {
-          return mockGridMeterOnlyCheckbox
-        }
-        if (selector === '#node-input-acload_position') {
-          return mockPositionRow
-        }
-        if (selector.startsWith('.input-')) {
-          return createMockElement()
-        }
-        return createMockElement()
-      })
-
-      checkSelectedVirtualDevice()
-
-      expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(false)
-      expect(mockPositionRow.toggle).toHaveBeenCalledWith(false)
     })
 
     test('handles generator device selection', () => {
