@@ -165,4 +165,12 @@ describe('Service Documentation Generator', () => {
     ]
     expect(dedupePathDocs(paths)).toEqual(paths)
   })
+
+  test('dedupePathDocs keeps distinct numeric-indexed paths separate when no wildcard covers them', () => {
+    const paths = [
+      { path: '/Dc/0/Voltage', name: 'Battery voltage' },
+      { path: '/Dc/1/Voltage', name: 'Auxiliary voltage' }
+    ]
+    expect(dedupePathDocs(paths)).toEqual(paths)
+  })
 })

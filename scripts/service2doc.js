@@ -152,14 +152,28 @@ function generatePathDoc (pathObj, format) {
 }
 
 /**
- * Normalize a D-Bus path for duplicate detection: wildcard placeholders and
- * concrete numeric path segments both collapse to the same token, so e.g.
- * /Relay/{relay}/State and /Relay/0/State are recognised as the same shape.
+ * Normalize a D-Bus path's wildcard placeholders to a common token, e.g.
+ * /Relay/{relay}/State and /Relay/{output}/State both become /Relay/*\/State.
+ * Concrete numeric segments are left untouched: /Dc/0/Voltage and
+ * /Dc/1/Voltage are distinct properties, not the same shape.
  */
 function normalizePathForDedup (dbusPath) {
-  return dbusPath
-    .replace(/\{[^}]+\}/g, '*')
-    .replace(/\/\d+(?=\/|$)/g, '/*')
+  return dbusPath.replace(/\{[^}]+\}/g, '*')
+}
+
+/**
+ * A wildcard path "covers" a concrete path if replacing the wildcard's
+ * placeholders with the concrete path's corresponding segments reproduces
+ * it exactly, e.g. /Relay/{relay}/State covers /Relay/0/State (and any
+ * other /Relay/<anything>/State) but not /Dc/0/Voltage.
+ */
+function wildcardCoversPath (wildcardPath, concretePath) {
+  const wildcardSegments = wildcardPath.split('/')
+  const concreteSegments = concretePath.split('/')
+  if (wildcardSegments.length !== concreteSegments.length) return false
+  return wildcardSegments.every((segment, i) =>
+    segment.startsWith('{') || segment === concreteSegments[i]
+  )
 }
 
 /**
@@ -169,10 +183,12 @@ function normalizePathForDedup (dbusPath) {
  * Sub-categories often redeclare the same property - e.g. switch/acload both
  * define /SwitchableOutput/{type}/State, or relay's per-device categories
  * all define /Relay/0/State under a different name - so the first
- * declaration encountered wins. When both a wildcard path and a concrete
- * path normalize to the same shape (e.g. /Relay/{relay}/State vs
- * /Relay/0/State), the wildcard version is kept since it documents the
- * property generically instead of tying it to one device.
+ * declaration encountered wins. A concrete path already covered by a
+ * wildcard path (e.g. /Relay/0/State vs /Relay/{relay}/State) is dropped in
+ * favour of the wildcard, since it documents the property generically
+ * instead of tying it to one device. Concrete paths that only share a shape
+ * with each other (e.g. /Dc/0/Voltage vs /Dc/1/Voltage), with no wildcard
+ * declared for that shape, are distinct properties and both are kept.
  */
 function dedupePathDocs (pathObjs) {
   const firstByExactPath = []
@@ -183,16 +199,32 @@ function dedupePathDocs (pathObjs) {
     firstByExactPath.push(pathObj)
   }
 
-  const groupsByShape = new Map()
+  const wildcardsByShape = new Map()
   for (const pathObj of firstByExactPath) {
+    if (!pathObj.path.includes('{')) continue
     const shape = normalizePathForDedup(pathObj.path)
-    if (!groupsByShape.has(shape)) groupsByShape.set(shape, [])
-    groupsByShape.get(shape).push(pathObj)
+    if (!wildcardsByShape.has(shape)) wildcardsByShape.set(shape, pathObj)
   }
 
-  return Array.from(groupsByShape.values()).map(group =>
-    group.find(pathObj => pathObj.path.includes('{')) || group[0]
-  )
+  const result = []
+  const addedWildcardShapes = new Set()
+  for (const pathObj of firstByExactPath) {
+    if (pathObj.path.includes('{')) {
+      const shape = normalizePathForDedup(pathObj.path)
+      if (addedWildcardShapes.has(shape)) continue
+      addedWildcardShapes.add(shape)
+      result.push(pathObj)
+      continue
+    }
+
+    const coveringWildcard = Array.from(wildcardsByShape.values())
+      .find(wildcardObj => wildcardCoversPath(wildcardObj.path, pathObj.path))
+    if (coveringWildcard) continue
+
+    result.push(pathObj)
+  }
+
+  return result
 }
 
 /**
