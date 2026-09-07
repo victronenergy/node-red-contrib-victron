@@ -338,6 +338,35 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(true)
     })
 
+    test('shows heatpump Position row, nested under the input-heatpump wrapper without its own input-heatpump class', () => {
+      const mockNrOfPhasesSelect = createMockElement({ val: '1' })
+      const mockPhaseSettingRow = createMockElement()
+      const mockPositionRow = createMockElement()
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'heatpump' })
+        }
+        if (selector === '#node-input-heatpump_nrofphases') {
+          return mockNrOfPhasesSelect
+        }
+        if (selector === '#heatpump-phasesetting-row') {
+          return mockPhaseSettingRow
+        }
+        if (selector === '#node-input-heatpump_position') {
+          return mockPositionRow
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(mockPositionRow.show).toHaveBeenCalled()
+    })
+
     test('locks S2 Measurement to the matching single phase for a 1-phase config, overriding any prior selection', () => {
       const mockNrOfPhasesSelect = createMockElement({ val: '1' })
       const mockPhaseSettingSelect = createMockElement({ val: '2' })
