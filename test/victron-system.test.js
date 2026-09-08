@@ -327,3 +327,40 @@ describe('ESS battery status reason codes (issue #342)', () => {
     }
   })
 })
+
+describe('heatpump SwitchableOutput support (Shelly relays used to control a heat pump)', () => {
+  let systemConfig
+
+  beforeEach(() => {
+    systemConfig = new SystemConfiguration()
+    systemConfig.cache = {
+      'com.victronenergy.heatpump.shelly_D885AC1B38F4_0': {
+        '/DeviceInstance': 40,
+        '/CustomName': 'Kelder - heating',
+        '/SwitchableOutput/0/State': 1,
+        '/SwitchableOutput/0/Status': 1,
+        '/SwitchableOutput/0/Settings/CustomName': 'Kelder - heating'
+      }
+    }
+  })
+
+  test('output-switch node whitelist includes a heatpump entry', () => {
+    expect(servicesJson.switch.heatpump).toBeDefined()
+    expect(servicesJson.switch.heatpump.find(p => p.path === '/SwitchableOutput/{type}/State')).toBeDefined()
+  })
+
+  test('output-switch node exposes the heatpump service SwitchableOutput/State path', () => {
+    const result = systemConfig.getNodeServices('output-switch')
+    const heatpumpService = result.services.find(s => s.service.startsWith('com.victronenergy.heatpump'))
+    expect(heatpumpService).toBeDefined()
+    const statePath = heatpumpService.paths.find(p => p.path === '/SwitchableOutput/0/State')
+    expect(statePath).toBeDefined()
+  })
+
+  test('SwitchableOutput display name uses the CustomName, matching switch behaviour', () => {
+    const result = systemConfig.getNodeServices('output-switch')
+    const heatpumpService = result.services.find(s => s.service.startsWith('com.victronenergy.heatpump'))
+    const statePath = heatpumpService.paths.find(p => p.path === '/SwitchableOutput/0/State')
+    expect(statePath.name).toBe('Kelder - heating state')
+  })
+})

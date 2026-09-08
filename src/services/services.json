@@ -3577,6 +3577,18 @@
         "mode": "both"
       }
     ],
+    "heatpump": [
+      {
+        "path": "/SwitchableOutput/{type}/State",
+        "type": "enum",
+        "enum": {
+          "0": "Off",
+          "1": "On"
+        },
+        "name": "{type} state",
+        "mode": "both"
+      }
+    ],
     "communityTag": "switch"
   },
   "meteo": {
