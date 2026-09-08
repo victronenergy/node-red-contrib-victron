@@ -152,84 +152,163 @@ function generatePathDoc (pathObj, format) {
 }
 
 /**
+ * Normalize a D-Bus path's wildcard placeholders to a common token, e.g.
+ * /Relay/{relay}/State and /Relay/{output}/State both become /Relay/*\/State.
+ * Concrete numeric segments are left untouched: /Dc/0/Voltage and
+ * /Dc/1/Voltage are distinct properties, not the same shape.
+ */
+function normalizePathForDedup (dbusPath) {
+  return dbusPath.replace(/\{[^}]+\}/g, '*')
+}
+
+/**
+ * A wildcard path "covers" a concrete path if replacing the wildcard's
+ * placeholders with the concrete path's corresponding segments reproduces
+ * it exactly, e.g. /Relay/{relay}/State covers /Relay/0/State (and any
+ * other /Relay/<anything>/State) but not /Dc/0/Voltage.
+ */
+function wildcardCoversPath (wildcardPath, concretePath) {
+  const wildcardSegments = wildcardPath.split('/')
+  const concreteSegments = concretePath.split('/')
+  if (wildcardSegments.length !== concreteSegments.length) return false
+  return wildcardSegments.every((segment, i) =>
+    segment.startsWith('{') || segment === concreteSegments[i]
+  )
+}
+
+/**
+ * Merge path definitions from multiple service sub-categories into a single
+ * list, one entry per distinct D-Bus property.
+ *
+ * Sub-categories often redeclare the same property - e.g. switch/acload both
+ * define /SwitchableOutput/{type}/State, or relay's per-device categories
+ * all define /Relay/0/State under a different name - so the first
+ * declaration encountered wins. A concrete path already covered by a
+ * wildcard path (e.g. /Relay/0/State vs /Relay/{relay}/State) is dropped in
+ * favour of the wildcard, since it documents the property generically
+ * instead of tying it to one device. Concrete paths that only share a shape
+ * with each other (e.g. /Dc/0/Voltage vs /Dc/1/Voltage), with no wildcard
+ * declared for that shape, are distinct properties and both are kept.
+ */
+function dedupePathDocs (pathObjs) {
+  const firstByExactPath = []
+  const seenExactPaths = new Set()
+  for (const pathObj of pathObjs) {
+    if (seenExactPaths.has(pathObj.path)) continue
+    seenExactPaths.add(pathObj.path)
+    firstByExactPath.push(pathObj)
+  }
+
+  const wildcardsByShape = new Map()
+  for (const pathObj of firstByExactPath) {
+    if (!pathObj.path.includes('{')) continue
+    const shape = normalizePathForDedup(pathObj.path)
+    if (!wildcardsByShape.has(shape)) wildcardsByShape.set(shape, pathObj)
+  }
+
+  const result = []
+  const addedWildcardShapes = new Set()
+  for (const pathObj of firstByExactPath) {
+    if (pathObj.path.includes('{')) {
+      const shape = normalizePathForDedup(pathObj.path)
+      if (addedWildcardShapes.has(shape)) continue
+      addedWildcardShapes.add(shape)
+      result.push(pathObj)
+      continue
+    }
+
+    const coveringWildcard = Array.from(wildcardsByShape.values())
+      .find(wildcardObj => wildcardCoversPath(wildcardObj.path, pathObj.path))
+    if (coveringWildcard) {
+      console.warn(`service2doc: dropping "${pathObj.path}" (${pathObj.name}) from generated docs - covered by wildcard "${coveringWildcard.path}"`)
+      continue
+    }
+
+    result.push(pathObj)
+  }
+
+  return result
+}
+
+/**
  * Generate documentation for a service
  */
 function generateServiceDoc (serviceName, serviceData, registeredNodes, format, nodeTypeFilter) {
   const nodeTypes = nodeTypeFilter ? [nodeTypeFilter] : ['input', 'output']
   let doc = ''
 
-  // Process each service type within the service
-  Object.entries(serviceData).forEach(([serviceType, serviceTypeData]) => {
-    if (serviceType === 'help' || serviceType === 'communityTag') return // Skip help section and communityTag
+  // Merge path definitions from every sub-category (e.g. switch/acload/
+  // heatpump, or relay's per-device categories) into one list per node
+  // type, so each node type gets a single documentation block instead of
+  // one per sub-category.
+  const allPathObjs = Object.entries(serviceData)
+    .filter(([serviceType]) => serviceType !== 'help' && serviceType !== 'communityTag')
+    .flatMap(([, serviceTypeData]) => Array.isArray(serviceTypeData) ? serviceTypeData : [])
 
-    const paths = serviceTypeData || []
-    if (!Array.isArray(paths) || paths.length === 0) return
+  for (const nodeType of nodeTypes) {
+    const relevantPaths = dedupePathDocs(
+      allPathObjs.filter(pathObj => !pathObj.mode || pathObj.mode === 'both' || pathObj.mode === nodeType)
+    )
 
-    for (const nodeType of nodeTypes) {
-      const relevantPaths = paths.filter(pathObj =>
-        !pathObj.mode || pathObj.mode === 'both' || pathObj.mode === nodeType
-      )
+    if (relevantPaths.length === 0) continue
 
-      if (relevantPaths.length === 0) continue
+    // Check if the node is actually registered
+    const nodeSet = nodeType === 'input' ? registeredNodes.inputNodes : registeredNodes.outputNodes
+    if (!nodeSet.has(serviceName)) continue
 
-      // Check if the node is actually registered
-      const nodeSet = nodeType === 'input' ? registeredNodes.inputNodes : registeredNodes.outputNodes
-      if (!nodeSet.has(serviceName)) continue
+    const nodeName = `victron-${nodeType}-${serviceName}`
+    const title = serviceName === 'motordrive' ? 'E-drive' : serviceName.charAt(0).toUpperCase() + serviceName.slice(1)
 
-      const nodeName = `victron-${nodeType}-${serviceName}`
-      const title = serviceName === 'motordrive' ? 'E-drive' : serviceName.charAt(0).toUpperCase() + serviceName.slice(1)
+    if (format === 'md') {
+      doc += `\n## ${title} (${nodeType})\n`
 
-      if (format === 'md') {
-        doc += `\n## ${title} (${nodeType})\n`
-
-        if (hasWildcards(relevantPaths)) {
-          doc += generateWildcardExplanation(format)
-        }
-
-        // Add help text if available
-        const helpText = serviceData.help?.[nodeType] || serviceData.help?.both
-        if (helpText) {
-          // Strip HTML tags for markdown and clean up
-          const cleanHelp = helpText.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
-          if (cleanHelp) {
-            doc += `\n${cleanHelp}\n`
-          }
-        }
-
-        relevantPaths.forEach(pathObj => {
-          doc += '\n' + generatePathDoc(pathObj, format) + '\n'
-        })
-      } else {
-        doc += `\n<script type="text/x-red" data-help-name="${nodeName}">\n`
-        doc += '<h3>Details</h3>\n'
-
-        // Add standard details text
-        const nodeTypeText = nodeType === 'input' ? 'input' : 'output'
-        doc += `<p>The <strong>${nodeTypeText} nodes</strong> have two selectable inputs: the devices select and measurement select. `
-        doc += 'The available options are dynamically updated based on the data that is actually available on the Venus device.</p>\n'
-
-        if (hasWildcards(relevantPaths)) {
-          doc += generateWildcardExplanation(format)
-        }
-
-        // Add help text if available
-        const helpText = serviceData.help?.[nodeType] || serviceData.help?.both
-        if (helpText) {
-          doc += helpText + '\n'
-        }
-
-        doc += `<h3>${title}</h3>\n`
-        doc += '<dl class="message-properties">\n'
-
-        relevantPaths.forEach(pathObj => {
-          doc += generatePathDoc(pathObj, format)
-        })
-
-        doc += '</dl>\n'
-        doc += '</script>\n'
+      if (hasWildcards(relevantPaths)) {
+        doc += generateWildcardExplanation(format)
       }
+
+      // Add help text if available
+      const helpText = serviceData.help?.[nodeType] || serviceData.help?.both
+      if (helpText) {
+        // Strip HTML tags for markdown and clean up
+        const cleanHelp = helpText.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+        if (cleanHelp) {
+          doc += `\n${cleanHelp}\n`
+        }
+      }
+
+      relevantPaths.forEach(pathObj => {
+        doc += '\n' + generatePathDoc(pathObj, format) + '\n'
+      })
+    } else {
+      doc += `\n<script type="text/x-red" data-help-name="${nodeName}">\n`
+      doc += '<h3>Details</h3>\n'
+
+      // Add standard details text
+      const nodeTypeText = nodeType === 'input' ? 'input' : 'output'
+      doc += `<p>The <strong>${nodeTypeText} nodes</strong> have two selectable inputs: the devices select and measurement select. `
+      doc += 'The available options are dynamically updated based on the data that is actually available on the Venus device.</p>\n'
+
+      if (hasWildcards(relevantPaths)) {
+        doc += generateWildcardExplanation(format)
+      }
+
+      // Add help text if available
+      const helpText = serviceData.help?.[nodeType] || serviceData.help?.both
+      if (helpText) {
+        doc += helpText + '\n'
+      }
+
+      doc += `<h3>${title}</h3>\n`
+      doc += '<dl class="message-properties">\n'
+
+      relevantPaths.forEach(pathObj => {
+        doc += generatePathDoc(pathObj, format)
+      })
+
+      doc += '</dl>\n'
+      doc += '</script>\n'
     }
-  })
+  }
 
   return doc
 }
@@ -780,5 +859,6 @@ module.exports = {
   highlightWildcards,
   loadDeviceTypeModules,
   generateDeviceTypesTable,
-  generateSpecialNodesDoc
+  generateSpecialNodesDoc,
+  dedupePathDocs
 }
