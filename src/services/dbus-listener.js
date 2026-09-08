@@ -241,7 +241,7 @@ class VictronDbusListener {
           if (res) {
             const deviceInstance = res[1]?.[0]
             if (deviceInstance === undefined) {
-              console.error(`deviceInstance could not be assigned because res[1][0] is undefined owner=${owner} services[owner]=${JSON.stringify(this.services[owner])} (${this.services[owner].name})`)
+              console.error(`deviceInstance could not be assigned because res[1][0] is undefined owner=${owner} services[owner]=${JSON.stringify(this.services[owner])}`)
             }
             return resolve(deviceInstance)
           }
@@ -249,6 +249,13 @@ class VictronDbusListener {
         })
       }
     })
+
+    // the owner may have disconnected (NameOwnerChanged) while GetValue was in flight,
+    // in which case the entry was already removed from this.services
+    if (!this.services[owner]) {
+      console.warn(`initService ${name}, owner ${owner} was removed from services while GetValue was in flight, skipping`)
+      return
+    }
 
     this.services[owner].deviceInstance = deviceInstance
 
@@ -344,15 +351,15 @@ class VictronDbusListener {
           if (newOwner) {
             this._initService(newOwner, name)
             this.eventHandler('INITIALIZE', name)
-          }
-        } else {
-          const oldOwner = msg.body[1]
-          if (oldOwner && this.services[oldOwner]) {
-            const deviceInstanceSuffix = ('/' + (this.services[oldOwner].deviceInstance != null ? this.services[oldOwner].deviceInstance : '')).replace(/\.$/, '')
-            const svcName = this.services[oldOwner].name.split('.').splice(0, 3).join('.') + deviceInstanceSuffix
-            this.eventHandler('DELETE', this.services[oldOwner].name)
-            delete this.services[oldOwner]
-            this.eventHandler('DELETE', svcName)
+          } else {
+            const oldOwner = msg.body[1]
+            if (oldOwner && this.services[oldOwner]) {
+              const deviceInstanceSuffix = ('/' + (this.services[oldOwner].deviceInstance != null ? this.services[oldOwner].deviceInstance : '')).replace(/\.$/, '')
+              const svcName = this.services[oldOwner].name.split('.').splice(0, 3).join('.') + deviceInstanceSuffix
+              this.eventHandler('DELETE', this.services[oldOwner].name)
+              delete this.services[oldOwner]
+              this.eventHandler('DELETE', svcName)
+            }
           }
         }
       }

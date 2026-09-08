@@ -2,9 +2,9 @@ const { accumulateDelta } = require('../energy-utils')
 const { enableS2Support } = require('../s2-support')
 const { buildMinimalMeterProperties, initializeMinimalMeter } = require('./shared/minimal-meter')
 
-// Presents as a plain generic energy meter by default (see minimal-meter.js). Enabling S2
-// support is the only thing that adds extra paths (Position/PhaseSetting plus the S2 paths
-// themselves), promoting it to its own full heat pump device.
+// Presents as a plain generic energy meter by default (see minimal-meter.js). Position/PhaseSetting
+// are configurable regardless of S2 support; enabling S2 support additionally adds the S2 paths
+// themselves, promoting it to its own full heat pump device.
 function isFullDevice (config) {
   return !!config.enable_s2support
 }
@@ -12,7 +12,7 @@ function isFullDevice (config) {
 function properties (config) {
   const isFull = isFullDevice(config)
   return buildMinimalMeterProperties({
-    includePosition: isFull,
+    includePosition: true,
     isGenericEnergyMeter: !isFull
   })
 }
@@ -39,7 +39,7 @@ function initialize (config, ifaceDesc, iface, node) {
 
   initializeMinimalMeter(config, ifaceDesc, iface, {
     nrOfPhases: config.heatpump_nrofphases,
-    includePosition: isFull,
+    includePosition: true,
     position: config.heatpump_position,
     phaseSetting: config.heatpump_phasesetting
   })

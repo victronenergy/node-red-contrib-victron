@@ -51,6 +51,25 @@ describe('VictronDbusListener', () => {
       await listener._initService('the-dynamicess-owner', 'com.victronenergy.dynamicess')
       expect(listener.services['the-dynamicess-owner'].deviceInstance).toBe(null)
     })
+
+    test('does not throw when the service disconnects before GetValue resolves (regression)', async () => {
+      let invokeCallback
+      listener.bus = {
+        invoke: jest.fn((_params, callback) => {
+          invokeCallback = callback
+        })
+      }
+
+      const initPromise = listener._initService('the-owner', 'the-name')
+
+      // simulate NameOwnerChanged deleting the service while GetValue is still in flight
+      delete listener.services['the-owner']
+
+      invokeCallback(new Error('NoReply'), null)
+
+      await expect(initPromise).resolves.not.toThrow()
+      expect(listener.services['the-owner']).toBeUndefined()
+    })
   })
 
   describe('_requestRoot singleton service handling', () => {
@@ -120,6 +139,45 @@ describe('VictronDbusListener', () => {
       const service = { name: 'com.victronenergy.battery', deviceInstance: null }
       await listener._requestRoot(service)
       expect(service.deviceInstance).toBe(0)
+    })
+  })
+
+  describe('_signalRecieve NameOwnerChanged (service removal)', () => {
+    let eventHandler
+
+    beforeEach(() => {
+      eventHandler = jest.fn()
+      listener = new VictronDbusListener('the-address', { eventHandler })
+    })
+
+    test('a service losing its name owner fires a DELETE event and removes it from services', () => {
+      listener.services[':1.42'] = {
+        name: 'com.victronenergy.heatpump.shelly_D885AC1B38F4_0',
+        deviceInstance: 61
+      }
+
+      listener._signalRecieve({
+        interface: 'org.freedesktop.DBus',
+        member: 'NameOwnerChanged',
+        body: ['com.victronenergy.heatpump.shelly_D885AC1B38F4_0', ':1.42', '']
+      })
+
+      expect(eventHandler).toHaveBeenCalledWith('DELETE', 'com.victronenergy.heatpump.shelly_D885AC1B38F4_0')
+      expect(eventHandler).toHaveBeenCalledWith('DELETE', 'com.victronenergy.heatpump/61')
+      expect(listener.services[':1.42']).toBeUndefined()
+    })
+
+    test('a service gaining a name owner fires an INITIALIZE event', () => {
+      listener._initService = jest.fn()
+
+      listener._signalRecieve({
+        interface: 'org.freedesktop.DBus',
+        member: 'NameOwnerChanged',
+        body: ['com.victronenergy.heatpump.shelly_D885AC1B38F4_0', '', ':1.42']
+      })
+
+      expect(listener._initService).toHaveBeenCalledWith(':1.42', 'com.victronenergy.heatpump.shelly_D885AC1B38F4_0')
+      expect(eventHandler).toHaveBeenCalledWith('INITIALIZE', 'com.victronenergy.heatpump.shelly_D885AC1B38F4_0')
     })
   })
 })
