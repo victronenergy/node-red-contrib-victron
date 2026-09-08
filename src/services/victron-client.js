@@ -47,6 +47,9 @@ class VictronClient {
     const messageHandler = messages => {
       messages.forEach(msg => {
         _this.saveToCache(msg)
+        // saveToCache converts empty-array D-Bus nulls to null; skip null values here to be
+        // consistent with the PropertiesChanged and ItemsChanged filters in dbus-listener.js
+        if (msg.value === null) return
         const deviceInstanceSuffix = msg.deviceInstance == null ? '' : `/${msg.deviceInstance}`
         const msgKey = `${msg.senderName}${deviceInstanceSuffix}:${msg.path}`
         debug(`[MESSAGE HANDLER] ${msgKey} | ${JSON.stringify(msg, null, 2)}`)
