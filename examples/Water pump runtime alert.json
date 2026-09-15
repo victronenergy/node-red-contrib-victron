@@ -1,0 +1,134 @@
+[
+    {
+        "id": "pump-alert-comment",
+        "type": "comment",
+        "z": "6790bf584e10e175",
+        "name": "Example: Alert when the water pump runs too long",
+        "info": "Watches a relay driving a water pump. If it stays on for more than 5 minutes without switching off in between, an event is injected into the VRM portal Event logs tab so the long run shows up in the installation's history, not just in a Node-RED debug pane.",
+        "x": 230,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "pump-relay-input",
+        "type": "victron-input-switch",
+        "z": "6790bf584e10e175",
+        "outputs": 1,
+        "service": "com.victronenergy.switch/100",
+        "path": "/SwitchableOutput/output_1/State",
+        "serviceObj": {
+            "service": "com.victronenergy.switch/100",
+            "name": "Virtual pump",
+            "communityTag": "switch"
+        },
+        "pathObj": {
+            "path": "/SwitchableOutput/output_1/State",
+            "type": "enum",
+            "enum": {
+                "0": "Off",
+                "1": "On"
+            },
+            "name": "Pump state",
+            "mode": "both"
+        },
+        "name": "Pump relay",
+        "onlyChanges": true,
+        "conditionalMode": false,
+        "condition1HysteresisEnabled": false,
+        "condition1HysteresisThreshold": "",
+        "outputTrue": "",
+        "outputFalse": "",
+        "debounce": "",
+        "x": 110,
+        "y": 560,
+        "wires": [
+            [
+                "pump-runtime-tracker"
+            ]
+        ]
+    },
+    {
+        "id": "pump-runtime-tracker",
+        "type": "function",
+        "z": "6790bf584e10e175",
+        "name": "Track pump runtime",
+        "func": "const RUNTIME_LIMIT_MS = 5 * 60 * 1000;\nconst timer = context.get('timer');\n\nif (msg.payload === 1) {\n    if (!timer) {\n        context.set('timer', setTimeout(() => {\n            node.send({\n                payload: 'Water pump has been running for more than 5 minutes',\n                severity: 0,\n                app: 'pump-monitor'\n            });\n            context.set('timer', null);\n        }, RUNTIME_LIMIT_MS));\n    }\n} else if (timer) {\n    clearTimeout(timer);\n    context.set('timer', null);\n}\n\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "clearTimeout(context.get('timer'));",
+        "libs": [],
+        "x": 320,
+        "y": 560,
+        "wires": [
+            [
+                "pump-runtime-event"
+            ]
+        ]
+    },
+    {
+        "id": "pump-runtime-event",
+        "type": "victron-event",
+        "z": "6790bf584e10e175",
+        "name": "",
+        "severity": "0",
+        "app": "pump-monitor",
+        "x": 570,
+        "y": 560,
+        "wires": [
+            [
+                "pump-alert-debug"
+            ]
+        ]
+    },
+    {
+        "id": "pump-alert-debug",
+        "type": "debug",
+        "z": "6790bf584e10e175",
+        "name": "Event result",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "event",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 770,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "db27dbb24ceea684",
+        "type": "victron-virtual-switch",
+        "z": "6790bf584e10e175",
+        "name": "Virtual pump",
+        "outputs": 2,
+        "switch_1_type": 1,
+        "switch_1_initial": 0,
+        "switch_1_label": "",
+        "switch_1_customname": "Pump",
+        "switch_1_group": "Examples",
+        "switch_1_include_measurement": false,
+        "switch_1_rgb_color_wheel": false,
+        "switch_1_cct_wheel": false,
+        "switch_1_rgb_white_dimmer": false,
+        "switch_1_show_ui_input": 1,
+        "switch_1_passthrough_mode": "auto_only",
+        "x": 110,
+        "y": 500,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "18e10e1a946e7144",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "@victronenergy/node-red-contrib-victron": "1.7.27"
+        }
+    }
+]
