@@ -44,6 +44,82 @@ describe('Alternator /Mode control (Orion XS in Charger mode)', () => {
   })
 })
 
+describe('Opportunity Loads Mode control and priority list', () => {
+  let systemConfig
+
+  beforeEach(() => {
+    systemConfig = new SystemConfiguration()
+    systemConfig.cache = {
+      'com.victronenergy.opportunityloads': {
+        '/OperationalState': 1,
+        '/BatteryReservationState': 1,
+        '/BatteryReservation': 0,
+        '/AvailableServices': '[]',
+        '/DeviceInstance': 0
+      },
+      'com.victronenergy.platform': {
+        '/Services/OpportunityLoads/Mode': 1,
+        '/DeviceInstance': 0
+      }
+    }
+  })
+
+  test('/Services/OpportunityLoads/Mode has mode: both in services.json', () => {
+    const modePath = servicesJson.opportunityloads.platform.find(p => p.path === '/Services/OpportunityLoads/Mode')
+    expect(modePath).toBeDefined()
+    expect(modePath.mode).toBe('both')
+  })
+
+  test('output-opportunityloads node exposes /Services/OpportunityLoads/Mode for writing', () => {
+    const result = systemConfig.getNodeServices('output-opportunityloads')
+    const paths = result.services.flatMap(s => s.paths)
+    expect(paths.find(p => p.path === '/Services/OpportunityLoads/Mode')).toBeDefined()
+  })
+
+  test('input-opportunityloads node exposes /Services/OpportunityLoads/Mode for reading', () => {
+    const result = systemConfig.getNodeServices('input-opportunityloads')
+    const paths = result.services.flatMap(s => s.paths)
+    expect(paths.find(p => p.path === '/Services/OpportunityLoads/Mode')).toBeDefined()
+  })
+
+  test('output-opportunityloads is included in listAvailableServices', () => {
+    const services = systemConfig.listAvailableServices()
+    expect(services).toHaveProperty('output-opportunityloads')
+  })
+
+  test('/AvailableServices has mode: both in services.json', () => {
+    const path = servicesJson.opportunityloads.opportunityloads.find(p => p.path === '/AvailableServices')
+    expect(path).toBeDefined()
+    expect(path.mode).toBe('both')
+  })
+
+  test('output-opportunityloads node exposes /AvailableServices for writing', () => {
+    const result = systemConfig.getNodeServices('output-opportunityloads')
+    const paths = result.services.flatMap(s => s.paths)
+    expect(paths.find(p => p.path === '/AvailableServices')).toBeDefined()
+  })
+
+  test('input-opportunityloads node exposes /AvailableServices for reading', () => {
+    const result = systemConfig.getNodeServices('input-opportunityloads')
+    const paths = result.services.flatMap(s => s.paths)
+    expect(paths.find(p => p.path === '/AvailableServices')).toBeDefined()
+  })
+
+  test('/OperationalState and /BatteryReservationState are input-only (absent from output-opportunityloads)', () => {
+    const result = systemConfig.getNodeServices('output-opportunityloads')
+    const paths = result.services.flatMap(s => s.paths)
+    expect(paths.find(p => p.path === '/OperationalState')).toBeUndefined()
+    expect(paths.find(p => p.path === '/BatteryReservationState')).toBeUndefined()
+  })
+
+  test('input-opportunityloads node exposes /OperationalState and /BatteryReservationState for reading', () => {
+    const result = systemConfig.getNodeServices('input-opportunityloads')
+    const paths = result.services.flatMap(s => s.paths)
+    expect(paths.find(p => p.path === '/OperationalState')).toBeDefined()
+    expect(paths.find(p => p.path === '/BatteryReservationState')).toBeDefined()
+  })
+})
+
 describe('getNodeServices null value handling', () => {
   let systemConfig
   let originalServices

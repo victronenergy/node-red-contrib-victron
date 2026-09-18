@@ -4011,6 +4011,131 @@
     ],
     "communityTag": "multi"
   },
+  "opportunityloads": {
+    "help": {
+      "both": "<p>This node monitors and configures <a href=\"http://ve4.nl/ol\" target=\"_blank\">Opportunity Loads</a>, which automates controllable devices (batteries, EV chargers, AC loads) to maximize solar self-consumption using available surplus power. Opportunity Loads and Dynamic ESS cannot run at the same time - enabling one disables the other.</p><p>The load priority list (<code>/AvailableServices</code>) is a JSON array of <code>{controllable, deviceInstance, label, serviceType, uniqueIdentifier}</code> objects, in the order devices are handed solar surplus power.</p><p>Opportunity Loads is still under active development, so some values and behaviour may change between releases.</p>",
+      "input": "",
+      "output": " "
+    },
+    "opportunityloads": [
+      {
+        "path": "/OperationalState",
+        "type": "enum",
+        "name": "Operational state",
+        "enum": {
+          "0": "Disabled",
+          "1": "Active",
+          "2": "Sleep mode",
+          "3": "Off-grid paused",
+          "4": "Incompatible system",
+          "5": "Abnormal condition"
+        }
+      },
+      {
+        "path": "/BatteryReservationState",
+        "type": "enum",
+        "name": "Battery reservation state",
+        "enum": {
+          "1": "Ok",
+          "2": "Below start SOC",
+          "3": "BMS limited",
+          "4": "Dynamic ESS limited",
+          "5": "Solar keep-alive",
+          "6": "BatteryLife support active",
+          "99": "Error"
+        }
+      },
+      {
+        "path": "/BatteryReservation",
+        "type": "float",
+        "name": "Battery reservation (W)"
+      },
+      {
+        "path": "/AvailableServices",
+        "type": "string",
+        "name": "Load priority list (JSON)",
+        "mode": "both",
+        "remarks": "<p>JSON array of controllable loads in priority order: <code>[{controllable, deviceInstance, label, serviceType, uniqueIdentifier}, ...]</code>. Devices will be controlled in order, based on available solar surplus. Write a reordered array back to change priority.</p>"
+      },
+      {
+        "path": "/ReservationStartSoc",
+        "type": "float",
+        "name": "Activate following loads when battery reaches (%)",
+        "mode": "both",
+        "remarks": "<p>Below this SOC, battery charging can use all solar surplus power.</p>"
+      },
+      {
+        "path": "/ReservationBasePower",
+        "type": "float",
+        "name": "At or above reservation start SOC (W)",
+        "mode": "both",
+        "remarks": "<p>Power reserved for battery charging once SOC is at or above the reservation start SOC.</p>"
+      },
+      {
+        "path": "/ReservationEndPower",
+        "type": "float",
+        "name": "At 100% SOC (W)",
+        "mode": "both",
+        "remarks": "<p>From the reservation start SOC to 100%, the power reserved for battery charging is reduced gradually, making more power available for loads.</p>"
+      },
+      {
+        "path": "/NominalInverterUtilizationLimit",
+        "type": "float",
+        "name": "Nominal inverter utilisation limit (%)",
+        "mode": "both"
+      },
+      {
+        "path": "/PauseWhenOffgrid",
+        "type": "enum",
+        "name": "Pause if no AC input is connected",
+        "enum": {
+          "0": "No",
+          "1": "Yes"
+        },
+        "mode": "both"
+      },
+      {
+        "path": "/BatteryLifeSupport",
+        "type": "enum",
+        "name": "Pause after several days without full charge",
+        "enum": {
+          "0": "No",
+          "1": "Yes"
+        },
+        "mode": "both",
+        "remarks": "<p>Only applies when using Optimized with BatteryLife. Opportunity Loads automatically resumes after a full charge.</p>"
+      },
+      {
+        "path": "/BalancingThreshold",
+        "type": "float",
+        "name": "Balancing threshold (%)",
+        "mode": "both"
+      },
+      {
+        "path": "/DisableEvcsControl",
+        "type": "enum",
+        "name": "Disable EV charger control",
+        "enum": {
+          "0": "No",
+          "1": "Yes"
+        },
+        "mode": "both"
+      }
+    ],
+    "platform": [
+      {
+        "path": "/Services/OpportunityLoads/Mode",
+        "type": "enum",
+        "name": "Enabled",
+        "enum": {
+          "0": "Disabled",
+          "1": "Enabled"
+        },
+        "mode": "both",
+        "remarks": "<p>Opportunity Loads cannot be enabled while Dynamic ESS is running. Disable Dynamic ESS first.</p>"
+      }
+    ]
+  },
   "pulsemeter": {
     "help": {
       "both": "<p>This node is for obtaining information from a pulsemeter. In order to use this, set a digital input to <strong>Pulse meter</strong> first via the GUI (Under <i>I/O -> Digital inputs</i>).</p>",
