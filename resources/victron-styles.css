@@ -769,6 +769,63 @@
   color: #dc3545;
 }
 
+/* Path combobox */
+.victron-form .victron-path-container {
+  display: inline-block;
+  width: 240px;
+  vertical-align: top;
+  position: relative;
+}
+
+.victron-form .victron-combobox-input {
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+.victron-form .victron-combobox-list {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-top: none;
+  border-radius: 0 0 3px 3px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  z-index: 10001;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+.victron-form .victron-combobox-list li {
+  padding: 5px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  white-space: normal;
+  word-break: break-word;
+  border-bottom: 1px solid #eee;
+}
+
+.victron-form .victron-combobox-list li:last-child {
+  border-bottom: none;
+}
+
+.victron-form .victron-combobox-list li:hover,
+.victron-form .victron-combobox-list li.victron-combobox-active {
+  background: #4790d0;
+  color: #fff;
+}
+
+.victron-form .victron-combobox-list li.victron-combobox-no-results {
+  color: #999;
+  cursor: default;
+  font-style: italic;
+}
+
 /* Operator select - wider for descriptive labels */
 .victron-form .victron-operator-select {
   width: 240px !important;
