@@ -7,7 +7,7 @@ const debugConnection = require('debug')('victron-virtual-indicator:connection')
 const { DEBOUNCE_DELAY_MS } = require('./victron-virtual-constants')
 const { validateVirtualDevicePayload, debounce } = require('../services/utils')
 const { createIndicatorProperties, updateIndicatorStatus, expandIndicatorPayload, INDICATOR_INPUT_KEY } = require('../services/virtual-indicator')
-const { filterInactiveVirtualDevices } = require('../services/virtual-device-cleanup')
+const { filterInactiveVirtualDevices, getDeployedDbusIds } = require('../services/virtual-device-cleanup')
 const { sanitizeIdForDbus, getTcpBusAddress, callAddSettingsWithRetry, getDeviceInstance, registerInputHandler, flushPendingInputs, createDebouncedSetters } = require('./victron-virtual-dbus-helpers')
 
 function createClientCallback (err) {
@@ -269,7 +269,7 @@ module.exports = function (RED) {
                 usedBus.listNames((error, services) => resolve(error ? [] : (services || [])))
               })
 
-              const devicesToRemove = filterInactiveVirtualDevices(deviceEntries, activeServices)
+              const devicesToRemove = filterInactiveVirtualDevices(deviceEntries, activeServices, getDeployedDbusIds(RED))
               if (devicesToRemove.length > 0 && removeSettings) {
                 for (const device of devicesToRemove) {
                   try {
