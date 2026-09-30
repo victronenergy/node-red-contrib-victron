@@ -494,6 +494,21 @@ describe('generator', () => {
     })
   })
 
+  describe('property formats', () => {
+    const genset = generator.properties.genset({})
+    const dcgenset = generator.properties.dcgenset
+
+    test.each([['genset', genset], ['dcgenset', dcgenset]])('%s formats oil pressure in kPa', (_, props) => {
+      expect(props['Engine/OilPressure'].format(350.25)).toBe('350.3kPa')
+      expect(props['Engine/OilPressure'].format(null)).toBe('')
+    })
+
+    test.each([['genset', genset], ['dcgenset', dcgenset]])('%s formats operating hours in seconds', (_, props) => {
+      expect(props['Engine/OperatingHours'].format(3600)).toBe('3600s')
+      expect(props['Engine/OperatingHours'].format(null)).toBe('')
+    })
+  })
+
   describe('initialize', () => {
     test('AC 1-phase adds L1 properties and sets NrOfPhases', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
