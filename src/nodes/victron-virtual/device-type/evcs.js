@@ -1,12 +1,14 @@
 const { buildMinimalMeterProperties, initializeMinimalMeter } = require('./shared/minimal-meter')
 
 // Measurement-only, not a full EVSE simulator - always the minimal meter shape.
-const properties = buildMinimalMeterProperties({ includePosition: false })
+const properties = buildMinimalMeterProperties({ includePosition: true })
 
 function initialize (config, ifaceDesc, iface, node) {
   initializeMinimalMeter(config, ifaceDesc, iface, {
     nrOfPhases: config.evcs_nrofphases,
-    includePosition: false
+    includePosition: true,
+    position: config.evcs_position,
+    phaseSetting: config.evcs_phasesetting
   })
 
   return `Virtual ${iface.NrOfPhases}-phase EV charger`

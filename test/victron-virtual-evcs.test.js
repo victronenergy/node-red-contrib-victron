@@ -29,8 +29,10 @@ describe('evcs (EV charger) device module', () => {
     expect(evcs.productType({})).toBe('grid')
   })
 
-  test('properties omit Position/PhaseSetting', () => {
-    expect(evcs.properties.Position).toBeUndefined()
+  test('properties include Position with AC output/AC input formatting', () => {
+    expect(evcs.properties.Position).toBeDefined()
+    expect(evcs.properties.Position.format(0)).toBe('AC output')
+    expect(evcs.properties.Position.format(1)).toBe('AC input')
   })
 
   test('properties include the minimal generic meter fields', () => {
@@ -44,14 +46,37 @@ describe('evcs (EV charger) device module', () => {
     expect(ifaceDesc.properties['Ac/L1/Power']).toBeDefined()
     expect(ifaceDesc.properties['Ac/L2/Power']).toBeDefined()
     expect(ifaceDesc.properties['Ac/L3/Power']).toBeDefined()
-    expect(iface.Position).toBeUndefined()
+    expect(iface.PhaseSetting).toBeUndefined()
     expect(result).toBe('Virtual 3-phase EV charger')
+  })
+
+  test('initialize sets Position from config', () => {
+    const { ifaceDesc, iface, node } = makeFixtures()
+    evcs.initialize({ evcs_position: '1' }, ifaceDesc, iface, node)
+    expect(iface.Position).toBe(1)
+  })
+
+  // Nodes deployed before Position existed have no evcs_position; 0 (AC output) keeps their behavior.
+  test('initialize defaults Position to 0 (AC output) when not set', () => {
+    const { ifaceDesc, iface, node } = makeFixtures()
+    evcs.initialize({}, ifaceDesc, iface, node)
+    expect(iface.Position).toBe(0)
+  })
+
+  test('initialize uses the configured phase for a 1-phase config', () => {
+    const { ifaceDesc, iface, node } = makeFixtures()
+    evcs.initialize({ evcs_nrofphases: 1, evcs_phasesetting: '2' }, ifaceDesc, iface, node)
+    expect(iface.PhaseSetting).toBe(2)
+    expect(ifaceDesc.properties.PhaseSetting).toBeDefined()
+    expect(ifaceDesc.properties['Ac/L2/Power']).toBeDefined()
+    expect(ifaceDesc.properties['Ac/L1/Power']).toBeUndefined()
   })
 
   test('initialize defaults to 1 phase', () => {
     const { ifaceDesc, iface, node } = makeFixtures()
     evcs.initialize({}, ifaceDesc, iface, node)
     expect(iface.NrOfPhases).toBe(1)
+    expect(iface.PhaseSetting).toBe(1)
     expect(ifaceDesc.properties['Ac/L1/Power']).toBeDefined()
     expect(ifaceDesc.properties['Ac/L2/Power']).toBeUndefined()
   })

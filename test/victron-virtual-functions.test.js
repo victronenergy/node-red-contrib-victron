@@ -367,6 +367,62 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       expect(mockPositionRow.show).toHaveBeenCalled()
     })
 
+    test('shows evcs Position row and PhaseSetting row for a 1-phase config', () => {
+      const mockNrOfPhasesSelect = createMockElement({ val: '1' })
+      const mockPhaseSettingRow = createMockElement()
+      const mockPositionRow = createMockElement()
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'evcs' })
+        }
+        if (selector === '#node-input-evcs_nrofphases') {
+          return mockNrOfPhasesSelect
+        }
+        if (selector === '#evcs-phasesetting-row') {
+          return mockPhaseSettingRow
+        }
+        if (selector === '#node-input-evcs_position') {
+          return mockPositionRow
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(mockPositionRow.show).toHaveBeenCalled()
+      expect(mockNrOfPhasesSelect.on).toHaveBeenCalledWith('change.phasesetting', expect.any(Function))
+      expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(true)
+    })
+
+    test('hides evcs PhaseSetting row for a 3-phase config', () => {
+      const mockNrOfPhasesSelect = createMockElement({ val: '3' })
+      const mockPhaseSettingRow = createMockElement()
+
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') {
+          return createMockElement({ val: 'evcs' })
+        }
+        if (selector === '#node-input-evcs_nrofphases') {
+          return mockNrOfPhasesSelect
+        }
+        if (selector === '#evcs-phasesetting-row') {
+          return mockPhaseSettingRow
+        }
+        if (selector.startsWith('.input-')) {
+          return createMockElement()
+        }
+        return createMockElement()
+      })
+
+      checkSelectedVirtualDevice()
+
+      expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(false)
+    })
+
     test('locks S2 Measurement to the matching single phase for a 1-phase config, overriding any prior selection', () => {
       const mockNrOfPhasesSelect = createMockElement({ val: '1' })
       const mockPhaseSettingSelect = createMockElement({ val: '2' })
