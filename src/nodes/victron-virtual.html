@@ -22,7 +22,9 @@
             heatpump_phasesetting: {value: 1, required: false},
             heatpump_auto_energy: {value: true, required: false},
             // evcs
+            evcs_position: {value: 0, required: false},
             evcs_nrofphases: {value: 1, required: false},
+            evcs_phasesetting: {value: 1, required: false},
             // battery
             battery_capacity: {value: 25, required: false},
             include_battery_temperature: {value: false},
@@ -359,11 +361,26 @@
         </div>
         <div class="input-evcs">
             <div class="form-row">
+                <label for="node-input-evcs_position"><i class="fa fa-sliders"></i> Position</label>
+                <select id="node-input-evcs_position">
+                    <option value="0">AC output</option>
+                    <option value="1">AC input</option>
+                </select>
+            </div>
+            <div class="form-row">
                 <label for="node-input-evcs_nrofphases"><i class="fa fa-plug"></i> Nr of phases</label>
                 <select id="node-input-evcs_nrofphases">
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
+                </select>
+            </div>
+            <div class="form-row" id="evcs-phasesetting-row">
+                <label for="node-input-evcs_phasesetting"><i class="fa fa-plug"></i> Phase</label>
+                <select id="node-input-evcs_phasesetting">
+                    <option value="1">L1</option>
+                    <option value="2">L2</option>
+                    <option value="3">L3</option>
                 </select>
             </div>
         </div>
@@ -826,9 +843,12 @@ lead to issues related with stability.
 
 ### EV charger
 
-The EV charger device is measurement-only - it does not simulate a full EVSE
-(no charging session or connector state), with just the number of phases to
-configure. It registers as com.victronenergy.evcharger on D-Bus.
+The EV charger device is measurement-only. It does not simulate a full EVSE
+(no charging session or connector state). Configure its position (AC output or
+AC input), the number of phases and, for a single phase charger, which phase it
+is wired to. The position can also be set from the flow, e.g.
+`msg.payload = {"/Position": 1}`. It registers as com.victronenergy.evcharger
+on D-Bus.
 
 ### Heat pump
 

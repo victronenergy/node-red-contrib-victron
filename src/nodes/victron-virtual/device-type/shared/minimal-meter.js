@@ -3,7 +3,7 @@ const ENERGY_PERSIST_SECONDS = 60
 // Generic "minimal meter" D-Bus shape (see
 // https://github.com/victronenergy/venus/wiki/dbus#grid-and-genset-and-acload-and-heatpump-meter -
 // Ac/Frequency is missing there, a gap in that page). Position/PhaseSetting are valid for
-// acload and heatpump only - callers opt in via `includePosition`.
+// acload, heatpump and evcharger only - callers opt in via `includePosition`.
 const sharedProperties = {
   'Ac/Energy/Forward': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', persist: ENERGY_PERSIST_SECONDS },
   'Ac/Energy/Reverse': { type: 'd', format: (v) => v != null ? v.toFixed(2) + 'kWh' : '', persist: ENERGY_PERSIST_SECONDS },

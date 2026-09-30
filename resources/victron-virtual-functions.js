@@ -1417,6 +1417,7 @@
           <li><code>/Ac/{line}/Current</code> &mdash; Current per phase in amperes.</li>
           <li><code>/Ac/{line}/Energy/Forward</code> &mdash; Energy consumed per phase in kWh.</li>
           <li><code>/Ac/Frequency</code> &mdash; AC frequency in Hz.</li>
+          <li><code>/Position</code>: 0 = AC output, 1 = AC input.</li>
         </ul>
         <p>Measurement-only - does not simulate a full EVSE (no charging session or connector state). Registers as <code>com.victronenergy.evcharger</code>.</p>
         <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
@@ -1899,8 +1900,8 @@
 	}
 
 	// Keeps Position/Phase and the S2 Measurement dropdown consistent with the device's actual
-	// configuration for acload/heatpump: Position (and, for a 1-phase config, which phase it's
-	// wired to) is configurable regardless of S2 support - see acload.js/heatpump.js. The S2
+	// configuration for acload/heatpump/evcs: Position (and, for a 1-phase config, which phase it's
+	// wired to) is configurable regardless of S2 support - see acload.js/heatpump.js/evcs.js. The S2
 	// Measurement dropdown mirrors Number of phases/Phase so that info doesn't need
 	// re-confirming: a 1-phase config is locked to the single matching phase, a 3-phase config
 	// offers only "3-phase symmetric"/"Per phase" (no single-phase reading applies), split phase
@@ -2013,7 +2014,7 @@
 	    $('#pulsemeter-multiplier-row').toggle($('#node-input-auto_aggregate').is(':checked'));
 	  }
 
-	  if (selected === 'acload' || selected === 'heatpump') {
+	  if (selected === 'acload' || selected === 'heatpump' || selected === 'evcs') {
 	    updatePhaseSettingVisibility(selected);
 	  }
 
