@@ -1,4 +1,5 @@
 const debug = require('debug')('victron-virtual-device-cleanup')
+const { sanitizeIdForDbus } = require('../nodes/victron-virtual-dbus-helpers')
 
 /**
  * Filters a list of virtual devices to identify those that are inactive
@@ -9,9 +10,13 @@ const debug = require('debug')('victron-virtual-device-cleanup')
  *   Each entry is `['{devicePath}/ClassAndVrmInstance', [tree, ['deviceType:instance']]]`
  *   where tree is the dbus-native parsed signature object (e.g. {type:'s'}).
  * @param {Array<string>} activeServices - A list of currently active DBus service names.
+ * @param {Set<string>} [deployedIds] - D-Bus-sanitized ids of the nodes in the deployed flows
+ *   (see getDeployedDbusIds). An entry whose node is still deployed is kept even when its
+ *   service is not on DBus, e.g. because its flow is disabled - removing it would let the
+ *   device come back with a different VRM instance.
  * @returns {Array<string>} An array of `devicePath` strings for devices that should be removed.
  */
-function filterInactiveVirtualDevices (deviceEntries, activeServices) {
+function filterInactiveVirtualDevices (deviceEntries, activeServices, deployedIds) {
   debug('Filtering inactive virtual devices')
   return deviceEntries
     .filter(entry => {
@@ -22,6 +27,14 @@ function filterInactiveVirtualDevices (deviceEntries, activeServices) {
     })
     .map(entry => entry[0].split('/')[0]) // Extract device path prefix, e.g. 'virtual_{nodeId}' or 'vindic_{nodeId}'
     .filter((devicePath, index, self) => self.indexOf(devicePath) === index) // Unique devicePaths
+    .filter(devicePath => {
+      const nodeId = devicePath.replace(/^(virtual|vindic)_/, '')
+      if (deployedIds && deployedIds.has(nodeId)) {
+        debug(`Node for device ${devicePath} is still deployed, will not remove`)
+        return false
+      }
+      return true
+    })
     .filter(devicePath => {
       // Find the corresponding deviceEntry to get the deviceType
       // Note: deviceEntries paths are relative to /Settings/Devices/
@@ -68,6 +81,20 @@ function filterInactiveVirtualDevices (deviceEntries, activeServices) {
     })
 }
 
+/**
+ * Returns the D-Bus-sanitized ids of all nodes in Node-RED's deployed flow configuration,
+ * including nodes on disabled flows, which are not running and so have no service on DBus.
+ *
+ * @param {object} RED - The Node-RED runtime API.
+ * @returns {Set<string>}
+ */
+function getDeployedDbusIds (RED) {
+  const ids = new Set()
+  RED.nodes.eachNode(node => ids.add(sanitizeIdForDbus(node.id)))
+  return ids
+}
+
 module.exports = {
-  filterInactiveVirtualDevices
+  filterInactiveVirtualDevices,
+  getDeployedDbusIds
 }

@@ -11,7 +11,7 @@ const {
 } = require('../victron-virtual-constants')
 const { validateVirtualDevicePayload, validateLightControls, debounce } = require('../../services/utils')
 const { handleSwitchOutputs } = require('../../services/virtual-switch')
-const { filterInactiveVirtualDevices } = require('../../services/virtual-device-cleanup')
+const { filterInactiveVirtualDevices, getDeployedDbusIds } = require('../../services/virtual-device-cleanup')
 const { makeSetPresence } = require('./helpers')
 const { sanitizeIdForDbus, registerInputHandler, flushPendingInputs, createDebouncedSetters } = require('../victron-virtual-dbus-helpers')
 
@@ -840,7 +840,7 @@ module.exports = function (RED) {
               debug('Active DBus services:', activeServices)
 
               // Only remove devices that are not active on DBus
-              const devicesToRemove = filterInactiveVirtualDevices(deviceEntries, activeServices)
+              const devicesToRemove = filterInactiveVirtualDevices(deviceEntries, activeServices, getDeployedDbusIds(RED))
 
               debug('Virtual devices to remove (no active nodes):', devicesToRemove)
 

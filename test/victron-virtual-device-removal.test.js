@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
 const { describe, it, expect } = require('@jest/globals')
-const { filterInactiveVirtualDevices } = require('../src/services/virtual-device-cleanup')
+const { filterInactiveVirtualDevices, getDeployedDbusIds } = require('../src/services/virtual-device-cleanup')
 
 // deviceEntries reflect the actual dbus-native-victron wire format returned by GetValue on
 // /Settings/Devices. Paths are relative to that path, and each value is a dbus-native variant:
@@ -180,5 +180,38 @@ describe('Virtual Device Removal Logic', () => {
 
     // Only virtual_node1 matches the virtual_ filter; adc entries are ignored
     expect(devicesToRemove).toEqual(['virtual_node1'])
+  })
+})
+
+describe('Virtual Device Removal Logic - deployed nodes', () => {
+  it('should not remove inactive entries whose node is still in the deployed flows (e.g. on a disabled flow)', () => {
+    const deviceEntries = [
+      ['virtual_disabled1/ClassAndVrmInstance', [{ type: 's' }, ['switch:10']]],
+      ['vindic_disabled2/ClassAndVrmInstance', [{ type: 's' }, ['switch:20']]],
+      ['virtual_deleted3/ClassAndVrmInstance', [{ type: 's' }, ['switch:30']]]
+    ]
+    const activeServices = []
+    const deployedIds = new Set(['disabled1', 'disabled2'])
+
+    const devicesToRemove = filterInactiveVirtualDevices(deviceEntries, activeServices, deployedIds)
+
+    expect(devicesToRemove).toEqual(['virtual_deleted3'])
+  })
+
+  it('should behave as before when no deployed ids are passed', () => {
+    const deviceEntries = [
+      ['virtual_node1/ClassAndVrmInstance', [{ type: 's' }, ['switch:10']]]
+    ]
+
+    expect(filterInactiveVirtualDevices(deviceEntries, [])).toEqual(['virtual_node1'])
+  })
+})
+
+describe('getDeployedDbusIds', () => {
+  it('returns the D-Bus-sanitized id of every node Node-RED reports', () => {
+    const nodes = [{ id: 'abc123' }, { id: 'legacy.id' }]
+    const RED = { nodes: { eachNode: (cb) => nodes.forEach(cb) } }
+
+    expect(getDeployedDbusIds(RED)).toEqual(new Set(['abc123', 'legacy_id']))
   })
 })
