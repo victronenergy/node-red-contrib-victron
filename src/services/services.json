@@ -443,6 +443,28 @@
         "name": "Input power (W DC)"
       },
       {
+        "path": "/EmergencyCharge/BlockedCountdown",
+        "type": "integer",
+        "name": "Emergency charge blocked countdown (s)"
+      },
+      {
+        "path": "/EmergencyCharge/ChargingCountdown",
+        "type": "integer",
+        "name": "Emergency charge remaining time (s)"
+      },
+      {
+        "path": "/EmergencyCharge/Control",
+        "type": "enum",
+        "name": "Emergency charge",
+        "mode": "both",
+        "remarks": "<p>Write 3 to start an emergency charge cycle, write 0 or 2 to stop it. The value stays 3 while a new cycle is blocked after a finished one (see Emergency charge blocked countdown).</p>",
+        "enum": {
+          "0": "Not possible",
+          "2": "Possible, not started",
+          "3": "Started"
+        }
+      },
+      {
         "path": "/Engine/Speed",
         "type": "float",
         "name": "Engine speed (RPM)"
@@ -519,6 +541,8 @@
           "6": "Storage",
           "7": "Equalize",
           "11": "Psu",
+          "242": "Reverse charging blocked",
+          "243": "Reverse charging",
           "252": "External control"
         }
       }
@@ -1288,6 +1312,28 @@
         "name": "/Dc/In/P (W)"
       },
       {
+        "path": "/EmergencyCharge/BlockedCountdown",
+        "type": "integer",
+        "name": "Emergency charge blocked countdown (s)"
+      },
+      {
+        "path": "/EmergencyCharge/ChargingCountdown",
+        "type": "integer",
+        "name": "Emergency charge remaining time (s)"
+      },
+      {
+        "path": "/EmergencyCharge/Control",
+        "type": "enum",
+        "name": "Emergency charge",
+        "mode": "both",
+        "remarks": "<p>Write 3 to start an emergency charge cycle, write 0 or 2 to stop it. The value stays 3 while a new cycle is blocked after a finished one (see Emergency charge blocked countdown).</p>",
+        "enum": {
+          "0": "Not possible",
+          "2": "Possible, not started",
+          "3": "Started"
+        }
+      },
+      {
         "path": "/ErrorCode",
         "type": "enum",
         "name": "/ErrorCode",
@@ -1347,7 +1393,9 @@
           "4": "Absorption",
           "5": "Float",
           "6": "Storage",
-          "7": "Equalize"
+          "7": "Equalize",
+          "242": "Reverse charging blocked",
+          "243": "Reverse charging"
         }
       }
     ],
