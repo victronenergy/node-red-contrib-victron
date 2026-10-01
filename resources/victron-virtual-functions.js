@@ -1175,7 +1175,7 @@
           <li><code>/Ac/{phase}/Voltage</code> &mdash; Voltage per phase in volts.</li>
           <li><code>/Ac/{phase}/Current</code> &mdash; Current per phase in amperes.</li>
           <li><code>/Ac/Frequency</code> &mdash; AC frequency in Hz.</li>
-          <li><code>/Engine/OperatingHours</code> &mdash; Engine operating hours (if enabled).</li>
+          <li><code>/Engine/OperatingHours</code> &mdash; Engine operating time in seconds (if enabled).</li>
           <li><code>/StarterVoltage</code> &mdash; Starter battery voltage in volts (if enabled).</li>
         </ul>
         <p><em>DC Generator (dcgenset):</em></p>
@@ -1360,7 +1360,7 @@
           <li><code>/Temperature</code> &mdash; Temperature in °C.</li>
           <li><code>/TemperatureType</code> &mdash; Sensor type: <code>0</code> = Battery, <code>1</code> = Fridge, <code>2</code> = Generic, <code>3</code> = Room, <code>4</code> = Outdoor, <code>5</code> = Water heater, <code>6</code> = Freezer.</li>
           <li><code>/Humidity</code> &mdash; Humidity as a percentage (if enabled).</li>
-          <li><code>/Pressure</code> &mdash; Atmospheric pressure in kPa (if enabled).</li>
+          <li><code>/Pressure</code> &mdash; Atmospheric pressure in hPa (if enabled).</li>
           <li><code>/BatteryVoltage</code> &mdash; Sensor battery voltage in volts (if enabled).</li>
         </ul>
         <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>

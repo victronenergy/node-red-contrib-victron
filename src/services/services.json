@@ -2978,12 +2978,12 @@
       {
         "path": "/Engine/OperatingHours",
         "type": "float",
-        "name": "Engine oil temperature (Seconds)"
+        "name": "Engine operating hours (s)"
       },
       {
         "path": "/Engine/Speed",
         "type": "float",
-        "name": "Heatsink temperature (RPM)"
+        "name": "Engine speed (RPM)"
       },
       {
         "path": "/Engine/WindingTemperature",
@@ -5140,7 +5140,7 @@
       {
         "path": "/Pressure",
         "type": "float",
-        "name": "Pressure (kPa)"
+        "name": "Pressure (hPa)"
       },
       {
         "path": "/ProductId",
