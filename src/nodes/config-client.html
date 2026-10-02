@@ -743,6 +743,19 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">Input power (W DC)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Dc/In/P</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">Emergency charge blocked countdown (s)<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/EmergencyCharge/BlockedCountdown</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Emergency charge remaining time (s)<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/EmergencyCharge/ChargingCountdown</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Emergency charge<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/EmergencyCharge/Control</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>0 - Not possible</li>
+  <li>2 - Possible, not started</li>
+  <li>3 - Started</li>
+</ul><p>Write 3 to start an emergency charge cycle, write 0 or 2 to stop it. The value stays 3 while a new cycle is blocked after a finished one (see Emergency charge blocked countdown).</p></dd>
   <dt class="optional">Engine speed (RPM)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Engine/Speed</b><span class="property-mode"></span>
 </dd>
@@ -801,6 +814,8 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>6 - Storage</li>
   <li>7 - Equalize</li>
   <li>11 - Psu</li>
+  <li>242 - Reverse charging blocked</li>
+  <li>243 - Reverse charging</li>
   <li>252 - External control</li>
 </ul></dd>
 </dl>
@@ -882,6 +897,19 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">Input power (W DC)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Dc/In/P</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">Emergency charge blocked countdown (s)<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/EmergencyCharge/BlockedCountdown</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Emergency charge remaining time (s)<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/EmergencyCharge/ChargingCountdown</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Emergency charge<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/EmergencyCharge/Control</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>0 - Not possible</li>
+  <li>2 - Possible, not started</li>
+  <li>3 - Started</li>
+</ul><p>Write 3 to start an emergency charge cycle, write 0 or 2 to stop it. The value stays 3 while a new cycle is blocked after a finished one (see Emergency charge blocked countdown).</p></dd>
   <dt class="optional">Engine speed (RPM)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Engine/Speed</b><span class="property-mode"></span>
 </dd>
@@ -940,6 +968,8 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>6 - Storage</li>
   <li>7 - Equalize</li>
   <li>11 - Psu</li>
+  <li>242 - Reverse charging blocked</li>
+  <li>243 - Reverse charging</li>
   <li>252 - External control</li>
 </ul></dd>
 </dl>
@@ -1992,6 +2022,19 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">/Dc/In/P (W)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Dc/In/P</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">Emergency charge blocked countdown (s)<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/EmergencyCharge/BlockedCountdown</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Emergency charge remaining time (s)<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/EmergencyCharge/ChargingCountdown</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Emergency charge<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/EmergencyCharge/Control</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>0 - Not possible</li>
+  <li>2 - Possible, not started</li>
+  <li>3 - Started</li>
+</ul><p>Write 3 to start an emergency charge cycle, write 0 or 2 to stop it. The value stays 3 while a new cycle is blocked after a finished one (see Emergency charge blocked countdown).</p></dd>
   <dt class="optional">/ErrorCode<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/ErrorCode</b><span class="property-mode"></span>
 <ul>
@@ -2038,6 +2081,8 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>5 - Float</li>
   <li>6 - Storage</li>
   <li>7 - Equalize</li>
+  <li>242 - Reverse charging blocked</li>
+  <li>243 - Reverse charging</li>
 </ul></dd>
 </dl>
 </script>
@@ -2063,6 +2108,19 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <dt class="optional">/Dc/In/P (W)<span class="property-type">float</span></dt>
   <dd>Dbus path: <b>/Dc/In/P</b><span class="property-mode"></span>
 </dd>
+  <dt class="optional">Emergency charge blocked countdown (s)<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/EmergencyCharge/BlockedCountdown</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Emergency charge remaining time (s)<span class="property-type">integer</span></dt>
+  <dd>Dbus path: <b>/EmergencyCharge/ChargingCountdown</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Emergency charge<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/EmergencyCharge/Control</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>0 - Not possible</li>
+  <li>2 - Possible, not started</li>
+  <li>3 - Started</li>
+</ul><p>Write 3 to start an emergency charge cycle, write 0 or 2 to stop it. The value stays 3 while a new cycle is blocked after a finished one (see Emergency charge blocked countdown).</p></dd>
   <dt class="optional">/ErrorCode<span class="property-type">enum</span></dt>
   <dd>Dbus path: <b>/ErrorCode</b><span class="property-mode"></span>
 <ul>
@@ -2109,6 +2167,8 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>5 - Float</li>
   <li>6 - Storage</li>
   <li>7 - Equalize</li>
+  <li>242 - Reverse charging blocked</li>
+  <li>243 - Reverse charging</li>
 </ul></dd>
 </dl>
 </script>
