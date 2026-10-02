@@ -4957,6 +4957,156 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 </dl>
 </script>
 
+<script type="text/x-red" data-help-name="victron-input-opportunityloads">
+<h3>Details</h3>
+<p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>This node monitors and configures <a href="http://ve4.nl/ol" target="_blank">Opportunity Loads</a>, which automates controllable devices (batteries, EV chargers, AC loads) to maximize solar self-consumption using available surplus power. Opportunity Loads and Dynamic ESS cannot run at the same time - enabling one disables the other.</p><p>The load priority list (<code>/AvailableServices</code>) is a JSON array of <code>{controllable, deviceInstance, label, serviceType, uniqueIdentifier}</code> objects, in the order devices are handed solar surplus power.</p><p>Opportunity Loads is still under active development, so some values and behaviour may change between releases.</p>
+<h3>Opportunityloads</h3>
+<dl class="message-properties">
+  <dt class="optional">Operational state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/OperationalState</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Active</li>
+  <li>2 - Sleep mode</li>
+  <li>3 - Off-grid paused</li>
+  <li>4 - Incompatible system</li>
+  <li>5 - Abnormal condition</li>
+</ul></dd>
+  <dt class="optional">Battery reservation state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/BatteryReservationState</b><span class="property-mode"></span>
+<ul>
+  <li>1 - Ok</li>
+  <li>2 - Below start SOC</li>
+  <li>3 - BMS limited</li>
+  <li>4 - Dynamic ESS limited</li>
+  <li>5 - Solar keep-alive</li>
+  <li>6 - BatteryLife support active</li>
+  <li>99 - Error</li>
+</ul></dd>
+  <dt class="optional">Battery reservation (W)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/BatteryReservation</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Load priority list (JSON)<span class="property-type">string</span></dt>
+  <dd>Dbus path: <b>/AvailableServices</b><span class="property-mode"> (Mode: both)</span>
+<p>JSON array of controllable loads in priority order: <code>[{controllable, deviceInstance, label, serviceType, uniqueIdentifier}, ...]</code>. Devices will be controlled in order, based on available solar surplus. Write a reordered array back to change priority.</p></dd>
+  <dt class="optional">Activate following loads when battery reaches (%)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/ReservationStartSoc</b><span class="property-mode"> (Mode: both)</span>
+<p>Below this SOC, battery charging can use all solar surplus power.</p></dd>
+  <dt class="optional">At or above reservation start SOC (W)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/ReservationBasePower</b><span class="property-mode"> (Mode: both)</span>
+<p>Power reserved for battery charging once SOC is at or above the reservation start SOC.</p></dd>
+  <dt class="optional">At 100% SOC (W)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/ReservationEndPower</b><span class="property-mode"> (Mode: both)</span>
+<p>From the reservation start SOC to 100%, the power reserved for battery charging is reduced gradually, making more power available for loads.</p></dd>
+  <dt class="optional">Nominal inverter utilisation limit (%)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/NominalInverterUtilizationLimit</b><span class="property-mode"> (Mode: both)</span>
+</dd>
+  <dt class="optional">Pause if no AC input is connected<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/PauseWhenOffgrid</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>0 - No</li>
+  <li>1 - Yes</li>
+</ul></dd>
+  <dt class="optional">Pause after several days without full charge<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/BatteryLifeSupport</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>0 - No</li>
+  <li>1 - Yes</li>
+</ul><p>Only applies when using Optimized with BatteryLife. Opportunity Loads automatically resumes after a full charge.</p></dd>
+  <dt class="optional">Balancing threshold (%)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/BalancingThreshold</b><span class="property-mode"> (Mode: both)</span>
+</dd>
+  <dt class="optional">Disable EV charger control<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/DisableEvcsControl</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>0 - No</li>
+  <li>1 - Yes</li>
+</ul></dd>
+  <dt class="optional">Enabled<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Services/OpportunityLoads/Mode</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
+</ul><p>Opportunity Loads cannot be enabled while Dynamic ESS is running. Disable Dynamic ESS first.</p></dd>
+</dl>
+</script>
+
+<script type="text/x-red" data-help-name="victron-output-opportunityloads">
+<h3>Details</h3>
+<p>The <strong>output nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+ 
+<h3>Opportunityloads</h3>
+<dl class="message-properties">
+  <dt class="optional">Operational state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/OperationalState</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Active</li>
+  <li>2 - Sleep mode</li>
+  <li>3 - Off-grid paused</li>
+  <li>4 - Incompatible system</li>
+  <li>5 - Abnormal condition</li>
+</ul></dd>
+  <dt class="optional">Battery reservation state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/BatteryReservationState</b><span class="property-mode"></span>
+<ul>
+  <li>1 - Ok</li>
+  <li>2 - Below start SOC</li>
+  <li>3 - BMS limited</li>
+  <li>4 - Dynamic ESS limited</li>
+  <li>5 - Solar keep-alive</li>
+  <li>6 - BatteryLife support active</li>
+  <li>99 - Error</li>
+</ul></dd>
+  <dt class="optional">Battery reservation (W)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/BatteryReservation</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional">Load priority list (JSON)<span class="property-type">string</span></dt>
+  <dd>Dbus path: <b>/AvailableServices</b><span class="property-mode"> (Mode: both)</span>
+<p>JSON array of controllable loads in priority order: <code>[{controllable, deviceInstance, label, serviceType, uniqueIdentifier}, ...]</code>. Devices will be controlled in order, based on available solar surplus. Write a reordered array back to change priority.</p></dd>
+  <dt class="optional">Activate following loads when battery reaches (%)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/ReservationStartSoc</b><span class="property-mode"> (Mode: both)</span>
+<p>Below this SOC, battery charging can use all solar surplus power.</p></dd>
+  <dt class="optional">At or above reservation start SOC (W)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/ReservationBasePower</b><span class="property-mode"> (Mode: both)</span>
+<p>Power reserved for battery charging once SOC is at or above the reservation start SOC.</p></dd>
+  <dt class="optional">At 100% SOC (W)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/ReservationEndPower</b><span class="property-mode"> (Mode: both)</span>
+<p>From the reservation start SOC to 100%, the power reserved for battery charging is reduced gradually, making more power available for loads.</p></dd>
+  <dt class="optional">Nominal inverter utilisation limit (%)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/NominalInverterUtilizationLimit</b><span class="property-mode"> (Mode: both)</span>
+</dd>
+  <dt class="optional">Pause if no AC input is connected<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/PauseWhenOffgrid</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>0 - No</li>
+  <li>1 - Yes</li>
+</ul></dd>
+  <dt class="optional">Pause after several days without full charge<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/BatteryLifeSupport</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>0 - No</li>
+  <li>1 - Yes</li>
+</ul><p>Only applies when using Optimized with BatteryLife. Opportunity Loads automatically resumes after a full charge.</p></dd>
+  <dt class="optional">Balancing threshold (%)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/BalancingThreshold</b><span class="property-mode"> (Mode: both)</span>
+</dd>
+  <dt class="optional">Disable EV charger control<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/DisableEvcsControl</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>0 - No</li>
+  <li>1 - Yes</li>
+</ul></dd>
+  <dt class="optional">Enabled<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/Services/OpportunityLoads/Mode</b><span class="property-mode"> (Mode: both)</span>
+<ul>
+  <li>0 - Disabled</li>
+  <li>1 - Enabled</li>
+</ul><p>Opportunity Loads cannot be enabled while Dynamic ESS is running. Disable Dynamic ESS first.</p></dd>
+</dl>
+</script>
+
 <script type="text/x-red" data-help-name="victron-input-pulsemeter">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>

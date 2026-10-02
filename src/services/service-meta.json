@@ -70,6 +70,9 @@
     "multi": {
       "label": "Multi RS"
     },
+    "opportunityloads": {
+      "label": "Opportunity Loads"
+    },
     "pulsemeter": {
       "label": "Pulse Meter"
     },
