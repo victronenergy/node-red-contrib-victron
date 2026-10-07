@@ -364,6 +364,34 @@ describe('ev', () => {
       expect(iface.VIN).toBeUndefined()
     })
 
+    test('sets Brand from config', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      ev.initialize({ ev_brand: 'tesla' }, ifaceDesc, iface, node)
+      expect(iface.Brand).toBe('tesla')
+    })
+
+    test('keeps a free-text Brand as entered', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      ev.initialize({ ev_brand: 'Lynk & Co' }, ifaceDesc, iface, node)
+      expect(iface.Brand).toBe('Lynk & Co')
+    })
+
+    test('trims whitespace around Brand', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      ev.initialize({ ev_brand: '  kia ' }, ifaceDesc, iface, node)
+      expect(iface.Brand).toBe('kia')
+    })
+
+    test.each([
+      ['absent (legacy node)', {}],
+      ['empty', { ev_brand: '' }],
+      ['whitespace only', { ev_brand: '   ' }]
+    ])('defaults Brand to "unknown" when %s', (_desc, config) => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      ev.initialize(config, ifaceDesc, iface, node)
+      expect(iface.Brand).toBe('unknown')
+    })
+
     test('sets BatteryCapacity from config', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
       ev.initialize({ ev_battery_capacity: 60 }, ifaceDesc, iface, node)
