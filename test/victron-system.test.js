@@ -44,6 +44,58 @@ describe('Alternator /Mode control (Orion XS in Charger mode)', () => {
   })
 })
 
+// Orion XS emergency (reverse) charging, see venus-private#662. Exposed on the
+// .alternator service (charging the main battery) and on the .dcdc service
+// (charging an aux battery), but not in PSU mode.
+describe.each(['alternator', 'dcdc'])('Orion XS emergency charging on %s', (serviceName) => {
+  let systemConfig
+
+  beforeEach(() => {
+    systemConfig = new SystemConfiguration()
+    systemConfig.cache = {
+      [`com.victronenergy.${serviceName}.ttyUSB0`]: {
+        '/ProductName': 'Orion XS',
+        '/DeviceInstance': 0,
+        '/EmergencyCharge/Control': 2,
+        '/EmergencyCharge/ChargingCountdown': 0,
+        '/EmergencyCharge/BlockedCountdown': 0
+      }
+    }
+  })
+
+  test('/EmergencyCharge/Control is a writable enum with the documented states', () => {
+    const control = servicesJson[serviceName][serviceName].find(p => p.path === '/EmergencyCharge/Control')
+    expect(control).toBeDefined()
+    expect(control.type).toBe('enum')
+    expect(control.mode).toBe('both')
+    expect(Object.keys(control.enum).sort()).toEqual(['0', '2', '3'])
+  })
+
+  test('/State includes the reverse charging states', () => {
+    const state = servicesJson[serviceName][serviceName].find(p => p.path === '/State')
+    expect(state.enum['242']).toBe('Reverse charging blocked')
+    expect(state.enum['243']).toBe('Reverse charging')
+  })
+
+  test(`output-${serviceName} offers only /EmergencyCharge/Control for writing`, () => {
+    const result = systemConfig.getNodeServices(`output-${serviceName}`)
+    const paths = result.services[0].paths.map(p => p.path)
+    expect(paths).toContain('/EmergencyCharge/Control')
+    expect(paths).not.toContain('/EmergencyCharge/ChargingCountdown')
+    expect(paths).not.toContain('/EmergencyCharge/BlockedCountdown')
+  })
+
+  test(`input-${serviceName} offers all emergency charge paths for reading`, () => {
+    const result = systemConfig.getNodeServices(`input-${serviceName}`)
+    const paths = result.services[0].paths.map(p => p.path)
+    expect(paths).toEqual(expect.arrayContaining([
+      '/EmergencyCharge/Control',
+      '/EmergencyCharge/ChargingCountdown',
+      '/EmergencyCharge/BlockedCountdown'
+    ]))
+  })
+})
+
 describe('getNodeServices null value handling', () => {
   let systemConfig
   let originalServices
