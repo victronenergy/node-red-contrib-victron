@@ -1050,6 +1050,26 @@ export function fetchEvChargers (baseUrl) {
     })
 }
 
+// Dropdown value for "brand not listed, type it below". Not a valid brand itself.
+// An empty result is published as 'unknown' by the ev device type.
+export const EV_BRAND_OTHER = '__other'
+
+// Map a stored ev_brand to the dropdown state. '' is the "Select a brand" placeholder.
+// Anything not in knownBrands (including other casing) is shown as custom text
+// so it is never lost.
+export function evBrandToSelection (brand, knownBrands) {
+  const value = typeof brand === 'string' ? brand.trim() : ''
+  if (value === '') return { select: '', custom: '' }
+  if (knownBrands.includes(value)) return { select: value, custom: '' }
+  return { select: EV_BRAND_OTHER, custom: value }
+}
+
+export function evBrandFromSelection (selected, customText) {
+  if (selected !== EV_BRAND_OTHER) return selected
+  const custom = typeof customText === 'string' ? customText.trim() : ''
+  return custom
+}
+
 /**
  * Fetch device-type capability metadata (e.g. { value, label, supportsS2 }) from
  * GET /victron/virtual-device-types. Callers are responsible for keying the result by device

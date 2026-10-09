@@ -88,6 +88,7 @@
             pulsemeter_multiplier: { value: 0.001, required: false },
             // ev
             ev_vin: {value: "", required: false},
+            ev_brand: {value: "", required: false},
             ev_battery_capacity: {value: "", required: false},
             ev_evcs_device_instance: {value: null, required: false},
             // temperature
@@ -120,6 +121,21 @@
             if (self.device === 'motordrive') {
                 self.device = 'e-drive';
             }
+
+            // EV brand: known brands come from the dropdown, anything else is typed under "Other"
+            const { evBrandToSelection, EV_BRAND_OTHER } = window.__victron;
+            const $brandSelect = $('#ev-brand-select');
+            const knownBrands = $brandSelect.find('option').map(function() { return this.value; }).get()
+                .filter(function(v) { return v !== '' && v !== EV_BRAND_OTHER; });
+            const brandSelection = evBrandToSelection(self.ev_brand, knownBrands);
+            $brandSelect.val(brandSelection.select);
+            $('#node-input-ev_brand').val(brandSelection.custom);
+            $('#ev-brand-custom-row').toggle(brandSelection.select === EV_BRAND_OTHER);
+            $brandSelect.on('change', function() {
+                const isOther = $(this).val() === EV_BRAND_OTHER;
+                $('#ev-brand-custom-row').toggle(isOther);
+                if (isOther) $('#node-input-ev_brand').trigger('focus');
+            });
 
             // Once deployed, the device type can't be changed (see the disabled-select
             // handling below) - so a deployed node only ever needs its own entry resolved,
@@ -272,6 +288,8 @@
                 }
             }
             if (this.device === 'ev') {
+                $('#node-input-ev_brand').val(window.__victron.evBrandFromSelection(
+                    $('#ev-brand-select').val(), $('#node-input-ev_brand').val()));
                 var evcsVal = $('#node-input-ev_evcs_device_instance').val();
                 this.ev_evcs_device_instance = (evcsVal !== '' && evcsVal != null) ? parseInt(evcsVal, 10) : null;
             }
@@ -438,6 +456,68 @@
             <div class="form-row">
                 <label for="node-input-ev_vin"><i class="fa fa-car"></i> VIN</label>
                 <input type="text" id="node-input-ev_vin" placeholder="Vehicle Identification Number">
+            </div>
+            <div class="form-row">
+                <label for="ev-brand-select">
+                    <i class="fa fa-industry"></i> Brand
+                    <i class="fa fa-info-circle tooltip-icon" data-tooltip="Published on /Brand ('unknown' when not set). If your brand isn't listed, choose 'Other (not listed)' and type its name."></i>
+                </label>
+                <select id="ev-brand-select">
+                    <option value="" disabled hidden>Select a brand</option>
+                    <option value="acura">Acura</option>
+                    <option value="alfaromeo">Alfa Romeo</option>
+                    <option value="alpine">Alpine</option>
+                    <option value="audi">Audi</option>
+                    <option value="bmw">BMW</option>
+                    <option value="byd">BYD</option>
+                    <option value="cadillac">Cadillac</option>
+                    <option value="chevrolet">Chevrolet</option>
+                    <option value="chrysler">Chrysler</option>
+                    <option value="citroen">Citroën</option>
+                    <option value="cupra">Cupra</option>
+                    <option value="dacia">Dacia</option>
+                    <option value="dodge">Dodge</option>
+                    <option value="ds">DS</option>
+                    <option value="fiat">Fiat</option>
+                    <option value="ford">Ford</option>
+                    <option value="gmc">GMC</option>
+                    <option value="honda">Honda</option>
+                    <option value="hyundai">Hyundai</option>
+                    <option value="jaguar">Jaguar</option>
+                    <option value="jeep">Jeep</option>
+                    <option value="kia">Kia</option>
+                    <option value="lancia">Lancia</option>
+                    <option value="landrover">Land Rover</option>
+                    <option value="lexus">Lexus</option>
+                    <option value="lucid">Lucid</option>
+                    <option value="mazda">Mazda</option>
+                    <option value="mercedes">Mercedes-Benz</option>
+                    <option value="mg">MG</option>
+                    <option value="mini">MINI</option>
+                    <option value="nio">NIO</option>
+                    <option value="nissan">Nissan</option>
+                    <option value="opel">Opel</option>
+                    <option value="peugeot">Peugeot</option>
+                    <option value="polestar">Polestar</option>
+                    <option value="porsche">Porsche</option>
+                    <option value="ram">RAM</option>
+                    <option value="renault">Renault</option>
+                    <option value="rivian">Rivian</option>
+                    <option value="seat">SEAT</option>
+                    <option value="skoda">Škoda</option>
+                    <option value="subaru">Subaru</option>
+                    <option value="tesla">Tesla</option>
+                    <option value="toyota">Toyota</option>
+                    <option value="vauxhall">Vauxhall</option>
+                    <option value="volkswagen">Volkswagen</option>
+                    <option value="volvo">Volvo</option>
+                    <option value="xpeng">XPeng</option>
+                    <option value="__other">Other (not listed)</option>
+                </select>
+            </div>
+            <div class="form-row" id="ev-brand-custom-row">
+                <label for="node-input-ev_brand"><i class="fa fa-pencil"></i> Brand name</label>
+                <input type="text" id="node-input-ev_brand" placeholder="Type the brand name">
             </div>
             <div class="form-row">
                 <label for="node-input-ev_battery_capacity"><i class="fa fa-flask"></i> Battery Capacity (kWh)</label>
