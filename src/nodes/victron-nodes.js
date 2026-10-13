@@ -16,6 +16,13 @@ function mustRemoveDeviceInstanceFromService (service) {
 // BaseInputNode's processMessage (issue #535).
 let hasWarnedAboutLegacyGlobalContextKey = false
 
+// An output node whose written value keeps flipping this fast is almost certainly
+// fed by its own echo, e.g. input node -> switch with pass-through -> output node.
+// Racing a write from elsewhere (GUI, MQTT) this reverts the relay (issue #574).
+const FEEDBACK_LOOP_WINDOW_MS = 1000
+const FEEDBACK_LOOP_MIN_CHANGES = 5
+const FEEDBACK_LOOP_WARN_INTERVAL_MS = 60 * 1000
+
 module.exports = function (RED) {
   const debug = require('debug')('node-red-contrib-victron:victron-nodes')
   const utils = require('../services/utils.js')
@@ -525,6 +532,27 @@ module.exports = function (RED) {
 
       const handlerId = this.configNode.addStatusListener(this, this.service, this.path)
 
+      const writeHistory = new Map()
+      const warnOnFeedbackLoop = (writepath, value) => {
+        const now = Date.now()
+        const valueKey = typeof value === 'object' ? JSON.stringify(value) : value
+        const entry = writeHistory.get(writepath)
+        if (!entry) {
+          writeHistory.set(writepath, { lastValue: valueKey, changes: [], lastWarned: -Infinity })
+          return
+        }
+        entry.changes = entry.changes.filter(t => now - t < FEEDBACK_LOOP_WINDOW_MS)
+        if (valueKey !== entry.lastValue) {
+          entry.changes.push(now)
+          entry.lastValue = valueKey
+        }
+        if (entry.changes.length >= FEEDBACK_LOOP_MIN_CHANGES &&
+          now - entry.lastWarned >= FEEDBACK_LOOP_WARN_INTERVAL_MS) {
+          entry.lastWarned = now
+          this.warn(`Possible feedback loop: the value written to ${this.service} ${writepath} changed ${entry.changes.length} times within ${FEEDBACK_LOOP_WINDOW_MS / 1000}s. Check whether a node reading this path feeds back into this node, e.g. through a switch with pass-through enabled.`)
+        }
+      }
+
       const setValue = (value, path) => {
         if (!path && !this.path) {
           throw new Error(`Output node ${this.id} requires a path to write to, service: ${this.service}`)
@@ -596,6 +624,7 @@ module.exports = function (RED) {
           }
 
           const text = this.pathObj.type === 'enum' ? `${value} (${this.pathObj.enum[value]})` : value
+          warnOnFeedbackLoop(writepath, value)
           this.client.publish(this.service, writepath, value, (err) => {
             this.node.status({
               fill: err ? 'red' : 'green',
