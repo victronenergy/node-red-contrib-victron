@@ -535,12 +535,26 @@ module.exports = function (RED) {
       const writeHistory = new Map()
       const warnOnFeedbackLoop = (writepath, value) => {
         const now = Date.now()
-        const valueKey = typeof value === 'object' ? JSON.stringify(value) : value
+        let valueKey = value
+        if (typeof value === 'object') {
+          try {
+            valueKey = JSON.stringify(value)
+          } catch (err) {
+            // Circular or BigInt payloads: skip detection rather than block the write
+            return
+          }
+        }
         const entry = writeHistory.get(writepath)
         if (!entry) {
-          writeHistory.set(writepath, { lastValue: valueKey, changes: [], lastWarned: -Infinity })
+          // msg.path can name arbitrary paths, so drop the ones that went quiet.
+          // A looping path is written continuously and never goes stale.
+          for (const [path, e] of writeHistory) {
+            if (now - e.lastWrite > FEEDBACK_LOOP_WINDOW_MS) writeHistory.delete(path)
+          }
+          writeHistory.set(writepath, { lastValue: valueKey, lastWrite: now, changes: [], lastWarned: -Infinity })
           return
         }
+        entry.lastWrite = now
         entry.changes = entry.changes.filter(t => now - t < FEEDBACK_LOOP_WINDOW_MS)
         if (valueKey !== entry.lastValue) {
           entry.changes.push(now)

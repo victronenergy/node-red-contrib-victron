@@ -475,4 +475,30 @@ describe('victron-nodes output feedback loop warning (#574)', () => {
     expect(node.warn).not.toHaveBeenCalled()
     expect(publish).toHaveBeenCalledTimes(4)
   })
+
+  it('still publishes object payloads that cannot be serialized', () => {
+    const { BaseOutputNode, publish } = buildMockRED()
+    const node = new BaseOutputNode({ ...relayDef, path: '/Settings', pathObj: { name: 'Settings', type: 'object' } })
+    const circular = { a: 1 }
+    circular.self = circular
+
+    expect(() => writeSequence(node, [circular, { big: 1n }], 30)).not.toThrow()
+    expect(publish).toHaveBeenCalledTimes(2)
+  })
+
+  it('forgets the last value of a path that has not been written for longer than the detection window', () => {
+    const { BaseOutputNode } = buildMockRED()
+    const node = new BaseOutputNode(relayDef)
+    const inputHandler = node.on.mock.calls.find(c => c[0] === 'input')[1]
+
+    inputHandler({ payload: 1 })
+    jest.advanceTimersByTime(2000)
+    // Writing a new path prunes the stale /Relay/1/State entry
+    inputHandler({ payload: 1, path: '/Relay/0/State' })
+
+    // Had the stale value 1 been kept, the first 0 would count as a change, making 5
+    writeSequence(node, [0, 1, 0, 1, 0], 30)
+
+    expect(node.warn).not.toHaveBeenCalled()
+  })
 })
