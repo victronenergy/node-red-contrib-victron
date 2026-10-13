@@ -1,0 +1,136 @@
+[
+  {
+    "id": "a574000000000001",
+    "type": "tab",
+    "label": "#574 loop demo",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "a574000000000002",
+    "type": "comment",
+    "z": "a574000000000001",
+    "name": "Feedback loop demo (#574): click Start, Relay 2 toggles for ~3s, then a 'Possible feedback loop' warning appears in the debug sidebar",
+    "info": "",
+    "x": 470,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "a574000000000003",
+    "type": "inject",
+    "z": "a574000000000001",
+    "name": "Start 3s loop",
+    "props": [],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 150,
+    "y": 120,
+    "wires": [
+      [
+        "a574000000000004"
+      ]
+    ]
+  },
+  {
+    "id": "a574000000000004",
+    "type": "function",
+    "z": "a574000000000001",
+    "name": "Kick off loop",
+    "func": "flow.set('loopActive', true)\nsetTimeout(() => {\n    flow.set('loopActive', false)\n    // let in-flight echoes drain before leaving the relay open\n    setTimeout(() => node.send({ payload: 0 }), 500)\n}, 3000)\n// two writes in flight at once: the loop keeps echoing both\nreturn [[{ payload: 1 }, { payload: 0 }]]",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "flow.set('loopActive', false)",
+    "libs": [],
+    "x": 350,
+    "y": 120,
+    "wires": [
+      [
+        "a574000000000007"
+      ]
+    ]
+  },
+  {
+    "id": "a574000000000005",
+    "type": "victron-input-relay",
+    "z": "a574000000000001",
+    "service": "com.victronenergy.system",
+    "path": "/Relay/1/State",
+    "serviceObj": {
+      "service": "com.victronenergy.system",
+      "name": "Venus system"
+    },
+    "pathObj": {
+      "path": "/Relay/1/State",
+      "type": "enum",
+      "name": "Venus relay 2 state",
+      "enum": {
+        "0": "Open",
+        "1": "Closed"
+      },
+      "mode": "both"
+    },
+    "initial": "",
+    "name": "Relay 2 state",
+    "onlyChanges": false,
+    "x": 150,
+    "y": 200,
+    "wires": [
+      [
+        "a574000000000006"
+      ]
+    ]
+  },
+  {
+    "id": "a574000000000006",
+    "type": "function",
+    "z": "a574000000000001",
+    "name": "Loop gate",
+    "func": "return flow.get('loopActive') ? msg : null",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 350,
+    "y": 200,
+    "wires": [
+      [
+        "a574000000000007"
+      ]
+    ]
+  },
+  {
+    "id": "a574000000000007",
+    "type": "victron-output-relay",
+    "z": "a574000000000001",
+    "service": "com.victronenergy.system",
+    "path": "/Relay/1/State",
+    "serviceObj": {
+      "service": "com.victronenergy.system",
+      "name": "Venus system"
+    },
+    "pathObj": {
+      "path": "/Relay/1/State",
+      "type": "enum",
+      "name": "Venus relay 2 state",
+      "enum": {
+        "0": "Open",
+        "1": "Closed"
+      },
+      "mode": "both"
+    },
+    "initial": "",
+    "name": "Relay 2",
+    "onlyChanges": false,
+    "x": 570,
+    "y": 160,
+    "wires": []
+  }
+]
