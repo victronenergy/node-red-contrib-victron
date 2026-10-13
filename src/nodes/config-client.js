@@ -31,7 +31,7 @@ module.exports = function (RED) {
      * all available services depending whether the requester gives the service parameter
      */
 
-  RED.httpNode.get('/victron/services/:service?', RED.auth.needsPermission('victron-client.read'), (req, res) => {
+  function servicesHandler (req, res) {
     debug('Services endpoint hit, globalClient exists:', !!globalClient)
     debug('globalClient type:', typeof globalClient)
     if (globalClient) {
@@ -53,9 +53,9 @@ module.exports = function (RED) {
       debug('Error getting services:', error)
       return res.status(500).send('Error getting services')
     }
-  })
+  }
 
-  RED.httpNode.get('/victron/cache', RED.auth.needsPermission('victron-client.read'), (req, res) => {
+  function cacheHandler (req, res) {
     if (!globalClient) return res.status(503).send('Client not initialized')
     const filtered = utils.filterCache(globalClient.system.cache, {
       filterBySerial: req.query.filter_by_serial
@@ -63,7 +63,15 @@ module.exports = function (RED) {
     const serialized = utils.mapCacheToJsonResponse(filtered)
     res.setHeader('Content-Type', 'application/json')
     return res.send(serialized)
-  })
+  }
+
+  // The editor calls these with relative URLs, which resolve under httpAdminRoot and keep any
+  // reverse-proxy prefix such as Home Assistant ingress (#576). The httpNode registrations stay
+  // for backward compatibility with anything calling them directly.
+  for (const app of [RED.httpAdmin, RED.httpNode]) {
+    app.get('/victron/services/:service?', RED.auth.needsPermission('victron-client.read'), servicesHandler)
+    app.get('/victron/cache', RED.auth.needsPermission('victron-client.read'), cacheHandler)
+  }
 
   /**
      * Victron Energy Configuration Node.

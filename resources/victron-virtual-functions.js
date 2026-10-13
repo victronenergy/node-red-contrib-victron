@@ -1819,9 +1819,14 @@
 	  }
 	}
 
+	// Without a baseUrl the path stays relative, so it resolves against the editor's own location
+	// and keeps any reverse-proxy prefix such as Home Assistant ingress (#576).
+	function editorApiUrl (baseUrl, path) {
+	  return baseUrl ? `${baseUrl}/${path}` : path
+	}
+
 	function fetchEvChargers (baseUrl) {
-	  const url = (baseUrl || '') + '/victron/cache';
-	  return fetch(url)
+	  return fetch(editorApiUrl(baseUrl, 'victron/cache'))
 	    .then(response => response.json())
 	    .then(data => {
 	      const result = [];
@@ -1920,7 +1925,7 @@
 	 * this module holds no capability state of its own.
 	 */
 	function fetchDeviceCapabilities (baseUrl) {
-	  return fetch((baseUrl || '') + '/victron/virtual-device-types')
+	  return fetch(editorApiUrl(baseUrl, 'victron/virtual-device-types'))
 	    .then(response => response.json())
 	}
 
@@ -1929,7 +1934,7 @@
 	    return Promise.reject(new Error('id is required'))
 	  }
 
-	  return fetch(`${baseUrl || ''}/victron/cache?filter_by_serial=${id}`)
+	  return fetch(editorApiUrl(baseUrl, `victron/cache?filter_by_serial=${id}`))
 	    .then(response => response.json())
 	    .then(data => {
 	      for (const key in data) {
@@ -2784,8 +2789,7 @@ ${labels.join('\n')}`
 	// determineOutputLabel falls back to its non-S2 default and self-corrects on the next render
 	// once the fetch completes.
 	try {
-	  const baseUrl = (window.RED?.settings?.httpNodeRoot || window.RED?.settings?.httpAdminRoot || '').replace(/\/$/, '');
-	  fetchDeviceCapabilities(baseUrl)
+	  fetchDeviceCapabilities()
 	    .then(list => { (list || []).forEach(dt => { canvasDeviceCapabilities[dt.value] = dt; }); })
 	    .catch(() => {});
 	} catch (e) { /* RED not ready yet; outputLabels falls back to non-S2 defaults until this resolves */ }

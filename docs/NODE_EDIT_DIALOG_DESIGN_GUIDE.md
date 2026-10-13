@@ -82,17 +82,20 @@ See [victron-styles.css](/resources/victron-styles.css) for CSS definitions.
 
 ## HTTP Requests from Edit Dialogs
 
-**Never hardcode absolute paths** when calling backend endpoints from `oneditprepare` or other dialog callbacks. Node-RED can be deployed under a non-root subpath (e.g., `/node-red/`), so a hardcoded `/victron/...` URL will 404.
+**Never use absolute paths** when calling backend endpoints from `oneditprepare` or other dialog callbacks. Node-RED can be served under a subpath, either configured in Node-RED itself (`httpAdminRoot`, e.g. the SignalK plugin) or added by a reverse proxy that Node-RED does not know about (e.g. Home Assistant ingress). A `/victron/...` URL skips that subpath and 404s. Prefixing it with `RED.settings.httpNodeRoot`/`httpAdminRoot` only covers the first case.
 
-Always prefix with the admin root:
+Register editor endpoints on `RED.httpAdmin` and call them with a relative URL. The browser resolves it against the editor's own location, so it works under any subpath:
 
 ```javascript
-// ❌ WRONG - breaks when Node-RED is not at /
+// Runtime
+RED.httpAdmin.get('/victron/virtual-device-types', handler)
+
+// Editor
+// ❌ WRONG - breaks when the editor is not served at /
 $.getJSON('/victron/virtual-device-types')
 
-// ✅ CORRECT - works at any subpath
-var baseUrl = (RED.settings.httpNodeRoot || RED.settings.httpAdminRoot || "").replace(/\/$/, "");
-$.getJSON(baseUrl + '/victron/virtual-device-types')
+// ✅ CORRECT - works at any subpath, including behind a reverse proxy
+$.getJSON('victron/virtual-device-types')
 ```
 
 The same pattern applies to any `$.ajax`, `fetch`, or other HTTP call made inside an edit dialog.

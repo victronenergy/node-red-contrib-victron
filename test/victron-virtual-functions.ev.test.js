@@ -58,6 +58,12 @@ describe('fetchEvChargers', () => {
     expect(result).toEqual([])
   })
 
+  test('requests a relative cache path when no baseUrl is given', async () => {
+    mockFetch({})
+    await fetchEvChargers()
+    expect(global.fetch).toHaveBeenCalledWith('victron/cache')
+  })
+
   test('prefixes baseUrl to the cache request', async () => {
     mockFetch({})
     await fetchEvChargers('/node-red')

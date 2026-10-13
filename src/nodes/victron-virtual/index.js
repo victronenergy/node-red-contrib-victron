@@ -184,10 +184,15 @@ function getIface (actualDev, config) {
   return result
 }
 
+function deviceTypesHandler (_req, res) {
+  res.json(DEVICE_TYPES)
+}
+
 module.exports = function (RED) {
-  RED.httpNode.get('/victron/virtual-device-types', (_req, res) => {
-    res.json(DEVICE_TYPES)
-  })
+  // httpAdmin for the editor's relative URLs (#576); httpNode kept for backward compatibility
+  for (const app of [RED.httpAdmin, RED.httpNode]) {
+    app.get('/victron/virtual-device-types', deviceTypesHandler)
+  }
 
   // Shared state across all instances
   let hasRunOnce = false

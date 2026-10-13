@@ -128,12 +128,14 @@ describe('fetchSwitchNodeNameAndGroupFromCache', () => {
       expect(global.fetch).not.toHaveBeenCalledWith(`/victron/cache?filter_by_serial=${NODE_ID}`)
     })
 
-    test('default httpNodeRoot: with no base URL, keeps the root-relative path (unchanged behaviour)', async () => {
+    // #576: without a base URL the path is relative, so it resolves against the editor's own
+    // location and keeps any reverse-proxy prefix (e.g. Home Assistant ingress).
+    test('with no base URL, requests a relative path', async () => {
       mockCacheResponse({})
 
       await fetchSwitchNodeNameAndGroupFromCache(NODE_ID)
 
-      expect(global.fetch).toHaveBeenCalledWith(`/victron/cache?filter_by_serial=${NODE_ID}`)
+      expect(global.fetch).toHaveBeenCalledWith(`victron/cache?filter_by_serial=${NODE_ID}`)
     })
 
     test('RECREATES #471: a 404 HTML response (the pre-fix symptom) rejects the lookup', async () => {
