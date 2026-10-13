@@ -416,3 +416,86 @@ describe('heatpump SwitchableOutput support (Shelly relays used to control a hea
     expect(statePath.name).toBe('Kelder - heating state')
   })
 })
+
+// Aurelia DCDB (Koro GX), as found on com.victronenergy.switch.ttyS2: dimmable outputs
+// 01-06, toggle outputs 07-09, fuse-monitored outputs 10-23 (Status only) and
+// push button generic inputs 01-09.
+describe('Aurelia DCDB on the switch nodes', () => {
+  let systemConfig
+
+  beforeEach(() => {
+    systemConfig = new SystemConfiguration()
+    systemConfig.cache = {
+      'com.victronenergy.switch/275': {
+        '/ProductName': 'Aurelia DCDB',
+        '/DeviceInstance': 275,
+        '/State': 256,
+        '/ModuleVoltage': 13.2,
+        '/SwitchableOutput/01/Name': 'output 01',
+        '/SwitchableOutput/01/Settings/CustomName': '',
+        '/SwitchableOutput/01/State': 0,
+        '/SwitchableOutput/01/Dimming': 52.4,
+        '/SwitchableOutput/01/Status': 0,
+        '/SwitchableOutput/10/Name': 'output 10',
+        '/SwitchableOutput/10/Settings/CustomName': '',
+        '/SwitchableOutput/10/Status': 9,
+        '/GenericInput/01/Name': 'input 01',
+        '/GenericInput/01/Settings/CustomName': '',
+        '/GenericInput/01/Settings/Labels': '["/released","/pressed","/holding"]',
+        '/GenericInput/01/Value': 0,
+        '/GenericInput/01/Event': 2,
+        '/GenericInput/01/Status': 0
+      }
+    }
+  })
+
+  const pathsOf = (nodeName) => {
+    const result = systemConfig.getNodeServices(nodeName)
+    expect(result.services).toHaveLength(1)
+    return result.services[0].paths
+  }
+
+  test('input-switch offers the module state and voltage', () => {
+    const paths = pathsOf('input-switch')
+    expect(paths.find(p => p.path === '/State')).toMatchObject({ type: 'enum', name: 'Module state' })
+    expect(paths.find(p => p.path === '/State').enum['256']).toBe('Connected')
+    expect(paths.find(p => p.path === '/ModuleVoltage')).toMatchObject({ type: 'float', name: 'Module voltage (V)' })
+  })
+
+  test('input-switch offers the status of every output, including fuse-monitored ones', () => {
+    const paths = pathsOf('input-switch')
+    expect(paths.find(p => p.path === '/SwitchableOutput/01/Status')).toMatchObject({ type: 'enum', name: 'output 01 status' })
+    const fuseStatus = paths.find(p => p.path === '/SwitchableOutput/10/Status')
+    expect(fuseStatus.name).toBe('output 10 status')
+    expect(fuseStatus.enum['9']).toBe('On')
+  })
+
+  test('input-switch offers the generic input value, event and status', () => {
+    const names = Object.fromEntries(pathsOf('input-switch').map(p => [p.path, p.name]))
+    expect(names['/GenericInput/01/Value']).toBe('input 01 value')
+    expect(names['/GenericInput/01/Event']).toBe('input 01 event')
+    expect(names['/GenericInput/01/Status']).toBe('input 01 status')
+  })
+
+  test('input-switch offers per-output measurements only when the device publishes them', () => {
+    expect(pathsOf('input-switch').map(p => p.path)).not.toContain('/SwitchableOutput/01/Current')
+
+    Object.assign(systemConfig.cache['com.victronenergy.switch/275'], {
+      '/SwitchableOutput/01/Current': 1.5,
+      '/SwitchableOutput/01/Voltage': 13.1,
+      '/SwitchableOutput/01/Temperature': 31,
+      '/SwitchableOutput/01/Measurement': 21.5
+    })
+    const names = Object.fromEntries(pathsOf('input-switch').map(p => [p.path, p.name]))
+    expect(names['/SwitchableOutput/01/Current']).toBe('output 01 current (A)')
+    expect(names['/SwitchableOutput/01/Voltage']).toBe('output 01 voltage (V)')
+    expect(names['/SwitchableOutput/01/Temperature']).toBe('output 01 temperature (°C)')
+    expect(names['/SwitchableOutput/01/Measurement']).toBe('output 01 measurement')
+  })
+
+  test('output-switch offers no read-only paths', () => {
+    const paths = pathsOf('output-switch').map(p => p.path)
+    expect(paths).toEqual(expect.arrayContaining(['/SwitchableOutput/01/State', '/SwitchableOutput/01/Dimming']))
+    expect(paths.filter(p => /\/(Status|Value|Event)$|^\/State$|^\/ModuleVoltage$/.test(p))).toEqual([])
+  })
+})

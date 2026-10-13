@@ -6,7 +6,7 @@ describe('Wildcard Path Expansion', () => {
       path: '/SwitchableOutput/{type}/State',
       name: '{type} state',
       type: 'enum',
-      enum: { '0': 'Off', '1': 'On' }
+      enum: { 0: 'Off', 1: 'On' }
     }
 
     const cachedPaths = {
@@ -29,7 +29,7 @@ describe('Wildcard Path Expansion', () => {
       path: '/SwitchableOutput/{type}/State',
       name: '{type} state',
       type: 'enum',
-      enum: { '0': 'Off', '1': 'On' }
+      enum: { 0: 'Off', 1: 'On' }
     }
 
     const cachedPaths = {
@@ -45,7 +45,7 @@ describe('Wildcard Path Expansion', () => {
 
     expect(result).toHaveLength(3)
     expect(result[0].name).toBe('Kitchen Lights state')
-    expect(result[1].name).toBe('Living Room Fan state') 
+    expect(result[1].name).toBe('Living Room Fan state')
     expect(result[2].name).toBe('Output 3 state') // fallback
   })
 
@@ -78,5 +78,47 @@ describe('Wildcard Path Expansion', () => {
     const result = expandWildcardPaths(pathObj, cachedPaths, 'switch')
 
     expect(result).toHaveLength(0)
+  })
+
+  test('uses generic input names for {input} wildcards on switches', () => {
+    const pathObj = {
+      path: '/GenericInput/{input}/Value',
+      name: '{input} value',
+      type: 'integer'
+    }
+
+    const cachedPaths = {
+      '/GenericInput/01/Value': 0,
+      '/GenericInput/01/Name': 'input 01',
+      '/GenericInput/01/Settings/CustomName': '',
+      '/GenericInput/02/Value': 1,
+      '/GenericInput/02/Name': 'input 02',
+      '/GenericInput/02/Settings/CustomName': 'Galley button',
+      '/GenericInput/03/Value': 0,
+      // a switchable output with the same id must not be used for the input name
+      '/SwitchableOutput/03/Name': 'output 03'
+    }
+
+    const result = expandWildcardPaths(pathObj, cachedPaths, 'switch')
+
+    expect(result.map(r => r.name)).toEqual(['input 01 value', 'Galley button value', '03 value'])
+  })
+
+  test('keeps using switchable output names for {type} wildcards', () => {
+    const pathObj = {
+      path: '/SwitchableOutput/{type}/Status',
+      name: '{type} status',
+      type: 'enum'
+    }
+
+    const cachedPaths = {
+      '/SwitchableOutput/10/Status': 9,
+      '/SwitchableOutput/10/Name': 'output 10',
+      '/GenericInput/10/Name': 'input 10'
+    }
+
+    const result = expandWildcardPaths(pathObj, cachedPaths, 'switch')
+
+    expect(result.map(r => r.name)).toEqual(['output 10 status'])
   })
 })
