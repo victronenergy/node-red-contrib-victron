@@ -3575,8 +3575,8 @@
   },
   "switch": {
     "help": {
-      "both": "<p>The <b>switch</b> node can be used for the usb-connected I/O extender.</p>",
-      "input": "",
+      "both": "<p>The <b>switch</b> node can be used for switching modules like the GX IO extender and the Aurelia DCDB, and for virtual switches.</p>",
+      "input": "<p>The <b>switch</b> node can be used for switching modules like the GX IO extender and the Aurelia DCDB, and for virtual switches.</p><p>Besides the outputs, the switch input node can read the module state and the generic inputs (e.g. push buttons) of a switching module. Generic input names (<code>{input}</code>) are taken from the device.</p><p>For a <b>generic input value</b>, <code>msg.textvalue</code> holds the matching label from the device, e.g. <code>released</code>, <code>pressed</code> or <code>holding</code>.</p><p>A <b>generic input event</b> node has two outputs. Output 1 sends the raw event value. Output 2 sends the decoded event when a new event occurs: <code>msg.payload</code> is <code>single tap</code>, <code>double tap</code>, <code>swipe up</code> or <code>unknown</code>, and <code>msg.event</code> holds <code>type</code>, <code>toggle</code> and <code>raw</code>. Which events are sent is up to the device; the Aurelia DCDB currently only reports single taps. Rate limiting is not available for event nodes, as it would merge events.</p>",
       "output": " "
     },
     "acload": [
@@ -3623,6 +3623,81 @@
         "type": "integer",
         "name": "{type} dimming",
         "mode": "both"
+      },
+      {
+        "path": "/SwitchableOutput/{type}/Status",
+        "type": "enum",
+        "enum": {
+          "0": "Off",
+          "1": "Powered",
+          "2": "Tripped",
+          "4": "Over temperature",
+          "8": "Output fault",
+          "9": "On",
+          "16": "Short fault",
+          "32": "Disabled",
+          "64": "Bypassed",
+          "128": "Externally controlled"
+        },
+        "name": "{type} status"
+      },
+      {
+        "path": "/SwitchableOutput/{type}/Current",
+        "type": "float",
+        "name": "{type} current (A)"
+      },
+      {
+        "path": "/SwitchableOutput/{type}/Voltage",
+        "type": "float",
+        "name": "{type} voltage (V)"
+      },
+      {
+        "path": "/SwitchableOutput/{type}/Temperature",
+        "type": "float",
+        "name": "{type} temperature (°C)"
+      },
+      {
+        "path": "/SwitchableOutput/{type}/Measurement",
+        "type": "float",
+        "name": "{type} measurement"
+      },
+      {
+        "path": "/GenericInput/{input}/Value",
+        "type": "integer",
+        "name": "{input} value"
+      },
+      {
+        "path": "/GenericInput/{input}/Event",
+        "type": "integer",
+        "name": "{input} event"
+      },
+      {
+        "path": "/GenericInput/{input}/Status",
+        "type": "enum",
+        "enum": {
+          "0": "OK",
+          "1": "Fault",
+          "2": "Sensor battery low"
+        },
+        "name": "{input} status"
+      },
+      {
+        "path": "/State",
+        "type": "enum",
+        "enum": {
+          "256": "Connected",
+          "257": "Over temperature",
+          "258": "Temperature warning",
+          "259": "Channel fault",
+          "260": "Channel tripped",
+          "261": "Under voltage"
+        },
+        "name": "Module state"
+      },
+      {
+        "path": "/ModuleVoltage",
+        "type": "float",
+        "name": "Module voltage (V)"
       }
     ],
     "heatpump": [

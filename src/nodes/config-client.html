@@ -5985,7 +5985,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
     <li><code>{channel}</code> - DC channels (0, 1)</li>
     <li><code>{index}</code> - Index numbers (0, 1, 2, 3, etc.)</li>
   </ul>
-</div><p>The <b>switch</b> node can be used for the usb-connected I/O extender.</p>
+</div><p>The <b>switch</b> node can be used for switching modules like the GX IO extender and the Aurelia DCDB, and for virtual switches.</p><p>Besides the outputs, the switch input node can read the module state and the generic inputs (e.g. push buttons) of a switching module. Generic input names (<code>{input}</code>) are taken from the device.</p><p>For a <b>generic input value</b>, <code>msg.textvalue</code> holds the matching label from the device, e.g. <code>released</code>, <code>pressed</code> or <code>holding</code>.</p><p>A <b>generic input event</b> node has two outputs. Output 1 sends the raw event value. Output 2 sends the decoded event when a new event occurs: <code>msg.payload</code> is <code>single tap</code>, <code>double tap</code>, <code>swipe up</code> or <code>unknown</code>, and <code>msg.event</code> holds <code>type</code>, <code>toggle</code> and <code>raw</code>. Which events are sent is up to the device; the Aurelia DCDB currently only reports single taps. Rate limiting is not available for event nodes, as it would merge events.</p>
 <h3>Switch</h3>
 <dl class="message-properties">
   <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code> state<span class="property-type">enum</span></dt>
@@ -6003,6 +6003,58 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>0 - Manual</li>
   <li>1 - Auto</li>
 </ul></dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code> status<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/SwitchableOutput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code>/Status</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - Powered</li>
+  <li>2 - Tripped</li>
+  <li>4 - Over temperature</li>
+  <li>8 - Output fault</li>
+  <li>9 - On</li>
+  <li>16 - Short fault</li>
+  <li>32 - Disabled</li>
+  <li>64 - Bypassed</li>
+  <li>128 - Externally controlled</li>
+</ul></dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code> current (A)<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/SwitchableOutput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code>/Current</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code> voltage (V)<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/SwitchableOutput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code>/Voltage</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code> temperature (°C)<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/SwitchableOutput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code>/Temperature</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code> measurement<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/SwitchableOutput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code>/Measurement</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{input}</code> value<span class="property-type">integer</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/GenericInput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{input}</code>/Value</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{input}</code> event<span class="property-type">integer</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/GenericInput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{input}</code>/Event</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{input}</code> status<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/GenericInput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{input}</code>/Status</b><span class="property-mode"></span>
+<ul>
+  <li>0 - OK</li>
+  <li>1 - Fault</li>
+  <li>2 - Sensor battery low</li>
+</ul></dd>
+  <dt class="optional">Module state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/State</b><span class="property-mode"></span>
+<ul>
+  <li>256 - Connected</li>
+  <li>257 - Over temperature</li>
+  <li>258 - Temperature warning</li>
+  <li>259 - Channel fault</li>
+  <li>260 - Channel tripped</li>
+  <li>261 - Under voltage</li>
+</ul></dd>
+  <dt class="optional">Module voltage (V)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/ModuleVoltage</b><span class="property-mode"></span>
+</dd>
 </dl>
 </script>
 
@@ -6041,6 +6093,58 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
   <li>0 - Manual</li>
   <li>1 - Auto</li>
 </ul></dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code> status<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/SwitchableOutput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code>/Status</b><span class="property-mode"></span>
+<ul>
+  <li>0 - Off</li>
+  <li>1 - Powered</li>
+  <li>2 - Tripped</li>
+  <li>4 - Over temperature</li>
+  <li>8 - Output fault</li>
+  <li>9 - On</li>
+  <li>16 - Short fault</li>
+  <li>32 - Disabled</li>
+  <li>64 - Bypassed</li>
+  <li>128 - Externally controlled</li>
+</ul></dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code> current (A)<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/SwitchableOutput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code>/Current</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code> voltage (V)<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/SwitchableOutput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code>/Voltage</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code> temperature (°C)<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/SwitchableOutput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code>/Temperature</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code> measurement<span class="property-type">float</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/SwitchableOutput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{type}</code>/Measurement</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{input}</code> value<span class="property-type">integer</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/GenericInput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{input}</code>/Value</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{input}</code> event<span class="property-type">integer</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/GenericInput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{input}</code>/Event</b><span class="property-mode"></span>
+</dd>
+  <dt class="optional" style="padding-top: 8px; padding-left: 8px;"><code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{input}</code> status<span class="property-type">enum</span></dt>
+  <dd style="padding-top: 8px; padding-left: 8px;">Dbus path: <b>/GenericInput/<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{input}</code>/Status</b><span class="property-mode"></span>
+<ul>
+  <li>0 - OK</li>
+  <li>1 - Fault</li>
+  <li>2 - Sensor battery low</li>
+</ul></dd>
+  <dt class="optional">Module state<span class="property-type">enum</span></dt>
+  <dd>Dbus path: <b>/State</b><span class="property-mode"></span>
+<ul>
+  <li>256 - Connected</li>
+  <li>257 - Over temperature</li>
+  <li>258 - Temperature warning</li>
+  <li>259 - Channel fault</li>
+  <li>260 - Channel tripped</li>
+  <li>261 - Under voltage</li>
+</ul></dd>
+  <dt class="optional">Module voltage (V)<span class="property-type">float</span></dt>
+  <dd>Dbus path: <b>/ModuleVoltage</b><span class="property-mode"></span>
+</dd>
 </dl>
 </script>
 

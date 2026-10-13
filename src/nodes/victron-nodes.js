@@ -92,8 +92,14 @@ module.exports = function (RED) {
       this.rateLimit = nodeDefinition.rateLimit || 0
       this.sentInitialValue = false
 
+      this.decodeEvents = /^\/GenericInput\/[^/]+\/Event$/.test(this.path || '')
+      this.labelsPath = /^\/GenericInput\/[^/]+\/Value$/.test(this.path || '')
+        ? this.path.replace(/\/Value$/, '/Settings/Labels')
+        : null
+      this.lastEventValue = undefined
+
       // Conditional mode configuration
-      this.conditionalMode = nodeDefinition.conditionalMode || false
+      this.conditionalMode = !this.decodeEvents && (nodeDefinition.conditionalMode || false)
       this.condition1Operator = nodeDefinition.condition1Operator
       this.condition1Threshold = nodeDefinition.condition1Threshold
       this.condition1HysteresisEnabled = nodeDefinition.condition1HysteresisEnabled || false
@@ -252,9 +258,32 @@ module.exports = function (RED) {
             outmsg.textvalue = this.pathObj.enum[msg.value] || ''
             text = `${msg.value} (${this.pathObj.enum[msg.value]})`
           }
+          if (this.labelsPath) {
+            const labels = this.client.system.cache[this.service]?.[this.labelsPath]
+            const label = utils.genericInputLabel(labels, msg.value)
+            if (label !== undefined) {
+              outmsg.textvalue = label
+              text = `${msg.value} (${label})`
+            }
+          }
 
-          // If conditional mode is enabled, send raw value to output 1 and evaluate for output 2
-          if (this.conditionalMode) {
+          if (this.decodeEvents) {
+            // The first value after subscribing is the cached state, not a new event
+            const previous = this.lastEventValue
+            this.lastEventValue = msg.value
+            const event = utils.decodeGenericInputEvent(msg.value)
+            const isNewEvent = event && Number.isInteger(previous) && msg.value !== previous
+            const eventmsg = isNewEvent
+              ? { payload: event.name, topic, event: { type: event.type, toggle: event.toggle, raw: msg.value } }
+              : null
+            this.node.send([outmsg, eventmsg])
+            if (this.configNode.showValues !== false) {
+              // Type 0: the device has not reported any event yet
+              const statusText = event && event.type !== 0 ? `${msg.value} (${event.name})` : formatStatusText(text)
+              this.node.status({ fill: 'green', shape: 'dot', text: statusText })
+            }
+          } else if (this.conditionalMode) {
+            // If conditional mode is enabled, send raw value to output 1 and evaluate for output 2
             this.node.send([outmsg, null]) // Send to output 1 only
             this.evaluateAndSendConditional(topic, msg.value)
           } else {
@@ -417,8 +446,8 @@ module.exports = function (RED) {
         }
         this.sendConditionalOutputDebounced = debounce(this.sendConditionalOutput, this.debounce)
 
-        // Apply throttling if rate limit is set
-        const throttleMs = this.rateLimit > 0 ? Math.floor(1000 / this.rateLimit) : 0
+        // Apply throttling if rate limit is set (not for events, throttling would merge them)
+        const throttleMs = this.rateLimit > 0 && !this.decodeEvents ? Math.floor(1000 / this.rateLimit) : 0
         const throttledProcessMessage = throttleMs > 0 ? utils.throttle(processMessage, throttleMs) : processMessage
 
         const isPollingEnabled = this.configNode.enablePolling || false
@@ -491,6 +520,7 @@ module.exports = function (RED) {
         }
 
         this.sentInitialValue = false
+        this.lastEventValue = undefined
         done()
       })
     }

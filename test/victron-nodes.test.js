@@ -369,3 +369,149 @@ describe('victron-nodes global context regression (#535)', () => {
     }
   })
 })
+
+describe('victron-nodes generic inputs', () => {
+  const service = 'com.victronenergy.switch/275'
+
+  const createGenericInputNode = (path, extraConfig = {}) => {
+    const { BaseInputNode, subscribe } = buildMockRED()
+    const node = new BaseInputNode({
+      name: '',
+      service,
+      path,
+      serviceObj: { name: 'Aurelia DCDB' },
+      pathObj: { path, type: 'integer', name: 'input 01' },
+      ...extraConfig
+    })
+    const processMessage = subscribe.mock.calls[0][2]
+    return { node, processMessage }
+  }
+
+  describe('/GenericInput/x/Value', () => {
+    it('adds the label from the device /Settings/Labels as textvalue', () => {
+      const { node, processMessage } = createGenericInputNode('/GenericInput/01/Value')
+      node.client.system.cache[service] = {
+        '/GenericInput/01/Settings/Labels': '["/released","/pressed","/holding"]'
+      }
+
+      processMessage({ value: 2 })
+
+      expect(node.send).toHaveBeenCalledWith(expect.objectContaining({ payload: 2, textvalue: 'holding' }))
+      expect(node.status).toHaveBeenCalledWith(expect.objectContaining({ text: '2 (holding)' }))
+    })
+
+    it('picks up changed labels without redeploying', () => {
+      const { node, processMessage } = createGenericInputNode('/GenericInput/01/Value')
+      node.client.system.cache[service] = { '/GenericInput/01/Settings/Labels': '["/off","/on"]' }
+      processMessage({ value: 1 })
+      node.client.system.cache[service]['/GenericInput/01/Settings/Labels'] = '["/closed","/open"]'
+      processMessage({ value: 0 })
+
+      expect(node.send.mock.calls.map(c => c[0].textvalue)).toEqual(['on', 'closed'])
+    })
+
+    it('sends no textvalue when the device has no labels', () => {
+      const { node, processMessage } = createGenericInputNode('/GenericInput/01/Value')
+
+      processMessage({ value: 1 })
+
+      const sent = node.send.mock.calls[0][0]
+      expect(sent.payload).toBe(1)
+      expect(sent).not.toHaveProperty('textvalue')
+    })
+  })
+
+  describe('/GenericInput/x/Event', () => {
+    it('does not send a decoded event for the initial (cached) value', () => {
+      const { node, processMessage } = createGenericInputNode('/GenericInput/01/Event')
+
+      processMessage({ value: 2 })
+
+      expect(node.send).toHaveBeenCalledWith([expect.objectContaining({ payload: 2 }), null])
+    })
+
+    it('sends the decoded event on output 2 when the value changes', () => {
+      const { node, processMessage } = createGenericInputNode('/GenericInput/01/Event')
+
+      processMessage({ value: 0 })
+      processMessage({ value: 3 })
+      processMessage({ value: 2 })
+
+      const decoded = node.send.mock.calls.map(c => c[0][1])
+      expect(decoded[0]).toBeNull()
+      expect(decoded[1]).toEqual({
+        payload: 'single tap',
+        topic: 'Aurelia DCDB - input 01',
+        event: { type: 2, toggle: 1, raw: 3 }
+      })
+      expect(decoded[2]).toMatchObject({ payload: 'single tap', event: { raw: 2 } })
+      expect(node.send.mock.calls[1][0][0]).toEqual(expect.objectContaining({ payload: 3 }))
+      expect(node.status).toHaveBeenLastCalledWith(expect.objectContaining({ text: '2 (single tap)' }))
+    })
+
+    it('shows the last event type in the status after a deploy, without sending it', () => {
+      const { node, processMessage } = createGenericInputNode('/GenericInput/01/Event')
+
+      processMessage({ value: 3 })
+
+      expect(node.send).toHaveBeenCalledWith([expect.objectContaining({ payload: 3 }), null])
+      expect(node.status).toHaveBeenLastCalledWith(expect.objectContaining({ text: '3 (single tap)' }))
+    })
+
+    it('shows a plain status when the device has not reported an event yet', () => {
+      const { node, processMessage } = createGenericInputNode('/GenericInput/01/Event')
+
+      processMessage({ value: 0 })
+
+      expect(node.status).toHaveBeenLastCalledWith(expect.objectContaining({ text: '0' }))
+    })
+
+    it('does not send a decoded event when the same value is reported again', () => {
+      const { node, processMessage } = createGenericInputNode('/GenericInput/01/Event')
+
+      processMessage({ value: 2 })
+      processMessage({ value: 3 })
+      processMessage({ value: 3, changed: false })
+
+      expect(node.send.mock.calls.map(c => c[0][1] && c[0][1].payload)).toEqual([null, 'single tap', null])
+    })
+
+    it('decodes event types that the device does not document as unknown', () => {
+      const { node, processMessage } = createGenericInputNode('/GenericInput/01/Event')
+
+      processMessage({ value: 2 })
+      processMessage({ value: 17 })
+
+      expect(node.send.mock.calls[1][0][1]).toMatchObject({ payload: 'unknown', event: { type: 16, toggle: 1, raw: 17 } })
+    })
+
+    it('ignores a configured rate limit, so quick taps are not merged', () => {
+      jest.useFakeTimers()
+      try {
+        const { node, processMessage } = createGenericInputNode('/GenericInput/01/Event', { rateLimit: 1 })
+
+        processMessage({ value: 2 })
+        processMessage({ value: 3 })
+        processMessage({ value: 2 })
+
+        expect(node.send.mock.calls.map(c => c[0][1] && c[0][1].payload)).toEqual([null, 'single tap', 'single tap'])
+      } finally {
+        jest.useRealTimers()
+      }
+    })
+
+    it('decodes events instead of evaluating conditions when conditional mode is set', () => {
+      const { node, processMessage } = createGenericInputNode('/GenericInput/01/Event', {
+        conditionalMode: true,
+        condition1Operator: '>',
+        condition1Threshold: 1
+      })
+
+      processMessage({ value: 2 })
+      processMessage({ value: 3 })
+
+      expect(node.send).toHaveBeenCalledTimes(2)
+      expect(node.send.mock.calls[1][0][1]).toMatchObject({ payload: 'single tap' })
+    })
+  })
+})

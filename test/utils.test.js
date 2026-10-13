@@ -1,37 +1,34 @@
-const { mapCacheToJsonResponse, mapCacheValueToJsonResponseValue, validateVirtualDevicePayload, validateLightControls, debounce, throttle } = require('../src/services/utils');
+const { mapCacheToJsonResponse, mapCacheValueToJsonResponseValue, validateVirtualDevicePayload, validateLightControls, debounce, throttle, decodeGenericInputEvent, genericInputLabel } = require('../src/services/utils')
 
 describe('utils', () => {
-
   describe('mapCacheToJsonResponse', () => {
-
     it('should map a simple cache correctly', () => {
       const cache = {
         'com.some.device': {
           '/DeviceInstance': 123,
-          '/ProductName': 'Victron Device',
+          '/ProductName': 'Victron Device'
         }
-      };
+      }
 
       const expected = JSON.stringify({
         'com.some.device': {
           '/DeviceInstance': 123,
-          '/ProductName': 'Victron Device',
+          '/ProductName': 'Victron Device'
         }
-      });
+      })
 
-      const result = mapCacheToJsonResponse(cache);
-      expect(result).toEqual(expected);
-    });
+      const result = mapCacheToJsonResponse(cache)
+      expect(result).toEqual(expected)
+    })
 
     it('handles an empty cache', () => {
-      const cache = {};
-      const expected = JSON.stringify({});
-      const result = mapCacheToJsonResponse(cache);
-      expect(result).toEqual(expected);
-    });
+      const cache = {}
+      const expected = JSON.stringify({})
+      const result = mapCacheToJsonResponse(cache)
+      expect(result).toEqual(expected)
+    })
 
     it('handles some values (other than string, boolean, number) special by stringifying them', () => {
-
       const cache = {
         'com.some.device': {
           '/SomeArray': [1, 2, 3],
@@ -40,9 +37,9 @@ describe('utils', () => {
           '/SomeBoolean': true,
           '/SomeNumber': 42,
           '/SomeNull': null,
-          '/SomeDate': new Date(2024, 0, 1),  // Dates are objects, so will be iso-formatted
+          '/SomeDate': new Date(2024, 0, 1) // Dates are objects, so will be iso-formatted
         }
-      };
+      }
 
       const expected = JSON.stringify({
         'com.some.device': {
@@ -52,60 +49,56 @@ describe('utils', () => {
           '/SomeBoolean': true,
           '/SomeNumber': 42,
           '/SomeNull': null,
-          '/SomeDate': (new Date(2024, 0, 1)).toISOString(),
+          '/SomeDate': (new Date(2024, 0, 1)).toISOString()
         }
-      });
+      })
 
-      const result = mapCacheToJsonResponse(cache);
-      expect(result).toEqual(expected);
-    });
-
+      const result = mapCacheToJsonResponse(cache)
+      expect(result).toEqual(expected)
+    })
   })
 
   describe('mapCacheValueToJsonResponseValue', () => {
-
     it('returns strings as-is', () => {
-      expect(mapCacheValueToJsonResponseValue('test string')).toBe('test string');
-    });
+      expect(mapCacheValueToJsonResponseValue('test string')).toBe('test string')
+    })
 
     it('returns numbers as-is', () => {
-      expect(mapCacheValueToJsonResponseValue(42)).toBe(42);
-      expect(mapCacheValueToJsonResponseValue(3.14)).toBe(3.14);
-    });
+      expect(mapCacheValueToJsonResponseValue(42)).toBe(42)
+      expect(mapCacheValueToJsonResponseValue(3.14)).toBe(3.14)
+    })
 
     it('returns booleans as-is', () => {
-      expect(mapCacheValueToJsonResponseValue(true)).toBe(true);
-      expect(mapCacheValueToJsonResponseValue(false)).toBe(false);
-    });
+      expect(mapCacheValueToJsonResponseValue(true)).toBe(true)
+      expect(mapCacheValueToJsonResponseValue(false)).toBe(false)
+    })
 
     it('returns null as-is', () => {
-      expect(mapCacheValueToJsonResponseValue(null)).toBeNull();
-    });
+      expect(mapCacheValueToJsonResponseValue(null)).toBeNull()
+    })
 
     it('stringifies arrays', () => {
-      expect(mapCacheValueToJsonResponseValue([1, 2, 3])).toBe('[1,2,3]');
-      expect(mapCacheValueToJsonResponseValue(['a', 'b', 'c'])).toBe('["a","b","c"]');
-    });
+      expect(mapCacheValueToJsonResponseValue([1, 2, 3])).toBe('[1,2,3]')
+      expect(mapCacheValueToJsonResponseValue(['a', 'b', 'c'])).toBe('["a","b","c"]')
+    })
 
     it('stringifies objects', () => {
-      expect(mapCacheValueToJsonResponseValue({ key: 'value' })).toBe('{"key":"value"}');
-      expect(mapCacheValueToJsonResponseValue({ a: 1, b: 2 })).toBe('{"a":1,"b":2}');
-    });
+      expect(mapCacheValueToJsonResponseValue({ key: 'value' })).toBe('{"key":"value"}')
+      expect(mapCacheValueToJsonResponseValue({ a: 1, b: 2 })).toBe('{"a":1,"b":2}')
+    })
 
     it('stringifies dates to ISO format', () => {
-      const date = new Date(2024, 0, 1);
-      expect(mapCacheValueToJsonResponseValue(date)).toBe(date.toISOString());
-    });
+      const date = new Date(2024, 0, 1)
+      expect(mapCacheValueToJsonResponseValue(date)).toBe(date.toISOString())
+    })
 
     it('stringifies other types (e.g., functions) to their string representation', () => {
-      const func = function() { return 'test'; };
-      expect(mapCacheValueToJsonResponseValue(func)).toBe(func.toString());
-    });
-
+      const func = function () { return 'test' }
+      expect(mapCacheValueToJsonResponseValue(func)).toBe(func.toString())
+    })
   })
 
   describe('validateVirtualDevicePayload', () => {
-
     it('accepts valid object with strings, numbers, booleans, and null', () => {
       const payload = {
         Soc: 75,
@@ -236,7 +229,7 @@ describe('utils', () => {
     it('rejects object with invalid value types (function)', () => {
       const payload = {
         Soc: 75,
-        InvalidFunction: function() { return 'test' }
+        InvalidFunction: function () { return 'test' }
       }
       const result = validateVirtualDevicePayload(payload)
       expect(result.valid).toBe(false)
@@ -278,11 +271,9 @@ describe('utils', () => {
       expect(result.error).toContain('BadObject')
       expect(result.error).toContain('Expected: string, number, boolean, null, array of numbers, or array of strings')
     })
-
   })
 
   describe('validateLightControls', () => {
-
     it('accepts valid LightControls array with all zeros', () => {
       const result = validateLightControls([0, 0, 0, 0, 0])
       expect(result.valid).toBe(true)
@@ -402,11 +393,9 @@ describe('utils', () => {
       expect(result.error).toContain('White[3]=120')
       expect(result.error).toContain('ColorTemperature[4]=7000')
     })
-
   })
 
   describe('throttle', () => {
-
     beforeEach(() => {
       jest.useFakeTimers()
     })
@@ -438,11 +427,9 @@ describe('utils', () => {
       expect(func).toHaveBeenCalledTimes(2)
       expect(func).toHaveBeenCalledWith(3)
     })
-
   })
 
   describe('debounce', () => {
-
     beforeEach(() => {
       jest.useFakeTimers()
     })
@@ -517,7 +504,7 @@ describe('utils', () => {
 
     it('preserves this context', () => {
       const context = { value: 42 }
-      const func = jest.fn(function() {
+      const func = jest.fn(function () {
         return this.value
       })
       const debounced = debounce(func, 300)
@@ -529,7 +516,59 @@ describe('utils', () => {
       expect(func).toHaveBeenCalledTimes(1)
       expect(func.mock.instances[0]).toBe(context)
     })
-
   })
 
+  describe('decodeGenericInputEvent', () => {
+    it('decodes a single tap regardless of the toggle bit', () => {
+      expect(decodeGenericInputEvent(2)).toEqual({ name: 'single tap', type: 2, toggle: 0 })
+      expect(decodeGenericInputEvent(3)).toEqual({ name: 'single tap', type: 2, toggle: 1 })
+    })
+
+    it('decodes the double tap and swipe up types from the wiki', () => {
+      expect(decodeGenericInputEvent(5).name).toBe('double tap')
+      expect(decodeGenericInputEvent(8).name).toBe('swipe up')
+    })
+
+    it('reports undocumented types as unknown, keeping the type bits', () => {
+      expect(decodeGenericInputEvent(17)).toEqual({ name: 'unknown', type: 16, toggle: 1 })
+      expect(decodeGenericInputEvent(0)).toEqual({ name: 'unknown', type: 0, toggle: 0 })
+    })
+
+    it('returns null for values that are not an integer', () => {
+      expect(decodeGenericInputEvent(null)).toBeNull()
+      expect(decodeGenericInputEvent(undefined)).toBeNull()
+      expect(decodeGenericInputEvent('3')).toBeNull()
+      expect(decodeGenericInputEvent(2.5)).toBeNull()
+    })
+  })
+
+  describe('genericInputLabel', () => {
+    // As published by the Aurelia DCDB and stored in the dbus cache
+    const aureliaLabels = '["/released","/pressed","/holding"]'
+
+    it('strips the slash from reserved keywords', () => {
+      expect(genericInputLabel(aureliaLabels, 0)).toBe('released')
+      expect(genericInputLabel(aureliaLabels, 2)).toBe('holding')
+    })
+
+    it('accepts an already parsed array and keeps custom labels as-is', () => {
+      expect(genericInputLabel(['off', 'eco', '/on'], 1)).toBe('eco')
+      expect(genericInputLabel(['off', 'eco', '/on'], 2)).toBe('on')
+    })
+
+    it('returns undefined when there is no label for the value', () => {
+      expect(genericInputLabel(aureliaLabels, 3)).toBeUndefined()
+      expect(genericInputLabel(aureliaLabels, -1)).toBeUndefined()
+      expect(genericInputLabel(aureliaLabels, 1.5)).toBeUndefined()
+      expect(genericInputLabel(aureliaLabels, null)).toBeUndefined()
+    })
+
+    it('returns undefined for missing or malformed labels', () => {
+      expect(genericInputLabel(undefined, 0)).toBeUndefined()
+      expect(genericInputLabel(null, 0)).toBeUndefined()
+      expect(genericInputLabel('not json', 0)).toBeUndefined()
+      expect(genericInputLabel('{"0":"off"}', 0)).toBeUndefined()
+      expect(genericInputLabel('[1, 2]', 0)).toBeUndefined()
+    })
+  })
 })

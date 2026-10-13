@@ -72,6 +72,14 @@
             </select>
         </div>
 
+        <div class="victron-doc-box hidden" id="eventoutputsinfo">
+            <div class="victron-doc-text">
+                <strong>Outputs:</strong>
+                <div>Output 1 sends the raw event value. Its lowest bit toggles on every new event.</div>
+                <div>Output 2 sends the decoded event as reported by the device, e.g. <code>msg.payload</code> = <code>"single tap"</code>, with the details in <code>msg.event</code>. It only sends when a new event occurs, not for the value present at deploy.</div>
+            </div>
+        </div>
+
         <!-- Conditional Mode Section (Output 2) -->
         <div class="form-row" id="conditional-mode-toggle-row">
             <hr />
@@ -310,6 +318,10 @@
     "use strict";
 
     var serviceRoot = (RED.settings.httpNodeRoot || RED.settings.httpAdminRoot || "").replace(/\/$/, "") + '/victron/services/';
+
+    function isGenericInputEventPath(path) {
+        return /^\/GenericInput\/[^/]+\/Event$/.test(path || '');
+    }
 
     function initializeConditionalMode(node) {
         const $conditionalMode = $('#node-input-conditionalMode');
@@ -1033,6 +1045,25 @@
             // Initialize conditional mode for input nodes only
             if (!isOutputNode) {
                 node._conditionalModeCleanup = initializeConditionalMode(node);
+
+                // Output 2 carries the decoded event, and a rate limit would merge events
+                // as they are only visible as value changes
+                var updateEventOutputs = function updateEventOutputs() {
+                    var isEventPath = isGenericInputEventPath(pathElem.val());
+                    $('#eventoutputsinfo').toggleClass('hidden', !isEventPath);
+                    $('#conditional-mode-toggle-row').toggle(!isEventPath);
+                    $('#conditional-preview-panel').toggle(!isEventPath);
+                    $('#rateLimit').toggle(!isEventPath);
+                    if (isEventPath) {
+                        $('#node-input-rateLimit').val('0');
+                    }
+                    if (isEventPath && $('#node-input-conditionalMode').is(':checked')) {
+                        $('#node-input-conditionalMode').prop('checked', false).trigger('change');
+                    }
+                };
+                updateEventOutputs();
+                serviceElem.change(updateEventOutputs);
+                pathElem.change(updateEventOutputs);
             }
 
             updateCommunityLink();
@@ -1131,7 +1162,8 @@
             }
 
             // Update outputs count based on conditional mode
-            node.outputs = node.conditionalMode ? 2 : 1;
+            // (node.path is only updated from the form after oneditsave)
+            node.outputs = (node.conditionalMode || isGenericInputEventPath($('#node-input-path').val())) ? 2 : 1;
         } else {
             // Output nodes have no outputs
             node.outputs = 0;
@@ -1240,6 +1272,7 @@
             inputs: isOutputNode ? 1 : 0,
             outputs: isOutputNode ? 0 : 1,
             outputLabels: isOutputNode ? undefined : function(index) {
+                if (isGenericInputEventPath(this.path)) return index === 0 ? "value" : "event";
                 if (!this.conditionalMode) return undefined;
                 return index === 0 ? "value" : "conditional";
             },

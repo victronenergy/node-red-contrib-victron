@@ -193,10 +193,11 @@ function expandWildcardPaths (pathObj, cachedPaths, serviceName) {
           }
         }
 
-        // For switches (and switch-like SwitchableOutput services, e.g. heatpump), try custom names (only for 'type' wildcard)
-        if ((serviceName === 'switch' || serviceName === 'heatpump') && wildcardName === 'type') {
-          const customNamePath = `/SwitchableOutput/${wildcardValue}/Settings/CustomName`
-          const namePath = `/SwitchableOutput/${wildcardValue}/Name`
+        // For switches (and switch-like SwitchableOutput services, e.g. heatpump), try custom names
+        const channelApi = { type: 'SwitchableOutput', input: 'GenericInput' }[wildcardName]
+        if ((serviceName === 'switch' || serviceName === 'heatpump') && channelApi) {
+          const customNamePath = `/${channelApi}/${wildcardValue}/Settings/CustomName`
+          const namePath = `/${channelApi}/${wildcardValue}/Name`
           const customName = cachedPaths[customNamePath] || cachedPaths[namePath]
 
           if (customName && customName.trim()) {
@@ -473,6 +474,40 @@ function throttle (func, limitInMs) {
   }
 }
 
+// See https://github.com/victronenergy/venus/wiki/dbus#generic-input-api
+const GENERIC_INPUT_EVENT_TYPES = {
+  2: 'single tap',
+  4: 'double tap',
+  8: 'swipe up'
+}
+
+// Bit 0 toggles on every new event, so a repeated event of the same type still changes the value
+function decodeGenericInputEvent (value) {
+  if (!Number.isInteger(value)) return null
+  const type = value & ~1
+  return {
+    name: GENERIC_INPUT_EVENT_TYPES[type] || 'unknown',
+    type,
+    toggle: value & 1
+  }
+}
+
+// Reserved label keywords like "/pressed" are returned without the slash
+function genericInputLabel (labels, value) {
+  let list = labels
+  if (typeof labels === 'string') {
+    try {
+      list = JSON.parse(labels)
+    } catch (e) {
+      return undefined
+    }
+  }
+  if (!Array.isArray(list) || !Number.isInteger(value)) return undefined
+  const label = list[value]
+  if (typeof label !== 'string') return undefined
+  return label.replace(/^\//, '')
+}
+
 module.exports = {
   CONNECTED,
   DISCONNECTED,
@@ -493,5 +528,7 @@ module.exports = {
   validateVirtualDevicePayload,
   validateLightControls,
   debounce,
-  throttle
+  throttle,
+  decodeGenericInputEvent,
+  genericInputLabel
 }
