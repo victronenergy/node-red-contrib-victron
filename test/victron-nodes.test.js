@@ -14,6 +14,7 @@ function buildMockRED ({ services = {}, connected = true, hasConfigNode = true, 
         self.on = jest.fn()
         self.send = jest.fn()
         self.error = jest.fn()
+        self.warn = jest.fn()
         self.context = jest.fn().mockReturnValue({ global: { set: jest.fn() } })
         self.status = jest.fn()
       },
@@ -367,5 +368,137 @@ describe('victron-nodes global context regression (#535)', () => {
     } finally {
       warnSpy.mockRestore()
     }
+  })
+})
+
+describe('victron-nodes output feedback loop warning (#574)', () => {
+  const relayDef = {
+    name: 'Relay',
+    service: 'com.victronenergy.system',
+    path: '/Relay/1/State',
+    serviceObj: { name: 'System' },
+    pathObj: { name: 'Relay State', type: 'enum', enum: { 0: 'Open', 1: 'Closed' } }
+  }
+
+  // Sends msgs to the node's input handler, advancing the clock by intervalMs before each
+  function writeSequence (node, payloads, intervalMs, path) {
+    const inputHandler = node.on.mock.calls.find(c => c[0] === 'input')[1]
+    payloads.forEach(payload => {
+      jest.advanceTimersByTime(intervalMs)
+      inputHandler(path ? { payload, path } : { payload })
+    })
+  }
+
+  beforeEach(() => {
+    jest.useFakeTimers()
+    jest.setSystemTime(new Date('2026-10-13T12:00:00Z'))
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
+  })
+
+  it('warns when the written value keeps flipping within a second, and still publishes every write', () => {
+    const { BaseOutputNode, publish } = buildMockRED()
+    const node = new BaseOutputNode(relayDef)
+
+    writeSequence(node, [1, 0, 1, 0, 1, 0, 1, 0], 30)
+
+    expect(node.warn).toHaveBeenCalledTimes(1)
+    expect(node.warn.mock.calls[0][0]).toMatch(/feedback loop/i)
+    expect(node.warn.mock.calls[0][0]).toContain('/Relay/1/State')
+    expect(publish).toHaveBeenCalledTimes(8)
+  })
+
+  it('does not warn when the same value is written rapidly', () => {
+    const { BaseOutputNode } = buildMockRED()
+    const node = new BaseOutputNode(relayDef)
+
+    writeSequence(node, Array(20).fill(1), 30)
+
+    expect(node.warn).not.toHaveBeenCalled()
+  })
+
+  it('does not warn for a few quick changes', () => {
+    const { BaseOutputNode } = buildMockRED()
+    const node = new BaseOutputNode(relayDef)
+
+    writeSequence(node, [1, 0, 1, 0], 30)
+
+    expect(node.warn).not.toHaveBeenCalled()
+  })
+
+  it('does not warn when values alternate slower than the detection window allows', () => {
+    const { BaseOutputNode } = buildMockRED()
+    const node = new BaseOutputNode(relayDef)
+
+    writeSequence(node, [1, 0, 1, 0, 1, 0, 1, 0, 1, 0], 300)
+
+    expect(node.warn).not.toHaveBeenCalled()
+  })
+
+  it('warns at most once per minute while the loop continues', () => {
+    const { BaseOutputNode } = buildMockRED()
+    const node = new BaseOutputNode(relayDef)
+
+    // 30s of continuous flipping
+    writeSequence(node, Array.from({ length: 1000 }, (_, i) => i % 2), 30)
+    expect(node.warn).toHaveBeenCalledTimes(1)
+
+    // another 40s: past the one-minute mark
+    writeSequence(node, Array.from({ length: 1334 }, (_, i) => i % 2), 30)
+    expect(node.warn).toHaveBeenCalledTimes(2)
+  })
+
+  it('tracks each msg.path separately', () => {
+    const { BaseOutputNode } = buildMockRED()
+    const node = new BaseOutputNode(relayDef)
+    const inputHandler = node.on.mock.calls.find(c => c[0] === 'input')[1]
+
+    // Alternating between two paths, each always receiving the same value
+    for (let i = 0; i < 10; i++) {
+      jest.advanceTimersByTime(30)
+      inputHandler({ payload: 1, path: '/Relay/0/State' })
+      jest.advanceTimersByTime(30)
+      inputHandler({ payload: 0, path: '/Relay/1/State' })
+    }
+
+    expect(node.warn).not.toHaveBeenCalled()
+  })
+
+  it('does not count writes that fail validation', () => {
+    const { BaseOutputNode, publish } = buildMockRED()
+    const node = new BaseOutputNode(relayDef)
+
+    writeSequence(node, [1, 'x', 1, 'x', 1, 'x', 1, 'x'], 30)
+
+    expect(node.warn).not.toHaveBeenCalled()
+    expect(publish).toHaveBeenCalledTimes(4)
+  })
+
+  it('still publishes object payloads that cannot be serialized', () => {
+    const { BaseOutputNode, publish } = buildMockRED()
+    const node = new BaseOutputNode({ ...relayDef, path: '/Settings', pathObj: { name: 'Settings', type: 'object' } })
+    const circular = { a: 1 }
+    circular.self = circular
+
+    expect(() => writeSequence(node, [circular, { big: 1n }], 30)).not.toThrow()
+    expect(publish).toHaveBeenCalledTimes(2)
+  })
+
+  it('forgets the last value of a path that has not been written for longer than the detection window', () => {
+    const { BaseOutputNode } = buildMockRED()
+    const node = new BaseOutputNode(relayDef)
+    const inputHandler = node.on.mock.calls.find(c => c[0] === 'input')[1]
+
+    inputHandler({ payload: 1 })
+    jest.advanceTimersByTime(2000)
+    // Writing a new path prunes the stale /Relay/1/State entry
+    inputHandler({ payload: 1, path: '/Relay/0/State' })
+
+    // Had the stale value 1 been kept, the first 0 would count as a change, making 5
+    writeSequence(node, [0, 1, 0, 1, 0], 30)
+
+    expect(node.warn).not.toHaveBeenCalled()
   })
 })
