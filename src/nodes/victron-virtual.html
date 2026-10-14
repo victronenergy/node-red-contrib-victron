@@ -122,12 +122,13 @@
                 self.device = 'e-drive';
             }
 
-            // EV brand: known brands come from the dropdown, anything else is typed under "Other"
-            const { evBrandToSelection, EV_BRAND_OTHER } = window.__victron;
+            // EV brand: known brands are listed in EV_BRANDS, anything else is typed under "Other"
+            const { EV_BRANDS, evBrandToSelection, EV_BRAND_OTHER } = window.__victron;
             const $brandSelect = $('#ev-brand-select');
-            const knownBrands = $brandSelect.find('option').map(function() { return this.value; }).get()
-                .filter(function(v) { return v !== '' && v !== EV_BRAND_OTHER; });
-            const brandSelection = evBrandToSelection(self.ev_brand, knownBrands);
+            $brandSelect.find('option[value="' + EV_BRAND_OTHER + '"]').before(EV_BRANDS.map(function(brand) {
+                return $('<option>').val(brand.value).text(brand.label);
+            }));
+            const brandSelection = evBrandToSelection(self.ev_brand);
             $brandSelect.val(brandSelection.select);
             $('#node-input-ev_brand').val(brandSelection.custom);
             $('#ev-brand-custom-row').toggle(brandSelection.select === EV_BRAND_OTHER);
@@ -464,54 +465,6 @@
                 </label>
                 <select id="ev-brand-select">
                     <option value="" disabled hidden>Select a brand</option>
-                    <option value="acura">Acura</option>
-                    <option value="alfaromeo">Alfa Romeo</option>
-                    <option value="alpine">Alpine</option>
-                    <option value="audi">Audi</option>
-                    <option value="bmw">BMW</option>
-                    <option value="byd">BYD</option>
-                    <option value="cadillac">Cadillac</option>
-                    <option value="chevrolet">Chevrolet</option>
-                    <option value="chrysler">Chrysler</option>
-                    <option value="citroen">Citroën</option>
-                    <option value="cupra">Cupra</option>
-                    <option value="dacia">Dacia</option>
-                    <option value="dodge">Dodge</option>
-                    <option value="ds">DS</option>
-                    <option value="fiat">Fiat</option>
-                    <option value="ford">Ford</option>
-                    <option value="gmc">GMC</option>
-                    <option value="honda">Honda</option>
-                    <option value="hyundai">Hyundai</option>
-                    <option value="jaguar">Jaguar</option>
-                    <option value="jeep">Jeep</option>
-                    <option value="kia">Kia</option>
-                    <option value="lancia">Lancia</option>
-                    <option value="landrover">Land Rover</option>
-                    <option value="lexus">Lexus</option>
-                    <option value="lucid">Lucid</option>
-                    <option value="mazda">Mazda</option>
-                    <option value="mercedes">Mercedes-Benz</option>
-                    <option value="mg">MG</option>
-                    <option value="mini">MINI</option>
-                    <option value="nio">NIO</option>
-                    <option value="nissan">Nissan</option>
-                    <option value="opel">Opel</option>
-                    <option value="peugeot">Peugeot</option>
-                    <option value="polestar">Polestar</option>
-                    <option value="porsche">Porsche</option>
-                    <option value="ram">RAM</option>
-                    <option value="renault">Renault</option>
-                    <option value="rivian">Rivian</option>
-                    <option value="seat">SEAT</option>
-                    <option value="skoda">Škoda</option>
-                    <option value="subaru">Subaru</option>
-                    <option value="tesla">Tesla</option>
-                    <option value="toyota">Toyota</option>
-                    <option value="vauxhall">Vauxhall</option>
-                    <option value="volkswagen">Volkswagen</option>
-                    <option value="volvo">Volvo</option>
-                    <option value="xpeng">XPeng</option>
                     <option value="__other">Other (not listed)</option>
                 </select>
             </div>

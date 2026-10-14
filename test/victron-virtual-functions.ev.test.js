@@ -66,12 +66,20 @@ describe('fetchEvChargers', () => {
 })
 
 describe('EV brand dropdown', () => {
-  const { evBrandToSelection, evBrandFromSelection, EV_BRAND_OTHER } = require('./fixtures/victron-virtual-functions.cjs')
-  const known = ['tesla', 'kia']
+  const { EV_BRANDS, evBrandToSelection, evBrandFromSelection, EV_BRAND_OTHER } = require('./fixtures/victron-virtual-functions.cjs')
+
+  describe('EV_BRANDS', () => {
+    test('has unique values that do not clash with the dropdown sentinels', () => {
+      const values = EV_BRANDS.map(b => b.value)
+      expect(new Set(values).size).toBe(values.length)
+      expect(values).not.toContain('')
+      expect(values).not.toContain(EV_BRAND_OTHER)
+    })
+  })
 
   describe('evBrandToSelection', () => {
     test('selects a known brand without custom text', () => {
-      expect(evBrandToSelection('tesla', known)).toEqual({ select: 'tesla', custom: '' })
+      expect(evBrandToSelection('tesla')).toEqual({ select: 'tesla', custom: '' })
     })
 
     test.each([
@@ -80,19 +88,19 @@ describe('EV brand dropdown', () => {
       ['empty', ''],
       ['whitespace only', '  ']
     ])('selects the placeholder when the stored brand is %s', (_desc, brand) => {
-      expect(evBrandToSelection(brand, known)).toEqual({ select: '', custom: '' })
+      expect(evBrandToSelection(brand)).toEqual({ select: '', custom: '' })
     })
 
     test('shows a stored "unknown" as typed custom text', () => {
-      expect(evBrandToSelection('unknown', known)).toEqual({ select: EV_BRAND_OTHER, custom: 'unknown' })
+      expect(evBrandToSelection('unknown')).toEqual({ select: EV_BRAND_OTHER, custom: 'unknown' })
     })
 
     test('selects Other and keeps a custom brand as typed', () => {
-      expect(evBrandToSelection('Lynk & Co', known)).toEqual({ select: EV_BRAND_OTHER, custom: 'Lynk & Co' })
+      expect(evBrandToSelection('Lynk & Co')).toEqual({ select: EV_BRAND_OTHER, custom: 'Lynk & Co' })
     })
 
     test('treats a differently cased known brand as custom text', () => {
-      expect(evBrandToSelection('Tesla', known)).toEqual({ select: EV_BRAND_OTHER, custom: 'Tesla' })
+      expect(evBrandToSelection('Tesla')).toEqual({ select: EV_BRAND_OTHER, custom: 'Tesla' })
     })
   })
 
@@ -114,7 +122,7 @@ describe('EV brand dropdown', () => {
     })
 
     test('round-trips a custom brand', () => {
-      const { select, custom } = evBrandToSelection('Lynk & Co', known)
+      const { select, custom } = evBrandToSelection('Lynk & Co')
       expect(evBrandFromSelection(select, custom)).toBe('Lynk & Co')
     })
   })
