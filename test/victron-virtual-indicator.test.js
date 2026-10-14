@@ -45,8 +45,8 @@ describe('createIndicatorProperties', () => {
     test('sets top-level State to 0x100 (Running)', () => {
       const { ifaceDesc, iface } = makeIfaceAndDesc()
       createIndicatorProperties({}, ifaceDesc, iface)
-      expect(iface['State']).toBe(0x100)
-      expect(ifaceDesc.properties['State']).toBeDefined()
+      expect(iface.State).toBe(0x100)
+      expect(ifaceDesc.properties.State).toBeDefined()
     })
 
     test('sets Settings/ShowUIInput to 1 by default', () => {
@@ -85,6 +85,19 @@ describe('createIndicatorProperties', () => {
       const { ifaceDesc, iface } = makeIfaceAndDesc()
       createIndicatorProperties({ unit: '/Temperature' }, ifaceDesc, iface)
       expect(iface['GenericInput/0/Settings/Unit']).toBe('/Temperature')
+    })
+
+    test.each([1, 2])('sets Settings/Unit for type %i', (type) => {
+      const { ifaceDesc, iface } = makeIfaceAndDesc()
+      createIndicatorProperties({ indicator_type: type, unit: 'kW' }, ifaceDesc, iface)
+      expect(iface['GenericInput/0/Settings/Unit']).toBe('kW')
+    })
+
+    test.each([0, 3])('does not set Settings/Unit for type %i, even when configured', (type) => {
+      const { ifaceDesc, iface } = makeIfaceAndDesc()
+      createIndicatorProperties({ indicator_type: type, unit: 'kW' }, ifaceDesc, iface)
+      expect(ifaceDesc.properties['GenericInput/0/Settings/Unit']).toBeUndefined()
+      expect(iface).not.toHaveProperty(['GenericInput/0/Settings/Unit'])
     })
   })
 
@@ -137,6 +150,19 @@ describe('createIndicatorProperties', () => {
       const { ifaceDesc, iface } = makeIfaceAndDesc()
       createIndicatorProperties({ primary_label: 'Power' }, ifaceDesc, iface)
       expect(iface['GenericInput/0/Settings/PrimaryLabel']).toBe('Power')
+    })
+
+    test.each([0, 1])('sets Settings/PrimaryLabel for type %i', (type) => {
+      const { ifaceDesc, iface } = makeIfaceAndDesc()
+      createIndicatorProperties({ indicator_type: type, primary_label: 'Power' }, ifaceDesc, iface)
+      expect(iface['GenericInput/0/Settings/PrimaryLabel']).toBe('Power')
+    })
+
+    test.each([2, 3])('does not set Settings/PrimaryLabel for type %i, even when configured', (type) => {
+      const { ifaceDesc, iface } = makeIfaceAndDesc()
+      createIndicatorProperties({ indicator_type: type, primary_label: 'Power' }, ifaceDesc, iface)
+      expect(ifaceDesc.properties['GenericInput/0/Settings/PrimaryLabel']).toBeUndefined()
+      expect(iface).not.toHaveProperty(['GenericInput/0/Settings/PrimaryLabel'])
     })
   })
 

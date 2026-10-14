@@ -19,6 +19,7 @@ function createIndicatorProperties (config, ifaceDesc, iface) {
   const indicatorType = Number(config.indicator_type ?? 1)
   const hasRange = indicatorType === 2 || indicatorType === 3
   const isDiscrete = indicatorType === 0
+  const isTemperature = indicatorType === 3
 
   const INDICATOR_STATUS_NAMES = { 0: 'Ok', 3: 'Not connected' }
 
@@ -64,7 +65,8 @@ function createIndicatorProperties (config, ifaceDesc, iface) {
     }
   ]
 
-  if (config.unit !== undefined && config.unit !== '') {
+  // Hidden editor rows keep their stored value, so gate on type as well
+  if (!isDiscrete && !isTemperature && config.unit !== undefined && config.unit !== '') {
     properties.push({ name: 'Settings/Unit', type: 's', value: config.unit })
   }
 
@@ -85,7 +87,7 @@ function createIndicatorProperties (config, ifaceDesc, iface) {
     properties.push({ name: 'Settings/Decimals', type: 'i', value: Number(config.decimals), format: (v) => `${v} dp` })
   }
 
-  if (config.primary_label !== undefined && config.primary_label !== '') {
+  if (!hasRange && config.primary_label !== undefined && config.primary_label !== '') {
     properties.push({ name: 'Settings/PrimaryLabel', type: 's', value: config.primary_label })
   }
 
