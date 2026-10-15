@@ -189,10 +189,8 @@ function deviceTypesHandler (_req, res) {
 }
 
 module.exports = function (RED) {
-  // httpAdmin for the editor's relative URLs (#576); httpNode kept for backward compatibility
-  for (const app of [RED.httpAdmin, RED.httpNode]) {
-    app.get('/victron/virtual-device-types', deviceTypesHandler)
-  }
+  // httpAdmin for the editor's relative URLs (#576)
+  RED.httpAdmin.get('/victron/virtual-device-types', deviceTypesHandler)
 
   // Shared state across all instances
   let hasRunOnce = false

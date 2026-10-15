@@ -98,7 +98,9 @@ $.getJSON('/victron/virtual-device-types')
 $.getJSON('victron/virtual-device-types')
 ```
 
-The same pattern applies to any `$.ajax`, `fetch`, or other HTTP call made inside an edit dialog.
+The same pattern applies to any other HTTP call made inside an edit dialog.
+
+Use `$.getJSON`/`$.ajax`, not `fetch`. When `adminAuth` is enabled (as in the Home Assistant add-on), Node-RED adds the access token to jQuery requests only, so a `fetch` to an endpoint behind `RED.auth.needsPermission` gets a 401.
 
 ## Dynamic Content
 

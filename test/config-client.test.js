@@ -13,7 +13,6 @@ function buildMockRED () {
   const registeredTypes = {}
   const mockRED = {
     httpAdmin: { get: jest.fn() },
-    httpNode: { get: jest.fn() },
     auth: { needsPermission: jest.fn() },
     nodes: {
       registerType: (type, fn) => { registeredTypes[type] = fn },
@@ -34,11 +33,6 @@ describe('config-client editor endpoints', () => {
   it.each(['/victron/services/:service?', '/victron/cache'])('registers %s on httpAdmin', (path) => {
     const { mockRED } = buildMockRED()
     expect(routesOf(mockRED.httpAdmin)).toHaveProperty([path])
-  })
-
-  it.each(['/victron/services/:service?', '/victron/cache'])('keeps %s on httpNode with the same handlers', (path) => {
-    const { mockRED } = buildMockRED()
-    expect(routesOf(mockRED.httpNode)[path]).toEqual(routesOf(mockRED.httpAdmin)[path])
   })
 })
 

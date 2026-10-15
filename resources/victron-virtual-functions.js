@@ -1819,15 +1819,16 @@
 	  }
 	}
 
-	// Without a baseUrl the path stays relative, so it resolves against the editor's own location
-	// and keeps any reverse-proxy prefix such as Home Assistant ingress (#576).
-	function editorApiUrl (baseUrl, path) {
-	  return baseUrl ? `${baseUrl}/${path}` : path
+	// Editor endpoint URLs are relative so they resolve against the editor's own location and keep
+	// any reverse-proxy prefix such as Home Assistant ingress (#576). $.getJSON rather than fetch:
+	// Node-RED adds the admin auth token to jQuery requests only, and /victron/cache answers 401
+	// without it when adminAuth is on (as in the Home Assistant add-on).
+	function getEditorJson (url) {
+	  return Promise.resolve($.getJSON(url))
 	}
 
-	function fetchEvChargers (baseUrl) {
-	  return fetch(editorApiUrl(baseUrl, 'victron/cache'))
-	    .then(response => response.json())
+	function fetchEvChargers () {
+	  return getEditorJson('victron/cache')
 	    .then(data => {
 	      const result = [];
 	      for (const service in data) {
@@ -1924,18 +1925,16 @@
 	 * value and threading it into checkSelectedVirtualDevice/calculateOutputs/determineOutputLabel -
 	 * this module holds no capability state of its own.
 	 */
-	function fetchDeviceCapabilities (baseUrl) {
-	  return fetch(editorApiUrl(baseUrl, 'victron/virtual-device-types'))
-	    .then(response => response.json())
+	function fetchDeviceCapabilities () {
+	  return getEditorJson('victron/virtual-device-types')
 	}
 
-	function fetchSwitchNodeNameAndGroupFromCache (id, baseUrl) {
+	function fetchSwitchNodeNameAndGroupFromCache (id) {
 	  if (!id) {
 	    return Promise.reject(new Error('id is required'))
 	  }
 
-	  return fetch(editorApiUrl(baseUrl, `victron/cache?filter_by_serial=${id}`))
-	    .then(response => response.json())
+	  return getEditorJson(`victron/cache?filter_by_serial=${id}`)
 	    .then(data => {
 	      for (const key in data) {
 	        if (key.match(/^com.victronenergy\./) && data[key]['/Serial'] === id) {

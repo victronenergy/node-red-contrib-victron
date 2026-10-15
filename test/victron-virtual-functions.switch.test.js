@@ -45,13 +45,13 @@ function createMockElement (customValues = {}) {
 global.$ = jest.fn()
 
 describe('fetchSwitchNodeNameAndGroupFromCache', () => {
-  const originalFetch = global.fetch
   beforeEach(() => {
     jest.clearAllMocks()
+    global.$.getJSON = jest.fn()
   })
 
   afterAll(() => {
-    global.fetch = originalFetch
+    delete global.$.getJSON
   })
 
   test('returns name and group when found in cache', async () => {
@@ -63,10 +63,7 @@ describe('fetchSwitchNodeNameAndGroupFromCache', () => {
       }
     }
 
-    global.fetch = jest.fn(() => Promise.resolve({
-      ok: true,
-      json: () => Promise.resolve(mockCache)
-    }))
+    global.$.getJSON.mockResolvedValue(mockCache)
 
     const result = await fetchSwitchNodeNameAndGroupFromCache('12345')
     expect(result).toEqual({ name: 'Test Switch', group: 'Test Group' })
@@ -82,12 +79,8 @@ describe('fetchSwitchNodeNameAndGroupFromCache', () => {
       expect(e.message).toMatch('id is required')
     }
 
-    // expect it to fail if fetch fails
-    global.fetch = jest.fn(() => Promise.resolve({
-      ok: false,
-      status: 500,
-      statusText: 'Internal Server Error'
-    }))
+    // expect it to fail if the request fails
+    global.$.getJSON.mockRejectedValue(new Error('Internal Server Error'))
 
     try {
       await fetchSwitchNodeNameAndGroupFromCache('12345')
@@ -97,59 +90,35 @@ describe('fetchSwitchNodeNameAndGroupFromCache', () => {
     }
   })
 
-  // Regression coverage for #471.
+  // Regression coverage for #471 and #576.
   //
-  // The /victron/cache endpoint is registered on RED.httpNode (see config-client.js), so
-  // when the user configures an httpNodeRoot (e.g. '/local-dev') Node-RED serves it at
-  // '/local-dev/victron/cache' - NOT at '/victron/cache'. The original code fetched the
-  // bare '/victron/cache', which 404s and returns Node-RED's HTML error page; calling
-  // response.json() on that HTML throws "SyntaxError: Unexpected token '<'" - the exact
-  // error reported in #471. The fix threads the editor's httpNodeRoot base URL through the
-  // request, matching the sibling fetchEvChargers()/fetchDeviceCapabilities() helpers.
-  describe('#471 - respects httpNodeRoot when requesting the cache', () => {
+  // A root-relative '/victron/cache' 404s whenever the editor is not served at '/', either
+  // through httpAdminRoot (#471) or a reverse-proxy prefix such as Home Assistant ingress
+  // (#576), and response.json() on the HTML error page throws "SyntaxError: Unexpected
+  // token '<'" - the error reported in #471. A relative URL resolves against the editor's
+  // own location, which covers both.
+  describe('#471/#576 - requests the cache relative to the editor', () => {
     // A real node id from the bug report, to keep the reproduction concrete.
     const NODE_ID = '2cdd7d25339e162f'
 
     function mockCacheResponse (body) {
-      global.fetch = jest.fn(() => Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve(body)
-      }))
+      global.$.getJSON.mockResolvedValue(body)
     }
 
-    test('SOLVES #471: prefixes the httpNodeRoot base URL so the request reaches the real endpoint', async () => {
-      mockCacheResponse({})
-
-      await fetchSwitchNodeNameAndGroupFromCache(NODE_ID, '/local-dev')
-
-      // Requests the path where httpNodeRoot actually serves the endpoint...
-      expect(global.fetch).toHaveBeenCalledWith(`/local-dev/victron/cache?filter_by_serial=${NODE_ID}`)
-      // ...and never the bare path that 404s once httpNodeRoot is non-default.
-      expect(global.fetch).not.toHaveBeenCalledWith(`/victron/cache?filter_by_serial=${NODE_ID}`)
-    })
-
-    // #576: without a base URL the path is relative, so it resolves against the editor's own
-    // location and keeps any reverse-proxy prefix (e.g. Home Assistant ingress).
-    test('with no base URL, requests a relative path', async () => {
+    test('requests a relative path', async () => {
       mockCacheResponse({})
 
       await fetchSwitchNodeNameAndGroupFromCache(NODE_ID)
 
-      expect(global.fetch).toHaveBeenCalledWith(`victron/cache?filter_by_serial=${NODE_ID}`)
+      expect(global.$.getJSON).toHaveBeenCalledWith(`victron/cache?filter_by_serial=${NODE_ID}`)
     })
 
     test('RECREATES #471: a 404 HTML response (the pre-fix symptom) rejects the lookup', async () => {
-      // Before the fix, the un-prefixed request 404'd and returned Node-RED's HTML error
-      // page; response.json() on HTML rejects with a SyntaxError, which surfaced as the
-      // console error in the bug report. Assert that failure path explicitly.
-      global.fetch = jest.fn(() => Promise.resolve({
-        ok: false,
-        status: 404,
-        json: () => Promise.reject(new SyntaxError("Unexpected token '<'"))
-      }))
+      // $.getJSON rejects with the jqXHR when the response is not JSON, e.g. an HTML 404 page
+      const jqXHR = { status: 404, responseText: '<!DOCTYPE html>' }
+      global.$.getJSON.mockReturnValue(Promise.reject(jqXHR))
 
-      await expect(fetchSwitchNodeNameAndGroupFromCache(NODE_ID, '/local-dev'))
-        .rejects.toThrow(/Unexpected token '<'/)
+      await expect(fetchSwitchNodeNameAndGroupFromCache(NODE_ID)).rejects.toBe(jqXHR)
     })
   })
 })

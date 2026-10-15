@@ -1271,22 +1271,25 @@ describe('updateSwitchLivePreview', () => {
 })
 
 describe('fetchDeviceCapabilities', () => {
+  let original$
+
   beforeEach(() => {
-    global.fetch = jest.fn(() => Promise.resolve({ json: () => Promise.resolve([]) }))
+    original$ = global.$
+    global.$ = { getJSON: jest.fn().mockResolvedValue([]) }
   })
 
   afterEach(() => {
-    delete global.fetch
+    global.$ = original$
   })
 
   // #576: relative, so it keeps a reverse-proxy prefix such as Home Assistant ingress
-  test('requests a relative path when no baseUrl is given', async () => {
+  test('requests a relative path', async () => {
     await fetchDeviceCapabilities()
-    expect(global.fetch).toHaveBeenCalledWith('victron/virtual-device-types')
+    expect(global.$.getJSON).toHaveBeenCalledWith('victron/virtual-device-types')
   })
 
-  test('prefixes baseUrl when given', async () => {
-    await fetchDeviceCapabilities('/node-red')
-    expect(global.fetch).toHaveBeenCalledWith('/node-red/victron/virtual-device-types')
+  test('resolves with the response body', async () => {
+    global.$.getJSON.mockResolvedValue([{ value: 'ev', label: 'Electric Vehicle' }])
+    await expect(fetchDeviceCapabilities()).resolves.toEqual([{ value: 'ev', label: 'Electric Vehicle' }])
   })
 })

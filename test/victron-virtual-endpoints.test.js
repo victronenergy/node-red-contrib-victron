@@ -4,7 +4,6 @@ const virtualInitFunction = require('../src/nodes/victron-virtual')
 function buildMockRED () {
   const mockRED = {
     httpAdmin: { get: jest.fn() },
-    httpNode: { get: jest.fn() },
     nodes: { registerType: jest.fn() }
   }
   virtualInitFunction(mockRED)
@@ -22,11 +21,5 @@ describe('victron-virtual editor endpoints', () => {
   it('registers /victron/virtual-device-types on httpAdmin', () => {
     const mockRED = buildMockRED()
     expect(handlersFor(mockRED.httpAdmin, '/victron/virtual-device-types')).toBeDefined()
-  })
-
-  it('keeps /victron/virtual-device-types on httpNode with the same handler', () => {
-    const mockRED = buildMockRED()
-    expect(handlersFor(mockRED.httpNode, '/victron/virtual-device-types'))
-      .toEqual(handlersFor(mockRED.httpAdmin, '/victron/virtual-device-types'))
   })
 })

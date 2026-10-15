@@ -4,13 +4,13 @@ const { fetchEvChargers } = require('./fixtures/victron-virtual-functions.cjs')
 
 describe('fetchEvChargers', () => {
   afterEach(() => {
-    global.fetch = undefined
+    delete global.$
+    delete global.fetch
   })
 
   function mockFetch (data) {
-    global.fetch = jest.fn().mockResolvedValue({
-      json: () => Promise.resolve(data)
-    })
+    global.$ = { getJSON: jest.fn().mockResolvedValue(data) }
+    global.fetch = jest.fn()
   }
 
   test('returns chargers found in cache', async () => {
@@ -20,7 +20,7 @@ describe('fetchEvChargers', () => {
         '/CustomName': 'My EV Charger'
       }
     })
-    const result = await fetchEvChargers('')
+    const result = await fetchEvChargers()
     expect(result).toEqual([{ deviceInstance: 40, name: 'My EV Charger' }])
   })
 
@@ -30,7 +30,7 @@ describe('fetchEvChargers', () => {
         '/DeviceInstance': 40
       }
     })
-    const result = await fetchEvChargers('')
+    const result = await fetchEvChargers()
     expect(result).toEqual([{ deviceInstance: 40, name: 'EV Charger' }])
   })
 
@@ -38,7 +38,7 @@ describe('fetchEvChargers', () => {
     mockFetch({
       'com.victronenergy.evcharger/40': { '/CustomName': 'EVC' }
     })
-    const result = await fetchEvChargers('')
+    const result = await fetchEvChargers()
     expect(result).toEqual([{ deviceInstance: 40, name: 'EVC' }])
   })
 
@@ -47,27 +47,28 @@ describe('fetchEvChargers', () => {
       'com.victronenergy.battery/1': { '/DeviceInstance': 1 },
       'com.victronenergy.evcharger/40': { '/DeviceInstance': 40, '/CustomName': 'EVC' }
     })
-    const result = await fetchEvChargers('')
+    const result = await fetchEvChargers()
     expect(result).toHaveLength(1)
     expect(result[0].deviceInstance).toBe(40)
   })
 
   test('returns empty array when no evchargers in cache', async () => {
     mockFetch({ 'com.victronenergy.battery/1': { '/DeviceInstance': 1 } })
-    const result = await fetchEvChargers('')
+    const result = await fetchEvChargers()
     expect(result).toEqual([])
   })
 
-  test('requests a relative cache path when no baseUrl is given', async () => {
+  test('requests a relative cache path', async () => {
     mockFetch({})
     await fetchEvChargers()
-    expect(global.fetch).toHaveBeenCalledWith('victron/cache')
+    expect(global.$.getJSON).toHaveBeenCalledWith('victron/cache')
   })
 
-  test('prefixes baseUrl to the cache request', async () => {
+  // fetch() would skip the admin auth token that Node-RED adds to jQuery requests
+  test('does not use fetch', async () => {
     mockFetch({})
-    await fetchEvChargers('/node-red')
-    expect(global.fetch).toHaveBeenCalledWith('/node-red/victron/cache')
+    await fetchEvChargers()
+    expect(global.fetch).not.toHaveBeenCalled()
   })
 })
 

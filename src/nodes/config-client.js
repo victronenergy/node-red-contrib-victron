@@ -65,13 +65,10 @@ module.exports = function (RED) {
     return res.send(serialized)
   }
 
-  // The editor calls these with relative URLs, which resolve under httpAdminRoot and keep any
-  // reverse-proxy prefix such as Home Assistant ingress (#576). The httpNode registrations stay
-  // for backward compatibility with anything calling them directly.
-  for (const app of [RED.httpAdmin, RED.httpNode]) {
-    app.get('/victron/services/:service?', RED.auth.needsPermission('victron-client.read'), servicesHandler)
-    app.get('/victron/cache', RED.auth.needsPermission('victron-client.read'), cacheHandler)
-  }
+  // On httpAdmin so the editor's relative URLs resolve under httpAdminRoot and keep any
+  // reverse-proxy prefix such as Home Assistant ingress (#576).
+  RED.httpAdmin.get('/victron/services/:service?', RED.auth.needsPermission('victron-client.read'), servicesHandler)
+  RED.httpAdmin.get('/victron/cache', RED.auth.needsPermission('victron-client.read'), cacheHandler)
 
   /**
      * Victron Energy Configuration Node.
