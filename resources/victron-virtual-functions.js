@@ -1841,6 +1841,78 @@
 	    })
 	}
 
+	// Dropdown value for "brand not listed, type it below". Not a valid brand itself.
+	// An empty result is published as 'unknown' by the ev device type.
+	const EV_BRAND_OTHER = '__other';
+
+	// value is what gets published on /Brand, label is shown in the editor dropdown.
+	const EV_BRANDS = [
+	  { value: 'acura', label: 'Acura' },
+	  { value: 'alfaromeo', label: 'Alfa Romeo' },
+	  { value: 'alpine', label: 'Alpine' },
+	  { value: 'audi', label: 'Audi' },
+	  { value: 'bmw', label: 'BMW' },
+	  { value: 'byd', label: 'BYD' },
+	  { value: 'cadillac', label: 'Cadillac' },
+	  { value: 'chevrolet', label: 'Chevrolet' },
+	  { value: 'chrysler', label: 'Chrysler' },
+	  { value: 'citroen', label: 'Citroën' },
+	  { value: 'cupra', label: 'Cupra' },
+	  { value: 'dacia', label: 'Dacia' },
+	  { value: 'dodge', label: 'Dodge' },
+	  { value: 'ds', label: 'DS' },
+	  { value: 'fiat', label: 'Fiat' },
+	  { value: 'ford', label: 'Ford' },
+	  { value: 'gmc', label: 'GMC' },
+	  { value: 'honda', label: 'Honda' },
+	  { value: 'hyundai', label: 'Hyundai' },
+	  { value: 'jaguar', label: 'Jaguar' },
+	  { value: 'jeep', label: 'Jeep' },
+	  { value: 'kia', label: 'Kia' },
+	  { value: 'lancia', label: 'Lancia' },
+	  { value: 'landrover', label: 'Land Rover' },
+	  { value: 'lexus', label: 'Lexus' },
+	  { value: 'lucid', label: 'Lucid' },
+	  { value: 'mazda', label: 'Mazda' },
+	  { value: 'mercedes', label: 'Mercedes-Benz' },
+	  { value: 'mg', label: 'MG' },
+	  { value: 'mini', label: 'MINI' },
+	  { value: 'nio', label: 'NIO' },
+	  { value: 'nissan', label: 'Nissan' },
+	  { value: 'opel', label: 'Opel' },
+	  { value: 'peugeot', label: 'Peugeot' },
+	  { value: 'polestar', label: 'Polestar' },
+	  { value: 'porsche', label: 'Porsche' },
+	  { value: 'ram', label: 'RAM' },
+	  { value: 'renault', label: 'Renault' },
+	  { value: 'rivian', label: 'Rivian' },
+	  { value: 'seat', label: 'SEAT' },
+	  { value: 'skoda', label: 'Škoda' },
+	  { value: 'subaru', label: 'Subaru' },
+	  { value: 'tesla', label: 'Tesla' },
+	  { value: 'toyota', label: 'Toyota' },
+	  { value: 'vauxhall', label: 'Vauxhall' },
+	  { value: 'volkswagen', label: 'Volkswagen' },
+	  { value: 'volvo', label: 'Volvo' },
+	  { value: 'xpeng', label: 'XPeng' }
+	];
+
+	// Map a stored ev_brand to the dropdown state. '' is the "Select a brand" placeholder.
+	// Anything not in EV_BRANDS (including other casing) is shown as custom text
+	// so it is never lost.
+	function evBrandToSelection (brand) {
+	  const value = typeof brand === 'string' ? brand.trim() : '';
+	  if (value === '') return { select: '', custom: '' }
+	  if (EV_BRANDS.some(b => b.value === value)) return { select: value, custom: '' }
+	  return { select: EV_BRAND_OTHER, custom: value }
+	}
+
+	function evBrandFromSelection (selected, customText) {
+	  if (selected !== EV_BRAND_OTHER) return selected
+	  const custom = typeof customText === 'string' ? customText.trim() : '';
+	  return custom
+	}
+
 	/**
 	 * Fetch device-type capability metadata (e.g. { value, label, supportsS2 }) from
 	 * GET /victron/virtual-device-types. Callers are responsible for keying the result by device
@@ -2689,6 +2761,10 @@ ${labels.join('\n')}`
 	  validateSwitchConfig,
 	  fetchSwitchNodeNameAndGroupFromCache,
 	  fetchEvChargers,
+	  EV_BRANDS,
+	  EV_BRAND_OTHER,
+	  evBrandToSelection,
+	  evBrandFromSelection,
 	  updateBatteryVoltageVisibility,
 	  calculateOutputs,
 	  updateOutputs,

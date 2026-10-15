@@ -2288,6 +2288,11 @@
         "name": "VIN"
       },
       {
+        "path": "/Brand",
+        "type": "string",
+        "name": "Brand"
+      },
+      {
         "path": "/Odometer",
         "type": "float",
         "name": "Odometer (km)"

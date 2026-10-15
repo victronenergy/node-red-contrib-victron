@@ -64,3 +64,66 @@ describe('fetchEvChargers', () => {
     expect(global.fetch).toHaveBeenCalledWith('/node-red/victron/cache')
   })
 })
+
+describe('EV brand dropdown', () => {
+  const { EV_BRANDS, evBrandToSelection, evBrandFromSelection, EV_BRAND_OTHER } = require('./fixtures/victron-virtual-functions.cjs')
+
+  describe('EV_BRANDS', () => {
+    test('has unique values that do not clash with the dropdown sentinels', () => {
+      const values = EV_BRANDS.map(b => b.value)
+      expect(new Set(values).size).toBe(values.length)
+      expect(values).not.toContain('')
+      expect(values).not.toContain(EV_BRAND_OTHER)
+    })
+  })
+
+  describe('evBrandToSelection', () => {
+    test('selects a known brand without custom text', () => {
+      expect(evBrandToSelection('tesla')).toEqual({ select: 'tesla', custom: '' })
+    })
+
+    test.each([
+      ['undefined (legacy node)', undefined],
+      ['null', null],
+      ['empty', ''],
+      ['whitespace only', '  ']
+    ])('selects the placeholder when the stored brand is %s', (_desc, brand) => {
+      expect(evBrandToSelection(brand)).toEqual({ select: '', custom: '' })
+    })
+
+    test('shows a stored "unknown" as typed custom text', () => {
+      expect(evBrandToSelection('unknown')).toEqual({ select: EV_BRAND_OTHER, custom: 'unknown' })
+    })
+
+    test('selects Other and keeps a custom brand as typed', () => {
+      expect(evBrandToSelection('Lynk & Co')).toEqual({ select: EV_BRAND_OTHER, custom: 'Lynk & Co' })
+    })
+
+    test('treats a differently cased known brand as custom text', () => {
+      expect(evBrandToSelection('Tesla')).toEqual({ select: EV_BRAND_OTHER, custom: 'Tesla' })
+    })
+  })
+
+  describe('evBrandFromSelection', () => {
+    test('returns the selected known brand and ignores leftover custom text', () => {
+      expect(evBrandFromSelection('kia', 'Lynk & Co')).toBe('kia')
+    })
+
+    test('returns the trimmed custom text when Other is selected', () => {
+      expect(evBrandFromSelection(EV_BRAND_OTHER, '  Lynk & Co ')).toBe('Lynk & Co')
+    })
+
+    test('returns empty when the placeholder is selected', () => {
+      expect(evBrandFromSelection('', 'Lynk & Co')).toBe('')
+    })
+
+    test('returns empty when Other is selected without custom text', () => {
+      expect(evBrandFromSelection(EV_BRAND_OTHER, '   ')).toBe('')
+    })
+
+    test('round-trips a custom brand', () => {
+      const { select, custom } = evBrandToSelection('Lynk & Co')
+      expect(evBrandFromSelection(select, custom)).toBe('Lynk & Co')
+    })
+  })
+})

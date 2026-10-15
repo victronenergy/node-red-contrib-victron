@@ -26,6 +26,7 @@ const properties = (config) => ({
   },
   BatteryCapacity: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'kWh' : '', persist: true },
   VIN: { type: 's', readonly: true },
+  Brand: { type: 's', readonly: true },
   Odometer: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'km' : '', persist: true },
   RangeToGo: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'km' : '' },
   'Position/Latitude': { type: 'd', format: (v) => v != null ? v.toFixed(6) + '\u00b0' : '' },
@@ -51,6 +52,8 @@ function initialize (config, _ifaceDesc, iface, _node) {
   if (config.ev_vin) {
     iface.VIN = config.ev_vin
   }
+  const brand = typeof config.ev_brand === 'string' ? config.ev_brand.trim() : ''
+  iface.Brand = brand || 'unknown'
   if (config.ev_battery_capacity != null && config.ev_battery_capacity !== '' && !isNaN(Number(config.ev_battery_capacity))) {
     iface.BatteryCapacity = Number(config.ev_battery_capacity)
   }

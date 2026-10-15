@@ -9,6 +9,10 @@ describe('ev device module', () => {
     expect(typeof ev.onPropertiesChanged).toBe('function')
   })
 
+  test('Brand is a read-only string property', () => {
+    expect(ev.properties({}).Brand).toEqual({ type: 's', readonly: true })
+  })
+
   describe('Mgmt/Connection property type', () => {
     test('is string with null value when ev_evcs_device_instance is configured', () => {
       expect(ev.properties({ ev_evcs_device_instance: 40 })['Mgmt/Connection']).toEqual({ type: 's', value: null })
