@@ -143,8 +143,7 @@
             // legacy or not, rather than the full new-node list with legacy types filtered out.
             const isDeployed = !!(self.id && self.changed === false && self.device);
 
-            var baseUrl = (RED.settings.httpNodeRoot || RED.settings.httpAdminRoot || "").replace(/\/$/, "");
-            $.getJSON(baseUrl + '/victron/virtual-device-types')
+            $.getJSON('victron/virtual-device-types')
                 .done(function(deviceTypes) {
                     const $select = $('#node-input-device');
                     $select.empty();
@@ -188,7 +187,7 @@
                     checkSelectedVirtualDevice(self, deviceCapabilities);
 
                     // Populate EV charger dropdown from live D-Bus cache
-                    window.__victron.fetchEvChargers(baseUrl)
+                    window.__victron.fetchEvChargers()
                         .then(function(chargers) {
                             var $evcsSelect = $('#node-input-ev_evcs_device_instance');
                             chargers.forEach(function(c) {

@@ -5,7 +5,8 @@ const {
   checkSelectedVirtualDevice,
   updateBatteryVoltageVisibility,
   updateIndicatorLivePreview,
-  updateSwitchLivePreview
+  updateSwitchLivePreview,
+  fetchDeviceCapabilities
 } = require('./fixtures/victron-virtual-functions.cjs')
 
 const { SWITCH_TYPE_MAP } = require('../src/nodes/victron-virtual-constants')
@@ -1266,5 +1267,29 @@ describe('updateSwitchLivePreview', () => {
     expect(html).toContain('Accent')
     expect(html).toContain('Off')
     expect(html).toContain('%')
+  })
+})
+
+describe('fetchDeviceCapabilities', () => {
+  let original$
+
+  beforeEach(() => {
+    original$ = global.$
+    global.$ = { getJSON: jest.fn().mockResolvedValue([]) }
+  })
+
+  afterEach(() => {
+    global.$ = original$
+  })
+
+  // #576: relative, so it keeps a reverse-proxy prefix such as Home Assistant ingress
+  test('requests a relative path', async () => {
+    await fetchDeviceCapabilities()
+    expect(global.$.getJSON).toHaveBeenCalledWith('victron/virtual-device-types')
+  })
+
+  test('resolves with the response body', async () => {
+    global.$.getJSON.mockResolvedValue([{ value: 'ev', label: 'Electric Vehicle' }])
+    await expect(fetchDeviceCapabilities()).resolves.toEqual([{ value: 'ev', label: 'Electric Vehicle' }])
   })
 })
