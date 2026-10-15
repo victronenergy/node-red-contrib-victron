@@ -93,7 +93,7 @@ describe('createIndicatorProperties', () => {
       expect(iface['GenericInput/0/Settings/Unit']).toBe('kW')
     })
 
-    test.each([0, 3])('does not set Settings/Unit for type %i, even when configured', (type) => {
+    test.each([0, 3, 99])('does not set Settings/Unit for type %i, even when configured', (type) => {
       const { ifaceDesc, iface } = makeIfaceAndDesc()
       createIndicatorProperties({ indicator_type: type, unit: 'kW' }, ifaceDesc, iface)
       expect(ifaceDesc.properties['GenericInput/0/Settings/Unit']).toBeUndefined()
@@ -158,7 +158,7 @@ describe('createIndicatorProperties', () => {
       expect(iface['GenericInput/0/Settings/PrimaryLabel']).toBe('Power')
     })
 
-    test.each([2, 3])('does not set Settings/PrimaryLabel for type %i, even when configured', (type) => {
+    test.each([2, 3, 99])('does not set Settings/PrimaryLabel for type %i, even when configured', (type) => {
       const { ifaceDesc, iface } = makeIfaceAndDesc()
       createIndicatorProperties({ indicator_type: type, primary_label: 'Power' }, ifaceDesc, iface)
       expect(ifaceDesc.properties['GenericInput/0/Settings/PrimaryLabel']).toBeUndefined()
