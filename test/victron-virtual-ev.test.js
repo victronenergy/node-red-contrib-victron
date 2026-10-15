@@ -1,8 +1,6 @@
 // test/victron-virtual-ev.test.js
 /* eslint-env jest */
 const ev = require('../src/nodes/victron-virtual/device-type/ev')
-const { createDebouncedSetters } = require('../src/nodes/victron-virtual-dbus-helpers')
-const { debounce } = require('../src/services/utils')
 
 describe('ev device module', () => {
   test('exports required contract', () => {
@@ -191,13 +189,13 @@ describe('ev device module', () => {
     })
   })
 
-  // Debounced keys are applied one setValuesLocally call per key, so a lat/lon pair would
-  // reach D-Bus as two separate ItemsChanged signals and VRM can end up with a half-updated location.
+  // Latitude and longitude must reach D-Bus in one ItemsChanged signal, otherwise VRM can end up
+  // with a half-updated location.
   describe('position is applied as one update', () => {
-    const { shouldApplyImmediately } = createDebouncedSetters({ ifaceDesc: { properties: ev.properties({}) } }, debounce, 100)
-
-    test.each(['Position/Latitude', 'Position/Longitude'])('%s bypasses the per-key debounce', (key) => {
-      expect(shouldApplyImmediately(key)).toBe(true)
+    test('latitude and longitude share a debounce group', () => {
+      const props = ev.properties({})
+      expect(props['Position/Latitude'].debounceGroup).toBeDefined()
+      expect(props['Position/Longitude'].debounceGroup).toBe(props['Position/Latitude'].debounceGroup)
     })
   })
 })
