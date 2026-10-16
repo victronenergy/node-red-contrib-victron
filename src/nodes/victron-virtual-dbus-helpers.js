@@ -109,26 +109,48 @@ function flushPendingInputs (node, handleInput) {
 
 /**
  * Creates per-key debounced setters that call node.setValuesLocally after a delay.
+ * Keys that share a debounceGroup in the ifaceDesc are applied together in one call.
  * Also returns shouldApplyImmediately, which checks the ifaceDesc for the immediate flag.
  */
 function createDebouncedSetters (node, debounce, delayMs) {
-  const debouncedSetters = new Map()
+  const groupSetters = new Map()
 
-  function shouldApplyImmediately (key) {
-    return node.ifaceDesc?.properties?.[key]?.immediate === true
+  // Payload keys may carry a leading slash ('/Position/Latitude'), ifaceDesc keys do not
+  function propertyOf (key) {
+    return node.ifaceDesc?.properties?.[key.startsWith('/') ? key.substring(1) : key]
   }
 
-  function getDebouncedSetter (key) {
-    if (!debouncedSetters.has(key)) {
-      debouncedSetters.set(key, debounce((value) => {
+  function shouldApplyImmediately (key) {
+    return propertyOf(key)?.immediate === true
+  }
+
+  // Values arriving within the delay are merged, so a group updated across several messages
+  // still lands on D-Bus as a single ItemsChanged signal.
+  function getDebouncedSetterForMultipleProps (group) {
+    if (!groupSetters.has(group)) {
+      let pending = {}
+      const flush = debounce(() => {
+        const values = pending
+        pending = {}
         try {
-          node.setValuesLocally({ [key]: value })
+          node.setValuesLocally(values)
         } catch (err) {
-          node.error(`Failed to apply debounced value for ${key}: ${err.message}`)
+          node.error(`Failed to apply debounced value for ${Object.keys(values).join(', ')}: ${err.message}`)
         }
-      }, delayMs))
+      }, delayMs)
+      groupSetters.set(group, (values) => {
+        Object.assign(pending, values)
+        flush()
+      })
     }
-    return debouncedSetters.get(key)
+    return groupSetters.get(group)
+  }
+
+  // A key without a debounceGroup is a group of its own
+  function getDebouncedSetter (key) {
+    const group = propertyOf(key)?.debounceGroup
+    const setGroup = getDebouncedSetterForMultipleProps(group ? `group:${group}` : `key:${key}`)
+    return (value) => setGroup({ [key]: value })
   }
 
   return { shouldApplyImmediately, getDebouncedSetter }

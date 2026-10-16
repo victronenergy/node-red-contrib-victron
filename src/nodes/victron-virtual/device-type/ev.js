@@ -29,8 +29,8 @@ const properties = (config) => ({
   Brand: { type: 's', readonly: true },
   Odometer: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'km' : '', persist: true },
   RangeToGo: { type: 'd', format: (v) => v != null ? v.toFixed(0) + 'km' : '' },
-  'Position/Latitude': { type: 'd', format: (v) => v != null ? v.toFixed(6) + '\u00b0' : '' },
-  'Position/Longitude': { type: 'd', format: (v) => v != null ? v.toFixed(6) + '\u00b0' : '' },
+  'Position/Latitude': { type: 'd', format: (v) => v != null ? v.toFixed(6) + '\u00b0' : '', debounceGroup: 'position' },
+  'Position/Longitude': { type: 'd', format: (v) => v != null ? v.toFixed(6) + '\u00b0' : '', debounceGroup: 'position' },
   AtSite: {
     type: 'i',
     format: (v) => ({

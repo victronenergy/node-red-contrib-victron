@@ -188,4 +188,14 @@ describe('ev device module', () => {
       })
     })
   })
+
+  // Latitude and longitude must reach D-Bus in one ItemsChanged signal, otherwise VRM can end up
+  // with a half-updated location.
+  describe('position is applied as one update', () => {
+    test('latitude and longitude share a debounce group', () => {
+      const props = ev.properties({})
+      expect(props['Position/Latitude'].debounceGroup).toBeDefined()
+      expect(props['Position/Longitude'].debounceGroup).toBe(props['Position/Latitude'].debounceGroup)
+    })
+  })
 })
