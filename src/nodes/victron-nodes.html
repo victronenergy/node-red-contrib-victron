@@ -309,7 +309,7 @@
 <script type="text/javascript">
     "use strict";
 
-    var serviceRoot = (RED.settings.httpNodeRoot || RED.settings.httpAdminRoot || "").replace(/\/$/, "") + '/victron/services/';
+    var serviceRoot = 'victron/services/';
 
     function initializeConditionalMode(node) {
         const $conditionalMode = $('#node-input-conditionalMode');
@@ -636,7 +636,7 @@
 
         function fetchPreviewCache() {
             $previewStatus.html('<i class="fa fa-circle-o-notch fa-spin"></i>');
-            const cacheUrl = (RED.settings.httpNodeRoot || RED.settings.httpAdminRoot || "").replace(/\/$/, "") + '/victron/cache';
+            const cacheUrl = 'victron/cache';
             $.ajax({
                 url: cacheUrl,
                 type: "GET",

@@ -12,7 +12,7 @@ const utils = require('../src/services/utils.js')
 function buildMockRED () {
   const registeredTypes = {}
   const mockRED = {
-    httpNode: { get: jest.fn() },
+    httpAdmin: { get: jest.fn() },
     auth: { needsPermission: jest.fn() },
     nodes: {
       registerType: (type, fn) => { registeredTypes[type] = fn },
@@ -20,12 +20,25 @@ function buildMockRED () {
     }
   }
   configClientInitFunction(mockRED)
-  return registeredTypes['victron-client']
+  return { ConfigVictronClient: registeredTypes['victron-client'], mockRED }
 }
+
+function routesOf (app) {
+  return Object.fromEntries(app.get.mock.calls.map(([path, ...handlers]) => [path, handlers]))
+}
+
+describe('config-client editor endpoints', () => {
+  // #576: the editor must reach these with relative URLs, which resolve under httpAdminRoot
+  // (and under a reverse-proxy prefix such as Home Assistant ingress).
+  it.each(['/victron/services/:service?', '/victron/cache'])('registers %s on httpAdmin', (path) => {
+    const { mockRED } = buildMockRED()
+    expect(routesOf(mockRED.httpAdmin)).toHaveProperty([path])
+  })
+})
 
 describe('config-client status listeners', () => {
   it('removeStatusListener only removes the specified listener, leaving other nodes able to receive status updates', () => {
-    const ConfigVictronClient = buildMockRED()
+    const { ConfigVictronClient } = buildMockRED()
     const configNode = new ConfigVictronClient({})
 
     const nodeA = { status: jest.fn() }

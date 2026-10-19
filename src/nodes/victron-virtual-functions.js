@@ -1028,10 +1028,16 @@ function renderDropdownLabels (context) {
   }
 }
 
-export function fetchEvChargers (baseUrl) {
-  const url = (baseUrl || '') + '/victron/cache'
-  return fetch(url)
-    .then(response => response.json())
+// Editor endpoint URLs are relative so they resolve against the editor's own location and keep
+// any reverse-proxy prefix such as Home Assistant ingress (#576). $.getJSON rather than fetch:
+// Node-RED adds the admin auth token to jQuery requests only, and /victron/cache answers 401
+// without it when adminAuth is on (as in the Home Assistant add-on).
+function getEditorJson (url) {
+  return Promise.resolve($.getJSON(url))
+}
+
+export function fetchEvChargers () {
+  return getEditorJson('victron/cache')
     .then(data => {
       const result = []
       for (const service in data) {
@@ -1128,18 +1134,16 @@ export function evBrandFromSelection (selected, customText) {
  * value and threading it into checkSelectedVirtualDevice/calculateOutputs/determineOutputLabel -
  * this module holds no capability state of its own.
  */
-export function fetchDeviceCapabilities (baseUrl) {
-  return fetch((baseUrl || '') + '/victron/virtual-device-types')
-    .then(response => response.json())
+export function fetchDeviceCapabilities () {
+  return getEditorJson('victron/virtual-device-types')
 }
 
-export function fetchSwitchNodeNameAndGroupFromCache (id, baseUrl) {
+export function fetchSwitchNodeNameAndGroupFromCache (id) {
   if (!id) {
     return Promise.reject(new Error('id is required'))
   }
 
-  return fetch(`${baseUrl || ''}/victron/cache?filter_by_serial=${id}`)
-    .then(response => response.json())
+  return getEditorJson(`victron/cache?filter_by_serial=${id}`)
     .then(data => {
       for (const key in data) {
         if (key.match(/^com.victronenergy\./) && data[key]['/Serial'] === id) {

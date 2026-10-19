@@ -68,8 +68,7 @@ window.__victron = {
 // determineOutputLabel falls back to its non-S2 default and self-corrects on the next render
 // once the fetch completes.
 try {
-  const baseUrl = (window.RED?.settings?.httpNodeRoot || window.RED?.settings?.httpAdminRoot || '').replace(/\/$/, '')
-  fetchDeviceCapabilities(baseUrl)
+  fetchDeviceCapabilities()
     .then(list => { (list || []).forEach(dt => { canvasDeviceCapabilities[dt.value] = dt }) })
     .catch(() => {})
 } catch (e) { /* RED not ready yet; outputLabels falls back to non-S2 defaults until this resolves */ }
