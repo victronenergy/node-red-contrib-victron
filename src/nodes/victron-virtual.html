@@ -26,6 +26,9 @@
             evcs_position: {value: 0, required: false},
             evcs_nrofphases: {value: 1, required: false},
             evcs_phasesetting: {value: 1, required: false},
+            evcs_auto_energy: {value: true, required: false},
+            evcs_charging_control: {value: false, required: false},
+            evcs_auto_session: {value: true, required: false},
             // battery
             battery_capacity: {value: 25, required: false},
             include_battery_temperature: {value: false},
@@ -416,6 +419,24 @@
                     <option value="2">L2</option>
                     <option value="3">L3</option>
                 </select>
+            </div>
+            <div class="form-row victron-checkbox">
+                <input type="checkbox" id="node-input-evcs_auto_energy">
+                <label for="node-input-evcs_auto_energy">Auto-calculate energy (Ac/Energy/Forward)
+                    <i class="fa fa-info-circle tooltip-icon" data-tooltip="Integrates power over time to estimate energy. Precision improves with higher update frequency."></i>
+                </label>
+            </div>
+            <div class="form-row victron-checkbox">
+                <input type="checkbox" id="node-input-evcs_charging_control">
+                <label for="node-input-evcs_charging_control">Charging control
+                    <i class="fa fa-info-circle tooltip-icon" data-tooltip="Adds the EV charger control paths (mode, start/stop, current, status, session). Changes made from the GX or VRM are sent on a second output, so your flow can pass them on to the real charger."></i>
+                </label>
+            </div>
+            <div class="form-row victron-checkbox" id="evcs-auto-session-row">
+                <input type="checkbox" id="node-input-evcs_auto_session">
+                <label for="node-input-evcs_auto_session">Auto-calculate session energy and time
+                    <i class="fa fa-info-circle tooltip-icon" data-tooltip="While Status is Charging, integrates Ac/Power into Session/Energy and counts Session/Time. Both reset when a car is plugged in (Status leaves Disconnected)."></i>
+                </label>
             </div>
         </div>
         <div class="form-row input-s2support victron-checkbox" style="display:none">
@@ -891,12 +912,31 @@ lead to issues related with stability.
 
 ### EV charger
 
-The EV charger device is measurement-only. It does not simulate a full EVSE
-(no charging session or connector state). Configure its position (AC output or
-AC input), the number of phases and, for a single phase charger, which phase it
-is wired to. The position can also be set from the flow, e.g.
-`msg.payload = {"/Position": 1}`. It registers as com.victronenergy.evcharger
-on D-Bus.
+The EV charger device registers as com.victronenergy.evcharger on D-Bus. Set
+its position (AC output or AC input), the number of phases and, for a single
+phase charger, which phase it is wired to. The position can also be changed
+from the flow, e.g. `msg.payload = {"/Position": 1}`.
+
+With "Auto-calculate energy", `/Ac/Energy/Forward` and the per phase energy
+are calculated from the power the flow reports. Leave it off when the flow
+sends the charger's own energy counter.
+
+By default it only reports measurements (power, voltage, current, energy).
+Enable "Charging control" to also expose the charger paths from the Venus OS
+D-Bus specification: `/Mode`, `/StartStop`, `/AutoStart`, `/EnableDisplay`,
+`/Current`, `/SetCurrent`, `/MinCurrent`, `/MaxCurrent`, `/Status`,
+`/Session/*` and `/Model`. The node does not simulate a charger. Your flow
+reports the real charger's state (e.g. `/Status`, `/Current`), and when a
+control path is changed from the GX, VRM, Modbus TCP or MQTT, the new value is
+sent on the second output as `{ topic: "/StartStop", payload: 1 }` so the flow
+can pass it on to the real charger. Values set through the node's own input are
+not sent there, and neither is a write of the value a path already has. So when
+the real charger does not follow a command, report its actual state back (e.g.
+`/StartStop`), otherwise repeating that command from the GX sends nothing.
+
+With "Auto-calculate session energy and time", `/Session/Energy` and
+`/Session/Time` count up while `/Status` is 2 (Charging), and reset when a car
+is plugged in (`/Status` changes away from 0, Disconnected).
 
 ### Heat pump
 

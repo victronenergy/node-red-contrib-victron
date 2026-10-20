@@ -426,6 +426,42 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(false)
     })
 
+    function mockEvcsChargingControl (checked) {
+      const checkbox = createMockElement({ is: checked })
+      const autoSessionRow = createMockElement()
+      const outputsInput = createMockElement()
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') return createMockElement({ val: 'evcs' })
+        if (selector === '#node-input-evcs_charging_control' || selector === checkbox) return checkbox
+        if (selector === '#evcs-auto-session-row') return autoSessionRow
+        if (selector === '#node-input-outputs') return outputsInput
+        return createMockElement()
+      })
+      return { checkbox, autoSessionRow, outputsInput }
+    }
+
+    test.each([true, false])('evcs auto session row visibility follows charging control (%s)', (checked) => {
+      const { autoSessionRow } = mockEvcsChargingControl(checked)
+      checkSelectedVirtualDevice({ device: 'evcs' })
+      expect(autoSessionRow.toggle).toHaveBeenCalledWith(checked)
+    })
+
+    test('toggling evcs charging control updates the context and output count', () => {
+      const { checkbox, outputsInput, autoSessionRow } = mockEvcsChargingControl(false)
+      const context = { device: 'evcs', evcs_charging_control: false }
+      checkSelectedVirtualDevice(context)
+
+      expect(checkbox.off).toHaveBeenCalledWith('change.evcs-charging-control')
+      const handler = checkbox.on.mock.calls.find(([event]) => event === 'change.evcs-charging-control')[1]
+      checkbox.is.mockReturnValue(true)
+      handler.call(checkbox)
+
+      expect(context.evcs_charging_control).toBe(true)
+      expect(context.outputs).toBe(2)
+      expect(outputsInput.val).toHaveBeenCalledWith(2)
+      expect(autoSessionRow.toggle).toHaveBeenLastCalledWith(true)
+    })
+
     test('locks S2 Measurement to the matching single phase for a 1-phase config, overriding any prior selection', () => {
       const mockNrOfPhasesSelect = createMockElement({ val: '1' })
       const mockPhaseSettingSelect = createMockElement({ val: '2' })

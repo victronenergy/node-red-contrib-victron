@@ -1416,10 +1416,18 @@
           <li><code>/Ac/{line}/Voltage</code> &mdash; Voltage per phase in volts.</li>
           <li><code>/Ac/{line}/Current</code> &mdash; Current per phase in amperes.</li>
           <li><code>/Ac/{line}/Energy/Forward</code> &mdash; Energy consumed per phase in kWh.</li>
+          <li><code>/Ac/Energy/Forward</code> &mdash; Total energy consumed in kWh, optionally calculated from the power.</li>
           <li><code>/Ac/Frequency</code> &mdash; AC frequency in Hz.</li>
           <li><code>/Position</code>: 0 = AC output, 1 = AC input.</li>
         </ul>
-        <p>Measurement-only - does not simulate a full EVSE (no charging session or connector state). Registers as <code>com.victronenergy.evcharger</code>.</p>
+        <p>With <em>Charging control</em> enabled:</p>
+        <ul>
+          <li><code>/Status</code>: 0 = Disconnected, 1 = Connected, 2 = Charging, 3 = Charged, ... (see the dbus specification).</li>
+          <li><code>/Current</code>: actual charging current in amperes.</li>
+          <li><code>/Mode</code>, <code>/StartStop</code>, <code>/SetCurrent</code>, <code>/MinCurrent</code>, <code>/MaxCurrent</code>, <code>/AutoStart</code>, <code>/EnableDisplay</code>: control paths. Changes from the GX, VRM, Modbus TCP or MQTT are sent on the <em>Control</em> output.</li>
+          <li><code>/Session/Energy</code>, <code>/Session/Time</code>: session energy in kWh and time in seconds, optionally calculated automatically while charging.</li>
+        </ul>
+        <p>Registers as <code>com.victronenergy.evcharger</code>. The node does not simulate a charger: the flow reports the real charger's state and acts on the <em>Control</em> output.</p>
         <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
       </div>
     </div>
@@ -1427,6 +1435,7 @@
       <div><strong>Output:</strong>
         <ol>
           <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+          <li><code>Control</code> (with <em>Charging control</em> only): <tt>{ topic: "/StartStop", payload: 1 }</tt> for each control path changed from outside the flow</li>
         </ol>
       </div>
     </div>
@@ -2094,6 +2103,16 @@
 	    updatePhaseSettingVisibility(selected);
 	  }
 
+	  if (selected === 'evcs') {
+	    const $chargingControl = $('#node-input-evcs_charging_control');
+	    $chargingControl.off('change.evcs-charging-control').on('change.evcs-charging-control', function () {
+	      context.evcs_charging_control = $(this).is(':checked');
+	      updateOutputs(context, deviceCapabilities);
+	      $('#evcs-auto-session-row').toggle(context.evcs_charging_control);
+	    });
+	    $('#evcs-auto-session-row').toggle($chargingControl.is(':checked'));
+	  }
+
 	  if (selected === 'generator') {
 	    checkGeneratorType();
 	    updateGridMeterOnlyVisibility('generator');
@@ -2657,7 +2676,8 @@ ${labels.join('\n')}`
 	    // Look up outputs from config, default to 2 (passthrough + state)
 	    return victronVirtualConstantsExports.SWITCH_OUTPUT_CONFIG[typeKey] || 2
 	  },
-	  pulsemeter: () => 2
+	  pulsemeter: () => 2,
+	  evcs: (config) => config?.evcs_charging_control ? 2 : 1 // passthrough (+ control)
 	};
 
 	/**
@@ -2687,7 +2707,8 @@ ${labels.join('\n')}`
 	  const device = context.device;
 	  const config = {
 	    switch_1_type: context.switch_1_type,
-	    enable_s2support: context.enable_s2support
+	    enable_s2support: context.enable_s2support,
+	    evcs_charging_control: context.evcs_charging_control
 	  };
 	  const outputs = calculateOutputs(device, config, deviceCapabilities);
 
@@ -2722,6 +2743,10 @@ ${labels.join('\n')}`
 
 	  if (node.device === 'pulsemeter') {
 	    return 'Aggregate'
+	  }
+
+	  if (node.device === 'evcs' && node.evcs_charging_control) {
+	    return 'Control'
 	  }
 
 	  if (deviceCapabilities[node.device]?.supportsS2 && node.enable_s2support) {
