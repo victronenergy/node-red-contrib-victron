@@ -118,8 +118,15 @@
             const deviceCapabilities = {};
             self.__deviceCapabilities = deviceCapabilities;
 
-            if (self.device === 'motordrive') {
-                self.device = 'e-drive';
+            // The handlers below work on a draft, which oneditsave applies to the node. Node-RED
+            // compares the node with its state just before oneditsave, so values written onto the
+            // node while the dialog is open would not count as a change (no Deploy, no undo), and
+            // Cancel would keep them.
+            const draft = window.__victron.createEditDraft(self);
+            self.__editDraft = draft;
+
+            if (draft.device === 'motordrive') {
+                draft.device = 'e-drive';
             }
 
             // EV brand: known brands are listed in EV_BRANDS, anything else is typed under "Other"
@@ -148,8 +155,8 @@
                     const $select = $('#node-input-device');
                     $select.empty();
                     if (isDeployed) {
-                        const current = deviceTypes.find(dt => dt.value === self.device) ||
-                            { value: self.device, label: self.device };
+                        const current = deviceTypes.find(dt => dt.value === draft.device) ||
+                            { value: draft.device, label: draft.device };
                         deviceCapabilities[current.value] = current;
                         $select.append($('<option>', { value: current.value, text: current.label }));
                     } else {
@@ -159,7 +166,7 @@
                             deviceCapabilities[dt.value] = dt;
                         });
                     }
-                    if (self.device) $select.val(self.device);
+                    if (draft.device) $select.val(draft.device);
                 })
                 .fail(function() {
                     console.error('Failed to load virtual device types');
@@ -172,9 +179,9 @@
                     }
 
                     $('#node-input-device').on('change', (v) => {
-                        checkSelectedVirtualDevice(self, deviceCapabilities);
-                        self.device = v.target.value;
-                        updateOutputs(self, deviceCapabilities);
+                        checkSelectedVirtualDevice(draft, deviceCapabilities);
+                        draft.device = v.target.value;
+                        updateOutputs(draft, deviceCapabilities);
                     });
 
                     if (self.default_values === true) {
@@ -183,8 +190,8 @@
                         $('#node-input-default_values-no').prop('checked', true);
                     }
 
-                    updateOutputs(self, deviceCapabilities);
-                    checkSelectedVirtualDevice(self, deviceCapabilities);
+                    updateOutputs(draft, deviceCapabilities);
+                    checkSelectedVirtualDevice(draft, deviceCapabilities);
 
                     // Populate EV charger dropdown from live D-Bus cache
                     window.__victron.fetchEvChargers()
@@ -207,8 +214,16 @@
                     }
                 });
         },
+        oneditcancel: function() {
+            delete this.__editDraft;
+        },
         oneditsave: function() {
-            const { validateSwitchConfig, SWITCH_TYPE_CONFIGS, updateOutputs } = window.__victron;
+            const { validateSwitchConfig, SWITCH_TYPE_CONFIGS, updateOutputs, applyEditDraft } = window.__victron;
+
+            if (this.__editDraft) {
+                applyEditDraft(this, this.__editDraft);
+                delete this.__editDraft;
+            }
 
             this.default_values = $('#node-input-default_values-yes').is(':checked');
 
