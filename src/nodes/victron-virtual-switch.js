@@ -14,7 +14,7 @@ const debug = require('debug')('victron-virtual-switch')
 const debugInput = require('debug')('victron-virtual-switch:input')
 const debugConnection = require('debug')('victron-virtual-switch:connection')
 const { validateVirtualDevicePayload, validateLightControls } = require('../services/utils')
-const { createSwitchProperties, handleSwitchOutputs, updateSwitchStatus, emitInitialSwitchOutputs, expandSwitchPayload, shouldApplyPayloadToDBus } = require('../services/virtual-switch')
+const { createSwitchProperties, handleSwitchOutputs, updateSwitchStatus, emitInitialSwitchOutputs, expandSwitchPayload, shouldApplyPayloadToDBus, splitRangeFirst } = require('../services/virtual-switch')
 const { filterInactiveVirtualDevices, getDeployedDbusIds } = require('../services/virtual-device-cleanup')
 const { sanitizeIdForDbus, getTcpBusAddress, callAddSettingsWithRetry, getDeviceInstance, registerInputHandler, flushPendingInputs } = require('./victron-virtual-dbus-helpers')
 
@@ -101,7 +101,9 @@ module.exports = function (RED) {
         debugInput(`Setting values locally for node ${node.id}:`, expanded)
 
         if (Object.keys(expanded).length > 0) {
-          node.setValuesLocally(expanded)
+          for (const batch of splitRangeFirst(expanded)) {
+            node.setValuesLocally(batch)
+          }
           debugInput(`Applied ${Object.keys(expanded).length} properties`)
         }
 

@@ -1,5 +1,6 @@
 // test/virtual-switch.test.js
-const { updateSwitchStatus, emitInitialSwitchOutputs, handleSwitchOutputs, createSwitchProperties, expandSwitchPayload, shouldApplyPayloadToDBus, STEPPED_DEFAULT_MAX } = require('../src/services/virtual-switch')
+const { addVictronInterfaces } = require('dbus-victron-virtual')
+const { updateSwitchStatus, emitInitialSwitchOutputs, handleSwitchOutputs, createSwitchProperties, expandSwitchPayload, shouldApplyPayloadToDBus, splitRangeFirst, STEPPED_DEFAULT_MAX } = require('../src/services/virtual-switch')
 const { SWITCH_TYPE_MAP } = require('../src/nodes/victron-virtual-constants')
 
 function makeNode (ifaceOverrides = {}, ifaceDescOverrides = {}) {
@@ -491,5 +492,110 @@ describe('shouldApplyPayloadToDBus', () => {
       const config = { switch_1_type: String(SWITCH_TYPE_MAP.THREE_STATE), switch_1_passthrough_mode: 'auto_only' }
       expect(shouldApplyPayloadToDBus(config, makeIface(null))).toBe(false)
     })
+  })
+})
+
+// #598: Dimming kept the editor's min/max after a flow changed DimmingMin/DimmingMax
+describe('createSwitchProperties - Dimming follows DimmingMin/DimmingMax', () => {
+  const dimmingKey = 'SwitchableOutput/output_1/Dimming'
+  const minKey = 'SwitchableOutput/output_1/Settings/DimmingMin'
+  const maxKey = 'SwitchableOutput/output_1/Settings/DimmingMax'
+
+  function setup (switchType) {
+    const ifaceDesc = { name: 'com.victronenergy.switch.virtual_test', properties: {} }
+    const iface = { emit: jest.fn() }
+    createSwitchProperties({ switch_1_type: switchType, switch_1_min: 0, switch_1_max: 100 }, ifaceDesc, iface)
+    const bus = { exportInterface: jest.fn() }
+    const { setValuesLocally } = addVictronInterfaces(bus, ifaceDesc, iface, true)
+    const busItem = (key) => bus.exportInterface.mock.calls.find(c => c[1] === '/' + key)[0]
+    return { iface, setValuesLocally, busItem }
+  }
+
+  test.each([
+    ['numeric input', SWITCH_TYPE_MAP.NUMERIC_INPUT],
+    ['basic slider', SWITCH_TYPE_MAP.BASIC_SLIDER],
+    ['temperature setpoint', SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]
+  ])('%s accepts a Dimming value within a raised DimmingMax', (_, switchType) => {
+    const { iface, setValuesLocally } = setup(switchType)
+    setValuesLocally({ [maxKey]: 200 })
+    setValuesLocally({ [dimmingKey]: 150 })
+    expect(iface[dimmingKey]).toBe(150)
+  })
+
+  test('rejects a Dimming value below a raised DimmingMin', () => {
+    const { setValuesLocally } = setup(SWITCH_TYPE_MAP.NUMERIC_INPUT)
+    setValuesLocally({ [minKey]: 20 })
+    expect(() => setValuesLocally({ [dimmingKey]: 10 })).toThrow(/too small/)
+  })
+
+  test('follows both bounds set in one message', () => {
+    const { busItem, setValuesLocally } = setup(SWITCH_TYPE_MAP.NUMERIC_INPUT)
+    setValuesLocally({ [minKey]: 10, [maxKey]: 200 })
+    expect(busItem(dimmingKey).GetMin()).toEqual(['d', 10])
+    expect(busItem(dimmingKey).GetMax()).toEqual(['d', 200])
+  })
+
+  test('keeps the configured bound when a setting is null', () => {
+    const { iface, setValuesLocally } = setup(SWITCH_TYPE_MAP.NUMERIC_INPUT)
+    setValuesLocally({ [maxKey]: null })
+    setValuesLocally({ [dimmingKey]: 50 })
+    expect(iface[dimmingKey]).toBe(50)
+    expect(() => setValuesLocally({ [dimmingKey]: 150 })).toThrow(/too large/)
+  })
+
+  test('applies to a SetValue from the GX and reports the new range', () => {
+    const { iface, setValuesLocally, busItem } = setup(SWITCH_TYPE_MAP.NUMERIC_INPUT)
+    setValuesLocally({ [maxKey]: 200 })
+    expect(busItem(dimmingKey).GetMax()).toEqual(['d', 200])
+    expect(busItem(dimmingKey).SetValue([[{ type: 'd' }], [150]])).toBe(0)
+    expect(iface[dimmingKey]).toBe(150)
+  })
+
+  test('stepped switch follows DimmingMax for the number of options', () => {
+    const { setValuesLocally } = setup(SWITCH_TYPE_MAP.STEPPED)
+    setValuesLocally({ [maxKey]: 3 })
+    expect(() => setValuesLocally({ [dimmingKey]: 5 })).toThrow(/too large/)
+  })
+})
+
+describe('splitRangeFirst', () => {
+  const dimmingKey = 'SwitchableOutput/output_1/Dimming'
+  const maxKey = 'SwitchableOutput/output_1/Settings/DimmingMax'
+
+  test('puts range settings in a batch before the other values', () => {
+    expect(splitRangeFirst({ [dimmingKey]: 150, [maxKey]: 200 })).toEqual([{ [maxKey]: 200 }, { [dimmingKey]: 150 }])
+  })
+
+  test('returns a single batch when there are no range settings', () => {
+    expect(splitRangeFirst({ [dimmingKey]: 50 })).toEqual([{ [dimmingKey]: 50 }])
+  })
+
+  test('recognises range settings with a leading slash', () => {
+    expect(splitRangeFirst({ [dimmingKey]: 150, ['/' + maxKey]: 200 })).toEqual([{ ['/' + maxKey]: 200 }, { [dimmingKey]: 150 }])
+  })
+
+  test('returns a single batch when there are only range settings', () => {
+    expect(splitRangeFirst({ [maxKey]: 200 })).toEqual([{ [maxKey]: 200 }])
+  })
+})
+
+describe('createSwitchProperties - StepSize text', () => {
+  const stepKey = 'SwitchableOutput/output_1/Settings/StepSize'
+
+  function stepText (switchType) {
+    const ifaceDesc = { properties: {} }
+    createSwitchProperties({ switch_1_type: switchType }, ifaceDesc, {})
+    return ifaceDesc.properties[stepKey].format(0.5)
+  }
+
+  test.each([
+    ['basic slider', SWITCH_TYPE_MAP.BASIC_SLIDER],
+    ['numeric input', SWITCH_TYPE_MAP.NUMERIC_INPUT]
+  ])('%s has no temperature unit', (_, switchType) => {
+    expect(stepText(switchType)).toBe('0.5')
+  })
+
+  test('temperature setpoint keeps °C', () => {
+    expect(stepText(SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT)).toBe('0.5°C')
   })
 })
