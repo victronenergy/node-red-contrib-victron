@@ -125,7 +125,8 @@ module.exports = function (RED) {
       this.pendingConditionalResult = null // Track what result we're debouncing towards
       this.debounceTimer = null
 
-      this.configNode = RED.nodes.getNode('victron-client-id')
+      if (utils.refuseRemoteClient(RED, this, nodeDefinition)) return
+      this.configNode = RED.nodes.getNode(utils.LEGACY_CLIENT_ID)
       if (!isConfigNodePresent(this)) return
       this.client = this.configNode.client
 
@@ -526,7 +527,8 @@ module.exports = function (RED) {
       }
       this.initialValue = initialValue
 
-      this.configNode = RED.nodes.getNode('victron-client-id')
+      if (utils.refuseRemoteClient(RED, this, nodeDefinition)) return
+      this.configNode = RED.nodes.getNode(utils.LEGACY_CLIENT_ID)
       if (!isConfigNodePresent(this)) return
       this.client = this.configNode.client
 

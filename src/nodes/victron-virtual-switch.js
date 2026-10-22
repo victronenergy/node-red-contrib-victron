@@ -13,7 +13,7 @@ const dbus = require('dbus-native-victron')
 const debug = require('debug')('victron-virtual-switch')
 const debugInput = require('debug')('victron-virtual-switch:input')
 const debugConnection = require('debug')('victron-virtual-switch:connection')
-const { validateVirtualDevicePayload, validateLightControls } = require('../services/utils')
+const { validateVirtualDevicePayload, validateLightControls, refuseRemoteClient } = require('../services/utils')
 const { createSwitchProperties, handleSwitchOutputs, updateSwitchStatus, emitInitialSwitchOutputs, expandSwitchPayload, shouldApplyPayloadToDBus } = require('../services/virtual-switch')
 const { filterInactiveVirtualDevices, getDeployedDbusIds } = require('../services/virtual-device-cleanup')
 const { sanitizeIdForDbus, getTcpBusAddress, callAddSettingsWithRetry, getDeviceInstance, registerInputHandler, flushPendingInputs } = require('./victron-virtual-dbus-helpers')
@@ -27,6 +27,7 @@ module.exports = function (RED) {
   function VictronVirtualSwitchNode (config) {
     RED.nodes.createNode(this, config)
     const node = this
+    if (refuseRemoteClient(RED, node, config)) return
 
     node.lastSentValues = {}
 
