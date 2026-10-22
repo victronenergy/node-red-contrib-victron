@@ -1,4 +1,5 @@
 const { formatNotification, validateNotificationInput } = require('./victron-inject-functions')
+const { refuseRemoteClient, LEGACY_CLIENT_ID } = require('../services/utils')
 
 module.exports = function (RED) {
   const debug = require('debug')('node-red-contrib-victron:victron-inject')
@@ -11,7 +12,8 @@ module.exports = function (RED) {
       this.notificationType = nodeDefinition.notificationType
       this.notificationTitle = nodeDefinition.notificationTitle
 
-      this.configNode = RED.nodes.getNode('victron-client-id')
+      if (refuseRemoteClient(RED, this, nodeDefinition)) return
+      this.configNode = RED.nodes.getNode(LEGACY_CLIENT_ID)
       this.client = this.configNode.client
 
       this.node.status({

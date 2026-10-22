@@ -221,6 +221,39 @@ function expandWildcardPaths (pathObj, cachedPaths, serviceName) {
 const CONNECTED = { fill: 'green', shape: 'dot', text: 'connected' }
 const DISCONNECTED = { fill: 'red', shape: 'ring', text: 'disconnected' }
 const MIGRATE = { fill: 'blue', shape: 'dot', text: 'please migrate' }
+const NEEDS_NEWER_VERSION = { fill: 'red', shape: 'dot', text: 'Needs a newer node-red-contrib-victron (remote GX)' }
+
+const LEGACY_CLIENT_ID = 'victron-client-id'
+
+/**
+ * Newer versions can point a node at a remote GX, through `client` or the config node's
+ * `connectionType`. This version can only reach the local bus, so running such a node
+ * here would act on the wrong GX (e.g. switch a local relay meant for a remote one).
+ */
+function isRemoteClient (RED, config) {
+  const clientId = config.client || LEGACY_CLIENT_ID
+  if (clientId !== LEGACY_CLIENT_ID) return true
+  const configNode = RED.nodes.getNode(clientId)
+  return Boolean(configNode) && isRemoteConnectionType(configNode.connectionType)
+}
+
+function isRemoteConfigNode (configNode) {
+  return configNode.id !== LEGACY_CLIENT_ID || isRemoteConnectionType(configNode.connectionType)
+}
+
+function isRemoteConnectionType (connectionType) {
+  return Boolean(connectionType) && connectionType !== 'auto'
+}
+
+/**
+ * Returns true, after setting the node's status and warning once, when the node must not run.
+ */
+function refuseRemoteClient (RED, node, config) {
+  if (!isRemoteClient(RED, config)) return false
+  node.status(NEEDS_NEWER_VERSION)
+  node.warn('This node is set to a remote GX, which needs a newer version of node-red-contrib-victron. It will not read, write or register anything until that version is installed.')
+  return true
+}
 
 /**
  * Constructs a node config object that is
@@ -493,5 +526,10 @@ module.exports = {
   validateVirtualDevicePayload,
   validateLightControls,
   debounce,
-  throttle
+  throttle,
+  LEGACY_CLIENT_ID,
+  NEEDS_NEWER_VERSION,
+  isRemoteClient,
+  isRemoteConfigNode,
+  refuseRemoteClient
 }

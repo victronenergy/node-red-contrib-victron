@@ -9,7 +9,7 @@ const debugConnection = require('debug')('victron-virtual:connection')
 const {
   DEBOUNCE_DELAY_MS
 } = require('../victron-virtual-constants')
-const { validateVirtualDevicePayload, validateLightControls, debounce } = require('../../services/utils')
+const { validateVirtualDevicePayload, validateLightControls, debounce, refuseRemoteClient } = require('../../services/utils')
 const { handleSwitchOutputs } = require('../../services/virtual-switch')
 const { filterInactiveVirtualDevices, getDeployedDbusIds } = require('../../services/virtual-device-cleanup')
 const { makeSetPresence } = require('./helpers')
@@ -200,6 +200,7 @@ module.exports = function (RED) {
   function VictronVirtualNode (config) {
     RED.nodes.createNode(this, config)
     const node = this
+    if (refuseRemoteClient(RED, node, config)) return
 
     node.lastSentValues = {}
 

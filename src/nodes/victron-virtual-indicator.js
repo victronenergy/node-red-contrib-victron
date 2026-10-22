@@ -5,7 +5,7 @@ const debug = require('debug')('victron-virtual-indicator')
 const debugInput = require('debug')('victron-virtual-indicator:input')
 const debugConnection = require('debug')('victron-virtual-indicator:connection')
 const { DEBOUNCE_DELAY_MS } = require('./victron-virtual-constants')
-const { validateVirtualDevicePayload, debounce } = require('../services/utils')
+const { validateVirtualDevicePayload, debounce, refuseRemoteClient } = require('../services/utils')
 const { createIndicatorProperties, updateIndicatorStatus, expandIndicatorPayload, INDICATOR_INPUT_KEY } = require('../services/virtual-indicator')
 const { filterInactiveVirtualDevices, getDeployedDbusIds } = require('../services/virtual-device-cleanup')
 const { sanitizeIdForDbus, getTcpBusAddress, callAddSettingsWithRetry, getDeviceInstance, registerInputHandler, flushPendingInputs, createDebouncedSetters } = require('./victron-virtual-dbus-helpers')
@@ -26,6 +26,7 @@ module.exports = function (RED) {
   function VictronVirtualIndicatorNode (config) {
     RED.nodes.createNode(this, config)
     const node = this
+    if (refuseRemoteClient(RED, node, config)) return
 
     const tcpAddress = getTcpBusAddress()
     if (tcpAddress) this.address = tcpAddress
