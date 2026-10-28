@@ -1,7 +1,7 @@
 'use strict'
 
 const { formatEvent, validateEventInput } = require('./victron-event-functions')
-const { refuseRemoteClient, LEGACY_CLIENT_ID } = require('../services/utils')
+const { refuseRemoteClient, LOCAL_CLIENT_ID } = require('../services/utils')
 
 module.exports = function (RED) {
   const debug = require('debug')('node-red-contrib-victron:victron-event')
@@ -15,7 +15,7 @@ module.exports = function (RED) {
       this.app = nodeDefinition.app
 
       if (refuseRemoteClient(RED, this, nodeDefinition)) return
-      this.configNode = RED.nodes.getNode(LEGACY_CLIENT_ID)
+      this.configNode = RED.nodes.getNode(LOCAL_CLIENT_ID)
       this.client = this.configNode.client
 
       this.node.status({ fill: 'grey', shape: 'dot', text: 'Ready' })

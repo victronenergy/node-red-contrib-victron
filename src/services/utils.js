@@ -223,7 +223,7 @@ const DISCONNECTED = { fill: 'red', shape: 'ring', text: 'disconnected' }
 const MIGRATE = { fill: 'blue', shape: 'dot', text: 'please migrate' }
 const NEEDS_NEWER_VERSION = { fill: 'red', shape: 'dot', text: 'Needs a newer node-red-contrib-victron (remote GX)' }
 
-const LEGACY_CLIENT_ID = 'victron-client-id'
+const LOCAL_CLIENT_ID = 'victron-client-id'
 
 /**
  * Newer versions can point a node at a remote GX, through `client` or the config node's
@@ -231,14 +231,14 @@ const LEGACY_CLIENT_ID = 'victron-client-id'
  * here would act on the wrong GX (e.g. switch a local relay meant for a remote one).
  */
 function isRemoteClient (RED, config) {
-  const clientId = config.client || LEGACY_CLIENT_ID
-  if (clientId !== LEGACY_CLIENT_ID) return true
+  const clientId = config.client || LOCAL_CLIENT_ID
+  if (clientId !== LOCAL_CLIENT_ID) return true
   const configNode = RED.nodes.getNode(clientId)
   return Boolean(configNode) && isRemoteConnectionType(configNode.connectionType)
 }
 
 function isRemoteConfigNode (configNode) {
-  return configNode.id !== LEGACY_CLIENT_ID || isRemoteConnectionType(configNode.connectionType)
+  return configNode.id !== LOCAL_CLIENT_ID || isRemoteConnectionType(configNode.connectionType)
 }
 
 function isRemoteConnectionType (connectionType) {
@@ -527,7 +527,7 @@ module.exports = {
   validateLightControls,
   debounce,
   throttle,
-  LEGACY_CLIENT_ID,
+  LOCAL_CLIENT_ID,
   NEEDS_NEWER_VERSION,
   isRemoteClient,
   isRemoteConfigNode,

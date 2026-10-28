@@ -126,7 +126,7 @@ module.exports = function (RED) {
       this.debounceTimer = null
 
       if (utils.refuseRemoteClient(RED, this, nodeDefinition)) return
-      this.configNode = RED.nodes.getNode(utils.LEGACY_CLIENT_ID)
+      this.configNode = RED.nodes.getNode(utils.LOCAL_CLIENT_ID)
       if (!isConfigNodePresent(this)) return
       this.client = this.configNode.client
 
@@ -528,7 +528,7 @@ module.exports = function (RED) {
       this.initialValue = initialValue
 
       if (utils.refuseRemoteClient(RED, this, nodeDefinition)) return
-      this.configNode = RED.nodes.getNode(utils.LEGACY_CLIENT_ID)
+      this.configNode = RED.nodes.getNode(utils.LOCAL_CLIENT_ID)
       if (!isConfigNodePresent(this)) return
       this.client = this.configNode.client
 
