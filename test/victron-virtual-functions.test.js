@@ -6,8 +6,10 @@ const {
   updateBatteryVoltageVisibility,
   updateIndicatorLivePreview,
   updateSwitchLivePreview,
-  fetchDeviceCapabilities
+  fetchDeviceCapabilities,
+  SWITCH_TYPE_DOCS
 } = require('./fixtures/victron-virtual-functions.cjs')
+const { createSwitchProperties } = require('../src/services/virtual-switch')
 
 const { SWITCH_TYPE_MAP } = require('../src/nodes/victron-virtual-constants')
 
@@ -1291,5 +1293,19 @@ describe('fetchDeviceCapabilities', () => {
   test('resolves with the response body', async () => {
     global.$.getJSON.mockResolvedValue([{ value: 'ev', label: 'Electric Vehicle' }])
     await expect(fetchDeviceCapabilities()).resolves.toEqual([{ value: 'ev', label: 'Electric Vehicle' }])
+  })
+})
+
+// #599: the help listed Settings/Min and Settings/Max, which the switch does not expose
+describe('SWITCH_TYPE_DOCS paths', () => {
+  test.each(Object.keys(SWITCH_TYPE_DOCS))('switch type %s only documents paths the switch exposes', (switchType) => {
+    const ifaceDesc = { properties: {} }
+    const iface = {}
+    createSwitchProperties({ switch_1_type: switchType, switch_1_include_measurement: true }, ifaceDesc, iface)
+
+    const documented = [...SWITCH_TYPE_DOCS[switchType].text.matchAll(/<code>\/(SwitchableOutput\/[^<]+)<\/code>/g)]
+      .map(m => m[1].replace('/x/', '/output_1/'))
+    expect(documented.length).toBeGreaterThan(0)
+    expect(documented.filter(p => !(p in ifaceDesc.properties))).toEqual([])
   })
 })
