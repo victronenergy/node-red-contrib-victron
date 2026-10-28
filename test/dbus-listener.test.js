@@ -1,3 +1,5 @@
+const EventEmitter = require('events')
+const dbus = require('dbus-native-victron')
 const VictronDbusListener = require('../src/services/dbus-listener')
 
 describe('VictronDbusListener', () => {
@@ -13,6 +15,39 @@ describe('VictronDbusListener', () => {
 
   test('initServiceDenylist does not exclude com.victronenergy.shelly (regression)', () => {
     expect(VictronDbusListener.initServiceDenylist).not.toContain('com.victronenergy.shelly')
+  })
+
+  test('initializes com.victronenergy.logger found by listNames on connect (regression)', async () => {
+    const connection = new EventEmitter()
+    const fakeBus = {
+      connection,
+      listNames: (cb) => cb(null, ['com.victronenergy.logger', 'com.victronenergy.ble']),
+      getNameOwner: (name, cb) => cb(null, `owner-of-${name}`),
+      addMatch: () => {}
+    }
+    const createClientSpy = jest.spyOn(dbus, 'createClient').mockReturnValue(fakeBus)
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      listener._initService = jest.fn()
+      listener._requestAllRoots = jest.fn().mockResolvedValue()
+      const connected = listener.connect().catch(() => {})
+
+      connection.emit('connect')
+
+      expect(listener._initService).toHaveBeenCalledWith('owner-of-com.victronenergy.logger', 'com.victronenergy.logger')
+      expect(listener._initService).not.toHaveBeenCalledWith(expect.anything(), 'com.victronenergy.ble')
+
+      // ending the connection settles connect()'s promise
+      connection.emit('end')
+      await connected
+    } finally {
+      createClientSpy.mockRestore()
+      logSpy.mockRestore()
+      warnSpy.mockRestore()
+      errorSpy.mockRestore()
+    }
   })
 
   describe('_initService', () => {

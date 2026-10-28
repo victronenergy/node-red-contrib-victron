@@ -86,8 +86,7 @@ const initServiceDenylist = [
   'com.victronenergy.digitalinputs',
   'com.victronenergy.fronius',
   'com.victronenergy.modbusclient.tcp',
-  'com.victronenergy.modbustcp',
-  'com.victronenergy.logger'
+  'com.victronenergy.modbustcp'
 ]
 
 const initServiceAllowlistRegexes = [
