@@ -84,6 +84,10 @@ module.exports = function (RED) {
     debug('NODE_RED_DBUS_ADDRESS:', process.env.NODE_RED_DBUS_ADDRESS)
 
     RED.nodes.createNode(this, config)
+    this.connectionType = config.connectionType
+
+    // Its nodes are refused; it must not take over the shared local client's status listeners or polling.
+    if (utils.isRemoteConfigNode(this)) return
 
     if (!globalClient) {
       console.log('Creating new VictronClient')

@@ -1208,6 +1208,7 @@
             paletteLabel: nodePaletteLabel,
             defaults: {
                 outputs: { value: isOutputNode ? 0 : 1 }, // must be in defaults for Node-RED to persist it across reloads (#557)
+                client: { value: "victron-client-id" }, // no UI yet; kept so a deploy doesn't strip a newer version's remote GX setting
                 service: { value: "", required: true },
                 path: { value: "", required: true },
                 serviceObj: { value: undefined },

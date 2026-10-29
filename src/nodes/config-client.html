@@ -73,10 +73,21 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
         defaults: {
           showValues: { value: true },
           contextStore: {value: true },
-          enablePolling: { value: false }
+          enablePolling: { value: false },
+          name: { value: '' },
+          // No UI yet: kept so a deploy doesn't strip the remote GX settings of a newer version.
+          // contextKeys stays unset, which newer versions read as the legacy context keys this version writes.
+          connectionType: { value: 'auto' },
+          host: { value: '' },
+          port: { value: '' },
+          user: { value: '' },
+          hostKeyFingerprint: { value: '' },
+          gxId: { value: '' },
+          contextKeys: { value: undefined },
+          contextPrefix: { value: '' }
         },
         label: function label() {
-            return "Victron Energy Client";
+            return this.name || "Victron Energy Client";
         },
         // setting hasUsers to false means we don't get a warning on deployment, if/when there is no node referring to this config node.
         hasUsers: false,
