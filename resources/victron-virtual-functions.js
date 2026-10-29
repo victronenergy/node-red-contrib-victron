@@ -2696,6 +2696,20 @@ ${labels.join('\n')}`
 	  $('#node-input-outputs').val(outputs);
 	}
 
+	const cloneValue = (value) => value !== null && typeof value === 'object' ? JSON.parse(JSON.stringify(value)) : value;
+
+	function createEditDraft (node) {
+	  return Object.fromEntries(Object.keys(node._def.defaults).map(key => [key, cloneValue(node[key])]))
+	}
+
+	function applyEditDraft (node, draft) {
+	  for (const [key, value] of Object.entries(draft)) {
+	    if (JSON.stringify(value) !== JSON.stringify(node[key])) {
+	      node[key] = value;
+	    }
+	  }
+	}
+
 	/**
 	 * Return the label for a single output port of a virtual device node.
 	 * @param {{ device?: string, enable_s2support?: boolean, switch_1_type?: number|string }} node
@@ -2779,7 +2793,9 @@ ${labels.join('\n')}`
 	  initializeTooltips,
 	  getVirtualNodeLabel,
 	  determineOutputLabel: (node, index) => determineOutputLabel(node, index, canvasDeviceCapabilities),
-	  fetchDeviceCapabilities
+	  fetchDeviceCapabilities,
+	  createEditDraft,
+	  applyEditDraft
 	};
 
 	// Warm canvasDeviceCapabilities as soon as this script loads rather than waiting for

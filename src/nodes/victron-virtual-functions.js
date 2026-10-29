@@ -1906,6 +1906,20 @@ export function updateOutputs (context, deviceCapabilities = {}) {
   $('#node-input-outputs').val(outputs)
 }
 
+const cloneValue = (value) => value !== null && typeof value === 'object' ? JSON.parse(JSON.stringify(value)) : value
+
+export function createEditDraft (node) {
+  return Object.fromEntries(Object.keys(node._def.defaults).map(key => [key, cloneValue(node[key])]))
+}
+
+export function applyEditDraft (node, draft) {
+  for (const [key, value] of Object.entries(draft)) {
+    if (JSON.stringify(value) !== JSON.stringify(node[key])) {
+      node[key] = value
+    }
+  }
+}
+
 /**
  * Return the label for a single output port of a virtual device node.
  * @param {{ device?: string, enable_s2support?: boolean, switch_1_type?: number|string }} node
