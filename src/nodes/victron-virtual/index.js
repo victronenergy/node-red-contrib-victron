@@ -204,6 +204,11 @@ module.exports = function (RED) {
 
     node.lastSentValues = {}
 
+    function stopEvcsSessionTimer () {
+      node.stopEvcsSessionTimer?.()
+      node.stopEvcsSessionTimer = null
+    }
+
     const address = process.env.NODE_RED_DBUS_ADDRESS
       ? process.env.NODE_RED_DBUS_ADDRESS.split(':')
       : null
@@ -464,6 +469,7 @@ module.exports = function (RED) {
 
       self.bus.connection.on('end', () => {
         self.connected = false
+        stopEvcsSessionTimer()
         node.status({
           color: 'red',
           shape: 'dot',
@@ -480,6 +486,7 @@ module.exports = function (RED) {
       self.bus.connection.on('error', (err) => {
         console.error(`DBus error: ${err}`)
         debugConnection('DBus connection error:', err)
+        stopEvcsSessionTimer()
         node.status({
           color: 'red',
           shape: 'dot',
@@ -534,8 +541,7 @@ module.exports = function (RED) {
       async function proceed (usedBus) {
         // A reconnect replaces the interface, so stop the old session timer before the first
         // await: setup can fail or the node can close while it waits
-        node.stopEvcsSessionTimer?.()
-        node.stopEvcsSessionTimer = null
+        stopEvcsSessionTimer()
 
         // First, we need to create our interface description (here we will only expose method calls)
         const ifaceDesc = {
@@ -818,6 +824,8 @@ module.exports = function (RED) {
         node.emitS2Signal = emitS2Signal
 
         if (config.device === 'evcs' && !node._closed) {
+          // An overlapping reconnect may have started a timer while this setup was waiting
+          stopEvcsSessionTimer()
           node.stopEvcsSessionTimer = deviceModule.startSessionTimer({ node, instance: iface, config })
         }
 
@@ -897,7 +905,7 @@ module.exports = function (RED) {
     node.on('close', function (done) {
       nodeInstances.delete(node)
       node._closed = true
-      node.stopEvcsSessionTimer?.()
+      stopEvcsSessionTimer()
 
       // Release the DBus service name before closing connection
       // This prevents the service from remaining registered after node deletion

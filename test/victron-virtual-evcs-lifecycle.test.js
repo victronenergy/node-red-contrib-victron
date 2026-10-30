@@ -25,7 +25,7 @@ function mockBus () {
   }
 }
 
-function createNode (persistLocation) {
+function createNode (persistLocation, config = CONFIG) {
   let Constructor
   const RED = {
     settings: { userDir: persistLocation, victronVirtual: { persistLocation } },
@@ -44,12 +44,13 @@ function createNode (persistLocation) {
           send: jest.fn()
         })
       }),
-      eachNode: jest.fn()
+      eachNode: jest.fn(),
+      getNode: jest.fn()
     }
   }
   require('../src/nodes/victron-virtual')(RED)
   const node = {}
-  Constructor.call(node, CONFIG)
+  Constructor.call(node, config)
   return node
 }
 
@@ -118,6 +119,36 @@ describe('EV charger session timer lifecycle', () => {
 
     expect(dbus.createClient).toHaveBeenCalledTimes(2)
     expect(stops[0]).toHaveBeenCalled()
+  })
+
+  test('stops the timer as soon as the connection ends', async () => {
+    addSettings.mockResolvedValue(SETTINGS_RESULT)
+    createNode(persistLocation)
+    await flush()
+
+    dbus.createClient.mock.results[0].value.connection.emit('end')
+    expect(stops[0]).toHaveBeenCalled()
+  })
+
+  test('keeps one timer when a reconnect finishes before the setup it replaced', async () => {
+    let resolveFirstSettings
+    addSettings
+      .mockReturnValueOnce(new Promise(resolve => { resolveFirstSettings = resolve }))
+      .mockResolvedValue(SETTINGS_RESULT)
+    const node = createNode(persistLocation)
+    await flush()
+
+    dbus.createClient.mock.results[0].value.connection.emit('end')
+    await jest.advanceTimersByTimeAsync(1000)
+    expect(stops).toHaveLength(1)
+
+    resolveFirstSettings(SETTINGS_RESULT)
+    await flush()
+    expect(stops).toHaveLength(2)
+    expect(stops[0]).toHaveBeenCalled()
+
+    node.handlers.close(jest.fn())
+    expect(stops[1]).toHaveBeenCalled()
   })
 
   test('stops the timer on close', async () => {
