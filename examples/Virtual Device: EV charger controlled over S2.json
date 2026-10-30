@@ -1,0 +1,665 @@
+[
+    {
+        "id": "4c3fc7d6b4438bda",
+        "type": "comment",
+        "z": "c4f1e2d3a5b6c7d8",
+        "name": "Dynamic ESS / Opportunity Loads controlling an EV charger through a virtual one (S2)",
+        "info": "The virtual EV charger is what Dynamic ESS (or Opportunity Loads) sees and controls over S2.\nThis flow passes the real charger's readings to it, and turns the S2 instructions into\nStartStop and SetCurrent on the real charger. Replace the \"EV charger\" input and output\nnodes with MQTT, Modbus or HTTP nodes to do the same for a third-party charger. A Victron\ncharger does not need this: it talks S2 to Dynamic ESS itself. It is used here to show the\nwiring.\n\n## Requirements\n- [node-red-contrib-s2](https://flows.nodered.org/node/node-red-contrib-s2) for the S2 resource node.\n- Open every \"EV charger\" input and output node and select your own charger.\n- Set the real charger to **Manual**, so only this flow controls it.\n- Set the virtual charger to **Auto** (on the GX, or send `{ \"Mode\": 1 }` to it).\n  Dynamic ESS only connects to a charger in Auto mode.\n- Give the virtual charger the same position (AC input or AC output) as the real one.\n\n## Energy\nThe real charger's energy total is not passed on: VRM adds up the energy of every EV charger,\nso a Victron charger behind the virtual one would be counted twice. For a third-party charger,\nwhich is not on the GX itself, pass its energy counter on to `Ac/Energy/Forward`, or turn on\n\"Auto-calculate energy\" on the virtual charger when it only reports power.\n\n## Adjust\n- `PHASES` in \"Mode -> real charger\" is used to turn the requested power into a current.\n- The \"Charging\" operation mode of the S2 resource node (4.5-11 kW) should match what your\n  charger can do on that number of phases.",
+        "x": 330,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "2fd64b331593206a",
+        "type": "victron-virtual",
+        "z": "c4f1e2d3a5b6c7d8",
+        "name": "Virtual EV charger",
+        "client": "victron-client-id",
+        "outputs": 3,
+        "device": "evcs",
+        "default_values": true,
+        "acload_position": 0,
+        "acload_nrofphases": 1,
+        "acload_phasesetting": 1,
+        "acload_auto_energy": true,
+        "enable_s2support": true,
+        "s2_measurement_type": "3_PHASE_SYMMETRIC",
+        "heatpump_position": 0,
+        "heatpump_nrofphases": 1,
+        "heatpump_phasesetting": 1,
+        "heatpump_auto_energy": true,
+        "evcs_position": 0,
+        "evcs_nrofphases": "3",
+        "evcs_phasesetting": 1,
+        "evcs_auto_energy": false,
+        "evcs_charging_control": true,
+        "evcs_auto_session": true,
+        "battery_capacity": 25,
+        "include_battery_temperature": false,
+        "battery_voltage_preset": "24",
+        "battery_voltage_custom": 24,
+        "generator_type": "ac",
+        "generator_nrofphases": 1,
+        "include_engine_hours": false,
+        "include_starter_voltage": false,
+        "include_history_energy": false,
+        "generator_grid_meter_only": false,
+        "grid_nrofphases": 1,
+        "energymeter_role": "",
+        "energymeter_position": 0,
+        "energymeter_nrofphases": 1,
+        "energymeter_phasesetting": 1,
+        "include_motor_temp": false,
+        "include_controller_temp": false,
+        "include_coolant_temp": false,
+        "include_motor_rpm": true,
+        "include_motor_direction": true,
+        "position": 0,
+        "pvinverter_nrofphases": 1,
+        "pvinverter_auto_energy": true,
+        "switch_1_type": 1,
+        "switch_1_min": 0,
+        "switch_1_max": "",
+        "switch_1_initial": 0,
+        "switch_1_label": "",
+        "switch_1_unit": "",
+        "switch_1_step": 1,
+        "switch_1_customname": "",
+        "switch_1_group": "",
+        "switch_1_include_measurement": false,
+        "switch_1_rgb_color_wheel": false,
+        "switch_1_cct_wheel": false,
+        "switch_1_rgb_white_dimmer": false,
+        "switch_1_passthrough_mode": "auto_only",
+        "fluid_type": 0,
+        "include_tank_battery": false,
+        "include_tank_temperature": false,
+        "tank_battery_voltage": 3.3,
+        "tank_capacity": 0.2,
+        "auto_aggregate": false,
+        "pulsemeter_multiplier": 0.001,
+        "ev_vin": "",
+        "ev_brand": "",
+        "ev_battery_capacity": "",
+        "ev_evcs_device_instance": "",
+        "temperature_type": 2,
+        "include_humidity": false,
+        "include_pressure": false,
+        "include_temp_battery": false,
+        "temp_battery_voltage": 3.3,
+        "start_disconnected": false,
+        "x": 207,
+        "y": 182,
+        "wires": [
+            [],
+            [
+                "f1ece86fde7b22f2",
+                "5e1d113d2b008497"
+            ],
+            [
+                "978fc7e1653c104e",
+                "40addbcd51c02939"
+            ]
+        ]
+    },
+    {
+        "id": "978fc7e1653c104e",
+        "type": "debug",
+        "z": "c4f1e2d3a5b6c7d8",
+        "name": "S2: communication",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 480,
+        "y": 197,
+        "wires": []
+    },
+    {
+        "id": "f1ece86fde7b22f2",
+        "type": "debug",
+        "z": "c4f1e2d3a5b6c7d8",
+        "name": "EV: control",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 467,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "375480ffe1d882e0",
+        "type": "debug",
+        "z": "c4f1e2d3a5b6c7d8",
+        "name": "S2 instructions",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 473,
+        "y": 289,
+        "wires": []
+    },
+    {
+        "id": "9750a8243d9be13d",
+        "type": "s2-resource",
+        "z": "c4f1e2d3a5b6c7d8",
+        "name": "S2: Virtual EV charger",
+        "rmName": "RM: Virtual EV charger",
+        "resourceId": "1fa5e108-c131-4d2e-a564-209649c32d79",
+        "roles": "ENERGY_CONSUMER",
+        "controlTypes": "NOT_CONTROLABLE,OPERATION_MODE_BASED_CONTROL",
+        "providesPowerMeasurement": "3_PHASE_SYMMETRIC",
+        "providesForecast": false,
+        "manufacturer": "Custom (Node-RED)",
+        "model": "Virtual EV charger",
+        "serialNumber": "",
+        "firmwareVersion": "",
+        "instructionPollIntervalMs": 2000,
+        "skipInstructionStatus": false,
+        "transport": "external",
+        "cem": "",
+        "reconnectInterval": 5,
+        "dbusConfig": "",
+        "debug": false,
+        "controlType": "ombc",
+        "systemDescription": "{\"operationModes\":[{\"id\":\"e4265d8a-88d3-4482-b849-1c7c04d7b380\",\"diagnostic_label\":\"Standby/off\",\"power_ranges\":[{\"commodity_quantity\":\"ELECTRIC.POWER.3_PHASE_SYMMETRIC\",\"start_of_range\":0,\"end_of_range\":0}],\"abnormal_condition_only\":false},{\"id\":\"7aa225c4-e035-4d6b-8740-d1a81f5b0752\",\"diagnostic_label\":\"Charging\",\"power_ranges\":[{\"commodity_quantity\":\"ELECTRIC.POWER.3_PHASE_SYMMETRIC\",\"start_of_range\":4500,\"end_of_range\":11000}],\"abnormal_condition_only\":false}],\"transitions\":[{\"id\":\"6ac662ca-a5a0-4c83-9fd4-478d030a95a9\",\"from\":\"e4265d8a-88d3-4482-b849-1c7c04d7b380\",\"to\":\"7aa225c4-e035-4d6b-8740-d1a81f5b0752\",\"start_timers\":[\"bca8b4b2-fe6a-41ca-8283-753af80470d3\"],\"blocking_timers\":[],\"abnormal_condition_only\":false},{\"id\":\"c27dd44c-3ebb-4f9a-8c5f-390979c4dcc3\",\"from\":\"7aa225c4-e035-4d6b-8740-d1a81f5b0752\",\"to\":\"e4265d8a-88d3-4482-b849-1c7c04d7b380\",\"start_timers\":[],\"blocking_timers\":[\"bca8b4b2-fe6a-41ca-8283-753af80470d3\"],\"abnormal_condition_only\":false}],\"timers\":[{\"id\":\"bca8b4b2-fe6a-41ca-8283-753af80470d3\",\"duration\":300000}]}",
+        "defaultOperationModeId": "e4265d8a-88d3-4482-b849-1c7c04d7b380",
+        "autoConfirmInstructions": false,
+        "outputs": 2,
+        "x": 216,
+        "y": 284,
+        "wires": [
+            [
+                "a2561455eedaf348"
+            ],
+            [
+                "375480ffe1d882e0",
+                "546ca711ecfd8e4b"
+            ]
+        ]
+    },
+    {
+        "id": "45ff2487e854b652",
+        "type": "function",
+        "z": "c4f1e2d3a5b6c7d8",
+        "name": "Mode -> real charger, confirm on feedback",
+        "func": "// Input 1: ModeInstruction from s2-resource. Input 2: /StartStop read back from the real charger.\n// Output 1: real /StartStop, output 2: real /SetCurrent, output 3: ModeConfirmation to s2-resource.\nconst PHASES = 3 // phases the real charger charges on, used to turn power into current\nconst VOLTAGE = 230\nconst MIN_A = 6\nconst MAX_A = 32\n\nif (msg.topic === 'StartStop') {\n  flow.set('realStartStop', msg.payload)\n  const pending = flow.get('pendingInstruction')\n  if (pending && pending.target === msg.payload) {\n    flow.set('pendingInstruction', null)\n    return [null, null, pending.confirm]\n  }\n  return null\n}\n\nif (msg.topic === 'ModeRequest') {\n  // No mode known yet: report what the real charger is doing now\n  const index = flow.get('realStartStop') === 1 ? 1 : 0\n  return [null, null, { topic: 'ModeConfirmation', cemId: msg.cemId, payload: { index } }]\n}\nif (msg.topic !== 'ModeInstruction') return null\n\nconst p = msg.payload\nconst power = Array.isArray(p.values) ? p.values.reduce((a, b) => a + b, 0) : (p.values || 0)\nconst target = power > 0 ? 1 : 0\nconst confirm = { topic: 'ModeConfirmation', cemId: msg.cemId, payload: p }\nconst setCurrent = target\n  ? { payload: Math.max(MIN_A, Math.min(MAX_A, Math.round(power / (PHASES * VOLTAGE)))) }\n  : null\n\nif (flow.get('realStartStop') === target) {\n  // Already there, so no /StartStop change will come back to confirm on\n  flow.set('pendingInstruction', null)\n  return [null, setCurrent, confirm]\n}\nflow.set('pendingInstruction', { target, confirm })\nreturn [{ payload: target }, setCurrent, null]\n",
+        "outputs": 3,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 271,
+        "y": 784,
+        "wires": [
+            [
+                "eb2f0e94224b437e"
+            ],
+            [
+                "942f568ee4ed8589"
+            ],
+            [
+                "2401bda2b86147cc"
+            ]
+        ]
+    },
+    {
+        "id": "58616c2d2b070229",
+        "type": "function",
+        "z": "c4f1e2d3a5b6c7d8",
+        "name": "Manual control -> real charger",
+        "func": "// Changes made on the virtual charger from the GX or VRM (Manual mode) go to the real one.\nif (msg.topic === '/StartStop') return [{ payload: msg.payload }, null]\nif (msg.topic === '/SetCurrent') return [null, { payload: msg.payload }]\nreturn null\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 233,
+        "y": 720,
+        "wires": [
+            [
+                "eb2f0e94224b437e"
+            ],
+            [
+                "942f568ee4ed8589"
+            ]
+        ]
+    },
+    {
+        "id": "a1c395dfcf6e2bae",
+        "type": "function",
+        "z": "c4f1e2d3a5b6c7d8",
+        "name": "Real -> virtual charger",
+        "func": "// The input nodes are named after the path, so msg.topic is the virtual node's property name.\nreturn { payload: { [msg.topic]: msg.payload } }\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 397,
+        "y": 533,
+        "wires": [
+            [
+                "10c49c0a7e94fa1b"
+            ]
+        ]
+    },
+    {
+        "id": "eb2f0e94224b437e",
+        "type": "victron-output-evcharger",
+        "z": "c4f1e2d3a5b6c7d8",
+        "outputs": 0,
+        "service": "com.victronenergy.evcharger/40",
+        "path": "/StartStop",
+        "serviceObj": {
+            "service": "com.victronenergy.evcharger/40",
+            "name": "EV charger at home",
+            "communityTag": "evcharger"
+        },
+        "pathObj": {
+            "path": "/StartStop",
+            "type": "enum",
+            "name": "Start/stop charging (manual mode)",
+            "enum": {
+                "0": "Stop",
+                "1": "Start"
+            },
+            "mode": "both"
+        },
+        "name": "Charger: start / stop",
+        "onlyChanges": false,
+        "conditionalMode": false,
+        "condition1HysteresisEnabled": false,
+        "condition1HysteresisThreshold": "",
+        "outputTrue": "",
+        "outputFalse": "",
+        "debounce": "",
+        "x": 594,
+        "y": 715,
+        "wires": []
+    },
+    {
+        "id": "942f568ee4ed8589",
+        "type": "victron-output-evcharger",
+        "z": "c4f1e2d3a5b6c7d8",
+        "outputs": 0,
+        "service": "com.victronenergy.evcharger/40",
+        "path": "/SetCurrent",
+        "serviceObj": {
+            "service": "com.victronenergy.evcharger/40",
+            "name": "EV charger at home",
+            "communityTag": "evcharger"
+        },
+        "pathObj": {
+            "path": "/SetCurrent",
+            "type": "float",
+            "name": "Set charge current (manual mode) (A)",
+            "mode": "both"
+        },
+        "name": "Charger: set current",
+        "onlyChanges": false,
+        "conditionalMode": false,
+        "condition1HysteresisEnabled": false,
+        "condition1HysteresisThreshold": "",
+        "outputTrue": "",
+        "outputFalse": "",
+        "debounce": "",
+        "x": 593,
+        "y": 757,
+        "wires": []
+    },
+    {
+        "id": "939f45c48b1828d5",
+        "type": "victron-input-evcharger",
+        "z": "c4f1e2d3a5b6c7d8",
+        "outputs": 1,
+        "service": "com.victronenergy.evcharger/40",
+        "path": "/Ac/Power",
+        "serviceObj": {
+            "service": "com.victronenergy.evcharger/40",
+            "name": "EV charger at home"
+        },
+        "pathObj": {
+            "path": "/Ac/Power",
+            "type": "float",
+            "name": "Total power (W)"
+        },
+        "initial": "",
+        "name": "Ac/Power",
+        "onlyChanges": true,
+        "roundValues": "no",
+        "rateLimit": 0,
+        "x": 151,
+        "y": 412,
+        "wires": [
+            [
+                "a1c395dfcf6e2bae"
+            ]
+        ]
+    },
+    {
+        "id": "30a371c60426242b",
+        "type": "victron-input-evcharger",
+        "z": "c4f1e2d3a5b6c7d8",
+        "outputs": 1,
+        "service": "com.victronenergy.evcharger/40",
+        "path": "/Current",
+        "serviceObj": {
+            "service": "com.victronenergy.evcharger/40",
+            "name": "EV charger at home"
+        },
+        "pathObj": {
+            "path": "/Current",
+            "type": "float",
+            "name": "Charge current (A)"
+        },
+        "initial": "",
+        "name": "Current",
+        "onlyChanges": true,
+        "roundValues": "no",
+        "rateLimit": 0,
+        "x": 165,
+        "y": 451,
+        "wires": [
+            [
+                "a1c395dfcf6e2bae"
+            ]
+        ]
+    },
+    {
+        "id": "daedbe4d6850b362",
+        "type": "victron-input-evcharger",
+        "z": "c4f1e2d3a5b6c7d8",
+        "outputs": 1,
+        "service": "com.victronenergy.evcharger/40",
+        "path": "/Status",
+        "serviceObj": {
+            "service": "com.victronenergy.evcharger/40",
+            "name": "EV charger at home"
+        },
+        "pathObj": {
+            "path": "/Status",
+            "type": "enum",
+            "name": "Status",
+            "enum": {
+                "0": "Disconnected",
+                "1": "Connected",
+                "2": "Charging",
+                "3": "Charged",
+                "4": "Waiting for sun",
+                "5": "Waiting for RFID",
+                "6": "Waiting for start",
+                "7": "Low SOC",
+                "8": "Ground test error",
+                "9": "Welded contacts test error",
+                "10": "CP input test error (shorted)",
+                "11": "Residual current detected",
+                "12": "Undervoltage detected",
+                "13": "Overvoltage detected",
+                "14": "Overheating detected",
+                "15": "Reserved",
+                "16": "Reserved",
+                "17": "Reserved",
+                "18": "Reserved",
+                "19": "Reserved",
+                "20": "Charging limit",
+                "21": "Start charging",
+                "22": "Switching to 3 phase",
+                "23": "Switching to 1 phase",
+                "24": "Stop charging"
+            }
+        },
+        "initial": "",
+        "name": "Status",
+        "onlyChanges": true,
+        "roundValues": "no",
+        "rateLimit": 0,
+        "x": 165,
+        "y": 494,
+        "wires": [
+            [
+                "a1c395dfcf6e2bae"
+            ]
+        ]
+    },
+    {
+        "id": "baed171f8a789425",
+        "type": "victron-input-evcharger",
+        "z": "c4f1e2d3a5b6c7d8",
+        "outputs": 1,
+        "service": "com.victronenergy.evcharger/40",
+        "path": "/StartStop",
+        "serviceObj": {
+            "service": "com.victronenergy.evcharger/40",
+            "name": "EV charger at home"
+        },
+        "pathObj": {
+            "path": "/StartStop",
+            "type": "enum",
+            "name": "Start/stop charging (manual mode)",
+            "enum": {
+                "0": "Stop",
+                "1": "Start"
+            },
+            "mode": "both"
+        },
+        "initial": "",
+        "name": "StartStop",
+        "onlyChanges": true,
+        "roundValues": "no",
+        "rateLimit": 0,
+        "x": 159,
+        "y": 582,
+        "wires": [
+            [
+                "7aad0675c4f019c8",
+                "a1c395dfcf6e2bae"
+            ]
+        ]
+    },
+    {
+        "id": "04a600eee5224e04",
+        "type": "victron-input-evcharger",
+        "z": "c4f1e2d3a5b6c7d8",
+        "outputs": 1,
+        "service": "com.victronenergy.evcharger/40",
+        "path": "/SetCurrent",
+        "serviceObj": {
+            "service": "com.victronenergy.evcharger/40",
+            "name": "EV charger at home"
+        },
+        "pathObj": {
+            "path": "/SetCurrent",
+            "type": "float",
+            "name": "Set charge current (manual mode) (A)",
+            "mode": "both"
+        },
+        "initial": "",
+        "name": "SetCurrent",
+        "onlyChanges": true,
+        "roundValues": "no",
+        "rateLimit": 0,
+        "x": 152,
+        "y": 537,
+        "wires": [
+            [
+                "a1c395dfcf6e2bae"
+            ]
+        ]
+    },
+    {
+        "id": "a2561455eedaf348",
+        "type": "link out",
+        "z": "c4f1e2d3a5b6c7d8",
+        "name": "link out 5",
+        "mode": "link",
+        "links": [
+            "ab9211b9052dc9e5"
+        ],
+        "x": 343,
+        "y": 271,
+        "wires": []
+    },
+    {
+        "id": "ab9211b9052dc9e5",
+        "type": "link in",
+        "z": "c4f1e2d3a5b6c7d8",
+        "name": "link in 10",
+        "links": [
+            "a2561455eedaf348",
+            "10c49c0a7e94fa1b"
+        ],
+        "x": 52,
+        "y": 181,
+        "wires": [
+            [
+                "2fd64b331593206a"
+            ]
+        ]
+    },
+    {
+        "id": "40addbcd51c02939",
+        "type": "link out",
+        "z": "c4f1e2d3a5b6c7d8",
+        "name": "link out 11",
+        "mode": "link",
+        "links": [
+            "004ce3c3915a652d"
+        ],
+        "x": 342,
+        "y": 222,
+        "wires": []
+    },
+    {
+        "id": "10c49c0a7e94fa1b",
+        "type": "link out",
+        "z": "c4f1e2d3a5b6c7d8",
+        "name": "link out 12",
+        "mode": "link",
+        "links": [
+            "ab9211b9052dc9e5"
+        ],
+        "x": 578,
+        "y": 531,
+        "wires": []
+    },
+    {
+        "id": "2401bda2b86147cc",
+        "type": "link out",
+        "z": "c4f1e2d3a5b6c7d8",
+        "name": "link out 17",
+        "mode": "link",
+        "links": [
+            "004ce3c3915a652d"
+        ],
+        "x": 532,
+        "y": 796,
+        "wires": []
+    },
+    {
+        "id": "004ce3c3915a652d",
+        "type": "link in",
+        "z": "c4f1e2d3a5b6c7d8",
+        "name": "link in 13",
+        "links": [
+            "2401bda2b86147cc",
+            "40addbcd51c02939"
+        ],
+        "x": 90,
+        "y": 284,
+        "wires": [
+            [
+                "9750a8243d9be13d"
+            ]
+        ]
+    },
+    {
+        "id": "7aad0675c4f019c8",
+        "type": "link out",
+        "z": "c4f1e2d3a5b6c7d8",
+        "name": "link out 18",
+        "mode": "link",
+        "links": [
+            "7524d08a9ad20c86"
+        ],
+        "x": 310,
+        "y": 621,
+        "wires": []
+    },
+    {
+        "id": "7524d08a9ad20c86",
+        "type": "link in",
+        "z": "c4f1e2d3a5b6c7d8",
+        "name": "link in 11",
+        "links": [
+            "7aad0675c4f019c8",
+            "546ca711ecfd8e4b"
+        ],
+        "x": 55,
+        "y": 783,
+        "wires": [
+            [
+                "45ff2487e854b652"
+            ]
+        ]
+    },
+    {
+        "id": "546ca711ecfd8e4b",
+        "type": "link out",
+        "z": "c4f1e2d3a5b6c7d8",
+        "name": "link out 19",
+        "mode": "link",
+        "links": [
+            "7524d08a9ad20c86"
+        ],
+        "x": 348,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "5e1d113d2b008497",
+        "type": "link out",
+        "z": "c4f1e2d3a5b6c7d8",
+        "name": "link out 20",
+        "mode": "link",
+        "links": [
+            "c4ef803e209963b3"
+        ],
+        "x": 356,
+        "y": 177,
+        "wires": []
+    },
+    {
+        "id": "c4ef803e209963b3",
+        "type": "link in",
+        "z": "c4f1e2d3a5b6c7d8",
+        "name": "link in 12",
+        "links": [
+            "5e1d113d2b008497"
+        ],
+        "x": 55,
+        "y": 720,
+        "wires": [
+            [
+                "58616c2d2b070229"
+            ]
+        ]
+    }
+]

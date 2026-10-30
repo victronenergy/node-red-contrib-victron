@@ -326,13 +326,13 @@ module.exports = function (RED) {
                 .filter(([pName]) => node.iface[pName] !== null && node.iface[pName] !== undefined)
                 .map(([pName, commodityQuantity]) => ({ commodity_quantity: commodityQuantity, value: node.iface[pName] }))
               if (values.length > 0) {
-                node.send([null, {
+                node.ifaceDesc.__s2Send({
                   payload: {
                     command: 'PowerMeasurement',
                     cemId: node._s2PowerMeasurementCemId,
                     values
                   }
-                }])
+                })
               }
             }
             return successAndDone('Power measurement started', done)
@@ -781,22 +781,22 @@ module.exports = function (RED) {
             messages.forEach(message => node.send([null, message]))
           }
 
-          // S2 power measurement: when any tracked property changes, emit a snapshot of all tracked values
-          if (node._s2PowerMeasurementActive &&
-              ifaceDesc.__s2PowerMeasurementProps &&
-              ifaceDesc.__s2PowerMeasurementProps[propName] !== undefined &&
-              propValue !== null && propValue !== undefined) {
+          // S2 power measurement: when any tracked property changes, emit a snapshot of all tracked
+          // values. Check every item: calculated values (e.g. energy) can come before the power.
+          const measuredPropChanged = ifaceDesc.__s2PowerMeasurementProps && data.some(([path, fields]) =>
+            ifaceDesc.__s2PowerMeasurementProps[path.substring(1)] !== undefined && fields[0][1][1] != null)
+          if (node._s2PowerMeasurementActive && measuredPropChanged) {
             const values = Object.entries(ifaceDesc.__s2PowerMeasurementProps)
               .filter(([pName]) => iface[pName] !== null && iface[pName] !== undefined)
               .map(([pName, commodityQuantity]) => ({ commodity_quantity: commodityQuantity, value: iface[pName] }))
             if (values.length > 0) {
-              node.send([null, {
+              ifaceDesc.__s2Send({
                 payload: {
                   command: 'PowerMeasurement',
                   cemId: node._s2PowerMeasurementCemId,
                   values
                 }
-              }])
+              })
             }
           }
         }

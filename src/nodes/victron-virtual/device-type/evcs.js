@@ -1,4 +1,5 @@
 const { accumulateDelta } = require('../energy-utils')
+const { enableS2Support } = require('../s2-support')
 const { buildMinimalMeterProperties, initializeMinimalMeter } = require('./shared/minimal-meter')
 const { accumulateMeterEnergy } = require('./shared/meter-energy')
 
@@ -11,7 +12,9 @@ const unitFormat = (unit, digits) => (v) => v != null ? v.toFixed(digits) + unit
 // Nothing is readonly: dbus-victron-virtual would then also reject writes from the node input.
 const chargingControlProperties = {
   Mode: { type: 'i', format: enumFormat({ 0: 'Manual', 1: 'Auto', 2: 'Scheduled' }), persist: true },
-  StartStop: { type: 'i', format: enumFormat({ 0: 'Stop', 1: 'Start' }) },
+  // Persisted: the control output compares GX writes with the last value, so a reset to 0 after
+  // a reconnect would drop a Stop while the real charger is still charging.
+  StartStop: { type: 'i', format: enumFormat({ 0: 'Stop', 1: 'Start' }), persist: true },
   AutoStart: { type: 'i', format: enumFormat({ 0: 'Disabled', 1: 'Enabled' }), persist: true },
   EnableDisplay: { type: 'i', format: enumFormat({ 0: 'Control disabled', 1: 'Control enabled' }), persist: true },
   Current: { type: 'd', format: unitFormat('A', 1) },
@@ -40,6 +43,7 @@ const chargingControlProperties = {
       12: 'Undervoltage detected',
       13: 'Overvoltage detected',
       14: 'Overheating detected',
+      20: 'Charging limit',
       21: 'Starting to charge',
       22: 'Switching to 3-phase',
       23: 'Switching to 1-phase',
@@ -118,6 +122,22 @@ function initialize (config, ifaceDesc, iface, node) {
     }
   }
 
+  // Opportunity Loads only needs /S2/0/Rm, Dynamic ESS also needs charging control (/Mode Auto).
+  // S2 goes on the last output, after Control when that is enabled. enable_s2support is shared
+  // by all device types, so a node switched to EV charger can carry it from another type; only
+  // the saved output count shows the user chose S2 here.
+  const s2OutputIndex = isChargingControl(config) ? 2 : 1
+  if (Number(config.outputs) > s2OutputIndex) {
+    enableS2Support({
+      config,
+      ifaceDesc,
+      iface,
+      node,
+      deviceLabel: 'EV charger',
+      outputIndex: s2OutputIndex
+    })
+  }
+
   if (!isChargingControl(config)) {
     return `Virtual ${iface.NrOfPhases}-phase EV charger`
   }
@@ -146,12 +166,15 @@ function trackPowerSource (changes, instance, config) {
 }
 
 function accumulateSession (changes, instance, config, now) {
+  // A null Status (charger offline) says nothing about the car, so a plug-in is judged against
+  // the last real status.
+  if (instance.Status != null) instance._lastKnownStatus = instance.Status
   const oldStatus = instance.Status
   const lastTs = instance._lastSessionTimestamp
   instance._lastSessionTimestamp = now
 
   let timeCalculated = false
-  const isNewSession = changes.Status != null && oldStatus === STATUS_DISCONNECTED && changes.Status !== STATUS_DISCONNECTED
+  const isNewSession = changes.Status != null && instance._lastKnownStatus === STATUS_DISCONNECTED && changes.Status !== STATUS_DISCONNECTED
   if (isNewSession) {
     instance._sessionSeconds = 0
     SESSION_KEYS.forEach(key => {
@@ -268,5 +291,6 @@ module.exports = {
   startSessionTimer,
   controlOutputMessages,
   createControlOutputFilter,
-  label: 'EV charger'
+  label: 'EV charger',
+  supportsS2: true
 }

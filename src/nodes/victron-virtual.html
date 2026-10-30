@@ -185,6 +185,7 @@
                     $('#node-input-device').on('change', (v) => {
                         checkSelectedVirtualDevice(draft, deviceCapabilities);
                         draft.device = v.target.value;
+                        window.__victron.clearUnsupportedS2(draft, deviceCapabilities);
                         updateOutputs(draft, deviceCapabilities);
                     });
 
@@ -937,6 +938,12 @@ the real charger does not follow a command, report its actual state back (e.g.
 With "Auto-calculate session energy and time", `/Session/Energy` and
 `/Session/Time` count up while `/Status` is 2 (Charging), and reset when a car
 is plugged in (`/Status` changes away from 0, Disconnected).
+
+With "S2 support", the EV charger can be controlled by Opportunity Loads and
+Dynamic ESS on the GX. The S2 messages are sent on the last output, after the
+"Control" output when charging control is enabled. Dynamic ESS also needs
+charging control, and only uses the charger while `/Mode` is 1 (Auto). Note
+that the S2 support is experimental and subject to change.
 
 ### Heat pump
 

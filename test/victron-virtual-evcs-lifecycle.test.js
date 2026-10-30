@@ -196,3 +196,48 @@ describe('EV charger session across a restart', () => {
     expect(node.iface).toMatchObject({ 'Session/Energy': 5.2, 'Session/Time': 1200, ChargingTime: 1200 })
   })
 })
+
+describe('EV charger S2 power measurement', () => {
+  let persistLocation, addVictronInterfaces
+
+  beforeEach(() => {
+    jest.resetModules()
+    const dbus = require('dbus-native-victron')
+    const { addSettings } = require('dbus-victron-virtual')
+    ;({ addVictronInterfaces } = require('dbus-victron-virtual'))
+    jest.useFakeTimers()
+    jest.spyOn(console, 'warn').mockImplementation(() => {})
+    process.env.NODE_RED_DBUS_ADDRESS = '127.0.0.1:7878'
+    persistLocation = fs.mkdtempSync(path.join(os.tmpdir(), 'evcs-s2-'))
+    dbus.createClient.mockImplementation(() => mockBus())
+    addSettings.mockResolvedValue(SETTINGS_RESULT)
+    addVictronInterfaces.mockImplementation(() => ({ setValuesLocally: jest.fn(), emitS2Signal: jest.fn(), getValue: jest.fn(), removeSettings: jest.fn() }))
+  })
+
+  afterEach(() => {
+    jest.restoreAllMocks()
+    jest.clearAllTimers()
+    jest.useRealTimers()
+    delete process.env.NODE_RED_DBUS_ADDRESS
+    fs.rmSync(persistLocation, { recursive: true, force: true })
+  })
+
+  const item = (p, value) => [p, [['Value', ['d', value]], ['Text', ['s', String(value)]]]]
+
+  // Auto energy adds Ac/Energy/Forward, which is declared before Ac/Power, so the measured
+  // path is not the first item of the signal.
+  test('sends a measurement when the measured path is not the first changed item', async () => {
+    const node = createNode(persistLocation, { id: 'evcs2', device: 'evcs', enable_s2support: true, outputs: 2, evcs_auto_energy: true })
+    await jest.advanceTimersByTimeAsync(0)
+    const [, , iface, , emitCallback] = addVictronInterfaces.mock.calls[0]
+    node._s2PowerMeasurementActive = true
+    node._s2PowerMeasurementCemId = 'cem-1'
+    iface['Ac/Power'] = 7000
+
+    emitCallback('ItemsChanged', [item('/Ac/Energy/Forward', 1.5), item('/Ac/Power', 7000)])
+
+    expect(node.send).toHaveBeenCalledWith([null, {
+      payload: { command: 'PowerMeasurement', cemId: 'cem-1', values: [{ commodity_quantity: 'ELECTRIC.POWER.3_PHASE_SYMMETRIC', value: 7000 }] }
+    }])
+  })
+})

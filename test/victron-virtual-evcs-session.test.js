@@ -53,6 +53,22 @@ describe('evcs session accumulation', () => {
     expect(instance['Session/Time']).toBe(1800)
   })
 
+  test('starts a new session when a car is plugged in after the charger was offline', () => {
+    const instance = charging({ Status: 0, 'Session/Energy': 12.5, 'Session/Time': 5000, ChargingTime: 5000 })
+    apply(instance, { Status: null })
+    apply(instance, { Status: 1 })
+    expect(instance['Session/Energy']).toBe(0)
+    expect(instance['Session/Time']).toBe(0)
+  })
+
+  test('keeps the session when the charger was offline while charging', () => {
+    const instance = charging({ 'Session/Energy': 12.5, 'Session/Time': 5000, ChargingTime: 5000 })
+    apply(instance, { Status: null })
+    apply(instance, { Status: 2 })
+    expect(instance['Session/Energy']).toBe(12.5)
+    expect(instance['Session/Time']).toBe(5000)
+  })
+
   test('starts a new session when a car is plugged in', () => {
     const instance = charging({ Status: 0, 'Session/Energy': 12.5, 'Session/Time': 5000, ChargingTime: 5000 })
     apply(instance, { Status: 1 })

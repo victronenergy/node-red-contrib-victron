@@ -645,6 +645,7 @@ export const DEVICE_TYPE_DOCS = {
         <ol>
           <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
           <li><code>Control</code> (with <em>Charging control</em> only): <tt>{ topic: "/StartStop", payload: 1 }</tt> for each control path changed from outside the flow</li>
+          <li><code>S2 communication</code> (with <em>S2 support</em> only): S2 messages from the CEM (Opportunity Loads, Dynamic ESS)</li>
         </ol>
       </div>
     </div>
@@ -1887,7 +1888,7 @@ const DEVICE_TYPE_TO_NUM_OUTPUTS = {
     return SWITCH_OUTPUT_CONFIG[typeKey] || 2
   },
   pulsemeter: () => 2,
-  evcs: (config) => config?.evcs_charging_control ? 2 : 1 // passthrough (+ control)
+  evcs: (config) => 1 + (config?.evcs_charging_control ? 1 : 0) + (config?.enable_s2support ? 1 : 0) // passthrough (+ control) (+ S2)
 }
 
 /**
@@ -1927,6 +1928,14 @@ export function updateOutputs (context, deviceCapabilities = {}) {
   $('#node-input-outputs').val(outputs)
 }
 
+// enable_s2support is shared by all device types. Clear it when switching to a type without S2,
+// so it can't turn S2 on later if that type gains S2 support.
+export function clearUnsupportedS2 (context, deviceCapabilities = {}) {
+  if (!context.enable_s2support || deviceCapabilities[context.device]?.supportsS2) return
+  context.enable_s2support = false
+  $('#node-input-enable_s2support').prop('checked', false)
+}
+
 const cloneValue = (value) => value !== null && typeof value === 'object' ? JSON.parse(JSON.stringify(value)) : value
 
 export function createEditDraft (node) {
@@ -1955,8 +1964,8 @@ export function determineOutputLabel (node, index, deviceCapabilities = {}) {
     return 'Aggregate'
   }
 
-  if (node.device === 'evcs' && node.evcs_charging_control) {
-    return 'Control'
+  if (node.device === 'evcs') {
+    return getOutputLabels(node)[index] || 'Output ' + (index + 1)
   }
 
   if (deviceCapabilities[node.device]?.supportsS2 && node.enable_s2support) {
@@ -1991,8 +2000,9 @@ export function getOutputLabels (context = {}) {
 
   if (context.device === 'pulsemeter') {
     labels.push('Aggregate')
-  } else if (context.device === 'evcs' && context.evcs_charging_control) {
-    labels.push('Control')
+  } else if (context.device === 'evcs') {
+    if (context.evcs_charging_control) labels.push('Control')
+    if (context.enable_s2support) labels.push('S2 communication')
   } else if (context.device === 'switch') {
     const switchType = Number(context.switch_1_type || 1)
     const outputCount = SWITCH_OUTPUT_CONFIG[switchType] || 2

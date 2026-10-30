@@ -16,7 +16,7 @@ describe('evcs (EV charger) device module', () => {
     expect(typeof evcs.initialize).toBe('function')
     expect(typeof evcs.getServiceType).toBe('function')
     expect(typeof evcs.productType).toBe('function')
-    expect(evcs.supportsS2).not.toBe(true)
+    expect(evcs.supportsS2).toBe(true)
   })
 
   test('getServiceType always returns evcharger', () => {
@@ -100,7 +100,7 @@ describe('evcs charging control mode', () => {
     'Session/UserId', 'Session/UserIdType',
     'Model'
   ]
-  const PERSISTED_SETTINGS = ['Mode', 'AutoStart', 'EnableDisplay', 'SetCurrent', 'MinCurrent', 'MaxCurrent']
+  const PERSISTED_SETTINGS = ['Mode', 'StartStop', 'AutoStart', 'EnableDisplay', 'SetCurrent', 'MinCurrent', 'MaxCurrent']
 
   test('measurement-only mode has no EVSE paths', () => {
     const properties = evcs.properties({})
@@ -145,6 +145,7 @@ describe('evcs charging control mode', () => {
       ['Status', 0, 'Disconnected'],
       ['Status', 2, 'Charging'],
       ['Status', 14, 'Overheating detected'],
+      ['Status', 20, 'Charging limit'],
       ['Status', 21, 'Starting to charge'],
       ['Status', 24, 'Stopping charging'],
       ['Session/UserIdType', 0, 'Unknown'],
@@ -203,5 +204,62 @@ describe('evcs charging control mode', () => {
   test('initialize returns a charging control label', () => {
     const { ifaceDesc, iface, node } = makeFixtures()
     expect(evcs.initialize({ evcs_charging_control: true }, ifaceDesc, iface, node)).toBe('Virtual 1-phase EV charger (charging control)')
+  })
+})
+
+describe('evcs S2 support', () => {
+  beforeEach(() => { jest.spyOn(console, 'warn').mockImplementation(() => {}) })
+  afterEach(() => { jest.restoreAllMocks() })
+
+  function initialize (config) {
+    const fixtures = makeFixtures()
+    fixtures.node.send = jest.fn()
+    fixtures.node.setValuesLocally = jest.fn()
+    fixtures.ifaceDesc.properties = evcs.properties(config)
+    evcs.initialize(config, fixtures.ifaceDesc, fixtures.iface, fixtures.node)
+    return fixtures
+  }
+
+  test('adds no S2 paths without S2 support', () => {
+    const { ifaceDesc } = initialize({ evcs_charging_control: true })
+    expect(ifaceDesc.properties['S2/0/Rm']).toBeUndefined()
+    expect(ifaceDesc.__s2Handlers).toBeUndefined()
+  })
+
+  // Opportunity Loads only needs /S2/0/Rm, so S2 does not depend on charging control.
+  test('adds the S2 paths in measurement-only mode', () => {
+    const { ifaceDesc, iface } = initialize({ enable_s2support: true, outputs: 2 })
+    expect(ifaceDesc.properties['S2/0/Rm']).toBeDefined()
+    expect(ifaceDesc.properties['S2/0/Active']).toBeDefined()
+    expect(iface['S2/0/Active']).toBe(0)
+  })
+
+  // enable_s2support is shared by all device types, so a node switched to EV charger in the
+  // editor can carry it without having the S2 output.
+  test.each([
+    [{ enable_s2support: true, outputs: 1 }],
+    [{ enable_s2support: true, outputs: 2, evcs_charging_control: true }],
+    [{ enable_s2support: true }]
+  ])('adds no S2 paths when the saved outputs have no S2 port (%j)', (config) => {
+    const { ifaceDesc } = initialize(config)
+    expect(ifaceDesc.properties['S2/0/Rm']).toBeUndefined()
+    expect(ifaceDesc.__s2Handlers).toBeUndefined()
+  })
+
+  test('sends S2 on output 2 without charging control', () => {
+    const { ifaceDesc, node } = initialize({ enable_s2support: true, outputs: 2 })
+    ifaceDesc.__s2Handlers.KeepAlive('cem-1')
+    expect(node.send).toHaveBeenCalledWith([null, { payload: { command: 'KeepAlive', cemId: 'cem-1' } }])
+  })
+
+  test('sends S2 on output 3 with charging control, after the Control output', () => {
+    const { ifaceDesc, node } = initialize({ enable_s2support: true, evcs_charging_control: true, outputs: 3 })
+    ifaceDesc.__s2Handlers.KeepAlive('cem-1')
+    expect(node.send).toHaveBeenCalledWith([null, null, { payload: { command: 'KeepAlive', cemId: 'cem-1' } }])
+  })
+
+  test('uses the configured S2 measurement type', () => {
+    const { ifaceDesc } = initialize({ enable_s2support: true, outputs: 2, s2_measurement_type: 'L2' })
+    expect(ifaceDesc.__s2PowerMeasurementProps).toEqual({ 'Ac/L2/Power': 'ELECTRIC.POWER.L2' })
   })
 })

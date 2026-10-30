@@ -127,6 +127,22 @@ describe('enableS2Support', () => {
     expect(result).toBe(true)
   })
 
+  test('__s2Send sends on port 2 by default', () => {
+    const { ifaceDesc, iface, node } = makeFixtures()
+    enableS2Support({ config: { enable_s2support: true }, ifaceDesc, iface, node })
+    ifaceDesc.__s2Send({ payload: 'x' })
+    expect(node.send).toHaveBeenCalledWith([null, { payload: 'x' }])
+  })
+
+  test('outputIndex moves the handlers and __s2Send to another port', () => {
+    const { ifaceDesc, iface, node } = makeFixtures()
+    enableS2Support({ config: { enable_s2support: true }, ifaceDesc, iface, node, outputIndex: 2 })
+    ifaceDesc.__s2Handlers.KeepAlive('cem-1')
+    ifaceDesc.__s2Send({ payload: 'x' })
+    expect(node.send).toHaveBeenNthCalledWith(1, [null, null, { payload: { command: 'KeepAlive', cemId: 'cem-1' } }])
+    expect(node.send).toHaveBeenNthCalledWith(2, [null, null, { payload: 'x' }])
+  })
+
   test('reflects deviceLabel in the startup console.warn', () => {
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
     const { ifaceDesc, iface, node } = makeFixtures()

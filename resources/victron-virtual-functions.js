@@ -1436,6 +1436,7 @@
         <ol>
           <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
           <li><code>Control</code> (with <em>Charging control</em> only): <tt>{ topic: "/StartStop", payload: 1 }</tt> for each control path changed from outside the flow</li>
+          <li><code>S2 communication</code> (with <em>S2 support</em> only): S2 messages from the CEM (Opportunity Loads, Dynamic ESS)</li>
         </ol>
       </div>
     </div>
@@ -2677,7 +2678,7 @@ ${labels.join('\n')}`
 	    return victronVirtualConstantsExports.SWITCH_OUTPUT_CONFIG[typeKey] || 2
 	  },
 	  pulsemeter: () => 2,
-	  evcs: (config) => config?.evcs_charging_control ? 2 : 1 // passthrough (+ control)
+	  evcs: (config) => 1 + (config?.evcs_charging_control ? 1 : 0) + (config?.enable_s2support ? 1 : 0) // passthrough (+ control) (+ S2)
 	};
 
 	/**
@@ -2717,6 +2718,14 @@ ${labels.join('\n')}`
 	  $('#node-input-outputs').val(outputs);
 	}
 
+	// enable_s2support is shared by all device types. Clear it when switching to a type without S2,
+	// so it can't turn S2 on later if that type gains S2 support.
+	function clearUnsupportedS2 (context, deviceCapabilities = {}) {
+	  if (!context.enable_s2support || deviceCapabilities[context.device]?.supportsS2) return
+	  context.enable_s2support = false;
+	  $('#node-input-enable_s2support').prop('checked', false);
+	}
+
 	const cloneValue = (value) => value !== null && typeof value === 'object' ? JSON.parse(JSON.stringify(value)) : value;
 
 	function createEditDraft (node) {
@@ -2745,8 +2754,8 @@ ${labels.join('\n')}`
 	    return 'Aggregate'
 	  }
 
-	  if (node.device === 'evcs' && node.evcs_charging_control) {
-	    return 'Control'
+	  if (node.device === 'evcs') {
+	    return getOutputLabels(node)[index] || 'Output ' + (index + 1)
 	  }
 
 	  if (deviceCapabilities[node.device]?.supportsS2 && node.enable_s2support) {
@@ -2767,6 +2776,39 @@ ${labels.join('\n')}`
 	  }
 
 	  return 'Output ' + (index + 1)
+	}
+
+	/**
+	 * Get output labels for a virtual device
+	 * @param {string} device - Device type (e.g., 'battery', 'switch', 'gps')
+	 * @param {object} config - Device configuration object
+	 * @returns {string[]} Array of output label strings
+	 */
+	function getOutputLabels (context = {}) {
+	  const labels = [];
+	  labels.push('Passthrough');
+
+	  if (context.device === 'pulsemeter') {
+	    labels.push('Aggregate');
+	  } else if (context.device === 'evcs') {
+	    if (context.evcs_charging_control) labels.push('Control');
+	    if (context.enable_s2support) labels.push('S2 communication');
+	  } else if (context.device === 'switch') {
+	    const switchType = Number(context.switch_1_type || 1);
+	    const outputCount = victronVirtualConstantsExports.SWITCH_OUTPUT_CONFIG[switchType] || 2;
+
+	    // Second output label
+	    const secondLabel = victronVirtualConstantsExports.SWITCH_SECOND_OUTPUT_LABEL[switchType] || 'State';
+	    labels.push(secondLabel);
+
+	    // Third output label (only if switch has 3 outputs)
+	    if (outputCount >= 3) {
+	      const thirdLabel = victronVirtualConstantsExports.SWITCH_THIRD_OUTPUT_LABEL[switchType] || 'Value';
+	      labels.push(thirdLabel);
+	    }
+	  }
+
+	  return labels
 	}
 
 	/**
@@ -2820,7 +2862,8 @@ ${labels.join('\n')}`
 	  determineOutputLabel: (node, index) => determineOutputLabel(node, index, canvasDeviceCapabilities),
 	  fetchDeviceCapabilities,
 	  createEditDraft,
-	  applyEditDraft
+	  applyEditDraft,
+	  clearUnsupportedS2
 	};
 
 	// Warm canvasDeviceCapabilities as soon as this script loads rather than waiting for
