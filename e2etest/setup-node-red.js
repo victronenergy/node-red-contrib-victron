@@ -8,7 +8,7 @@
 // The tarball URL must be publicly reachable from the GX device. In the
 // GitHub Actions workflow this is produced by: npm pack && gh release create (prerelease).
 
-const { nodeRedRequest, fetchSessionCookie, clearAllFlows } = require('./utils.js')
+const { nodeRedRequest, fetchSessionCookie, clearAllFlows, disableWelcomeTour } = require('./utils.js')
 
 const PACKAGE_NAME = '@victronenergy/node-red-contrib-victron'
 const POLL_INTERVAL_MS = 3000
@@ -94,6 +94,11 @@ async function main () {
   await uninstallIfPresent(proxyDomain, sessionCookie)
   await installPackage(proxyDomain, sessionCookie)
   await waitForNodeRed(proxyDomain, sessionCookie)
+  try {
+    await disableWelcomeTour(proxyDomain, sessionCookie)
+  } catch (err) {
+    console.warn('::warning file=e2etest/setup-node-red.js::Could not disable the welcome tour, it may block the editor:', err.message)
+  }
   console.log('Node-RED setup complete')
 }
 

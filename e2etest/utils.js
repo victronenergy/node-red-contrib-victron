@@ -50,6 +50,19 @@ export async function clearAllFlows (proxyDomain, sessionCookie) {
   }
 }
 
+// The welcome tour only records itself as seen once it is closed, which the
+// tests never do, so without this it reappears in every session and can open
+// on top of an edit dialog mid-test. Turning it off survives version bumps.
+export async function disableWelcomeTour (proxyDomain, sessionCookie) {
+  const res = await nodeRedRequest(proxyDomain, 'POST', '/settings/user', sessionCookie, {
+    editor: { view: { 'view-show-welcome-tours': false } }
+  })
+  if (res.status !== 204 && res.status !== 200) {
+    throw new Error(`POST /settings/user returned ${res.status}: ${res.body}`)
+  }
+  console.log('Welcome tour disabled')
+}
+
 let NODE_RED_ENDPOINT = process.env.NODE_RED_ENDPOINT || null
 let PROXY_DOMAIN = null
 
