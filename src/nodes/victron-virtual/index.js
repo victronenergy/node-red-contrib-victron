@@ -13,7 +13,7 @@ const { validateVirtualDevicePayload, validateLightControls, debounce, refuseRem
 const { handleSwitchOutputs } = require('../../services/virtual-switch')
 const { filterInactiveVirtualDevices, getDeployedDbusIds } = require('../../services/virtual-device-cleanup')
 const { makeSetPresence } = require('./helpers')
-const { sanitizeIdForDbus, registerInputHandler, flushPendingInputs, createDebouncedSetters } = require('../victron-virtual-dbus-helpers')
+const { sanitizeIdForDbus, registerInputHandler, flushPendingInputs, createDebouncedSetters, trackLocalChanges, getPersistedChangedProps } = require('../victron-virtual-dbus-helpers')
 
 const acloadModule = require('./device-type/acload')
 const batteryModule = require('./device-type/battery')
@@ -204,6 +204,11 @@ module.exports = function (RED) {
 
     node.lastSentValues = {}
 
+    function stopEvcsSessionTimer () {
+      node.stopEvcsSessionTimer?.()
+      node.stopEvcsSessionTimer = null
+    }
+
     const address = process.env.NODE_RED_DBUS_ADDRESS
       ? process.env.NODE_RED_DBUS_ADDRESS.split(':')
       : null
@@ -321,13 +326,13 @@ module.exports = function (RED) {
                 .filter(([pName]) => node.iface[pName] !== null && node.iface[pName] !== undefined)
                 .map(([pName, commodityQuantity]) => ({ commodity_quantity: commodityQuantity, value: node.iface[pName] }))
               if (values.length > 0) {
-                node.send([null, {
+                node.ifaceDesc.__s2Send({
                   payload: {
                     command: 'PowerMeasurement',
                     cemId: node._s2PowerMeasurementCemId,
                     values
                   }
-                }])
+                })
               }
             }
             return successAndDone('Power measurement started', done)
@@ -464,6 +469,7 @@ module.exports = function (RED) {
 
       self.bus.connection.on('end', () => {
         self.connected = false
+        stopEvcsSessionTimer()
         node.status({
           color: 'red',
           shape: 'dot',
@@ -480,6 +486,7 @@ module.exports = function (RED) {
       self.bus.connection.on('error', (err) => {
         console.error(`DBus error: ${err}`)
         debugConnection('DBus connection error:', err)
+        stopEvcsSessionTimer()
         node.status({
           color: 'red',
           shape: 'dot',
@@ -532,6 +539,10 @@ module.exports = function (RED) {
       }
 
       async function proceed (usedBus) {
+        // A reconnect replaces the interface, so stop the old session timer before the first
+        // await: setup can fail or the node can close while it waits
+        stopEvcsSessionTimer()
+
         // First, we need to create our interface description (here we will only expose method calls)
         const ifaceDesc = {
           name: interfaceName,
@@ -738,6 +749,11 @@ module.exports = function (RED) {
         // We need to add a emitCallbackS2 for S2-related property changes
         // to be able to react to imocoming connection requests and messages.
 
+        // EV charger with charging control: external writes to its control paths go to output 2
+        const evcsControlFilter = config.device === 'evcs' && deviceModule?.isChargingControl(config)
+          ? deviceModule.createControlOutputFilter(iface)
+          : null
+
         function emitCallback (event, data) {
           // we could use node.context().set('bla', 42) to set (and get) state, but state disappears on redeploy
           // for global context: node.context().global.set('bla', 43)
@@ -748,34 +764,39 @@ module.exports = function (RED) {
           const propName = data[0][0].substring(1) // Remove the leading slash
           const propValue = data[0][1][0][1][1]
 
-          // check if we need to persist this property
-          if (ifaceDesc.properties[propName] && ifaceDesc.properties[propName].persist) {
-            savePersistedState(RED, self.id, iface, ifaceDesc, propName).catch(err => {
-              console.error(`Failed to persist state for ${propName}:`, err)
+          // check if we need to persist any of the changed properties
+          getPersistedChangedProps(data, ifaceDesc).forEach(persistedPropName => {
+            savePersistedState(RED, self.id, iface, ifaceDesc, persistedPropName).catch(err => {
+              console.error(`Failed to persist state for ${persistedPropName}:`, err)
             })
-          }
+          })
 
           // Legacy support: Handle outputs for existing Virtual Device (switch) nodes
           if (config.device === 'switch') {
             handleSwitchOutputs(config, node, propName, propValue)
           }
 
-          // S2 power measurement: when any tracked property changes, emit a snapshot of all tracked values
-          if (node._s2PowerMeasurementActive &&
-              ifaceDesc.__s2PowerMeasurementProps &&
-              ifaceDesc.__s2PowerMeasurementProps[propName] !== undefined &&
-              propValue !== null && propValue !== undefined) {
+          if (evcsControlFilter) {
+            const messages = evcsControlFilter(deviceModule.controlOutputMessages(data), !!node._applyingLocalChange)
+            messages.forEach(message => node.send([null, message]))
+          }
+
+          // S2 power measurement: when any tracked property changes, emit a snapshot of all tracked
+          // values. Check every item: calculated values (e.g. energy) can come before the power.
+          const measuredPropChanged = ifaceDesc.__s2PowerMeasurementProps && data.some(([path, fields]) =>
+            ifaceDesc.__s2PowerMeasurementProps[path.substring(1)] !== undefined && fields[0][1][1] != null)
+          if (node._s2PowerMeasurementActive && measuredPropChanged) {
             const values = Object.entries(ifaceDesc.__s2PowerMeasurementProps)
               .filter(([pName]) => iface[pName] !== null && iface[pName] !== undefined)
               .map(([pName, commodityQuantity]) => ({ commodity_quantity: commodityQuantity, value: iface[pName] }))
             if (values.length > 0) {
-              node.send([null, {
+              ifaceDesc.__s2Send({
                 payload: {
                   command: 'PowerMeasurement',
                   cemId: node._s2PowerMeasurementCemId,
                   values
                 }
-              }])
+              })
             }
           }
         }
@@ -799,8 +820,14 @@ module.exports = function (RED) {
           }
         )
 
-        node.setValuesLocally = setValuesLocally
+        node.setValuesLocally = trackLocalChanges(node, setValuesLocally)
         node.emitS2Signal = emitS2Signal
+
+        if (config.device === 'evcs' && !node._closed) {
+          // An overlapping reconnect may have started a timer while this setup was waiting
+          stopEvcsSessionTimer()
+          node.stopEvcsSessionTimer = deviceModule.startSessionTimer({ node, instance: iface, config })
+        }
 
         node.setPresence = makeSetPresence(node, text, iface)
 
@@ -877,6 +904,8 @@ module.exports = function (RED) {
 
     node.on('close', function (done) {
       nodeInstances.delete(node)
+      node._closed = true
+      stopEvcsSessionTimer()
 
       // Release the DBus service name before closing connection
       // This prevents the service from remaining registered after node deletion

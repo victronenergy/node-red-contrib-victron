@@ -1,6 +1,6 @@
 // test/victron-virtual-outputs.test.js
 /* eslint-env jest */
-const { calculateOutputs, getOutputLabels } = require('./fixtures/victron-virtual-functions.cjs')
+const { calculateOutputs, getOutputLabels, determineOutputLabel, updateOutputs } = require('./fixtures/victron-virtual-functions.cjs')
 const { SWITCH_TYPE_MAP, SWITCH_OUTPUT_CONFIG } = require('../src/nodes/victron-virtual-constants')
 
 describe('calculateOutputs', () => {
@@ -238,5 +238,50 @@ describe('getOutputLabels', () => {
         expect(labels.length).toBe(outputs)
       })
     })
+  })
+})
+
+describe('EV charger (evcs) outputs', () => {
+  test('measurement-only has 1 output', () => {
+    expect(calculateOutputs('evcs', {})).toBe(1)
+    expect(calculateOutputs('evcs', { evcs_charging_control: false })).toBe(1)
+  })
+
+  test('charging control adds the control output', () => {
+    expect(calculateOutputs('evcs', { evcs_charging_control: true })).toBe(2)
+  })
+
+  test('labels are Passthrough and Control with charging control', () => {
+    expect(getOutputLabels({ device: 'evcs', evcs_charging_control: true })).toEqual(['Passthrough', 'Control'])
+    expect(determineOutputLabel({ device: 'evcs', evcs_charging_control: true }, 1)).toBe('Control')
+  })
+
+  test('measurement-only has only the passthrough label', () => {
+    expect(getOutputLabels({ device: 'evcs' })).toEqual(['Passthrough'])
+  })
+
+  test('S2 support adds the S2 output after the control output', () => {
+    expect(calculateOutputs('evcs', { enable_s2support: true })).toBe(2)
+    expect(calculateOutputs('evcs', { enable_s2support: true, evcs_charging_control: true })).toBe(3)
+  })
+
+  test('labels follow the enabled options', () => {
+    const s2Only = { device: 'evcs', enable_s2support: true }
+    const both = { device: 'evcs', enable_s2support: true, evcs_charging_control: true }
+    expect(getOutputLabels(s2Only)).toEqual(['Passthrough', 'S2 communication'])
+    expect(getOutputLabels(both)).toEqual(['Passthrough', 'Control', 'S2 communication'])
+    expect(determineOutputLabel(s2Only, 1)).toBe('S2 communication')
+    expect(determineOutputLabel(both, 1)).toBe('Control')
+    expect(determineOutputLabel(both, 2)).toBe('S2 communication')
+  })
+
+  test('updateOutputs uses the context charging control flag', () => {
+    const val = jest.fn()
+    global.$ = jest.fn(() => ({ val }))
+    const context = { device: 'evcs', evcs_charging_control: true }
+    updateOutputs(context)
+    expect(context.outputs).toBe(2)
+    expect(val).toHaveBeenCalledWith(2)
+    delete global.$
   })
 })

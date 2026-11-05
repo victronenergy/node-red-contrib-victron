@@ -1416,10 +1416,18 @@
           <li><code>/Ac/{line}/Voltage</code> &mdash; Voltage per phase in volts.</li>
           <li><code>/Ac/{line}/Current</code> &mdash; Current per phase in amperes.</li>
           <li><code>/Ac/{line}/Energy/Forward</code> &mdash; Energy consumed per phase in kWh.</li>
+          <li><code>/Ac/Energy/Forward</code> &mdash; Total energy consumed in kWh, optionally calculated from the power.</li>
           <li><code>/Ac/Frequency</code> &mdash; AC frequency in Hz.</li>
           <li><code>/Position</code>: 0 = AC output, 1 = AC input.</li>
         </ul>
-        <p>Measurement-only - does not simulate a full EVSE (no charging session or connector state). Registers as <code>com.victronenergy.evcharger</code>.</p>
+        <p>With <em>Charging control</em> enabled:</p>
+        <ul>
+          <li><code>/Status</code>: 0 = Disconnected, 1 = Connected, 2 = Charging, 3 = Charged, ... (see the dbus specification).</li>
+          <li><code>/Current</code>: actual charging current in amperes.</li>
+          <li><code>/Mode</code>, <code>/StartStop</code>, <code>/SetCurrent</code>, <code>/MinCurrent</code>, <code>/MaxCurrent</code>, <code>/AutoStart</code>, <code>/EnableDisplay</code>: control paths. Changes from the GX, VRM, Modbus TCP or MQTT are sent on the <em>Control</em> output.</li>
+          <li><code>/Session/Energy</code>, <code>/Session/Time</code>: session energy in kWh and time in seconds, optionally calculated automatically while charging.</li>
+        </ul>
+        <p>Registers as <code>com.victronenergy.evcharger</code>. The node does not simulate a charger: the flow reports the real charger's state and acts on the <em>Control</em> output.</p>
         <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
       </div>
     </div>
@@ -1427,6 +1435,8 @@
       <div><strong>Output:</strong>
         <ol>
           <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+          <li><code>Control</code> (with <em>Charging control</em> only): <tt>{ topic: "/StartStop", payload: 1 }</tt> for each control path changed from outside the flow</li>
+          <li><code>S2 communication</code> (with <em>S2 support</em> only, on the second output when <em>Charging control</em> is off): S2 messages from the CEM (Opportunity Loads, Dynamic ESS)</li>
         </ol>
       </div>
     </div>
@@ -2094,6 +2104,16 @@
 	    updatePhaseSettingVisibility(selected);
 	  }
 
+	  if (selected === 'evcs') {
+	    const $chargingControl = $('#node-input-evcs_charging_control');
+	    $chargingControl.off('change.evcs-charging-control').on('change.evcs-charging-control', function () {
+	      context.evcs_charging_control = $(this).is(':checked');
+	      updateOutputs(context, deviceCapabilities);
+	      $('#evcs-auto-session-row').toggle(context.evcs_charging_control);
+	    });
+	    $('#evcs-auto-session-row').toggle($chargingControl.is(':checked'));
+	  }
+
 	  if (selected === 'generator') {
 	    checkGeneratorType();
 	    updateGridMeterOnlyVisibility('generator');
@@ -2657,7 +2677,8 @@ ${labels.join('\n')}`
 	    // Look up outputs from config, default to 2 (passthrough + state)
 	    return victronVirtualConstantsExports.SWITCH_OUTPUT_CONFIG[typeKey] || 2
 	  },
-	  pulsemeter: () => 2
+	  pulsemeter: () => 2,
+	  evcs: (config) => 1 + (config?.evcs_charging_control ? 1 : 0) + (config?.enable_s2support ? 1 : 0) // passthrough (+ control) (+ S2)
 	};
 
 	/**
@@ -2687,13 +2708,52 @@ ${labels.join('\n')}`
 	  const device = context.device;
 	  const config = {
 	    switch_1_type: context.switch_1_type,
-	    enable_s2support: context.enable_s2support
+	    enable_s2support: context.enable_s2support,
+	    evcs_charging_control: context.evcs_charging_control
 	  };
 	  const outputs = calculateOutputs(device, config, deviceCapabilities);
 
 	  // Update BOTH the context AND the hidden input field
 	  context.outputs = outputs;
 	  $('#node-input-outputs').val(outputs);
+	}
+
+	// enable_s2support is shared by all device types. Clear it when switching to a type without S2,
+	// so it can't turn S2 on later if that type gains S2 support.
+	function clearUnsupportedS2 (context, deviceCapabilities = {}) {
+	  if (!context.enable_s2support || deviceCapabilities[context.device]?.supportsS2) return
+	  context.enable_s2support = false;
+	  $('#node-input-enable_s2support').prop('checked', false);
+	}
+
+	/**
+	 * Port map for Node-RED's outputs field, so wires follow the EV charger outputs when Control or
+	 * S2 is toggled: { oldPort: 'newPort' | '-1' }, plus a non-numeric key per added port (the editor
+	 * counts those as new outputs). Returns null when no existing wire has to move.
+	 * @param {object} before - the node as saved (device, evcs_charging_control, enable_s2support, outputs)
+	 * @param {object} after - the edited values
+	 * @returns {object|null}
+	 */
+	function evcsOutputMap (before, after) {
+	  if (before.device !== 'evcs' || after.device !== 'evcs') return null
+
+	  // Labels identify the outputs; outputs caps them to the ports the node really has
+	  const oldLabels = getOutputLabels(before).slice(0, Number(before.outputs) || 1);
+	  const newLabels = getOutputLabels(after);
+
+	  const map = {};
+	  let moved = false;
+	  oldLabels.forEach((label, oldPort) => {
+	    const newPort = newLabels.indexOf(label);
+	    if (newPort !== oldPort) moved = true;
+	    map[oldPort] = String(newPort);
+	  });
+	  if (!moved) return null
+
+	  newLabels.forEach((label, newPort) => {
+	    if (!oldLabels.includes(label)) map['new' + newPort] = String(newPort);
+	  });
+	  return map
 	}
 
 	const cloneValue = (value) => value !== null && typeof value === 'object' ? JSON.parse(JSON.stringify(value)) : value;
@@ -2724,6 +2784,10 @@ ${labels.join('\n')}`
 	    return 'Aggregate'
 	  }
 
+	  if (node.device === 'evcs') {
+	    return getOutputLabels(node)[index] || 'Output ' + (index + 1)
+	  }
+
 	  if (deviceCapabilities[node.device]?.supportsS2 && node.enable_s2support) {
 	    return 'S2 communication'
 	  }
@@ -2742,6 +2806,39 @@ ${labels.join('\n')}`
 	  }
 
 	  return 'Output ' + (index + 1)
+	}
+
+	/**
+	 * Get output labels for a virtual device
+	 * @param {string} device - Device type (e.g., 'battery', 'switch', 'gps')
+	 * @param {object} config - Device configuration object
+	 * @returns {string[]} Array of output label strings
+	 */
+	function getOutputLabels (context = {}) {
+	  const labels = [];
+	  labels.push('Passthrough');
+
+	  if (context.device === 'pulsemeter') {
+	    labels.push('Aggregate');
+	  } else if (context.device === 'evcs') {
+	    if (context.evcs_charging_control) labels.push('Control');
+	    if (context.enable_s2support) labels.push('S2 communication');
+	  } else if (context.device === 'switch') {
+	    const switchType = Number(context.switch_1_type || 1);
+	    const outputCount = victronVirtualConstantsExports.SWITCH_OUTPUT_CONFIG[switchType] || 2;
+
+	    // Second output label
+	    const secondLabel = victronVirtualConstantsExports.SWITCH_SECOND_OUTPUT_LABEL[switchType] || 'State';
+	    labels.push(secondLabel);
+
+	    // Third output label (only if switch has 3 outputs)
+	    if (outputCount >= 3) {
+	      const thirdLabel = victronVirtualConstantsExports.SWITCH_THIRD_OUTPUT_LABEL[switchType] || 'Value';
+	      labels.push(thirdLabel);
+	    }
+	  }
+
+	  return labels
 	}
 
 	/**
@@ -2795,7 +2892,9 @@ ${labels.join('\n')}`
 	  determineOutputLabel: (node, index) => determineOutputLabel(node, index, canvasDeviceCapabilities),
 	  fetchDeviceCapabilities,
 	  createEditDraft,
-	  applyEditDraft
+	  applyEditDraft,
+	  clearUnsupportedS2,
+	  evcsOutputMap
 	};
 
 	// Warm canvasDeviceCapabilities as soon as this script loads rather than waiting for

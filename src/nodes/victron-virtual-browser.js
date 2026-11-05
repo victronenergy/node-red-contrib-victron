@@ -24,7 +24,9 @@ import {
   determineOutputLabel,
   fetchDeviceCapabilities,
   createEditDraft,
-  applyEditDraft
+  applyEditDraft,
+  clearUnsupportedS2,
+  evcsOutputMap
 } from './victron-virtual-functions.js'
 import { initializeTooltips } from './victron-common.js'
 
@@ -63,7 +65,9 @@ window.__victron = {
   determineOutputLabel: (node, index) => determineOutputLabel(node, index, canvasDeviceCapabilities),
   fetchDeviceCapabilities,
   createEditDraft,
-  applyEditDraft
+  applyEditDraft,
+  clearUnsupportedS2,
+  evcsOutputMap
 }
 
 // Warm canvasDeviceCapabilities as soon as this script loads rather than waiting for
