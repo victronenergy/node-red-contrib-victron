@@ -27,9 +27,10 @@ describe('virtual evcs ProductId', () => {
     expect(iface.ProductId).toBeUndefined()
   })
 
-  test('grid productType override gives grid meter ProductId', () => {
+  test('productType override gives EVCS ProductId, not grid meter', () => {
     const iface = { emit: jest.fn(), Connected: 1 }
     addVictronInterfaces(makeBus(), makeIfaceDesc('com.victronenergy.evcharger.virtual_test', evcs.productType()), iface, true, null)
-    expect(iface.ProductId).toBe(0xc062)
+    expect(iface.ProductId).toBe(0xc100)
+    expect(iface.ProductName).toBe('Virtual EVCS')
   })
 })

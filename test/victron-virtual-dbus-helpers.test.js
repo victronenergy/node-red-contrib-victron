@@ -1,6 +1,6 @@
 /* eslint-env jest */
 
-const { sanitizeIdForDbus, createDebouncedSetters } = require('../src/nodes/victron-virtual-dbus-helpers')
+const { sanitizeIdForDbus, createDebouncedSetters, getPersistedChangedProps } = require('../src/nodes/victron-virtual-dbus-helpers')
 const { debounce } = require('../src/services/utils')
 
 describe('sanitizeIdForDbus', () => {
@@ -141,5 +141,30 @@ describe('createDebouncedSetters', () => {
       const { shouldApplyImmediately } = createDebouncedSetters(createNode({ Start: { type: 'i', immediate: true } }), debounce, DELAY)
       expect(shouldApplyImmediately(key)).toBe(true)
     })
+  })
+})
+
+describe('getPersistedChangedProps', () => {
+  const item = (path, value) => [path, [['Value', ['d', value]], ['Text', ['s', String(value)]]]]
+  const ifaceDesc = {
+    properties: {
+      'Ac/Power': { type: 'd' },
+      ChargingTime: { type: 'i' },
+      'Session/Energy': { type: 'd', persist: 60 },
+      SetCurrent: { type: 'd', persist: true }
+    }
+  }
+
+  test('returns persisted properties anywhere in the ItemsChanged payload, not only the first', () => {
+    const items = [item('/ChargingTime', 10), item('/Session/Energy', 1.5), item('/Ac/Power', 7200), item('/SetCurrent', 16)]
+    expect(getPersistedChangedProps(items, ifaceDesc)).toEqual(['Session/Energy', 'SetCurrent'])
+  })
+
+  test('returns nothing when no changed property is persisted', () => {
+    expect(getPersistedChangedProps([item('/Ac/Power', 1)], ifaceDesc)).toEqual([])
+  })
+
+  test('ignores properties unknown to the interface', () => {
+    expect(getPersistedChangedProps([item('/Unknown', 1)], ifaceDesc)).toEqual([])
   })
 })

@@ -156,4 +156,30 @@ function createDebouncedSetters (node, debounce, delayMs) {
   return { shouldApplyImmediately, getDebouncedSetter }
 }
 
-module.exports = { sanitizeIdForDbus, getTcpBusAddress, callAddSettingsWithRetry, getDeviceInstance, registerInputHandler, flushPendingInputs, createDebouncedSetters }
+/**
+ * Wraps setValuesLocally so node._applyingLocalChange is true while it runs. dbus-victron-virtual
+ * calls emitCallback synchronously from inside it, which lets emitCallback tell changes made by
+ * the node itself apart from writes by other D-Bus clients.
+ */
+function trackLocalChanges (node, setValuesLocally) {
+  return function (values) {
+    node._applyingLocalChange = true
+    try {
+      return setValuesLocally(values)
+    } finally {
+      node._applyingLocalChange = false
+    }
+  }
+}
+
+/**
+ * Names of the persisted properties in an ItemsChanged payload. One signal can carry several
+ * changed properties (e.g. when onPropertiesChanged adds calculated values), so check them all.
+ */
+function getPersistedChangedProps (items, ifaceDesc) {
+  return items
+    .map(([path]) => path.substring(1))
+    .filter(propName => ifaceDesc.properties[propName]?.persist)
+}
+
+module.exports = { sanitizeIdForDbus, getTcpBusAddress, callAddSettingsWithRetry, getDeviceInstance, registerInputHandler, flushPendingInputs, createDebouncedSetters, trackLocalChanges, getPersistedChangedProps }
