@@ -1096,7 +1096,7 @@ describe('updateSwitchLivePreview', () => {
     '#node-input-switch_1_unit': 'e.g. %, °C, RPM'
   }
 
-  function setup (type, { customname = '', group = '', unit = '', min = '', max = '', value0 = '', includeMeasurement = false } = {}) {
+  function setup (type, { customname = '', group = '', unit = '', min = '', max = '', value0 = '', stepLabels = [], includeMeasurement = false } = {}) {
     const mockPreview = { length: 1, html: jest.fn() }
     const vals = {
       '#node-input-switch_1_type': String(type),
@@ -1107,6 +1107,7 @@ describe('updateSwitchLivePreview', () => {
       '#node-input-switch_1_max': max,
       '#node-input-switch_1_value_0': value0
     }
+    stepLabels.forEach((label, k) => { vals[`#node-input-switch_1_value_${k + 1}`] = label })
     const checkboxes = {
       '#node-input-switch_1_include_measurement': includeMeasurement
     }
@@ -1168,6 +1169,34 @@ describe('updateSwitchLivePreview', () => {
     const html = mock.html.mock.calls[0][0]
     expect(html).not.toContain('<script>')
     expect(html).toContain('&lt;script&gt;')
+  })
+
+  test('STEPPED: shows the step labels on the buttons', () => {
+    const mock = setup(SWITCH_TYPE_MAP.STEPPED, { customname: 'Heater', group: 'Cabin', max: '3', stepLabels: ['Eco', '', 'Boost'] })
+    updateSwitchLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('>Off<')
+    expect(html).toContain('>Eco<')
+    expect(html).toContain('>2<') // no label for step 2 keeps its number
+    expect(html).toContain('>Boost<')
+  })
+
+  test('STEPPED: falls back to numbers for all steps when one label does not fit', () => {
+    const mock = setup(SWITCH_TYPE_MAP.STEPPED, { customname: 'Heater', group: 'Cabin', max: '3', stepLabels: ['Eco', 'High', 'A label that is far too long'] })
+    updateSwitchLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).not.toContain('>Eco<')
+    expect(html).toContain('>1<')
+    expect(html).toContain('>2<')
+    expect(html).toContain('>3<')
+  })
+
+  test('STEPPED: escapes step labels', () => {
+    const mock = setup(SWITCH_TYPE_MAP.STEPPED, { customname: 'Heater', group: 'Cabin', max: '2', stepLabels: ['<b>x</b>', 'ok'] })
+    updateSwitchLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).not.toContain('<b>x</b>')
+    expect(html).toContain('&lt;b&gt;x&lt;/b&gt;')
   })
 
   test('renders SVG for MOMENTARY type', () => {
@@ -1301,7 +1330,8 @@ describe('SWITCH_TYPE_DOCS paths', () => {
   test.each(Object.keys(SWITCH_TYPE_DOCS))('switch type %s only documents paths the switch exposes', (switchType) => {
     const ifaceDesc = { properties: {} }
     const iface = {}
-    createSwitchProperties({ switch_1_type: switchType, switch_1_include_measurement: true }, ifaceDesc, iface)
+    // enable the optional paths too (Measurement, and Labels for the stepped switch) so they are documented
+    createSwitchProperties({ switch_1_type: switchType, switch_1_include_measurement: true, switch_1_label: '["", "Low"]' }, ifaceDesc, iface)
 
     const documented = [...SWITCH_TYPE_DOCS[switchType].text.matchAll(/<code>\/(SwitchableOutput\/[^<]+)<\/code>/g)]
       .map(m => m[1].replace('/x/', '/output_1/'))

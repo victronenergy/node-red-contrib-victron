@@ -273,6 +273,21 @@
                         this[`switch_1_label`] = JSON.stringify(labelsArray);
                     }
 
+                    // Stepped switch (4): optional step labels, indexed by Dimming value (1-based); index 0 is unused
+                    if (type === 4) {
+                        const maxSteps = parseInt($(`#node-input-switch_1_max`).val(), 10) || (window.__victron.STEPPED_DEFAULT_MAX || 7);
+                        const labelsArray = [''];
+                        for (let j = 1; j <= maxSteps; j++) {
+                            labelsArray.push(($(`#node-input-switch_1_value_${j}`).val() || '').trim());
+                        }
+                        this[`switch_1_label`] = labelsArray.some(label => label !== '') ? JSON.stringify(labelsArray) : '';
+                    }
+
+                    // Labels only exist for the dropdown and the stepped switch
+                    if (type !== 4 && type !== 6) {
+                        this[`switch_1_label`] = '';
+                    }
+
                     // For type 7 (basic slider), save unit field
                     if (type === 7) {
                         this[`switch_1_unit`] = $(`#node-input-switch_1_unit`).val();

@@ -954,7 +954,7 @@
 	    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>Temperature</code> &mdash; <tt>msg.payload</tt> contains the temperature value</li></ol></div>'
 	  ),
 	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED]: createDocTemplate(
-	    `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; holds selected option. ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Settings/DimmingMax</code> &mdash; defines the number of options. Mandatory for this type.</li>${STATUS_PATH_DOC}</ul></div>`,
+	    `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; holds selected option. ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Settings/DimmingMax</code> &mdash; defines the number of options. Mandatory for this type.</li><li><code>/SwitchableOutput/output_1/Settings/Labels</code> &mdash; optional string array naming the options, indexed by the <tt>Dimming</tt> value: <tt>["", "Low", "Medium", "High"]</tt> (index 0 is unused, the On/Off button keeps its own label). Labels starting with <tt>/</tt> such as <tt>/low</tt> or <tt>/high</tt> are translated by the GUI. The GUI falls back to numbers when the labels do not fit.</li>${STATUS_PATH_DOC}</ul></div>`,
 	    `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li><li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the stepped value</li></ol></div>`
 	  ),
 	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN]: createDocTemplate(
@@ -1603,6 +1603,12 @@
 	        }
 	      });
 
+	      // Saved labels belong to the type they were saved for: do not offer dropdown labels
+	      // as step labels (or vice versa) after the type has been changed in the editor.
+	      const labelsContext = (isInitialRender || Number(type) === Number(context.switch_1_type))
+	        ? context
+	        : { ...context, switch_1_label: '' };
+
 	      // Special handling for dropdown type
 	      if (String(type) === String(victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN)) {
 	        // Restore count for dropdown options
@@ -1627,11 +1633,22 @@
 	          $('#node-input-switch_1_count').val(context.switch_1_count);
 	        }
 
-	        renderDropdownLabels(context);
+	        renderDropdownLabels(labelsContext);
 
 	        // Watch count field changes
 	        $('#node-input-switch_1_count').on('change', () => {
-	          renderDropdownLabels(context);
+	          renderDropdownLabels(labelsContext);
+	        });
+	      }
+
+	      // Stepped switch: optional label per step, re-rendered when the number of steps changes
+	      if (Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED) {
+	        renderStepLabels(labelsContext);
+	        $('#node-input-switch_1_max').on('change', () => {
+	          renderStepLabels(labelsContext);
+	          // the rows were rebuilt: re-attach the live preview to the new inputs
+	          $('#switch-1-pairs-container input').on('input', updateSwitchLivePreview);
+	          updateSwitchLivePreview();
 	        });
 	      }
 	    }
@@ -1656,6 +1673,7 @@
 	    $('#node-input-switch_1_customname, #node-input-switch_1_group').on('input', updateSwitchLivePreview);
 	    if (Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED) {
 	      $('#node-input-switch_1_max').on('input', updateSwitchLivePreview);
+	      $('#switch-1-pairs-container input').on('input', updateSwitchLivePreview);
 	    }
 	    if (Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.BASIC_SLIDER || Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.NUMERIC_INPUT) {
 	      $('#node-input-switch_1_unit').on('input', updateSwitchLivePreview);
@@ -1779,14 +1797,53 @@
 	}
 
 	function renderDropdownLabels (context) {
+	  renderSwitchLabels(context, {
+	    count: parseInt($('#node-input-switch_1_count').val()) || 2,
+	    firstIndex: 0,
+	    caption: 'Option',
+	    required: true
+	  });
+	}
+
+	function renderStepLabels (context) {
+	  renderSwitchLabels(context, {
+	    count: parseInt($('#node-input-switch_1_max').val(), 10) || victronVirtualConstantsExports.STEPPED_DEFAULT_MAX,
+	    firstIndex: 1,
+	    caption: 'Step',
+	    required: false,
+	    title: 'Step labels (optional)',
+	    tooltip: 'Optional labels shown on the step buttons instead of numbers. The GUI falls back to numbers when the labels do not fit. Labels starting with / such as /low or /high are translated by the GUI.'
+	  });
+	}
+
+	/**
+	 * Render one text input per label of /Settings/Labels.
+	 *
+	 * The inputs are ids node-input-switch_1_value_<index>, where <index> is the Dimming value
+	 * the label belongs to: dropdown options start at 0, stepped switch steps start at 1.
+	 */
+	function renderSwitchLabels (context, { count, firstIndex, caption, required, title, tooltip }) {
+	  // Keep whatever is already typed in the current inputs: the rows are rebuilt when the
+	  // number of options changes, before anything has been saved to the node.
+	  const currentLabels = {};
+	  const $currentInputs = $('#switch-1-pairs-container input');
+	  if ($currentInputs && typeof $currentInputs.each === 'function') {
+	    $currentInputs.each(function () {
+	      const match = /switch_1_value_(\d+)$/.exec(this.id || '');
+	      if (match) currentLabels[Number(match[1])] = this.value;
+	    });
+	  }
+
 	  $('#switch-1-pairs-row').remove();
 
-	  const count = parseInt($('#node-input-switch_1_count').val()) || 2;
-
-	  // Create labels container
+	  // A heading line followed by one standard form row per label, so the inputs line up with
+	  // the other fields of the switch configuration above.
+	  const tooltipHtml = tooltip ? ` <i class="fa fa-info-circle tooltip-icon" data-tooltip="${tooltip}"></i>` : '';
+	  const titleHtml = title ? `<label style="font-weight:bold;">${title}${tooltipHtml}</label>` : '';
 	  const labelsContainer = $(`
-    <div class="form-row" id="switch-1-pairs-row">
-        <div id="switch-1-pairs-container" style="display:flex;flex-direction:column;gap:4px;"></div>
+    <div id="switch-1-pairs-row">
+        ${titleHtml}
+        <div id="switch-1-pairs-container"></div>
     </div>
   `);
 	  $('#switch-1-config-row').after(labelsContainer);
@@ -1801,18 +1858,18 @@
 	      savedLabels = [];
 	    }
 	  }
+	  if (!Array.isArray(savedLabels)) savedLabels = [];
 
 	  // Create label inputs
-	  for (let j = 0; j < count; j++) {
-	    const value = savedLabels[j] || '';
+	  for (let j = firstIndex; j < firstIndex + count; j++) {
+	    const value = (j in currentLabels) ? currentLabels[j] : (savedLabels[j] || '');
 	    const labelHtml = $(`
-      <div class="form-row" style="align-items:center;">
-        <label for="node-input-switch_1_value_${j}" style="min-width:120px;">Option ${j + 1}</label>
+      <div class="form-row">
+        <label for="node-input-switch_1_value_${j}">${caption} ${j + 1 - firstIndex}</label>
         <input type="text"
                id="node-input-switch_1_value_${j}"
                placeholder="Label"
-               style="width:180px;"
-               value="${value}" required>
+               value="${escape(value)}" ${required ? 'required' : ''}>
       </div>
     `);
 	    $('#switch-1-pairs-container').append(labelHtml);
@@ -2394,10 +2451,18 @@ ${offLabel}`
 ${dots.join('\n')}`
 	}
 
-	function buildStepsControl (steps) {
+	// Approximate text width in the preview (font-size 13 system font): used to mirror the GUI rule
+	// that step labels are only shown when every one of them fits its button.
+	const STEPS_LABEL_CHAR_W = 7;
+	const STEPS_LABEL_PADDING = 8;
+
+	function buildStepsControl (steps, stepLabels = []) {
 	  const stepsCount = Math.max(STEPS_MIN_COUNT, Math.min(victronVirtualConstantsExports.STEPPED_DEFAULT_MAX, steps));
 	  const count = stepsCount + 1; // +1 for the implicit "Off" segment at position 0
 	  const sectionW = SWITCH_CTL_W / count;
+	  // stepLabels is indexed by step (1-based, like /Settings/Labels); entry 0 is ignored
+	  const labelFor = (i) => (typeof stepLabels[i] === 'string' ? stepLabels[i].trim() : '');
+	  const labelsFit = [...Array(stepsCount).keys()].every(k => labelFor(k + 1).length * STEPS_LABEL_CHAR_W <= sectionW - STEPS_LABEL_PADDING);
 	  const highlightIdx = Math.min(1, count - 1);
 	  const highlightX = Math.round(SWITCH_CTL_X + highlightIdx * sectionW);
 	  const highlightW = Math.round(sectionW);
@@ -2409,7 +2474,7 @@ ${dots.join('\n')}`
 	  }
 	  for (let i = 0; i < count; i++) {
 	    const segMidX = Math.round(SWITCH_CTL_X + i * sectionW + sectionW / 2);
-	    const label = i === 0 ? 'Off' : String(i);
+	    const label = i === 0 ? 'Off' : (labelsFit && labelFor(i) ? escape(labelFor(i)) : String(i));
 	    const textFill = i === highlightIdx ? 'white' : SVG_COLOR_TEXT;
 	    labels.push(`<text x="${segMidX}" y="${SWITCH_CTL_TEXT_Y}" text-anchor="middle" font-family="${SVG_FONT}" font-size="13" fill="${textFill}">${label}</text>`);
 	  }
@@ -2543,7 +2608,11 @@ ${labels.join('\n')}`
 	    }
 	    case victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED: {
 	      const steps = parseInt($('#node-input-switch_1_max').val(), 10) || STEPS_PREVIEW_DEFAULT;
-	      controlSvg = buildStepsControl(steps);
+	      const stepLabels = [''];
+	      for (let j = 1; j <= steps; j++) {
+	        stepLabels.push($(`#node-input-switch_1_value_${j}`).val() || '');
+	      }
+	      controlSvg = buildStepsControl(steps, stepLabels);
 	      break
 	    }
 	    case victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN: {
@@ -2772,6 +2841,7 @@ ${labels.join('\n')}`
 	window.__victron = {
 	  checkGeneratorType,
 	  SWITCH_TYPE_CONFIGS,
+	  STEPPED_DEFAULT_MAX: victronVirtualConstantsExports.STEPPED_DEFAULT_MAX,
 	  INDICATOR_TYPE_LABELS,
 	  renderSwitchConfigRow,
 	  updateSwitchConfig,
