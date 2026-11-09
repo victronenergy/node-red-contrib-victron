@@ -121,4 +121,83 @@ describe('Wildcard Path Expansion', () => {
 
     expect(result.map(r => r.name)).toEqual(['output 10 status'])
   })
+
+  describe('generic inputs that control an output on the device', () => {
+    const statePathObj = {
+      path: '/SwitchableOutput/{type}/State',
+      name: '{type} state',
+      type: 'enum',
+      enum: { 0: 'Off', 1: 'On' }
+    }
+
+    // Circuit layout as found on a Koro 640 GX S
+    const cachedPaths = {
+      '/SwitchableOutput/01/State': 0,
+      '/SwitchableOutput/01/Settings/Circuit': 100,
+      '/SwitchableOutput/02/State': 0,
+      '/SwitchableOutput/02/Settings/Circuit': -1,
+      '/SwitchableOutput/03/State': 0,
+      '/SwitchableOutput/03/Settings/Circuit': 3,
+      '/GenericInput/01/Name': 'input 01',
+      '/GenericInput/01/Settings/Circuit': 1,
+      '/GenericInput/02/Name': 'input 02',
+      '/GenericInput/02/Settings/Circuit': -1,
+      '/GenericInput/03/Name': 'input 03',
+      '/GenericInput/03/Settings/CustomName': 'Galley button',
+      '/GenericInput/03/Settings/Circuit': 3
+    }
+
+    const linkedInputsByPath = (result) =>
+      Object.fromEntries(result.map(r => [r.path, r.linkedInputs]))
+
+    test('lists the inputs with the same circuit number as the output', () => {
+      const result = expandWildcardPaths(statePathObj, cachedPaths, 'switch')
+
+      expect(linkedInputsByPath(result)).toEqual({
+        '/SwitchableOutput/01/State': undefined,
+        '/SwitchableOutput/02/State': undefined,
+        '/SwitchableOutput/03/State': ['Galley button']
+      })
+    })
+
+    test('does not link outputs and inputs that both have autonomous control disabled', () => {
+      const result = expandWildcardPaths(statePathObj, {
+        '/SwitchableOutput/02/State': 0,
+        '/SwitchableOutput/02/Settings/Circuit': -1,
+        '/GenericInput/02/Name': 'input 02',
+        '/GenericInput/02/Settings/Circuit': -1
+      }, 'switch')
+
+      expect(result[0].linkedInputs).toBeUndefined()
+    })
+
+    test('lists every input on a shared circuit', () => {
+      const result = expandWildcardPaths(statePathObj, {
+        '/SwitchableOutput/05/State': 0,
+        '/SwitchableOutput/05/Settings/Circuit': 7,
+        '/GenericInput/05/Name': 'input 05',
+        '/GenericInput/05/Settings/Circuit': 7,
+        '/GenericInput/06/Name': 'input 06',
+        '/GenericInput/06/Settings/Circuit': 7
+      }, 'switch')
+
+      expect(result[0].linkedInputs).toEqual(['input 05', 'input 06'])
+    })
+
+    test('does not add linked inputs to generic input paths', () => {
+      const result = expandWildcardPaths({
+        path: '/GenericInput/{input}/Value',
+        name: '{input} value',
+        type: 'integer'
+      }, { ...cachedPaths, '/GenericInput/03/Value': 0 }, 'switch')
+
+      expect(result[0].linkedInputs).toBeUndefined()
+    })
+
+    test('ignores services other than switches', () => {
+      const result = expandWildcardPaths(statePathObj, cachedPaths, 'heatpump')
+
+      expect(result.every(r => r.linkedInputs === undefined)).toBe(true)
+    })
+  })
 })

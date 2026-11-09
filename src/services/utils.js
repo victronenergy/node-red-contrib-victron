@@ -209,11 +209,34 @@ function expandWildcardPaths (pathObj, cachedPaths, serviceName) {
       })
 
       expandedPath.name = displayName
+
+      const outputId = serviceName === 'switch' && cachedPath.match(/^\/SwitchableOutput\/([^/]+)\//)?.[1]
+      const linkedInputs = outputId ? linkedGenericInputs(cachedPaths, outputId) : []
+      if (linkedInputs.length) {
+        expandedPath.linkedInputs = linkedInputs
+      }
+
       expandedPaths.push(expandedPath)
     }
   })
 
   return expandedPaths
+}
+
+// The device switches an output itself when a generic input has the same Circuit number,
+// -1 disables this. See https://github.com/victronenergy/venus/wiki/dbus#generic-input-api
+function linkedGenericInputs (cachedPaths, outputId) {
+  const circuit = cachedPaths[`/SwitchableOutput/${outputId}/Settings/Circuit`]
+  if (!Number.isInteger(circuit) || circuit < 0) return []
+
+  return Object.keys(cachedPaths)
+    .map(path => path.match(/^\/GenericInput\/([^/]+)\/Settings\/Circuit$/)?.[1])
+    .filter(inputId => inputId !== undefined && cachedPaths[`/GenericInput/${inputId}/Settings/Circuit`] === circuit)
+    .sort()
+    .map(inputId => {
+      const name = cachedPaths[`/GenericInput/${inputId}/Settings/CustomName`] || cachedPaths[`/GenericInput/${inputId}/Name`]
+      return (typeof name === 'string' && name.trim()) || `input ${inputId}`
+    })
 }
 
 /**

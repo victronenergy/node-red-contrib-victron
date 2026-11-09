@@ -45,6 +45,7 @@
                 <div>If specific value types are shown above, use those values.</div>
             </div>
         </div>
+        <div class="form-info hidden" id="linkedinputsinfo"></div>
         <div class="form-row hidden" id="roundValues">
             <label for="node-input-roundValues"><i class="fa fa-minus-circle"></i> Rounding <i class="fa fa-info-circle tooltip-icon" data-tooltip="Round values to less digits."></i></label>
             <select id="node-input-roundValues">
@@ -860,6 +861,15 @@
                     $('#warningmessage').hide();
             }
 
+            var linkedInputs = (isOutputNode && pathData && pathData.linkedInputs) || [];
+            $('#linkedinputsinfo')
+                .text(linkedInputs.length
+                    ? 'The device also switches this output itself when ' + linkedInputs.join(', ') +
+                      ' is used. Both act on the output, so a button press can undo what this node sets. ' +
+                      'To control the output from Node-RED only, disable autonomous control for it on the device.'
+                    : '')
+                .toggleClass('hidden', !linkedInputs.length);
+
             // Hide all initial value inputs first
             $('.initial-input').hide();
             hideEnumInfo();
@@ -1088,6 +1098,8 @@
         }
         const selectedPathData = $('#node-input-path').find(':selected').data();
         node.pathObj = (selectedPathData && selectedPathData.path) ? selectedPathData : undefined;
+        // Device settings can change after deploy, so don't store them in the flow
+        if (node.pathObj) delete(node.pathObj.linkedInputs);
 
         // Determine if this is an output node based on the node type
         const isOutputNode = node.type.includes('-output-');
