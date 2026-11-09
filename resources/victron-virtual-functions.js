@@ -2135,6 +2135,9 @@
 	    '<div><strong>Most relevant paths:</strong><ul>' +
 	    `<li><strong><code>/GenericInput/0/Value</code></strong> &mdash; Current discrete state (integer index, e.g. 0, 1, 2, ...) ${DEFAULT_PATH_ICON}</li>` +
 	    '<li><code>/GenericInput/0/Status</code> &mdash; Indicator status: 0=OK, 1=Fault, 2=Battery low</li>' +
+	    '<li><code>/GenericInput/0/Event</code> &mdash; Last button event, as reported by push buttons. ' +
+	    'Send <tt>{ Event: "single tap" }</tt> (or <tt>"double tap"</tt>, <tt>"swipe up"</tt>) to simulate one; ' +
+	    'every message is a new event</li>' +
 	    '<li><code>/GenericInput/0/Settings/Labels</code> &mdash; Array of label strings, one per discrete value. ' +
 	    'Custom strings (e.g. <tt>"eco"</tt>) and reserved keywords (e.g. <tt>"/on"</tt>) can be mixed freely. ' +
 	    'Reserved keywords: <tt>/off</tt>, <tt>/on</tt>, <tt>/open</tt>, <tt>/closed</tt>, <tt>/ok</tt>, <tt>/alarm</tt>, ' +

@@ -1,4 +1,4 @@
-const { mapCacheToJsonResponse, mapCacheValueToJsonResponseValue, validateVirtualDevicePayload, validateLightControls, debounce, throttle, decodeGenericInputEvent, genericInputLabel } = require('../src/services/utils')
+const { mapCacheToJsonResponse, mapCacheValueToJsonResponseValue, validateVirtualDevicePayload, validateLightControls, debounce, throttle, decodeGenericInputEvent, nextGenericInputEvent, genericInputLabel } = require('../src/services/utils')
 
 describe('utils', () => {
   describe('mapCacheToJsonResponse', () => {
@@ -539,6 +539,40 @@ describe('utils', () => {
       expect(decodeGenericInputEvent(undefined)).toBeNull()
       expect(decodeGenericInputEvent('3')).toBeNull()
       expect(decodeGenericInputEvent(2.5)).toBeNull()
+    })
+  })
+
+  describe('nextGenericInputEvent', () => {
+    it('flips the toggle bit on every event, so a repeated tap is still a new value', () => {
+      expect(nextGenericInputEvent(0, 'single tap')).toBe(3)
+      expect(nextGenericInputEvent(3, 'single tap')).toBe(2)
+      expect(nextGenericInputEvent(2, 'single tap')).toBe(3)
+    })
+
+    it('keeps flipping the toggle bit when the event type changes', () => {
+      expect(nextGenericInputEvent(3, 'double tap')).toBe(4)
+      expect(nextGenericInputEvent(4, 'swipe up')).toBe(9)
+    })
+
+    it('accepts the event type number and names in any case', () => {
+      expect(nextGenericInputEvent(0, 2)).toBe(3)
+      expect(nextGenericInputEvent(0, 'Single Tap')).toBe(3)
+    })
+
+    it('starts with the toggle bit set when there is no previous event', () => {
+      expect(nextGenericInputEvent(undefined, 'single tap')).toBe(3)
+      expect(nextGenericInputEvent(null, 'single tap')).toBe(3)
+    })
+
+    it('returns null for events that are not documented', () => {
+      expect(nextGenericInputEvent(0, 'triple tap')).toBeNull()
+      expect(nextGenericInputEvent(0, 6)).toBeNull()
+      expect(nextGenericInputEvent(0, 3)).toBeNull()
+      expect(nextGenericInputEvent(0, undefined)).toBeNull()
+    })
+
+    it('round-trips through decodeGenericInputEvent', () => {
+      expect(decodeGenericInputEvent(nextGenericInputEvent(3, 'swipe up')).name).toBe('swipe up')
     })
   })
 

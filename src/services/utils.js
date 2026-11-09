@@ -548,6 +548,16 @@ function decodeGenericInputEvent (value) {
   }
 }
 
+// Returns null for events that are not in GENERIC_INPUT_EVENT_TYPES
+function nextGenericInputEvent (previous, event) {
+  const type = Object.keys(GENERIC_INPUT_EVENT_TYPES)
+    .map(Number)
+    .find(t => t === event || (typeof event === 'string' && GENERIC_INPUT_EVENT_TYPES[t] === event.toLowerCase()))
+  if (type === undefined) return null
+  const toggle = Number.isInteger(previous) ? (previous & 1) ^ 1 : 1
+  return type | toggle
+}
+
 // Reserved label keywords like "/pressed" are returned without the slash
 function genericInputLabel (labels, value) {
   let list = labels
@@ -591,5 +601,6 @@ module.exports = {
   isRemoteConfigNode,
   refuseRemoteClient,
   decodeGenericInputEvent,
+  nextGenericInputEvent,
   genericInputLabel
 }

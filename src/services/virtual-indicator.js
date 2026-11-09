@@ -1,3 +1,5 @@
+const { nextGenericInputEvent } = require('./utils')
+
 const INDICATOR_TYPE_NAMES = {
   0: 'Discrete',
   1: 'Value',
@@ -80,6 +82,10 @@ function createIndicatorProperties (config, ifaceDesc, iface) {
     }
   }
 
+  if (isDiscrete) {
+    properties.push({ name: 'Event', type: 'i', value: 0, persist: false, immediate: true })
+  }
+
   if (discreteLabels) {
     properties.push({ name: 'Settings/Labels', type: 'as', value: discreteLabels, format: (v) => Array.isArray(v) ? v.join(', ') : String(v) })
   }
@@ -142,18 +148,30 @@ function updateIndicatorStatus (config, node) {
  * Expands msg.payload into a full D-Bus path object.
  * A plain (non-object) value is treated as a shorthand for the Value path.
  * An object payload has Value and Status keys expanded to their full paths.
+ * An Event key holds an event name (e.g. 'single tap') and is turned into the next raw event value.
  *
  * @param {*} payload - msg.payload from the input message
+ * @param {number} [currentEvent] - Current raw event value, undefined when the indicator has no Event path
  * @returns {Object|*} - Expanded object, or the original value if null/undefined
+ * @throws {Error} - For an unknown event, or an event on an indicator without an Event path
  */
-function expandIndicatorPayload (payload) {
+function expandIndicatorPayload (payload, currentEvent) {
   if (payload === null || payload === undefined) return payload
   if (typeof payload !== 'object') {
     return { [`${INDICATOR_INPUT_KEY}/Value`]: payload }
   }
   const expanded = {}
   for (const [key, value] of Object.entries(payload)) {
-    if (key === 'Value' || key === 'Status') {
+    if (key === 'Event') {
+      if (currentEvent === undefined) {
+        throw new Error('Events are only supported by a discrete indicator')
+      }
+      const next = nextGenericInputEvent(currentEvent, value)
+      if (next === null) {
+        throw new Error(`Unknown event "${value}", use 'single tap', 'double tap' or 'swipe up'`)
+      }
+      expanded[`${INDICATOR_INPUT_KEY}/Event`] = next
+    } else if (key === 'Value' || key === 'Status') {
       expanded[`${INDICATOR_INPUT_KEY}/${key}`] = value
     } else {
       expanded[key] = value

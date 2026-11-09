@@ -45,7 +45,15 @@ module.exports = function (RED) {
         return
       }
 
-      const expanded = expandIndicatorPayload(msg.payload)
+      let expanded
+      try {
+        expanded = expandIndicatorPayload(msg.payload, node.iface?.[`${INDICATOR_INPUT_KEY}/Event`])
+      } catch (err) {
+        node.warn(err.message)
+        node.status({ fill: 'yellow', shape: 'ring', text: err.message })
+        done()
+        return
+      }
       const validation = validateVirtualDevicePayload(expanded)
       if (!validation.valid) {
         node.warn(validation.error)

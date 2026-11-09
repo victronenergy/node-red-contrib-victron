@@ -137,6 +137,28 @@ describe('createIndicatorProperties', () => {
     })
   })
 
+  describe('event (type 0 - discrete)', () => {
+    test('starts with no event reported', () => {
+      const { ifaceDesc, iface } = makeIfaceAndDesc()
+      createIndicatorProperties({ indicator_type: 0 }, ifaceDesc, iface)
+      expect(iface['GenericInput/0/Event']).toBe(0)
+      expect(ifaceDesc.properties['GenericInput/0/Event'].type).toBe('i')
+    })
+
+    test('is applied immediately, as debouncing would merge quick taps', () => {
+      const { ifaceDesc, iface } = makeIfaceAndDesc()
+      createIndicatorProperties({ indicator_type: 0 }, ifaceDesc, iface)
+      expect(ifaceDesc.properties['GenericInput/0/Event'].immediate).toBe(true)
+    })
+
+    test('is not added for non-discrete types', () => {
+      const { ifaceDesc, iface } = makeIfaceAndDesc()
+      createIndicatorProperties({ indicator_type: 1 }, ifaceDesc, iface)
+      expect(ifaceDesc.properties['GenericInput/0/Event']).toBeUndefined()
+      expect(iface['GenericInput/0/Event']).toBeUndefined()
+    })
+  })
+
   describe('decimals', () => {
     test('sets Settings/Decimals when provided', () => {
       const { ifaceDesc, iface } = makeIfaceAndDesc()
@@ -317,5 +339,27 @@ describe('expandIndicatorPayload', () => {
 
   test('undefined is returned as-is', () => {
     expect(expandIndicatorPayload(undefined)).toBeUndefined()
+  })
+
+  describe('Event', () => {
+    test('turns an event name into the next raw event value', () => {
+      expect(expandIndicatorPayload({ Event: 'single tap' }, 0)).toEqual({ 'GenericInput/0/Event': 3 })
+      expect(expandIndicatorPayload({ Event: 'single tap' }, 3)).toEqual({ 'GenericInput/0/Event': 2 })
+    })
+
+    test('can be combined with a value change, like a real button', () => {
+      expect(expandIndicatorPayload({ Value: 0, Event: 'single tap' }, 2)).toEqual({
+        'GenericInput/0/Value': 0,
+        'GenericInput/0/Event': 3
+      })
+    })
+
+    test('rejects unknown events', () => {
+      expect(() => expandIndicatorPayload({ Event: 'triple tap' }, 0)).toThrow(/Unknown event "triple tap"/)
+    })
+
+    test('rejects events when the indicator has no Event path (not discrete)', () => {
+      expect(() => expandIndicatorPayload({ Event: 'single tap' }, undefined)).toThrow(/discrete/)
+    })
   })
 })
