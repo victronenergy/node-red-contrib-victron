@@ -1,0 +1,181 @@
+[
+    {
+        "id": "d1a7b0c0d0e0f001",
+        "type": "comment",
+        "z": "",
+        "name": "Hold a push button to dim an output",
+        "info": "While a push button (a generic input of a switching module, e.g. the Aurelia DCDB) is held, the dim level of an output goes up 5% every 250 ms, between 10% and 100%. Each new hold reverses the direction.\n\nAfter importing, open the Switch nodes and select your own device, input and output. The output must be dimmable.\n\nThe button's value is 0 (released), 1 (pressed) or 2 (holding). Only holding starts dimming, so a single tap can still be used for something else, e.g. with the \"Tap for timed light\" example.\n\nMany switching modules can link an input to an output on the device itself (autonomous control) and then dim it on hold without Node-RED. Use this flow for outputs that are not linked to the button, for instance an output on another device, or disable autonomous control for the output on the device first. The Switch Control node shows a notice when the selected output is linked.",
+        "x": 220,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "d1a7b0c0d0e0f002",
+        "type": "victron-input-switch",
+        "z": "",
+        "service": "com.victronenergy.switch/274",
+        "path": "/GenericInput/01/Value",
+        "serviceObj": {
+            "service": "com.victronenergy.switch/274",
+            "name": "Aurelia DCDB"
+        },
+        "pathObj": {
+            "path": "/GenericInput/01/Value",
+            "type": "integer",
+            "name": "input 01 value"
+        },
+        "name": "Button",
+        "onlyChanges": true,
+        "roundValues": "no",
+        "rateLimit": 0,
+        "conditionalMode": false,
+        "outputs": 1,
+        "x": 110,
+        "y": 120,
+        "wires": [
+            [
+                "d1a7b0c0d0e0f003"
+            ]
+        ]
+    },
+    {
+        "id": "d1a7b0c0d0e0f003",
+        "type": "function",
+        "z": "",
+        "name": "start/stop on hold",
+        "func": "// 0 = released, 1 = pressed, 2 = holding\nconst holding = msg.payload === 2\nif (holding === (context.get('holding') || false)) return null\ncontext.set('holding', holding)\n\n// Reverse the direction for the next hold\nif (!holding) flow.set('dimUp', !(flow.get('dimUp') ?? true))\n\nreturn { payload: holding ? 'ramp' : 'stop' }\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 290,
+        "y": 120,
+        "wires": [
+            [
+                "d1a7b0c0d0e0f004"
+            ]
+        ]
+    },
+    {
+        "id": "d1a7b0c0d0e0f004",
+        "type": "trigger",
+        "z": "",
+        "name": "every 250 ms until stop",
+        "op1": "",
+        "op2": "",
+        "op1type": "pay",
+        "op2type": "nul",
+        "duration": "-250",
+        "extend": false,
+        "overrideDelay": false,
+        "units": "ms",
+        "reset": "stop",
+        "bytopic": "all",
+        "topic": "topic",
+        "outputs": 1,
+        "x": 500,
+        "y": 120,
+        "wires": [
+            [
+                "d1a7b0c0d0e0f005"
+            ]
+        ]
+    },
+    {
+        "id": "d1a7b0c0d0e0f005",
+        "type": "function",
+        "z": "",
+        "name": "next dim level",
+        "func": "const STEP = 5\nconst MIN = 10\nconst MAX = 100\n\nconst up = flow.get('dimUp') ?? true\nconst current = Math.round(Number(flow.get('dimLevel') ?? MAX))\nconst level = Math.max(MIN, Math.min(MAX, current + (up ? STEP : -STEP)))\nif (level === current) return null\n\nflow.set('dimLevel', level)\nreturn { payload: level }\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 700,
+        "y": 120,
+        "wires": [
+            [
+                "d1a7b0c0d0e0f006"
+            ]
+        ]
+    },
+    {
+        "id": "d1a7b0c0d0e0f006",
+        "type": "victron-output-switch",
+        "z": "",
+        "service": "com.victronenergy.switch/274",
+        "path": "/SwitchableOutput/01/Dimming",
+        "serviceObj": {
+            "service": "com.victronenergy.switch/274",
+            "name": "Aurelia DCDB"
+        },
+        "pathObj": {
+            "path": "/SwitchableOutput/01/Dimming",
+            "type": "integer",
+            "name": "output 01 dimming",
+            "mode": "both"
+        },
+        "name": "Dimmed output",
+        "initial": "",
+        "x": 900,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "d1a7b0c0d0e0f007",
+        "type": "victron-input-switch",
+        "z": "",
+        "service": "com.victronenergy.switch/274",
+        "path": "/SwitchableOutput/01/Dimming",
+        "serviceObj": {
+            "service": "com.victronenergy.switch/274",
+            "name": "Aurelia DCDB"
+        },
+        "pathObj": {
+            "path": "/SwitchableOutput/01/Dimming",
+            "type": "integer",
+            "name": "output 01 dimming"
+        },
+        "name": "Current dim level",
+        "onlyChanges": true,
+        "roundValues": "no",
+        "rateLimit": 0,
+        "conditionalMode": false,
+        "outputs": 1,
+        "x": 140,
+        "y": 200,
+        "wires": [
+            [
+                "d1a7b0c0d0e0f008"
+            ]
+        ]
+    },
+    {
+        "id": "d1a7b0c0d0e0f008",
+        "type": "change",
+        "z": "",
+        "name": "remember level",
+        "rules": [
+            {
+                "t": "set",
+                "p": "dimLevel",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "reg": false,
+        "x": 360,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    }
+]

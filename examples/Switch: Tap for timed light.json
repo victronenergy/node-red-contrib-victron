@@ -1,0 +1,118 @@
+[
+    {
+        "id": "e1a7b0c0d0e0f001",
+        "type": "comment",
+        "z": "",
+        "name": "Tap a push button to switch a light on for 10 seconds",
+        "info": "A single tap on a push button (a generic input of a switching module, e.g. the Aurelia DCDB) switches an output on. The output switches off 10 seconds after the last tap; a tap while it is on restarts the 10 seconds.\n\nAfter importing, open the two Switch nodes and select your own device, input and output.\n\nThe event node's second output only sends when the device reports a new event, so nothing is switched on deploy.\n\nMany switching modules can also link an input to an output on the device itself (autonomous control). When that link is active, a button press acts on the output directly as well, which can make the light flicker. The Switch Control node shows a notice when the selected output is linked; disable autonomous control for that output on the device to control it from Node-RED only.",
+        "x": 270,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "e1a7b0c0d0e0f002",
+        "type": "victron-input-switch",
+        "z": "",
+        "service": "com.victronenergy.switch/274",
+        "path": "/GenericInput/01/Event",
+        "serviceObj": {
+            "service": "com.victronenergy.switch/274",
+            "name": "Aurelia DCDB"
+        },
+        "pathObj": {
+            "path": "/GenericInput/01/Event",
+            "type": "integer",
+            "name": "input 01 event"
+        },
+        "name": "Button",
+        "onlyChanges": false,
+        "roundValues": "no",
+        "rateLimit": 0,
+        "conditionalMode": false,
+        "outputs": 2,
+        "x": 130,
+        "y": 120,
+        "wires": [
+            [],
+            [
+                "e1a7b0c0d0e0f003"
+            ]
+        ]
+    },
+    {
+        "id": "e1a7b0c0d0e0f003",
+        "type": "switch",
+        "z": "",
+        "name": "single tap?",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "single tap",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 310,
+        "y": 120,
+        "wires": [
+            [
+                "e1a7b0c0d0e0f004"
+            ]
+        ]
+    },
+    {
+        "id": "e1a7b0c0d0e0f004",
+        "type": "trigger",
+        "z": "",
+        "name": "on for 10 s",
+        "op1": "1",
+        "op2": "0",
+        "op1type": "num",
+        "op2type": "num",
+        "duration": "10",
+        "extend": true,
+        "overrideDelay": false,
+        "units": "s",
+        "reset": "",
+        "bytopic": "all",
+        "topic": "topic",
+        "outputs": 1,
+        "x": 490,
+        "y": 120,
+        "wires": [
+            [
+                "e1a7b0c0d0e0f005"
+            ]
+        ]
+    },
+    {
+        "id": "e1a7b0c0d0e0f005",
+        "type": "victron-output-switch",
+        "z": "",
+        "service": "com.victronenergy.switch/274",
+        "path": "/SwitchableOutput/01/State",
+        "serviceObj": {
+            "service": "com.victronenergy.switch/274",
+            "name": "Aurelia DCDB"
+        },
+        "pathObj": {
+            "path": "/SwitchableOutput/01/State",
+            "type": "enum",
+            "enum": {
+                "0": "Off",
+                "1": "On"
+            },
+            "name": "output 01 state",
+            "mode": "both"
+        },
+        "name": "Light",
+        "initial": "",
+        "x": 670,
+        "y": 120,
+        "wires": []
+    }
+]
