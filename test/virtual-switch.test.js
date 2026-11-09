@@ -371,6 +371,12 @@ describe('createSwitchProperties - Settings/Labels', () => {
       expect(iface[labelsKey]).toBeUndefined()
     })
 
+    test('exposes Labels when only the Off state is named', () => {
+      const { ifaceDesc, iface } = run({ switch_1_type: SWITCH_TYPE_MAP.STEPPED, switch_1_max: '2', switch_1_label: '["/off", "", ""]' })
+      expect(ifaceDesc.properties[labelsKey].type).toBe('as')
+      expect(iface[labelsKey]).toEqual(['/off', '', ''])
+    })
+
     test('exposes Labels as a string array indexed by Dimming value', () => {
       const { ifaceDesc, iface } = run({ switch_1_type: SWITCH_TYPE_MAP.STEPPED, switch_1_max: '3', switch_1_label: '["", "/low", "Med", "/high"]' })
       expect(ifaceDesc.properties[labelsKey].type).toBe('as')

@@ -219,33 +219,35 @@ describe('Switch Configuration Tests', () => {
       return selectors.filter(sel => sel.includes('node-input-switch_1_value_'))
     }
 
-    test('renders one optional input per step, indexed from 1', () => {
+    test('renders an optional Off input followed by one input per step, indexed like Dimming', () => {
       const inputs = setup({ max: '3' })
-      expect(inputs).toHaveLength(3)
-      expect(inputs[0]).toContain('id="node-input-switch_1_value_1"')
-      expect(inputs[0]).toContain('>Step 1<')
-      expect(inputs[2]).toContain('id="node-input-switch_1_value_3"')
-      expect(inputs[2]).toContain('>Step 3<')
-      expect(inputs.some(html => html.includes('switch_1_value_0'))).toBe(false)
+      expect(inputs).toHaveLength(4)
+      expect(inputs[0]).toContain('id="node-input-switch_1_value_0"')
+      expect(inputs[0]).toContain('>Off<')
+      expect(inputs[1]).toContain('id="node-input-switch_1_value_1"')
+      expect(inputs[1]).toContain('>Step 1<')
+      expect(inputs[3]).toContain('id="node-input-switch_1_value_3"')
+      expect(inputs[3]).toContain('>Step 3<')
       expect(inputs.some(html => html.includes(' required'))).toBe(false)
     })
 
-    test('restores saved labels by Dimming index', () => {
-      const inputs = setup({ max: '2', savedLabel: '["", "Low", "High"]' })
-      expect(inputs[0]).toContain('value="Low"')
-      expect(inputs[1]).toContain('value="High"')
+    test('restores saved labels by Dimming index, including the Off label', () => {
+      const inputs = setup({ max: '2', savedLabel: '["/off", "Low", "High"]' })
+      expect(inputs[0]).toContain('value="/off"')
+      expect(inputs[1]).toContain('value="Low"')
+      expect(inputs[2]).toContain('value="High"')
     })
 
     test('tolerates an invalid saved label', () => {
       const inputs = setup({ max: '2', savedLabel: '{broken' })
-      expect(inputs).toHaveLength(2)
+      expect(inputs).toHaveLength(3)
       expect(inputs[0]).toContain('value=""')
     })
 
     test('escapes label values in the markup', () => {
       const inputs = setup({ max: '1', savedLabel: '["", "6\\" <pipe>"]' })
-      expect(inputs[0]).toContain('value="6&quot; &lt;pipe&gt;"')
-      expect(inputs[0]).not.toContain('<pipe>')
+      expect(inputs[1]).toContain('value="6&quot; &lt;pipe&gt;"')
+      expect(inputs[1]).not.toContain('<pipe>')
     })
 
     test('keeps values already typed when the row is rebuilt', () => {
@@ -264,9 +266,10 @@ describe('Switch Configuration Tests', () => {
       })
       renderStepLabels({ switch_1_type: SWITCH_TYPE_MAP.STEPPED, switch_1_max: '3', switch_1_label: '["", "Saved 1", "Saved 2", "Saved 3"]' })
       const inputs = selectors.filter(sel => sel.includes('node-input-switch_1_value_'))
-      expect(inputs[0]).toContain('value="Typed low"')
-      expect(inputs[1]).toContain('value=""') // typed (empty) wins over the saved value
-      expect(inputs[2]).toContain('value="Saved 3"') // not in the DOM yet: restored from the saved value
+      expect(inputs[0]).toContain('value=""') // Off: nothing typed, nothing saved
+      expect(inputs[1]).toContain('value="Typed low"')
+      expect(inputs[2]).toContain('value=""') // typed (empty) wins over the saved value
+      expect(inputs[3]).toContain('value="Saved 3"') // not in the DOM yet: restored from the saved value
     })
 
     test('reads the current inputs before removing the old rows', () => {

@@ -954,7 +954,7 @@
 	    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>Temperature</code> &mdash; <tt>msg.payload</tt> contains the temperature value</li></ol></div>'
 	  ),
 	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED]: createDocTemplate(
-	    `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; holds selected option. ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Settings/DimmingMax</code> &mdash; defines the number of options. Mandatory for this type.</li><li><code>/SwitchableOutput/output_1/Settings/Labels</code> &mdash; optional string array naming the options, indexed by the <tt>Dimming</tt> value: <tt>["", "Low", "Medium", "High"]</tt> (index 0 is unused, the On/Off button keeps its own label). Labels starting with <tt>/</tt> such as <tt>/low</tt> or <tt>/high</tt> are translated by the GUI. The GUI falls back to numbers when the labels do not fit.</li>${STATUS_PATH_DOC}</ul></div>`,
+	    `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; holds selected option. ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Settings/DimmingMax</code> &mdash; defines the number of options. Mandatory for this type.</li><li><code>/SwitchableOutput/output_1/Settings/Labels</code> &mdash; optional string array naming the options, indexed by the <tt>Dimming</tt> value: <tt>["", "Low", "Medium", "High"]</tt> . Labels starting with <tt>/</tt> such as <tt>/low</tt> or <tt>/high</tt> are translated by the GUI. The GUI falls back to numbers when the step labels do not fit. Index 0 optionally names the Off state, e.g. <tt>["/off", "Eco", "High", "Boost"]</tt>: the switch then becomes a single-choice control where the highlighted option is always the active one (Off is highlighted while off, tapping a step switches on at that level, and Off only switches off).</li>${STATUS_PATH_DOC}</ul></div>`,
 	    `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li><li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the stepped value</li></ol></div>`
 	  ),
 	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN]: createDocTemplate(
@@ -1807,12 +1807,13 @@
 
 	function renderStepLabels (context) {
 	  renderSwitchLabels(context, {
-	    count: parseInt($('#node-input-switch_1_max').val(), 10) || victronVirtualConstantsExports.STEPPED_DEFAULT_MAX,
-	    firstIndex: 1,
-	    caption: 'Step',
+	    // index 0 names the Off state, 1..max name the steps (indexed like /Settings/Labels and Dimming)
+	    count: (parseInt($('#node-input-switch_1_max').val(), 10) || victronVirtualConstantsExports.STEPPED_DEFAULT_MAX) + 1,
+	    firstIndex: 0,
+	    caption: (j) => (j === 0 ? 'Off' : `Step ${j}`),
 	    required: false,
 	    title: 'Step labels (optional)',
-	    tooltip: 'Optional labels shown on the step buttons instead of numbers. The GUI falls back to numbers when the labels do not fit. Labels starting with / such as /low or /high are translated by the GUI.'
+	    tooltip: 'Optional labels shown on the step buttons instead of numbers. The GUI falls back to numbers when the labels do not fit. Labels starting with / such as /low or /high are translated by the GUI. Naming the Off option changes the switch into a single-choice control: Off is highlighted while the output is off, tapping a step switches on at that level, and the Off option only switches off.'
 	  });
 	}
 
@@ -1820,7 +1821,8 @@
 	 * Render one text input per label of /Settings/Labels.
 	 *
 	 * The inputs are ids node-input-switch_1_value_<index>, where <index> is the Dimming value
-	 * the label belongs to: dropdown options start at 0, stepped switch steps start at 1.
+	 * the label belongs to. caption is a string ("Option" renders as "Option 1", "Option 2", ...)
+	 * or a function of the index.
 	 */
 	function renderSwitchLabels (context, { count, firstIndex, caption, required, title, tooltip }) {
 	  // Keep whatever is already typed in the current inputs: the rows are rebuilt when the
@@ -1865,7 +1867,7 @@
 	    const value = (j in currentLabels) ? currentLabels[j] : (savedLabels[j] || '');
 	    const labelHtml = $(`
       <div class="form-row">
-        <label for="node-input-switch_1_value_${j}">${caption} ${j + 1 - firstIndex}</label>
+        <label for="node-input-switch_1_value_${j}">${typeof caption === 'function' ? caption(j) : `${caption} ${j + 1 - firstIndex}`}</label>
         <input type="text"
                id="node-input-switch_1_value_${j}"
                placeholder="Label"
@@ -2463,7 +2465,9 @@ ${dots.join('\n')}`
 	  // stepLabels is indexed by step (1-based, like /Settings/Labels); entry 0 is ignored
 	  const labelFor = (i) => (typeof stepLabels[i] === 'string' ? stepLabels[i].trim() : '');
 	  const labelsFit = [...Array(stepsCount).keys()].every(k => labelFor(k + 1).length * STEPS_LABEL_CHAR_W <= sectionW - STEPS_LABEL_PADDING);
-	  const highlightIdx = Math.min(1, count - 1);
+	  // A named Off state makes the control single-choice: preview it in the off position
+	  const offLabel = labelFor(0);
+	  const highlightIdx = offLabel ? 0 : Math.min(1, count - 1);
 	  const highlightX = Math.round(SWITCH_CTL_X + highlightIdx * sectionW);
 	  const highlightW = Math.round(sectionW);
 	  const dividers = [];
@@ -2474,7 +2478,9 @@ ${dots.join('\n')}`
 	  }
 	  for (let i = 0; i < count; i++) {
 	    const segMidX = Math.round(SWITCH_CTL_X + i * sectionW + sectionW / 2);
-	    const label = i === 0 ? 'Off' : (labelsFit && labelFor(i) ? escape(labelFor(i)) : String(i));
+	    const label = i === 0
+	      ? escape((offLabel || 'Off').substring(0, Math.max(3, Math.floor((sectionW - STEPS_LABEL_PADDING) / STEPS_LABEL_CHAR_W))))
+	      : (labelsFit && labelFor(i) ? escape(labelFor(i)) : String(i));
 	    const textFill = i === highlightIdx ? 'white' : SVG_COLOR_TEXT;
 	    labels.push(`<text x="${segMidX}" y="${SWITCH_CTL_TEXT_Y}" text-anchor="middle" font-family="${SVG_FONT}" font-size="13" fill="${textFill}">${label}</text>`);
 	  }
@@ -2608,8 +2614,8 @@ ${labels.join('\n')}`
 	    }
 	    case victronVirtualConstantsExports.SWITCH_TYPE_MAP.STEPPED: {
 	      const steps = parseInt($('#node-input-switch_1_max').val(), 10) || STEPS_PREVIEW_DEFAULT;
-	      const stepLabels = [''];
-	      for (let j = 1; j <= steps; j++) {
+	      const stepLabels = [];
+	      for (let j = 0; j <= steps; j++) {
 	        stepLabels.push($(`#node-input-switch_1_value_${j}`).val() || '');
 	      }
 	      controlSvg = buildStepsControl(steps, stepLabels);

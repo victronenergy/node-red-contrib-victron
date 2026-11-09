@@ -243,8 +243,9 @@ function createSwitchProperties (config, ifaceDesc, iface) {
     // Stepped switch
     // /SwitchableOutput/x/Dimming holds selected option (1-based)
     // /SwitchableOutput/x/Settings/DimmingMax defines the number of options (mandatory)
-    // /SwitchableOutput/x/Settings/Labels optionally names the options, indexed by Dimming value
-    // (so labels[0] is unused and labels[1..DimmingMax] name the steps)
+    // /SwitchableOutput/x/Settings/Labels optionally names the options, indexed by Dimming value:
+    // labels[1..DimmingMax] name the steps and labels[0] optionally names the Off state, which
+    // turns the control into a single-choice switch in the GUIs
     const dimmingKey = 'SwitchableOutput/output_1/Dimming'
     const labelsKey = 'SwitchableOutput/output_1/Settings/Labels'
     const labels = parseSwitchLabels(config.switch_1_label)
@@ -269,7 +270,7 @@ function createSwitchProperties (config, ifaceDesc, iface) {
     }
     iface[maxKey] = Number(config.switch_1_max || STEPPED_DEFAULT_MAX)
 
-    if (labels && labels.some((label, i) => i > 0 && label !== '')) {
+    if (labels && labels.some(label => label !== '')) {
       ifaceDesc.properties[labelsKey] = {
         type: 'as',
         format: formatSwitchLabels

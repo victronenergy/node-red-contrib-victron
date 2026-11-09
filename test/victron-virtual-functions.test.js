@@ -1096,7 +1096,7 @@ describe('updateSwitchLivePreview', () => {
     '#node-input-switch_1_unit': 'e.g. %, °C, RPM'
   }
 
-  function setup (type, { customname = '', group = '', unit = '', min = '', max = '', value0 = '', stepLabels = [], includeMeasurement = false } = {}) {
+  function setup (type, { customname = '', group = '', unit = '', min = '', max = '', value0 = '', stepLabels = [], offLabel, includeMeasurement = false } = {}) {
     const mockPreview = { length: 1, html: jest.fn() }
     const vals = {
       '#node-input-switch_1_type': String(type),
@@ -1108,6 +1108,7 @@ describe('updateSwitchLivePreview', () => {
       '#node-input-switch_1_value_0': value0
     }
     stepLabels.forEach((label, k) => { vals[`#node-input-switch_1_value_${k + 1}`] = label })
+    if (offLabel !== undefined) vals['#node-input-switch_1_value_0'] = offLabel
     const checkboxes = {
       '#node-input-switch_1_include_measurement': includeMeasurement
     }
@@ -1189,6 +1190,25 @@ describe('updateSwitchLivePreview', () => {
     expect(html).toContain('>1<')
     expect(html).toContain('>2<')
     expect(html).toContain('>3<')
+  })
+
+  test('STEPPED: a named Off state is shown and previewed as the active option', () => {
+    const mock = setup(SWITCH_TYPE_MAP.STEPPED, { customname: 'Heater', group: 'Cabin', max: '3', offLabel: 'Standby', stepLabels: ['Eco', 'High', 'Boost'] })
+    updateSwitchLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('>Standby<')
+    expect(html).not.toContain('>Off<')
+    // the Off segment carries the white (highlighted) text, the first step does not
+    expect(html).toMatch(/fill="white">Standby</)
+    expect(html).not.toMatch(/fill="white">Eco</)
+  })
+
+  test('STEPPED: without an Off label the first step is previewed as active', () => {
+    const mock = setup(SWITCH_TYPE_MAP.STEPPED, { customname: 'Heater', group: 'Cabin', max: '3', stepLabels: ['Eco', 'High', 'Boost'] })
+    updateSwitchLivePreview()
+    const html = mock.html.mock.calls[0][0]
+    expect(html).toContain('>Off<')
+    expect(html).toMatch(/fill="white">Eco</)
   })
 
   test('STEPPED: escapes step labels', () => {
