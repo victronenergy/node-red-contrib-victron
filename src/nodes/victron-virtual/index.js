@@ -823,7 +823,7 @@ module.exports = function (RED) {
         node.emitS2Signal = emitS2Signal
 
         if (config.device === 'evcs') {
-          node.stopEvcsSessionTimer = deviceModule.startSessionTimer({ node, instance: iface, config })
+          node.stopEvcsSessionTimer = deviceModule.startSessionTimerIfAutoSession({ node, instance: iface, config })
         }
 
         node.setPresence = makeSetPresence(node, text, iface)
