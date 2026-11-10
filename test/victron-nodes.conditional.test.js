@@ -48,6 +48,7 @@ function createMockCreateNode (globalContext, handleStatus) {
     self.node = self
     self.on = jest.fn()
     self.send = jest.fn()
+    self.warn = jest.fn()
     self.status = jest.fn((message) => {
       handleStatus(self, message, self, false)
     })
@@ -736,5 +737,119 @@ describe('victron-nodes conditional mode - hysteresis', () => {
     const conditionalMsg = getMessageFromSendCall(node, 1, 1)
     expect(conditionalMsg.info.condition1.hysteresisEnabled).toBe(true)
     expect(conditionalMsg.info.condition1.hysteresisThreshold).toBe(70)
+  })
+})
+
+describe('victron-nodes conditional mode - empty thresholds', () => {
+  let mockRED
+  let subscribe
+
+  beforeEach(() => {
+    const mocks = createMockRED()
+    mockRED = mocks.mockRED
+    subscribe = mocks.subscribe
+    victronNodesInitFunction(mockRED)
+  })
+
+  const createNode = (config) => {
+    const NodeDef = mockRED.nodes.registerType.mock.calls.find(call => call[0] === 'victron-input-battery')[1]
+    return new NodeDef({
+      name: 'Empty Threshold Node',
+      service: 'com.victronenergy.battery',
+      path: '/Soc',
+      serviceObj: { name: 'Battery', service: 'com.victronenergy.battery' },
+      pathObj: { name: 'State of charge', path: '/Soc', type: 'float' },
+      conditionalMode: true,
+      condition1Operator: '>',
+      condition1Threshold: 50,
+      outputTrue: 'ON',
+      outputFalse: 'OFF',
+      debounce: 0,
+      ...config
+    })
+  }
+
+  const conditionalOutputs = (node) =>
+    node.send.mock.calls.map(call => call[0][1]).filter(Boolean)
+
+  const lastStatus = (node) =>
+    node.status.mock.calls[node.status.mock.calls.length - 1][0]
+
+  test.each([null, undefined, ''])('does not compare against 0 when the threshold is %p', (threshold) => {
+    const node = createNode({ condition1Threshold: threshold })
+
+    subscribe.mock.calls[0][2]({ value: 10 })
+
+    expect(conditionalOutputs(node)).toEqual([])
+    expect(lastStatus(node)).toEqual({ fill: 'red', shape: 'ring', text: '10 | no threshold' })
+  })
+
+  test('warns once at startup about the missing thresholds', () => {
+    const node = createNode({
+      condition1Threshold: null,
+      condition2Enabled: true,
+      condition2Service: 'com.victronenergy.solarcharger',
+      condition2Path: '/Dc/0/Current',
+      condition2Operator: '>',
+      condition2Threshold: null
+    })
+
+    subscribe.mock.calls[0][2]({ value: 10 })
+    subscribe.mock.calls[0][2]({ value: 20 })
+
+    expect(node.warn.mock.calls).toEqual([['Conditional mode is missing a threshold for condition 1, condition 2. Open the node to set it.']])
+  })
+
+  test('shows the missing threshold even when values are hidden', () => {
+    const node = createNode({ condition1Threshold: null })
+    node.configNode.showValues = false
+
+    subscribe.mock.calls[0][2]({ value: 10 })
+
+    expect(lastStatus(node).text).toBe('no threshold')
+  })
+
+  test('still accepts a threshold of 0', () => {
+    const node = createNode({ condition1Threshold: 0 })
+
+    subscribe.mock.calls[0][2]({ value: 10 })
+
+    expect(conditionalOutputs(node).map(msg => msg.payload)).toEqual(['ON'])
+    expect(node.warn).not.toHaveBeenCalled()
+  })
+
+  test('does not evaluate when the condition 2 threshold is empty', () => {
+    const node = createNode({
+      condition2Enabled: true,
+      condition2Service: 'com.victronenergy.solarcharger',
+      condition2Path: '/Dc/0/Current',
+      condition2Operator: '>',
+      condition2Threshold: null,
+      logicOperator: 'AND'
+    })
+
+    subscribe.mock.calls[0][2]({ value: 60 })
+    subscribe.mock.calls[1][2]({ value: 3 })
+
+    expect(conditionalOutputs(node)).toEqual([])
+    expect(lastStatus(node).text).toBe('60 | no threshold')
+  })
+
+  test('does not evaluate when the hysteresis threshold is empty', () => {
+    const node = createNode({ condition1HysteresisEnabled: true, condition1HysteresisThreshold: null })
+
+    subscribe.mock.calls[0][2]({ value: 60 })
+
+    expect(conditionalOutputs(node)).toEqual([])
+    expect(lastStatus(node).text).toBe('60 | no threshold')
+  })
+
+  test.each(['==', '!='])('does not need a hysteresis threshold for %s, which ignores hysteresis', (operator) => {
+    const node = createNode({ condition1Operator: operator, condition1HysteresisEnabled: true, condition1HysteresisThreshold: '' })
+
+    subscribe.mock.calls[0][2]({ value: 50 })
+
+    expect(conditionalOutputs(node)).toHaveLength(1)
+    expect(node.warn).not.toHaveBeenCalled()
   })
 })

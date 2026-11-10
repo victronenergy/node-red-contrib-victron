@@ -82,6 +82,19 @@ module.exports = function (RED) {
     return suffix ? `${valueText} | ${suffix}` : valueText
   }
 
+  // Older editors deployed an empty threshold as null, and Number(null) or Number('') is 0
+  const isThresholdSet = (value) => value !== null && value !== undefined && value !== '' && !isNaN(Number(value))
+
+  const missingThresholds = (node) => {
+    const missing = []
+    const usesHysteresis = node.condition1HysteresisEnabled && !['==', '!='].includes(node.condition1Operator)
+    if (!isThresholdSet(node.condition1Threshold) || (usesHysteresis && !isThresholdSet(node.condition1HysteresisThreshold))) {
+      missing.push('condition 1')
+    }
+    if (node.condition2Enabled && !isThresholdSet(node.condition2Threshold)) missing.push('condition 2')
+    return missing
+  }
+
   class BaseInputNode {
     constructor (nodeDefinition) {
       RED.nodes.createNode(this, nodeDefinition)
@@ -124,6 +137,11 @@ module.exports = function (RED) {
       this.lastConditionalResult = null
       this.pendingConditionalResult = null // Track what result we're debouncing towards
       this.debounceTimer = null
+
+      this.missingThresholds = this.conditionalMode ? missingThresholds(this) : []
+      if (this.missingThresholds.length) {
+        this.warn(`Conditional mode is missing a threshold for ${this.missingThresholds.join(', ')}. Open the node to set it.`)
+      }
 
       if (utils.refuseRemoteClient(RED, this, nodeDefinition)) return
       this.configNode = RED.nodes.getNode(utils.LOCAL_CLIENT_ID)
@@ -307,6 +325,12 @@ module.exports = function (RED) {
 
         // Evaluate conditions and send conditional output
         this.evaluateAndSendConditional = (topic, primaryValue) => {
+          if (this.missingThresholds.length) {
+            const text = this.configNode.showValues !== false ? formatStatusText(this.condition1CurrentValue, 'no threshold') : 'no threshold'
+            this.node.status({ fill: 'red', shape: 'ring', text })
+            return
+          }
+
           const result1 = evaluateConditionWithHysteresis(
             this.condition1CurrentValue,
             this.condition1Operator,
