@@ -1,6 +1,6 @@
 // test/victron-virtual-outputs.test.js
 /* eslint-env jest */
-const { calculateOutputs, getOutputLabels } = require('./fixtures/victron-virtual-functions.cjs')
+const { calculateOutputs, getOutputLabels, determineOutputLabel } = require('./fixtures/victron-virtual-functions.cjs')
 const { SWITCH_TYPE_MAP, SWITCH_OUTPUT_CONFIG } = require('../src/nodes/victron-virtual-constants')
 
 describe('calculateOutputs', () => {
@@ -238,5 +238,20 @@ describe('getOutputLabels', () => {
         expect(labels.length).toBe(outputs)
       })
     })
+  })
+})
+
+describe('EV charger (evcs) outputs', () => {
+  const capabilities = { evcs: { supportsS2: true } }
+
+  test('has only the passthrough output, also with charging control', () => {
+    expect(calculateOutputs('evcs', {}, capabilities)).toBe(1)
+    expect(calculateOutputs('evcs', { evcs_charging_control: true }, capabilities)).toBe(1)
+  })
+
+  test('S2 support adds the S2 output, also with charging control', () => {
+    expect(calculateOutputs('evcs', { enable_s2support: true }, capabilities)).toBe(2)
+    expect(calculateOutputs('evcs', { enable_s2support: true, evcs_charging_control: true }, capabilities)).toBe(2)
+    expect(determineOutputLabel({ device: 'evcs', enable_s2support: true, evcs_charging_control: true }, 1, capabilities)).toBe('S2 communication')
   })
 })

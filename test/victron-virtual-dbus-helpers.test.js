@@ -1,6 +1,6 @@
 /* eslint-env jest */
 
-const { sanitizeIdForDbus, createDebouncedSetters } = require('../src/nodes/victron-virtual-dbus-helpers')
+const { sanitizeIdForDbus, createDebouncedSetters, getPersistedChangedProps } = require('../src/nodes/victron-virtual-dbus-helpers')
 const { debounce } = require('../src/services/utils')
 
 describe('sanitizeIdForDbus', () => {
@@ -95,6 +95,49 @@ describe('createDebouncedSetters', () => {
       expect(node.setValuesLocally).toHaveBeenCalledWith({ 'Position/Latitude': 52.2, 'Position/Longitude': 5.1 })
     })
 
+    // Review on #616: updates arriving faster than the delay kept postponing the group forever
+    test('applies a group that keeps receiving updates within a bounded time', () => {
+      const node = createNode(properties)
+      const { getDebouncedSetter } = createDebouncedSetters(node, debounce, DELAY)
+
+      for (let i = 0; i < 10; i++) {
+        getDebouncedSetter(i % 2 ? 'Position/Latitude' : 'Position/Longitude')(i)
+        jest.advanceTimersByTime(DELAY * 0.6)
+      }
+
+      expect(node.setValuesLocally).toHaveBeenCalledTimes(1)
+      expect(node.setValuesLocally).toHaveBeenCalledWith({ 'Position/Latitude': 7, 'Position/Longitude': 8 })
+    })
+
+    describe('debounceBoundary', () => {
+      const boundaryProperties = {
+        Status: { type: 'i', debounceGroup: 'evcs', debounceBoundary: true },
+        'Ac/Power': { type: 'd', debounceGroup: 'evcs' }
+      }
+
+      test('applies values from earlier messages before a changed boundary value', () => {
+        const node = { ...createNode(boundaryProperties), iface: { Status: 0 } }
+        const { applyInput } = createDebouncedSetters(node, debounce, DELAY)
+
+        applyInput({ '/Ac/Power': 100 })
+        applyInput({ '/Status': 1, '/Ac/Power': 200 })
+        jest.advanceTimersByTime(DELAY)
+
+        expect(node.setValuesLocally.mock.calls).toEqual([[{ '/Ac/Power': 100 }], [{ '/Status': 1, '/Ac/Power': 200 }]])
+      })
+
+      test('keeps merging when the boundary value does not change', () => {
+        const node = { ...createNode(boundaryProperties), iface: { Status: 2 } }
+        const { applyInput } = createDebouncedSetters(node, debounce, DELAY)
+
+        applyInput({ '/Status': 2, '/Ac/Power': 100 })
+        applyInput({ '/Status': 2, '/Ac/Power': 200 })
+        jest.advanceTimersByTime(DELAY)
+
+        expect(node.setValuesLocally.mock.calls).toEqual([[{ '/Status': 2, '/Ac/Power': 200 }]])
+      })
+    })
+
     test('does not re-apply values from an earlier update', () => {
       const node = createNode(properties)
       const { getDebouncedSetter } = createDebouncedSetters(node, debounce, DELAY)
@@ -141,5 +184,30 @@ describe('createDebouncedSetters', () => {
       const { shouldApplyImmediately } = createDebouncedSetters(createNode({ Start: { type: 'i', immediate: true } }), debounce, DELAY)
       expect(shouldApplyImmediately(key)).toBe(true)
     })
+  })
+})
+
+describe('getPersistedChangedProps', () => {
+  const item = (path, value) => [path, [['Value', ['d', value]], ['Text', ['s', String(value)]]]]
+  const ifaceDesc = {
+    properties: {
+      'Ac/Power': { type: 'd' },
+      ChargingTime: { type: 'i' },
+      'Session/Energy': { type: 'd', persist: 60 },
+      SetCurrent: { type: 'd', persist: true }
+    }
+  }
+
+  test('returns persisted properties anywhere in the ItemsChanged payload, not only the first', () => {
+    const items = [item('/ChargingTime', 10), item('/Session/Energy', 1.5), item('/Ac/Power', 7200), item('/SetCurrent', 16)]
+    expect(getPersistedChangedProps(items, ifaceDesc)).toEqual(['Session/Energy', 'SetCurrent'])
+  })
+
+  test('returns nothing when no changed property is persisted', () => {
+    expect(getPersistedChangedProps([item('/Ac/Power', 1)], ifaceDesc)).toEqual([])
+  })
+
+  test('ignores properties unknown to the interface', () => {
+    expect(getPersistedChangedProps([item('/Unknown', 1)], ifaceDesc)).toEqual([])
   })
 })

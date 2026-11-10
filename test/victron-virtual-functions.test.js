@@ -7,6 +7,7 @@ const {
   updateIndicatorLivePreview,
   updateSwitchLivePreview,
   fetchDeviceCapabilities,
+  clearUnsupportedS2,
   SWITCH_TYPE_DOCS
 } = require('./fixtures/victron-virtual-functions.cjs')
 const { createSwitchProperties } = require('../src/services/virtual-switch')
@@ -424,6 +425,36 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       checkSelectedVirtualDevice()
 
       expect(mockPhaseSettingRow.toggle).toHaveBeenCalledWith(false)
+    })
+
+    function mockEvcsChargingControl (checked) {
+      const checkbox = createMockElement({ is: checked })
+      const autoSessionRow = createMockElement()
+      global.$.mockImplementation((selector) => {
+        if (selector === 'select#node-input-device') return createMockElement({ val: 'evcs' })
+        if (selector === '#node-input-evcs_charging_control' || selector === checkbox) return checkbox
+        if (selector === '#evcs-auto-session-row') return autoSessionRow
+        return createMockElement()
+      })
+      return { checkbox, autoSessionRow }
+    }
+
+    test.each([true, false])('evcs auto session row visibility follows charging control (%s)', (checked) => {
+      const { autoSessionRow } = mockEvcsChargingControl(checked)
+      checkSelectedVirtualDevice({ device: 'evcs' })
+      expect(autoSessionRow.toggle).toHaveBeenCalledWith(checked)
+    })
+
+    test('toggling evcs charging control shows the auto session row', () => {
+      const { checkbox, autoSessionRow } = mockEvcsChargingControl(false)
+      checkSelectedVirtualDevice({ device: 'evcs' })
+
+      expect(checkbox.off).toHaveBeenCalledWith('change.evcs-charging-control')
+      const handler = checkbox.on.mock.calls.find(([event]) => event === 'change.evcs-charging-control')[1]
+      checkbox.is.mockReturnValue(true)
+      handler.call(checkbox)
+
+      expect(autoSessionRow.toggle).toHaveBeenLastCalledWith(true)
     })
 
     test('locks S2 Measurement to the matching single phase for a 1-phase config, overriding any prior selection', () => {
@@ -1307,5 +1338,39 @@ describe('SWITCH_TYPE_DOCS paths', () => {
       .map(m => m[1].replace('/x/', '/output_1/'))
     expect(documented.length).toBeGreaterThan(0)
     expect(documented.filter(p => !(p in ifaceDesc.properties))).toEqual([])
+  })
+})
+
+describe('clearUnsupportedS2', () => {
+  const capabilities = { acload: { supportsS2: true }, evcs: { supportsS2: true }, battery: {} }
+  let checkbox
+
+  beforeEach(() => {
+    checkbox = { prop: jest.fn() }
+    global.$ = jest.fn(() => checkbox)
+  })
+
+  afterEach(() => { delete global.$ })
+
+  test('clears S2 support when the new device type has none', () => {
+    const context = { device: 'battery', enable_s2support: true }
+    clearUnsupportedS2(context, capabilities)
+    expect(context.enable_s2support).toBe(false)
+    expect(global.$).toHaveBeenCalledWith('#node-input-enable_s2support')
+    expect(checkbox.prop).toHaveBeenCalledWith('checked', false)
+  })
+
+  test('keeps S2 support when the new device type has it', () => {
+    const context = { device: 'evcs', enable_s2support: true }
+    clearUnsupportedS2(context, capabilities)
+    expect(context.enable_s2support).toBe(true)
+    expect(checkbox.prop).not.toHaveBeenCalled()
+  })
+
+  test('leaves a node without S2 support untouched', () => {
+    const context = { device: 'battery', enable_s2support: false }
+    clearUnsupportedS2(context, capabilities)
+    expect(context.enable_s2support).toBe(false)
+    expect(checkbox.prop).not.toHaveBeenCalled()
   })
 })

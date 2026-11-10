@@ -625,10 +625,18 @@ export const DEVICE_TYPE_DOCS = {
           <li><code>/Ac/{line}/Voltage</code> &mdash; Voltage per phase in volts.</li>
           <li><code>/Ac/{line}/Current</code> &mdash; Current per phase in amperes.</li>
           <li><code>/Ac/{line}/Energy/Forward</code> &mdash; Energy consumed per phase in kWh.</li>
+          <li><code>/Ac/Energy/Forward</code> &mdash; Total energy consumed in kWh, optionally calculated from the power.</li>
           <li><code>/Ac/Frequency</code> &mdash; AC frequency in Hz.</li>
           <li><code>/Position</code>: 0 = AC output, 1 = AC input.</li>
         </ul>
-        <p>Measurement-only - does not simulate a full EVSE (no charging session or connector state). Registers as <code>com.victronenergy.evcharger</code>.</p>
+        <p>With <em>Charging control</em> enabled:</p>
+        <ul>
+          <li><code>/Status</code>: 0 = Disconnected, 1 = Connected, 2 = Charging, 3 = Charged, ... (see the <a href="https://github.com/victronenergy/venus/wiki/dbus#evcharger" target="_blank" rel="noopener noreferrer" class="blue-link">dbus specification</a>).</li>
+          <li><code>/Current</code>: actual charging current in amperes.</li>
+          <li><code>/Mode</code>, <code>/StartStop</code>, <code>/SetCurrent</code>, <code>/MinCurrent</code>, <code>/MaxCurrent</code>, <code>/AutoStart</code>, <code>/EnableDisplay</code>: control paths, which the GX, VRM, Modbus TCP or MQTT can change. To act on a change, read the path with an EV charger input node (a custom input node for <code>/AutoStart</code> and <code>/MinCurrent</code>) on this virtual charger.</li>
+          <li><code>/Session/Energy</code>, <code>/Session/Time</code>: session energy in kWh and time in seconds, optionally calculated automatically: the energy from <code>/Ac/Energy/Forward</code>, the time while charging.</li>
+        </ul>
+        <p>Registers as <code>com.victronenergy.evcharger</code>. The node has no charging logic of its own: the flow sets the state (e.g. <code>/Status</code>, <code>/Current</code>) and acts on the control paths.</p>
         <p>For more information on available paths, see the <a href="https://github.com/victronenergy/venus/wiki/dbus" target="_blank" rel="noopener noreferrer" class="blue-link">Venus OS dbus specification</a>.</p>
       </div>
     </div>
@@ -636,6 +644,7 @@ export const DEVICE_TYPE_DOCS = {
       <div><strong>Output:</strong>
         <ol>
           <li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li>
+          <li><code>S2 communication</code> (with <em>S2 support</em> only): S2 messages from the CEM (Opportunity Loads, Dynamic ESS)</li>
         </ol>
       </div>
     </div>
@@ -1303,6 +1312,14 @@ export function checkSelectedVirtualDevice (context, deviceCapabilities = {}) {
     updatePhaseSettingVisibility(selected)
   }
 
+  if (selected === 'evcs') {
+    const $chargingControl = $('#node-input-evcs_charging_control')
+    $chargingControl.off('change.evcs-charging-control').on('change.evcs-charging-control', function () {
+      $('#evcs-auto-session-row').toggle($(this).is(':checked'))
+    })
+    $('#evcs-auto-session-row').toggle($chargingControl.is(':checked'))
+  }
+
   if (selected === 'generator') {
     checkGeneratorType()
     updateGridMeterOnlyVisibility('generator')
@@ -1904,6 +1921,14 @@ export function updateOutputs (context, deviceCapabilities = {}) {
   // Update BOTH the context AND the hidden input field
   context.outputs = outputs
   $('#node-input-outputs').val(outputs)
+}
+
+// enable_s2support is shared by all device types. Clear it when switching to a type without S2,
+// so it can't turn S2 on later if that type gains S2 support.
+export function clearUnsupportedS2 (context, deviceCapabilities = {}) {
+  if (!context.enable_s2support || deviceCapabilities[context.device]?.supportsS2) return
+  context.enable_s2support = false
+  $('#node-input-enable_s2support').prop('checked', false)
 }
 
 const cloneValue = (value) => value !== null && typeof value === 'object' ? JSON.parse(JSON.stringify(value)) : value
