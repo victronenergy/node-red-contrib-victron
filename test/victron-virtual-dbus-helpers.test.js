@@ -95,6 +95,20 @@ describe('createDebouncedSetters', () => {
       expect(node.setValuesLocally).toHaveBeenCalledWith({ 'Position/Latitude': 52.2, 'Position/Longitude': 5.1 })
     })
 
+    // Review on #616: updates arriving faster than the delay kept postponing the group forever
+    test('applies a group that keeps receiving updates within a bounded time', () => {
+      const node = createNode(properties)
+      const { getDebouncedSetter } = createDebouncedSetters(node, debounce, DELAY)
+
+      for (let i = 0; i < 10; i++) {
+        getDebouncedSetter(i % 2 ? 'Position/Latitude' : 'Position/Longitude')(i)
+        jest.advanceTimersByTime(DELAY * 0.6)
+      }
+
+      expect(node.setValuesLocally).toHaveBeenCalledTimes(1)
+      expect(node.setValuesLocally).toHaveBeenCalledWith({ 'Position/Latitude': 7, 'Position/Longitude': 8 })
+    })
+
     test('does not re-apply values from an earlier update', () => {
       const node = createNode(properties)
       const { getDebouncedSetter } = createDebouncedSetters(node, debounce, DELAY)
