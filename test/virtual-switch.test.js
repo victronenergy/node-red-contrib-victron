@@ -343,6 +343,83 @@ describe('createSwitchProperties - STEPPED DimmingMax', () => {
   })
 })
 
+describe('createSwitchProperties - Settings/Labels', () => {
+  const labelsKey = 'SwitchableOutput/output_1/Settings/Labels'
+  const dimmingKey = 'SwitchableOutput/output_1/Dimming'
+
+  function run (config) {
+    const ifaceDesc = { properties: {} }
+    const iface = {}
+    createSwitchProperties(config, ifaceDesc, iface)
+    return { ifaceDesc, iface }
+  }
+
+  describe('STEPPED', () => {
+    test('does not expose Labels when switch_1_label is unset', () => {
+      const { ifaceDesc, iface } = run({ switch_1_type: SWITCH_TYPE_MAP.STEPPED, switch_1_max: '3' })
+      expect(iface[labelsKey]).toBeUndefined()
+      expect(ifaceDesc.properties[labelsKey]).toBeUndefined()
+    })
+
+    test('does not expose Labels when all step labels are empty', () => {
+      const { iface } = run({ switch_1_type: SWITCH_TYPE_MAP.STEPPED, switch_1_max: '2', switch_1_label: '["", "", ""]' })
+      expect(iface[labelsKey]).toBeUndefined()
+    })
+
+    test('does not expose Labels when switch_1_label is not valid JSON', () => {
+      const { iface } = run({ switch_1_type: SWITCH_TYPE_MAP.STEPPED, switch_1_max: '2', switch_1_label: 'Low,High' })
+      expect(iface[labelsKey]).toBeUndefined()
+    })
+
+    test('exposes Labels when only the Off state is named', () => {
+      const { ifaceDesc, iface } = run({ switch_1_type: SWITCH_TYPE_MAP.STEPPED, switch_1_max: '2', switch_1_label: '["/off", "", ""]' })
+      expect(ifaceDesc.properties[labelsKey].type).toBe('as')
+      expect(iface[labelsKey]).toEqual(['/off', '', ''])
+    })
+
+    test('exposes Labels as a string array indexed by Dimming value', () => {
+      const { ifaceDesc, iface } = run({ switch_1_type: SWITCH_TYPE_MAP.STEPPED, switch_1_max: '3', switch_1_label: '["", "/low", "Med", "/high"]' })
+      expect(ifaceDesc.properties[labelsKey].type).toBe('as')
+      expect(ifaceDesc.properties[labelsKey].persist).toBeFalsy()
+      expect(iface[labelsKey]).toEqual(['', '/low', 'Med', '/high'])
+      expect(ifaceDesc.properties[labelsKey].format(iface[labelsKey])).toBe('/low, Med, /high')
+    })
+
+    test('Dimming GetText includes the label of the selected option', () => {
+      const { ifaceDesc, iface } = run({ switch_1_type: SWITCH_TYPE_MAP.STEPPED, switch_1_max: '3', switch_1_label: '["", "Low", "", "High"]' })
+      const format = ifaceDesc.properties[dimmingKey].format
+      expect(format(1)).toBe('Option 1 (Low)')
+      expect(format(2)).toBe('Option 2')
+      expect(format(3)).toBe('Option 3 (High)')
+      expect(format(null)).toBe('')
+      iface[labelsKey] = undefined
+      expect(format(1)).toBe('Option 1')
+    })
+  })
+
+  describe('DROPDOWN', () => {
+    test('exposes Labels as a string array and formats GetText as a list', () => {
+      const { ifaceDesc, iface } = run({ switch_1_type: SWITCH_TYPE_MAP.DROPDOWN, switch_1_label: '["Label 0", "Label 1"]' })
+      expect(ifaceDesc.properties[labelsKey].type).toBe('as')
+      expect(iface[labelsKey]).toEqual(['Label 0', 'Label 1'])
+      expect(ifaceDesc.properties[labelsKey].format(iface[labelsKey])).toBe('Label 0, Label 1')
+    })
+
+    test('Dimming GetText shows the selected label, falling back to the index', () => {
+      const { ifaceDesc } = run({ switch_1_type: SWITCH_TYPE_MAP.DROPDOWN, switch_1_label: '["Label 0", "Label 1"]' })
+      const format = ifaceDesc.properties[dimmingKey].format
+      expect(format(1)).toBe('Label 1')
+      expect(format(5)).toBe('5')
+      expect(format(null)).toBe('')
+    })
+
+    test('tolerates an unset or invalid switch_1_label', () => {
+      expect(run({ switch_1_type: SWITCH_TYPE_MAP.DROPDOWN }).iface[labelsKey]).toEqual([])
+      expect(run({ switch_1_type: SWITCH_TYPE_MAP.DROPDOWN, switch_1_label: '{broken' }).iface[labelsKey]).toEqual([])
+    })
+  })
+})
+
 describe('expandSwitchPayload', () => {
   test('plain number for toggle uses State path', () => {
     expect(expandSwitchPayload(1, SWITCH_TYPE_MAP.TOGGLE)).toEqual({ 'SwitchableOutput/output_1/State': 1 })

@@ -5,6 +5,7 @@ const {
   SWITCH_TYPE_BITMASK_NAMES,
   SWITCH_TYPE_CONFIGS,
   renderSwitchConfigRow,
+  renderStepLabels,
   validateSwitchConfig,
   isRgbControlType,
   calculateRgbValidTypes,
@@ -204,6 +205,85 @@ describe('Switch Configuration Tests', () => {
       renderSwitchConfigRow(context)
 
       expect(mockTypeSelect.on).toHaveBeenCalledWith('change', expect.any(Function))
+    })
+  })
+
+  describe('renderStepLabels', () => {
+    function setup ({ max, savedLabel }) {
+      const selectors = []
+      global.$.mockImplementation((selector) => {
+        selectors.push(String(selector))
+        return createMockElement({ val: selector === '#node-input-switch_1_max' ? max : '' })
+      })
+      renderStepLabels({ switch_1_type: SWITCH_TYPE_MAP.STEPPED, switch_1_max: max, switch_1_label: savedLabel })
+      return selectors.filter(sel => sel.includes('node-input-switch_1_value_'))
+    }
+
+    test('renders an optional Off input followed by one input per step, indexed like Dimming', () => {
+      const inputs = setup({ max: '3' })
+      expect(inputs).toHaveLength(4)
+      expect(inputs[0]).toContain('id="node-input-switch_1_value_0"')
+      expect(inputs[0]).toContain('>Off<')
+      expect(inputs[1]).toContain('id="node-input-switch_1_value_1"')
+      expect(inputs[1]).toContain('>Step 1<')
+      expect(inputs[3]).toContain('id="node-input-switch_1_value_3"')
+      expect(inputs[3]).toContain('>Step 3<')
+      expect(inputs.some(html => html.includes(' required'))).toBe(false)
+    })
+
+    test('restores saved labels by Dimming index, including the Off label', () => {
+      const inputs = setup({ max: '2', savedLabel: '["/off", "Low", "High"]' })
+      expect(inputs[0]).toContain('value="/off"')
+      expect(inputs[1]).toContain('value="Low"')
+      expect(inputs[2]).toContain('value="High"')
+    })
+
+    test('tolerates an invalid saved label', () => {
+      const inputs = setup({ max: '2', savedLabel: '{broken' })
+      expect(inputs).toHaveLength(3)
+      expect(inputs[0]).toContain('value=""')
+    })
+
+    test('escapes label values in the markup', () => {
+      const inputs = setup({ max: '1', savedLabel: '["", "6\\" <pipe>"]' })
+      expect(inputs[1]).toContain('value="6&quot; &lt;pipe&gt;"')
+      expect(inputs[1]).not.toContain('<pipe>')
+    })
+
+    test('keeps values already typed when the row is rebuilt', () => {
+      const selectors = []
+      global.$.mockImplementation((selector) => {
+        selectors.push(String(selector))
+        if (selector === '#switch-1-pairs-container input') {
+          return {
+            each (fn) {
+              [{ id: 'node-input-switch_1_value_1', value: 'Typed low' }, { id: 'node-input-switch_1_value_2', value: '' }]
+                .forEach(el => fn.call(el))
+            }
+          }
+        }
+        return createMockElement({ val: selector === '#node-input-switch_1_max' ? '3' : '' })
+      })
+      renderStepLabels({ switch_1_type: SWITCH_TYPE_MAP.STEPPED, switch_1_max: '3', switch_1_label: '["", "Saved 1", "Saved 2", "Saved 3"]' })
+      const inputs = selectors.filter(sel => sel.includes('node-input-switch_1_value_'))
+      expect(inputs[0]).toContain('value=""') // Off: nothing typed, nothing saved
+      expect(inputs[1]).toContain('value="Typed low"')
+      expect(inputs[2]).toContain('value=""') // typed (empty) wins over the saved value
+      expect(inputs[3]).toContain('value="Saved 3"') // not in the DOM yet: restored from the saved value
+    })
+
+    test('reads the current inputs before removing the old rows', () => {
+      const calls = []
+      global.$.mockImplementation((selector) => {
+        calls.push(String(selector))
+        if (selector === '#switch-1-pairs-container input') {
+          return { each (fn) { fn.call({ id: 'node-input-switch_1_value_1', value: 'Typed' }) } }
+        }
+        return createMockElement({ val: '2' })
+      })
+      renderStepLabels({ switch_1_type: SWITCH_TYPE_MAP.STEPPED, switch_1_max: '2', switch_1_label: '' })
+      expect(calls.indexOf('#switch-1-pairs-container input')).toBeLessThan(calls.indexOf('#switch-1-pairs-row'))
+      expect(calls.find(c => c.includes('switch_1_value_1'))).toContain('value="Typed"')
     })
   })
 

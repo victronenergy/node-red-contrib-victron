@@ -47,6 +47,41 @@ function decodeStatus (v) {
 }
 
 /**
+ * Parse the JSON encoded /Settings/Labels string array stored in the node config.
+ *
+ * @param {string} raw - JSON encoded array of strings (may be empty/undefined)
+ * @returns {string[]|null} - Array of label strings, or null when unset/invalid
+ */
+function parseSwitchLabels (raw) {
+  if (!raw) return null
+  try {
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return null
+    return parsed.map(label => label == null ? '' : String(label))
+  } catch (e) {
+    return null
+  }
+}
+
+/**
+ * GetText formatter for a /Settings/Labels string array.
+ */
+function formatSwitchLabels (v) {
+  return Array.isArray(v) ? v.filter(label => label !== '').join(', ') : ''
+}
+
+/**
+ * Look up the label for a Dimming value in a /Settings/Labels string array.
+ *
+ * @returns {string} - The label, or '' when there is none
+ */
+function formatSwitchLabel (labels, v) {
+  if (!Array.isArray(labels) || v == null) return ''
+  const label = labels[Number(v)]
+  return typeof label === 'string' ? label : ''
+}
+
+/**
  * Creates D-Bus interface properties for a virtual switch based on configuration.
  *
  * @param {Object} config - Node configuration object containing switch settings
@@ -206,12 +241,21 @@ function createSwitchProperties (config, ifaceDesc, iface) {
 
   if (switchType === SWITCH_TYPE_MAP.STEPPED) {
     // Stepped switch
-    // /SwitchableOutput/x/Dimming holds selected option
+    // /SwitchableOutput/x/Dimming holds selected option (1-based)
     // /SwitchableOutput/x/Settings/DimmingMax defines the number of options (mandatory)
+    // /SwitchableOutput/x/Settings/Labels optionally names the options, indexed by Dimming value:
+    // labels[1..DimmingMax] name the steps and labels[0] optionally names the Off state, which
+    // turns the control into a single-choice switch in the GUIs
     const dimmingKey = 'SwitchableOutput/output_1/Dimming'
+    const labelsKey = 'SwitchableOutput/output_1/Settings/Labels'
+    const labels = parseSwitchLabels(config.switch_1_label)
     ifaceDesc.properties[dimmingKey] = {
       type: 'i',
-      format: (v) => v != null ? `Option ${v}` : '',
+      format: (v) => {
+        if (v == null) return ''
+        const label = formatSwitchLabel(iface[labelsKey], v)
+        return label ? `Option ${v} (${label})` : `Option ${v}`
+      },
       min: 0,
       max: Number(config.switch_1_max || STEPPED_DEFAULT_MAX),
       persist: true,
@@ -225,6 +269,14 @@ function createSwitchProperties (config, ifaceDesc, iface) {
       format: (v) => v != null ? `Options: ${v}` : ''
     }
     iface[maxKey] = Number(config.switch_1_max || STEPPED_DEFAULT_MAX)
+
+    if (labels && labels.some(label => label !== '')) {
+      ifaceDesc.properties[labelsKey] = {
+        type: 'as',
+        format: formatSwitchLabels
+      }
+      iface[labelsKey] = labels
+    }
   }
 
   if (switchType === SWITCH_TYPE_MAP.DROPDOWN) {
@@ -239,29 +291,20 @@ function createSwitchProperties (config, ifaceDesc, iface) {
     }
     iface[typeKey] = 6
 
-    // Get labels from config - should be simple key-value object
-    const labels = JSON.parse(config.switch_1_label || '[]')
+    // Get labels from config - a JSON encoded string array, indexed by Dimming value
+    const labels = parseSwitchLabels(config.switch_1_label) || []
 
     // Dimming holds the index of the selected option
     ifaceDesc.properties[dimmingKey] = {
       type: 'i',
-      format: (v) => {
-        // Format display using the key-value labels
-        try {
-          const labels = JSON.parse(iface[labelsKey] || '{}')
-          return labels[v] || v || ''
-        } catch (e) {
-          return v || ''
-        }
-      },
+      format: (v) => formatSwitchLabel(iface[labelsKey], v) || (v != null ? String(v) : ''),
       persist: true
     }
     iface[dimmingKey] = 0
 
-    // Labels field stores the key-value JSON directly
     ifaceDesc.properties[labelsKey] = {
       type: 'as',
-      format: (v) => v || '{}'
+      format: formatSwitchLabels
     }
     iface[labelsKey] = labels
   }
