@@ -179,24 +179,26 @@ function accumulateSession (changes, instance, now) {
 
 // Session/Energy is the growth of Ac/Energy/Forward since the car was plugged in, so it follows
 // the meter whether the flow reports the energy or it is calculated. Runs after accumulateSession,
-// which resets Session/Energy to 0 on a plug-in.
+// which resets Session/Energy to 0 on a plug-in. Growth counts until the next plug-in: the energy
+// of the last interval can arrive with or after the unplug, and without a car the meter stays put.
 function followSessionEnergy (changes, instance, autoEnergy) {
   // A restored or default meter value is only a starting point for the node's own calculation.
   // A counter the flow reports counts from its first reading since this start.
   if ('Ac/Energy/Forward' in changes || autoEnergy) instance._meterKnown = true
-  const status = changes.Status != null ? changes.Status : instance._lastKnownStatus
-  if (status == null || status === STATUS_DISCONNECTED) return
-  if (!instance._meterKnown) {
-    instance._sessionEnergyStart = null
-    return
-  }
-
+  if (!instance._meterKnown) return
   const meter = 'Ac/Energy/Forward' in changes ? changes['Ac/Energy/Forward'] : instance['Ac/Energy/Forward']
   if (meter == null) return
+
   const session = 'Session/Energy' in changes ? changes['Session/Energy'] : (instance['Session/Energy'] || 0)
-  // A session energy set by the flow (or reset on a plug-in), the first reading of this session or
-  // a meter that went back (e.g. the real charger's counter was reset): continue from there
-  if ('Session/Energy' in changes || instance._sessionEnergyStart == null || meter < instance['Ac/Energy/Forward']) {
+  if (instance._sessionEnergyStart == null) {
+    // The first reading of a session restored after a restart, or of one that began before it
+    const status = changes.Status != null ? changes.Status : instance._lastKnownStatus
+    if (status != null && status !== STATUS_DISCONNECTED) instance._sessionEnergyStart = meter - session
+    return
+  }
+  // A session energy set by the flow (or reset on a plug-in), or a meter that went back (e.g. the
+  // real charger's counter was reset): continue from there
+  if ('Session/Energy' in changes || meter < instance['Ac/Energy/Forward']) {
     instance._sessionEnergyStart = meter - session
     return
   }
