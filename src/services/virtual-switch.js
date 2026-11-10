@@ -20,6 +20,12 @@ const {
 
 const { hsbToRgb } = require('./color-utils')
 
+const DIMMING_KEY = 'SwitchableOutput/output_1/Dimming'
+const DIMMING_RANGE_KEYS = {
+  'SwitchableOutput/output_1/Settings/DimmingMin': 'min',
+  'SwitchableOutput/output_1/Settings/DimmingMax': 'max'
+}
+
 // Status bitmask bit names (index = bit position)
 const STATUS_BIT_NAMES = [
   'Powered', 'Tripped', 'Over temperature', 'Output fault',
@@ -309,7 +315,7 @@ function createSwitchProperties (config, ifaceDesc, iface) {
     const stepKey = 'SwitchableOutput/output_1/Settings/StepSize'
     ifaceDesc.properties[stepKey] = {
       type: 'd',
-      format: (v) => v != null ? v.toFixed(1) + '°C' : ''
+      format: (v) => v != null ? v.toFixed(1) : ''
     }
     iface[stepKey] = Number(config.switch_1_step ?? 1)
 
@@ -395,6 +401,26 @@ function createSwitchProperties (config, ifaceDesc, iface) {
       }
     }
     iface[validTypesKey] = validTypes
+  }
+
+  followDimmingRange(ifaceDesc, iface)
+}
+
+/**
+ * dbus-victron-virtual validates Dimming writes against the min/max declared on the property,
+ * so these must follow DimmingMin/DimmingMax when a flow or the GX changes them (#598).
+ * Getters keep every write path in step; a null or non-numeric setting keeps the configured bound.
+ */
+function followDimmingRange (ifaceDesc, iface) {
+  const dimming = ifaceDesc.properties[DIMMING_KEY]
+  if (!dimming) return
+  for (const [key, bound] of Object.entries(DIMMING_RANGE_KEYS)) {
+    if (!ifaceDesc.properties[key]) continue
+    const configured = dimming[bound]
+    Object.defineProperty(dimming, bound, {
+      get: () => Number.isFinite(iface[key]) ? iface[key] : configured,
+      enumerable: true
+    })
   }
 }
 
@@ -697,6 +723,23 @@ function shouldApplyPayloadToDBus (config, iface, payload) {
   return true
 }
 
+/**
+ * Splits values into batches for setValuesLocally, range settings first, so a Dimming value
+ * in the same payload is validated against the new range.
+ *
+ * @param {Object} values - Property/value pairs, keys with or without leading slash
+ * @returns {Object[]} Non-empty batches to apply in order
+ */
+function splitRangeFirst (values) {
+  const range = {}
+  const rest = {}
+  for (const [key, value] of Object.entries(values)) {
+    const target = DIMMING_RANGE_KEYS[key.replace(/^\//, '')] ? range : rest
+    target[key] = value
+  }
+  return [range, rest].filter(batch => Object.keys(batch).length > 0)
+}
+
 module.exports = {
   createSwitchProperties,
   getSwitchStatusText,
@@ -706,5 +749,6 @@ module.exports = {
   emitInitialSwitchOutputs,
   expandSwitchPayload,
   shouldApplyPayloadToDBus,
+  splitRangeFirst,
   STEPPED_DEFAULT_MAX
 }
