@@ -539,6 +539,10 @@ module.exports = function (RED) {
       }
 
       async function proceed (usedBus) {
+        // A reconnect starts a new setup while an older one can still be waiting; only the newest
+        // may take over the node
+        const setupGeneration = node._setupGeneration = (node._setupGeneration || 0) + 1
+
         // A reconnect replaces the interface, so stop the old session timer before the first
         // await: setup can fail or the node can close while it waits
         stopEvcsSessionTimer()
@@ -694,6 +698,11 @@ module.exports = function (RED) {
           return // Exit early if we couldn't get a valid device instance
         }
 
+        if (node._closed || setupGeneration !== node._setupGeneration) {
+          debugConnection('Dropping a setup that a reconnect or close replaced')
+          return
+        }
+
         node.iface = iface
         node.ifaceDesc = ifaceDesc
 
@@ -813,9 +822,7 @@ module.exports = function (RED) {
         node.setValuesLocally = setValuesLocally
         node.emitS2Signal = emitS2Signal
 
-        if (config.device === 'evcs' && !node._closed) {
-          // An overlapping reconnect may have started a timer while this setup was waiting
-          stopEvcsSessionTimer()
+        if (config.device === 'evcs') {
           node.stopEvcsSessionTimer = deviceModule.startSessionTimer({ node, instance: iface, config })
         }
 
