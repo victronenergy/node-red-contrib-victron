@@ -1,4 +1,3 @@
-const { accumulateDelta } = require('../energy-utils')
 const { enableS2Support } = require('../s2-support')
 const { buildMinimalMeterProperties, initializeMinimalMeter } = require('./shared/minimal-meter')
 const { accumulateMeterEnergy } = require('./shared/meter-energy')
@@ -141,23 +140,10 @@ function initialize (config, ifaceDesc, iface, node) {
   return `Virtual ${iface.NrOfPhases}-phase EV charger (charging control)`
 }
 
-// Integrates Session/Energy and Session/Time over the interval since the previous call, using the
-// status and power that applied during that interval. A value the flow sets explicitly wins.
-// Ac/Power and the phase powers all start at 0, so follow whichever the flow actually reports.
-function chargingPower (instance, config) {
-  if (!instance._sessionUsesPhasePower) return instance['Ac/Power']
-  return meterPhases(config).reduce((sum, phase) => sum + (instance[`Ac/L${phase}/Power`] || 0), 0)
-}
-
-function trackPowerSource (changes, instance, config) {
-  if ('Ac/Power' in changes) {
-    instance._sessionUsesPhasePower = false
-  } else if (meterPhases(config).some(phase => `Ac/L${phase}/Power` in changes)) {
-    instance._sessionUsesPhasePower = true
-  }
-}
-
-function accumulateSession (changes, instance, config, now) {
+// Counts Session/Time over the interval since the previous call, using the status that applied
+// during that interval, and resets the session when a car is plugged in. A value the flow sets
+// explicitly wins.
+function accumulateSession (changes, instance, now) {
   // A null Status (charger offline) says nothing about the car, so a plug-in is judged against
   // the last real status.
   if (instance.Status != null) instance._lastKnownStatus = instance.Status
@@ -173,7 +159,6 @@ function accumulateSession (changes, instance, config, now) {
       if (!(key in changes)) changes[key] = 0
     })
   } else if (oldStatus === STATUS_CHARGING && lastTs != null) {
-    accumulateDelta({ changes, instance, energyKey: 'Session/Energy', oldPower: chargingPower(instance, config), lastTs, now })
     if (!('Session/Time' in changes)) {
       // Keep fractional seconds internally, Session/Time is an integer on D-Bus.
       instance._sessionSeconds = (instance._sessionSeconds ?? instance['Session/Time'] ?? 0) + (now - lastTs) / 1000
@@ -192,6 +177,34 @@ function accumulateSession (changes, instance, config, now) {
   }
 }
 
+// Session/Energy is the growth of Ac/Energy/Forward since the car was plugged in, so it follows
+// the meter whether the flow reports the energy or it is calculated. Runs after accumulateSession,
+// which resets Session/Energy to 0 on a plug-in.
+function followSessionEnergy (changes, instance, autoEnergy) {
+  // A restored or default meter value is only a starting point for the node's own calculation.
+  // A counter the flow reports counts from its first reading since this start.
+  if ('Ac/Energy/Forward' in changes || autoEnergy) instance._meterKnown = true
+  const status = changes.Status != null ? changes.Status : instance._lastKnownStatus
+  if (status == null || status === STATUS_DISCONNECTED) return
+  if (!instance._meterKnown) {
+    instance._sessionEnergyStart = null
+    return
+  }
+
+  const meter = 'Ac/Energy/Forward' in changes ? changes['Ac/Energy/Forward'] : instance['Ac/Energy/Forward']
+  if (meter == null) return
+  const session = 'Session/Energy' in changes ? changes['Session/Energy'] : (instance['Session/Energy'] || 0)
+  // A session energy set by the flow (or reset on a plug-in), the first reading of this session or
+  // a meter that went back (e.g. the real charger's counter was reset): continue from there
+  if ('Session/Energy' in changes || instance._sessionEnergyStart == null || meter < instance['Ac/Energy/Forward']) {
+    instance._sessionEnergyStart = meter - session
+    return
+  }
+
+  const sessionEnergy = meter - instance._sessionEnergyStart
+  if (sessionEnergy !== instance['Session/Energy']) changes['Session/Energy'] = sessionEnergy
+}
+
 // A single-phase charger reports on the phase it's wired to, multi-phase ones on L1 upwards.
 function meterPhases (config) {
   const nrOfPhases = Number(config.evcs_nrofphases ?? 1)
@@ -201,12 +214,12 @@ function meterPhases (config) {
 
 function onPropertiesChanged ({ changes, instance, config }) {
   const now = Date.now()
-  if (isAutoSession(config)) {
-    accumulateSession(changes, instance, config, now)
-    trackPowerSource(changes, instance, config)
-  }
   if (config.evcs_auto_energy) {
     accumulateMeterEnergy({ changes, instance, phases: meterPhases(config), now })
+  }
+  if (isAutoSession(config)) {
+    accumulateSession(changes, instance, now)
+    followSessionEnergy(changes, instance, !!config.evcs_auto_energy)
   }
   return changes
 }
@@ -215,7 +228,7 @@ function onPropertiesChanged ({ changes, instance, config }) {
 function sessionTick ({ instance, config }) {
   if (!isAutoSession(config) || instance.Status !== STATUS_CHARGING) return null
   const changes = {}
-  accumulateSession(changes, instance, config, Date.now())
+  accumulateSession(changes, instance, Date.now())
   return Object.keys(changes).length > 0 ? changes : null
 }
 
