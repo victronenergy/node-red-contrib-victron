@@ -110,14 +110,19 @@ function flushPendingInputs (node, handleInput) {
 /**
  * Creates per-key debounced setters that call node.setValuesLocally after a delay.
  * Keys that share a debounceGroup in the ifaceDesc are applied together in one call.
- * Also returns shouldApplyImmediately, which checks the ifaceDesc for the immediate flag.
+ * Also returns shouldApplyImmediately, which checks the ifaceDesc for the immediate flag, and
+ * applyInput, which applies a node input payload: immediate keys now, the rest debounced.
  */
 function createDebouncedSetters (node, debounce, delayMs) {
   const groupSetters = new Map()
 
   // Payload keys may carry a leading slash ('/Position/Latitude'), ifaceDesc keys do not
+  function normalize (key) {
+    return key.startsWith('/') ? key.substring(1) : key
+  }
+
   function propertyOf (key) {
-    return node.ifaceDesc?.properties?.[key.startsWith('/') ? key.substring(1) : key]
+    return node.ifaceDesc?.properties?.[normalize(key)]
   }
 
   function shouldApplyImmediately (key) {
@@ -147,6 +152,11 @@ function createDebouncedSetters (node, debounce, delayMs) {
       }
       const flush = debounce(apply, delayMs)
       groupSetters.set(group, (values) => {
+        // A changed debounceBoundary value (e.g. an EV charger Status) is a transition: values
+        // from earlier messages go first, so they are not merged into it
+        const isTransition = Object.entries(values).some(([key, value]) =>
+          propertyOf(key)?.debounceBoundary && value !== (key in pending ? pending[key] : node.iface?.[normalize(key)]))
+        if (isTransition) apply()
         Object.assign(pending, values)
         if (!maxWaitTimer) maxWaitTimer = setTimeout(apply, maxWaitMs)
         flush()
@@ -156,13 +166,35 @@ function createDebouncedSetters (node, debounce, delayMs) {
   }
 
   // A key without a debounceGroup is a group of its own
-  function getDebouncedSetter (key) {
+  function groupOf (key) {
     const group = propertyOf(key)?.debounceGroup
-    const setGroup = getDebouncedSetterForMultipleProps(group ? `group:${group}` : `key:${key}`)
+    return group ? `group:${group}` : `key:${key}`
+  }
+
+  function getDebouncedSetter (key) {
+    const setGroup = getDebouncedSetterForMultipleProps(groupOf(key))
     return (value) => setGroup({ [key]: value })
   }
 
-  return { shouldApplyImmediately, getDebouncedSetter }
+  // The keys of one group in a payload are handed over together, so a debounceBoundary key
+  // can't split them
+  function applyInput (payload) {
+    const immediate = {}
+    const groups = new Map()
+    for (const [key, value] of Object.entries(payload)) {
+      if (shouldApplyImmediately(key)) {
+        immediate[key] = value
+      } else {
+        const group = groupOf(key)
+        if (!groups.has(group)) groups.set(group, {})
+        groups.get(group)[key] = value
+      }
+    }
+    if (Object.keys(immediate).length > 0) node.setValuesLocally(immediate)
+    groups.forEach((values, group) => getDebouncedSetterForMultipleProps(group)(values))
+  }
+
+  return { shouldApplyImmediately, getDebouncedSetter, applyInput }
 }
 
 /**

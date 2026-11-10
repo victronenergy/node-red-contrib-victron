@@ -36,15 +36,8 @@ describe('evcs payloads through the debounced node input', () => {
       setValuesLocally,
       error: jest.fn()
     }
-    const { shouldApplyImmediately, getDebouncedSetter } = createDebouncedSetters(node, debounce, DELAY)
-    // Same split as handleInput in index.js: immediate keys first, the rest debounced
-    const input = (payload) => {
-      const immediate = Object.fromEntries(Object.entries(payload).filter(([key]) => shouldApplyImmediately(key)))
-      if (Object.keys(immediate).length > 0) node.setValuesLocally(immediate)
-      for (const [key, value] of Object.entries(payload)) {
-        if (!(key in immediate)) getDebouncedSetter(key)(value)
-      }
-    }
+    node.iface = iface
+    const { applyInput: input } = createDebouncedSetters(node, debounce, DELAY)
     const send = (payload) => {
       input(payload)
       jest.advanceTimersByTime(DELAY)
@@ -82,6 +75,31 @@ describe('evcs payloads through the debounced node input', () => {
     jest.advanceTimersByTime(DELAY)
 
     expect(iface).toMatchObject({ Status: 1, 'Session/Energy': 0, 'Session/Time': 0 })
+  })
+
+  // Review on #616: Status was applied before the energy of the same message
+  test('energy sent with a plug-in Status is not counted in the new session', () => {
+    const config = { evcs_charging_control: true, evcs_auto_session: true }
+    const { send, iface } = setup(config, { Status: 0, 'Session/Energy': 2 })
+    send({ '/Ac/Energy/Forward': 12 })
+
+    send({ '/Status': 1, '/Ac/Energy/Forward': 13 })
+    expect(iface['Session/Energy']).toBe(0)
+    send({ '/Ac/Energy/Forward': 14 })
+    expect(iface['Session/Energy']).toBeCloseTo(1, 5)
+  })
+
+  test('energy still pending from before a plug-in is not counted in the new session', () => {
+    const config = { evcs_charging_control: true, evcs_auto_session: true }
+    const { input, send, iface } = setup(config, { Status: 0, 'Session/Energy': 2 })
+    send({ '/Ac/Energy/Forward': 12 })
+
+    input({ '/Ac/Energy/Forward': 13 })
+    jest.advanceTimersByTime(DELAY / 2)
+    send({ '/Status': 1 })
+    send({ '/Ac/Energy/Forward': 14 })
+
+    expect(iface['Session/Energy']).toBeCloseTo(1, 5)
   })
 
   test('a fast stream of power updates does not hold back Status or control paths', () => {

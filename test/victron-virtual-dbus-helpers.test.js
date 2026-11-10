@@ -109,6 +109,35 @@ describe('createDebouncedSetters', () => {
       expect(node.setValuesLocally).toHaveBeenCalledWith({ 'Position/Latitude': 7, 'Position/Longitude': 8 })
     })
 
+    describe('debounceBoundary', () => {
+      const boundaryProperties = {
+        Status: { type: 'i', debounceGroup: 'evcs', debounceBoundary: true },
+        'Ac/Power': { type: 'd', debounceGroup: 'evcs' }
+      }
+
+      test('applies values from earlier messages before a changed boundary value', () => {
+        const node = { ...createNode(boundaryProperties), iface: { Status: 0 } }
+        const { applyInput } = createDebouncedSetters(node, debounce, DELAY)
+
+        applyInput({ '/Ac/Power': 100 })
+        applyInput({ '/Status': 1, '/Ac/Power': 200 })
+        jest.advanceTimersByTime(DELAY)
+
+        expect(node.setValuesLocally.mock.calls).toEqual([[{ '/Ac/Power': 100 }], [{ '/Status': 1, '/Ac/Power': 200 }]])
+      })
+
+      test('keeps merging when the boundary value does not change', () => {
+        const node = { ...createNode(boundaryProperties), iface: { Status: 2 } }
+        const { applyInput } = createDebouncedSetters(node, debounce, DELAY)
+
+        applyInput({ '/Status': 2, '/Ac/Power': 100 })
+        applyInput({ '/Status': 2, '/Ac/Power': 200 })
+        jest.advanceTimersByTime(DELAY)
+
+        expect(node.setValuesLocally.mock.calls).toEqual([[{ '/Status': 2, '/Ac/Power': 200 }]])
+      })
+    })
+
     test('does not re-apply values from an earlier update', () => {
       const node = createNode(properties)
       const { getDebouncedSetter } = createDebouncedSetters(node, debounce, DELAY)
