@@ -219,7 +219,7 @@ module.exports = function (RED) {
     node.retryOnConnectionEnd = true
     node.presenceConnected = false
 
-    const { shouldApplyImmediately, getDebouncedSetter } = createDebouncedSetters(node, debounce, DEBOUNCE_DELAY_MS)
+    const { applyInput } = createDebouncedSetters(node, debounce, DEBOUNCE_DELAY_MS)
 
     function handleInput (msg, done) {
       // S2 signal messages are internal control - never pass through to any output
@@ -349,27 +349,7 @@ module.exports = function (RED) {
       try {
         debugInput(`Setting values locally for node ${node.id}:`, msg.payload)
 
-        const immediatePayload = {}
-        const debouncedPayload = {}
-
-        for (const [key, value] of Object.entries(msg.payload)) {
-          if (shouldApplyImmediately(key)) {
-            immediatePayload[key] = value
-          } else {
-            debouncedPayload[key] = value
-          }
-        }
-
-        if (Object.keys(immediatePayload).length > 0) {
-          node.setValuesLocally(immediatePayload)
-          debugInput(`Applied ${Object.keys(immediatePayload).length} immediate properties`)
-        }
-
-        for (const [key, value] of Object.entries(debouncedPayload)) {
-          const setter = getDebouncedSetter(key)
-          setter(value)
-          debugInput(`Debouncing ${key} for ${DEBOUNCE_DELAY_MS}ms`)
-        }
+        applyInput(msg.payload)
 
         const pathCount = Object.keys(msg.payload).length
         const pathWord = pathCount === 1 ? 'path' : 'paths'

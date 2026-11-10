@@ -19,12 +19,12 @@ const chargingControlProperties = {
   SetCurrent: { type: 'd', format: unitFormat('A', 1), persist: true },
   MinCurrent: { type: 'd', format: unitFormat('A', 1), persist: true },
   MaxCurrent: { type: 'd', format: unitFormat('A', 1), persist: true },
-  // Persisted so a restart mid-charge is not taken for a car being plugged in. Immediate, so an
-  // unplug and replug in quick succession are not merged by the input debounce.
+  // Persisted so a restart mid-charge is not taken for a car being plugged in. A debounce boundary,
+  // so an unplug and replug in quick succession are not merged by the input debounce.
   Status: {
     type: 'i',
     persist: true,
-    immediate: true,
+    debounceBoundary: true,
     format: enumFormat({
       0: 'Disconnected',
       1: 'Connected',
@@ -109,9 +109,9 @@ function initialize (config, ifaceDesc, iface, node) {
   })
 
   // The node input debounces each key on its own. The session and energy calculations combine
-  // power and energy values, so those paths share a group and a message lands in one call.
+  // status, power and energy values, so those paths share a group and a message lands in one call.
   for (const [key, property] of Object.entries(ifaceDesc.properties)) {
-    if (key.startsWith('Ac/') || key.startsWith('Session/') || key === 'ChargingTime') {
+    if (key.startsWith('Ac/') || key.startsWith('Session/') || key === 'ChargingTime' || key === 'Status') {
       property.debounceGroup = 'evcs'
     }
   }
