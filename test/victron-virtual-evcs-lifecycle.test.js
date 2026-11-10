@@ -155,6 +155,24 @@ describe('EV charger session timer lifecycle', () => {
     expect(stops[0]).toHaveBeenCalled()
   })
 
+  test('does not report a failure of a setup that a reconnect replaced', async () => {
+    let rejectFirstSettings
+    addSettings
+      .mockReturnValueOnce(new Promise((resolve, reject) => { rejectFirstSettings = reject }))
+      .mockResolvedValue(SETTINGS_RESULT)
+    const node = createNode(persistLocation)
+    await flush()
+
+    dbus.createClient.mock.results[0].value.connection.emit('end')
+    await jest.advanceTimersByTimeAsync(1000)
+    node.status.mockClear()
+
+    rejectFirstSettings(new Error('settings write failed'))
+    await flush()
+    expect(node.status).not.toHaveBeenCalled()
+    expect(node.error).not.toHaveBeenCalled()
+  })
+
   test('stops the timer on close', async () => {
     addSettings.mockResolvedValue(SETTINGS_RESULT)
     const node = createNode(persistLocation)

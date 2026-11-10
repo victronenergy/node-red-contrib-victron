@@ -542,6 +542,7 @@ module.exports = function (RED) {
         // A reconnect starts a new setup while an older one can still be waiting; only the newest
         // may take over the node
         const setupGeneration = node._setupGeneration = (node._setupGeneration || 0) + 1
+        const isReplaced = () => node._closed || setupGeneration !== node._setupGeneration
 
         // A reconnect replaces the interface, so stop the old session timer before the first
         // await: setup can fail or the node can close while it waits
@@ -600,6 +601,7 @@ module.exports = function (RED) {
           ])
         } catch (error) {
           console.error('Error in virtual device setup:', error)
+          if (isReplaced()) return
 
           node.status({
             color: 'red',
@@ -698,7 +700,7 @@ module.exports = function (RED) {
           return // Exit early if we couldn't get a valid device instance
         }
 
-        if (node._closed || setupGeneration !== node._setupGeneration) {
+        if (isReplaced()) {
           debugConnection('Dropping a setup that a reconnect or close replaced')
           return
         }
