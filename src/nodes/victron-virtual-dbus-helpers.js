@@ -125,21 +125,30 @@ function createDebouncedSetters (node, debounce, delayMs) {
   }
 
   // Values arriving within the delay are merged, so a group updated across several messages
-  // still lands on D-Bus as a single ItemsChanged signal.
+  // still lands on D-Bus as a single ItemsChanged signal. Updates that keep arriving within the
+  // delay are applied at least every maxWaitMs, so they can't postpone the group forever.
+  const maxWaitMs = 5 * delayMs
+
   function getDebouncedSetterForMultipleProps (group) {
     if (!groupSetters.has(group)) {
       let pending = {}
-      const flush = debounce(() => {
+      let maxWaitTimer = null
+      const apply = () => {
+        clearTimeout(maxWaitTimer)
+        maxWaitTimer = null
         const values = pending
+        if (Object.keys(values).length === 0) return
         pending = {}
         try {
           node.setValuesLocally(values)
         } catch (err) {
           node.error(`Failed to apply debounced value for ${Object.keys(values).join(', ')}: ${err.message}`)
         }
-      }, delayMs)
+      }
+      const flush = debounce(apply, delayMs)
       groupSetters.set(group, (values) => {
         Object.assign(pending, values)
+        if (!maxWaitTimer) maxWaitTimer = setTimeout(apply, maxWaitMs)
         flush()
       })
     }
