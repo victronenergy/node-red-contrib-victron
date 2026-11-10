@@ -173,6 +173,24 @@ describe('EV charger session timer lifecycle', () => {
     expect(node.error).not.toHaveBeenCalled()
   })
 
+  // Review on #616: the new interface loaded a snapshot up to 60 s old
+  test('a reconnect continues from the latest values, not the last throttled save', async () => {
+    addSettings.mockResolvedValue(SETTINGS_RESULT)
+    const node = createNode(persistLocation)
+    await flush()
+    const [, , iface, , emitCallback] = addVictronInterfaces.mock.calls[0]
+    const item = (p, value) => [p, [['Value', ['d', value]], ['Text', ['s', String(value)]]]]
+    iface['Session/Energy'] = 5
+    emitCallback('ItemsChanged', [item('/Session/Energy', 5)])
+
+    dbus.createClient.mock.results[0].value.connection.emit('end')
+    await jest.advanceTimersByTimeAsync(1000)
+
+    expect(addVictronInterfaces).toHaveBeenCalledTimes(2)
+    expect(node.iface).not.toBe(iface)
+    expect(node.iface['Session/Energy']).toBe(5)
+  })
+
   test('stops the timer on close', async () => {
     addSettings.mockResolvedValue(SETTINGS_RESULT)
     const node = createNode(persistLocation)

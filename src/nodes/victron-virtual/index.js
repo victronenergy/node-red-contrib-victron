@@ -527,6 +527,8 @@ module.exports = function (RED) {
         // A reconnect replaces the interface, so stop the old session timer before the first
         // await: setup can fail or the node can close while it waits
         stopEvcsSessionTimer()
+        // The new interface loads the persisted state: write the old one's throttled changes first
+        if (node.iface && node.ifaceDesc) flushPersistedState(RED, node.id, node.iface, node.ifaceDesc)
 
         // First, we need to create our interface description (here we will only expose method calls)
         const ifaceDesc = {
