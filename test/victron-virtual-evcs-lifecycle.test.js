@@ -130,7 +130,8 @@ describe('EV charger session timer lifecycle', () => {
     expect(stops[0]).toHaveBeenCalled()
   })
 
-  test('keeps one timer when a reconnect finishes before the setup it replaced', async () => {
+  // Review on #616: the old setup replaced the live interface, setter and timer
+  test('ignores a setup that finishes after the reconnect that replaced it', async () => {
     let resolveFirstSettings
     addSettings
       .mockReturnValueOnce(new Promise(resolve => { resolveFirstSettings = resolve }))
@@ -141,14 +142,17 @@ describe('EV charger session timer lifecycle', () => {
     dbus.createClient.mock.results[0].value.connection.emit('end')
     await jest.advanceTimersByTimeAsync(1000)
     expect(stops).toHaveLength(1)
+    const { iface, setValuesLocally } = node
 
     resolveFirstSettings(SETTINGS_RESULT)
     await flush()
-    expect(stops).toHaveLength(2)
-    expect(stops[0]).toHaveBeenCalled()
+    expect(stops).toHaveLength(1)
+    expect(stops[0]).not.toHaveBeenCalled()
+    expect(node.iface).toBe(iface)
+    expect(node.setValuesLocally).toBe(setValuesLocally)
 
     node.handlers.close(jest.fn())
-    expect(stops[1]).toHaveBeenCalled()
+    expect(stops[0]).toHaveBeenCalled()
   })
 
   test('stops the timer on close', async () => {
