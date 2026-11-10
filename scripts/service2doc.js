@@ -53,11 +53,11 @@ ${explanationList}
 `
   } else {
     return `
-<div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
+<div class="wildcard-info">
   <strong>📝 Wildcard Paths:</strong> 
   Paths containing placeholders like <code>{type}</code>, <code>{tracker}</code>, <code>{phase}</code> 
   will be automatically expanded to show available options based on your connected devices.
-  <ul style="margin: 5px 0;">
+  <ul>
 ${explanationList}
   </ul>
 </div>`
@@ -82,7 +82,7 @@ function highlightWildcards (text, format) {
   if (format === 'md') {
     return text.replace(/\{(\w+)\}/g, '`{$1}`')
   } else {
-    return text.replace(/\{(\w+)\}/g, '<code style="background-color: #e1f5fe; color: #01579b; font-weight: bold; padding: 1px 3px; border-radius: 3px;">{$1}</code>')
+    return text.replace(/\{(\w+)\}/g, '<code class="wildcard-code">{$1}</code>')
   }
 }
 
@@ -662,28 +662,26 @@ msg.event = {
 const NODERED_CSS = `
 <style>
   .wildcard-info {
-    background: #f5f5f5;
+    background: var(--red-ui-tertiary-background, #f5f5f5);
     padding: 10px;
     margin: 10px 0;
     border-left: 4px solid #007acc;
     border-radius: 4px;
   }
 
-  .wildcard-info code {
-    background-color: #e1f5fe;
-    color: #01579b;
+  .wildcard-info code,
+  code.wildcard-code {
+    background-color: rgba(3, 155, 229, 0.2);
+    border: 1px solid rgba(3, 155, 229, 0.5);
+    color: var(--red-ui-primary-text-color, #01579b);
     font-weight: bold;
     padding: 1px 3px;
     border-radius: 3px;
   }
 
   .wildcard-info ul {
-    margin: 5px 0 0 0;
+    margin: 5px 0;
     padding-left: 20px;
-  }
-
-  dt[style*="border-left"], dd[style*="border-left"] {
-    background: #fcfcfc;
   }
 </style>
 

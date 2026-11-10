@@ -35,7 +35,7 @@ describe('Service Documentation Generator', () => {
     expect(explanation).toContain('Wildcard Paths')
     expect(explanation).toContain('<code>{type}</code>')
     expect(explanation).toContain('Switch types (output_1, output_2')
-    expect(explanation).toContain('<div class="wildcard-info"')
+    expect(explanation).toContain('<div class="wildcard-info">')
   })
 
   test('generates wildcard explanation for markdown format', () => {
@@ -50,7 +50,8 @@ describe('Service Documentation Generator', () => {
     const text = 'Power for tracker {tracker} on phase {phase}'
     const highlighted = highlightWildcards(text, 'nodered')
 
-    expect(highlighted).toContain('<code style="background-color: #e1f5fe')
+    expect(highlighted).toContain('<code class="wildcard-code">{tracker}</code>')
+    expect(highlighted).not.toContain('style=')
     expect(highlighted).toContain('{tracker}')
     expect(highlighted).toContain('{phase}')
   })
