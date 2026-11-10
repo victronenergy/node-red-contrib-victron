@@ -200,12 +200,31 @@ describe('evcs session energy', () => {
     expect(instance['Session/Energy']).toBeCloseTo(3, 5)
   })
 
-  test('does not change after the car is unplugged', () => {
+  // Review on #616: the energy of the last interval arrives with or after the unplug
+  test('counts the energy reported with or after the unplug', () => {
     const instance = pluggedIn(10)
     apply(instance, { Status: 2, 'Ac/Energy/Forward': 12 })
-    apply(instance, { Status: 0 })
-    apply(instance, { 'Ac/Energy/Forward': 13 })
-    expect(instance['Session/Energy']).toBeCloseTo(2, 5)
+    apply(instance, { Status: 0, 'Ac/Energy/Forward': 12.5 })
+    expect(instance['Session/Energy']).toBeCloseTo(2.5, 5)
+    apply(instance, { 'Ac/Energy/Forward': 12.75 })
+    expect(instance['Session/Energy']).toBeCloseTo(2.75, 5)
+  })
+
+  test('counts the last interval when auto energy closes it after the unplug', () => {
+    const config = { ...CONFIG, evcs_auto_energy: true }
+    const instance = pluggedIn(10)
+    apply(instance, { Status: 2, 'Ac/Power': 3600 }, config)
+    now += HOUR
+    apply(instance, { Status: 0 }, config)
+    apply(instance, { 'Ac/Power': 0 }, config)
+    expect(instance['Session/Energy']).toBeCloseTo(3.6, 5)
+  })
+
+  test('does not count energy before the first plug-in', () => {
+    const instance = { Status: 0, 'Session/Energy': 0 }
+    apply(instance, { 'Ac/Energy/Forward': 10 })
+    apply(instance, { 'Ac/Energy/Forward': 11 })
+    expect(instance['Session/Energy']).toBe(0)
   })
 
   test('starts at zero when a car is plugged in', () => {
