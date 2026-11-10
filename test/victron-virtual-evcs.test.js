@@ -238,7 +238,6 @@ describe('evcs S2 support', () => {
   // editor can carry it without having the S2 output.
   test.each([
     [{ enable_s2support: true, outputs: 1 }],
-    [{ enable_s2support: true, outputs: 2, evcs_charging_control: true }],
     [{ enable_s2support: true }]
   ])('adds no S2 paths when the saved outputs have no S2 port (%j)', (config) => {
     const { ifaceDesc } = initialize(config)
@@ -252,10 +251,10 @@ describe('evcs S2 support', () => {
     expect(node.send).toHaveBeenCalledWith([null, { payload: { command: 'KeepAlive', cemId: 'cem-1' } }])
   })
 
-  test('sends S2 on output 3 with charging control, after the Control output', () => {
-    const { ifaceDesc, node } = initialize({ enable_s2support: true, evcs_charging_control: true, outputs: 3 })
+  test('sends S2 on output 2 with charging control', () => {
+    const { ifaceDesc, node } = initialize({ enable_s2support: true, evcs_charging_control: true, outputs: 2 })
     ifaceDesc.__s2Handlers.KeepAlive('cem-1')
-    expect(node.send).toHaveBeenCalledWith([null, null, { payload: { command: 'KeepAlive', cemId: 'cem-1' } }])
+    expect(node.send).toHaveBeenCalledWith([null, { payload: { command: 'KeepAlive', cemId: 'cem-1' } }])
   })
 
   test('uses the configured S2 measurement type', () => {

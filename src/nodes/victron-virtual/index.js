@@ -13,7 +13,7 @@ const { validateVirtualDevicePayload, validateLightControls, debounce, refuseRem
 const { handleSwitchOutputs } = require('../../services/virtual-switch')
 const { filterInactiveVirtualDevices, getDeployedDbusIds } = require('../../services/virtual-device-cleanup')
 const { makeSetPresence } = require('./helpers')
-const { sanitizeIdForDbus, registerInputHandler, flushPendingInputs, createDebouncedSetters, trackLocalChanges, getPersistedChangedProps } = require('../victron-virtual-dbus-helpers')
+const { sanitizeIdForDbus, registerInputHandler, flushPendingInputs, createDebouncedSetters, getPersistedChangedProps } = require('../victron-virtual-dbus-helpers')
 
 const acloadModule = require('./device-type/acload')
 const batteryModule = require('./device-type/battery')
@@ -326,13 +326,13 @@ module.exports = function (RED) {
                 .filter(([pName]) => node.iface[pName] !== null && node.iface[pName] !== undefined)
                 .map(([pName, commodityQuantity]) => ({ commodity_quantity: commodityQuantity, value: node.iface[pName] }))
               if (values.length > 0) {
-                node.ifaceDesc.__s2Send({
+                node.send([null, {
                   payload: {
                     command: 'PowerMeasurement',
                     cemId: node._s2PowerMeasurementCemId,
                     values
                   }
-                })
+                }])
               }
             }
             return successAndDone('Power measurement started', done)
@@ -749,11 +749,6 @@ module.exports = function (RED) {
         // We need to add a emitCallbackS2 for S2-related property changes
         // to be able to react to imocoming connection requests and messages.
 
-        // EV charger with charging control: external writes to its control paths go to output 2
-        const evcsControlFilter = config.device === 'evcs' && deviceModule?.isChargingControl(config)
-          ? deviceModule.createControlOutputFilter(iface)
-          : null
-
         function emitCallback (event, data) {
           // we could use node.context().set('bla', 42) to set (and get) state, but state disappears on redeploy
           // for global context: node.context().global.set('bla', 43)
@@ -776,11 +771,6 @@ module.exports = function (RED) {
             handleSwitchOutputs(config, node, propName, propValue)
           }
 
-          if (evcsControlFilter) {
-            const messages = evcsControlFilter(deviceModule.controlOutputMessages(data), !!node._applyingLocalChange)
-            messages.forEach(message => node.send([null, message]))
-          }
-
           // S2 power measurement: when any tracked property changes, emit a snapshot of all tracked
           // values. Check every item: calculated values (e.g. energy) can come before the power.
           const measuredPropChanged = ifaceDesc.__s2PowerMeasurementProps && data.some(([path, fields]) =>
@@ -790,13 +780,13 @@ module.exports = function (RED) {
               .filter(([pName]) => iface[pName] !== null && iface[pName] !== undefined)
               .map(([pName, commodityQuantity]) => ({ commodity_quantity: commodityQuantity, value: iface[pName] }))
             if (values.length > 0) {
-              ifaceDesc.__s2Send({
+              node.send([null, {
                 payload: {
                   command: 'PowerMeasurement',
                   cemId: node._s2PowerMeasurementCemId,
                   values
                 }
-              })
+              }])
             }
           }
         }
@@ -820,7 +810,7 @@ module.exports = function (RED) {
           }
         )
 
-        node.setValuesLocally = trackLocalChanges(node, setValuesLocally)
+        node.setValuesLocally = setValuesLocally
         node.emitS2Signal = emitS2Signal
 
         if (config.device === 'evcs' && !node._closed) {
