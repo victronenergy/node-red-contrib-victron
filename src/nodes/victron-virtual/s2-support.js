@@ -46,9 +46,8 @@ const TRANSPORT_DEFAULTS = {
  *   device's S2 resource settings, merged in alongside the generic S2/0/Active and S2/0/Rm
  *   transport properties.
  * @param {object} [params.resourceDefaults] - initial iface values for resourceProperties' keys.
- * @param {number} [params.outputIndex] - Zero-based output port for S2 messages.
  */
-function enableS2Support ({ config, ifaceDesc, iface, node, deviceLabel, resourceProperties = {}, resourceDefaults = {}, outputIndex = 1 }) {
+function enableS2Support ({ config, ifaceDesc, iface, node, deviceLabel, resourceProperties = {}, resourceDefaults = {} }) {
   if (!config.enable_s2support) return
 
   console.warn(`S2 support for ${deviceLabel || 'this'} virtual device is experimental.`)
@@ -59,12 +58,6 @@ function enableS2Support ({ config, ifaceDesc, iface, node, deviceLabel, resourc
   })
 
   ifaceDesc.__enableS2 = true
-  const send = (msg) => {
-    const outputs = new Array(outputIndex + 1).fill(null)
-    outputs[outputIndex] = msg
-    node.send(outputs)
-  }
-  ifaceDesc.__s2Send = send
   // Maps D-Bus property names to S2 CommodityQuantity values for power measurement reporting
   const measurementType = config.s2_measurement_type || '3_PHASE_SYMMETRIC'
   ifaceDesc.__s2PowerMeasurementProps = MEASUREMENT_TYPE_TO_PROPS[measurementType]
@@ -77,42 +70,54 @@ function enableS2Support ({ config, ifaceDesc, iface, node, deviceLabel, resourc
       // transport connection - the flow sets it once it activates one.
       node.setValuesLocally({ 'S2/0/Rm': 'CEM: ' + cemId })
       console.log('Connect received for CEM ID:', cemId, 'timeout', timeout)
-      send({
-        payload: {
-          command: 'Connect',
-          cemId,
-          keepAliveInterval: timeout
+      node.send([
+        null,
+        {
+          payload: {
+            command: 'Connect',
+            cemId,
+            keepAliveInterval: timeout
+          }
         }
-      })
+      ])
     },
     Disconnect: function (cemId) {
       node._s2PowerMeasurementActive = false
       node._s2PowerMeasurementCemId = null
       node.setValuesLocally({ 'S2/0/Active': 0, 'S2/0/Rm': '' })
-      send({
-        payload: {
-          command: 'Disconnect',
-          cemId
+      node.send([
+        null,
+        {
+          payload: {
+            command: 'Disconnect',
+            cemId
+          }
         }
-      })
+      ])
     },
     Message: function (cemId, message) {
-      send({
-        payload: {
-          command: 'Message',
-          cemId,
-          message
+      node.send([
+        null,
+        {
+          payload: {
+            command: 'Message',
+            cemId,
+            message
+          }
         }
-      })
+      ])
     },
     KeepAlive: function (cemId) {
       console.log('KeepAlive received for CEM ID:', cemId)
-      send({
-        payload: {
-          command: 'KeepAlive',
-          cemId
+      node.send([
+        null,
+        {
+          payload: {
+            command: 'KeepAlive',
+            cemId
+          }
         }
-      })
+      ])
       // D-Bus method must return a value - return true to indicate RM is alive
       return true
     }

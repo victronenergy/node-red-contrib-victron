@@ -12,8 +12,7 @@ const unitFormat = (unit, digits) => (v) => v != null ? v.toFixed(digits) + unit
 // Nothing is readonly: dbus-victron-virtual would then also reject writes from the node input.
 const chargingControlProperties = {
   Mode: { type: 'i', format: enumFormat({ 0: 'Manual', 1: 'Auto', 2: 'Scheduled' }), persist: true },
-  // Persisted: the control output compares GX writes with the last value, so a reset to 0 after
-  // a reconnect would drop a Stop while the real charger is still charging.
+  // Persisted, so a restart doesn't reset a Stop to 0 while the real charger is still charging.
   StartStop: { type: 'i', format: enumFormat({ 0: 'Stop', 1: 'Start' }), persist: true },
   AutoStart: { type: 'i', format: enumFormat({ 0: 'Disabled', 1: 'Enabled' }), persist: true },
   EnableDisplay: { type: 'i', format: enumFormat({ 0: 'Control disabled', 1: 'Control enabled' }), persist: true },
@@ -82,12 +81,8 @@ const STATUS_DISCONNECTED = 0
 const STATUS_CHARGING = 2
 const SESSION_KEYS = ['Session/Energy', 'Session/Time', 'ChargingTime']
 
-// Paths a GX/VRM user changes to control the charger. External changes to these are sent on
-// the node's control output so the flow can pass them on to the real charger.
-const CONTROL_PATHS = ['Mode', 'StartStop', 'AutoStart', 'EnableDisplay', 'SetCurrent', 'MinCurrent', 'MaxCurrent']
-
 // Measurement-only by default (a generic energy meter). Charging control adds the EVSE paths,
-// but no charging logic: the flow drives the real charger.
+// but no charging logic: the flow acts on them.
 function isChargingControl (config) {
   return !!config?.evcs_charging_control
 }
@@ -123,18 +118,15 @@ function initialize (config, ifaceDesc, iface, node) {
   }
 
   // Opportunity Loads only needs /S2/0/Rm, Dynamic ESS also needs charging control (/Mode Auto).
-  // S2 goes on the last output, after Control when that is enabled. enable_s2support is shared
-  // by all device types, so a node switched to EV charger can carry it from another type; only
-  // the saved output count shows the user chose S2 here.
-  const s2OutputIndex = isChargingControl(config) ? 2 : 1
-  if (Number(config.outputs) > s2OutputIndex) {
+  // enable_s2support is shared by all device types, so a node switched to EV charger can carry
+  // it from another type; only the saved output count shows the user chose S2 here.
+  if (Number(config.outputs) > 1) {
     enableS2Support({
       config,
       ifaceDesc,
       iface,
       node,
-      deviceLabel: 'EV charger',
-      outputIndex: s2OutputIndex
+      deviceLabel: 'EV charger'
     })
   }
 
@@ -242,34 +234,6 @@ function startSessionTimer ({ node, instance, config }) {
   return () => clearInterval(handle)
 }
 
-// items: the ItemsChanged payload, [['/Path', [['Value', [type, value]], ['Text', ...]]], ...]
-function controlOutputMessages (items) {
-  const messages = []
-  for (const [path, fields] of items) {
-    if (!CONTROL_PATHS.includes(path.replace(/^\//, ''))) continue
-    const [type, value] = fields[0][1]
-    // dbus-victron-virtual sends null as an empty 'ai' array
-    messages.push({ topic: path, payload: type === 'ai' && Array.isArray(value) && value.length === 0 ? null : value })
-  }
-  return messages
-}
-
-// dbus-victron-virtual emits ItemsChanged even when a write leaves the value unchanged, so keep
-// the last known value per control path. Local changes (from the node input) only update it.
-function createControlOutputFilter (initialValues) {
-  const lastValues = {}
-  CONTROL_PATHS.forEach(path => { lastValues[path] = initialValues[path] })
-
-  return function (messages, isLocal) {
-    return messages.filter(({ topic, payload }) => {
-      const path = topic.replace(/^\//, '')
-      const changed = lastValues[path] !== payload
-      lastValues[path] = payload
-      return changed && !isLocal
-    })
-  }
-}
-
 // Registers as com.victronenergy.evcharger on D-Bus - see minimal-meter.js.
 function getServiceType () {
   return 'evcharger'
@@ -289,8 +253,6 @@ module.exports = {
   isAutoSession,
   sessionTick,
   startSessionTimer,
-  controlOutputMessages,
-  createControlOutputFilter,
   label: 'EV charger',
   supportsS2: true
 }

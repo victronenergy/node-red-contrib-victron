@@ -8,7 +8,6 @@ const {
   updateSwitchLivePreview,
   fetchDeviceCapabilities,
   clearUnsupportedS2,
-  evcsOutputMap,
   SWITCH_TYPE_DOCS
 } = require('./fixtures/victron-virtual-functions.cjs')
 const { createSwitchProperties } = require('../src/services/virtual-switch')
@@ -431,15 +430,13 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
     function mockEvcsChargingControl (checked) {
       const checkbox = createMockElement({ is: checked })
       const autoSessionRow = createMockElement()
-      const outputsInput = createMockElement()
       global.$.mockImplementation((selector) => {
         if (selector === 'select#node-input-device') return createMockElement({ val: 'evcs' })
         if (selector === '#node-input-evcs_charging_control' || selector === checkbox) return checkbox
         if (selector === '#evcs-auto-session-row') return autoSessionRow
-        if (selector === '#node-input-outputs') return outputsInput
         return createMockElement()
       })
-      return { checkbox, autoSessionRow, outputsInput }
+      return { checkbox, autoSessionRow }
     }
 
     test.each([true, false])('evcs auto session row visibility follows charging control (%s)', (checked) => {
@@ -448,19 +445,15 @@ describe('General victron-virtual-functions coverage (non-switch)', () => {
       expect(autoSessionRow.toggle).toHaveBeenCalledWith(checked)
     })
 
-    test('toggling evcs charging control updates the context and output count', () => {
-      const { checkbox, outputsInput, autoSessionRow } = mockEvcsChargingControl(false)
-      const context = { device: 'evcs', evcs_charging_control: false }
-      checkSelectedVirtualDevice(context)
+    test('toggling evcs charging control shows the auto session row', () => {
+      const { checkbox, autoSessionRow } = mockEvcsChargingControl(false)
+      checkSelectedVirtualDevice({ device: 'evcs' })
 
       expect(checkbox.off).toHaveBeenCalledWith('change.evcs-charging-control')
       const handler = checkbox.on.mock.calls.find(([event]) => event === 'change.evcs-charging-control')[1]
       checkbox.is.mockReturnValue(true)
       handler.call(checkbox)
 
-      expect(context.evcs_charging_control).toBe(true)
-      expect(context.outputs).toBe(2)
-      expect(outputsInput.val).toHaveBeenCalledWith(2)
       expect(autoSessionRow.toggle).toHaveBeenLastCalledWith(true)
     })
 
@@ -1379,43 +1372,5 @@ describe('clearUnsupportedS2', () => {
     clearUnsupportedS2(context, capabilities)
     expect(context.enable_s2support).toBe(false)
     expect(checkbox.prop).not.toHaveBeenCalled()
-  })
-})
-
-describe('evcsOutputMap', () => {
-  const evcs = (chargingControl, s2, outputs) => ({
-    device: 'evcs', evcs_charging_control: chargingControl, enable_s2support: s2, outputs
-  })
-
-  test('moves the S2 wire to output 3 when charging control is enabled', () => {
-    expect(evcsOutputMap(evcs(false, true, 2), evcs(true, true))).toEqual({ 0: '0', 1: '2', new1: '1' })
-  })
-
-  test('moves the S2 wire back to output 2 and drops Control when charging control is disabled', () => {
-    expect(evcsOutputMap(evcs(true, true, 3), evcs(false, true))).toEqual({ 0: '0', 1: '-1', 2: '1' })
-  })
-
-  test('adds an output for S2 without a map, so the Control wire stays', () => {
-    expect(evcsOutputMap(evcs(true, false, 2), evcs(true, true))).toBeNull()
-  })
-
-  test('drops the S2 wire when S2 is disabled', () => {
-    expect(evcsOutputMap(evcs(true, true, 3), evcs(true, false))).toEqual({ 0: '0', 1: '1', 2: '-1' })
-  })
-
-  test('only maps the outputs the node actually has', () => {
-    // enable_s2support left over from another device type: there is no S2 wire to move
-    expect(evcsOutputMap(evcs(false, true, 1), evcs(true, true))).toBeNull()
-    expect(evcsOutputMap(evcs(false, true, 1), evcs(false, false))).toBeNull()
-  })
-
-  test('returns null when no output moves', () => {
-    expect(evcsOutputMap(evcs(true, true, 3), evcs(true, true))).toBeNull()
-    expect(evcsOutputMap(evcs(false, false, 1), evcs(true, false))).toBeNull()
-  })
-
-  test('returns null for other device types', () => {
-    expect(evcsOutputMap({ device: 'acload', enable_s2support: true, outputs: 2 }, evcs(true, true))).toBeNull()
-    expect(evcsOutputMap(evcs(true, true, 3), { device: 'acload', enable_s2support: true })).toBeNull()
   })
 })

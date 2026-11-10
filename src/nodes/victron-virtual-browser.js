@@ -25,8 +25,7 @@ import {
   fetchDeviceCapabilities,
   createEditDraft,
   applyEditDraft,
-  clearUnsupportedS2,
-  evcsOutputMap
+  clearUnsupportedS2
 } from './victron-virtual-functions.js'
 import { initializeTooltips } from './victron-common.js'
 
@@ -66,8 +65,7 @@ window.__victron = {
   fetchDeviceCapabilities,
   createEditDraft,
   applyEditDraft,
-  clearUnsupportedS2,
-  evcsOutputMap
+  clearUnsupportedS2
 }
 
 // Warm canvasDeviceCapabilities as soon as this script loads rather than waiting for

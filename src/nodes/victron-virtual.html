@@ -223,13 +223,7 @@
             delete this.__editDraft;
         },
         oneditsave: function() {
-            const { validateSwitchConfig, SWITCH_TYPE_CONFIGS, updateOutputs, applyEditDraft, evcsOutputMap } = window.__victron;
-            const saved = {
-                device: this.device,
-                evcs_charging_control: this.evcs_charging_control,
-                enable_s2support: this.enable_s2support,
-                outputs: this.outputs
-            };
+            const { validateSwitchConfig, SWITCH_TYPE_CONFIGS, updateOutputs, applyEditDraft } = window.__victron;
 
             if (this.__editDraft) {
                 applyEditDraft(this, this.__editDraft);
@@ -321,11 +315,6 @@
             }
 
             updateOutputs(this, this.__deviceCapabilities || {});
-
-            // Node-RED keeps wires by port number. Toggling Control moves S2 to another port, so
-            // hand the editor a port map to move the wires along.
-            const outputMap = evcsOutputMap(saved, this);
-            if (outputMap) $('#node-input-outputs').val(JSON.stringify(outputMap));
         }
     });
 
@@ -339,7 +328,6 @@
 
 <script type="text/html" data-template-name="victron-virtual">
     <div class="victron-form">
-        <input type="hidden" id="node-input-outputs">
         <div class="form-row">
             <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
             <input type="text" id="node-input-name" placeholder="Name">
@@ -442,13 +430,13 @@
             <div class="form-row victron-checkbox">
                 <input type="checkbox" id="node-input-evcs_charging_control">
                 <label for="node-input-evcs_charging_control">Charging control
-                    <i class="fa fa-info-circle tooltip-icon" data-tooltip="Adds the EV charger control paths (mode, start/stop, current, status, session). Changes made from the GX or VRM are sent on a second output, so your flow can pass them on to the real charger."></i>
+                    <i class="fa fa-info-circle tooltip-icon" data-tooltip="Adds the EV charger control paths (mode, start/stop, current, status, session). Read them with an EV charger input node to act on changes made from the GX or VRM."></i>
                 </label>
             </div>
             <div class="form-row victron-checkbox" id="evcs-auto-session-row">
                 <input type="checkbox" id="node-input-evcs_auto_session">
                 <label for="node-input-evcs_auto_session">Auto-calculate session energy and time
-                    <i class="fa fa-info-circle tooltip-icon" data-tooltip="While Status is Charging, integrates Ac/Power into Session/Energy and counts Session/Time. Both reset when a car is plugged in (Status leaves Disconnected)."></i>
+                    <i class="fa fa-info-circle tooltip-icon" data-tooltip="Session/Energy follows Ac/Energy/Forward from the moment a car is plugged in, Session/Time counts while Status is Charging. Both reset when a car is plugged in (Status leaves Disconnected)."></i>
                 </label>
             </div>
         </div>
@@ -938,24 +926,24 @@ By default it only reports measurements (power, voltage, current, energy).
 Enable "Charging control" to also expose the charger paths from the Venus OS
 D-Bus specification: `/Mode`, `/StartStop`, `/AutoStart`, `/EnableDisplay`,
 `/Current`, `/SetCurrent`, `/MinCurrent`, `/MaxCurrent`, `/Status`,
-`/Session/*` and `/Model`. The node does not simulate a charger. Your flow
-reports the real charger's state (e.g. `/Status`, `/Current`), and when a
-control path is changed from the GX, VRM, Modbus TCP or MQTT, the new value is
-sent on the second output as `{ topic: "/StartStop", payload: 1 }` so the flow
-can pass it on to the real charger. Values set through the node's own input are
-not sent there, and neither is a write of the value a path already has. So when
-the real charger does not follow a command, report its actual state back (e.g.
-`/StartStop`), otherwise repeating that command from the GX sends nothing.
+`/Session/*` and `/Model`. The node has no charging logic of its own: the flow
+sets the state (e.g. `/Status`, `/Current`) and acts on the control paths. To
+act on a change from the GX, VRM, Modbus TCP or MQTT, read the control path
+with an EV charger input node on this virtual charger (a custom input node for
+`/AutoStart` and `/MinCurrent`). That node also reports the values the flow
+itself sets.
 
-With "Auto-calculate session energy and time", `/Session/Energy` and
-`/Session/Time` count up while `/Status` is 2 (Charging), and reset when a car
-is plugged in (`/Status` changes away from 0, Disconnected).
+With "Auto-calculate session energy and time", `/Session/Energy` follows
+`/Ac/Energy/Forward` from the moment a car is plugged in (`/Status` changes
+away from 0, Disconnected), and `/Session/Time` counts while `/Status` is 2
+(Charging). Both reset when a car is plugged in. The session energy needs
+`/Ac/Energy/Forward`: enable "Auto-calculate energy" or send the charger's own
+energy counter.
 
 With "S2 support", the EV charger can be controlled by Opportunity Loads and
-Dynamic ESS on the GX. The S2 messages are sent on the last output, after the
-"Control" output when charging control is enabled. Dynamic ESS also needs
-charging control, and only uses the charger while `/Mode` is 1 (Auto). Note
-that the S2 support is experimental and subject to change.
+Dynamic ESS on the GX. The S2 messages are sent on the second output. Dynamic
+ESS also needs charging control, and only uses the charger while `/Mode` is 1
+(Auto). Note that the S2 support is experimental and subject to change.
 
 ### Heat pump
 
