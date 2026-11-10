@@ -233,7 +233,7 @@ function sessionTick ({ instance, config }) {
 }
 
 // Returns a stop function, or null when auto session is off.
-function startSessionTimer ({ node, instance, config }) {
+function startSessionTimerIfAutoSession ({ node, instance, config }) {
   if (!isAutoSession(config)) return null
   const handle = setInterval(() => {
     const changes = sessionTick({ instance, config })
@@ -265,7 +265,7 @@ module.exports = {
   isChargingControl,
   isAutoSession,
   sessionTick,
-  startSessionTimer,
+  startSessionTimerIfAutoSession,
   label: 'EV charger',
   supportsS2: true
 }

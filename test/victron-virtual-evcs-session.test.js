@@ -265,7 +265,7 @@ describe('evcs.sessionTick', () => {
   })
 })
 
-describe('evcs.startSessionTimer', () => {
+describe('evcs.startSessionTimerIfAutoSession', () => {
   beforeEach(() => jest.useFakeTimers({ now: 1_000_000 }))
   afterEach(() => jest.useRealTimers())
 
@@ -280,7 +280,7 @@ describe('evcs.startSessionTimer', () => {
     const instance = { Status: 2, 'Ac/Power': 0, 'Session/Energy': 0, 'Session/Time': 0, ChargingTime: 0 }
     const node = makeNode(instance)
     evcs.onPropertiesChanged({ changes: {}, instance, config: CONFIG })
-    const stop = evcs.startSessionTimer({ node, instance, config: CONFIG })
+    const stop = evcs.startSessionTimerIfAutoSession({ node, instance, config: CONFIG })
 
     jest.advanceTimersByTime(10_000)
     expect(instance['Session/Time']).toBe(10)
@@ -292,7 +292,7 @@ describe('evcs.startSessionTimer', () => {
   test('does not write while not charging', () => {
     const instance = { Status: 1, 'Session/Time': 0 }
     const node = makeNode(instance)
-    const stop = evcs.startSessionTimer({ node, instance, config: CONFIG })
+    const stop = evcs.startSessionTimerIfAutoSession({ node, instance, config: CONFIG })
     jest.advanceTimersByTime(30_000)
     expect(node.setValuesLocally).not.toHaveBeenCalled()
     stop()
@@ -302,14 +302,14 @@ describe('evcs.startSessionTimer', () => {
     const instance = { Status: 2, 'Ac/Power': 0, 'Session/Time': 0 }
     const node = makeNode(instance)
     evcs.onPropertiesChanged({ changes: {}, instance, config: CONFIG })
-    const stop = evcs.startSessionTimer({ node, instance, config: CONFIG })
+    const stop = evcs.startSessionTimerIfAutoSession({ node, instance, config: CONFIG })
     stop()
     jest.advanceTimersByTime(30_000)
     expect(node.setValuesLocally).not.toHaveBeenCalled()
   })
 
   test('is not started without auto session', () => {
-    expect(evcs.startSessionTimer({ node: makeNode({}), instance: {}, config: { evcs_charging_control: true } })).toBeNull()
+    expect(evcs.startSessionTimerIfAutoSession({ node: makeNode({}), instance: {}, config: { evcs_charging_control: true } })).toBeNull()
   })
 
   test('reports a failed write as a node error', () => {
@@ -317,7 +317,7 @@ describe('evcs.startSessionTimer', () => {
     const node = makeNode(instance)
     node.setValuesLocally.mockImplementation(() => { throw new Error('boom') })
     evcs.onPropertiesChanged({ changes: {}, instance, config: CONFIG })
-    const stop = evcs.startSessionTimer({ node, instance, config: CONFIG })
+    const stop = evcs.startSessionTimerIfAutoSession({ node, instance, config: CONFIG })
     jest.advanceTimersByTime(10_000)
     expect(node.error).toHaveBeenCalledWith(expect.stringContaining('boom'))
     stop()

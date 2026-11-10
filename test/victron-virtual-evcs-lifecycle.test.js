@@ -72,7 +72,7 @@ describe('EV charger session timer lifecycle', () => {
     dbus.createClient.mockImplementation(() => mockBus())
     addVictronInterfaces.mockImplementation(() => ({ setValuesLocally: jest.fn(), emitS2Signal: jest.fn(), getValue: jest.fn(), removeSettings: jest.fn() }))
     stops = []
-    jest.spyOn(evcs, 'startSessionTimer').mockImplementation(() => {
+    jest.spyOn(evcs, 'startSessionTimerIfAutoSession').mockImplementation(() => {
       const stop = jest.fn()
       stops.push(stop)
       return stop
@@ -91,7 +91,7 @@ describe('EV charger session timer lifecycle', () => {
     addSettings.mockResolvedValue(SETTINGS_RESULT)
     createNode(persistLocation)
     await flush()
-    expect(evcs.startSessionTimer).toHaveBeenCalledTimes(1)
+    expect(evcs.startSessionTimerIfAutoSession).toHaveBeenCalledTimes(1)
   })
 
   test('does not start a timer when the node closed during setup', async () => {
@@ -104,7 +104,7 @@ describe('EV charger session timer lifecycle', () => {
     resolveSettings(SETTINGS_RESULT)
     await flush()
 
-    expect(evcs.startSessionTimer).not.toHaveBeenCalled()
+    expect(evcs.startSessionTimerIfAutoSession).not.toHaveBeenCalled()
   })
 
   test('stops the old timer on a reconnect, also when the new setup fails', async () => {
