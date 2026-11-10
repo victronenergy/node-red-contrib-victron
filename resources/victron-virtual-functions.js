@@ -958,7 +958,7 @@
 	    `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li><li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the stepped value</li></ol></div>`
 	  ),
 	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN]: createDocTemplate(
-	    `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; holds selected option. ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Settings/Labels</code> &mdash; defines the labels as a string array: <tt>["Label 1", "Label 2", "Label 3"]</tt>. Mandatory for this type.</li></ul></div>`,
+	    `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; holds selected option. ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Settings/Labels</code> &mdash; defines the labels as a string array: <tt>["Label 1", "Label 2", "Label 3"]</tt>. Mandatory for this type. Up to five options that fit are shown inline as a segmented control, otherwise as a dropdown list; when shown as segments a first option <tt>/off</tt> is drawn in the off colour. Known keywords starting with <tt>/</tt> such as <tt>/off</tt>, <tt>/low</tt> or <tt>/high</tt> are translated by the GUI.</li></ul></div>`,
 	    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>Selected</code> &mdash; <tt>msg.payload</tt> contains the index of the selected option (<tt>0</tt> for the first item in the list)</li></ol></div>'
 	  ),
 	  [victronVirtualConstantsExports.SWITCH_TYPE_MAP.BASIC_SLIDER]: createDocTemplate(
@@ -1638,6 +1638,9 @@
 	        // Watch count field changes
 	        $('#node-input-switch_1_count').on('change', () => {
 	          renderDropdownLabels(labelsContext);
+	          // the rows were rebuilt: re-attach the live preview to the new inputs
+	          $('#switch-1-pairs-container input').on('input', updateSwitchLivePreview);
+	          updateSwitchLivePreview();
 	        });
 	      }
 
@@ -1679,7 +1682,7 @@
 	      $('#node-input-switch_1_unit').on('input', updateSwitchLivePreview);
 	    }
 	    if (Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN) {
-	      $('#node-input-switch_1_value_0').on('input', updateSwitchLivePreview);
+	      $('#switch-1-pairs-container input').on('input', updateSwitchLivePreview);
 	    }
 	    if (Number(type) === victronVirtualConstantsExports.SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) {
 	      $('#node-input-switch_1_min, #node-input-switch_1_max').on('input', updateSwitchLivePreview);
@@ -2277,6 +2280,7 @@
 	const SVG_COLOR_SEPARATOR = '#E6E5E1';
 	const SVG_COLOR_CTRL_BG = '#BBCEE0';
 	const SVG_COLOR_ACTIVE = '#387DC5';
+	const SVG_COLOR_CTRL_BG_OFF = '#74A4D6'; // highlighted off state, as the GUI draws an off toggle
 	const SVG_ACTIVE_FILL_OPACITY = 0.7;
 	const SVG_COLOR_TEMP_COLD = '#5991CE';
 	const SVG_COLOR_TEMP_MID = '#7E6EB7';
@@ -2458,18 +2462,22 @@ ${dots.join('\n')}`
 	const STEPS_LABEL_CHAR_W = 7;
 	const STEPS_LABEL_PADDING = 8;
 
-	function buildStepsControl (steps, stepLabels = []) {
-	  const stepsCount = Math.max(STEPS_MIN_COUNT, Math.min(victronVirtualConstantsExports.STEPPED_DEFAULT_MAX, steps));
-	  const count = stepsCount + 1; // +1 for the implicit "Off" segment at position 0
+	// Up to this many options a dropdown is shown inline as segments, provided every label fits
+	const DROPDOWN_SEGMENTS_MAX = 5;
+
+	/**
+	 * Equal segments with one highlighted, as the GUIs draw a stepped switch or a short dropdown.
+	 *
+	 * @param {string[]} texts - one text per segment
+	 * @param {number} highlightIdx - segment drawn as active
+	 * @param {number} offIdx - segment representing an off state, drawn dimmer when highlighted
+	 */
+	function buildSegmentsControl (texts, highlightIdx, offIdx = -1) {
+	  const count = texts.length;
 	  const sectionW = SWITCH_CTL_W / count;
-	  // stepLabels is indexed by step (1-based, like /Settings/Labels); entry 0 is ignored
-	  const labelFor = (i) => (typeof stepLabels[i] === 'string' ? stepLabels[i].trim() : '');
-	  const labelsFit = [...Array(stepsCount).keys()].every(k => labelFor(k + 1).length * STEPS_LABEL_CHAR_W <= sectionW - STEPS_LABEL_PADDING);
-	  // A named Off state makes the control single-choice: preview it in the off position
-	  const offLabel = labelFor(0);
-	  const highlightIdx = offLabel ? 0 : Math.min(1, count - 1);
 	  const highlightX = Math.round(SWITCH_CTL_X + highlightIdx * sectionW);
 	  const highlightW = Math.round(sectionW);
+	  const highlightFill = highlightIdx === offIdx ? SVG_COLOR_CTRL_BG_OFF : SVG_COLOR_ACTIVE;
 	  const dividers = [];
 	  const labels = [];
 	  for (let i = 1; i < count; i++) {
@@ -2478,20 +2486,49 @@ ${dots.join('\n')}`
 	  }
 	  for (let i = 0; i < count; i++) {
 	    const segMidX = Math.round(SWITCH_CTL_X + i * sectionW + sectionW / 2);
-	    const label = i === 0
-	      ? escape((offLabel || 'Off').substring(0, Math.max(3, Math.floor((sectionW - STEPS_LABEL_PADDING) / STEPS_LABEL_CHAR_W))))
-	      : (labelsFit && labelFor(i) ? escape(labelFor(i)) : String(i));
 	    const textFill = i === highlightIdx ? 'white' : SVG_COLOR_TEXT;
-	    labels.push(`<text x="${segMidX}" y="${SWITCH_CTL_TEXT_Y}" text-anchor="middle" font-family="${SVG_FONT}" font-size="13" fill="${textFill}">${label}</text>`);
+	    labels.push(`<text x="${segMidX}" y="${SWITCH_CTL_TEXT_Y}" text-anchor="middle" font-family="${SVG_FONT}" font-size="13" fill="${textFill}">${escape(texts[i])}</text>`);
 	  }
 	  return `<defs><clipPath id="sw-ctrl-clip"><rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${SWITCH_CTL_W}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}"/></clipPath></defs>
 <rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${SWITCH_CTL_W}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}" fill="${SVG_COLOR_CTRL_BG}" stroke="${SVG_COLOR_ACTIVE}" stroke-width="2"/>
-<rect x="${highlightX}" y="${SWITCH_CTL_Y}" width="${highlightW}" height="${SWITCH_CTL_H}" fill="${SVG_COLOR_ACTIVE}" clip-path="url(#sw-ctrl-clip)"/>
+<rect x="${highlightX}" y="${SWITCH_CTL_Y}" width="${highlightW}" height="${SWITCH_CTL_H}" fill="${highlightFill}" clip-path="url(#sw-ctrl-clip)"/>
 ${dividers.join('\n')}
 ${labels.join('\n')}`
 	}
 
-	function buildDropdownControl (firstLabel) {
+	// Rough check of the GUI rule that labels are only shown when every one fits its segment
+	function segmentLabelsFit (texts) {
+	  const sectionW = SWITCH_CTL_W / texts.length;
+	  return texts.every(text => text.length * STEPS_LABEL_CHAR_W <= sectionW - STEPS_LABEL_PADDING)
+	}
+
+	function buildStepsControl (steps, stepLabels = []) {
+	  const stepsCount = Math.max(STEPS_MIN_COUNT, Math.min(victronVirtualConstantsExports.STEPPED_DEFAULT_MAX, steps));
+	  const count = stepsCount + 1; // +1 for the "Off" segment at position 0
+	  const sectionW = SWITCH_CTL_W / count;
+	  // stepLabels is indexed by step (1-based, like /Settings/Labels); entry 0 names the Off state
+	  const labelFor = (i) => (typeof stepLabels[i] === 'string' ? stepLabels[i].trim() : '');
+	  const stepTexts = [...Array(stepsCount).keys()].map(k => labelFor(k + 1));
+	  // The Off segment is part of the row (it is truncated rather than causing the fallback)
+	  const labelsFit = segmentLabelsFit(['', ...stepTexts.map((text, k) => text || String(k + 1))]);
+	  // A named Off state makes the control single-choice: preview it in the off position
+	  const offLabel = labelFor(0);
+	  const highlightIdx = offLabel ? 0 : Math.min(1, count - 1);
+	  const texts = [
+	    (offLabel || 'Off').substring(0, Math.max(3, Math.floor((sectionW - STEPS_LABEL_PADDING) / STEPS_LABEL_CHAR_W))),
+	    ...stepTexts.map((text, k) => (labelsFit && text ? text : String(k + 1)))
+	  ];
+	  return buildSegmentsControl(texts, highlightIdx, offLabel ? 0 : -1)
+	}
+
+	function buildDropdownControl (labels) {
+	  const texts = (Array.isArray(labels) ? labels : [labels]).map(label => (typeof label === 'string' ? label.trim() : ''));
+	  // A few short options are shown inline as segments, with a first "/off" option drawn as the off state.
+	  // Options still being typed (empty) are previewed as the list.
+	  if (texts.length >= 1 && texts.length <= DROPDOWN_SEGMENTS_MAX && texts.every(Boolean) && segmentLabelsFit(texts)) {
+	    return buildSegmentsControl(texts, 0, texts[0] === '/off' ? 0 : -1)
+	  }
+	  const firstLabel = texts[0];
 	  const text = firstLabel ? escape(firstLabel.substring(0, 20)) : 'Option 1';
 	  const chevX = SWITCH_CTL_RIGHT - 20;
 	  const chevMidY = SWITCH_CTL_Y + Math.round(SWITCH_CTL_H / 2);
@@ -2622,8 +2659,12 @@ ${labels.join('\n')}`
 	      break
 	    }
 	    case victronVirtualConstantsExports.SWITCH_TYPE_MAP.DROPDOWN: {
-	      const firstLabel = $('#node-input-switch_1_value_0').val() || '';
-	      controlSvg = buildDropdownControl(firstLabel);
+	      const count = parseInt($('#node-input-switch_1_count').val(), 10) || 2;
+	      const labels = [];
+	      for (let j = 0; j < count; j++) {
+	        labels.push($(`#node-input-switch_1_value_${j}`).val() || '');
+	      }
+	      controlSvg = buildDropdownControl(labels);
 	      break
 	    }
 	    case victronVirtualConstantsExports.SWITCH_TYPE_MAP.BASIC_SLIDER: {
