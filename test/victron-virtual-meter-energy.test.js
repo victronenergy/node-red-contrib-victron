@@ -3,79 +3,101 @@ const { accumulateMeterEnergy } = require('../src/nodes/victron-virtual/device-t
 
 const HOUR = 3600 * 1000
 
-describe('accumulateMeterEnergy', () => {
-  const now = 10 * HOUR
+// Applies an update the way setValuesLocally does: calculate, then store the result
+function createMeter (phases, initial = {}) {
+  const instance = { ...initial }
+  return {
+    instance,
+    update (hours, values) {
+      const changes = { ...values }
+      accumulateMeterEnergy({ changes, instance, phases, now: hours * HOUR })
+      Object.assign(instance, changes)
+      return changes
+    }
+  }
+}
 
-  test('sets the timestamp on the first power reading without adding energy', () => {
-    const instance = { 'Ac/L1/Power': 500 }
-    const changes = { 'Ac/L1/Power': 500 }
-    accumulateMeterEnergy({ changes, instance, phases: [1], now })
+describe('accumulateMeterEnergy', () => {
+  test('adds no energy on the first power reading', () => {
+    const meter = createMeter([1])
+    const changes = meter.update(0, { 'Ac/L1/Power': 500 })
     expect(changes['Ac/L1/Energy/Forward']).toBeUndefined()
-    expect(instance._lastL1PowerTimestamp).toBe(now)
+    expect(changes['Ac/Energy/Forward']).toBeUndefined()
   })
 
   test('integrates the previous phase power over the elapsed time', () => {
-    const instance = { 'Ac/L1/Power': 500, 'Ac/L1/Energy/Forward': 0, _lastL1PowerTimestamp: now - HOUR }
-    const changes = { 'Ac/L1/Power': 800 }
-    accumulateMeterEnergy({ changes, instance, phases: [1], now })
+    const meter = createMeter([1])
+    meter.update(0, { 'Ac/L1/Power': 500 })
+    const changes = meter.update(1, { 'Ac/L1/Power': 800 })
     expect(changes['Ac/L1/Energy/Forward']).toBeCloseTo(0.5, 5)
     expect(changes['Ac/Energy/Forward']).toBeCloseTo(0.5, 5)
   })
 
-  test('sets the total as the sum of all phases, including phases not in this update', () => {
-    const instance = {
-      'Ac/L1/Power': 300,
-      'Ac/L1/Energy/Forward': 1.0,
-      'Ac/L2/Energy/Forward': 2.0,
-      'Ac/L3/Energy/Forward': 3.0,
-      _lastL1PowerTimestamp: now - HOUR
-    }
-    const changes = { 'Ac/L1/Power': 300 }
-    accumulateMeterEnergy({ changes, instance, phases: [1, 2, 3], now })
-    expect(changes['Ac/L1/Energy/Forward']).toBeCloseTo(1.3, 5)
-    expect(changes['Ac/Energy/Forward']).toBeCloseTo(6.3, 5)
+  test('counts every phase, also when the phases arrive in separate messages', () => {
+    const meter = createMeter([1, 2, 3])
+    meter.update(0, { 'Ac/L1/Power': 1000, 'Ac/L2/Power': 1000, 'Ac/L3/Power': 1000 })
+    meter.update(1, { 'Ac/L1/Power': 1000 })
+    meter.update(2, { 'Ac/L2/Power': 1000 })
+    expect(meter.instance['Ac/L1/Energy/Forward']).toBeCloseTo(2, 5)
+    expect(meter.instance['Ac/L2/Energy/Forward']).toBeCloseTo(2, 5)
+    expect(meter.instance['Ac/L3/Energy/Forward']).toBeCloseTo(2, 5)
+    expect(meter.instance['Ac/Energy/Forward']).toBeCloseTo(6, 5)
   })
 
   test('only touches the given phases', () => {
-    const instance = { 'Ac/L1/Power': 500, 'Ac/L3/Power': 500, _lastL1PowerTimestamp: now - HOUR, _lastL3PowerTimestamp: now - HOUR }
-    const changes = { 'Ac/L1/Power': 500, 'Ac/L3/Power': 500 }
-    accumulateMeterEnergy({ changes, instance, phases: [3], now })
+    const meter = createMeter([3])
+    meter.update(0, { 'Ac/L1/Power': 500, 'Ac/L3/Power': 500 })
+    const changes = meter.update(1, { 'Ac/L1/Power': 500, 'Ac/L3/Power': 500 })
     expect(changes['Ac/L3/Energy/Forward']).toBeCloseTo(0.5, 5)
     expect(changes['Ac/L1/Energy/Forward']).toBeUndefined()
   })
 
-  test('falls back to Ac/Power when no phase power is in the update', () => {
-    const instance = { 'Ac/Power': 1000, 'Ac/Energy/Forward': 2, _lastPowerTimestamp: now - HOUR }
-    const changes = { 'Ac/Power': 1000 }
-    accumulateMeterEnergy({ changes, instance, phases: [1], now })
+  test('integrates Ac/Power when the flow reports no phase power', () => {
+    const meter = createMeter([1], { 'Ac/Energy/Forward': 2 })
+    meter.update(0, { 'Ac/Power': 1000 })
+    const changes = meter.update(1, { 'Ac/Power': 1000 })
     expect(changes['Ac/Energy/Forward']).toBeCloseTo(3, 5)
   })
 
-  test('does not count Ac/Power on top of the phase powers', () => {
-    const instance = {
-      'Ac/Power': 1000,
-      'Ac/L1/Power': 1000,
-      'Ac/Energy/Forward': 0,
-      'Ac/L1/Energy/Forward': 0,
-      _lastPowerTimestamp: now - HOUR,
-      _lastL1PowerTimestamp: now - HOUR
-    }
-    const changes = { 'Ac/Power': 1000, 'Ac/L1/Power': 1000 }
-    accumulateMeterEnergy({ changes, instance, phases: [1], now })
-    expect(changes['Ac/Energy/Forward']).toBeCloseTo(1.0, 5)
+  test('does not count Ac/Power on top of the phase powers in the same message', () => {
+    const meter = createMeter([1])
+    meter.update(0, { 'Ac/Power': 1000, 'Ac/L1/Power': 1000 })
+    const changes = meter.update(1, { 'Ac/Power': 1000, 'Ac/L1/Power': 1000 })
+    expect(changes['Ac/Energy/Forward']).toBeCloseTo(1, 5)
   })
 
-  test('keeps the Ac/Power timestamp current while phase powers drive the total', () => {
-    const instance = { 'Ac/Power': 500, 'Ac/L1/Power': 500, _lastPowerTimestamp: now - 10 * HOUR, _lastL1PowerTimestamp: now - HOUR }
-    accumulateMeterEnergy({ changes: { 'Ac/Power': 500, 'Ac/L1/Power': 500 }, instance, phases: [1], now })
-    expect(instance._lastPowerTimestamp).toBe(now)
+  // Review on #616: the total was replaced by the sum of phase counters that were never used
+  test('keeps the total accumulated from Ac/Power when the flow switches to phase powers', () => {
+    const meter = createMeter([1])
+    meter.update(0, { 'Ac/Power': 1000 })
+    meter.update(5, { 'Ac/Power': 1000 })
+    meter.update(6, { 'Ac/L1/Power': 1000 })
+    const changes = meter.update(7, { 'Ac/L1/Power': 1000 })
+    expect(changes['Ac/Energy/Forward']).toBeCloseTo(7, 5)
+  })
+
+  // Review on #616: an interval was counted by the phases and again by Ac/Power
+  test('counts each interval once when phase and total power updates alternate', () => {
+    const meter = createMeter([1])
+    meter.update(0, { 'Ac/Power': 1000, 'Ac/L1/Power': 1000 })
+    meter.update(1, { 'Ac/L1/Power': 1000 })
+    const changes = meter.update(2, { 'Ac/Power': 1000 })
+    expect(changes['Ac/Energy/Forward']).toBeCloseTo(2, 5)
   })
 
   test('a total or phase energy from the flow wins over the calculated one', () => {
-    const instance = { 'Ac/L1/Power': 1000, 'Ac/L1/Energy/Forward': 0, _lastL1PowerTimestamp: now - HOUR }
-    const changes = { 'Ac/L1/Power': 1000, 'Ac/L1/Energy/Forward': 5, 'Ac/Energy/Forward': 99 }
-    accumulateMeterEnergy({ changes, instance, phases: [1], now })
+    const meter = createMeter([1])
+    meter.update(0, { 'Ac/L1/Power': 1000 })
+    const changes = meter.update(1, { 'Ac/L1/Power': 1000, 'Ac/L1/Energy/Forward': 5, 'Ac/Energy/Forward': 99 })
     expect(changes['Ac/L1/Energy/Forward']).toBe(5)
     expect(changes['Ac/Energy/Forward']).toBe(99)
+  })
+
+  test('ignores messages without power', () => {
+    const meter = createMeter([1])
+    meter.update(0, { 'Ac/L1/Power': 1000 })
+    meter.update(1, { 'Ac/L1/Voltage': 230 })
+    const changes = meter.update(2, { 'Ac/L1/Power': 1000 })
+    expect(changes['Ac/Energy/Forward']).toBeCloseTo(2, 5)
   })
 })

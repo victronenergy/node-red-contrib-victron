@@ -1,34 +1,31 @@
 const { accumulateDelta } = require('../../energy-utils')
 
-// Same calculation as the AC load and heat pump auto energy. phases are the physical phase
-// numbers the meter reports on (a single-phase meter can be wired to L2 or L3).
+// phases are the physical phase numbers the meter reports on (a single-phase meter can be wired
+// to L2 or L3). A flow can report phase powers, Ac/Power or both, and switch between them. Each
+// interval since the previous power update is integrated once, with the source that reported
+// during it; when a message has both, the phase powers are used.
 function accumulateMeterEnergy ({ changes, instance, phases, now }) {
-  let anyPhaseUpdated = false
-  let phaseTotal = 0
+  const phaseKeys = phases.map(phase => ({ power: `Ac/L${phase}/Power`, energy: `Ac/L${phase}/Energy/Forward` }))
+  const phaseUpdate = phaseKeys.some(({ power }) => power in changes)
+  if (!phaseUpdate && !('Ac/Power' in changes)) return
 
-  for (const phase of phases) {
-    const powerKey = `Ac/L${phase}/Power`
-    const energyKey = `Ac/L${phase}/Energy/Forward`
-    const tsKey = `_lastL${phase}PowerTimestamp`
-    if (powerKey in changes) {
-      accumulateDelta({ changes, instance, energyKey, oldPower: instance[powerKey], lastTs: instance[tsKey], now })
-      instance[tsKey] = now
-      anyPhaseUpdated = true
+  const lastTs = instance._lastPowerTimestamp
+  if (instance._powerSource === 'phases') {
+    // Add to the total instead of summing the phases, so a total counted from Ac/Power is kept
+    let added = 0
+    for (const { power, energy } of phaseKeys) {
+      accumulateDelta({ changes, instance, energyKey: energy, oldPower: instance[power], lastTs, now })
+      if (energy in changes) added += changes[energy] - (instance[energy] || 0)
     }
-    phaseTotal += energyKey in changes ? changes[energyKey] : (instance[energyKey] || 0)
-  }
-
-  if (anyPhaseUpdated && !('Ac/Energy/Forward' in changes)) {
-    changes['Ac/Energy/Forward'] = phaseTotal
-  }
-
-  if ('Ac/Power' in changes) {
-    if (!anyPhaseUpdated) {
-      accumulateDelta({ changes, instance, energyKey: 'Ac/Energy/Forward', oldPower: instance['Ac/Power'], lastTs: instance._lastPowerTimestamp, now })
+    if (added !== 0 && !('Ac/Energy/Forward' in changes)) {
+      changes['Ac/Energy/Forward'] = (instance['Ac/Energy/Forward'] || 0) + added
     }
-    // Always update; prevents stale-delta spike when switching from per-phase to total-power reporting.
-    instance._lastPowerTimestamp = now
+  } else if (instance._powerSource === 'total') {
+    accumulateDelta({ changes, instance, energyKey: 'Ac/Energy/Forward', oldPower: instance['Ac/Power'], lastTs, now })
   }
+
+  instance._lastPowerTimestamp = now
+  instance._powerSource = phaseUpdate ? 'phases' : 'total'
 }
 
 module.exports = { accumulateMeterEnergy }
