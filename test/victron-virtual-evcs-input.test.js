@@ -42,8 +42,27 @@ describe('evcs payloads through the debounced node input', () => {
       input(payload)
       jest.advanceTimersByTime(DELAY)
     }
-    return { input, send, iface }
+    return { input, send, iface, node }
   }
+
+  test('a value that is not a number does not drop the rest of the message', () => {
+    const { send, iface, node } = setup({}, {})
+
+    send({ '/Ac/Power': 7200, '/Ac/L1/Voltage': 'unavailable' })
+
+    expect(iface['Ac/Power']).toBe(7200)
+    expect(node.error).toHaveBeenCalledTimes(1)
+    expect(node.error.mock.calls[0][0]).toMatch(/Ac\/L1\/Voltage/)
+  })
+
+  test('a value that is not a number does not change how the rest is calculated', () => {
+    const config = { evcs_charging_control: true, evcs_auto_session: true }
+    const { send, iface } = setup(config, { Status: 0, 'Session/Energy': 0 })
+
+    send({ '/Session/Energy': 3.2, '/Status': 2, '/Ac/L1/Voltage': 'unavailable' })
+
+    expect(iface['Session/Energy']).toBe(3.2)
+  })
 
   test('a session energy sent with a plug-in Status is kept', () => {
     const config = { evcs_charging_control: true, evcs_auto_session: true }

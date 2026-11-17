@@ -176,13 +176,23 @@ function createDebouncedSetters (node, debounce, delayMs) {
     return (value) => setGroup({ [key]: value })
   }
 
+  // setValuesLocally rejects a whole call for one value that is not a number (e.g. "unavailable"),
+  // so such a value must not reach a group or immediate call together with valid ones
+  function isNotANumber (key, value) {
+    const property = propertyOf(key)
+    const type = property?.type ?? property
+    return ['d', 'i', 'u'].includes(type) && value !== null && isNaN(Number(value))
+  }
+
   // The keys of one group in a payload are handed over together, so a debounceBoundary key
   // can't split them
   function applyInput (payload) {
     const immediate = {}
     const groups = new Map()
     for (const [key, value] of Object.entries(payload)) {
-      if (shouldApplyImmediately(key)) {
+      if (isNotANumber(key, value)) {
+        node.error(`Ignored ${key}: ${JSON.stringify(value)} is not a number`)
+      } else if (shouldApplyImmediately(key)) {
         immediate[key] = value
       } else {
         const group = groupOf(key)
