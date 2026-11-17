@@ -232,24 +232,18 @@ describe('victron-nodes conditional mode', () => {
     // Simulate a null value for the primary input
     subscribe.mock.calls[0][2]({ value: null })
 
-    // Expect primary output to still send null payload
-    expect(node.send).toHaveBeenCalledTimes(1) // Only the primary output send
-    expect(getMessageFromSendCall(node, 0, 0)).toEqual({
-      payload: null,
-      topic: 'Conditional Test Node'
-    })
-    expect(getMessageFromSendCall(node, 0, 1)).toBeNull()
-    // Expect no conditional output yet, status waiting
+    // An invalid D-Bus value is not sent to output 1 (#346), and there is no conditional output yet
+    expect(node.send).not.toHaveBeenCalled()
     expect(getLastStatusText(node)).toBe('null | waiting')
 
     // Simulate an undefined value for the primary input
     subscribe.mock.calls[0][2]({ value: undefined })
-    expect(node.send).toHaveBeenCalledTimes(2) // primary output of second input event
-    expect(getMessageFromSendCall(node, 1, 0)).toEqual({
+    expect(node.send).toHaveBeenCalledTimes(1) // primary output of the undefined input event
+    expect(getMessageFromSendCall(node, 0, 0)).toEqual({
       payload: undefined,
       topic: 'Conditional Test Node'
     })
-    expect(getMessageFromSendCall(node, 1, 1)).toBeNull()
+    expect(getMessageFromSendCall(node, 0, 1)).toBeNull()
     expect(getLastStatusText(node)).toBe('undefined | waiting')
   })
 

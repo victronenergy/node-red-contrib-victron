@@ -249,6 +249,8 @@ module.exports = function (RED) {
             }
           }
           this.node.previousvalue = msg.value
+          // An invalid D-Bus value arrives as null: show it, but don't send it to the flow (#346)
+          const isValid = msg.value !== null
 
           // Prepare raw value message
           const outmsg = {
@@ -263,11 +265,11 @@ module.exports = function (RED) {
 
           // If conditional mode is enabled, send raw value to output 1 and evaluate for output 2
           if (this.conditionalMode) {
-            this.node.send([outmsg, null]) // Send to output 1 only
+            if (isValid) this.node.send([outmsg, null]) // Send to output 1 only
             this.evaluateAndSendConditional(topic, msg.value)
           } else {
             // Normal mode: send raw value to single output
-            this.node.send(outmsg)
+            if (isValid) this.node.send(outmsg)
             if (this.configNode.showValues !== false) {
               const textValue = text && text.toString ? text : text === null || text === undefined ? 'null' : `${text}`
               this.node.status({ fill: 'green', shape: 'dot', text: textValue })

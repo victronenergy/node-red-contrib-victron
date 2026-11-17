@@ -238,12 +238,10 @@ describe('victron-nodes', () => {
       value: null
     })
 
-    // we expect the node to send a message with null payload
-    expect(node.send.mock.calls.length).toBe(2)
-    expect(node.send.mock.calls[1][0].payload).toEqual(null)
-    expect(node.send.mock.calls[1][0].topic).toEqual('Test Node')
+    // an invalid D-Bus value is not sent to the flow (#346) ...
+    expect(node.send.mock.calls.length).toBe(1)
 
-    // ... and we expect the status to be set to 'null'
+    // ... but the status does show 'null'
     expect(handleStatus.mock.calls.length).toBe(2)
     expect(handleStatus.mock.calls[1][1].text).toEqual('null')
   })
@@ -282,6 +280,29 @@ describe('victron-nodes pathObj guard', () => {
 
     expect(node.status).toHaveBeenCalledWith(expect.objectContaining({ fill: 'red' }))
     expect(publish).not.toHaveBeenCalled()
+  })
+})
+
+describe('victron-nodes invalid values (#346)', () => {
+  it('with only changes, sends a value again when it returns after being invalid', () => {
+    const { BaseInputNode, subscribe } = buildMockRED()
+
+    const node = new BaseInputNode({
+      name: 'Test',
+      service: 'com.victronenergy.solarcharger/288',
+      path: '/Relay/0/State',
+      serviceObj: { name: 'Solar charger' },
+      pathObj: { name: 'Relay' },
+      onlyChanges: true
+    })
+
+    const processMessage = subscribe.mock.calls[0][2]
+    processMessage({ value: 1 })
+    processMessage({ value: null })
+    processMessage({ value: 1 })
+
+    expect(node.send.mock.calls.map(c => c[0].payload)).toEqual([1, 1])
+    expect(node.status.mock.calls.map(c => c[0].text)).toEqual([1, 'null', 1])
   })
 })
 
