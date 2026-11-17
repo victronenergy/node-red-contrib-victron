@@ -2717,6 +2717,18 @@ ${labels.join('\n')}`
 	// so it can't turn S2 on later if that type gains S2 support.
 	function clearUnsupportedS2 (context, deviceCapabilities = {}) {
 	  if (!context.enable_s2support || deviceCapabilities[context.device]?.supportsS2) return
+	  clearS2(context);
+	}
+
+	// The EV charger had no S2 support before #616, and the runtime only enables it with the S2
+	// output saved. An S2 flag on an EV charger saved with one output was carried over from another
+	// device type, so drop it before the dialog adds the output.
+	function clearStaleEvcsS2 (context, savedOutputs) {
+	  if (context.device !== 'evcs' || !context.enable_s2support || Number(savedOutputs) > 1) return
+	  clearS2(context);
+	}
+
+	function clearS2 (context) {
 	  context.enable_s2support = false;
 	  $('#node-input-enable_s2support').prop('checked', false);
 	}
@@ -2821,7 +2833,8 @@ ${labels.join('\n')}`
 	  fetchDeviceCapabilities,
 	  createEditDraft,
 	  applyEditDraft,
-	  clearUnsupportedS2
+	  clearUnsupportedS2,
+	  clearStaleEvcsS2
 	};
 
 	// Warm canvasDeviceCapabilities as soon as this script loads rather than waiting for

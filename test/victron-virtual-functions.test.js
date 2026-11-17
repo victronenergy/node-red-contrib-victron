@@ -8,6 +8,7 @@ const {
   updateSwitchLivePreview,
   fetchDeviceCapabilities,
   clearUnsupportedS2,
+  clearStaleEvcsS2,
   SWITCH_TYPE_DOCS
 } = require('./fixtures/victron-virtual-functions.cjs')
 const { createSwitchProperties } = require('../src/services/virtual-switch')
@@ -1372,5 +1373,36 @@ describe('clearUnsupportedS2', () => {
     clearUnsupportedS2(context, capabilities)
     expect(context.enable_s2support).toBe(false)
     expect(checkbox.prop).not.toHaveBeenCalled()
+  })
+})
+
+describe('clearStaleEvcsS2', () => {
+  let checkbox
+
+  beforeEach(() => {
+    checkbox = { prop: jest.fn() }
+    global.$ = jest.fn(() => checkbox)
+  })
+
+  afterEach(() => { delete global.$ })
+
+  test('clears an S2 flag an EV charger saved with one output carried over', () => {
+    const context = { device: 'evcs', enable_s2support: true }
+    clearStaleEvcsS2(context, 1)
+    expect(context.enable_s2support).toBe(false)
+    expect(checkbox.prop).toHaveBeenCalledWith('checked', false)
+  })
+
+  test('keeps S2 on an EV charger saved with the S2 output', () => {
+    const context = { device: 'evcs', enable_s2support: true }
+    clearStaleEvcsS2(context, 2)
+    expect(context.enable_s2support).toBe(true)
+    expect(checkbox.prop).not.toHaveBeenCalled()
+  })
+
+  test('leaves other device types alone', () => {
+    const context = { device: 'acload', enable_s2support: true }
+    clearStaleEvcsS2(context, 1)
+    expect(context.enable_s2support).toBe(true)
   })
 })

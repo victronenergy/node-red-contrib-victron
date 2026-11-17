@@ -195,6 +195,7 @@
                         $('#node-input-default_values-no').prop('checked', true);
                     }
 
+                    window.__victron.clearStaleEvcsS2(draft, self.outputs);
                     updateOutputs(draft, deviceCapabilities);
                     checkSelectedVirtualDevice(draft, deviceCapabilities);
 
