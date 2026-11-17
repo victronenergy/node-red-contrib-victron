@@ -151,8 +151,14 @@ module.exports = function (RED) {
       this.subscription = null
       this.subscription2 = null
 
-      const handlerId = this.configNode.addStatusListener(this, this.service, this.path)
+      // Without its thresholds the node can never evaluate, so its error status replaces the connection status
+      let handlerId = null
       let handlerId2 = null
+      if (this.missingThresholds.length) {
+        this.status({ fill: 'red', shape: 'ring', text: 'no threshold' })
+      } else {
+        handlerId = this.configNode.addStatusListener(this, this.service, this.path)
+      }
 
       if (this.service && this.path) {
         if (mustRemoveDeviceInstanceFromService(this.service)) {
@@ -463,7 +469,7 @@ module.exports = function (RED) {
 
         // Subscribe to condition 2 if enabled
         if (this.conditionalMode && this.condition2Enabled && this.condition2Service && this.condition2Path) {
-          handlerId2 = this.configNode.addStatusListener(this, this.condition2Service, this.condition2Path)
+          if (!this.missingThresholds.length) handlerId2 = this.configNode.addStatusListener(this, this.condition2Service, this.condition2Path)
 
           this.subscription2 = this.client.subscribe(this.condition2Service, this.condition2Path, (msg) => {
             try {
@@ -517,7 +523,7 @@ module.exports = function (RED) {
         }
 
         // Remove status listeners
-        this.node.configNode.removeStatusListener(handlerId)
+        if (handlerId) this.node.configNode.removeStatusListener(handlerId)
         if (handlerId2) {
           this.node.configNode.removeStatusListener(handlerId2)
         }

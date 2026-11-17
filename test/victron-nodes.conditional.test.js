@@ -743,11 +743,13 @@ describe('victron-nodes conditional mode - hysteresis', () => {
 describe('victron-nodes conditional mode - empty thresholds', () => {
   let mockRED
   let subscribe
+  let addStatusListener
 
   beforeEach(() => {
     const mocks = createMockRED()
     mockRED = mocks.mockRED
     subscribe = mocks.subscribe
+    addStatusListener = mocks.addStatusListener
     victronNodesInitFunction(mockRED)
   })
 
@@ -782,6 +784,20 @@ describe('victron-nodes conditional mode - empty thresholds', () => {
 
     expect(conditionalOutputs(node)).toEqual([])
     expect(lastStatus(node)).toEqual({ fill: 'red', shape: 'ring', text: '10 | no threshold' })
+  })
+
+  test('shows the missing threshold at startup and registers no connection status listener', () => {
+    const node = createNode({
+      condition1Threshold: null,
+      condition2Enabled: true,
+      condition2Service: 'com.victronenergy.solarcharger',
+      condition2Path: '/Dc/0/Current',
+      condition2Operator: '>',
+      condition2Threshold: 5
+    })
+
+    expect(lastStatus(node)).toEqual({ fill: 'red', shape: 'ring', text: 'no threshold' })
+    expect(addStatusListener).not.toHaveBeenCalled()
   })
 
   test('warns once at startup about the missing thresholds', () => {
