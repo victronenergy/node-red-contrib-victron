@@ -264,7 +264,6 @@ module.exports = {
   getServiceType,
   productType,
   onPropertiesChanged,
-  isChargingControl,
   isAutoSession,
   sessionTick,
   startSessionTimerIfAutoSession,
