@@ -828,6 +828,11 @@ update all specified properties and show the number of updated values in its sta
 If you want to set a single value, you can either use this way to send that single
 path + value combination (recommended) or use the _Custom Control_ node.
 
+Energy counters (`/Ac/Energy/Forward` and the per phase `/Ac/L1/Energy/Forward`
+etc.) must be numbers. When there is no reading, leave the counter out of the
+message instead of sending `null`, or the calculated total and session energy
+go wrong.
+
 ### Device presence
 
 When the real-world device goes offline, the virtual device keeps broadcasting its last known values. To make the rest of the system aware that the device is gone, you can explicitly disconnect it from the dbus by sending `msg.connected = false`. The device will disappear from VRM and the GX display until you reconnect it with `msg.connected = true`.
