@@ -158,7 +158,7 @@ export const SWITCH_TYPE_DOCS = {
   ),
   [SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT]: createDocTemplate(
     `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; holds slider value in °C. ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Measurement</code> &mdash; holds temperature measurement, if available.<br>
-      <span style="font-size:0.95em;color:#666;">If present, the actual value will be displayed on the control.</span>
+      <span class="victron-doc-note">If present, the actual value will be displayed on the control.</span>
     </li><li><code>/SwitchableOutput/x/Settings/DimmingMin</code> defines slider minimum value. 0 will be used if omitted.</li><li><code>/SwitchableOutput/x/Settings/DimmingMax</code> defines slider maximum value. 100 will be used if omitted.</li><li><code>/SwitchableOutput/x/Settings/StepSize</code> defines stepsize. Stepsize = 1°C if omitted.</li></ul></div>`,
     '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>Temperature</code> &mdash; <tt>msg.payload</tt> contains the temperature value</li></ol></div>'
   ),
@@ -190,7 +190,7 @@ export const SWITCH_TYPE_DOCS = {
     `<div><strong>Most relevant paths:</strong><ul>
       <li><code>/SwitchableOutput/output_1/State</code> &mdash; Requested on/off state of the light.</li>
       <li><code>/SwitchableOutput/output_1/LightControls</code> &mdash; Array of 5 integers: <tt>[Hue (0-360°), Saturation (0-100%), Brightness (0-100%), White (0-100%), ColorTemperature (0-6500K)]</tt>.
-        <br><span style="font-size:0.95em;color:#666;">Array elements used depend on selected control types:<br>
+        <br><span class="victron-doc-note">Array elements used depend on selected control types:<br>
         • RGB color wheel: Hue, Saturation, Brightness<br>
         • CCT wheel: Brightness, ColorTemperature<br>
         • RGB + white dimmer: Hue, Saturation, Brightness, White</span>
