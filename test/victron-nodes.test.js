@@ -238,10 +238,11 @@ describe('victron-nodes', () => {
       value: null
     })
 
-    // an invalid D-Bus value is not sent to the flow (#346) ...
-    expect(node.send.mock.calls.length).toBe(1)
+    // a node saved before "Skip invalid" existed still sends null, now marked as invalid
+    expect(node.send.mock.calls.length).toBe(2)
+    expect(node.send.mock.calls[1][0]).toEqual({ payload: null, invalid: true, topic: 'Test Node' })
 
-    // ... but the status does show 'null'
+    // ... and we expect the status to be set to 'null'
     expect(handleStatus.mock.calls.length).toBe(2)
     expect(handleStatus.mock.calls[1][1].text).toEqual('null')
   })
@@ -283,18 +284,32 @@ describe('victron-nodes pathObj guard', () => {
   })
 })
 
-describe('victron-nodes invalid values (#346)', () => {
+describe('victron-nodes skip invalid (#346)', () => {
+  const nodeDefinition = {
+    name: 'Test',
+    service: 'com.victronenergy.solarcharger/288',
+    path: '/Relay/0/State',
+    serviceObj: { name: 'Solar charger' },
+    pathObj: { name: 'Relay' },
+    onlyChanges: true,
+    skipInvalid: true
+  }
+
+  it('does not send an invalid value, but shows it in the status', () => {
+    const { BaseInputNode, subscribe } = buildMockRED()
+    const node = new BaseInputNode(nodeDefinition)
+
+    const processMessage = subscribe.mock.calls[0][2]
+    processMessage({ value: 1 })
+    processMessage({ value: null })
+
+    expect(node.send.mock.calls.map(c => c[0])).toEqual([{ payload: 1, topic: 'Test' }])
+    expect(node.status.mock.calls.map(c => c[0].text)).toEqual([1, 'null'])
+  })
+
   it('with only changes, sends a value again when it returns after being invalid', () => {
     const { BaseInputNode, subscribe } = buildMockRED()
-
-    const node = new BaseInputNode({
-      name: 'Test',
-      service: 'com.victronenergy.solarcharger/288',
-      path: '/Relay/0/State',
-      serviceObj: { name: 'Solar charger' },
-      pathObj: { name: 'Relay' },
-      onlyChanges: true
-    })
+    const node = new BaseInputNode(nodeDefinition)
 
     const processMessage = subscribe.mock.calls[0][2]
     processMessage({ value: 1 })
@@ -302,7 +317,6 @@ describe('victron-nodes invalid values (#346)', () => {
     processMessage({ value: 1 })
 
     expect(node.send.mock.calls.map(c => c[0].payload)).toEqual([1, 1])
-    expect(node.status.mock.calls.map(c => c[0].text)).toEqual([1, 'null', 1])
   })
 })
 

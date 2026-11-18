@@ -96,6 +96,8 @@ module.exports = function (RED) {
         : 'unknown'
       this.onlyChanges = nodeDefinition.onlyChanges
       this.roundValues = nodeDefinition.roundValues
+      // Nodes saved before this option existed lack it, and keep sending null (#346)
+      this.skipInvalid = nodeDefinition.skipInvalid === true
       this.rateLimit = nodeDefinition.rateLimit || 0
       this.sentInitialValue = false
 
@@ -249,14 +251,16 @@ module.exports = function (RED) {
             }
           }
           this.node.previousvalue = msg.value
-          // An invalid D-Bus value arrives as null: show it, but don't send it to the flow (#346)
-          const isValid = msg.value !== null
+          // An invalid D-Bus value arrives as null
+          const isInvalid = msg.value === null
+          const sendValue = !(isInvalid && this.skipInvalid)
 
           // Prepare raw value message
           const outmsg = {
             payload: msg.value,
             topic
           }
+          if (isInvalid) outmsg.invalid = true
           let text = msg.value
           if (this.pathObj && this.pathObj.type === 'enum' && this.pathObj.enum) {
             outmsg.textvalue = this.pathObj.enum[msg.value] || ''
@@ -265,11 +269,11 @@ module.exports = function (RED) {
 
           // If conditional mode is enabled, send raw value to output 1 and evaluate for output 2
           if (this.conditionalMode) {
-            if (isValid) this.node.send([outmsg, null]) // Send to output 1 only
+            if (sendValue) this.node.send([outmsg, null]) // Send to output 1 only
             this.evaluateAndSendConditional(topic, msg.value)
           } else {
             // Normal mode: send raw value to single output
-            if (isValid) this.node.send(outmsg)
+            if (sendValue) this.node.send(outmsg)
             if (this.configNode.showValues !== false) {
               const textValue = text && text.toString ? text : text === null || text === undefined ? 'null' : `${text}`
               this.node.status({ fill: 'green', shape: 'dot', text: textValue })

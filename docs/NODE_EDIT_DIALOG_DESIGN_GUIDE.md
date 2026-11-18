@@ -64,6 +64,7 @@ window.__victronCommon.initializeTooltips();
 | Initial value | `fa-upload` |
 | Rounding | `fa-minus-circle` |
 | Only changes | `fa-bell` |
+| Skip invalid | `fa-ban` |
 | Rate limit | `fa-tachometer` |
 
 ## Message Box Selection

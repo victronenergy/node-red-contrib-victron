@@ -59,6 +59,10 @@
             <label for="node-input-onlyChanges"><i class="fa fa-bell"></i> Only changes <i class="fa fa-info-circle tooltip-icon" data-tooltip="Only send output on (initially not rounded) value changes and not every 5 seconds."></i></label>
             <input type="checkbox" checked id="node-input-onlyChanges">
         </div>
+        <div class="form-row hidden" id="skipInvalid">
+            <label for="node-input-skipInvalid"><i class="fa fa-ban"></i> Skip invalid <i class="fa fa-info-circle tooltip-icon" data-tooltip="Do not send a message when the value becomes invalid, for example while a device restarts. When unchecked, the node sends msg.payload = null with msg.invalid = true."></i></label>
+            <input type="checkbox" id="node-input-skipInvalid">
+        </div>
         <div class="form-row hidden" id="rateLimit">
             <label for="node-input-rateLimit"><i class="fa fa-tachometer"></i> Rate limit <i class="fa fa-info-circle tooltip-icon" data-tooltip="Limit the maximum rate of messages. Useful for high-frequency measurements like grid meters. Most measurements don't need rate limiting."></i></label>
             <select id="node-input-rateLimit">
@@ -1024,6 +1028,7 @@
                     $('#node-input-onlyChanges').removeAttr("checked");
                 }
                 $('#onlyChanges').show()
+                $('#skipInvalid').show()
                 $('#rateLimit').show()
             }
 
@@ -1217,6 +1222,8 @@
                 name: { value: "" },
                 "onlyChanges": { value: true },
                 "roundValues": { value: "no" },
+                // On for new nodes only: flows saved without it keep sending null (#346)
+                skipInvalid: { value: true },
                 "rateLimit": { value: 0 },
                 // Conditional mode properties
                 conditionalMode: { value: false },
