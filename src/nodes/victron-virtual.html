@@ -88,7 +88,12 @@
             auto_aggregate: { value: false },
             pulsemeter_multiplier: { value: 0.001, required: false },
             // ev
-            ev_vin: {value: "", required: false},
+            ev_vin: {value: "", required: false,
+                // ISO 3779. The GX uses the VIN in a settings path, which other characters break.
+                // Node-RED ignores the message unless the validator takes two arguments.
+                validate: (v, _opt) => /^([A-HJ-NPR-Z0-9]{17})?$/i.test((v || '').trim()) ||
+                    'VIN must be 17 characters: digits and letters, except I, O and Q'
+            },
             ev_brand: {value: "", required: false},
             ev_battery_capacity: {value: "", required: false},
             ev_evcs_device_instance: {value: null, required: false},

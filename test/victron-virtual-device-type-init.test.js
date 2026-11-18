@@ -21,7 +21,7 @@ function makeFixtures () {
   return {
     ifaceDesc: { properties: {} },
     iface: {},
-    node: { error: jest.fn() }
+    node: { error: jest.fn(), warn: jest.fn() }
   }
 }
 
@@ -362,6 +362,36 @@ describe('ev', () => {
       const { ifaceDesc, iface, node } = makeFixtures()
       ev.initialize({}, ifaceDesc, iface, node)
       expect(iface.VIN).toBeUndefined()
+    })
+
+    test.each([
+      ['in lower case', 'knac381b5s5628089'],
+      ['with surrounding spaces', ' KNAC381B5S5628089 ']
+    ])('publishes a VIN %s in upper case without spaces', (_desc, vin) => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      ev.initialize({ ev_vin: vin }, ifaceDesc, iface, node)
+      expect(iface.VIN).toBe('KNAC381B5S5628089')
+      expect(node.warn).not.toHaveBeenCalled()
+    })
+
+    test('treats a VIN of only spaces as not provided', () => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      ev.initialize({ ev_vin: '   ' }, ifaceDesc, iface, node)
+      expect(iface.VIN).toBeUndefined()
+      expect(node.warn).not.toHaveBeenCalled()
+    })
+
+    test.each([
+      ['a dot', '528.210008189463'],
+      ['16 characters', 'KNAC381B5S562808'],
+      ['18 characters', 'KNAC381B5S56280899'],
+      ['the letter O', 'KNAC381B5S56280O9'],
+      ['a space inside', 'KNAC381B 5S5628089']
+    ])('does not set a VIN with %s and warns', (_desc, vin) => {
+      const { ifaceDesc, iface, node } = makeFixtures()
+      ev.initialize({ ev_vin: vin }, ifaceDesc, iface, node)
+      expect(iface.VIN).toBeUndefined()
+      expect(node.warn).toHaveBeenCalledWith(expect.stringContaining(vin))
     })
 
     test('sets Brand from config', () => {
