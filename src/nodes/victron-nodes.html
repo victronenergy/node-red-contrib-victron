@@ -179,6 +179,11 @@
                     </button>
                 </div>
 
+                <div class="form-warning hidden" id="condition2-threshold-warning">
+                    <i class="fa fa-exclamation-triangle"></i>
+                    <span>Threshold value is required for the second condition.</span>
+                </div>
+
                 <!-- Logic Operator (AND/OR) -->
                 <div class="form-row victron-logic-row">
                     <label for="node-input-logicOperator">Combine with</label>
@@ -513,6 +518,7 @@
             $condition2Panel.removeClass('hidden').slideDown(200);
             $(this).parent().hide();
             updateLivePreview(); // Update preview when condition 2 is added
+            validateThreshold();
         });
 
         // Remove second condition
@@ -527,6 +533,7 @@
                 $('#node-input-condition2-threshold').val('');
                 $('input[name="logicOperator"][value="AND"]').prop('checked', true);
                 updateLivePreview(); // Re-render preview to reflect removal of condition 2
+                validateThreshold();
             });
         });
 
@@ -542,6 +549,11 @@
         const $hysteresisWarningText = $('#hysteresis-warning-text');
 
         function validateThreshold() {
+            const condition2Missing = $conditionalMode.is(':checked') &&
+                !$condition2Panel.hasClass('hidden') &&
+                $('#node-input-condition2-threshold').val() === '';
+            $('#condition2-threshold-warning').toggleClass('hidden', !condition2Missing);
+
             if (!$conditionalMode.is(':checked')) {
                 $thresholdWarning.hide();
                 return true;
@@ -1061,6 +1073,13 @@
         // Determine if this is an output node based on the node type
         const isOutputNode = node.type.includes('-output-');
 
+        // An empty field gives NaN, which a deploy would store as null. Not needed for
+        // condition1HysteresisThreshold: Node-RED overwrites it from #node-input-condition1HysteresisThreshold after oneditsave
+        const readThreshold = function (selector) {
+            const value = parseFloat($(selector).val());
+            return isNaN(value) ? undefined : value;
+        };
+
         // Save conditional mode configuration for input nodes
         if (!isOutputNode) {
             node.conditionalMode = $('#node-input-conditionalMode').is(':checked');
@@ -1068,7 +1087,7 @@
             if (node.conditionalMode) {
                 // Condition 1
                 node.condition1Operator = $('#node-input-condition1-operator').val();
-                node.condition1Threshold = parseFloat($('#node-input-condition1-threshold').val());
+                node.condition1Threshold = readThreshold('#node-input-condition1-threshold');
 
                 // Hysteresis
                 node.condition1HysteresisEnabled = $('#node-input-condition1HysteresisEnabled').is(':checked');
@@ -1084,7 +1103,7 @@
                     node.condition2Service = $('#node-input-condition2-service').val();
                     node.condition2Path = $('#node-input-condition2-path').val();
                     node.condition2Operator = $('#node-input-condition2-operator').val();
-                    node.condition2Threshold = parseFloat($('#node-input-condition2-threshold').val());
+                    node.condition2Threshold = readThreshold('#node-input-condition2-threshold');
                     node.logicOperator = $('input[name="logicOperator"]:checked').val();
 
                     // Save condition 2 service and path objects
@@ -1203,6 +1222,10 @@
         buildEditForm(nodeType, nodeLabel);
         var nodePaletteLabel = isOutputNode ? nodeLabel + ' Control' : nodeLabel;
 
+        const isThresholdSet = function (value) {
+            return value !== null && value !== undefined && value !== '' && !isNaN(Number(value));
+        };
+
         RED.nodes.registerType(nodeType, {
             category: 'Victron Energy',
             paletteLabel: nodePaletteLabel,
@@ -1221,16 +1244,23 @@
                 // Conditional mode properties
                 conditionalMode: { value: false },
                 condition1Operator: { value: ">" },
-                condition1Threshold: { value: undefined },
+                condition1Threshold: { value: undefined, validate: function (v) {
+                    return !this.conditionalMode || isThresholdSet(v);
+                } },
                 condition1HysteresisEnabled: { value: false },
-                condition1HysteresisThreshold: { value: undefined },
+                condition1HysteresisThreshold: { value: undefined, validate: function (v) {
+                    return !this.conditionalMode || !this.condition1HysteresisEnabled ||
+                        ['==', '!='].includes(this.condition1Operator) || isThresholdSet(v);
+                } },
                 condition2Enabled: { value: false },
                 condition2Service: { value: "" },
                 condition2Path: { value: "" },
                 condition2ServiceObj: { value: undefined },
                 condition2PathObj: { value: undefined },
                 condition2Operator: { value: ">" },
-                condition2Threshold: { value: undefined },
+                condition2Threshold: { value: undefined, validate: function (v) {
+                    return !this.conditionalMode || !this.condition2Enabled || isThresholdSet(v);
+                } },
                 logicOperator: { value: "AND" },
                 outputTrue: { value: "true" },
                 outputFalse: { value: "false" },
