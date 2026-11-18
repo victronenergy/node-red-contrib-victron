@@ -16,6 +16,7 @@ Input nodes allow you to read data from your Victron devices.
 - **Device Select**: Choose from available Victron devices
 - **Measurement Select**: Choose what to measure from the selected device
 - **Node Label**: Optional custom name for the node
+- **Skip invalid**: When the value becomes invalid (for example while a device restarts), send nothing and leave the global context untouched. Checked for new nodes. When unchecked, the node sends `msg.payload = null` with `msg.invalid = true`; nodes from flows made before this option existed work this way
 
 The measurement unit appears in brackets (e.g., "Battery voltage (V)"). For enumerated values, you'll see a legend below the selection.
 

@@ -295,7 +295,7 @@ describe('victron-nodes skip invalid (#346)', () => {
     skipInvalid: true
   }
 
-  it('does not send an invalid value, but shows it in the status', () => {
+  it('does not send or store an invalid value, and shows it as invalid in the status', () => {
     const { BaseInputNode, subscribe } = buildMockRED()
     const node = new BaseInputNode(nodeDefinition)
 
@@ -304,7 +304,28 @@ describe('victron-nodes skip invalid (#346)', () => {
     processMessage({ value: null })
 
     expect(node.send.mock.calls.map(c => c[0])).toEqual([{ payload: 1, topic: 'Test' }])
-    expect(node.status.mock.calls.map(c => c[0].text)).toEqual([1, 'null'])
+    expect(node.context().global.set.mock.calls.map(c => c[1])).toEqual([1])
+    expect(node.status.mock.calls.map(c => c[0])).toEqual([
+      { fill: 'green', shape: 'dot', text: 1 },
+      { fill: 'yellow', shape: 'ring', text: 'invalid' }
+    ])
+  })
+
+  it('without skip invalid, sends and stores null, without an enum text', () => {
+    const { BaseInputNode, subscribe } = buildMockRED()
+    const node = new BaseInputNode({
+      ...nodeDefinition,
+      skipInvalid: undefined,
+      pathObj: { name: 'Relay', type: 'enum', enum: { 0: 'Open', 1: 'Closed' } }
+    })
+
+    const processMessage = subscribe.mock.calls[0][2]
+    processMessage({ value: 1 })
+    processMessage({ value: null })
+
+    expect(node.send.mock.calls[1][0]).toEqual({ payload: null, invalid: true, textvalue: '', topic: 'Test' })
+    expect(node.context().global.set.mock.calls.map(c => c[1])).toEqual([1, null])
+    expect(node.status.mock.calls.map(c => c[0].text)).toEqual(['1 (Closed)', 'null'])
   })
 
   it('with only changes, sends a value again when it returns after being invalid', () => {

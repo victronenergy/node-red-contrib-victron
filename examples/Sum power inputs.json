@@ -193,6 +193,7 @@
     {
         "id": "a74e729465f1468e",
         "type": "victron-input-system",
+        "skipInvalid": true,
         "z": "f58786176192b1b7",
         "service": "com.victronenergy.system/0",
         "path": "/Ac/Grid/L1/Power",
@@ -218,6 +219,7 @@
     {
         "id": "0559245366f6d5a4",
         "type": "victron-input-system",
+        "skipInvalid": true,
         "z": "f58786176192b1b7",
         "service": "com.victronenergy.system/0",
         "path": "/Ac/Grid/L2/Power",
@@ -243,6 +245,7 @@
     {
         "id": "74a545740f24ba3f",
         "type": "victron-input-system",
+        "skipInvalid": true,
         "z": "f58786176192b1b7",
         "service": "com.victronenergy.system/0",
         "path": "/Ac/Grid/L3/Power",

@@ -148,6 +148,7 @@
     {
         "id": "1a2b3c4d5e6f0007",
         "type": "victron-input-custom",
+        "skipInvalid": true,
         "z": "1a2b3c4d5e6f0003",
         "g": "1a2b3c4d5e6f0004",
         "service": "com.victronenergy.vebus/274",
@@ -175,6 +176,7 @@
     {
         "id": "1a2b3c4d5e6f0008",
         "type": "victron-input-custom",
+        "skipInvalid": true,
         "z": "1a2b3c4d5e6f0003",
         "g": "1a2b3c4d5e6f0004",
         "service": "com.victronenergy.vebus/274",
@@ -202,6 +204,7 @@
     {
         "id": "1a2b3c4d5e6f0009",
         "type": "victron-input-custom",
+        "skipInvalid": true,
         "z": "1a2b3c4d5e6f0003",
         "g": "1a2b3c4d5e6f0004",
         "service": "com.victronenergy.vebus/274",
@@ -229,6 +232,7 @@
     {
         "id": "1a2b3c4d5e6f000a",
         "type": "victron-input-custom",
+        "skipInvalid": true,
         "z": "1a2b3c4d5e6f0003",
         "g": "1a2b3c4d5e6f0005",
         "service": "com.victronenergy.vebus/274",
@@ -256,6 +260,7 @@
     {
         "id": "1a2b3c4d5e6f000b",
         "type": "victron-input-custom",
+        "skipInvalid": true,
         "z": "1a2b3c4d5e6f0003",
         "g": "1a2b3c4d5e6f0005",
         "service": "com.victronenergy.vebus/274",
@@ -283,6 +288,7 @@
     {
         "id": "1a2b3c4d5e6f000c",
         "type": "victron-input-custom",
+        "skipInvalid": true,
         "z": "1a2b3c4d5e6f0003",
         "g": "1a2b3c4d5e6f0005",
         "service": "com.victronenergy.vebus/274",
@@ -310,6 +316,7 @@
     {
         "id": "1a2b3c4d5e6f000d",
         "type": "victron-input-custom",
+        "skipInvalid": true,
         "z": "1a2b3c4d5e6f0003",
         "g": "1a2b3c4d5e6f0006",
         "service": "com.victronenergy.vebus/274",
@@ -337,6 +344,7 @@
     {
         "id": "1a2b3c4d5e6f000e",
         "type": "victron-input-custom",
+        "skipInvalid": true,
         "z": "1a2b3c4d5e6f0003",
         "g": "1a2b3c4d5e6f0006",
         "service": "com.victronenergy.vebus/274",
@@ -364,6 +372,7 @@
     {
         "id": "1a2b3c4d5e6f000f",
         "type": "victron-input-custom",
+        "skipInvalid": true,
         "z": "1a2b3c4d5e6f0003",
         "g": "1a2b3c4d5e6f0006",
         "service": "com.victronenergy.vebus/274",

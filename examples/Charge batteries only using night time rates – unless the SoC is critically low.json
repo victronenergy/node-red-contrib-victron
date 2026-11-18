@@ -34,6 +34,7 @@
     {
         "id": "a7e1312e.5108a",
         "type": "victron-input-battery",
+        "skipInvalid": true,
         "z": "271f9aed7163cd66",
         "g": "3c01ea259e67c9d9",
         "service": "com.victronenergy.battery.ttyO4",

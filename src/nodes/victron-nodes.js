@@ -217,7 +217,10 @@ module.exports = function (RED) {
           if (this.node.onlyChanges && this.node.previousvalue === msg.value) {
             return
           }
-          if (this.configNode && (this.configNode.contextStore || typeof this.configNode.contextStore === 'undefined')) {
+          // An invalid D-Bus value arrives as null
+          const isInvalid = msg.value === null
+          const skip = isInvalid && this.skipInvalid
+          if (!skip && this.configNode && (this.configNode.contextStore || typeof this.configNode.contextStore === 'undefined')) {
             const transform = (input) => {
               input = input.replace(/^com\./, '')
               return input.replace(/\/(\d+\b)?|\/|(\b\d+\b)/g, (match, p1, p2) => {
@@ -251,9 +254,6 @@ module.exports = function (RED) {
             }
           }
           this.node.previousvalue = msg.value
-          // An invalid D-Bus value arrives as null
-          const isInvalid = msg.value === null
-          const sendValue = !(isInvalid && this.skipInvalid)
 
           // Prepare raw value message
           const outmsg = {
@@ -264,17 +264,19 @@ module.exports = function (RED) {
           let text = msg.value
           if (this.pathObj && this.pathObj.type === 'enum' && this.pathObj.enum) {
             outmsg.textvalue = this.pathObj.enum[msg.value] || ''
-            text = `${msg.value} (${this.pathObj.enum[msg.value]})`
+            if (!isInvalid) text = `${msg.value} (${this.pathObj.enum[msg.value]})`
           }
 
           // If conditional mode is enabled, send raw value to output 1 and evaluate for output 2
           if (this.conditionalMode) {
-            if (sendValue) this.node.send([outmsg, null]) // Send to output 1 only
+            if (!skip) this.node.send([outmsg, null]) // Send to output 1 only
             this.evaluateAndSendConditional(topic, msg.value)
           } else {
             // Normal mode: send raw value to single output
-            if (sendValue) this.node.send(outmsg)
-            if (this.configNode.showValues !== false) {
+            if (!skip) this.node.send(outmsg)
+            if (this.configNode.showValues !== false && skip) {
+              this.node.status({ fill: 'yellow', shape: 'ring', text: 'invalid' })
+            } else if (this.configNode.showValues !== false) {
               const textValue = text && text.toString ? text : text === null || text === undefined ? 'null' : `${text}`
               this.node.status({ fill: 'green', shape: 'dot', text: textValue })
             }

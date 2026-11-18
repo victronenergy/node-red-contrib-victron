@@ -60,7 +60,7 @@
             <input type="checkbox" checked id="node-input-onlyChanges">
         </div>
         <div class="form-row hidden" id="skipInvalid">
-            <label for="node-input-skipInvalid"><i class="fa fa-ban"></i> Skip invalid <i class="fa fa-info-circle tooltip-icon" data-tooltip="Do not send a message when the value becomes invalid, for example while a device restarts. When unchecked, the node sends msg.payload = null with msg.invalid = true."></i></label>
+            <label for="node-input-skipInvalid"><i class="fa fa-ban"></i> Skip invalid <i class="fa fa-info-circle tooltip-icon" data-tooltip="When the value becomes invalid, for example while a device restarts, do not send it on the value output or store it in the global context. When unchecked, the node sends msg.payload = null with msg.invalid = true."></i></label>
             <input type="checkbox" id="node-input-skipInvalid">
         </div>
         <div class="form-row hidden" id="rateLimit">
