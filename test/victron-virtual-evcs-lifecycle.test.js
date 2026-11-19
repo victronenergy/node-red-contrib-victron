@@ -1,0 +1,283 @@
+/* eslint-env jest */
+const fs = require('fs')
+const os = require('os')
+const path = require('path')
+const { EventEmitter } = require('events')
+
+// Runs the real victron-virtual node constructor against mocked D-Bus modules, to check what
+// happens to the EV charger session timer across connect, reconnect and close.
+jest.mock('dbus-native-victron', () => ({ createClient: jest.fn() }))
+jest.mock('dbus-victron-virtual', () => ({ addSettings: jest.fn(), addVictronInterfaces: jest.fn() }))
+
+const SETTINGS_RESULT = [null, ['evcharger:100']]
+const CONFIG = { id: 'evcs1', device: 'evcs', evcs_charging_control: true, evcs_auto_session: true, default_values: true }
+
+function mockBus () {
+  const connection = new EventEmitter()
+  connection.end = jest.fn()
+  return {
+    connection,
+    exportInterface: jest.fn(),
+    requestName: jest.fn(),
+    releaseName: jest.fn((name, cb) => cb(null, 1)),
+    invoke: jest.fn(),
+    listNames: jest.fn(cb => cb(null, []))
+  }
+}
+
+function createNode (persistLocation, config = CONFIG) {
+  let Constructor
+  const RED = {
+    settings: { userDir: persistLocation, victronVirtual: { persistLocation } },
+    httpAdmin: { get: jest.fn() },
+    nodes: {
+      registerType: jest.fn((type, ctor) => { Constructor = ctor }),
+      createNode: jest.fn((node, config) => {
+        const handlers = {}
+        Object.assign(node, {
+          id: config.id,
+          handlers,
+          on: (event, fn) => { handlers[event] = fn },
+          status: jest.fn(),
+          warn: jest.fn(),
+          error: jest.fn(),
+          send: jest.fn()
+        })
+      }),
+      eachNode: jest.fn(),
+      getNode: jest.fn()
+    }
+  }
+  require('../src/nodes/victron-virtual')(RED)
+  const node = {}
+  Constructor.call(node, config)
+  return node
+}
+
+const flush = () => jest.advanceTimersByTimeAsync(0)
+
+describe('EV charger session timer lifecycle', () => {
+  let persistLocation, stops, dbus, addSettings, addVictronInterfaces, evcs
+
+  beforeEach(() => {
+    // index.js keeps module-level state (node instances, cleanup timer), so load it fresh per test
+    jest.resetModules()
+    dbus = require('dbus-native-victron')
+    ;({ addSettings, addVictronInterfaces } = require('dbus-victron-virtual'))
+    evcs = require('../src/nodes/victron-virtual/device-type/evcs')
+    jest.useFakeTimers()
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+    process.env.NODE_RED_DBUS_ADDRESS = '127.0.0.1:7878'
+    persistLocation = fs.mkdtempSync(path.join(os.tmpdir(), 'evcs-lifecycle-'))
+    dbus.createClient.mockImplementation(() => mockBus())
+    addVictronInterfaces.mockImplementation(() => ({ setValuesLocally: jest.fn(), emitS2Signal: jest.fn(), getValue: jest.fn(), removeSettings: jest.fn() }))
+    stops = []
+    jest.spyOn(evcs, 'startSessionTimerIfAutoSession').mockImplementation(() => {
+      const stop = jest.fn()
+      stops.push(stop)
+      return stop
+    })
+  })
+
+  afterEach(() => {
+    jest.restoreAllMocks()
+    jest.clearAllTimers()
+    jest.useRealTimers()
+    delete process.env.NODE_RED_DBUS_ADDRESS
+    fs.rmSync(persistLocation, { recursive: true, force: true })
+  })
+
+  test('starts one timer once set up', async () => {
+    addSettings.mockResolvedValue(SETTINGS_RESULT)
+    createNode(persistLocation)
+    await flush()
+    expect(evcs.startSessionTimerIfAutoSession).toHaveBeenCalledTimes(1)
+  })
+
+  test('does not start a timer when the node closed during setup', async () => {
+    let resolveSettings
+    addSettings.mockReturnValue(new Promise(resolve => { resolveSettings = resolve }))
+    const node = createNode(persistLocation)
+    await flush()
+
+    node.handlers.close(jest.fn())
+    resolveSettings(SETTINGS_RESULT)
+    await flush()
+
+    expect(evcs.startSessionTimerIfAutoSession).not.toHaveBeenCalled()
+  })
+
+  test('stops the old timer on a reconnect, also when the new setup fails', async () => {
+    addSettings.mockResolvedValueOnce(SETTINGS_RESULT)
+    createNode(persistLocation)
+    await flush()
+    expect(stops).toHaveLength(1)
+
+    addSettings.mockRejectedValueOnce(new Error('settings write failed'))
+    dbus.createClient.mock.results[0].value.connection.emit('end')
+    await jest.advanceTimersByTimeAsync(1000)
+
+    expect(dbus.createClient).toHaveBeenCalledTimes(2)
+    expect(stops[0]).toHaveBeenCalled()
+  })
+
+  test('stops the timer as soon as the connection ends', async () => {
+    addSettings.mockResolvedValue(SETTINGS_RESULT)
+    createNode(persistLocation)
+    await flush()
+
+    dbus.createClient.mock.results[0].value.connection.emit('end')
+    expect(stops[0]).toHaveBeenCalled()
+  })
+
+  // Review on #616: the old setup replaced the live interface, setter and timer
+  test('ignores a setup that finishes after the reconnect that replaced it', async () => {
+    let resolveFirstSettings
+    addSettings
+      .mockReturnValueOnce(new Promise(resolve => { resolveFirstSettings = resolve }))
+      .mockResolvedValue(SETTINGS_RESULT)
+    const node = createNode(persistLocation)
+    await flush()
+
+    dbus.createClient.mock.results[0].value.connection.emit('end')
+    await jest.advanceTimersByTimeAsync(1000)
+    expect(stops).toHaveLength(1)
+    const { iface, setValuesLocally } = node
+
+    resolveFirstSettings(SETTINGS_RESULT)
+    await flush()
+    expect(stops).toHaveLength(1)
+    expect(stops[0]).not.toHaveBeenCalled()
+    expect(node.iface).toBe(iface)
+    expect(node.setValuesLocally).toBe(setValuesLocally)
+
+    node.handlers.close(jest.fn())
+    expect(stops[0]).toHaveBeenCalled()
+  })
+
+  test('does not report a failure of a setup that a reconnect replaced', async () => {
+    let rejectFirstSettings
+    addSettings
+      .mockReturnValueOnce(new Promise((resolve, reject) => { rejectFirstSettings = reject }))
+      .mockResolvedValue(SETTINGS_RESULT)
+    const node = createNode(persistLocation)
+    await flush()
+
+    dbus.createClient.mock.results[0].value.connection.emit('end')
+    await jest.advanceTimersByTimeAsync(1000)
+    node.status.mockClear()
+
+    rejectFirstSettings(new Error('settings write failed'))
+    await flush()
+    expect(node.status).not.toHaveBeenCalled()
+    expect(node.error).not.toHaveBeenCalled()
+  })
+
+  // Review on #616: the new interface loaded a snapshot up to 60 s old
+  test('a reconnect continues from the latest values, not the last throttled save', async () => {
+    addSettings.mockResolvedValue(SETTINGS_RESULT)
+    const node = createNode(persistLocation)
+    await flush()
+    const [, , iface, , emitCallback] = addVictronInterfaces.mock.calls[0]
+    const item = (p, value) => [p, [['Value', ['d', value]], ['Text', ['s', String(value)]]]]
+    iface['Session/Energy'] = 5
+    emitCallback('ItemsChanged', [item('/Session/Energy', 5)])
+
+    dbus.createClient.mock.results[0].value.connection.emit('end')
+    await jest.advanceTimersByTimeAsync(1000)
+
+    expect(addVictronInterfaces).toHaveBeenCalledTimes(2)
+    expect(node.iface).not.toBe(iface)
+    expect(node.iface['Session/Energy']).toBe(5)
+  })
+
+  test('stops the timer on close', async () => {
+    addSettings.mockResolvedValue(SETTINGS_RESULT)
+    const node = createNode(persistLocation)
+    await flush()
+
+    node.handlers.close(jest.fn())
+    expect(stops[0]).toHaveBeenCalled()
+  })
+})
+
+describe('EV charger session across a restart', () => {
+  let persistLocation, evcs
+
+  beforeEach(() => {
+    jest.resetModules()
+    const dbus = require('dbus-native-victron')
+    const { addSettings, addVictronInterfaces } = require('dbus-victron-virtual')
+    evcs = require('../src/nodes/victron-virtual/device-type/evcs')
+    jest.useFakeTimers()
+    process.env.NODE_RED_DBUS_ADDRESS = '127.0.0.1:7878'
+    persistLocation = fs.mkdtempSync(path.join(os.tmpdir(), 'evcs-restart-'))
+    dbus.createClient.mockImplementation(() => mockBus())
+    addSettings.mockResolvedValue(SETTINGS_RESULT)
+    addVictronInterfaces.mockImplementation(() => ({ setValuesLocally: jest.fn(), emitS2Signal: jest.fn(), getValue: jest.fn(), removeSettings: jest.fn() }))
+  })
+
+  afterEach(() => {
+    jest.clearAllTimers()
+    jest.useRealTimers()
+    delete process.env.NODE_RED_DBUS_ADDRESS
+    fs.rmSync(persistLocation, { recursive: true, force: true })
+  })
+
+  test('a charger still charging after a restart continues its session', async () => {
+    const saved = { Status: 2, 'Session/Energy': 5.2, 'Session/Time': 1200, ChargingTime: 1200 }
+    fs.writeFileSync(path.join(persistLocation, `${CONFIG.id}.json`), JSON.stringify({ state: saved }))
+    const node = createNode(persistLocation)
+    await jest.advanceTimersByTimeAsync(0)
+
+    const changes = evcs.onPropertiesChanged({ changes: { Status: 2 }, instance: node.iface, config: CONFIG })
+    Object.assign(node.iface, changes)
+
+    expect(node.iface).toMatchObject({ 'Session/Energy': 5.2, 'Session/Time': 1200, ChargingTime: 1200 })
+  })
+})
+
+describe('EV charger S2 power measurement', () => {
+  let persistLocation, addVictronInterfaces
+
+  beforeEach(() => {
+    jest.resetModules()
+    const dbus = require('dbus-native-victron')
+    const { addSettings } = require('dbus-victron-virtual')
+    ;({ addVictronInterfaces } = require('dbus-victron-virtual'))
+    jest.useFakeTimers()
+    jest.spyOn(console, 'warn').mockImplementation(() => {})
+    process.env.NODE_RED_DBUS_ADDRESS = '127.0.0.1:7878'
+    persistLocation = fs.mkdtempSync(path.join(os.tmpdir(), 'evcs-s2-'))
+    dbus.createClient.mockImplementation(() => mockBus())
+    addSettings.mockResolvedValue(SETTINGS_RESULT)
+    addVictronInterfaces.mockImplementation(() => ({ setValuesLocally: jest.fn(), emitS2Signal: jest.fn(), getValue: jest.fn(), removeSettings: jest.fn() }))
+  })
+
+  afterEach(() => {
+    jest.restoreAllMocks()
+    jest.clearAllTimers()
+    jest.useRealTimers()
+    delete process.env.NODE_RED_DBUS_ADDRESS
+    fs.rmSync(persistLocation, { recursive: true, force: true })
+  })
+
+  const item = (p, value) => [p, [['Value', ['d', value]], ['Text', ['s', String(value)]]]]
+
+  // Auto energy adds Ac/Energy/Forward, which is declared before Ac/Power, so the measured
+  // path is not the first item of the signal.
+  test('sends a measurement when the measured path is not the first changed item', async () => {
+    const node = createNode(persistLocation, { id: 'evcs2', device: 'evcs', enable_s2support: true, outputs: 2, evcs_auto_energy: true })
+    await jest.advanceTimersByTimeAsync(0)
+    const [, , iface, , emitCallback] = addVictronInterfaces.mock.calls[0]
+    node._s2PowerMeasurementActive = true
+    node._s2PowerMeasurementCemId = 'cem-1'
+    iface['Ac/Power'] = 7000
+
+    emitCallback('ItemsChanged', [item('/Ac/Energy/Forward', 1.5), item('/Ac/Power', 7000)])
+
+    expect(node.send).toHaveBeenCalledWith([null, {
+      payload: { command: 'PowerMeasurement', cemId: 'cem-1', values: [{ commodity_quantity: 'ELECTRIC.POWER.3_PHASE_SYMMETRIC', value: 7000 }] }
+    }])
+  })
+})
