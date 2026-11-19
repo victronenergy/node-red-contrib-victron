@@ -14,6 +14,7 @@ import escape from 'lodash/escape'
 
 // Re-export for browser/test use
 export {
+  STEPPED_DEFAULT_MAX,
   SWITCH_TYPE_MAP,
   SWITCH_TYPE_NAMES,
   SWITCH_TYPE_BITMASK_NAMES,
@@ -163,11 +164,11 @@ export const SWITCH_TYPE_DOCS = {
     '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>Temperature</code> &mdash; <tt>msg.payload</tt> contains the temperature value</li></ol></div>'
   ),
   [SWITCH_TYPE_MAP.STEPPED]: createDocTemplate(
-    `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; holds selected option. ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Settings/DimmingMax</code> &mdash; defines the number of options. Mandatory for this type.</li>${STATUS_PATH_DOC}</ul></div>`,
+    `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; holds selected option. ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Settings/DimmingMax</code> &mdash; defines the number of options. Mandatory for this type.</li><li><code>/SwitchableOutput/output_1/Settings/Labels</code> &mdash; optional string array naming the options, indexed by the <tt>Dimming</tt> value: <tt>["", "Low", "Medium", "High"]</tt> . Labels starting with <tt>/</tt> such as <tt>/low</tt> or <tt>/high</tt> are translated by the GUI. The GUI falls back to numbers when the step labels do not fit. Index 0 optionally names the Off state, e.g. <tt>["/off", "Eco", "High", "Boost"]</tt>: the switch then becomes a single-choice control where the highlighted option is always the active one (Off is highlighted while off, tapping a step switches on at that level, and Off only switches off).</li>${STATUS_PATH_DOC}</ul></div>`,
     `<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; ${STATE_WITH_STATUS_DOC}</li><li><code>Value</code> &mdash; <tt>msg.payload</tt> contains the stepped value</li></ol></div>`
   ),
   [SWITCH_TYPE_MAP.DROPDOWN]: createDocTemplate(
-    `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; holds selected option. ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Settings/Labels</code> &mdash; defines the labels as a string array: <tt>["Label 1", "Label 2", "Label 3"]</tt>. Mandatory for this type.</li></ul></div>`,
+    `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/Dimming</code></strong> &mdash; holds selected option. ${DEFAULT_PATH_ICON}</li><li><code>/SwitchableOutput/output_1/Settings/Labels</code> &mdash; defines the labels as a string array: <tt>["Label 1", "Label 2", "Label 3"]</tt>. Mandatory for this type. Up to five options that fit are shown inline as a segmented control, otherwise as a dropdown list; when shown as segments a first option <tt>/off</tt> is drawn in the off colour. Known keywords starting with <tt>/</tt> such as <tt>/off</tt>, <tt>/low</tt> or <tt>/high</tt> are translated by the GUI.</li></ul></div>`,
     '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>Selected</code> &mdash; <tt>msg.payload</tt> contains the index of the selected option (<tt>0</tt> for the first item in the list)</li></ol></div>'
   ),
   [SWITCH_TYPE_MAP.BASIC_SLIDER]: createDocTemplate(
@@ -812,6 +813,12 @@ export function renderSwitchConfigRow (context) {
         }
       })
 
+      // Saved labels belong to the type they were saved for: do not offer dropdown labels
+      // as step labels (or vice versa) after the type has been changed in the editor.
+      const labelsContext = (isInitialRender || Number(type) === Number(context.switch_1_type))
+        ? context
+        : { ...context, switch_1_label: '' }
+
       // Special handling for dropdown type
       if (String(type) === String(SWITCH_TYPE_MAP.DROPDOWN)) {
         // Restore count for dropdown options
@@ -836,11 +843,25 @@ export function renderSwitchConfigRow (context) {
           $('#node-input-switch_1_count').val(context.switch_1_count)
         }
 
-        renderDropdownLabels(context)
+        renderDropdownLabels(labelsContext)
 
         // Watch count field changes
         $('#node-input-switch_1_count').on('change', () => {
-          renderDropdownLabels(context)
+          renderDropdownLabels(labelsContext)
+          // the rows were rebuilt: re-attach the live preview to the new inputs
+          $('#switch-1-pairs-container input').on('input', updateSwitchLivePreview)
+          updateSwitchLivePreview()
+        })
+      }
+
+      // Stepped switch: optional label per step, re-rendered when the number of steps changes
+      if (Number(type) === SWITCH_TYPE_MAP.STEPPED) {
+        renderStepLabels(labelsContext)
+        $('#node-input-switch_1_max').on('change', () => {
+          renderStepLabels(labelsContext)
+          // the rows were rebuilt: re-attach the live preview to the new inputs
+          $('#switch-1-pairs-container input').on('input', updateSwitchLivePreview)
+          updateSwitchLivePreview()
         })
       }
     }
@@ -865,12 +886,13 @@ export function renderSwitchConfigRow (context) {
     $('#node-input-switch_1_customname, #node-input-switch_1_group').on('input', updateSwitchLivePreview)
     if (Number(type) === SWITCH_TYPE_MAP.STEPPED) {
       $('#node-input-switch_1_max').on('input', updateSwitchLivePreview)
+      $('#switch-1-pairs-container input').on('input', updateSwitchLivePreview)
     }
     if (Number(type) === SWITCH_TYPE_MAP.BASIC_SLIDER || Number(type) === SWITCH_TYPE_MAP.NUMERIC_INPUT) {
       $('#node-input-switch_1_unit').on('input', updateSwitchLivePreview)
     }
     if (Number(type) === SWITCH_TYPE_MAP.DROPDOWN) {
-      $('#node-input-switch_1_value_0').on('input', updateSwitchLivePreview)
+      $('#switch-1-pairs-container input').on('input', updateSwitchLivePreview)
     }
     if (Number(type) === SWITCH_TYPE_MAP.TEMPERATURE_SETPOINT) {
       $('#node-input-switch_1_min, #node-input-switch_1_max').on('input', updateSwitchLivePreview)
@@ -988,14 +1010,55 @@ export function renderSwitchConfigRow (context) {
 }
 
 function renderDropdownLabels (context) {
+  renderSwitchLabels(context, {
+    count: parseInt($('#node-input-switch_1_count').val()) || 2,
+    firstIndex: 0,
+    caption: 'Option',
+    required: true
+  })
+}
+
+export function renderStepLabels (context) {
+  renderSwitchLabels(context, {
+    // index 0 names the Off state, 1..max name the steps (indexed like /Settings/Labels and Dimming)
+    count: (parseInt($('#node-input-switch_1_max').val(), 10) || STEPPED_DEFAULT_MAX) + 1,
+    firstIndex: 0,
+    caption: (j) => (j === 0 ? 'Off' : `Step ${j}`),
+    required: false,
+    title: 'Step labels (optional)',
+    tooltip: 'Optional labels shown on the step buttons instead of numbers. The GUI falls back to numbers when the labels do not fit. Labels starting with / such as /low or /high are translated by the GUI. Naming the Off option changes the switch into a single-choice control: Off is highlighted while the output is off, tapping a step switches on at that level, and the Off option only switches off.'
+  })
+}
+
+/**
+ * Render one text input per label of /Settings/Labels.
+ *
+ * The inputs are ids node-input-switch_1_value_<index>, where <index> is the Dimming value
+ * the label belongs to. caption is a string ("Option" renders as "Option 1", "Option 2", ...)
+ * or a function of the index.
+ */
+function renderSwitchLabels (context, { count, firstIndex, caption, required, title, tooltip }) {
+  // Keep whatever is already typed in the current inputs: the rows are rebuilt when the
+  // number of options changes, before anything has been saved to the node.
+  const currentLabels = {}
+  const $currentInputs = $('#switch-1-pairs-container input')
+  if ($currentInputs && typeof $currentInputs.each === 'function') {
+    $currentInputs.each(function () {
+      const match = /switch_1_value_(\d+)$/.exec(this.id || '')
+      if (match) currentLabels[Number(match[1])] = this.value
+    })
+  }
+
   $('#switch-1-pairs-row').remove()
 
-  const count = parseInt($('#node-input-switch_1_count').val()) || 2
-
-  // Create labels container
+  // A heading line followed by one standard form row per label, so the inputs line up with
+  // the other fields of the switch configuration above.
+  const tooltipHtml = tooltip ? ` <i class="fa fa-info-circle tooltip-icon" data-tooltip="${tooltip}"></i>` : ''
+  const titleHtml = title ? `<label style="font-weight:bold;">${title}${tooltipHtml}</label>` : ''
   const labelsContainer = $(`
-    <div class="form-row" id="switch-1-pairs-row">
-        <div id="switch-1-pairs-container" style="display:flex;flex-direction:column;gap:4px;"></div>
+    <div id="switch-1-pairs-row">
+        ${titleHtml}
+        <div id="switch-1-pairs-container"></div>
     </div>
   `)
   $('#switch-1-config-row').after(labelsContainer)
@@ -1010,18 +1073,18 @@ function renderDropdownLabels (context) {
       savedLabels = []
     }
   }
+  if (!Array.isArray(savedLabels)) savedLabels = []
 
   // Create label inputs
-  for (let j = 0; j < count; j++) {
-    const value = savedLabels[j] || ''
+  for (let j = firstIndex; j < firstIndex + count; j++) {
+    const value = (j in currentLabels) ? currentLabels[j] : (savedLabels[j] || '')
     const labelHtml = $(`
-      <div class="form-row" style="align-items:center;">
-        <label for="node-input-switch_1_value_${j}" style="min-width:120px;">Option ${j + 1}</label>
+      <div class="form-row">
+        <label for="node-input-switch_1_value_${j}">${typeof caption === 'function' ? caption(j) : `${caption} ${j + 1 - firstIndex}`}</label>
         <input type="text"
                id="node-input-switch_1_value_${j}"
                placeholder="Label"
-               style="width:180px;"
-               value="${value}" required>
+               value="${escape(value)}" ${required ? 'required' : ''}>
       </div>
     `)
     $('#switch-1-pairs-container').append(labelHtml)
@@ -1428,6 +1491,7 @@ const SVG_COLOR_CARD_BG = '#F0EFEB'
 const SVG_COLOR_SEPARATOR = '#E6E5E1'
 const SVG_COLOR_CTRL_BG = '#BBCEE0'
 const SVG_COLOR_ACTIVE = '#387DC5'
+const SVG_COLOR_CTRL_BG_OFF = '#74A4D6' // highlighted off state, as the GUI draws an off toggle
 const SVG_ACTIVE_FILL_OPACITY = 0.7
 const SVG_COLOR_TEMP_COLD = '#5991CE'
 const SVG_COLOR_TEMP_MID = '#7E6EB7'
@@ -1604,13 +1668,27 @@ function buildTempSliderControl (min = 0, max = 100, includeMeasurement = false)
 ${dots.join('\n')}`
 }
 
-function buildStepsControl (steps) {
-  const stepsCount = Math.max(STEPS_MIN_COUNT, Math.min(STEPPED_DEFAULT_MAX, steps || STEPS_PREVIEW_DEFAULT))
-  const count = stepsCount + 1 // +1 for the implicit "Off" segment at position 0
+// Approximate text width in the preview (font-size 13 system font): used to mirror the GUI rule
+// that step labels are only shown when every one of them fits its button.
+const STEPS_LABEL_CHAR_W = 7
+const STEPS_LABEL_PADDING = 8
+
+// Up to this many options a dropdown is shown inline as segments, provided every label fits
+const DROPDOWN_SEGMENTS_MAX = 5
+
+/**
+ * Equal segments with one highlighted, as the GUIs draw a stepped switch or a short dropdown.
+ *
+ * @param {string[]} texts - one text per segment
+ * @param {number} highlightIdx - segment drawn as active
+ * @param {number} offIdx - segment representing an off state, drawn dimmer when highlighted
+ */
+function buildSegmentsControl (texts, highlightIdx, offIdx = -1) {
+  const count = texts.length
   const sectionW = SWITCH_CTL_W / count
-  const highlightIdx = Math.min(1, count - 1)
   const highlightX = Math.round(SWITCH_CTL_X + highlightIdx * sectionW)
   const highlightW = Math.round(sectionW)
+  const highlightFill = highlightIdx === offIdx ? SVG_COLOR_CTRL_BG_OFF : SVG_COLOR_ACTIVE
   const dividers = []
   const labels = []
   for (let i = 1; i < count; i++) {
@@ -1619,18 +1697,49 @@ function buildStepsControl (steps) {
   }
   for (let i = 0; i < count; i++) {
     const segMidX = Math.round(SWITCH_CTL_X + i * sectionW + sectionW / 2)
-    const label = i === 0 ? 'Off' : String(i)
     const textFill = i === highlightIdx ? 'white' : SVG_COLOR_TEXT
-    labels.push(`<text x="${segMidX}" y="${SWITCH_CTL_TEXT_Y}" text-anchor="middle" font-family="${SVG_FONT}" font-size="13" fill="${textFill}">${label}</text>`)
+    labels.push(`<text x="${segMidX}" y="${SWITCH_CTL_TEXT_Y}" text-anchor="middle" font-family="${SVG_FONT}" font-size="13" fill="${textFill}">${escape(texts[i])}</text>`)
   }
   return `<defs><clipPath id="sw-ctrl-clip"><rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${SWITCH_CTL_W}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}"/></clipPath></defs>
 <rect x="${SWITCH_CTL_X}" y="${SWITCH_CTL_Y}" width="${SWITCH_CTL_W}" height="${SWITCH_CTL_H}" rx="${SWITCH_CTL_RX}" fill="${SVG_COLOR_CTRL_BG}" stroke="${SVG_COLOR_ACTIVE}" stroke-width="2"/>
-<rect x="${highlightX}" y="${SWITCH_CTL_Y}" width="${highlightW}" height="${SWITCH_CTL_H}" fill="${SVG_COLOR_ACTIVE}" clip-path="url(#sw-ctrl-clip)"/>
+<rect x="${highlightX}" y="${SWITCH_CTL_Y}" width="${highlightW}" height="${SWITCH_CTL_H}" fill="${highlightFill}" clip-path="url(#sw-ctrl-clip)"/>
 ${dividers.join('\n')}
 ${labels.join('\n')}`
 }
 
-function buildDropdownControl (firstLabel) {
+// Rough check of the GUI rule that labels are only shown when every one fits its segment
+function segmentLabelsFit (texts) {
+  const sectionW = SWITCH_CTL_W / texts.length
+  return texts.every(text => text.length * STEPS_LABEL_CHAR_W <= sectionW - STEPS_LABEL_PADDING)
+}
+
+function buildStepsControl (steps, stepLabels = []) {
+  const stepsCount = Math.max(STEPS_MIN_COUNT, Math.min(STEPPED_DEFAULT_MAX, steps || STEPS_PREVIEW_DEFAULT))
+  const count = stepsCount + 1 // +1 for the "Off" segment at position 0
+  const sectionW = SWITCH_CTL_W / count
+  // stepLabels is indexed by step (1-based, like /Settings/Labels); entry 0 names the Off state
+  const labelFor = (i) => (typeof stepLabels[i] === 'string' ? stepLabels[i].trim() : '')
+  const stepTexts = [...Array(stepsCount).keys()].map(k => labelFor(k + 1))
+  // The Off segment is part of the row (it is truncated rather than causing the fallback)
+  const labelsFit = segmentLabelsFit(['', ...stepTexts.map((text, k) => text || String(k + 1))])
+  // A named Off state makes the control single-choice: preview it in the off position
+  const offLabel = labelFor(0)
+  const highlightIdx = offLabel ? 0 : Math.min(1, count - 1)
+  const texts = [
+    (offLabel || 'Off').substring(0, Math.max(3, Math.floor((sectionW - STEPS_LABEL_PADDING) / STEPS_LABEL_CHAR_W))),
+    ...stepTexts.map((text, k) => (labelsFit && text ? text : String(k + 1)))
+  ]
+  return buildSegmentsControl(texts, highlightIdx, offLabel ? 0 : -1)
+}
+
+function buildDropdownControl (labels) {
+  const texts = (Array.isArray(labels) ? labels : [labels]).map(label => (typeof label === 'string' ? label.trim() : ''))
+  // A few short options are shown inline as segments, with a first "/off" option drawn as the off state.
+  // Options still being typed (empty) are previewed as the list.
+  if (texts.length >= 1 && texts.length <= DROPDOWN_SEGMENTS_MAX && texts.every(Boolean) && segmentLabelsFit(texts)) {
+    return buildSegmentsControl(texts, 0, texts[0] === '/off' ? 0 : -1)
+  }
+  const firstLabel = texts[0]
   const text = firstLabel ? escape(firstLabel.substring(0, 20)) : 'Option 1'
   const chevX = SWITCH_CTL_RIGHT - 20
   const chevMidY = SWITCH_CTL_Y + Math.round(SWITCH_CTL_H / 2)
@@ -1753,12 +1862,20 @@ export function updateSwitchLivePreview () {
     }
     case SWITCH_TYPE_MAP.STEPPED: {
       const steps = parseInt($('#node-input-switch_1_max').val(), 10) || STEPS_PREVIEW_DEFAULT
-      controlSvg = buildStepsControl(steps)
+      const stepLabels = []
+      for (let j = 0; j <= steps; j++) {
+        stepLabels.push($(`#node-input-switch_1_value_${j}`).val() || '')
+      }
+      controlSvg = buildStepsControl(steps, stepLabels)
       break
     }
     case SWITCH_TYPE_MAP.DROPDOWN: {
-      const firstLabel = $('#node-input-switch_1_value_0').val() || ''
-      controlSvg = buildDropdownControl(firstLabel)
+      const count = parseInt($('#node-input-switch_1_count').val(), 10) || 2
+      const labels = []
+      for (let j = 0; j < count; j++) {
+        labels.push($(`#node-input-switch_1_value_${j}`).val() || '')
+      }
+      controlSvg = buildDropdownControl(labels)
       break
     }
     case SWITCH_TYPE_MAP.BASIC_SLIDER: {

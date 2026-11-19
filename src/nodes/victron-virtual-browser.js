@@ -2,6 +2,7 @@
 import {
   checkGeneratorType,
   SWITCH_TYPE_CONFIGS,
+  STEPPED_DEFAULT_MAX,
   INDICATOR_TYPE_LABELS,
   renderSwitchConfigRow,
   updateSwitchConfig,
@@ -40,6 +41,7 @@ const canvasDeviceCapabilities = {}
 window.__victron = {
   checkGeneratorType,
   SWITCH_TYPE_CONFIGS,
+  STEPPED_DEFAULT_MAX,
   INDICATOR_TYPE_LABELS,
   renderSwitchConfigRow,
   updateSwitchConfig,

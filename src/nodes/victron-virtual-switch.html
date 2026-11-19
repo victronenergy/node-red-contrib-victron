@@ -111,7 +111,7 @@
 
         },
         oneditsave: function() {
-            const { validateSwitchConfig, SWITCH_TYPE_CONFIGS, updateOutputs, getShowUIValue } = window.__victron;
+            const { validateSwitchConfig, SWITCH_TYPE_CONFIGS, STEPPED_DEFAULT_MAX, updateOutputs, getShowUIValue } = window.__victron;
 
             this.device = 'switch';
 
@@ -139,12 +139,27 @@
                     const pairCount = parseInt($(`#node-input-switch_1_count`).val()) || 2;
                     const labelsArray = [];
                     for (let j = 0; j < pairCount; j++) {
-                        const value = $(`#node-input-switch_1_value_${j}`).val();
+                        const value = ($(`#node-input-switch_1_value_${j}`).val() || '').trim();
                         if (value) {
                             labelsArray.push(value);
                         }
                     }
                     this[`switch_1_label`] = JSON.stringify(labelsArray);
+                }
+
+                if (type === 4) {
+                    // Optional labels indexed by Dimming value; index 0 optionally names the Off state
+                    const maxSteps = parseInt($(`#node-input-switch_1_max`).val(), 10) || STEPPED_DEFAULT_MAX;
+                    const labelsArray = [];
+                    for (let j = 0; j <= maxSteps; j++) {
+                        labelsArray.push(($(`#node-input-switch_1_value_${j}`).val() || '').trim());
+                    }
+                    this[`switch_1_label`] = labelsArray.some(label => label !== '') ? JSON.stringify(labelsArray) : '';
+                }
+
+                // Labels only exist for the dropdown and the stepped switch
+                if (type !== 4 && type !== 6) {
+                    this[`switch_1_label`] = '';
                 }
 
                 if (type === 7) {
