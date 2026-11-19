@@ -2,6 +2,8 @@ const { enableS2Support } = require('../s2-support')
 const { buildMinimalMeterProperties, initializeMinimalMeter } = require('./shared/minimal-meter')
 const { accumulateMeterEnergy } = require('./shared/meter-energy')
 
+const debug = require('debug')('victron-virtual:evcs')
+
 const ENERGY_PERSIST_SECONDS = 60
 
 const enumFormat = (texts) => (v) => texts[v] || 'unknown'
@@ -154,11 +156,13 @@ function accumulateSession (changes, instance, now) {
   let timeCalculated = false
   const isNewSession = changes.Status != null && instance._lastKnownStatus === STATUS_DISCONNECTED && changes.Status !== STATUS_DISCONNECTED
   if (isNewSession) {
+    debug('accumulateSession, newSession')
     instance._sessionSeconds = 0
     SESSION_KEYS.forEach(key => {
       if (!(key in changes)) changes[key] = 0
     })
   } else if (oldStatus === STATUS_CHARGING && lastTs != null) {
+    debug('accumulateSession, oldStatus === STATUS_CHARGING, lastTs != null')
     if (!('Session/Time' in changes)) {
       // Keep fractional seconds internally, Session/Time is an integer on D-Bus.
       instance._sessionSeconds = (instance._sessionSeconds ?? instance['Session/Time'] ?? 0) + (now - lastTs) / 1000
@@ -199,12 +203,16 @@ function followSessionEnergy (changes, instance, autoEnergy) {
   // A session energy set by the flow (or reset on a plug-in), or a meter that went back (e.g. the
   // real charger's counter was reset): continue from there
   if ('Session/Energy' in changes || meter < instance['Ac/Energy/Forward']) {
+    debug('followSessionEnergy, meter < instance[Ac/Energy/Forward] or Session/Energy in changes, resetting _sessionEnergyStart', { meter, session, sessionEnergyStart: instance._sessionEnergyStart })
     instance._sessionEnergyStart = meter - session
     return
   }
 
   const sessionEnergy = meter - instance._sessionEnergyStart
-  if (sessionEnergy !== instance['Session/Energy']) changes['Session/Energy'] = sessionEnergy
+  if (sessionEnergy !== instance['Session/Energy']) {
+    changes['Session/Energy'] = sessionEnergy
+    debug('followSessionEnergy, new session energy', { sessionEnergy, meter, sessionEnergyStart: instance._sessionEnergyStart })
+  }
 }
 
 // A single-phase charger reports on the phase it's wired to, multi-phase ones on L1 upwards.
@@ -238,6 +246,7 @@ function sessionTick ({ instance, config }) {
 function startSessionTimerIfAutoSession ({ node, instance, config }) {
   if (!isAutoSession(config)) return null
   const handle = setInterval(() => {
+    debug('sessionTick interval, calling sessionTick')
     const changes = sessionTick({ instance, config })
     if (!changes) return
     try {
