@@ -61,8 +61,8 @@ describe('accumulateMeterEnergy', () => {
 
   test('does not count Ac/Power on top of the phase powers in the same message', () => {
     const meter = createMeter([1])
-    meter.update(0, { 'Ac/Power': 1000, 'Ac/L1/Power': 1000 })
-    const changes = meter.update(1, { 'Ac/Power': 1000, 'Ac/L1/Power': 1000 })
+    meter.update(0, { 'Ac/Power': 9999, 'Ac/L1/Power': 1000 })
+    const changes = meter.update(1, { 'Ac/Power': 9999, 'Ac/L1/Power': 1000 })
     expect(changes['Ac/Energy/Forward']).toBeCloseTo(1, 5)
   })
 
