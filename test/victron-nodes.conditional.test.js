@@ -233,10 +233,11 @@ describe('victron-nodes conditional mode', () => {
     // Simulate a null value for the primary input
     subscribe.mock.calls[0][2]({ value: null })
 
-    // Expect primary output to still send null payload
+    // Expect primary output to still send null payload, marked as invalid
     expect(node.send).toHaveBeenCalledTimes(1) // Only the primary output send
     expect(getMessageFromSendCall(node, 0, 0)).toEqual({
       payload: null,
+      invalid: true,
       topic: 'Conditional Test Node'
     })
     expect(getMessageFromSendCall(node, 0, 1)).toBeNull()
@@ -252,6 +253,29 @@ describe('victron-nodes conditional mode', () => {
     })
     expect(getMessageFromSendCall(node, 1, 1)).toBeNull()
     expect(getLastStatusText(node)).toBe('undefined | waiting')
+  })
+
+  it('with skip invalid, sends nothing for an invalid primary value and waits', () => {
+    const NodeDef = getBaseInputNodeDef()
+    const node = new NodeDef({
+      name: 'Conditional Test Node',
+      service: 'com.victronenergy.battery',
+      path: '/Dc/0/Voltage',
+      serviceObj: { name: 'Battery', service: 'com.victronenergy.battery' },
+      pathObj: { name: 'Voltage', path: '/Dc/0/Voltage', type: 'float' },
+      skipInvalid: true,
+      conditionalMode: true,
+      condition1Operator: '>',
+      condition1Threshold: 12.5,
+      outputTrue: 'Condition Met',
+      outputFalse: 'Condition Not Met',
+      debounce: 0
+    })
+
+    subscribe.mock.calls[0][2]({ value: null })
+
+    expect(node.send).not.toHaveBeenCalled()
+    expect(getLastStatusText(node)).toBe('null | waiting')
   })
 
   // Test two conditions (AND)
