@@ -121,6 +121,34 @@ describe('EV charger session timer lifecycle', () => {
     expect(stops[0]).toHaveBeenCalled()
   })
 
+  function createStartDisconnected (releaseName) {
+    addSettings.mockResolvedValue(SETTINGS_RESULT)
+    dbus.createClient.mockImplementation(() => {
+      const bus = mockBus()
+      bus.requestName.mockImplementation((name, flags, cb) => Promise.resolve().then(() => cb(null, 1)))
+      if (releaseName) bus.releaseName.mockImplementation(releaseName)
+      return bus
+    })
+    return createNode(persistLocation, { ...CONFIG, start_disconnected: true })
+  }
+
+  test('takes a start_disconnected charger offline through its presence hook', async () => {
+    const onPresenceChange = jest.spyOn(evcs, 'onPresenceChange')
+    const node = createStartDisconnected()
+    await flush()
+
+    expect(node.presenceConnected).toBe(false)
+    expect(onPresenceChange).toHaveBeenCalledWith(expect.anything(), false)
+  })
+
+  test('warns when a start_disconnected charger cannot go offline', async () => {
+    const node = createStartDisconnected((name, cb) => cb(new Error('bus error')))
+    await flush()
+
+    expect(node.presenceConnected).toBe(true)
+    expect(node.warn).toHaveBeenCalledWith(expect.stringMatching(/start disconnected/))
+  })
+
   test('stops the timer as soon as the connection ends', async () => {
     addSettings.mockResolvedValue(SETTINGS_RESULT)
     createNode(persistLocation)

@@ -1,4 +1,4 @@
-const { accumulateDelta } = require('../energy-utils')
+const { accumulateMeterEnergy, groupMeterInputs, meterPhases, setMeterPresence } = require('./shared/meter-energy')
 const ENERGY_PERSIST_SECONDS = 60
 
 const properties = {
@@ -69,6 +69,7 @@ function initialize (config, ifaceDesc, iface, node) {
   if (ifaceDesc.properties['Ac/Energy/Forward']) {
     ifaceDesc.properties['Ac/Energy/Forward'].persist = ENERGY_PERSIST_SECONDS
   }
+  if (config.pvinverter_auto_energy) groupMeterInputs(ifaceDesc)
   if (config.default_values) {
     iface['Ac/Power'] = 0
     iface['Ac/MaxPower'] = 1000
@@ -81,38 +82,10 @@ function initialize (config, ifaceDesc, iface, node) {
 }
 
 function onPropertiesChanged ({ changes, instance, config }) {
-  if (!config.pvinverter_auto_energy) return changes
-
-  const now = Date.now()
-  const nrOfPhases = Number(config.pvinverter_nrofphases ?? 1)
-  let anyPhaseUpdated = false
-  let phaseTotal = 0
-
-  for (let i = 1; i <= nrOfPhases; i++) {
-    const powerKey = `Ac/L${i}/Power`
-    const energyKey = `Ac/L${i}/Energy/Forward`
-    const tsKey = `_lastL${i}PowerTimestamp`
-    if (powerKey in changes) {
-      accumulateDelta({ changes, instance, energyKey, oldPower: instance[powerKey], lastTs: instance[tsKey], now })
-      instance[tsKey] = now
-      anyPhaseUpdated = true
-    }
-    phaseTotal += energyKey in changes ? changes[energyKey] : (instance[energyKey] || 0)
+  if (config.pvinverter_auto_energy) {
+    accumulateMeterEnergy({ changes, instance, phases: meterPhases(config.pvinverter_nrofphases), now: Date.now() })
   }
-
-  if (anyPhaseUpdated && !('Ac/Energy/Forward' in changes)) {
-    changes['Ac/Energy/Forward'] = phaseTotal
-  }
-
-  if ('Ac/Power' in changes) {
-    if (!anyPhaseUpdated) {
-      accumulateDelta({ changes, instance, energyKey: 'Ac/Energy/Forward', oldPower: instance['Ac/Power'], lastTs: instance._lastPowerTimestamp, now })
-    }
-    // Always update; prevents stale-delta spike when switching from per-phase to total-power reporting.
-    instance._lastPowerTimestamp = now
-  }
-
   return changes
 }
 
-module.exports = { properties, initialize, onPropertiesChanged, label: 'PV inverter' }
+module.exports = { properties, initialize, onPropertiesChanged, onPresenceChange: setMeterPresence, label: 'PV inverter' }

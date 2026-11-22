@@ -117,4 +117,32 @@ describe('makeSetPresence', () => {
       expect(done).toHaveBeenCalled()
     })
   })
+
+  describe('device presence hook', () => {
+    test.each([
+      ['going offline', true, false, (bus) => bus.releaseName.mockImplementation((_name, cb) => cb(null))],
+      ['coming back', false, true, (bus) => bus.requestName.mockImplementation((_name, _flags, cb) => cb(null, 1))]
+    ])('is called with the new presence when %s', (_, from, to, succeed) => {
+      const node = createMockNode(from)
+      succeed(node.bus)
+      const onPresenceChange = jest.fn()
+
+      makeSetPresence(node, text, iface, onPresenceChange)(to, jest.fn())
+
+      expect(onPresenceChange).toHaveBeenCalledWith(iface, to)
+    })
+
+    test.each([
+      ['going offline', true, false, (bus) => bus.releaseName.mockImplementation((_name, cb) => cb(new Error('bus error')))],
+      ['coming back', false, true, (bus) => bus.requestName.mockImplementation((_name, _flags, cb) => cb(null, 2))]
+    ])('is not called when D-Bus refuses %s', (_, from, to, refuse) => {
+      const node = createMockNode(from)
+      refuse(node.bus)
+      const onPresenceChange = jest.fn()
+
+      makeSetPresence(node, text, iface, onPresenceChange)(to, jest.fn())
+
+      expect(onPresenceChange).not.toHaveBeenCalled()
+    })
+  })
 })

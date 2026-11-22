@@ -718,9 +718,8 @@ module.exports = function (RED) {
             }
             node.serviceName = serviceName
             if (config.start_disconnected) {
-              node.bus.releaseName(node.serviceName, () => {
-                node.presenceConnected = false
-                node.status({ fill: 'grey', shape: 'ring', text: `${text} (${iface.DeviceInstance}) — offline` })
+              node.setPresence(false, () => {
+                if (node.presenceConnected) node.warn(`${text} could not start disconnected, it stays online`)
               })
             }
           } else {
@@ -810,7 +809,7 @@ module.exports = function (RED) {
           node.stopEvcsSessionTimer = deviceModule.startSessionTimerIfAutoSession({ node, instance: iface, config })
         }
 
-        node.setPresence = makeSetPresence(node, text, iface)
+        node.setPresence = makeSetPresence(node, text, iface, deviceModule?.onPresenceChange)
 
         flushPendingInputs(node, handleInput)
 

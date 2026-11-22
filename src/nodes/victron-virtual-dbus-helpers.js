@@ -176,12 +176,12 @@ function createDebouncedSetters (node, debounce, delayMs) {
     return (value) => setGroup({ [key]: value })
   }
 
-  // setValuesLocally rejects a whole call for one value that is not a number (e.g. "unavailable"),
-  // so such a value must not reach a group or immediate call together with valid ones
+  // setValuesLocally rejects a whole call for one value that is not a number (e.g. "unavailable"
+  // or [230]), so such a value must not reach a group or immediate call together with valid ones
   function isNotANumber (key, value) {
     const property = propertyOf(key)
     const type = property?.type ?? property
-    return ['d', 'i', 'u'].includes(type) && value !== null && isNaN(Number(value))
+    return ['d', 'i', 'u'].includes(type) && value !== null && (Array.isArray(value) ? value.length > 0 : isNaN(Number(value)))
   }
 
   // The keys of one group in a payload are handed over together, so a debounceBoundary key
