@@ -48,9 +48,17 @@ const properties = (config) => ({
   'Mgmt/Connection': { type: 's', value: hasEvcsInstance(config) ? null : 'Node-RED' }
 })
 
-function initialize (config, _ifaceDesc, iface, _node) {
-  if (config.ev_vin) {
-    iface.VIN = config.ev_vin
+// ISO 3779. The GX uses the VIN in a settings path, which other characters break.
+const VIN_PATTERN = /^[A-HJ-NPR-Z0-9]{17}$/
+
+function initialize (config, _ifaceDesc, iface, node) {
+  const vin = typeof config.ev_vin === 'string' ? config.ev_vin.trim().toUpperCase() : ''
+  if (vin) {
+    if (VIN_PATTERN.test(vin)) {
+      iface.VIN = vin
+    } else {
+      node.warn(`Not publishing invalid VIN "${config.ev_vin}": it must be 17 characters, digits and letters except I, O and Q`)
+    }
   }
   const brand = typeof config.ev_brand === 'string' ? config.ev_brand.trim() : ''
   iface.Brand = brand || 'unknown'
