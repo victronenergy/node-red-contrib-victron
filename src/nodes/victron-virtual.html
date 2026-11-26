@@ -839,6 +839,15 @@ etc.) must be numbers. When there is no reading, leave the counter out of the
 message instead of sending `null`, or the calculated total and session energy
 go wrong.
 
+With "Auto-calculate energy" (AC load, heat pump, PV inverter and EV charger),
+`/Ac/Energy/Forward` is calculated from `/Ac/Power` or the phase powers
+(`/Ac/L1/Power` etc.), and the per phase energy from the phase powers. Send the
+phase powers, `/Ac/Power`, or both in the same message. To pass on the meter's
+own energy counters too, send them in every message with the power, and leave
+out the whole message when there is no reading; or turn "Auto-calculate
+energy" off. Nothing is calculated from the power while the device is offline
+(`msg.connected = false`).
+
 ### Device presence
 
 When the real-world device goes offline, the virtual device keeps broadcasting its last known values. To make the rest of the system aware that the device is gone, you can explicitly disconnect it from the dbus by sending `msg.connected = false`. The device will disappear from VRM and the GX display until you reconnect it with `msg.connected = true`.
@@ -928,10 +937,6 @@ The EV charger device registers as com.victronenergy.evcharger on D-Bus. Set
 its position (AC output or AC input), the number of phases and, for a single
 phase charger, which phase it is wired to. The position can also be changed
 from the flow, e.g. `msg.payload = {"/Position": 1}`.
-
-With "Auto-calculate energy", `/Ac/Energy/Forward` and the per phase energy
-are calculated from the power the flow reports. Leave it off when the flow
-sends the charger's own energy counter.
 
 By default it only reports measurements (power, voltage, current, energy).
 Enable "Charging control" to also expose the charger paths from the Venus OS

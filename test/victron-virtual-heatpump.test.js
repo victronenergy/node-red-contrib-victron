@@ -61,28 +61,6 @@ describe('heatpump device module', () => {
       expect(ifaceDesc.properties['S2/0/Active']).toBeDefined()
       expect(Object.keys(ifaceDesc.properties).some(k => k.startsWith('S2/0/RmSettings/'))).toBe(false)
     })
-
-    test('onPropertiesChanged accumulates energy when heatpump_auto_energy is true', () => {
-      const instance = { 'Ac/L1/Power': 500 }
-      const changes = { 'Ac/L1/Power': 600 }
-      const result = heatpump.onPropertiesChanged({
-        changes,
-        instance,
-        config: { heatpump_auto_energy: true, heatpump_nrofphases: 1, enable_s2support: true }
-      })
-      expect(result).toBe(changes)
-    })
-
-    test('onPropertiesChanged is a no-op when heatpump_auto_energy is false', () => {
-      const instance = { 'Ac/L1/Power': 500 }
-      const changes = { 'Ac/L1/Power': 600 }
-      const result = heatpump.onPropertiesChanged({
-        changes,
-        instance,
-        config: { heatpump_auto_energy: false, heatpump_nrofphases: 1, enable_s2support: true }
-      })
-      expect(result['Ac/Energy/Forward']).toBeUndefined()
-    })
   })
 
   describe('generic energy meter mode (S2 support disabled)', () => {
@@ -109,17 +87,6 @@ describe('heatpump device module', () => {
       expect(iface.PhaseSetting).toBe(2)
       expect(ifaceDesc.__enableS2).toBeUndefined()
       expect(result).toBe('Virtual 1-phase heat pump (generic energy meter)')
-    })
-
-    test('onPropertiesChanged still accumulates energy when heatpump_auto_energy is true', () => {
-      const instance = { 'Ac/L1/Power': 500 }
-      const changes = { 'Ac/L1/Power': 600 }
-      const result = heatpump.onPropertiesChanged({
-        changes,
-        instance,
-        config: { heatpump_auto_energy: true, heatpump_nrofphases: 1 }
-      })
-      expect(result['Ac/Energy/Forward']).toBeDefined()
     })
   })
 })

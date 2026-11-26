@@ -1,6 +1,6 @@
 const { enableS2Support } = require('../s2-support')
 const { buildMinimalMeterProperties, initializeMinimalMeter } = require('./shared/minimal-meter')
-const { accumulateMeterEnergy } = require('./shared/meter-energy')
+const { accumulateMeterEnergy, meterPhases, setMeterPresence } = require('./shared/meter-energy')
 
 const debug = require('debug')('victron-virtual:evcs')
 
@@ -215,17 +215,10 @@ function followSessionEnergy (changes, instance, autoEnergy) {
   }
 }
 
-// A single-phase charger reports on the phase it's wired to, multi-phase ones on L1 upwards.
-function meterPhases (config) {
-  const nrOfPhases = Number(config.evcs_nrofphases ?? 1)
-  if (nrOfPhases === 1) return [Number(config.evcs_phasesetting ?? 1)]
-  return Array.from({ length: nrOfPhases }, (_, i) => i + 1)
-}
-
 function onPropertiesChanged ({ changes, instance, config }) {
   const now = Date.now()
   if (config.evcs_auto_energy) {
-    accumulateMeterEnergy({ changes, instance, phases: meterPhases(config), now })
+    accumulateMeterEnergy({ changes, instance, phases: meterPhases(config.evcs_nrofphases, config.evcs_phasesetting), now })
   }
   if (isAutoSession(config)) {
     accumulateSession(changes, instance, now)
@@ -273,6 +266,7 @@ module.exports = {
   getServiceType,
   productType,
   onPropertiesChanged,
+  onPresenceChange: setMeterPresence,
   isAutoSession,
   sessionTick,
   startSessionTimerIfAutoSession,
