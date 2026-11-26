@@ -215,4 +215,41 @@ describe('VictronDbusListener', () => {
       expect(eventHandler).toHaveBeenCalledWith('INITIALIZE', 'com.victronenergy.heatpump.shelly_D885AC1B38F4_0')
     })
   })
+
+  describe('_signalRecieve PropertiesChanged', () => {
+    let messageHandler
+
+    beforeEach(() => {
+      messageHandler = jest.fn()
+      listener = new VictronDbusListener('the-address', { messageHandler })
+      listener.services[':1.31'] = { name: 'com.victronenergy.settings', deviceInstance: undefined }
+    })
+
+    // As captured from localsettings on a GX
+    function propertiesChanged (value, text = value) {
+      return {
+        interface: 'com.victronenergy.BusItem',
+        member: 'PropertiesChanged',
+        sender: ':1.31',
+        path: '/Settings/SystemSetup/SystemName',
+        body: [[['Value', [[{ type: 's' }], [value]]], ['Text', [[{ type: 's' }], [text]]]]]
+      }
+    }
+
+    test.each(['Holiday home', ''])('passes on the string value %j', (value) => {
+      listener._signalRecieve(propertiesChanged(value))
+
+      expect(messageHandler).toHaveBeenCalledWith([expect.objectContaining({
+        senderName: 'com.victronenergy.settings',
+        path: '/Settings/SystemSetup/SystemName',
+        value
+      })])
+    })
+
+    test('still drops an invalid value with an empty Text', () => {
+      listener._signalRecieve(propertiesChanged([], ''))
+
+      expect(messageHandler).not.toHaveBeenCalled()
+    })
+  })
 })
