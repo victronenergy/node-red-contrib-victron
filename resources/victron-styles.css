@@ -4,7 +4,23 @@
  * CRITICAL: All selectors MUST be scoped under .victron-form to prevent
  * affecting other Node-RED nodes. See NODE_EDIT_DIALOG_DESIGN_GUIDE.md
  * for complete documentation.
+ *
+ * Colours of the editor surface come from Node-RED's --red-ui-* theme variables, which editor
+ * themes (Node-RED's own dark theme, or e.g. dark-modern from
+ * @node-red-contrib-themes/theme-collection) redefine. The fallback is the colour used before,
+ * for an editor without those variables. Brand colours (Victron blues, the tooltip icon) are
+ * kept as they are.
  */
+
+/* Message box tints, translucent so they work on light and dark trays.
+   victron-virtual-style.css uses them too. */
+.victron-form {
+  --victron-info-bg: rgba(74, 158, 255, 0.08);
+  --victron-info-border: rgba(74, 158, 255, 0.32);
+  --victron-warning-bg: rgba(223, 41, 53, 0.05);
+  --victron-warning-border: rgba(223, 41, 53, 0.27);
+  --victron-tips-border: rgba(180, 160, 80, 0.4);
+}
 
 /* ============================================================================
    FORM LAYOUT - Labels and Inputs
@@ -46,14 +62,28 @@
 }
 
 /* The native dropdown arrow sits against the border and ignores padding,
-   so draw our own arrow with some room on the right */
+   so draw our own arrow with some room on the right. It is two triangles in
+   currentColor, so it follows the theme's input text colour (a data-URI SVG
+   cannot use CSS variables). */
 .victron-form select:not([multiple]):not([size]) {
   -webkit-appearance: none;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23555' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
   background-repeat: no-repeat;
-  background-position: right 10px center;
+  background-position: right 15px center, right 10px center;
+  background-size: 5px 5px;
   padding: 0 28px 0 10px;
+}
+
+/* Forced-colours mode drops gradient backgrounds, so use the native arrow there */
+@media (forced-colors: active) {
+  .victron-form select:not([multiple]):not([size]) {
+    -webkit-appearance: auto;
+    appearance: auto;
+    background-image: none;
+  }
 }
 
 /* Initial value specific styles */
@@ -105,17 +135,17 @@
 .victron-form .tooltip-container,
 .victron-form .switch-tooltip-container {
   position: absolute;
-  background: #fff;
-  color: #666;
+  background: var(--red-ui-secondary-background, #fff);
+  color: var(--red-ui-secondary-text-color-inactive, #666);
   padding: 8px 12px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--red-ui-tertiary-border-color, #ccc);
   border-radius: 3px;
   font-size: 13px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   line-height: 1.4;
   max-width: 280px;
   z-index: 10000;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 6px var(--red-ui-shadow, rgba(0,0,0,0.15));
   pointer-events: none;
 }
 
@@ -125,7 +155,7 @@
 
 .victron-form .stored-settings-display {
   font-size: 0.9em;
-  color: #666;
+  color: var(--red-ui-secondary-text-color-inactive, #666);
   margin-bottom: 10px;
   font-style: italic;
   display: flex;
@@ -133,7 +163,7 @@
 }
 
 .victron-form .stored-settings-icon {
-  color: #000;
+  color: var(--red-ui-primary-text-color, #000);
   margin-right: 5px;
   flex-shrink: 0;
   line-height: 1;
@@ -165,8 +195,8 @@
 .victron-form .form-warning {
   padding: 12px;
   width: 430px;
-  background-color: #fff5f5;
-  border: 1px solid #f5c6c6;
+  background-color: var(--victron-warning-bg);
+  border: 1px solid var(--victron-warning-border);
   border-radius: 3px;
   margin-bottom: 12px;
 }
@@ -179,8 +209,8 @@
 .victron-form .form-info {
   padding: 12px;
   width: 430px;
-  background-color: #f0f7ff;
-  border: 1px solid #c5dff8;
+  background-color: var(--victron-info-bg);
+  border: 1px solid var(--victron-info-border);
   border-radius: 3px;
   margin-bottom: 12px;
 }
@@ -196,8 +226,8 @@
     margin: 12px 0;
     width: 100%;
     max-width: 468px;
-    background-color: #f0f7ff;
-    border: 1px solid #c5dff8;
+    background-color: var(--victron-info-bg);
+    border: 1px solid var(--victron-info-border);
     border-radius: 3px;
     font-size: 0.95em;
     line-height: 1.5;
@@ -211,7 +241,7 @@
   }
 
   .deprecation-notice i:not(.fa) {
-    color: #333;
+    color: var(--red-ui-primary-text-color, #333);
     font-style: normal;
   }
 
@@ -281,8 +311,8 @@
   padding: 16px;
   margin-bottom: 12px;
   width: 424px;
-  background-color: #fffbea;
-  border: 1px solid #e0d7b7;
+  background-color: var(--red-ui-form-tips-background, #fffbea);
+  border: 1px solid var(--victron-tips-border);
   border-radius: 3px;
 }
 
@@ -293,8 +323,8 @@
 .victron-form .victron-doc-box {
   margin: 10px 0;
   padding: 12px 16px;
-  background-color: #fafafa;
-  border: 1px solid #e8e8e8;
+  background-color: var(--red-ui-tertiary-background, #fafafa);
+  border: 1px solid var(--red-ui-secondary-border-color, #e8e8e8);
   border-radius: 3px;
   width: 468px;
   box-sizing: border-box;
@@ -312,14 +342,14 @@
   font-weight: 600;
   margin-bottom: 6px;
   display: block;
-  color: #555;
+  color: var(--red-ui-form-text-color, #555);
   font-size: 0.95em;
 }
 
 .victron-form .victron-doc-text {
   line-height: 1.3;
   font-size: 0.9em;
-  color: #666;
+  color: var(--red-ui-secondary-text-color-inactive, #666);
   overflow-wrap: break-word;
 }
 
@@ -330,7 +360,7 @@
 }
 
 .victron-form .victron-doc-text strong {
-  color: #444;
+  color: var(--red-ui-primary-text-color, #444);
   font-weight: 600;
 }
 
@@ -346,12 +376,12 @@
 }
 
 .victron-form .victron-doc-text code {
-  background-color: #f5f5f5;
+  background-color: rgba(127, 127, 127, 0.12);
   padding: 1px 3px;
   border-radius: 2px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.85em;
-  color: #d14;
+  color: var(--red-ui-text-color-code, #d14);
   border: none;
 }
 
@@ -363,7 +393,7 @@
 }
 
 .victron-form .victron-input-docs strong {
-  color: #444;
+  color: var(--red-ui-primary-text-color, #444);
 }
 
 /* ============================================================================
@@ -412,14 +442,14 @@
 .victron-form .victron-section-title {
   font-weight: 600;
   font-size: 0.95em;
-  color: #444;
+  color: var(--red-ui-primary-text-color, #444);
   margin-bottom: 8px;
 }
 
 /* Condition Sections */
 .victron-form .victron-condition-section {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
+  background-color: var(--red-ui-tertiary-background, #f8f9fa);
+  border: 1px solid var(--red-ui-secondary-border-color, #dee2e6);
   border-radius: 4px;
   padding: 8px 12px 10px;
   margin-bottom: 12px;
@@ -454,7 +484,7 @@
 
 .victron-form .victron-condition-desc {
   font-size: 0.85em;
-  color: #666;
+  color: var(--red-ui-secondary-text-color-inactive, #666);
   font-style: italic;
 }
 
@@ -462,7 +492,7 @@
 .victron-form .victron-remove-condition-btn {
   background: transparent;
   border: none;
-  color: #dc3545;
+  color: var(--red-ui-text-color-error, #dc3545);
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 3px;
@@ -505,7 +535,7 @@
 }
 
 .victron-form .victron-add-condition-btn {
-  background-color: #fff;
+  background-color: var(--red-ui-form-input-background, #fff);
   border: 1px dashed #4790d0;
   color: #4790d0;
   padding: 8px 16px;
@@ -518,7 +548,7 @@
 }
 
 .victron-form .victron-add-condition-btn:hover {
-  background-color: #f0f7ff;
+  background-color: var(--victron-info-bg);
   border-color: #357abd;
   color: #357abd;
 }
@@ -534,8 +564,8 @@
 
 .victron-form .victron-logic-toggle {
   display: inline-flex;
-  background-color: #fff;
-  border: 1px solid #ced4da;
+  background-color: var(--red-ui-form-input-background, #fff);
+  border: 1px solid var(--red-ui-form-input-border-color, #ced4da);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -559,12 +589,12 @@
   text-align: center;
   padding: 8px 16px;
   cursor: pointer;
-  background-color: #fff;
-  color: #666;
+  background-color: var(--red-ui-form-input-background, #fff);
+  color: var(--red-ui-secondary-text-color-inactive, #666);
   font-weight: 500;
   font-size: 0.9em;
   transition: all 0.2s;
-  border-right: 1px solid #ced4da;
+  border-right: 1px solid var(--red-ui-form-input-border-color, #ced4da);
 }
 
 .victron-form .victron-logic-option:last-child .victron-logic-label {
@@ -578,7 +608,7 @@
 }
 
 .victron-form .victron-logic-label:hover {
-  background-color: #f8f9fa;
+  background-color: var(--red-ui-secondary-background-hover, #f8f9fa);
 }
 
 .victron-form .victron-logic-option input[type="radio"]:checked + .victron-logic-label:hover {
@@ -597,7 +627,7 @@
   border: 2px solid #4790d0;
   border-radius: 6px;
   overflow: hidden;
-  background-color: #fff;
+  background-color: var(--red-ui-form-background, #fff);
   max-width: 456px;
   box-sizing: border-box;
 }
@@ -643,13 +673,13 @@
   max-height: 150px;
   overflow-y: auto;
   overflow-x: hidden;
-  background-color: #fafafa;
+  background-color: var(--red-ui-tertiary-background, #fafafa);
   overflow-wrap: break-word;
   word-wrap: break-word;
 }
 
 .victron-form .victron-preview-placeholder {
-  color: #999;
+  color: var(--red-ui-tertiary-text-color, #999);
   font-style: italic;
   text-align: center;
   padding: 20px;
@@ -660,14 +690,14 @@
 .victron-form .victron-preview-condition {
   margin-bottom: 8px;
   padding: 8px;
-  background-color: #fff;
+  background-color: var(--red-ui-form-background, #fff);
   border-radius: 4px;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--red-ui-secondary-border-color, #e9ecef);
 }
 
 .victron-form .victron-preview-label {
   font-size: 0.7em;
-  color: #666;
+  color: var(--red-ui-secondary-text-color-inactive, #666);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -676,7 +706,7 @@
 
 .victron-form .victron-preview-value {
   font-size: 0.85em;
-  color: #333;
+  color: var(--red-ui-primary-text-color, #333);
   margin-bottom: 6px;
 }
 
@@ -687,7 +717,7 @@
 }
 
 .victron-form .victron-preview-value em {
-  color: #999;
+  color: var(--red-ui-tertiary-text-color, #999);
   font-style: italic;
 }
 
@@ -699,9 +729,9 @@
 .victron-form .victron-preview-final {
   margin-top: 8px;
   padding: 10px;
-  background-color: #f8f9fa;
+  background-color: var(--red-ui-tertiary-background, #f8f9fa);
   border-radius: 4px;
-  border: 2px solid #dee2e6;
+  border: 2px solid var(--red-ui-secondary-border-color, #dee2e6);
   text-align: center;
 }
 
@@ -714,7 +744,7 @@
 .victron-form .victron-preview-condition-text {
   flex: 1;
   font-size: 0.95em;
-  color: #333;
+  color: var(--red-ui-primary-text-color, #333);
 }
 
 .victron-form .victron-preview-condition-value {
@@ -729,38 +759,38 @@
 }
 
 .victron-form .victron-preview-condition-result.true {
-  color: #28a745;
+  color: var(--red-ui-text-color-success, #28a745);
 }
 
 .victron-form .victron-preview-condition-result.false {
-  color: #dc3545;
+  color: var(--red-ui-text-color-error, #dc3545);
 }
 
 .victron-form .victron-preview-logic {
   text-align: center;
   margin: 4px 0;
   font-weight: 700;
-  color: #666;
+  color: var(--red-ui-secondary-text-color-inactive, #666);
   font-size: 0.85em;
   letter-spacing: 1px;
 }
 
 .victron-form .victron-preview-divider {
-  border-top: 2px solid #dee2e6;
+  border-top: 2px solid var(--red-ui-secondary-border-color, #dee2e6);
   margin: 12px 0;
 }
 
 .victron-form .victron-preview-result {
   padding: 12px 16px;
-  background-color: #fff;
+  background-color: var(--red-ui-form-background, #fff);
   border-radius: 4px;
-  border: 2px solid #dee2e6;
+  border: 2px solid var(--red-ui-secondary-border-color, #dee2e6);
   text-align: center;
 }
 
 .victron-form .victron-preview-result-label {
   font-size: 0.85em;
-  color: #666;
+  color: var(--red-ui-secondary-text-color-inactive, #666);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -773,11 +803,11 @@
 }
 
 .victron-form .victron-preview-result-value.true {
-  color: #28a745;
+  color: var(--red-ui-text-color-success, #28a745);
 }
 
 .victron-form .victron-preview-result-value.false {
-  color: #dc3545;
+  color: var(--red-ui-text-color-error, #dc3545);
 }
 
 /* Operator select - wider for descriptive labels */
@@ -789,8 +819,7 @@
 
 /* Animation for preview updates */
 @keyframes victron-preview-pulse {
-  0% { background-color: #fff3cd; }
-  100% { background-color: #fff; }
+  0% { background-color: rgba(255, 193, 7, 0.3); }
 }
 
 .victron-form .victron-preview-condition.updated {
@@ -808,7 +837,7 @@
     font-family: 'Consolas', 'Monaco', 'Menlo', monospace;
     font-size: 14px;
     padding: 8px;
-    background-color: #f8f9fa;
+    background-color: var(--red-ui-tertiary-background, #f8f9fa);
     border-radius: 4px;
     flex-wrap: wrap;
 }
@@ -816,27 +845,27 @@
 .victron-form .victron-preview-group {
     padding: 4px 8px;
     border-radius: 4px;
-    border: 1px solid #ccc;
-    background-color: #fff;
+    border: 1px solid var(--red-ui-tertiary-border-color, #ccc);
+    background-color: var(--red-ui-form-background, #fff);
     transition: background-color 0.3s, border-color 0.3s;
     white-space: nowrap;
 }
 
 .victron-form .victron-preview-group.true {
-    background-color: #e9f5e9;
-    border-color: #a3d3a5;
-    color: #1d643b;
+    background-color: rgba(40, 167, 69, 0.1);
+    border-color: rgba(40, 167, 69, 0.4);
+    color: var(--red-ui-text-color-success, #1d643b);
 }
 
 .victron-form .victron-preview-group.false {
-    background-color: #fbe9e7;
-    border-color: #ffcdd2;
-    color: #c62828;
+    background-color: rgba(220, 53, 69, 0.1);
+    border-color: rgba(220, 53, 69, 0.25);
+    color: var(--red-ui-text-color-error, #c62828);
 }
 
 .victron-form .victron-preview-logic-op, .victron-form .victron-preview-equals {
     font-weight: bold;
-    color: #666;
+    color: var(--red-ui-secondary-text-color-inactive, #666);
 }
 
 .victron-form .victron-preview-final-result {
@@ -850,11 +879,11 @@
 }
 
 .victron-form .victron-preview-final-result.true {
-    color: #28a745;
+    color: var(--red-ui-text-color-success, #28a745);
 }
 
 .victron-form .victron-preview-final-result.false {
-    color: #dc3545;
+    color: var(--red-ui-text-color-error, #dc3545);
 }
 
 .victron-form #preview-val-1,
