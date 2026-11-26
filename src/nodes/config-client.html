@@ -115,6 +115,8 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
     If that returns a "number", the value allows for rounding (even if it is an integer).
   </p>
 
+  <p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
+
   <p>Please check the Venus documentation on used dbus services and paths for more information and valid values.
   </p>
 
@@ -192,6 +194,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-accharger">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 
 <div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
   <strong>📝 Wildcard Paths:</strong> 
@@ -398,6 +401,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-acload">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 
 <div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
   <strong>📝 Wildcard Paths:</strong> 
@@ -461,6 +465,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-acsystem">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 
 <div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
   <strong>📝 Wildcard Paths:</strong> 
@@ -681,6 +686,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-alternator">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 
 <div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
   <strong>📝 Wildcard Paths:</strong> 
@@ -989,6 +995,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-battery">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 
 <div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
   <strong>📝 Wildcard Paths:</strong> 
@@ -2015,6 +2022,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-dcdc">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 <p>This node allows for monitoring the state of an Orion XS.</p>
 <h3>Dcdc</h3>
 <dl class="message-properties">
@@ -2187,6 +2195,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-dcload">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 <p>This node allows for monitoring the state of BMVs configured in Monitor Mode and DC meter type is a load.</p>
 <h3>Dcload</h3>
 <dl class="message-properties">
@@ -2253,6 +2262,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-dcsource">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 <p>This node allows for monitoring the state of Battery Monitor Victron devices (BMV's) configured in Monitor Mode and DC meter type is a source.</p>
 <h3>Dcsource</h3>
 <dl class="message-properties">
@@ -2319,6 +2329,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-dcsystem">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 <p>DC system input node is a DC measurement for loads in your system.</p>
 <h3>Dcsystem</h3>
 <dl class="message-properties">
@@ -2388,6 +2399,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-dess">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 
 <div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
   <strong>📝 Wildcard Paths:</strong> 
@@ -2660,6 +2672,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-digitalinput">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 <p>With this node it is possible to read the digital inputs from the Venus device. The node only shows the enabled digital inputs, so first make sure to enable the input from the Venus OS GUI (<i>Settings -> I/O -> digital inputs</i>) for the desired readout.</p><p>Depending on the selected type of input, different measurements become available.</p><p>Also see the section on <a href="https://www.victronenergy.com/media/pg/Cerbo_GX/en/digital-inputs.html">digital inputs</a> in the Cerbo GX manual.</p>
 <h3>Digitalinput</h3>
 <dl class="message-properties">
@@ -2713,6 +2726,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-ess">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 
 <div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
   <strong>📝 Wildcard Paths:</strong> 
@@ -3073,6 +3087,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-ev">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 <p>The EV input node reads data from Electric Vehicle devices on D-Bus, including both real EVs (integrated via VRM) and virtual EV devices created in Node-RED.</p>
 <h3>Ev</h3>
 <dl class="message-properties">
@@ -3149,6 +3164,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-evcharger">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 
 <div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
   <strong>📝 Wildcard Paths:</strong> 
@@ -3395,6 +3411,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-fuelcell">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 <p>See <a href="https://github.com/victronenergy/venus/wiki/dbus#fuelcell">https://github.com/victronenergy/venus/wiki/dbus#fuelcell</a> for more information.</p>
 <h3>Fuelcell</h3>
 <dl class="message-properties">
@@ -3461,6 +3478,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-generator">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 
 <div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
   <strong>📝 Wildcard Paths:</strong> 
@@ -4058,6 +4076,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-gps">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 <p>GPS information can be obtained with this node. For an example usage see the <a href="https://github.com/victronenergy/node-red-contrib-victron/wiki/Example-Flows#location-based-scheduling">location based scheduling</a> example.</p>
 <h3>Gps</h3>
 <dl class="message-properties">
@@ -4091,6 +4110,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-gridmeter">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 
 <div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
   <strong>📝 Wildcard Paths:</strong> 
@@ -4150,6 +4170,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-inverter">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 
 <div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
   <strong>📝 Wildcard Paths:</strong> 
@@ -4510,6 +4531,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-meteo">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 <p>The <b>meteo</b> node allows for Solar Irradiance, Temperature and Wind Speed Sensors measuring.</p><p>More information and supported devices can be found in the <a href="https://www.victronenergy.com/media/pg/Cerbo_GX/en/installation.html#UUID-d4b7dfe9-4ee0-53bc-8959-c567ed63cebb">manual</a>.</p>
 <h3>Meteo</h3>
 <dl class="message-properties">
@@ -4549,6 +4571,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-motordrive">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 <p>This is the E-drive node. See <a href="https://bitbucket.org/oceanvolt/dbus_motordrive/src">https://bitbucket.org/oceanvolt/dbus_motordrive/src</a> for more information.</p>
 <h3>E-drive</h3>
 <dl class="message-properties">
@@ -4576,6 +4599,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-multi">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 
 <div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
   <strong>📝 Wildcard Paths:</strong> 
@@ -5034,6 +5058,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-pulsemeter">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 <p>This node is for obtaining information from a pulsemeter. In order to use this, set a digital input to <strong>Pulse meter</strong> first via the GUI (Under <i>I/O -> Digital inputs</i>).</p>
 <h3>Pulsemeter</h3>
 <dl class="message-properties">
@@ -5049,6 +5074,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-pump">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 <p>Node for getting pump information.</p>
 <h3>Pump</h3>
 <dl class="message-properties">
@@ -5117,6 +5143,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-pvinverter">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 
 <div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
   <strong>📝 Wildcard Paths:</strong> 
@@ -5281,6 +5308,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-relay">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 
 <div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
   <strong>📝 Wildcard Paths:</strong> 
@@ -5339,6 +5367,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-settings">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 
 <div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
   <strong>📝 Wildcard Paths:</strong> 
@@ -5555,6 +5584,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-solarcharger">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 
 <div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
   <strong>📝 Wildcard Paths:</strong> 
@@ -5985,6 +6015,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-switch">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 
 <div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
   <strong>📝 Wildcard Paths:</strong> 
@@ -6061,6 +6092,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-system">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 
 <div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
   <strong>📝 Wildcard Paths:</strong> 
@@ -6282,6 +6314,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-tank">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 <p>The tank node is for retrieving tank level sensor information.</p><p>Also see the <a href="https://www.victronenergy.com/media/pg/Cerbo_GX/en/installation.html#UUID-e4027d37-78e0-4433-1be4-3252d3b79152">manual</a> for more information.</p>
 <h3>Tank</h3>
 <dl class="message-properties">
@@ -6328,6 +6361,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-temperature">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 <p>Like the other nodes, the <b>temperature</b> node reads the temperate information from the dbus. This means that source of the temperature sensor can obtain its information from different sources (e.g. directly connected probe or Bluetooth connected Ruuvi tag).</p><p>See the <a href="https://www.victronenergy.com/media/pg/Cerbo_GX/en/installation.html#UUID-4d5df29c-761e-cfcc-9e2c-8230f126e7bb">manual</a> for information on connecting a temperature sensor.</p><p>Tank sensors also expose temperature, so they can appear under the dropdown too.</p>
 <h3>Temperature</h3>
 <dl class="message-properties">
@@ -6405,6 +6439,7 @@ Questions can also be asked within the Node-RED space on the Victron Energy comm
 <script type="text/x-red" data-help-name="victron-input-vebus">
 <h3>Details</h3>
 <p>The <strong>input nodes</strong> have two selectable inputs: the devices select and measurement select. The available options are dynamically updated based on the data that is actually available on the Venus device.</p>
+<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>
 
 <div class="wildcard-info" style="background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #007acc;">
   <strong>📝 Wildcard Paths:</strong> 

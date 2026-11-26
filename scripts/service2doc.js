@@ -287,6 +287,9 @@ function generateServiceDoc (serviceName, serviceData, registeredNodes, format, 
       const nodeTypeText = nodeType === 'input' ? 'input' : 'output'
       doc += `<p>The <strong>${nodeTypeText} nodes</strong> have two selectable inputs: the devices select and measurement select. `
       doc += 'The available options are dynamically updated based on the data that is actually available on the Venus device.</p>\n'
+      if (nodeType === 'input') {
+        doc += '<p>When a value becomes invalid, for example while a device restarts, a node with <strong>Skip invalid</strong> checked sends nothing. Unchecked, it sends <code>msg.payload = null</code> with <code>msg.invalid = true</code>.</p>\n'
+      }
 
       if (hasWildcards(relevantPaths)) {
         doc += generateWildcardExplanation(format)

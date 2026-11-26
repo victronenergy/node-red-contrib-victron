@@ -119,6 +119,7 @@
     {
         "id": "f442ec41ab90a295",
         "type": "victron-input-tank",
+        "skipInvalid": true,
         "z": "a442aa86b4030805",
         "service": "com.victronenergy.tank/100",
         "path": "/Capacity",

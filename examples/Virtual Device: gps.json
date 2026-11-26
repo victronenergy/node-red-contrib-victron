@@ -129,6 +129,7 @@
     {
         "id": "6032142db3a46925",
         "type": "victron-input-gps",
+        "skipInvalid": true,
         "z": "774e520b07be29b8",
         "service": "com.victronenergy.gps/100",
         "path": "/Position/Longitude",
@@ -152,6 +153,7 @@
     {
         "id": "190a4ff6a45b57f6",
         "type": "victron-input-gps",
+        "skipInvalid": true,
         "z": "774e520b07be29b8",
         "service": "com.victronenergy.gps/100",
         "path": "/Position/Latitude",
@@ -175,6 +177,7 @@
     {
         "id": "a64099f88109c043",
         "type": "victron-input-gps",
+        "skipInvalid": true,
         "z": "774e520b07be29b8",
         "service": "com.victronenergy.gps/100",
         "path": "/Course",

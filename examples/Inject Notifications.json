@@ -91,6 +91,7 @@
     {
         "id": "battery-monitor",
         "type": "victron-input-battery",
+        "skipInvalid": true,
         "z": "example-flow-id",
         "service": "com.victronenergy.battery.ttyUSB0",
         "path": "/Soc",
