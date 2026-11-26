@@ -383,7 +383,8 @@ class VictronDbusListener {
               case 'Text': m.text = v[1][1][0]; break
             }
           })
-          if (!m.path || m.value === null || !m.text) {
+          // A string set to '' has an empty Text; other values with an empty Text stay dropped, as before.
+          if (!m.path || m.value === null || (!m.text && typeof m.value !== 'string')) {
             return
           }
           const service = this.services[msg.sender]
