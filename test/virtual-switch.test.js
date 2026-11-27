@@ -145,9 +145,44 @@ describe('emitInitialSwitchOutputs', () => {
         payload: 0,
         topic: 'Test switch/state',
         source_path: '/SwitchableOutput/output_1/State',
-        status: { value: 3, powered: true, tripped: true, overTemperature: false, outputFault: false, shortFault: false, disabled: false, bypassed: false, externalControl: false }
+        status: { value: 3, fill: 'red', shape: 'dot', text: 'Powered, Tripped', powered: true, tripped: true, overTemperature: false, outputFault: false, shortFault: false, disabled: false, bypassed: false, externalControl: false }
       }
     ])
+  })
+
+  // msg.status follows the Node-RED {fill, shape, text} convention, so a debug
+  // node with automatic status shows the State, or the Status when it reports a fault
+  test.each([
+    [1, 0x00, 'green', 'dot', 'On'],
+    [0, 0x00, 'grey', 'ring', 'Off'],
+    [1, 0x09, 'green', 'dot', 'On'],
+    [1, 0x20, 'green', 'dot', 'On'],
+    [1, 0x0B, 'red', 'dot', 'Powered, Tripped'],
+    [0, 0x0D, 'red', 'dot', 'Powered, Over temperature'],
+    [0, 0x04, 'red', 'ring', 'Over temperature'],
+    [0, 0x08, 'red', 'ring', 'Output fault'],
+    [0, 0x10, 'red', 'ring', 'Short fault']
+  ])('State %i with Status %i gives a %s %s with text "%s"', (state, value, fill, shape, text) => {
+    const node = makeNode({ 'SwitchableOutput/output_1/State': state, 'SwitchableOutput/output_1/Status': value })
+    emitInitialSwitchOutputs({ switch_1_type: SWITCH_TYPE_MAP.TOGGLE, outputs: 2 }, node)
+    expect(node.send.mock.calls[0][0][1].status).toMatchObject({ value, fill, shape, text })
+  })
+
+  // A bilge pump's State is its mode (Auto/On); whether it runs is in Status
+  test.each([
+    [0, 0x00, 'grey', 'ring', 'Not running'],
+    [0, 0x09, 'green', 'dot', 'On'],
+    [1, 0x00, 'grey', 'ring', 'Not running']
+  ])('bilge pump State %i with Status %i gives a %s %s with text "%s"', (state, value, fill, shape, text) => {
+    const node = makeNode(
+      { 'SwitchableOutput/output_1/State': state, 'SwitchableOutput/output_1/Status': value },
+      {
+        'SwitchableOutput/output_1/State': { type: 'i', format: (v) => ({ 0: 'Auto', 1: 'On' }[v]) },
+        'SwitchableOutput/output_1/Status': { type: 'i', format: (v) => v === 0 ? 'Not running' : ({ 9: 'On' }[v]) }
+      }
+    )
+    emitInitialSwitchOutputs({ switch_1_type: SWITCH_TYPE_MAP.BILGE_PUMP, outputs: 2 }, node)
+    expect(node.send.mock.calls[0][0][1].status).toMatchObject({ value, fill, shape, text })
   })
 
   test('temperature setpoint emits Dimming on output 2 (no State output)', () => {
@@ -228,6 +263,16 @@ describe('handleSwitchOutputs', () => {
     node.send.mockClear()
     handleSwitchOutputs(config, node, 'SwitchableOutput/output_1/State', 1)
     expect(node.send).not.toHaveBeenCalled()
+  })
+
+  test('emits State again when only Status changes', () => {
+    const node = makeNode({ 'SwitchableOutput/output_1/State': 1, 'SwitchableOutput/output_1/Status': 0x09 })
+    const config = { switch_1_type: SWITCH_TYPE_MAP.TOGGLE, outputs: 2 }
+    emitInitialSwitchOutputs(config, node)
+    node.send.mockClear()
+    node.iface['SwitchableOutput/output_1/Status'] = 0x0B
+    handleSwitchOutputs(config, node, 'SwitchableOutput/output_1/Status', 0x0B)
+    expect(node.send.mock.calls[0][0][1]).toMatchObject({ payload: 1, status: { value: 0x0B, fill: 'red' } })
   })
 
   test('dimmable switch emits Dimming change on output 3', () => {
