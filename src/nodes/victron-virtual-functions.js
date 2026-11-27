@@ -141,7 +141,7 @@ function makeBoltBullets ($container) {
     }
   })
 }
-const STATE_WITH_STATUS_DOC = '<tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the switch. <tt>msg.status</tt> contains the raw Status value (<tt>msg.status.value</tt>) and decoded flags (see Status path above).'
+const STATE_WITH_STATUS_DOC = '<tt>msg.payload</tt> contains a <tt>0</tt> or <tt>1</tt> representing the on/off state of the switch. <tt>msg.status</tt> contains the raw Status value (<tt>msg.status.value</tt>), decoded flags (see Status path above) and <tt>fill</tt>, <tt>shape</tt> and <tt>text</tt>, so a debug node with automatic status shows the State, or the Status text on a fault. Also sent when only the Status changes.'
 
 export const SWITCH_TYPE_DOCS = {
   [SWITCH_TYPE_MAP.MOMENTARY]: createDocTemplate(
@@ -184,7 +184,7 @@ export const SWITCH_TYPE_DOCS = {
   ),
   [SWITCH_TYPE_MAP.BILGE_PUMP]: createDocTemplate(
     `<div><strong>Most relevant paths:</strong><ul><li><strong><code>/SwitchableOutput/output_1/State</code></strong> &mdash; Pump state: 0=Auto, 1=On. ${DEFAULT_PATH_ICON}</li>${STATUS_PATH_DOC}</ul></div>`,
-    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains the pump state (0=Auto, 1=On). <tt>msg.status</tt> contains the raw Status value (<tt>msg.status.value</tt>) and decoded flags (see Status path above).</li></ol></div>'
+    '<div><strong>Outputs:</strong><ol><li><code>Passthrough</code> &mdash; Outputs the original <tt>msg.payload</tt> without modification</li><li><code>State</code> &mdash; <tt>msg.payload</tt> contains the pump state (0=Auto, 1=On). <tt>msg.status</tt> contains the raw Status value (<tt>msg.status.value</tt>), decoded flags (see Status path above) and <tt>fill</tt>, <tt>shape</tt> and <tt>text</tt>, so a debug node with automatic status shows whether the pump runs, or the Status text on a fault. Also sent when only the Status changes.</li></ol></div>'
   ),
   [SWITCH_TYPE_MAP.RGB_COLOR_WHEEL]: createDocTemplate(
     `<div><strong>Most relevant paths:</strong><ul>

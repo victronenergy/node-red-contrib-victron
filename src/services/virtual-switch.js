@@ -38,6 +38,17 @@ function statusFormat (v) {
   return STATUS_BIT_NAMES.filter((_, i) => v & (1 << i)).join(', ') || String(v)
 }
 
+const STATUS_POWERED = 0x01
+const STATUS_OUTPUT_FAULT = 0x08
+const STATUS_FAULTS = 0x02 | 0x04 | 0x10 // Tripped, Over temperature, Short fault
+
+// 0x09 (Powered + Output fault) is how Venus reports On, so bit 3 only counts
+// as a fault when the output is not powered
+function statusFaults (v) {
+  const faults = v & (STATUS_FAULTS | STATUS_OUTPUT_FAULT)
+  return v & STATUS_POWERED ? faults & ~STATUS_OUTPUT_FAULT : faults
+}
+
 function decodeStatus (v) {
   return {
     value: v,
@@ -467,13 +478,13 @@ function handleSwitchOutputs (config, node, propName, propValue) {
   if (config.outputs <= 1) return
   if (!node.lastSentValues) node.lastSentValues = {}
 
-  const msgs = buildSwitchOutputMsgs(config, node.iface, node.name)
+  const msgs = buildSwitchOutputMsgs(config, node.iface, node.name, node.ifaceDesc)
   let hasChanges = false
 
   for (let i = 1; i < msgs.length; i++) {
     const msg = msgs[i]
     if (msg == null) continue
-    const serialized = JSON.stringify(msg.payload)
+    const serialized = sentValueKey(msg)
     if (node.lastSentValues[msg.source_path] === serialized) {
       msgs[i] = null
     } else {
@@ -565,6 +576,38 @@ function updateSwitchStatus (config, node, actionNotificationMessage) {
   updateStatusWithNextMessage()
 }
 
+// Shaped as a Node-RED status ({fill, shape, text}), as msg.status is reserved
+// for that and a debug node with automatic status displays it. It shows the
+// State, because a virtual switch's Status stays 0 unless the flow writes it,
+// except on a fault, and on a bilge pump, whose State is its mode (Auto/On)
+// while Status tells whether it runs.
+function buildMsgStatus (switchType, stateValue, statusValue, ifaceDesc) {
+  const format = (key, v) => (ifaceDesc?.properties?.[key]?.format || String)(v)
+  const faults = statusFaults(statusValue)
+  let on, text
+  if (faults) {
+    on = statusValue & STATUS_POWERED
+    text = statusFormat(on | faults)
+  } else if (switchType === SWITCH_TYPE_MAP.BILGE_PUMP) {
+    on = statusValue & STATUS_POWERED
+    text = format(statusKey, statusValue)
+  } else {
+    on = stateValue
+    text = format(stateKey, stateValue)
+  }
+  return {
+    ...decodeStatus(statusValue),
+    fill: faults ? 'red' : on ? 'green' : 'grey',
+    shape: on ? 'dot' : 'ring',
+    text
+  }
+}
+
+// msg.status is part of the key, so a Status change alone is sent too
+function sentValueKey (msg) {
+  return JSON.stringify([msg.payload, msg.status?.value])
+}
+
 /**
  * Builds the output message array for a switch node from the current iface state.
  * Output 1 is always null (passthrough only). Outputs 2 and 3 depend on switch type.
@@ -572,9 +615,10 @@ function updateSwitchStatus (config, node, actionNotificationMessage) {
  * @param {Object} config - Node configuration object
  * @param {Object} iface - D-Bus interface object with current property values
  * @param {string} nodeName - Node name used in message topics
+ * @param {Object} [ifaceDesc] - D-Bus interface description, for the State wording in msg.status
  * @returns {Array} Message array [null, msg2OrNull, msg3OrNull]
  */
-function buildSwitchOutputMsgs (config, iface, nodeName) {
+function buildSwitchOutputMsgs (config, iface, nodeName, ifaceDesc) {
   const switchType = parseInt(config.switch_1_type, 10)
   const name = nodeName || 'Virtual switch'
   const msgs = [null]
@@ -600,7 +644,7 @@ function buildSwitchOutputMsgs (config, iface, nodeName) {
             payload: stateValue,
             topic: `${name}/state`,
             source_path: '/' + stateKey,
-            ...(statusValue != null ? { status: decodeStatus(statusValue) } : {})
+            ...(statusValue != null ? { status: buildMsgStatus(switchType, stateValue, statusValue, ifaceDesc) } : {})
           }
         : null
     }
@@ -664,12 +708,12 @@ function buildSwitchOutputMsgs (config, iface, nodeName) {
 function emitInitialSwitchOutputs (config, node) {
   if (config.outputs <= 1 || !node.iface) return
 
-  const msgs = buildSwitchOutputMsgs(config, node.iface, node.name)
+  const msgs = buildSwitchOutputMsgs(config, node.iface, node.name, node.ifaceDesc)
 
   if (!node.lastSentValues) node.lastSentValues = {}
   for (let i = 1; i < msgs.length; i++) {
     const msg = msgs[i]
-    if (msg != null) node.lastSentValues[msg.source_path] = JSON.stringify(msg.payload)
+    if (msg != null) node.lastSentValues[msg.source_path] = sentValueKey(msg)
   }
 
   node.send(msgs)

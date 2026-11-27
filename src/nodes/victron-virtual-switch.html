@@ -276,7 +276,7 @@ The switch has multiple outputs depending on the switch type:
 
 - **Output 1 (Passthrough)**: Forwards the input message unchanged
 - **Output 2**:
-  - For most switches: Sends the switch State (0 or 1) when changed from the GX device. `msg.status` contains the raw Status value (`msg.status.value`) and decoded boolean flags (`powered`, `tripped`, `overTemperature`, `outputFault`, `shortFault`, `disabled`, `bypassed`, `externalControl`).
+  - For most switches: Sends the switch State (0 or 1) when the State or Status changes. `msg.status` contains the raw Status value (`msg.status.value`), decoded boolean flags (`powered`, `tripped`, `overTemperature`, `outputFault`, `shortFault`, `disabled`, `bypassed`, `externalControl`), and `fill`, `shape` and `text` in the Node-RED status format, so a debug node with automatic status shows the State (for a bilge pump whether it runs), or the Status text on a fault.
   - For Temperature/Dropdown/Basic Slider: Sends the selected value
 - **Output 3** (if applicable):
   - For Dimmable/Stepped/Numeric Input: Sends the dimming/value when changed
